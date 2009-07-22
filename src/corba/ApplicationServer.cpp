@@ -37,6 +37,12 @@
 
 
 #include "ApplicationServer.hpp"
+#include "../Logger.hpp"
+
+#if defined( CORBA_IS_TAO ) && defined( CORBA_TAO_HAS_MESSAGING )
+#include <tao/TimeBaseC.h>
+#include <tao/Messaging/Messaging.h>
+#endif
 
 namespace RTT
 {namespace Corba
@@ -57,7 +63,7 @@ namespace RTT
                                  "omniORB4");
             if(orb_timeout != 0)
             {
-#ifdef CORBA_IS_TAO
+#if defined( CORBA_IS_TAO ) && defined( CORBA_TAO_HAS_MESSAGING )
                 // Set the timeout value as a TimeBase::TimeT (100 nanosecond units)
                 // and insert it into a CORBA::Any.
                 TimeBase::TimeT relative_rt_timeout = orb_timeout* 1.0e7;
@@ -67,7 +73,7 @@ namespace RTT
                 // Create the policy and put it in a policy list.
                 CORBA::PolicyList policies;
                 policies.length(1);
-                policies[0] = 
+                policies[0] =
                 orb->create_policy (Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE,
                                     relative_rt_timeout_as_any);
 
@@ -77,7 +83,7 @@ namespace RTT
                 policy_manager->set_policy_overrides (policies, CORBA::SET_OVERRIDE);
 #else
                 log(Error) << "Ignoring ORB timeout setting in non-TAO build." <<endlog();
-#endif // CORBA_IS_TAO
+#endif
             }
             // Also activate the POA Manager, since we may get call-backs !
             CORBA::Object_var poa_object =

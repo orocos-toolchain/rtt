@@ -10,6 +10,8 @@
 #  error "Configuration error: neither CORBA_IS_TAO nor CORBA_IS_OMNIORB is defined in rtt-corba-config.h"
 #endif
 
+#cmakedefine CORBA_TAO_HAS_MESSAGING
+
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //
