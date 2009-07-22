@@ -115,57 +115,6 @@ namespace RTT {
             }
 
             /**
-             * Returns a new DataObject<T> object mirroring a remote data object server.
-             * Used to setup a Corba Data Flow.
-             */
-            virtual DataSourceBase* dataProxy( PortInterface* data ) const {
-                return 0;
-                //log(Warning) << "Can not create a proxy for data connection of remote port "<<data->getName() <<endlog();
-                //Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-                //return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", cp->getDataChannel());
-            }
-
-            virtual DataSourceBase* dataProxy( void* data ) const {
-                if (warn) {
-                    log(Warning) << "Can not create a proxy for data connection." <<endlog();
-                }
-                Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
-                return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", ae );
-            }
-
-            virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const {
-                return this->server(source, true, arg );
-            }
-
-            /**
-             * Returns a new BufferInterface<T> object mirroring a remote buffer object server.
-             * Used to setup a Corba Data Flow.
-             */
-            virtual BufferBase* bufferProxy( PortInterface* data ) const {
-                return 0;
-                // log(Warning) << "Can not create a proxy for buffer connection of remote port "<<data->getName() <<endlog();
-                // Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-                // return new Corba::CorbaBufferProxy<detail::UnknownType>( cp->getBufferChannel() );
-            }
-
-            virtual BufferBase* bufferProxy( void* data ) const {
-                return 0;
-                // log(Warning) << "Can not create a proxy for buffer connection." <<endlog();
-                // Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
-                // return new Corba::CorbaBufferProxy<detail::UnknownType>( buf );
-            }
-
-            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
-            {
-                return 0;
-              // :// arg is POA !
-              // :log(Warning) << "Can not create a useful server for an unknown data type." << endlog();
-              // :RTT_Corba_BufferChannel_i<UnknownType>* cbuf = new RTT_Corba_BufferChannel_i<UnknownType>( source );
-              // :// activate servant:
-              // :return cbuf->_this();
-            }
-
-            /**
              * Narrows a remote data source object or proxy to this type.
              * Used internally to determine the type of a remote object.
              * @return 0 if \a dsb is not of this type.

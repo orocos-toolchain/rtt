@@ -43,8 +43,6 @@
 #include "../Types.hpp"
 #include "../Ports.hpp"
 #include "ExpressionProxy.hpp"
-
-#include "CorbaDataObjectProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"
 
@@ -191,63 +189,6 @@ namespace RTT
               return 0;
           }
 
-          virtual DataSourceBase* dataProxy( PortInterface* data ) const
-          {
-              return 0;
-              // Detect corba connection
-              //Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-
-              //assert(cp);
-
-              //return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
-          }
-
-          virtual DataSourceBase* dataProxy( void* data ) const
-          {
-              Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
-              log(Debug) << "Creating Corba DataSource proxy." << endlog();
-              return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", ae );
-          }
-
-          virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const
-          {
-              // create a default channel.
-              log(Debug) << "Returning Corba Data Object." << endlog();
-              return this->server(source, true, arg );
-          }
-
-          /**
-           * Returns a new BufferInterface<T> object mirroring a remote buffer object server.
-           * Used to setup a Corba Data Flow.
-           */
-          virtual BufferBase* bufferProxy( PortInterface* data ) const
-          {
-              // Detect corba connection
-              //Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-
-              //assert( cp );
-
-              //return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
-              return 0;
-          }
-
-          virtual BufferBase* bufferProxy( void* data ) const
-          {
-              //Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
-              //log(Debug) << "Creating Corba BufferChannel proxy." << endlog();
-              //return new Corba::CorbaBufferProxy<T>( buf );
-              return 0;
-          }
-
-            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
-          {
-              return 0;
-              // arg is POA !
-              // typename RTT::BufferInterface<T>::shared_ptr bi = boost::dynamic_pointer_cast< RTT::BufferInterface<T> >( source );
-              // log(Debug) << "Creating Corba BufferChannel." << endlog();
-              // RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( bi );
-              // return cbuf->_this();
-          }
       };
 }
 }

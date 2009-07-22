@@ -93,26 +93,6 @@ namespace RTT
             virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const = 0;
 
             /**
-             * Returns a new DataObject<T> object mirroring a remote data object server.
-             * Used to setup a Corba Data Flow.
-             */
-            virtual DataSourceBase* dataProxy( PortInterface* data ) const = 0;
-
-            virtual DataSourceBase* dataProxy( void* data ) const = 0;
-
-            virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const = 0;
-
-            /**
-             * Returns a new BufferInterface<T> object mirroring a remote buffer object server.
-             * Used to setup a Corba Data Flow.
-             */
-            virtual BufferBase* bufferProxy( PortInterface* data ) const = 0;
-
-            virtual BufferBase* bufferProxy( void* data ) const = 0;
-
-            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const = 0;
-
-            /**
              * Narrows a remote data source object or proxy to this type.
              * Used internally to determine the type of a remote object.
              * @return 0 if \a dsb is not of this type.
