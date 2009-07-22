@@ -144,6 +144,7 @@ usr/include/rtt/OperatorTypes.hpp
 usr/include/rtt/Operators.hpp
 usr/include/rtt/Orocos.Main.hpp
 usr/include/rtt/PeriodicActivity.hpp
+usr/include/rtt/Plugin.hpp
 usr/include/rtt/PortInterface.hpp
 usr/include/rtt/Ports.hpp
 usr/include/rtt/Processor.Main.hpp
@@ -168,6 +169,7 @@ usr/include/rtt/RemoteCommand.hpp
 usr/include/rtt/RemoteMethod.hpp
 usr/include/rtt/RunnableInterface.hpp
 usr/include/rtt/ScriptingAccess.hpp
+usr/include/rtt/SequentialActivity.hpp
 usr/include/rtt/Signal.hpp
 usr/include/rtt/SimulationActivity.hpp
 usr/include/rtt/SimulationThread.hpp
@@ -189,13 +191,17 @@ usr/include/rtt/TimeService.hpp
 usr/include/rtt/Timer.hpp
 usr/include/rtt/TimerThread.hpp
 usr/include/rtt/Toolkit.hpp
+usr/include/rtt/ToolkitPlugin.hpp
+usr/include/rtt/TransportPlugin.hpp
 usr/include/rtt/TryCommand.hpp
 usr/include/rtt/TypeInfoName.hpp
 usr/include/rtt/TypeStream.hpp
+usr/include/rtt/TypeStream-io.hpp
 usr/include/rtt/TypeTransporter.hpp
 usr/include/rtt/Types.hpp
 usr/include/rtt/UnMember.hpp
 usr/include/rtt/VectorComposition.hpp
+usr/include/rtt/VectorTemplateComposition.hpp
 usr/include/rtt/VertexNode.hpp
 usr/include/rtt/WriteInterface.hpp
 usr/include/rtt/boost
