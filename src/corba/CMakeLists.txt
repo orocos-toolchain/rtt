@@ -67,7 +67,7 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/corba/orocos-rtt-corba.pc.in ${PROJ_BINAR
 CONFIGURE_FILE( rtt-corba-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h @ONLY)
 
 IF ( BUILD_STATIC )
-  INSTALL(TARGETS orocos-rtt-corba-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
+  INSTALL(TARGETS orocos-rtt-corba_static-${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
   INSTALL(FILES orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
