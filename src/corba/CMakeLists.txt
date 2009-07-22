@@ -70,8 +70,8 @@ IF ( BUILD_STATIC )
   INSTALL(TARGETS orocos-rtt-corba_static-${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
-  INSTALL(FILES orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+  INSTALL(FILES {CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
   INSTALL(TARGETS orocos-rtt-corba_dynamic-${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
-  INSTALL( FILES rtt-corba-config.h DESTINATION include/rtt/corba )
+  INSTALL( FILES {CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h DESTINATION include/rtt/corba )
 ENDIF(ENABLE_CORBA)
 

@@ -1,3 +1,3 @@
 
-GLOBAL_ADD_INCLUDE( rtt/targets rtt-target.h)
-GLOBAL_ADD_INCLUDE( rtt/targets ${OROCOS_TARGET})
+GLOBAL_ADD_INCLUDE( rtt/targets ${CMAKE_CURRENT_BINARY_DIR}/rtt-target.h)
+GLOBAL_ADD_INCLUDE( rtt/targets ${CMAKE_CURRENT_BINARY_DIR}/${OROCOS_TARGET})
