@@ -28,6 +28,8 @@
 #define OROPKG_OS_THREAD_SCOPE
 #endif
 
+#cmakedefine ORO_OS_USE_BOOST_THREAD
+
 #cmakedefine CONFIG_FORCE_UP
 
 #cmakedefine OS_EMBEDDED

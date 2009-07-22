@@ -42,6 +42,11 @@
 #include "fosi.h"
 #include "../rtt-config.h"
 #include "Time.hpp"
+#ifdef ORO_OS_USE_BOOST_THREAD
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#endif
 
 namespace RTT
 { namespace OS {
@@ -64,6 +69,7 @@ namespace RTT
 		virtual bool timedlock(Seconds s) = 0;
 	};
 
+
     /**
      * @brief An object oriented wrapper around a non recursive mutex.
      *
@@ -76,9 +82,7 @@ namespace RTT
      */
 	class RTT_API Mutex : public MutexInterface
     {
-	    friend class OS::MutexLock;
-	    friend class OS::MutexTryLock;
-	    friend class OS::MutexTimedLock;
+#ifndef ORO_OS_USE_BOOST_THREAD
 	protected:
 	    rt_mutex_t m;
 	public:
@@ -138,6 +142,58 @@ namespace RTT
                 return true;
             return false;
         }
+#else
+    protected:
+        boost::timed_mutex m;
+    public:
+        /**
+        * Initialize a Mutex.
+        */
+        Mutex()
+        {
+        }
+
+        /**
+        * Destroy a Mutex.
+        * If the Mutex is still locked, the RTOS
+        * will not be asked to clean up its resources.
+        */
+        virtual ~Mutex()
+        {
+        }
+
+        virtual void lock ()
+        {
+            m.lock();
+        }
+
+        virtual void unlock()
+        {
+            m.unlock();
+        }
+
+        /**
+        * Try to lock this mutex
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock()
+        {
+            return m.try_lock();
+        }
+
+        /**
+        * Lock this mutex, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock(Seconds s)
+        {
+            return m.timed_lock( boost::posix_time::microseconds(Seconds_to_nsecs(s)/1000) );
+        }
+#endif
 
     };
 
@@ -151,7 +207,10 @@ namespace RTT
      */
     class RTT_API MutexRecursive : public MutexInterface
     {
-        public:
+#ifndef ORO_OS_USE_BOOST_THREAD
+    protected:
+        rt_rec_mutex_t recm;
+    public:
         /**
          * Initialize a recursive Mutex.
          */
@@ -208,9 +267,58 @@ namespace RTT
                 return true;
             return false;
         }
-
+#else
     protected:
-        rt_rec_mutex_t recm;
+        boost::recursive_timed_mutex recm;
+    public:
+        /**
+         * Initialize a recursive Mutex.
+         */
+        MutexRecursive()
+        {
+        }
+
+        /**
+        * Destroy a MutexRecursive.
+        * If the MutexRecursive is still locked, the RTOS
+        * will not be asked to clean up its resources.
+        */
+        virtual ~MutexRecursive()
+        {
+        }
+
+        void lock ()
+        {
+            recm.lock();
+        }
+
+        virtual void unlock()
+        {
+            recm.unlock();
+        }
+
+        /**
+        * Try to lock this mutex
+        *
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool trylock()
+        {
+            return recm.try_lock();
+        }
+
+        /**
+        * Lock this mutex, but don't wait longer for the lock
+        * than the specified timeout.
+        *
+        * @param  s The maximum time to wait before aqcuiring the lock.
+        * @return true when the locking succeeded, false otherwise
+        */
+        virtual bool timedlock(Seconds s)
+        {
+            return recm.timed_lock( boost::posix_time::microseconds( Seconds_to_nsecs(s)/1000 ) );
+        }
+#endif
     };
 
 }}
