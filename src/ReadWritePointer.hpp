@@ -31,6 +31,17 @@ namespace RTT
                 return (--readers);
             }
         };
+        template<typename T>
+        void intrusive_ptr_add_ref(typename RTT::details::ROPtrInternal<T>* data)
+        {
+            data->ref();
+        }
+        template<typename T>
+        void intrusive_ptr_release(typename RTT::details::ROPtrInternal<T>* data)
+        {
+            if (!data->deref())
+                delete data;
+        }
     }
 
     template<typename T>
@@ -73,18 +84,6 @@ namespace RTT
             return value;
         }
     };
-
-    template<typename T>
-    void intrusive_ptr_add_ref(typename RTT::details::ROPtrInternal<T>* data)
-    {
-        data->ref();
-    }
-    template<typename T>
-    void intrusive_ptr_release(typename RTT::details::ROPtrInternal<T>* data)
-    {
-        if (!data->deref())
-            delete data;
-    }
 }
 
 #endif
