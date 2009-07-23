@@ -2,9 +2,8 @@
 #define CORBA_TEST_H
 
 #include <corba/corba.h>
+#include <Ports.hpp>
 #include <TaskContext.hpp>
-#include <DataPort.hpp>
-#include <BufferPort.hpp>
 #include <corba/ControlTaskServer.hpp>
 #include <corba/ControlTaskProxy.hpp>
 #include <string>
@@ -25,16 +24,14 @@ public:
     Corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
 
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface* port);
+
     // Ports
-    DataPort<double>* md1;
-    DataPort<double>* md1bis;
-    DataPort<double>* md2;
-    ReadDataPort<double>* mdr1;
-    ReadDataPort<double>* mdr2;
-    WriteDataPort<double>* mdw1;
-    WriteDataPort<double>* mdw2;
-    BufferPort<double>* mb1;
-    BufferPort<double>* mb2;
+    InputPort<double>*  mr1;
+    OutputPort<double>* mw1;
+    InputPort<double>*  mr2;
+    OutputPort<double>* mw2;
 
     // ref/const-ref tests:
     double ret;
@@ -65,9 +62,19 @@ public:
     void setUp();
     void tearDown();
 
+    void testRemoteMethodC();
+    void testRemoteMethod();
+    void testAnyMethod();
+
+    void testDataFlowInterface();
+
+    void testPortConnections();
+    void testPortProxying();
+
     // helper test functions
-    void testPortStats();
-    void testPortDisconnect();
+    void testPortDataConnection();
+    void testPortBufferConnection();
+    void testPortDisconnected();
 };
 
 #endif

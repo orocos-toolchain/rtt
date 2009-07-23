@@ -175,6 +175,8 @@ namespace RTT
          */
         bool done() const;
 
+	DispatchInterface::Status status() const;
+
         /**
          * Reset the command.
          * Required before invoking execute() a second time.

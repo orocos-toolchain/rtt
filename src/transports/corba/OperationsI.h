@@ -431,6 +431,12 @@ public:
     ));
 
   virtual
+  RTT::Corba::CommandStatus status ()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
   CORBA::Boolean sent (
 
     )

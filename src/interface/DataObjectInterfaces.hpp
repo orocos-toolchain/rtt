@@ -110,13 +110,6 @@ namespace RTT
         virtual void Set( const DataType& push ) = 0;
 
         /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        virtual const std::string& getName() const = 0;
-
-        /**
          * Normally, value() does not trigger a get(), but for
          * DataObjects, this is actually the sanest thing to
          * do.
@@ -167,28 +160,14 @@ namespace RTT
          * One element of Data.
          */
         T data;
-
-        std::string name;
     public:
         /**
          * Construct a DataObjectLocked by name.
          *
          * @param _name The name of this DataObject.
          */
-        DataObjectLocked(const std::string& _name, const T& initial_value = T() )
-            : data(initial_value), name(_name) {}
-
-        /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
-        }
+        DataObjectLocked( const T& initial_value = T() )
+            : data(initial_value) {}
 
         /**
          * The type of the data.
@@ -218,233 +197,11 @@ namespace RTT
         void Set( const DataType& push ) { OS::MutexLock locker(lock); data = push; }
 
         DataObjectLocked<DataType>* clone() const {
-            return new DataObjectLocked<DataType>(name);
+            return new DataObjectLocked<DataType>();
         }
 
         DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
             return const_cast<DataObjectLocked<DataType>*>(this);
-        }
-    };
-
-    /**
-     * @brief A DataObject which allows only the high priority thread to Set(),
-     *        and both low and high priorities to Get().
-     *
-     * A class which provides locked/protected access to one typed element of data,
-     * where the locking is optimised for Low priority thread reads and High priority
-     * thread writes. The Set() operation is never blocking.
-     *
-     * @verbatim
-     * The following Truth table applies when a Low Priority thread is
-     * preempted by a High Priority thread :
-     *
-     *   L\H | Set | Get |
-     *   Set | NA  | Blk |
-     *   Get | Ok  | Blk |
-     *
-     * legend : L : Low Priority thread
-     *          H : High Priority thread
-     *          Blk: Blocks High Priority thread (bad!)
-     *          NA : Not Allowed !
-     * @endverbatim
-     * If only one thread accesses the DataObject simultaneously (e.g. single
-     * threaded systems), then the Get() and Set() methods will never block.
-     *
-     * @invariant The Set() context has a strictly higher priority than the Get() context.
-     * @invariant Set() never blocks.
-     */
-    template<class T>
-    class DataObjectPrioritySet
-        : public DataObjectInterface<T>
-    {
-        mutable OS::Mutex lock;
-        mutable bool dirty_flag;
-
-        /**
-         * One element of Data.
-         */
-        T data;
-        T mcopy;
-
-        std::string name;
-    public:
-        /**
-         * Construct a DataObjectPriorityGet by name.
-         *
-         * @param _name The name of this DataObject.
-         */
-        DataObjectPrioritySet(const std::string& _name, const T& initial_value = T() )
-            : data(initial_value), mcopy(), name(_name) {}
-
-        /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
-        }
-
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const
-        { if (dirty_flag) pull = mcopy; else {OS::MutexLock locker(lock); pull = data;} }
-
-        /**
-         * @brief Get a copy of the data of the module.
-         *
-         * @return A copy of the data.
-         */
-        DataType Get() const { DataType cache; Get(cache); return cache; }
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push )
-        {
-            OS::MutexTryLock locker(lock);
-            if (locker.isSuccessful())
-                {data = push; dirty_flag = false;}
-            else
-                {mcopy = push; dirty_flag = true;}
-        }
-
-        DataObjectPrioritySet<DataType>* clone() const {
-            return new DataObjectPrioritySet<DataType>(name);
-        }
-
-        DataObjectPrioritySet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectPrioritySet<DataType>*>(this);
-        }
-    };
-
-    /**
-     * @brief A DataObject which allows only the high priority thread to Get(),
-     *        and both low and high priorities to Set().
-     *
-     * A class which provides locked/protected access to one typed element of data,
-     * where the locking is optimised for Low priority thread writes and High priority
-     * thread reads. The Get() operation is always non blocking.
-     *
-     * @warning This DataObject can only be used in a two thread with distinct static
-     * priority model
-     *
-     * @verbatim
-     * The following Truth table applies when a Low Priority thread is
-     * preempted by a High Priority thread :
-     *
-     *   L\H | Set | Get |
-     *   Set | NA  | Ok  |
-     *   Get | Blk | Ok  |
-     *
-     * legend : L : Low Priority thread
-     *          H : High Priority thread
-     *          Blk: Blocks High Priority thread (bad!)
-     *          NA : Not allowed !
-     * @endverbatim
-     * If only one thread accesses the DataObject simultaneously (e.g. single
-     * threaded systems), then the Get() and Set() methods will never block.
-     *
-     * @invariant The Set() context has a strictly lower priority than the Get() context.
-     * @invariant Get() never blocks.
-     */
-    template<class T>
-    class DataObjectPriorityGet
-        : public DataObjectInterface<T>
-    {
-        mutable OS::Mutex lock;
-
-        /**
-         * One element of Data.
-         */
-        T data;
-        T mcopy;
-
-        std::string name;
-    public:
-        /**
-         * Construct a DataObjectPriorityGet by name.
-         *
-         * @param _name The name of this DataObject.
-         */
-        DataObjectPriorityGet(const std::string& _name, const T& initial_value = T()  )
-            : data(initial_value), mcopy(), name(_name) {}
-
-        /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
-        }
-
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const
-        {
-            // If two low priority gets access this method,
-            // while Set() is in copy,
-            // the second one will pull in the copy which
-            // is modified by the Set().
-            OS::MutexTryLock locker(lock);
-            if ( locker.isSuccessful() )
-                {pull = data;}
-            else
-                {pull = mcopy;}
-        }
-
-        /**
-         * Get a copy of the data of the module.
-         *
-         * @return A copy of the data.
-         */
-        DataType Get() const { DataType cache; Get(cache); return cache; }
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push )
-        {
-            {
-                OS::MutexLock locker(lock);
-                data = push;
-            }
-            mcopy = data;
-        }
-
-        DataObjectPriorityGet<DataType>* clone() const {
-            return new DataObjectPriorityGet<DataType>(name);
-        }
-
-        DataObjectPriorityGet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectPriorityGet<DataType>*>(this);
         }
     };
 
@@ -489,17 +246,14 @@ namespace RTT
         /**
          * @brief The maximum number of threads.
          *
-         * The size of the buffer is for now statically determined,
-         * which allows for 7 readers and 1 writer (a total of 8 threads !)
-         * This is to be improved, although knowing the max number of
-         * threads in a RT application is not so hard.
+         * When used in data flow, this is always 2.
          */
-        static const unsigned int MAX_THREADS=8;
+        const unsigned int MAX_THREADS; // = 2
     private:
         /**
          * Conversion of number of threads to size of buffer.
          */
-        static const unsigned int BUF_LEN=MAX_THREADS+2;
+        const unsigned int BUF_LEN; // = MAX_THREADS+2
 
         /**
          * Internal buffer structure.
@@ -527,10 +281,7 @@ namespace RTT
         /**
          * A 3 element Data buffer
          */
-        DataBuf data[BUF_LEN];
-
-        std::string name;
-
+        DataBuf* data;
     public:
 
         /**
@@ -539,11 +290,14 @@ namespace RTT
          * @param _name The name of this DataObject.
          * @param initial_value The initial value of this DataObject.
          */
-        DataObjectLockFree(const std::string& _name, const T& initial_value = T() )
-            : read_ptr(&data[ 0 ]),
-              write_ptr(&data[ 1 ]),
-              name(_name)
+        DataObjectLockFree( const T& initial_value = T(), unsigned int max_threads = 2 )
+            : read_ptr(0),
+              write_ptr(0),
+              MAX_THREADS(max_threads), BUF_LEN( max_threads + 2)
         {
+        	data = new DataBuf[BUF_LEN];
+        	read_ptr = &data[0];
+        	write_ptr = &data[1];
             // prepare the buffer.
             for (unsigned int i = 0; i < BUF_LEN-1; ++i) {
                 data[i].data = initial_value;
@@ -552,16 +306,8 @@ namespace RTT
             data[BUF_LEN-1].next = &data[0];
         }
 
-        /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
+        ~DataObjectLockFree() {
+            delete[] data;
         }
 
         /**
@@ -633,7 +379,7 @@ namespace RTT
         }
 
         DataObjectLockFree<DataType>* clone() const {
-            return new DataObjectLockFree<DataType>(name);
+            return new DataObjectLockFree<DataType>();
         }
 
         DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
@@ -657,28 +403,14 @@ namespace RTT
          * One element of Data.
          */
         T data;
-
-        std::string name;
     public:
         /**
          * Construct a DataObject by name.
          *
          * @param _name The name of this DataObject.
          */
-        DataObject(const std::string& _name, const T& initial_value = T()  )
-            : data(initial_value), name(_name) {}
-
-        /**
-         * Return the name of this DataObject.
-         *
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
-        }
+        DataObject( const T& initial_value = T()  )
+            : data(initial_value) {}
 
         /**
          * The type of the data.
@@ -707,7 +439,7 @@ namespace RTT
         void Set( const DataType& push ) { data = push; }
 
         DataObject<DataType>* clone() const {
-            return new DataObject<DataType>(name);
+            return new DataObject<DataType>();
         }
 
         DataObject<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {

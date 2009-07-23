@@ -61,6 +61,8 @@ namespace RTT
     class PropertyBag;
     class AttributeBase;
     class TransportPlugin;
+    class InputPortInterface;
+    class OutputPortInterface;
 
     namespace detail {
         class TypeTransporter;
@@ -164,6 +166,12 @@ namespace RTT
          * Build a ValueDataSource of this type.
          */
         virtual DataSourceBase::shared_ptr buildValue() const = 0;
+
+        /** Build a ReferenceDataSource of this type, pointing to the given
+         * pointer
+         */
+        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
+
         /** @} */
 
         /**
@@ -234,11 +242,19 @@ namespace RTT
          */
         std::vector<int> getTransportNames() const;
         
-        /**
-         * @}
-         */
+        virtual std::string getTypeIdName() const = 0;
 
-		 virtual std::string getTypeIdName() const = 0;
+        /**
+         * Returns a new InputPort<T> object where T is the type represented by
+         * this TypeInfo object.
+         */
+        virtual InputPortInterface* inputPort(std::string const& name) const = 0;
+        
+        /**
+         * Returns a new OutputPort<T> object where T is the type represented by
+         * this TypeInfo object.
+         */
+        virtual OutputPortInterface* outputPort(std::string const& name) const = 0;
     };
 
     /**

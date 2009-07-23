@@ -438,6 +438,50 @@ namespace RTT
         }
 
         /**
+         * Erase a value from the list.
+         * @param function each elements for which pred returns true are removed
+         * @return true if at least one element has been removed
+         */
+        template<typename Pred>
+        bool delete_if(Pred pred)
+        {
+            Item* orig=0;
+            Item* nextbuf(0);
+            bool removed_sth = false;
+            Storage bufptr;
+            do {
+                removed_sth = false;
+                if (orig) {
+                    oro_atomic_dec(&orig->count);
+                    oro_atomic_dec(&nextbuf->count);
+                }
+                orig = lockAndGetActive( bufptr ); // find active in bufptr
+                // we do this in the loop because bufs can change.
+                nextbuf = findEmptyBuf( bufptr ); // find unused Item in same buf.
+
+                Iterator it(orig->data.begin());
+                while (it != orig->data.end()) {
+                    if (!pred(*it))
+                        nextbuf->data.push_back( *it );
+                    else
+                        removed_sth = true;
+
+                    ++it;
+                }
+
+                if (!removed_sth) {
+                    oro_atomic_dec( &orig->count );
+                    oro_atomic_dec( &nextbuf->count );
+                    return false; // no matching item found.
+                }
+            } while ( OS::CAS(&active, orig, nextbuf ) == false );
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // ref count
+            return true;
+        }
+
+
+        /**
          * Apply a function to the elements of the whole list.
          * @param func The function to apply.
          */

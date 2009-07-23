@@ -54,7 +54,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     else()
       SET(BUFFERS_TEST buffers_test.cpp)
     endif()
-    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp ${BUFFERS_TEST} logger_test.cpp property_test.cpp time_test.cpp )
+    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp ${BUFFERS_TEST} logger_test.cpp property_test.cpp time_test.cpp ptr_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
@@ -117,6 +117,14 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( dev-test ${CMAKE_CURRENT_BINARY_DIR}/dev-test )
 	
+    ADD_EXECUTABLE( specactivities-test ${DO_EXCLUDE} test-runner.cpp
+        specialized_activities.cpp)
+    TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET} )
+    SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+        COMPILE_DEFINITIONS ${OROCOS-RTT_DEFINITIONS} )
+    ADD_TEST( specactivities-test ${CMAKE_CURRENT_BINARY_DIR}/specactivities-test )
+
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test ${DO_EXCLUDE} test-runner.cpp corba_test.cpp )
       TARGET_LINK_LIBRARIES( corba-test orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
@@ -129,7 +137,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     ENDIF(ENABLE_CORBA)
 	
     ADD_CUSTOM_TARGET(check ctest -V 
-      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
+      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
     
     #ADD_DEPENDENCIES(check prep-cpf)

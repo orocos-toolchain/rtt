@@ -25,6 +25,7 @@
 #include <Method.hpp>
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
+#include <TaskObject.hpp>
 #include <TaskContext.hpp>
 #include <ProgramProcessor.hpp>
 #include <StateMachineProcessor.hpp>
