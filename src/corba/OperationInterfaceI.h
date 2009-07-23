@@ -96,10 +96,7 @@ public:
   //Destructor
   virtual ~Orocos_MethodInterface_i (void);
 
-    PortableServer::POA_ptr _default_POA()
-    {
-        return PortableServer::POA::_duplicate(mpoa);
-    }
+    PortableServer::POA_ptr _default_POA();
 
   virtual
   ::RTT::Corba::MethodList * getMethods (
@@ -173,10 +170,7 @@ public:
   //Destructor
   virtual ~Orocos_CommandInterface_i (void);
 
-    PortableServer::POA_ptr _default_POA()
-    {
-        return PortableServer::POA::_duplicate(mpoa);
-    }
+    PortableServer::POA_ptr _default_POA();
 
   virtual
   ::RTT::Corba::CommandList * getCommands (

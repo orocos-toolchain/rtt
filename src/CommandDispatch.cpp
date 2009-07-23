@@ -114,6 +114,21 @@ namespace RTT
         return valid() && mcn->evaluate();
     }
 
+    DispatchInterface::Status CommandDispatch::status() const {
+	if (!proc)
+	    return DispatchInterface::NotReady;
+	else if (send)
+	    return DispatchInterface::Ready;
+	else if (!dispatcher.mexecuted)
+	    return DispatchInterface::Sent;
+	else if (!dispatcher.mvalid)
+	    return DispatchInterface::NotValid;
+	else if (!mcn->evaluate())
+	    return DispatchInterface::Valid;
+	else
+	    return DispatchInterface::Done;
+    }
+
     void CommandDispatch::reset() {
         send = true;
         maccepted = false;

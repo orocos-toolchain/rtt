@@ -56,6 +56,7 @@
 #include <map>
 #include "ControlTaskC.h"
 #include "ApplicationServer.hpp"
+#include <list>
 
 namespace RTT
 {namespace Corba
@@ -98,6 +99,14 @@ namespace RTT
          * a corba object
          */
         ControlTaskProxy( ::RTT::Corba::ControlTask_ptr t );
+
+        /** DataFlowInterface does not delete ports automatically, because they
+         * can then be defined as members of the TaskContext classes.
+         *
+         * We must therefore delete in the proxy destructor the ones we are
+         * adding through synchronization
+         */
+        std::list<PortInterface*> port_proxies;
 
         void synchronizeOnce();
         void synchronize();

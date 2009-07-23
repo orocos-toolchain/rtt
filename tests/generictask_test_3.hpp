@@ -38,6 +38,9 @@ public:
     ActivityInterface* tsim;
     ActivityInterface* stsim;
 
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface*);
+
 public:
 	Generic_TaskTest_3(){ setUp();};
 	~Generic_TaskTest_3(){ tearDown();};
@@ -50,8 +53,13 @@ public:
     void testAttributes();
     void testPorts();
     void testEventPorts();
-    void testConnections();
+    void testPortConnectionInitialization();
+    void testPortSimpleConnections();
+    void testPortForkedConnections();
+    void testPortTaskInterface();
     void testPortObjects();
+    void testPortSignalling();
+    void testPortDataSource();
     void testTCStates();
     void testSpecialTCStates();
     void testFailingTCStates();

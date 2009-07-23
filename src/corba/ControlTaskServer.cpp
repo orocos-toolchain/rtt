@@ -74,6 +74,9 @@ namespace RTT
 
     servers.erase(mtaskcontext);
 
+    PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
+    mpoa->deactivate_object(oid);
+
     if (muse_naming) {
         try {
             CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
@@ -105,7 +108,7 @@ namespace RTT
 
 
     ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming)
-      :mtaskcontext(taskc), muse_naming(use_naming)
+	: mtaskcontext(taskc), muse_naming(use_naming)
     {
         servers[taskc] = this;
         try {
@@ -113,10 +116,9 @@ namespace RTT
             // The server's objects have their own poa as well.
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");
-            PortableServer::POA_var poa =
-                PortableServer::POA::_narrow (poa_object.in ());
+            mpoa = PortableServer::POA::_narrow(poa_object);
             PortableServer::POAManager_var poa_manager =
-                poa->the_POAManager ();
+                mpoa->the_POAManager ();
 
             //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1);
             //            poa_manager->activate ();
@@ -130,21 +132,16 @@ namespace RTT
 //                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
-            Orocos_ControlTask_i* the_task = new Orocos_ControlTask_i( taskc, poa.in() );
-            // move into var ptr.
-            PortableServer::ServantBase_var  servant = the_task;
-            // explicit activation:
-            PortableServer::ObjectId_var objId = poa->activate_object( servant.in() );
-            // get object reference:
-            CORBA::Object_var obj = poa->id_to_reference( objId.in() );
-            mtask = Corba::ControlTask::_narrow( obj.in() );
+	    Orocos_ControlTask_i* serv;
+            mtask_i = serv = new Orocos_ControlTask_i( taskc, mpoa );
+	    mtask   = serv->_this();
 
             if ( use_naming ) {
                 CORBA::Object_var rootObj;
                 CosNaming::NamingContext_var rootNC;
                 try {
                     rootObj = orb->resolve_initial_references("NameService");
-                    rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
+                    rootNC = CosNaming::NamingContext::_narrow(rootObj);
                 } catch (...) {}
             
                 if (CORBA::is_nil( rootNC ) ) {
@@ -152,7 +149,7 @@ namespace RTT
                     log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                     // this part only publishes the IOR to a file.
-                    CORBA::String_var ior = orb->object_to_string( mtask.in() );
+                    CORBA::String_var ior = orb->object_to_string( mtask );
                     std::cerr << ior.in() <<std::endl;
                     {
                         // write to a file as well.
@@ -180,14 +177,14 @@ namespace RTT
                 name.length(2);
                 name[1].id = CORBA::string_dup( taskc->getName().c_str() );
                 try {
-                    rootNC->bind(name, obj.in() );
+                    rootNC->bind(name, mtask );
                     log(Info) << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
                     log(Warning) << "ControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
                     log() <<"Trying to rebind...";
                     try {
-                        rootNC->rebind(name, obj.in() );
+                        rootNC->rebind(name, mtask);
                     } catch( ... ) {
                         log() << " failed!"<<endlog();
                         return;

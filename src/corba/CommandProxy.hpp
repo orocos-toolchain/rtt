@@ -41,6 +41,7 @@
 
 #include "../DispatchInterface.hpp"
 #include "OperationsC.h"
+#include "../Logger.hpp"
 
 namespace RTT
 {namespace Corba
@@ -115,6 +116,24 @@ namespace RTT
         virtual bool done() const {
             return mdata->done();
         }
+
+	virtual DispatchInterface::Status status() const {
+	    switch(mdata->status())
+	    {
+		case RTT::Corba::NotReady: return DispatchInterface::NotReady;
+		case RTT::Corba::Ready: return DispatchInterface::Ready;
+		case RTT::Corba::Sent: return DispatchInterface::Sent;
+		case RTT::Corba::NotAccepted: return DispatchInterface::NotAccepted;
+		case RTT::Corba::Accepted: return DispatchInterface::Accepted;
+		case RTT::Corba::Executed: return DispatchInterface::Executed;
+		case RTT::Corba::NotValid: return DispatchInterface::NotValid;
+		case RTT::Corba::Valid: return DispatchInterface::Valid;
+		case RTT::Corba::Done: return DispatchInterface::Done;
+		default:
+		    log(Error) << "wrong status returned by remote host" << endlog();
+		    return DispatchInterface::NotReady;
+	    }
+	}
 
         virtual ConditionInterface* createCondition() const;
 

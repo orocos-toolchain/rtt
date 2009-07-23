@@ -97,7 +97,7 @@ namespace RTT
      */
     struct Logger::D
     {
-        D(std::ostream& str) :
+        D(std::ostream& str, char const* logfile_name) :
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput( &str ),
 #endif
@@ -105,7 +105,7 @@ namespace RTT
               messagecnt(0),
 #endif
 #if defined(OROSEM_FILE_LOGGING) && !defined(OROSEM_PRINTF_LOGGING)
-              logfile("orocos.log"),
+              logfile(logfile_name ? logfile_name : "orocos.log"),
 #endif
               inloglevel(Info),
               outloglevel(Warning),
@@ -115,7 +115,7 @@ namespace RTT
               moduleptr("Logger")
         {
 #if defined(OROSEM_FILE_LOGGING) && defined(OROSEM_PRINTF_LOGGING)
-            logfile = fopen("orocos.log","w");
+            logfile = fopen(logfile_name ? logfile_name : "orocos.log","w");
 #endif
         }
 
@@ -291,7 +291,7 @@ namespace RTT
     };
 
     Logger::Logger(std::ostream& str)
-        :d ( new Logger::D(str) )
+        :d ( new Logger::D(str, getenv("ORO_LOGFILE")) )
     {
       this->startup();
     }

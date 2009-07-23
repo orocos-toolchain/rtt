@@ -22,10 +22,13 @@
 
 #include <iostream>
 
-#include <Method.hpp>
-#include <OperationInterface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
+
+#include <Method.hpp>
+#include <OperationInterface.hpp>
+#include <corba/DataFlowI.h>
+#include <corba/RemotePorts.hpp>
 
 using namespace std;
 using Corba::ControlTaskProxy;
@@ -34,42 +37,40 @@ void
 CorbaTest::setUp()
 {
     // connect DataPorts
-    md1 = new DataPort<double>("md", 1.0);
-    md1bis = new DataPort<double>("mdbis", 2.0); // a free port.
-    md2 = new DataPort<double>("md", -1.0);
-    // connect Write to Read ports (connection direction testing)
-    mdr1 = new ReadDataPort<double>("mdrwA");
-    mdr2 = new ReadDataPort<double>("mdrwB");
-    mdw1 = new WriteDataPort<double>("mdrwB", 1.0);
-    mdw2 = new WriteDataPort<double>("mdrwA", -1.0);
+    mr1 = new InputPort<double>("mr");
+    mw1 = new OutputPort<double>("mw");
 
-    // connect BufferPorts
-    mb1 = new BufferPort<double>("mb", 10, 1.0);
-    mb2 = new BufferPort<double>("mb", 20, -1.0);
+    mr2 = new InputPort<double>("mr");
+    mw2 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
-    t2 = new TaskContext("other");
+    tc->ports()->addPort( mr1 );
+    tc->ports()->addPort( mw1 );
 
-    tc->ports()->addPort( md1 );
-    tc->ports()->addPort( md1bis );
-    t2->ports()->addPort( md2 );
-    tc->ports()->addPort( mdr1 );
-    t2->ports()->addPort( mdr2 );
-    tc->ports()->addPort( mdw1 );
-    t2->ports()->addPort( mdw2 );
-    tc->ports()->addPort( mb1 );
-    t2->ports()->addPort( mb2 );
+    t2 = new TaskContext("other");
+    t2->ports()->addPort( mr2 );
+    t2->ports()->addPort( mw2 );
+
+    ts2 = ts = 0;
+    tp2 = tp = 0;
 }
 
 
 void
 CorbaTest::tearDown()
 {
-    //delete tc;
-    //delete ts;
-    //delete tp;
+    delete tp;
+    delete ts;
+    delete tp2;
+    delete ts2;
+    delete tc;
+    delete t2;
 
+    delete mr1;
+    delete mw1;
+    delete mr2;
+    delete mw2;
 }
 
 bool CorbaTest::assertBool( bool b) {
@@ -91,6 +92,71 @@ TaskObject* CorbaTest::createMethodFactory()
     to->methods()->addMethod( method("m4",  &CorbaTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
     return to;
 }
+
+void CorbaTest::new_data_listener(PortInterface* port)
+{
+    signalled_port = port;
+}
+
+
+#define ASSERT_PORT_SIGNALLING(code, read_port) \
+    signalled_port = 0; \
+    code; \
+    BOOST_CHECK( read_port == signalled_port );
+
+void CorbaTest::testPortDataConnection()
+{
+    // This test assumes that there is a data connection mw1 => mr2
+    // Check if connection succeeded both ways:
+    BOOST_CHECK( mw1->connected() );
+    BOOST_CHECK( mr2->connected() );
+
+    double value = 0;
+
+    // Check if no-data works
+    BOOST_CHECK( !mr2->read(value) );
+
+    // Check if writing works (including signalling)
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
+    BOOST_CHECK( mr2->read(value) );
+    BOOST_CHECK_EQUAL( 1.0, value );
+    ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
+    BOOST_CHECK( mr2->read(value) );
+    BOOST_CHECK_EQUAL( 2.0, value );
+}
+
+void CorbaTest::testPortBufferConnection()
+{
+    // This test assumes that there is a buffer connection mw1 => mr2 of size 3
+    // Check if connection succeeded both ways:
+    BOOST_CHECK( mw1->connected() );
+    BOOST_CHECK( mr2->connected() );
+
+    double value = 0;
+
+    // Check if no-data works
+    BOOST_CHECK( !mr2->read(value) );
+
+    // Check if writing works
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(3.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(4.0), 0);
+    BOOST_CHECK( mr2->read(value) );
+    BOOST_CHECK_EQUAL( 1.0, value );
+    BOOST_CHECK( mr2->read(value) );
+    BOOST_CHECK_EQUAL( 2.0, value );
+    BOOST_CHECK( mr2->read(value) );
+    BOOST_CHECK_EQUAL( 3.0, value );
+    BOOST_CHECK( !mr2->read(value) );
+}
+
+void CorbaTest::testPortDisconnected()
+{
+    BOOST_CHECK( !mw1->connected() );
+    BOOST_CHECK( !mr2->connected() );
+}
+
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
@@ -228,208 +294,149 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     BOOST_CHECK(m4->executeAny( any_args.in() ));
 }
 
-BOOST_AUTO_TEST_CASE( testPorts )
+BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
-    // test create channel functions of dataflowinterface.
-    // write to corba read from C++ and vice verse.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
-    // DATA PORTS
-    ::RTT::Corba::AssignableExpression_var unknown_data = ts->server()->ports()->createDataChannel("does_not_exist");
-    BOOST_CHECK( CORBA::is_nil(unknown_data) );
-    ::RTT::Corba::AssignableExpression_var buffer_as_data = ts->server()->ports()->createDataChannel("mb");
-    BOOST_CHECK( CORBA::is_nil(buffer_as_data) );
-    ::RTT::Corba::AssignableExpression_var data = ts->server()->ports()->createDataChannel("md");
-    BOOST_CHECK( data.in() );
+    Corba::DataFlowInterface_var ports = ts->server()->ports();
 
-    CORBA::Any_var any = new CORBA::Any();
-    double value = 5.0;
-    // Write from corba, read from C++
-    any <<= value;
-    BOOST_CHECK( data->set( any.in() ) );
-    BOOST_CHECK_EQUAL( value, md1->Get() );
+    Corba::DataFlowInterface::PortNames_var names =
+	ports->getPorts();
 
-    // Write from C++, read from corba
-    value = -5.0;
-    md1->Set( value );
-    any = data->get();
-    any >>= value;
-    BOOST_CHECK_EQUAL( -5.0, value );
+    BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
+    BOOST_CHECK_EQUAL(string("mr"), string(names[0]));
+    BOOST_CHECK_EQUAL(string("mw"), string(names[1]));
 
-    // BUFFER PORTS
-    ::RTT::Corba::BufferChannel_var unknown_buf = ts->server()->ports()->createBufferChannel("does_not_exist");
-    BOOST_CHECK( CORBA::is_nil(unknown_buf) );
-    ::RTT::Corba::BufferChannel_var data_as_buffer = ts->server()->ports()->createBufferChannel("md");
-    BOOST_CHECK( CORBA::is_nil(data_as_buffer) );
-    ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
-    BOOST_CHECK(buf.in());
-    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
-    BOOST_CHECK_EQUAL( (int)buf->capacity(), mb1->capacity() );
+    // Now check directions
+    BOOST_CHECK_EQUAL(RTT::Corba::Output,
+	    ports->getPortType("mw"));
+    BOOST_CHECK_EQUAL(RTT::Corba::Input,
+	    ports->getPortType("mr"));
 
-    any = new CORBA::Any();
-    value = 5.0;
-    // Write from corba, read from C++
-    any <<= value;
-    BOOST_CHECK( buf->push( any.in() ) );
-    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
-
-    BOOST_CHECK_EQUAL( 5.0, mb1->front() );
-    BOOST_CHECK( mb1->Pop( value ) );
-    BOOST_CHECK_EQUAL( 5.0, value );
-    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
-
-    // Write from C++, read from corba
-    value = -5.0;
-    mb1->Push( value );
-    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
-
-    any = buf->front();
-    value = 0.0;
-    any >>= value;
-    BOOST_CHECK_EQUAL( -5.0, value );
-    BOOST_CHECK( buf->pull( any.out() ) );
-    value = 0.0;
-    any >>= value;
-    BOOST_CHECK_EQUAL( -5.0, value );
-    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
-
+    // And check type names
+    BOOST_CHECK_EQUAL(string("double"),
+	    string(ports->getDataType("mw")));
 }
 
-// Test the IDL connectPorts statement.
-BOOST_AUTO_TEST_CASE( testConnectPortsIDL )
+BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+    // This test tests the differen port-to-port connections.
+    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
-    // Default direction is from ts to ts2, but it will also need to
-    // connect ports from ts2 to ts when ts is reader and ts2 is writer.
-    BOOST_CHECK( ts->server()->connectPorts( ts2->server() ) );
+    // Create a default CORBA policy specification
+    RTT::Corba::ConnPolicy policy;
+    policy.type = RTT::Corba::Data;
+    policy.init = false;
+    policy.lock_policy = RTT::Corba::LockFree;
+    policy.size = 0;
 
-    testPortStats();
-    testPortDisconnect();
+    // Set up an event handler to check if signalling works properly as well
+    Handle hl( mr2->getNewDataOnPortEvent()->setup(
+                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
+    hl.connect();
+
+    Corba::DataFlowInterface_var ports  = ts->server()->ports();
+    Corba::DataFlowInterface_var ports2 = ts2->server()->ports();
+
+    // Test cases that should not connect
+    BOOST_CHECK( !ports->createConnection("mw", ports2, "does_not_exist", policy) );
+    BOOST_CHECK( !ports->createConnection("does_not_exist", ports2, "mr", policy) );
+    BOOST_CHECK( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy) );
+    BOOST_CHECK( !ports->createConnection("mw", ports2, "mw", policy) );
+    BOOST_CHECK( !ports->createConnection("mr", ports2, "mr", policy) );
+    BOOST_CHECK( !ports->createConnection("mr", ports2, "mw", policy) );
+
+    // WARNING: in the following, there is four configuration tested. There is
+    // also three different ways to disconnect. We need to test those three
+    // "disconnection methods", so beware when you change something ...
+
+    policy.type = RTT::Corba::Data;
+    policy.pull = false;
+    BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortDataConnection();
+    ports->disconnect("mw");
+    testPortDisconnected();
+
+    policy.type = RTT::Corba::Data;
+    policy.pull = true;
+    BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortDataConnection();
+    ports2->disconnect("mr");
+    testPortDisconnected();
+
+    policy.type = RTT::Corba::Buffer;
+    policy.pull = false;
+    policy.size = 3;
+    BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortBufferConnection();
+    ports->disconnect("mw");
+    testPortDisconnected();
+
+    policy.type = RTT::Corba::Buffer;
+    policy.pull = true;
+    BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortBufferConnection();
+    // Here, check removal of specific connections. So first add another
+    // connection ...
+    mw1->createConnection(*mr1);
+    // Remove the remote connection
+    ports->disconnectPort("mw", ports2, "mr");
+    // Check it is removed
+    BOOST_CHECK(mw1->connected());
+    BOOST_CHECK(mr1->connected());
+    BOOST_CHECK(!mr2->connected());
 }
 
-BOOST_AUTO_TEST_CASE( testConnectPortsLR )
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    BOOST_CHECK( connectPorts(tc, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-BOOST_AUTO_TEST_CASE( testConnectPortsRL )
+BOOST_AUTO_TEST_CASE( testPortProxying )
 {
     ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    ts2  = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2  = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
-    BOOST_CHECK( connectPorts(tp, t2 ) );
+    PortInterface* untyped_port;
+     
+    untyped_port = tp->ports()->getPort("mr");
+    BOOST_CHECK(untyped_port);
+    InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(tp->ports()->getPort("mr"));
+    BOOST_CHECK(read_port);
+     
+    untyped_port = tp->ports()->getPort("mr");
+    BOOST_CHECK(untyped_port);
+    OutputPortInterface* write_port = dynamic_cast<OutputPortInterface*>(tp2->ports()->getPort("mw"));
+    BOOST_CHECK(write_port);
 
-    testPortStats();
-    testPortDisconnect();
+    // Just make sure 'read_port' and 'write_port' are actually proxies and not
+    // the real thing
+    BOOST_CHECK(dynamic_cast<Corba::RemoteInputPort*>(read_port));
+    BOOST_CHECK(dynamic_cast<Corba::RemoteOutputPort*>(write_port));
 
-}
+    BOOST_CHECK(!read_port->connected());
+    BOOST_CHECK(read_port->getTypeInfo() == mr1->getTypeInfo());
+    BOOST_CHECK(!write_port->connected());
+    BOOST_CHECK(write_port->getTypeInfo() == mw2->getTypeInfo());
 
-BOOST_AUTO_TEST_CASE( testConnectPortsRR )
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    mw2->createConnection(*read_port);
+    BOOST_CHECK(read_port->connected());
+    BOOST_CHECK(write_port->connected());
+    read_port->disconnect();
+    BOOST_CHECK(!read_port->connected());
+    BOOST_CHECK(!write_port->connected());
 
-    BOOST_CHECK( connectPorts(tp, tp2 ) );
+    mw2->createConnection(*read_port);
+    BOOST_CHECK(read_port->connected());
+    BOOST_CHECK(write_port->connected());
+    write_port->disconnect();
+    BOOST_CHECK(!read_port->connected());
+    BOOST_CHECK(!write_port->connected());
 
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-BOOST_AUTO_TEST_CASE( testConnectPortsLRC )
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    BOOST_CHECK( md1->connectTo(ci) );
-    BOOST_CHECK( ci->connect() );
-
-    BOOST_CHECK( connectPorts(tc, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-BOOST_AUTO_TEST_CASE( testConnectPortsRLC )
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    BOOST_CHECK( md1->connectTo(ci) );
-    BOOST_CHECK( ci->connect() );
-
-    BOOST_CHECK( connectPorts(tp, t2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-BOOST_AUTO_TEST_CASE( testConnectPortsRRC )
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    BOOST_CHECK( md1->connectTo(ci) );
-    BOOST_CHECK( ci->connect() );
-
-    BOOST_CHECK( connectPorts(tp, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-BOOST_AUTO_TEST_CASE( testConnections )
-{
-    // This test tests the differen port-to-port connections.
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // incompatible type should fail
-    BOOST_CHECK( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
-
-    BOOST_CHECK( ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "md") );
-    BOOST_CHECK( ts->server()->ports()->connectPorts("mb", ts2->server()->ports(), "mb") );
-    BOOST_CHECK( ts->server()->ports()->connectPorts("mdrwA", ts2->server()->ports(), "mdrwA") );
-    BOOST_CHECK( ts->server()->ports()->connectPorts("mdrwB", ts2->server()->ports(), "mdrwB") );
-
-    testPortStats();
-    testPortDisconnect();
-
-
+    // Test cloning
+    auto_ptr<InputPortInterface> read_clone(dynamic_cast<InputPortInterface*>(read_port->clone()));
+    BOOST_CHECK(mw2->createConnection(*read_clone));
+    BOOST_CHECK(read_clone->connected());
+    BOOST_CHECK(!read_port->connected());
+    mw2->disconnect();
 }
 
 BOOST_AUTO_TEST_CASE( cleanupCorba )
@@ -438,124 +445,4 @@ BOOST_AUTO_TEST_CASE( cleanupCorba )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
-
-void CorbaTest::testPortStats()
-{
-    // ALWAYS connect from tc/tp TO t2/tp2
-    // The test assumes the connection direction is tc->t2.
-    // Tests if ports are correctly working, this test is called by the other test functions.
-    // DATA PORTS
-    // Check if connection succeeded both ways:
-    BOOST_CHECK( md1->connected() );
-    BOOST_CHECK( md2->connected() );
-    // Check if both ports return same initial value:
-    BOOST_CHECK_EQUAL( 1.0, md1->Get() );
-    BOOST_CHECK_EQUAL( 1.0, md2->Get() );
-
-    // Check writing from both ways:
-    md1->Set( 3.0 );
-    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
-    BOOST_CHECK_EQUAL( 3.0, md2->Get() );
-    md2->Set( -3.0 );
-    BOOST_CHECK_EQUAL( -3.0, md1->Get() );
-    BOOST_CHECK_EQUAL( -3.0, md2->Get() );
-
-    // READ/WRITE DATA PORTS
-    // Check if connection succeeded both ways:
-    BOOST_CHECK( mdr1->connected() );
-    BOOST_CHECK( mdr2->connected() );
-    BOOST_CHECK( mdw1->connected() );
-    BOOST_CHECK( mdw2->connected() );
-    // Check if both ports return same initial value:
-    BOOST_CHECK_EQUAL( -1.0, mdr1->Get() );
-    //BOOST_CHECK_EQUAL( 1.0, mdw1->Get() );
-    BOOST_CHECK_EQUAL( 1.0, mdr2->Get() );
-    //BOOST_CHECK_EQUAL( -1.0, mdw2->Get() );
-
-    // Check writing from both ways:
-    mdw1->Set( 3.0 );
-    //BOOST_CHECK_EQUAL( 3.0, mdw1->Get() );
-    BOOST_CHECK_EQUAL( 3.0, mdr2->Get() );
-    mdw2->Set( -3.0 );
-    //BOOST_CHECK_EQUAL( -3.0, mdw2->Get() );
-    BOOST_CHECK_EQUAL( -3.0, mdr1->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    BOOST_CHECK( mb1->connected() );
-    BOOST_CHECK( mb2->connected() );
-    BOOST_CHECK_EQUAL( 10, mb2->capacity() );
-    BOOST_CHECK_EQUAL( 0, mb1->size() );
-    BOOST_CHECK_EQUAL( 0, mb2->size() );
-
-    // Check writing from both ways:
-    BOOST_CHECK( mb1->Push( 3.0 ) );
-    BOOST_CHECK( mb1->front() == 3.0 );
-    BOOST_CHECK( mb2->front() == 3.0 );
-    BOOST_CHECK_EQUAL( 1, mb1->size() );
-    BOOST_CHECK_EQUAL( 1, mb2->size() );
-    BOOST_CHECK( mb2->Pop( val ));
-    BOOST_CHECK( val == 3.0 );
-    BOOST_CHECK_EQUAL( 0, mb1->size() );
-    BOOST_CHECK_EQUAL( 0, mb2->size() );
-
-    BOOST_CHECK( mb2->Push( -3.0 ) );
-    BOOST_CHECK( mb1->front() == -3.0 );
-    BOOST_CHECK( mb2->front() == -3.0 );
-    BOOST_CHECK_EQUAL( 1, mb1->size() );
-    BOOST_CHECK_EQUAL( 1, mb2->size() );
-    BOOST_CHECK( mb2->Pop( val ));
-    BOOST_CHECK( val == -3.0 );
-    BOOST_CHECK_EQUAL( 0, mb1->size() );
-    BOOST_CHECK_EQUAL( 0, mb2->size() );
-}
-
-void CorbaTest::testPortDisconnect()
-{
-    // Connection management.
-    // DATA PORTS
-    BOOST_CHECK( md1->connected() );
-    BOOST_CHECK( md2->connected() );
-
-    // store -3.0 in connection.
-    md1->Set( -3.0 );
-
-    md1->disconnect();
-    md2->disconnect();
-
-    BOOST_CHECK( !md1->connected() );
-    BOOST_CHECK( !md2->connected() );
-
-    // Check no writing from both ways:
-    md1->Set( 3.0 );
-    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
-    BOOST_CHECK( 3.0 != md2->Get() );
-    md2->Set( 6.0 );
-    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
-    BOOST_CHECK_EQUAL( 6.0, md2->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    BOOST_CHECK( mb1->connected() );
-    BOOST_CHECK( mb2->connected() );
-
-    // Store a value.
-    BOOST_CHECK( mb1->Push( 3.0 ) );
-
-    // Disconnect
-    mb1->disconnect();
-    mb2->disconnect();
-
-    // should fail
-    BOOST_CHECK( !mb1->Push( 3.0 ) );
-    BOOST_CHECK( !mb2->Pop( val ));
-
-    BOOST_CHECK( !mb2->Push( -3.0 ) );
-    BOOST_CHECK( !mb2->Pop( val ));
-}
 

@@ -43,6 +43,7 @@
 #include "TaskObject.hpp"
 #include "Method.hpp"
 #include "Command.hpp"
+#include "TaskObject.hpp"
 
 namespace RTT
 {
