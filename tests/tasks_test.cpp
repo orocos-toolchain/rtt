@@ -19,7 +19,7 @@
 
 
 #include "tasks_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 
 #include <PeriodicActivity.hpp>
@@ -231,6 +231,9 @@ ActivitiesTest::tearDown()
     delete t_run_int_fail;
 
     delete t_run_allocate;
+    delete t_run_allocate_act;
+
+    delete t_self_remove;
 }
 
 BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
@@ -250,6 +253,7 @@ BOOST_AUTO_TEST_CASE( testFailInit )
 
 }
 
+#if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testOverrun )
 {
   bool r = false;
@@ -274,6 +278,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
 
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testThread )
 {

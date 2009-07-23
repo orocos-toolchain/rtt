@@ -160,12 +160,23 @@ endif()
 
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
-  #--enable-all-export and --enable-auto-import are already set by cmake.
-  #but we need it here for the unit tests as well.
-  #set(RTT_LINKFLAGS "${RTT_LINKFLAGS} -Wl,--enable-auto-import" CACHE INTERNAL "")
+  if (MINGW)
+    #--enable-all-export and --enable-auto-import are already set by cmake.
+    #but we need it here for the unit tests as well.
+    set(CMAKE_LD_FLAGS_ADD "--enable-auto-import" CACHE INTERNAL "")
+  endif()
+  if (MSVC)
+    set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
+    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
+  endif()
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")
+
+if( NOT OROCOS-RTT_DEFINITIONS )
+  message(FATAL_ERROR "No suitable OROCOS_TARGET selected. Use one of 'lxrt,xenomai,gnulinux,macosx,win32'")
+endif()
 
 # The machine type is tested using compiler macros in rtt-config.h.in
 # Add found include dirs.
@@ -220,7 +231,10 @@ ENDIF ( DOXYGEN_EXECUTABLE )
 if (ENABLE_CORBA)
     IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         # Look for TAO and ACE
-        find_package(TAO REQUIRED IDL PortableServer CosNaming)
+	if(OROCOS_TARGET STREQUAL "win32")
+	  set(XTRA_TAO_LIBS AnyTypeCode)
+	endif()
+        find_package(TAO REQUIRED IDL PortableServer CosNaming TAO_Messaging ${XTRA_TAO_LIBS})
         IF(NOT TAO_FOUND)
             MESSAGE(FATAL_ERROR "Cannot find TAO")
         ELSE(NOT TAO_FOUND)

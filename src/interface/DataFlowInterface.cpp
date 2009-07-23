@@ -37,6 +37,7 @@
 
 
 #include "DataFlowInterface.hpp"
+#include "TaskObject.hpp"
 #include "Logger.hpp"
 
 namespace RTT

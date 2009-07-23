@@ -19,7 +19,7 @@
 
 
 #include "logger_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 #include "os/PeriodicThread.hpp"

@@ -49,7 +49,7 @@ namespace RTT
     /**
      * A user friendly method to a TaskContext.
      */
-    class MethodC
+    class RTT_API MethodC
     {
         /**
          * The 'd' pointer pattern.

@@ -58,7 +58,7 @@ namespace RTT
      * methods, events and attributes. OperationInterface objects can be
      * hierarchically nested.
      */
-    class OperationInterface
+    class RTT_API OperationInterface
     {
     protected:
         CommandRepository mcommands;

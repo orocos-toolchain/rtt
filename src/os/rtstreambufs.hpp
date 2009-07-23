@@ -49,7 +49,7 @@ namespace RTT
     /**
      * A base class for all stream buffer operations
      */
-    class streambufs
+    class RTT_API streambufs
     {
         public:
             typedef unsigned int streamsize;
@@ -67,7 +67,7 @@ namespace RTT
      * It is initialized to a stringsize of 512 bytes.
      * You can increase it by calling buf.str().reserve( x_bytes );
      */
-    class stringbufs
+    class RTT_API stringbufs
         : public streambufs
     {
         public:
@@ -150,7 +150,7 @@ namespace RTT
             streamsize end;
    };
 
-    class printbufs
+    class RTT_API printbufs
         : public streambufs
     {
         public:

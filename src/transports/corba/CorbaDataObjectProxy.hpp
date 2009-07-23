@@ -40,12 +40,33 @@
 #ifndef ORO_CORBA_DATAOBJECTPROXY_HPP
 #define ORO_CORBA_DATAOBJECTPROXY_HPP
 
+#if 0
+//necessary to keep MSVC happy 
+//avoids redefinitions in winsock2.h
+#pragma push_macro("_WINSOCKAPI_")
+#ifndef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#endif
+
+#include <windows.h>
+
+#pragma pop_macro("_WINSOCKAPI_")
+/////////////////////////////////////////
+#endif
+
+#include "corba.h"
+#ifdef CORBA_IS_TAO
+#include <tao/corba.h>
+#include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/CORBA.h>
+#include <omniORB4/poa.h>
+#endif
 
 #include "../DataObjectInterfaces.hpp"
 #include "../DataSources.hpp"
 #include "OperationsC.h"
 #include "CorbaLib.hpp"
-#include "corba.h"
 
 namespace RTT
 { namespace Corba {

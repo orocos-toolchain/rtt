@@ -43,6 +43,7 @@
 #include "fosi.h"
 #include "threads.hpp"
 #include "Time.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -53,7 +54,7 @@ namespace RTT
          * The periodicity is the time between the starting
          * of two runs or zero for non periodic threads.
          */
-        class ThreadInterface
+        class RTT_API ThreadInterface
         {
         public:
             ThreadInterface();

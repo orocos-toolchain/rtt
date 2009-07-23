@@ -54,8 +54,7 @@ extern "C"
 #endif
 
 #include "../oro_limits.h"
-	// Orocos Implementation (i386 specific)
-#include "../oro_atomic.h"
+#include "../../rtt-config.h"
 
     // Time Related
 #ifdef _MSC_VER
@@ -66,8 +65,8 @@ extern "C"
 #include <unistd.h>
 #endif
 
-    void sleep(long s);
-    void usleep(long us);
+    RTT_API void sleep(long s);
+    RTT_API void usleep(long us);
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
@@ -95,7 +94,7 @@ extern "C"
 #ifdef _MSC_VER
     //conflicts with another struct under MSVC
     struct oro_timespec {
-        time_t tv_sec;
+        long tv_sec;
         long tv_nsec;
     };
 
@@ -117,7 +116,7 @@ extern "C"
 		timevl.tv_nsec = hrt*( 1000000000LL / freq.QuadPart );
 */
 		TIME_SPEC timevl;
-		timevl.tv_sec = (time_t)(hrt / 1000000000LL);
+		timevl.tv_sec = (long)(hrt / 1000000000LL);
 		timevl.tv_nsec = (long)(hrt % 1000000000LL);
 		return timevl;
 	}
@@ -327,12 +326,7 @@ extern "C"
     //typedef pthread_mutex_t rt_mutex_t;
     //typedef pthread_mutex_t rt_rec_mutex_t;
     typedef HANDLE rt_mutex_t;
-    typedef struct {
-    	rt_mutex_t lock;
-    	rt_mutex_t mutex;
-    	DWORD owner;
-    	int count;
-    } rt_rec_mutex_t;
+    typedef HANDLE rt_rec_mutex_t;
 
     static inline void printMutex(rt_mutex_t* m){
     	DWORD tid = GetCurrentThreadId();
@@ -357,27 +351,12 @@ extern "C"
 
     static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
-    	m->count = 0;
-    	m->lock = CreateMutex(NULL, FALSE, NULL);
-    	if(m->lock==NULL) return -1;
-    	m->mutex = CreateMutex(NULL, FALSE, NULL);
-    	if(m->mutex==NULL) {
-    		CloseHandle(m->lock);
-    		return -1;
-    	}
-    	// printMutex(&(m->mutex));
-    	// printf(" rtos_mutex_rec_init \n" );
-    	return 0;
+        return rtos_mutex_init(m);
     }
 
     static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
-    	// printMutex(&(m->mutex));
-    	// printf(" rtos_mutex_rec_destroy \n" );
-    	CloseHandle(m->lock);
-    	CloseHandle(m->mutex);
-    	m->count = 0;
-        return 0;
+        return rtos_mutex_destroy(m);
     }
 
     static inline int rtos_mutex_lock( rt_mutex_t* m)
@@ -409,61 +388,29 @@ extern "C"
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
-    	// printMutex(&(m->mutex));
-    	// printf(" rtos_mutex_rec_trylock \n" );
-    	DWORD tid = GetCurrentThreadId();
-    	if( rtos_mutex_lock( &(m->lock) ) ) return -1;
-    	if(m->count==0 ){
-    		m->owner = tid;
-    		m->count++;
-    		rtos_mutex_unlock( &(m->lock) );
-        	if( rtos_mutex_lock( &(m->mutex) ) ){
-        		// error: the mutex was not locked so we reinitialize the mutex
-        		rtos_mutex_lock( &(m->lock) );
-        		m->count = 0;
-        		rtos_mutex_unlock( &(m->lock) );
-        		return -1;
-        	}
-    	} else if( m->owner == tid ){
-    		// increase the counter
-    		m->count++;
-    		rtos_mutex_unlock( &(m->lock) );
-    	} else {
-    		rtos_mutex_unlock( &(m->lock) );
-    		// the lock is not available
-    		return -1;
-    	}
-        return 0;
+        return rtos_mutex_trylock(m);
+    }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+    	if( WaitForSingleObject(*m, (DWORD)((abs_time - rtos_get_time_ns())/1000000LL) ) == WAIT_OBJECT_0 )
+    		return 0;
+        return -1;
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        return rtos_mutex_lock_until(m, abs_time);
     }
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
-    	// printMutex(&(m->mutex));
-       	// printf(" rtos_mutex_rec_lock \n" );
-       	if( rtos_mutex_rec_trylock( m ) ){
-       		// mutex locked so request by blocking
-       		return rtos_mutex_lock( &(m->mutex) );
-       	}
-       	return 0;
+        return rtos_mutex_lock(m);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
-    	// printMutex(&(m->mutex));
-    	// printf(" rtos_mutex_rec_unlock \n" );
-    	DWORD tid = GetCurrentThreadId();
-    	if( rtos_mutex_lock( &(m->lock) ) ) return -1;
-    	if( m->count>0 && m->owner==tid ){
-    		// decrease the counter
-    		m->count--;
-    		if(m->count == 0){
-    			rtos_mutex_unlock( &(m->mutex) );
-    		}
-    		rtos_mutex_unlock( &(m->lock) );
-    		return 0;
-    	}
-    	rtos_mutex_unlock( &(m->lock) );
-    	return rtos_mutex_unlock( &(m->mutex) );
+        return rtos_mutex_unlock(m);
     }
 
 #define rtos_printf printf

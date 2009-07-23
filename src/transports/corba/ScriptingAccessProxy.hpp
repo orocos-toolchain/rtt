@@ -39,8 +39,17 @@
 #ifndef ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 #define ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 
-#include "../ScriptingAccess.hpp"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
+#include <tao/corba.h>
+#include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/CORBA.h>
+#include <omniORB4/poa.h>
+#endif
+
 #include "ScriptingAccessC.h"
+#include "../ScriptingAccess.hpp"
 
 namespace RTT
 {namespace Corba
@@ -49,7 +58,7 @@ namespace RTT
     /**
      * A Corba Proxy for the ScriptingAccess class.
      */
-    class ScriptingAccessProxy
+    class RTT_CORBA_API ScriptingAccessProxy
         : public RTT::ScriptingAccess
     {
     protected:

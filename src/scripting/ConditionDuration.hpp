@@ -49,7 +49,7 @@ namespace RTT
      * A conditional that evaluates true after a certain time has passed.
      * The behaviour can be inverted upon construction.
      */
-    class ConditionDuration
+    class RTT_API ConditionDuration
         : public ConditionInterface
     {
         typedef TimeService::nsecs nsecs;

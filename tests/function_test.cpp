@@ -19,13 +19,14 @@
 
 
 #include "function_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #include <FunctionGraph.hpp>
 #include <SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 

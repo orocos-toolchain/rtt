@@ -47,7 +47,7 @@ namespace RTT
 
 
 
-    class ConditionBool :
+    class RTT_API ConditionBool :
                 public ConditionInterface
     {
 

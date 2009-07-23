@@ -51,7 +51,7 @@
 
 namespace RTT
 {
-    class DigitalOutInterface;
+    class RTT_API DigitalOutInterface;
 
     namespace OS {
     /**
@@ -81,7 +81,7 @@ namespace RTT
      *
      * @see RunnableInterface
      */
-    class SingleThread
+    class RTT_API SingleThread
         : public OS::ThreadInterface
     {
         friend void* singleThread_f( void* t );

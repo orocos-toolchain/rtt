@@ -46,7 +46,7 @@ namespace RTT
      * automatically load all types supported by this plugin (using 
      * registerTransport() below).
      */
-    class TransportPlugin
+    class RTT_API TransportPlugin
     {
     public:
         virtual ~TransportPlugin() {}

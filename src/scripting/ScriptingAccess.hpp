@@ -53,7 +53,7 @@ namespace RTT
      * and state machines and allows execution of code.
      * It can be found as the \a scripting object of a TaskContext.
      */
-    class ScriptingAccess
+    class RTT_API ScriptingAccess
     {
     protected:
         TaskContext* mparent;

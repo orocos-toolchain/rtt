@@ -36,6 +36,7 @@
 
 #include <string>
 #include <vector>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -46,7 +47,7 @@ namespace RTT
      * A ToolkitPlugin defines additional user data types for a Toolkit.
      * @ingroup CoreLib
      */
-    class ToolkitPlugin
+    class RTT_API ToolkitPlugin
     {
     public:
         virtual ~ToolkitPlugin() {}

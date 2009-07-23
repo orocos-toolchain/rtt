@@ -40,6 +40,7 @@
 #define ORO_EXECUTION_ACCESS_HPP
 
 #include <string>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -50,7 +51,7 @@ namespace RTT
      * and state machines loaded in the execution engine.
      * It can be found as the \a engine object of a TaskContext.
      */
-    class ExecutionAccess
+    class RTT_API ExecutionAccess
     {
     protected:
         TaskContext* tc;

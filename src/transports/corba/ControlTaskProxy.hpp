@@ -78,7 +78,7 @@ namespace RTT
      * servers.
      * @ingroup CompIDL
      */
-    class ControlTaskProxy
+    class RTT_CORBA_API ControlTaskProxy
         : public TaskContext,
           public ApplicationServer
     {
@@ -112,12 +112,6 @@ namespace RTT
         void fetchObjects(OperationInterface* parent, ControlObject_ptr mtask);
     public:
         ~ControlTaskProxy();
-
-        /**
-         * Invoke this method once to initialise the Orb which will
-         * connect to the task servers.
-         */
-        static bool InitOrb(int argc, char* argv[] );
 
         /**
          * Invoke this method once to cleanup the orb.

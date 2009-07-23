@@ -132,7 +132,7 @@ namespace RTT
                     return false;
                 minvoked = true;
                 this->readArguments();
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0);
             }
 
             virtual void readArguments() { mcom.readArguments(); }

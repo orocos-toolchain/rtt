@@ -54,7 +54,7 @@ namespace RTT
      * and stores the result in a DataSource<bool>.
      * @see TryCommandResult.
      */
-    class TryCommand :
+    class RTT_API TryCommand :
         public CommandInterface
     {
         // we must use a DataSource for correct
@@ -91,7 +91,7 @@ namespace RTT
      * of another command.
      * @see TryCommand
      */
-    class TryCommandResult :
+    class RTT_API TryCommandResult :
         public ConditionInterface
     {
         DataSource<bool>::shared_ptr c;
@@ -122,7 +122,7 @@ namespace RTT
      * EvalCommandResult assumes the EvalCommand has been executed when evaluated.
      * @see EvalCommandResult
      */
-    class EvalCommand :
+    class RTT_API EvalCommand :
         public CommandInterface
     {
         // the result
@@ -152,7 +152,7 @@ namespace RTT
      * a boolean DataSource.
      * @see EvalCommand
      */
-    class EvalCommandResult :
+    class RTT_API EvalCommandResult :
         public ConditionInterface
     {
         DataSource<bool>::shared_ptr c;

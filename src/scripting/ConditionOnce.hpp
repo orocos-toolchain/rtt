@@ -40,6 +40,7 @@
 #define CONDITIONONCE_HPP
 
 #include "ConditionInterface.hpp"
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -48,7 +49,7 @@ namespace RTT
      * A conditional that evaluates the first time true
      * and afterwards always false (or vice versa).
      */
-    class ConditionOnce
+    class RTT_API ConditionOnce
         : public ConditionInterface
     {
 

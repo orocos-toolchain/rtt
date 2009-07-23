@@ -20,7 +20,7 @@
 
 #include <rtt-config.h>
 #include "state_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #ifndef NOPARSER
@@ -32,6 +32,7 @@
 #include <Method.hpp>
 #include <Command.hpp>
 #include <StateMachine.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 

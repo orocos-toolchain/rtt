@@ -52,7 +52,7 @@ namespace RTT
     /**
      * A user friendly Command to a TaskContext.
      */
-    class CommandC
+    class RTT_API CommandC
     {
         /**
          * The 'd' pointer pattern.

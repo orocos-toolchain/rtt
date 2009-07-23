@@ -39,6 +39,7 @@
 #define PI_PROPERTIES_MARSHALLER
 
 #include <string>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -54,7 +55,7 @@ namespace RTT
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-    class Marshaller
+    class RTT_API Marshaller
     {
         public:
         virtual ~Marshaller() {}
@@ -91,7 +92,7 @@ namespace RTT
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-	class Demarshaller
+	class RTT_API Demarshaller
 	{
 		public:
         virtual ~Demarshaller() {}

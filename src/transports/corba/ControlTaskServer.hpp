@@ -58,8 +58,8 @@
 namespace RTT
 {namespace Corba
 {
-    class OrbRunner;
-    class ControlTaskProxy;
+    class RTT_CORBA_API OrbRunner;
+    class RTT_CORBA_API ControlTaskProxy;
 
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -67,7 +67,7 @@ namespace RTT
      * The Orb may be run from the main thread or in its own thread.
      * @ingroup CompIDL
      */
-    class ControlTaskServer
+    class RTT_CORBA_API ControlTaskServer
         : public ApplicationServer
     {
     protected:
@@ -99,12 +99,6 @@ namespace RTT
          */
         static void DoShutdownOrb(bool wait_for_completion = true);
     public:
-
-        /**
-         * Invoke this method once to initialise the Orb which will
-         * run the task servers.
-         */
-        static bool InitOrb(int argc, char* argv[] );
 
         /**
          * Invoke this method once to shutdown the Orb which is

@@ -43,9 +43,9 @@ namespace RTT
 {
     /**
      * @brief Based on the software pattern 'composite', this
-     * class allows composing command objects into one command object
+     * class RTT_API allows composing command objects into one command object
      */
-    class CommandComposite
+    class RTT_API CommandComposite
         : public CommandInterface
     {
         public:

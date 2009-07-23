@@ -95,7 +95,7 @@ namespace RTT
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
      */
-    class TaskContext
+    class RTT_API TaskContext
         : public OperationInterface,
           public TaskCore
     {
@@ -434,7 +434,7 @@ namespace RTT
      * directions, by matching port names.
      * @see TaskContext::connectPorts
      */
-    bool connectPorts(TaskContext* A, TaskContext* B);
+    RTT_API bool connectPorts(TaskContext* A, TaskContext* B);
 
     /**
      * Set up the Execution Flow (who knows who)
@@ -442,7 +442,7 @@ namespace RTT
      * use each other's interface.
      * @see TaskContext::connectPeers
      */
-    bool connectPeers(TaskContext* A, TaskContext* B);
+    RTT_API bool connectPeers(TaskContext* A, TaskContext* B);
 }
 
 #endif

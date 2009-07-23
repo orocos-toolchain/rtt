@@ -22,6 +22,7 @@
 #define HEART_BEAT_GENERATOR_HPP
 
 #include "Time.hpp"
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -30,7 +31,7 @@ namespace RTT
      * The TimeService is used for system-wide time keeping and conversions.
      * @ingroup CoreLibTime
      */
-    class TimeService
+    class RTT_API TimeService
     {
     public:
         /**

@@ -13,7 +13,7 @@
 #
 ################################################################################
 
-include(LibFindMacros)
+include(FindPackageHandleStandardArgs)
 
 # Get hint from environment variable (if any)
 if(NOT XERCES_ROOT_DIR AND DEFINED ENV{XERCES_ROOT_DIR})
@@ -32,9 +32,19 @@ find_path(XERCES_INCLUDE_DIR       NAMES xercesc/dom/DOM.hpp ${XERCES_INCLUDE_PA
 find_library(XERCES_C_LIBRARY      NAMES xerces-c            ${XERCES_LIBRARY_PATH})
 find_library(XERCES_DEPDOM_LIBRARY NAMES xerces-depdom       ${XERCES_LIBRARY_PATH})
 
-# Set the include dir variables and the libraries and let libfind_process do the rest.
-# NOTE: Singular variables for this library, plural for libraries this this lib depends on.
-set(XERCES_PROCESS_INCLUDES XERCES_INCLUDE_DIR)
-set(XERCES_PROCESS_LIBS XERCES_C_LIBRARY
-                        XERCES_DEPDOM_LIBRARY)
-libfind_process(XERCES)
+# Set Xerces_FOUND honoring the QUIET and REQUIRED arguments
+find_package_handle_standard_args(Xerces DEFAULT_MSG XERCES_C_LIBRARY XERCES_DEPDOM_LIBRARY XERCES_INCLUDE_DIR)
+
+# Output variables
+if(XERCES_FOUND)
+  # Include dirs
+  set(XERCES_INCLUDE_DIRS ${XERCES_INCLUDE_DIR})
+
+  # Libraries
+  set(XERCES_LIBRARIES ${XERCES_C_LIBRARY}
+                       ${XERCES_DEPDOM_LIBRARY})
+
+endif()
+
+# Advanced options for not cluttering the cmake UIs
+mark_as_advanced(XERCES_INCLUDE_DIR XERCES_C_LIBRARY XERCES_DEPDOM_LIBRARY)
