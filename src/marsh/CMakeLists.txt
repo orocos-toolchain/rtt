@@ -3,10 +3,10 @@ GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp)
 GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp)
 
 IF (ENABLE_MARSHALLING)
-  GLOBAL_ADD_INCLUDE( rtt/marsh INIMarshaller.hpp Orocos1Demarshaller.hpp SimpleDemarshaller.hpp CPFMarshaller.hpp
-           TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp CPFDTD.hpp
-           MarshallerAdaptors.hpp Orocos1Marshaller.hpp SimpleMarshaller.hpp TableMarshaller.hpp  XMLMarshaller.hpp
-           XMLRPCMarshaller.hpp StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp
+  GLOBAL_ADD_INCLUDE( rtt/marsh CPFMarshaller.hpp
+           TableHeaderMarshaller.hpp  XMLRPCDemarshaller.hpp XMLRPCMarshaller.hpp CPFDTD.hpp
+           MarshallerAdaptors.hpp TableMarshaller.hpp
+           StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp
            )
   GLOBAL_ADD_SRC( marsh/CPFDTD.cpp marsh/CPFMarshaller.cpp)
 

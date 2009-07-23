@@ -25,7 +25,7 @@ namespace RTT
         virtual ~PortID() {}
     };
 
-    class PortInterface
+    class RTT_API PortInterface
     {
         struct PortID : public RTT::PortID
         {
