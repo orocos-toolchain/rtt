@@ -87,7 +87,7 @@ namespace RTT
         {
             write_policy.pop();
             OS::MutexLock locker(lock);
-            if (cap == buf.size() ) {
+            if (cap == (size_type)buf.size() ) {
                 write_policy.push();
                 return false;
             }
@@ -101,7 +101,7 @@ namespace RTT
             write_policy.pop( items.size() );
             OS::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
-            while ( buf.size() != cap && itl != items.end() ) {
+            while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
                 buf.push_back( *itl );
                 ++itl;
                 read_policy.push();
@@ -169,11 +169,11 @@ namespace RTT
 
         bool full() const {
             OS::MutexLock locker(lock);
-            return buf.size() ==  cap;
+            return (size_type)buf.size() ==  cap;
         }
     private:
-        std::deque<T> buf;
         size_type cap;
+        std::deque<T> buf;
         mutable OS::Mutex lock;
         WritePolicy write_policy;
         ReadPolicy read_policy;
