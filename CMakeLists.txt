@@ -46,7 +46,7 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 
 # Make compilation verbose
-SET(CMAKE_VERBOSE_MAKEFILE TRUE)
+#SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 ###################################################
 #                                                 #
