@@ -50,5 +50,5 @@
 #include "SequentialActivity.hpp"
 #include "PeriodicActivity.hpp"
 #include "NonPeriodicActivity.hpp"
-#include "RunnableInterface.hpp"
+#include "../interface/RunnableInterface.hpp"
 

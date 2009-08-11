@@ -47,10 +47,10 @@
 #include <omniORB4/poa.h>
 #endif
 #include "OperationsC.h"
-#include "../DataSource.hpp"
+#include "../../internal/DataSource.hpp"
 #include "CORBAExpression.hpp"
-#include "../Logger.hpp"
-#include "../DataSources.hpp"
+#include "../../Logger.hpp"
+#include "../../internal/DataSources.hpp"
 
 namespace RTT
 {namespace Corba

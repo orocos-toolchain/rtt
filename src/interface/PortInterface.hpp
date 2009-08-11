@@ -3,8 +3,8 @@
 
 #include <string>
 #include "Channels.hpp"
-#include "Events.hpp"
-#include "ListLockFree.hpp"
+#include "../extras/Events.hpp"
+#include "../internal/ListLockFree.hpp"
 
 namespace RTT
 {

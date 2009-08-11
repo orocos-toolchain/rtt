@@ -40,7 +40,7 @@
 #include "CommandDispatch.hpp"
 #include "TryCommand.hpp"
 #include "ConditionComposite.hpp"
-#include "CommandProcessor.hpp"
+#include "../internal/CommandProcessor.hpp"
 
 namespace RTT
 {

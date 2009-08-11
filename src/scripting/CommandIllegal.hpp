@@ -38,7 +38,7 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 #include <string>
 
 namespace RTT

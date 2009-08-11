@@ -39,7 +39,7 @@
 
 #include "StateMachineProcessor.hpp"
 #include <Logger.hpp>
-#include <Exceptions.hpp>
+#include "../internal/Exceptions.hpp"
 
 #include <boost/bind.hpp>
 

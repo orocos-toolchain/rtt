@@ -35,13 +35,13 @@
 //#include "DumpObject.hpp"
 
 #include "ArgumentsParser.hpp"
-#include <Operators.hpp>
-#include <DataSourceCondition.hpp>
+#include "../types/Operators.hpp"
+#include "DataSourceCondition.hpp"
 
 #include "DataSourceTime.hpp"
 #include "TaskContext.hpp"
 #include "PeerParser.hpp"
-#include "Types.hpp"
+#include "../types/Types.hpp"
 
 #include <boost/lambda/lambda.hpp>
 

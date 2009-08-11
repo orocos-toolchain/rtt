@@ -6,7 +6,7 @@
 #include "Activity.hpp"
 #include "os/MutexLock.hpp"
 #include "Logger.hpp"
-#include "TimerThread.hpp"
+#include "extras/TimerThread.hpp"
 #include <cmath>
 
 namespace RTT

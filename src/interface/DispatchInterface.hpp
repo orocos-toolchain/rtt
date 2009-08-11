@@ -39,8 +39,8 @@
 #ifndef ORO_EXECUTION_DISPATCHINTERFACE_HPP
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
 
-#include "CommandInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "../internal/CommandInterface.hpp"
+#include "../scripting/ConditionInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

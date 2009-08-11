@@ -39,7 +39,7 @@
 #ifndef ORO_METHOD_BASE_HPP
 #define ORO_METHOD_BASE_HPP
 
-#include "Invoker.hpp"
+#include "../internal/Invoker.hpp"
 #include "ActionInterface.hpp"
 
 namespace RTT

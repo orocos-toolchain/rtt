@@ -58,7 +58,7 @@
 #include <fstream>
 
 #include "os/threads.hpp"
-#include "NonPeriodicActivity.hpp"
+#include "Activity.hpp"
 
 namespace RTT
 {namespace Corba
@@ -276,10 +276,10 @@ namespace RTT
      * Class which runs an orb in an Orocos thread.
      */
     struct OrbRunner
-        : public NonPeriodicActivity
+        : public Activity
     {
         OrbRunner()
-            : NonPeriodicActivity(RTT::OS::LowestPriority)
+            : Activity(RTT::OS::LowestPriority)
         {}
         void loop()
         {

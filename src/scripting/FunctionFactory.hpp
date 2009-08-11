@@ -39,10 +39,10 @@
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
-#include "../OperationFactory.hpp"
+#include "../internal/OperationFactory.hpp"
 #include "../Property.hpp"
-#include "../ProgramInterface.hpp"
-#include "../DispatchInterface.hpp"
+#include "../interface/ProgramInterface.hpp"
+#include "../interface/DispatchInterface.hpp"
 
 #include <map>
 #include <string>

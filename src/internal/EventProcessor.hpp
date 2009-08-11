@@ -39,12 +39,12 @@
 #ifndef ORO_EVENTPROCESSOR_HPP
 #define ORO_EVENTPROCESSOR_HPP
 
-#include "RunnableInterface.hpp"
+#include "../interface/RunnableInterface.hpp"
 #include "Signal.hpp"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include "DataObjectInterfaces.hpp"
+#include "../interface/DataObjectInterfaces.hpp"
 #include "List.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"

@@ -37,10 +37,10 @@
 
 
 #include "DataFlowInterface.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 #include "Logger.hpp"
 #include "OperationInterface.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 
 namespace RTT
 {

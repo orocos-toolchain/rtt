@@ -51,8 +51,8 @@
  *
  */
 
-#include "Property.hpp"
-#include "PropertyBag.hpp"
+#include "../Property.hpp"
+#include "../PropertyBag.hpp"
 #include "PropertySequence.hpp"
-#include "PropertyIntrospection.hpp"
-#include "Marshaller.hpp"
+#include "../marsh/PropertyIntrospection.hpp"
+#include "../marsh/Marshaller.hpp"

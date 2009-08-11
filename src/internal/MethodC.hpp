@@ -41,7 +41,7 @@
 
 #include <string>
 #include "DataSources.hpp"
-#include "Attribute.hpp"
+#include "../Attribute.hpp"
 #include "OperationFactory.hpp"
 
 namespace RTT

@@ -51,11 +51,11 @@
  *
  */
 
-#include "Common.hpp"
-#include "Properties.hpp"
-#include "Events.hpp"
-#include "Activities.hpp"
-#include "Buffers.hpp"
-#include "TimeService.hpp"
-#include "Logger.hpp"
+#include "../os/win32/winthreads.cpp"
+#include "../extras/Properties.hpp"
+#include "../extras/Events.hpp"
+#include "../extras/Activities.hpp"
+#include "../interface/Buffers.hpp"
+#include "../os/TimeService.hpp"
+#include "../Logger.hpp"
 

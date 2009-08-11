@@ -20,7 +20,7 @@
 #ifndef COMPLETIONPROCESSOR_HPP
 #define COMPLETIONPROCESSOR_HPP
 
-#include "NonPeriodicActivity.hpp"
+#include "../Activity.hpp"
 #include "EventProcessor.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/checked_delete.hpp>
@@ -43,7 +43,7 @@ namespace RTT
      */
     class RTT_API CompletionProcessor
         : public BlockingEventProcessor,
-          public NonPeriodicActivity
+          public Activity
     {
     public:
         typedef CompletionProcessor* CompletionProcessorPtr;

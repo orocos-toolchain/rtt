@@ -38,9 +38,9 @@
 #ifndef TASK_EVENT_DRIVEN_HPP
 #define TASK_EVENT_DRIVEN_HPP
 
-#include "NonPeriodicActivity.hpp"
-#include "Event.hpp"
-#include "Buffer.hpp"
+#include "Activity.hpp"
+#include "../Event.hpp"
+#include "../interface/Buffer.hpp"
 #include <set>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -59,7 +59,7 @@ namespace RTT
      * in a given thread.
      */
     class RTT_API EventDrivenActivity
-        : public NonPeriodicActivity
+        : public Activity
     {
         // The set of events that can trigger this activity
         typedef std::vector< Event< void() >* > Events;
@@ -92,7 +92,7 @@ namespace RTT
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        EventDrivenActivity(int priority, RunnableInterface* _r = 0 );
+        EventDrivenActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity"  );
 
         /**
          * Create an EventDrivenActivity which will run in a separate thread,
@@ -103,16 +103,7 @@ namespace RTT
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
-
-        /**
-         * Create an EventDrivenActivity which will run in a separate thread,
-         * using its own event processor.
-         * @param priority The priority of the underlying thread.
-         * @param name The name of the underlying thread.
-         * @param _r The optional runner, if none, this->loop() is called.
-         */
-        EventDrivenActivity(int priority, const std::string& name, RunnableInterface* _r = 0 );
+        EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity" );
 
         /**
          * Cleanup and notify the RunnableInterface that we are gone.

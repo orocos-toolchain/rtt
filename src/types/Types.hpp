@@ -41,10 +41,10 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "DataSourceBase.hpp"
+#include "../interface/DataSourceBase.hpp"
 #include <boost/shared_ptr.hpp>
-#include "AttributeBase.hpp"
-#include "Logger.hpp"
+#include "../interface/AttributeBase.hpp"
+#include "../Logger.hpp"
 
 /**
  * \file We need some information on types if we want to make

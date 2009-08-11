@@ -42,7 +42,7 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
-#include "../AttributeRepository.hpp"
+#include "../interface/AttributeRepository.hpp"
 
 #include <memory>
 #include <map>

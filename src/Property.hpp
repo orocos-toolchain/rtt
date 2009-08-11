@@ -39,12 +39,12 @@
 #define ORO_PROPERTY_HPP
 
 #include "rtt-config.h"
-#include "Marshaller.hpp"
-#include "PropertyBase.hpp"
+#include "marsh/Marshaller.hpp"
+#include "interface/PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#include "PropertyCommands.hpp"
-#include "DataSources.hpp"
-#include "BuildType.hpp"
+#include "internal/PropertyCommands.hpp"
+#include "internal/DataSources.hpp"
+#include "types/BuildType.hpp"
 #include <boost/type_traits.hpp>
 
 #include <string>
@@ -436,7 +436,7 @@ namespace RTT
 #endif
 }
 
-#include "PropertyIntrospection.hpp"
+#include "marsh/PropertyIntrospection.hpp"
 
 namespace RTT
 {

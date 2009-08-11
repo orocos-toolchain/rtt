@@ -1,9 +1,9 @@
 #ifndef RTT_CORBA_REMOTE_PORTS_HPP
 #define RTT_CORBA_REMOTE_PORTS_HPP
 
-#include "PortInterface.hpp"
-#include "ChannelInterface.hpp"
-#include "Ports.hpp"
+#include "../../interface/PortInterface.hpp"
+#include "../../interface/ChannelInterface.hpp"
+#include "../../Ports.hpp"
 #include "DataFlowI.h"
 
 namespace RTT {

@@ -53,9 +53,9 @@
  * execution of functionality.
  */
 
-#include "TaskContext.hpp"
-#include "Command.hpp"
-#include "Method.hpp"
-#include "Property.hpp"
-#include "Ports.hpp"
+#include "../TaskContext.hpp"
+#include "../Command.hpp"
+#include "../Method.hpp"
+#include "../Property.hpp"
+#include "../Ports.hpp"
 #include "Events.hpp"

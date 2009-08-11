@@ -1,6 +1,6 @@
 #include "IRQActivity.hpp"
 #include "ExecutionEngine.hpp"
-#include "TaskCore.hpp"
+#include "../internal/TaskCore.hpp"
 
 #include <sys/select.h>
 #include <unistd.h>
@@ -8,18 +8,13 @@
 
 using namespace RTT;
 
-IRQActivity::IRQActivity(int priority, RunnableInterface* _r )
-    : NonPeriodicActivity(priority, _r)
+IRQActivity::IRQActivity(int priority, RunnableInterface* _r, const std::string& name )
+    : Activity(priority, 0.0, _r, name)
     , m_irq(-1)
     , m_runner(_r) {}
 
-IRQActivity::IRQActivity(int scheduler, int priority, RunnableInterface* _r )
-    : NonPeriodicActivity(scheduler, priority, _r)
-    , m_irq(-1)
-    , m_runner(_r) {}
-
-IRQActivity::IRQActivity(int priority, const std::string& name, RunnableInterface* _r )
-    : NonPeriodicActivity(priority, name, _r)
+IRQActivity::IRQActivity(int scheduler, int priority, RunnableInterface* _r, const std::string& name )
+    : Activity(scheduler, priority, 0.0, _r, name)
     , m_irq(-1)
     , m_runner(_r) {}
 

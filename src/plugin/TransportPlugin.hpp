@@ -35,7 +35,7 @@
 #define ORO_TRANSPORTPLUGIN_HPP 1
 
 #include <string>
-#include "Types.hpp"
+#include "../types/Types.hpp"
 
 namespace RTT
 {

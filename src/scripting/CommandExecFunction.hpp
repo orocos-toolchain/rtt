@@ -40,12 +40,12 @@
 #define COMMAND_EXEC_FUNCTION_HPP
 
 #include "ConditionInterface.hpp"
-#include "CommandInterface.hpp"
-#include "DataSources.hpp"
-#include "ProgramInterface.hpp"
+#include "../internal/CommandInterface.hpp"
+#include "../internal/DataSources.hpp"
+#include "../interface/ProgramInterface.hpp"
 #include "ProgramProcessor.hpp"
-#include "DispatchInterface.hpp"
-#include "DataSource.hpp"
+#include "../interface/DispatchInterface.hpp"
+#include "../internal/DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

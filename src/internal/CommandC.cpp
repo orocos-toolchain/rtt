@@ -38,12 +38,12 @@
 
 #include "CommandC.hpp"
 #include "CommandRepository.hpp"
-#include "DispatchInterface.hpp"
-#include "TryCommand.hpp"
-#include "ConditionComposite.hpp"
+#include "../interface/DispatchInterface.hpp"
+#include "../scripting/TryCommand.hpp"
+#include "../scripting/ConditionComposite.hpp"
 #include "FactoryExceptions.hpp"
-#include "Logger.hpp"
-#include <Exceptions.hpp>
+#include "../Logger.hpp"
+#include "Exceptions.hpp"
 #include <vector>
 
 namespace RTT

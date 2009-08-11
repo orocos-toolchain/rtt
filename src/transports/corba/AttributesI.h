@@ -78,8 +78,8 @@
 #include "AttributesC.h"
 #endif
 
-#include "../AttributeRepository.hpp"
-#include "../PropertyBag.hpp"
+#include "../../interface/AttributeRepository.hpp"
+#include "../../PropertyBag.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

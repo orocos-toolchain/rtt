@@ -67,11 +67,11 @@
 // be/be_codegen.cpp:910
 
 #include "OperationsI.h"
-#include "CommandC.hpp"
+#include "../../internal/CommandC.hpp"
 #include "AnyDataSource.hpp"
-#include "DataSourceCondition.hpp"
-#include "CommandDataSource.hpp"
-#include "Logger.hpp"
+#include "../../scripting/DataSourceCondition.hpp"
+#include "../../scripting/CommandDataSource.hpp"
+#include "../../Logger.hpp"
 
 
 using namespace RTT;

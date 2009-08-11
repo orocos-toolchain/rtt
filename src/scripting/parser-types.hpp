@@ -38,7 +38,7 @@
 #define PARSER_TYPES_HPP
 
 #include <boost/spirit.hpp>
-#include "../CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

@@ -39,7 +39,7 @@
 #ifndef ORO_CORELIB_SIGNAL_HANDLE_HPP
 #define ORO_CORELIB_SIGNAL_HANDLE_HPP
 
-#include "impl/signal_base.hpp"
+#include "internal/signal_base.hpp"
 
 namespace RTT
 {

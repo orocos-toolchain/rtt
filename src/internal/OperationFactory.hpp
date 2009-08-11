@@ -52,14 +52,14 @@
 
 #include "mystd.hpp"
 
-#include "PropertyBag.hpp"
-#include "Property.hpp"
+#include "../PropertyBag.hpp"
+#include "../Property.hpp"
 #include "DataSourceAdaptor.hpp"
 #include "Exceptions.hpp"
 #include "DataSource.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include "DispatchInterface.hpp"
+#include "../interface/DispatchInterface.hpp"
 
 /**
  * @file OperationFactory.hpp This file contains some code that is common

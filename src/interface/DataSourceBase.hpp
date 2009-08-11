@@ -45,7 +45,7 @@
 #include <string>
 #include "os/Atomic.hpp"
 #include "rtt-config.h"
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

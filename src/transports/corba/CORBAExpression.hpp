@@ -39,11 +39,11 @@
 #ifndef ORO_CORBAEXPRESSION_HPP
 #define ORO_CORBAEXPRESSION_HPP
 
-#include "../DataSource.hpp"
-#include "../Logger.hpp"
-#include "../BuildType.hpp"
-#include "../CommandInterface.hpp"
-#include "../CommandBinary.hpp"
+#include "../../internal/DataSource.hpp"
+#include "../../Logger.hpp"
+#include "../../types/BuildType.hpp"
+#include "../../internal/CommandInterface.hpp"
+#include "../../scripting/CommandBinary.hpp"
 #include "CorbaConversion.hpp"
 #include <cassert>
 

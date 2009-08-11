@@ -39,10 +39,10 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 #include "ConditionInterface.hpp"
-#include "Logger.hpp"
-#include "DataSource.hpp"
+#include "../Logger.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

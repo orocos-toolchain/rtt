@@ -29,8 +29,8 @@
 #include "parse_exception.hpp"
 #include "ValueChangeParser.hpp"
 
-#include "OperationInterface.hpp"
-#include "Types.hpp"
+#include "../interface/OperationInterface.hpp"
+#include "../types/Types.hpp"
 #include "Attribute.hpp"
 #include "../TaskContext.hpp"
 //#include "DumpObject.hpp"

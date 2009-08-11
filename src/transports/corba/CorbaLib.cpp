@@ -46,8 +46,8 @@
 #endif
 
 #include "CorbaTemplateProtocol.hpp"
-#include "TransportPlugin.hpp"
-#include "Toolkit.hpp"
+#include "../../plugin/TransportPlugin.hpp"
+#include "../../types/Toolkit.hpp"
 #include "os/StartStopManager.hpp"
 
 namespace RTT {

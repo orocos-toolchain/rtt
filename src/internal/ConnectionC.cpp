@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#include "EventService.hpp"
+#include "../interface/EventService.hpp"
 #include "ConnectionC.hpp"
 #include "FactoryExceptions.hpp"
-#include <EventProcessor.hpp>
-#include <Logger.hpp>
+#include "EventProcessor.hpp"
+#include "Logger.hpp"
 #include <vector>
 #include <boost/bind.hpp>
 

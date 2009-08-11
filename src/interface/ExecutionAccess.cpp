@@ -41,7 +41,7 @@
 #include "OperationInterface.hpp"
 #include "Command.hpp"
 #include "Method.hpp"
-#include "NA.hpp"
+#include "../internal/NA.hpp"
 
 namespace RTT
 {

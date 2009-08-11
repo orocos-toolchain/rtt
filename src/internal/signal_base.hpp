@@ -52,7 +52,7 @@
 
 #include "../os/Atomic.hpp"
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-#include "../ListLockFree.hpp"
+#include "ListLockFree.hpp"
 #include <boost/shared_ptr.hpp>
 #else
 #ifdef ORO_SIGNAL_USE_RT_LIST

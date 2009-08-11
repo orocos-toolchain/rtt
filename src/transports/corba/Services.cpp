@@ -38,7 +38,7 @@
 
 #include "Services.hpp"
 #include "ApplicationServer.hpp"
-#include "Logger.hpp"
+#include "../../Logger.hpp"
 #include "ControlTaskProxy.hpp"
 #include "corba.h"
 

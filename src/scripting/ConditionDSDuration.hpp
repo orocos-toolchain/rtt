@@ -40,8 +40,8 @@
 #define CONDITION_DS_DURATION_HPP
 
 #include "ConditionInterface.hpp"
-#include "TimeService.hpp"
-#include "DataSource.hpp"
+#include "../os/TimeService.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

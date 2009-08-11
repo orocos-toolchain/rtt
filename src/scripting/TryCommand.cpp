@@ -38,7 +38,7 @@
 
 #include <Logger.hpp>
 #include "TryCommand.hpp"
-#include <DataSources.hpp>
+#include "../internal/DataSources.hpp"
 
 namespace RTT
 {

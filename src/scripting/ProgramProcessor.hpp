@@ -38,11 +38,11 @@
 #ifndef PROGRAM_PROCESSOR_HPP
 #define PROGRAM_PROCESSOR_HPP
 
-#include "RunnableInterface.hpp"
-#include "BufferPolicy.hpp"
-#include "List.hpp"
+#include "../interface/RunnableInterface.hpp"
+#include "../interface/BufferPolicy.hpp"
+#include "../internal/List.hpp"
 #include "ProgramExceptions.hpp"
-#include "ProgramInterface.hpp"
+#include "../interface/ProgramInterface.hpp"
 
 #include <map>
 #include <string>

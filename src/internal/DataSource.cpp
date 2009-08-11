@@ -35,11 +35,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataSource.hpp"
-#include "TypeInfoName.hpp"
+#include "../types/TypeInfoName.hpp"
 
 #include "rtt-config.h"
-#include "Types.hpp"
-#include "TypeTransporter.hpp"
+#include "../types/Types.hpp"
+#include "../types/TypeTransporter.hpp"
 
 namespace RTT
 {

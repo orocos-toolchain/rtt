@@ -68,7 +68,7 @@
 
 #include "OperationInterfaceI.h"
 #include "OperationsI.h"
-#include "OperationFactory.hpp"
+#include "../../internal/OperationFactory.hpp"
 #include "ExpressionProxy.hpp"
 #include "AnyDataSource.hpp"
 

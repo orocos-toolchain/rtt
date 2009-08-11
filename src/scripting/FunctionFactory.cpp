@@ -47,7 +47,7 @@
 #include <sstream>
 #include <map>
 #include <string>
-#include "mystd.hpp"
+#include "../internal/mystd.hpp"
 #include <PropertyBag.hpp>
 #include <Property.hpp>
 #include "Attribute.hpp"

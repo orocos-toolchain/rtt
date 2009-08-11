@@ -4,7 +4,7 @@
 #include "AssignCommand.hpp"
 #include "DataSourceTypeInfo.hpp"
 #include "DataSourceAdaptor.hpp"
-#include "TypeTransporter.hpp"
+#include "../types/TypeTransporter.hpp"
 
 #include "rtt-config.h"
 

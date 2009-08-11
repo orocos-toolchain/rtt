@@ -43,12 +43,12 @@
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function.hpp>
-#include "Handle.hpp"
-#include "impl/signal0.hpp"
-#include "impl/signal1.hpp"
-#include "impl/signal2.hpp"
-#include "impl/signal3.hpp"
-#include "impl/signal4.hpp"
+#include "../Handle.hpp"
+#include "signal0.hpp"
+#include "signal1.hpp"
+#include "signal2.hpp"
+#include "signal3.hpp"
+#include "signal4.hpp"
 
 namespace RTT {
     namespace detail {

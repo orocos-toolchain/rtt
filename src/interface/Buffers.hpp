@@ -49,6 +49,6 @@
  */
 
 #include "BufferLockFree.hpp"
-#include "ListLockFree.hpp"
-#include "AtomicQueue.hpp"
+#include "../internal/ListLockFree.hpp"
+#include "../internal/AtomicQueue.hpp"
 #include "DataObjectInterfaces.hpp"

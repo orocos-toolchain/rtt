@@ -42,8 +42,8 @@
 #include "os/CAS.hpp"
 #include "BufferPolicy.hpp"
 #include "BufferInterface.hpp"
-#include "AtomicQueue.hpp"
-#include "MemoryPool.hpp"
+#include "../internal/AtomicQueue.hpp"
+#include "../internal/MemoryPool.hpp"
 #include <vector>
 
 #ifdef ORO_PRAGMA_INTERFACE

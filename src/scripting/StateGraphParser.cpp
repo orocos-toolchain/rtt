@@ -39,12 +39,12 @@
 #include "../TaskContext.hpp"
 #include "StateMachineTask.hpp"
 
-#include "../CommandComposite.hpp"
-#include "../Exceptions.hpp"
-#include "../AttributeBase.hpp"
-#include "../ConditionTrue.hpp"
-#include "../ConditionInvert.hpp"
-#include "../StateDescription.hpp"
+#include "CommandComposite.hpp"
+#include "../internal/Exceptions.hpp"
+#include "../interface/AttributeBase.hpp"
+#include "ConditionTrue.hpp"
+#include "ConditionInvert.hpp"
+#include "StateDescription.hpp"
 #include "ParsedStateMachine.hpp"
 
 #include <iostream>

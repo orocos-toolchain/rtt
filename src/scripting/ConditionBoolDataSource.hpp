@@ -39,7 +39,7 @@
 #define CONDITIONBOOLDATASOURCE_HPP
 
 #include "ConditionInterface.hpp"
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 
 namespace RTT

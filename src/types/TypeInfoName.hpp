@@ -40,8 +40,8 @@
 #define ORO_TYPEINFO_NAME_HPP
 
 #include "Types.hpp"
-#include "DataSourceTypeInfo.hpp"
-#include "Logger.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
+#include "../Logger.hpp"
 #include "rtt-config.h"
 
 namespace RTT

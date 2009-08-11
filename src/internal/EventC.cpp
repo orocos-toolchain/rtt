@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "EventService.hpp"
+#include "../interface/EventService.hpp"
 #include "EventC.hpp"
 #include "FactoryExceptions.hpp"
 #include "Logger.hpp"

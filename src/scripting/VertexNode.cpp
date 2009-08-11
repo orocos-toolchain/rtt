@@ -35,9 +35,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "VertexNode.hpp"
-#include <CommandNOP.hpp>
-#include <CommandInterface.hpp>
-#include <DataSource.hpp>
+#include "CommandNOP.hpp"
+#include "../internal/CommandInterface.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

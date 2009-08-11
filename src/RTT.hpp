@@ -53,16 +53,16 @@
 namespace RTT {}
 
 #ifdef OROPKG_CORELIB
-#include "CoreLib.hpp"
+#include "internal/CoreLib.hpp"
 #endif
 #ifdef OROPKG_EXECUTION
-#include "Execution.hpp"
+#include "extras/Execution.hpp"
 #endif
 #ifdef OROPKG_OS
 #include "os/OS.hpp"
 #endif
 #ifdef OROPKG_DEVICE_INTERFACE
-#include "dev/DeviceInterface.hpp"
+#include "extras/dev/DeviceInterface.hpp"
 #endif
 
 namespace RTT {

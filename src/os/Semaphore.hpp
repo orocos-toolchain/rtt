@@ -43,7 +43,7 @@
 
 #include "fosi.h"
 #include "../rtt-config.h"
-#include "Time.hpp"
+#include "../Time.hpp"
 
 namespace RTT
 { namespace OS {

@@ -38,7 +38,7 @@
 
 #include "ExpressionServer.hpp"
 #include "ApplicationServer.hpp"
-#include "Logger.hpp"
+#include "../../Logger.hpp"
 #include "OperationsI.h"
 
 namespace RTT

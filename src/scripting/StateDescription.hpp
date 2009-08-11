@@ -39,7 +39,7 @@
 #define STATE_DESCRIPTION_HPP
 
 #include "StateInterface.hpp"
-#include "ProgramInterface.hpp"
+#include "../interface/ProgramInterface.hpp"
 
 namespace RTT
 {

@@ -39,19 +39,19 @@
 #ifndef ORO_TASK_CONTEXT_HPP
 #define ORO_TASK_CONTEXT_HPP
 
-#include "AttributeRepository.hpp"
+#include "interface/AttributeRepository.hpp"
 
 #include "rtt-config.h"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "EventService.hpp"
+#include "interface/EventService.hpp"
 #endif
 
-#include "DataFlowInterface.hpp"
+#include "interface/DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
-#include "ScriptingAccess.hpp"
-#include "ExecutionAccess.hpp"
-#include "MarshallingAccess.hpp"
-#include "TaskCore.hpp"
+#include "scripting/ScriptingAccess.hpp"
+#include "interface/ExecutionAccess.hpp"
+#include "interface/MarshallingAccess.hpp"
+#include "internal/TaskCore.hpp"
 #include "PropertyBag.hpp"
 
 #include <string>

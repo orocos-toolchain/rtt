@@ -43,7 +43,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/function.hpp>
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

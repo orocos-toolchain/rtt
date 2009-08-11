@@ -39,16 +39,16 @@
 #ifndef ORO_CORELIB_EVENT_HPP
 #define ORO_CORELIB_EVENT_HPP
 
-#include "Signal.hpp"
+#include "internal/Signal.hpp"
 #include "Handle.hpp"
-#include "LocalEvent.hpp"
+#include "internal/LocalEvent.hpp"
 #include <boost/call_traits.hpp>
 #include <boost/function.hpp>
-#include "NameServerRegistrator.hpp"
-#include "Invoker.hpp"
+#include "extras/dev/NameServerRegistrator.hpp"
+#include "internal/Invoker.hpp"
 
 #include "Logger.hpp"
-#include "EventProcessor.hpp"
+#include "internal/EventProcessor.hpp"
 #include <cassert>
 
 namespace RTT

@@ -39,7 +39,7 @@
 
 #include "OperationsI.h"
 #include "CommandProxy.hpp"
-#include "ConditionInterface.hpp"
+#include "../../scripting/ConditionInterface.hpp"
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO

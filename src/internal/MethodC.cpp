@@ -38,10 +38,10 @@
 
 #include "MethodC.hpp"
 #include "FactoryExceptions.hpp"
-#include "DataSourceCommand.hpp"
-#include "MethodRepository.hpp"
-#include "Logger.hpp"
-#include <Exceptions.hpp>
+#include "../scripting/DataSourceCommand.hpp"
+#include "../interface/MethodRepository.hpp"
+#include "../Logger.hpp"
+#include "Exceptions.hpp"
 #include <vector>
 
 namespace RTT

@@ -38,7 +38,7 @@
 #ifndef DATASOURCECONDITION_HPP
 #define DATASOURCECONDITION_HPP
 
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

@@ -40,7 +40,7 @@
 #define ORO_TASK_OBJECT_HPP
 
 #include <string>
-#include "OperationInterface.hpp"
+#include "../interface/OperationInterface.hpp"
 
 namespace RTT
 {

@@ -49,7 +49,7 @@
 #endif
 
 #include "ScriptingAccessC.h"
-#include "../ScriptingAccess.hpp"
+#include "../../scripting/ScriptingAccess.hpp"
 
 namespace RTT
 {namespace Corba

@@ -69,7 +69,7 @@
 // must be outside of #ifdef macro.
 #include "../rtt-config.h"
 #include "corba.h"
-#include "../DataSource.hpp"
+#include "../../internal/DataSource.hpp"
 
 #ifndef INCLUDE_EXECUTIONI_H_
 #define INCLUDE_EXECUTIONI_H_
@@ -80,10 +80,10 @@
 #endif
 #include "CorbaConversion.hpp"
 #include "AnyDataSource.hpp"
-#include "../DispatchInterface.hpp"
-#include "../Logger.hpp"
-#include "../MethodC.hpp"
-#include "../DataSources.hpp"
+#include "../../interface/DispatchInterface.hpp"
+#include "../../Logger.hpp"
+#include "../../internal/MethodC.hpp"
+#include "../../internal/DataSources.hpp"
 
 namespace RTT
 {

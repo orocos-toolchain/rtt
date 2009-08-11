@@ -41,7 +41,7 @@
 #include "ConditionInterface.hpp"
 #include <typeinfo>
 
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

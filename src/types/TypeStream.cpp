@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include <TypeStream.hpp>
-#include <TypeStream-io.hpp>
+#include "TypeStream.hpp"
+#include "TypeStream-io.hpp"
 #include <sstream>
 
 namespace RTT

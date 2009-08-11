@@ -45,8 +45,8 @@
 #endif
 
 #include <string>
-#include "ProgramInterface.hpp"
-#include "DataSourceBase.hpp"
+#include "../interface/ProgramInterface.hpp"
+#include "../interface/DataSourceBase.hpp"
 
 namespace RTT
 {

@@ -46,9 +46,9 @@
 #include "DataFlowC.h"
 #endif
 #include "CorbaConversion.hpp"
-#include "../ChannelInterface.hpp"
-#include "../DataSources.hpp"
-#include "../TypeTransporter.hpp"
+#include "../../interface/ChannelInterface.hpp"
+#include "../../internal/DataSources.hpp"
+#include "../../types/TypeTransporter.hpp"
 #include <list>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)

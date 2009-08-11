@@ -41,12 +41,12 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "DispatchInterface.hpp"
+#include "../interface/DispatchInterface.hpp"
 #include "CommandProcessor.hpp"
 #include "CommandFunctors.hpp"
 #include "BindStorage.hpp"
 #include "Invoker.hpp"
-#include "CommandBase.hpp"
+#include "../interface/CommandBase.hpp"
 
 namespace RTT
 {

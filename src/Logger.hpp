@@ -51,7 +51,7 @@
 #include <iostream>            // for std::cerr
 #endif
 
-#include "TimeService.hpp"
+#include "os/TimeService.hpp"
 
 namespace RTT
 {

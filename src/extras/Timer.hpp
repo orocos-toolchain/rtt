@@ -39,12 +39,12 @@
 #ifndef ORO_RTT_TIMER_HPP
 #define ORO_RTT_TIMER_HPP
 
-#include "Time.hpp"
-#include "TimeService.hpp"
+#include "../Time.hpp"
+#include "../os/TimeService.hpp"
 #include "os/Mutex.hpp"
 #include "os/Semaphore.hpp"
 #include "os/ThreadInterface.hpp"
-#include "RunnableInterface.hpp"
+#include "../interface/RunnableInterface.hpp"
 #include <vector>
 #include <utility>
 

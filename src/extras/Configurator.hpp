@@ -41,8 +41,8 @@
 
 #include "ConfigurationInterface.hpp"
 #include "PeriodicActivity.hpp"
-#include "TimeService.hpp"
-#include "Time.hpp"
+#include "../os/TimeService.hpp"
+#include "../Time.hpp"
 
 namespace RTT
 {

@@ -38,7 +38,7 @@
 #ifndef ORO_ACTIVITY_INTERFACE_HPP
 #define ORO_ACTIVITY_INTERFACE_HPP
 
-#include "Time.hpp"
+#include "../Time.hpp"
 #include "os/ThreadInterface.hpp"
 #include <boost/shared_ptr.hpp>
 

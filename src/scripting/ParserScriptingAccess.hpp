@@ -39,8 +39,8 @@
 #ifndef ORO_EXECUTION_PARSER_SCRIPTING_ACCESS_HPP
 #define ORO_EXECUTION_PARSER_SCRIPTING_ACCESS_HPP
 
-#include "../ScriptingAccess.hpp"
-#include "../OperationInterface.hpp"
+#include "ScriptingAccess.hpp"
+#include "../interface/OperationInterface.hpp"
 #include "../rtt-config.h"
 
 namespace RTT

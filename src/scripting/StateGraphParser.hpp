@@ -44,7 +44,7 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include "../DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

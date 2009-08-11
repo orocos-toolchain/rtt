@@ -38,16 +38,16 @@
 #ifndef ORO_STATE_MACHINE_PROCESSOR_HPP
 #define ORO_STATE_MACHINE_PROCESSOR_HPP
 
-#include "RunnableInterface.hpp"
+#include "../interface/RunnableInterface.hpp"
 #include "StateMachine.hpp"
 #include "ProgramExceptions.hpp"
 
 #include <map>
 #include <string>
 #include <vector>
-#include "List.hpp"
+#include "../internal/List.hpp"
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 {

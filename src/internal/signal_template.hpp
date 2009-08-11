@@ -40,8 +40,8 @@
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #include "signal_base.hpp"
-#include "../EventBase.hpp"
-#include "../NA.hpp"
+#include "../interface/EventBase.hpp"
+#include "NA.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #include <boost/lambda/bind.hpp>

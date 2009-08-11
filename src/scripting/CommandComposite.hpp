@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 #include <vector>
 
 namespace RTT

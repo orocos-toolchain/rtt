@@ -1,7 +1,7 @@
 #ifndef DATASOURCE_TYPE_INFO_INL
 #define DATASOURCE_TYPE_INFO_INL
 
-#include "Types.hpp"
+#include "../types/Types.hpp"
 
 namespace RTT
 {

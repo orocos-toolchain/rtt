@@ -51,9 +51,9 @@
 #include <omniORB4/CORBA.h>
 #include "ControlTaskC.h"
 #endif
-#include "../TaskContext.hpp"
+#include "../../TaskContext.hpp"
 #include "ApplicationServer.hpp"
-#include "../ActivityInterface.hpp"
+#include "../../interface/ActivityInterface.hpp"
 
 class Orocos_ControlTask_i;
 namespace RTT

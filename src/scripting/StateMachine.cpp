@@ -35,11 +35,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "StateMachine.hpp"
-#include <EventProcessor.hpp>
+#include "../internal/EventProcessor.hpp"
 #include "StateMachineProcessor.hpp"
-#include "EventService.hpp"
+#include "../interface/EventService.hpp"
 
-#include <DataSource.hpp>
+#include "../internal/DataSource.hpp"
 #include <Logger.hpp>
 #include <functional>
 

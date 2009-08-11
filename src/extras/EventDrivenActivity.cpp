@@ -41,21 +41,18 @@
 #pragma implementation
 #endif
 #include "EventDrivenActivity.hpp"
-#include "CompletionProcessor.hpp"
+#include "../internal/CompletionProcessor.hpp"
 #include "TimerThread.hpp"
 #include <boost/bind.hpp>
 
 
 namespace RTT
 {
-    EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r )
-        : NonPeriodicActivity(priority, _r), m_pending_events(0) { }
+    EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r, const std::string& name )
+        : Activity(priority, 0.0, _r), m_pending_events(0) { }
 
-    EventDrivenActivity::EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r )
-        : NonPeriodicActivity(scheduler, priority, _r), m_pending_events(0) { }
-
-    EventDrivenActivity::EventDrivenActivity(int priority, const std::string& name, RunnableInterface* _r )
-        : NonPeriodicActivity(priority, name, _r), m_pending_events(0) { }
+    EventDrivenActivity::EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r, const std::string& name )
+        : Activity(scheduler, priority, 0.0, _r), m_pending_events(0) { }
 
     EventDrivenActivity::~EventDrivenActivity()
     {
@@ -92,7 +89,7 @@ namespace RTT
             m_handles.push_back(h);
         }
 
-        if (! NonPeriodicActivity::start())
+        if (! Activity::start())
         {
             for_each(m_handles.begin(), m_handles.end(), boost::bind(&Handle::disconnect, _1));
             m_handles.clear();
@@ -139,7 +136,7 @@ namespace RTT
     {
         for_each(m_handles.begin(), m_handles.end(), boost::bind(&Handle::disconnect, _1));
         m_handles.clear();
-        return NonPeriodicActivity::stop();
+        return Activity::stop();
     }
 
     bool EventDrivenActivity::addEvent( Event<void(void)>* _event)

@@ -46,7 +46,7 @@
 #ifdef ORO_REMOTING
 #include "RemoteCommand.hpp"
 #endif
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
 

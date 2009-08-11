@@ -39,13 +39,13 @@
 #define ORO_TEMPLATE_TYPEINFO_HPP
 
 #include "Types.hpp"
-#include "Property.hpp"
-#include "Attribute.hpp"
-#include "Logger.hpp"
-#include "Ports.hpp"
+#include "../Property.hpp"
+#include "../Attribute.hpp"
+#include "../Logger.hpp"
+#include "../Ports.hpp"
 #include <ostream>
-#include "FunctorFactory.hpp"
-#include "DataSourceArgsMethod.hpp"
+#include "../internal/FunctorFactory.hpp"
+#include "../internal/DataSourceArgsMethod.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
 #include "boost/function_types/function_type.hpp"

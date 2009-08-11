@@ -77,7 +77,7 @@
 #include "ScriptingAccessC.h"
 #endif
 #include "OperationsC.h"
-#include "../ScriptingAccess.hpp"
+#include "../../scripting/ScriptingAccess.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

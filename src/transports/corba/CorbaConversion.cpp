@@ -37,7 +37,7 @@
 
 
 #include "CorbaConversion.hpp"
-#include "PropertyBag.hpp"
+#include "../../PropertyBag.hpp"
 #include "AttributesC.h"
 #include "AttributesI.h"
 #include "CORBAExpression.hpp"

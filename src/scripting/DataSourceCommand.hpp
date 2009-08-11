@@ -39,8 +39,8 @@
 #ifndef DATASOURCECOMMAND_HPP
 #define DATASOURCECOMMAND_HPP
 
-#include "DataSource.hpp"
-#include "CommandInterface.hpp"
+#include "../internal/DataSource.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

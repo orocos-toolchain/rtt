@@ -44,7 +44,7 @@
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
 
-#include "DataSourceBase.hpp"
+#include "../interface/DataSourceBase.hpp"
 
 namespace RTT
 {

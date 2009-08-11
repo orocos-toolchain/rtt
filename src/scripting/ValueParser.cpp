@@ -31,7 +31,7 @@
 #include "Attribute.hpp"
 
 #include "TaskContext.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>

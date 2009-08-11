@@ -38,8 +38,8 @@
 #ifndef PROPERTYBAGINTROSPECTOR
 #define PROPERTYBAGINTROSPECTOR
 
-#include "PropertyBag.hpp"
-#include "Property.hpp"
+#include "../PropertyBag.hpp"
+#include "../Property.hpp"
 #include "PropertyIntrospection.hpp"
 #include <stack>
 

@@ -38,10 +38,10 @@
 
 
 #include "ProgramProcessor.hpp"
-#include "ProgramInterface.hpp"
-#include "Queue.hpp"
-#include <Logger.hpp>
-#include <Exceptions.hpp>
+#include "../interface/ProgramInterface.hpp"
+#include "../internal/Queue.hpp"
+#include "../Logger.hpp"
+#include "../internal/Exceptions.hpp"
 
 #include <boost/bind.hpp>
 #include <functional>

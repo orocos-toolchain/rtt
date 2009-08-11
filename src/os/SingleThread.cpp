@@ -47,7 +47,7 @@
 #include "../rtt-config.h"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-# include "dev/DigitalOutInterface.hpp"
+# include "../extras/dev/DigitalOutInterface.hpp"
 #endif
 
 namespace RTT

@@ -1,13 +1,13 @@
 #ifndef ORO_EXECUTION_PORTS_HPP
 #define ORO_EXECUTION_PORTS_HPP
 
-#include "Channels.hpp"
-#include "PortInterface.hpp"
+#include "interface/Channels.hpp"
+#include "interface/PortInterface.hpp"
 
-#include "DataObjectInterfaces.hpp"
-#include "BufferLocked.hpp"
-#include "BufferLockFree.hpp"
-#include "TaskObject.hpp"
+#include "interface/DataObjectInterfaces.hpp"
+#include "interface/BufferLocked.hpp"
+#include "interface/BufferLockFree.hpp"
+#include "internal/TaskObject.hpp"
 #include "Method.hpp"
 
 namespace RTT

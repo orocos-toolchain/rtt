@@ -40,7 +40,7 @@
 #define CONDITIONEXPIRE_HPP
 
 #include "ConditionInterface.hpp"
-#include "TimeService.hpp"
+#include "../os/TimeService.hpp"
 
 namespace RTT
 {

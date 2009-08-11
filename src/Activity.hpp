@@ -2,8 +2,8 @@
 #define ORO_ACTIVITY_HPP
 
 #include "Time.hpp"
-#include "RunnableInterface.hpp"
-#include "ActivityInterface.hpp"
+#include "interface/RunnableInterface.hpp"
+#include "interface/ActivityInterface.hpp"
 #include "os/Thread.hpp"
 
 namespace RTT

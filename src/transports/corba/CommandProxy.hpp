@@ -39,9 +39,9 @@
 #ifndef ORO_CORBA_COMMANDPROXY_HPP
 #define ORO_CORBA_COMMANDPROXY_HPP
 
-#include "../DispatchInterface.hpp"
+#include "../../interface/DispatchInterface.hpp"
 #include "OperationsC.h"
-#include "../Logger.hpp"
+#include "../../Logger.hpp"
 
 namespace RTT
 {namespace Corba

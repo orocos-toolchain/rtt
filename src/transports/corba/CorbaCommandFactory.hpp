@@ -39,7 +39,7 @@
 #ifndef ORO_CORBACOMMANDFACTORY_HPP
 #define ORO_CORBACOMMANDFACTORY_HPP
 
-#include "../OperationFactory.hpp"
+#include "../../internal/OperationFactory.hpp"
 #include "CommandProxy.hpp"
 #include "OperationInterfaceC.h"
 #include "CommandProxy.hpp"

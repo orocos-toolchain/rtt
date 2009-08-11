@@ -39,7 +39,7 @@
 #ifndef ORO_TASK_CORE_HPP
 #define ORO_TASK_CORE_HPP
 
-#include "OperationInterface.hpp"
+#include "../interface/OperationInterface.hpp"
 #include <string>
 
 namespace RTT

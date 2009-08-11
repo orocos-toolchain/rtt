@@ -39,10 +39,10 @@
 
 #include "FunctionGraphBuilder.hpp"
 #include "CommandComposite.hpp"
-#include "AttributeBase.hpp"
-#include "DataSource.hpp"
+#include "../interface/AttributeBase.hpp"
+#include "../internal/DataSource.hpp"
 //#include "parse_exception.hpp"
-#include "FactoryExceptions.hpp"
+#include "../internal/FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
 
 #include "CommandNOP.hpp"

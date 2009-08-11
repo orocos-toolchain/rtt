@@ -39,8 +39,8 @@
 #ifndef ORO_SLAVE_ACTIVITY_HPP
 #define ORO_SLAVE_ACTIVITY_HPP
 
-#include "ActivityInterface.hpp"
-#include "RunnableInterface.hpp"
+#include "../interface/ActivityInterface.hpp"
+#include "../interface/RunnableInterface.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

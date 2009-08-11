@@ -42,12 +42,11 @@
 #else
 #include "DataFlowC.h"
 #endif
-#include "../PortInterface.hpp"
-#include "../ChannelInterface.hpp"
-#include "../Logger.hpp"
+#include "../../interface/PortInterface.hpp"
+#include "../../Logger.hpp"
 #include "ControlTaskProxy.hpp"
 #include "CorbaTypeTransporter.hpp"
-#include "../Ports.hpp"
+#include "../../Ports.hpp"
 
 #include "RemotePorts.hpp"
 

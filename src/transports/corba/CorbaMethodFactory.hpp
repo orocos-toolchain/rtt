@@ -40,8 +40,8 @@
 #ifndef ORO_CORBAMETHODFACTORY_HPP
 #define ORO_CORBAMETHODFACTORY_HPP
 
-#include "../OperationInterface.hpp"
-#include "../FactoryExceptions.hpp"
+#include "../../interface/OperationInterface.hpp"
+#include "../../internal/FactoryExceptions.hpp"
 #include "ExpressionProxy.hpp"
 #include "OperationInterfaceC.h"
 

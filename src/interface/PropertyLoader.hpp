@@ -40,7 +40,7 @@
 #define ORO_PROPERTY_LOADER_HPP
 
 #include <string>
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 
 namespace RTT
 {

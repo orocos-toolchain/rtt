@@ -40,8 +40,8 @@
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
 #include "CorbaTypeTransporter.hpp"
-#include "../Types.hpp"
-#include "../Ports.hpp"
+#include "../../types/Types.hpp"
+#include "../../Ports.hpp"
 #include "ExpressionProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"

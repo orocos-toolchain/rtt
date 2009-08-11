@@ -59,10 +59,10 @@
 #include "CorbaCommandFactory.hpp"
 #include "CORBAExpression.hpp"
 #include "ScriptingAccessProxy.hpp"
-#include "TaskObject.hpp"
+#include "../../internal/TaskObject.hpp"
 
-#include "CommandInterface.hpp"
-#include "Types.hpp"
+#include "../../internal/CommandInterface.hpp"
+#include "../../types/Types.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "tao/TimeBaseC.h"
@@ -75,7 +75,7 @@
 #endif
 #include <iostream>
 
-#include "../TaskObject.hpp"
+#include "../../internal/TaskObject.hpp"
 #include "RemotePorts.hpp"
 
 

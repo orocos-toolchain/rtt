@@ -75,7 +75,7 @@
 #include "ScriptingAccessI.h"
 #include "ServicesI.h"
 #include "DataFlowI.h"
-#include "Method.hpp"
+#include "../../Method.hpp"
 
 
 using namespace RTT;

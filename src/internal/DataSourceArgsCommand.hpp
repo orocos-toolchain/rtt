@@ -41,8 +41,8 @@
 
 #include "CommandFunctors.hpp"
 #include "CommandProcessor.hpp"
-#include "CommandDSFunctors.hpp"
-#include "DispatchInterface.hpp"
+#include "../scripting/CommandDSFunctors.hpp"
+#include "../interface/DispatchInterface.hpp"
 
 namespace RTT
 {

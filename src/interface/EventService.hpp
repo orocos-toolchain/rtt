@@ -39,15 +39,15 @@
 #ifndef EVENT_SERVICE_HPP
 #define EVENT_SERVICE_HPP
 
-#include "Logger.hpp"
-#include "FunctorFactory.hpp"
-#include "OperationFactory.hpp"
-#include "EventHook.hpp"
-#include "Event.hpp"
-#include "CompletionProcessor.hpp"
-#include "EventC.hpp"
-#include "ConnectionC.hpp"
-#include "DataSourceArgsEvent.hpp"
+#include "../Logger.hpp"
+#include "../internal/FunctorFactory.hpp"
+#include "../internal/OperationFactory.hpp"
+#include "../internal/EventHook.hpp"
+#include "../Event.hpp"
+#include "../internal/CompletionProcessor.hpp"
+#include "../internal/EventC.hpp"
+#include "../internal/ConnectionC.hpp"
+#include "../internal/DataSourceArgsEvent.hpp"
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
 

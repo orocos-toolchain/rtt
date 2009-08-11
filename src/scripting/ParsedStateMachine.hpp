@@ -39,8 +39,8 @@
 #ifndef CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 #define CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 
-#include "../StateMachine.hpp"
-#include "../DataSource.hpp"
+#include "StateMachine.hpp"
+#include "../internal/DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

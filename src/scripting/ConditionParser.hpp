@@ -41,7 +41,7 @@
 #include "parser-types.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
-#include "../DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 #include <memory>
 #include <stack>

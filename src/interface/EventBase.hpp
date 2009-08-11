@@ -40,8 +40,8 @@
 #ifndef ORO_CORELIB_EVENT_BASE_HPP
 #define ORO_CORELIB_EVENT_BASE_HPP
 
-#include "Invoker.hpp"
-#include "Subscriber.hpp"
+#include "../internal/Invoker.hpp"
+#include "../internal/Subscriber.hpp"
 #include "ActionInterface.hpp"
 
 namespace RTT

@@ -40,8 +40,8 @@
 #define ORO_CORELIB_OPERATOP_TYPES_HPP
 
 #include "Operators.hpp"
-#include "DataSources.hpp"
-#include "DataSourceAdaptor.hpp"
+#include "../internal/DataSources.hpp"
+#include "../internal/DataSourceAdaptor.hpp"
 
 namespace RTT
 {

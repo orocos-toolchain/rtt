@@ -39,7 +39,7 @@
 #ifndef ORO_CORBA_ACTIONPROXY_HPP
 #define ORO_CORBA_ACTIONPROXY_HPP
 
-#include "../CommandInterface.hpp"
+#include "../../internal/CommandInterface.hpp"
 #include "OperationsC.h"
 
 namespace RTT

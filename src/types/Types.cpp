@@ -38,25 +38,25 @@
 
 #include "rtt-config.h"
 
-#include <MultiVector.hpp>
-#include <Logger.hpp>
-#include "Attribute.hpp"
-#include "DataSourceAdaptor.hpp"
+#include "../extras/MultiVector.hpp"
+#include "../Logger.hpp"
+#include "../Attribute.hpp"
+#include "../internal/DataSourceAdaptor.hpp"
 #include "TypeTransporter.hpp"
-#include "TransportPlugin.hpp"
-#include <TypeStream.hpp>
-#include <mystd.hpp>
+#include "../plugin/TransportPlugin.hpp"
+#include "TypeStream.hpp"
+#include "../internal/mystd.hpp"
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <RealTimeToolkit.hpp>
-#include <Toolkit.hpp>
+#include "RealTimeToolkit.hpp"
+#include "Toolkit.hpp"
 #endif
 
 #include <functional>
 #include <sstream>
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <os/StartStopManager.hpp>
+#include "../os/StartStopManager.hpp"
 namespace RTT {
     namespace {
         using namespace detail;

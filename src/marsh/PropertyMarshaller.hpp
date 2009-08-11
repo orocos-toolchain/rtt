@@ -40,7 +40,7 @@
 #define PROPERTY_MARSHALLER_HPP
 
 #include <string>
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 
 namespace RTT
 {

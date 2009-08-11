@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include <Toolkit.hpp>
-#include <ToolkitPlugin.hpp>
-#include <TransportPlugin.hpp>
-#include <Logger.hpp>
+#include "Toolkit.hpp"
+#include "ToolkitPlugin.hpp"
+#include "../plugin/TransportPlugin.hpp"
+#include "../Logger.hpp"
 #include <algorithm>
 
 namespace RTT

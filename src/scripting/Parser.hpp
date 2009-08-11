@@ -45,8 +45,8 @@
 #include <istream>
 #include <vector>
 #include "parse_exception.hpp"
-#include "../DataSource.hpp"
-#include "../ProgramInterface.hpp"
+#include "../internal/DataSource.hpp"
+#include "../interface/ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 #include "../rtt-config.h"
 

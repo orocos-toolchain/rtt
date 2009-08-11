@@ -40,7 +40,7 @@
 #ifndef STATEMACHINE_TASK_HPP
 #define STATEMACHINE_TASK_HPP
 
-#include "../TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 #include "ParsedStateMachine.hpp"
 
 namespace RTT

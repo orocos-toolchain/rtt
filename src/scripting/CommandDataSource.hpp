@@ -39,8 +39,8 @@
 #ifndef ORO_COMMAND_DATASOURCE_HPP
 #define ORO_COMMAND_DATASOURCE_HPP
 
-#include "DataSource.hpp"
-#include "CommandInterface.hpp"
+#include "../internal/DataSource.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

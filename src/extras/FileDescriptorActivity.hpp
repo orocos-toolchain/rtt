@@ -1,7 +1,7 @@
 #ifndef FILEDESCRIPTOR_ACTIVITY_HPP
 #define FILEDESCRIPTOR_ACTIVITY_HPP
 
-#include "NonPeriodicActivity.hpp"
+#include "Activity.hpp"
 #include <set>
 
 namespace RTT {
@@ -10,7 +10,7 @@ namespace RTT {
      * is called when data is available or when an error is encountered on the
      * file descriptor.
      */
-    class FileDescriptorActivity : public NonPeriodicActivity
+    class FileDescriptorActivity : public Activity
     {
         std::set<int> m_watched_fds;
         bool m_running;
@@ -32,8 +32,9 @@ namespace RTT {
          *
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
+         * @param name The name of the underlying thread.
          */
-        FileDescriptorActivity(int priority, RunnableInterface* _r = 0 );
+        FileDescriptorActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
         /**
          * Create a FileDescriptorActivity with a given scheduler type, priority and
@@ -43,17 +44,9 @@ namespace RTT {
          *        ORO_SCHED_RT.
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
-         */
-        FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
-
-        /**
-         * Create a FileDescriptorActivity with a given priority, name and
-         * RunnableInterface instance.
-         * @param priority The priority of the underlying thread.
          * @param name The name of the underlying thread.
-         * @param _r The optional runner, if none, this->loop() is called.
          */
-        FileDescriptorActivity(int priority, const std::string& name, RunnableInterface* _r = 0 );
+        FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
         virtual ~FileDescriptorActivity();
 

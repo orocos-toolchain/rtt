@@ -38,7 +38,7 @@
 
 
 #include "TaskContext.hpp"
-#include <CommandInterface.hpp>
+#include "internal/CommandInterface.hpp"
 
 #include <string>
 #include <algorithm>
@@ -46,19 +46,19 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include "DataSource.hpp"
+#include "internal/DataSource.hpp"
 #include "Method.hpp"
-#include "ChannelInterface.hpp"
+#include "interface/ChannelInterface.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "scripting/ParserScriptingAccess.hpp"
 #include "scripting/ParserExecutionAccess.hpp"
 #endif
-#include "MarshallingAccess.hpp"
+#include "interface/MarshallingAccess.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
-#include "SequentialActivity.hpp"
+#include "extras/SequentialActivity.hpp"
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
 #include "Activity.hpp"
 #endif

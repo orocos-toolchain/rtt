@@ -40,9 +40,9 @@
 #ifndef PROGRAM_TASK_HPP
 #define PROGRAM_TASK_HPP
 
-#include "../TaskObject.hpp"
-#include "../FunctionGraph.hpp"
-#include "../DataSources.hpp"
+#include "../internal/TaskObject.hpp"
+#include "FunctionGraph.hpp"
+#include "../internal/DataSources.hpp"
 
 namespace RTT
 {

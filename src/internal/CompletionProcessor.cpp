@@ -80,8 +80,8 @@ namespace RTT
     }
 
     CompletionProcessor::CompletionProcessor()
-        : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority,
-                               "CompletionProcessor", this ) // execute 'BlockingEventProcessor' base class.
+        : Activity( OS::LowestPriority + 2* OS::IncreasePriority, 0, 
+                    this, "CompletionProcessor" ) // execute 'BlockingEventProcessor' base class.
     {
         Logger::log() << Logger::Info << "CompletionProcessor created with priority ";
         Logger::log() << this->thread()->getPriority() <<Logger::endl;

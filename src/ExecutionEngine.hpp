@@ -39,22 +39,22 @@
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
-#include "RunnableInterface.hpp"
-#include "ActivityInterface.hpp"
+#include "interface/RunnableInterface.hpp"
+#include "interface/ActivityInterface.hpp"
 #include <vector>
 
 #include "rtt-config.h"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "EventProcessor.hpp"
+#include "internal/EventProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-#include "CommandProcessor.hpp"
+#include "internal/CommandProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-#include "ProgramProcessor.hpp"
+#include "scripting/ProgramProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-#include "StateMachineProcessor.hpp"
+#include "scripting/StateMachineProcessor.hpp"
 #endif
 
 namespace RTT

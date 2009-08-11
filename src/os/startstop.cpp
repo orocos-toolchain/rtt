@@ -49,7 +49,7 @@
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
-# include "dev/DigitalOutInterface.hpp"
+# include "../extras/dev/DigitalOutInterface.hpp"
   using namespace RTT;
 #endif
 

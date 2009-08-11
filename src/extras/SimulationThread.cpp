@@ -38,7 +38,7 @@
 
 
 #include "SimulationThread.hpp"
-#include "TimeService.hpp"
+#include "../os/TimeService.hpp"
 #include "SimulationActivity.hpp"
 #include "Logger.hpp"
 #include <os/threads.hpp>

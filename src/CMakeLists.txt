@@ -100,6 +100,7 @@ ADD_SUBDIRECTORY( scripting )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( plugin )
 ADD_SUBDIRECTORY( extras )
+ADD_SUBDIRECTORY( boost )
 
 # Reduce debugging info in scripting dir.
 IF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "Debug" )
@@ -147,8 +148,8 @@ create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDES}" "${OROCOS-
 
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/src/targets/rtt-target.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/target.in ${PROJ_BINARY_DIR}/src/targets/${OROCOS_TARGET} @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/src/os/targets/rtt-target.h @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/target.in ${PROJ_BINARY_DIR}/src/os/targets/${OROCOS_TARGET} @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
 INSTALL(FILES orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )

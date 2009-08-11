@@ -43,7 +43,7 @@
 #include <map>
 // #include "rtt-config.h"
 // #ifdef OROPKG_CORELIB_REPORTING
-// #include "Logger.hpp"
+// #include "../../Logger.hpp"
 // #endif
 
 namespace RTT

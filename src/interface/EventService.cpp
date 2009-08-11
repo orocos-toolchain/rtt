@@ -37,10 +37,10 @@
 
 
 #include "EventService.hpp"
-#include "mystd.hpp"
+#include "../internal/mystd.hpp"
 
 #include "ExecutionEngine.hpp"
-#include <CompletionProcessor.hpp>
+#include "../internal/CompletionProcessor.hpp"
 
 
 

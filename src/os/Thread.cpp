@@ -45,7 +45,7 @@
 #include "../rtt-config.h"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-# include "dev/DigitalOutInterface.hpp"
+# include "../extras/dev/DigitalOutInterface.hpp"
 #define SCOPE_ON   if ( task->d ) task->d->switchOn( bit );
 #define SCOPE_OFF  if ( task->d ) task->d->switchOff( bit );
 #else

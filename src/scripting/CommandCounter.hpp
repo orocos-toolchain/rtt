@@ -38,7 +38,7 @@
 #ifndef COMMANDCOUNTER_HPP
 #define COMMANDCOUNTER_HPP
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

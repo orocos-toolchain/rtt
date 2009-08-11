@@ -40,7 +40,7 @@
 #ifndef PROPERTY_DEMARSHALLER
 #define PROPERTY_DEMARSHALLER
 
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 #include <string>
 
 namespace RTT

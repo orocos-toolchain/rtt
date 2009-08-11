@@ -1,7 +1,7 @@
 #ifndef IRQ_ACTIVITY_HPP
 #define IRQ_ACTIVITY_HPP
 
-#include "NonPeriodicActivity.hpp"
+#include "Activity.hpp"
 #include "rtt-config.h"
 
 #ifdef OROPKG_OS_XENOMAI
@@ -25,7 +25,7 @@ namespace RTT {
      *   that task context is called to get the descriptor
      * </ul>
      */
-    class IRQActivity : public NonPeriodicActivity
+    class IRQActivity : public Activity
     {
         int      m_irq;
         RT_INTR  m_handle;
@@ -50,7 +50,7 @@ namespace RTT {
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        IRQActivity(int priority, RunnableInterface* _r = 0 );
+        IRQActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
 
         /**
          * Create a IRQActivity with a given scheduler type, priority and
@@ -61,16 +61,7 @@ namespace RTT {
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        IRQActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
-
-        /**
-         * Create a IRQActivity with a given priority, name and
-         * RunnableInterface instance.
-         * @param priority The priority of the underlying thread.
-         * @param name The name of the underlying thread.
-         * @param _r The optional runner, if none, this->loop() is called.
-         */
-        IRQActivity(int priority, const std::string& name, RunnableInterface* _r = 0 );
+        IRQActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
 
         virtual ~IRQActivity();
 

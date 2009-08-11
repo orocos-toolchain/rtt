@@ -39,7 +39,7 @@
 #define VERTEXNODE_HPP
 
 #include <map>
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

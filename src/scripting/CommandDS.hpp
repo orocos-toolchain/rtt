@@ -41,9 +41,9 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "CommandProcessor.hpp"
-#include "BindStorage.hpp"
-#include "UnMember.hpp"
+#include "../internal/CommandProcessor.hpp"
+#include "../internal/BindStorage.hpp"
+#include "../internal/UnMember.hpp"
 
 namespace RTT
 {

@@ -44,7 +44,7 @@
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax/InputSource.hpp>
 
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 
 namespace RTT
 {

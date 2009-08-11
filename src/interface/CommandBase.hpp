@@ -39,7 +39,7 @@
 #ifndef ORO_COMMAND_BASE_HPP
 #define ORO_COMMAND_BASE_HPP
 
-#include "Invoker.hpp"
+#include "../internal/Invoker.hpp"
 #include "DispatchInterface.hpp"
 
 namespace RTT

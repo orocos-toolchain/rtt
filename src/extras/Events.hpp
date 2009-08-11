@@ -49,7 +49,7 @@
  * (in the same thread) or asynchronously (in a separate thread).
  */
 
-#include "Event.hpp"
-#include "Handle.hpp"
-#include "CompletionProcessor.hpp"
-#include "EventProcessor.hpp"
+#include "../Event.hpp"
+#include "../Handle.hpp"
+#include "../internal/CompletionProcessor.hpp"
+#include "../internal/EventProcessor.hpp"

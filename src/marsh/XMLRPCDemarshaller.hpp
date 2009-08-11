@@ -56,7 +56,7 @@
 #include <string>
 #include "../Property.hpp"
 #include "StreamProcessor.hpp"
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 #include <istream>
 
 namespace RTT

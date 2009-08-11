@@ -50,7 +50,7 @@
 #endif
 #endif
 
-#include "DataSource.hpp"
+#include "../../internal/DataSource.hpp"
 
 namespace RTT
 {

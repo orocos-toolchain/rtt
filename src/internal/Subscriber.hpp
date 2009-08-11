@@ -40,7 +40,7 @@
 #ifndef ORO_CORELIB_SUBSCRIBER_BASE_HPP
 #define ORO_CORELIB_SUBSCRIBER_BASE_HPP
 
-#include "Handle.hpp"
+#include "../Handle.hpp"
 
 namespace RTT
 {

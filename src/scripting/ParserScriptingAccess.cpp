@@ -42,14 +42,14 @@
 #include "Parser.hpp"
 #include "Logger.hpp"
 #include "TaskContext.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 #include "Method.hpp"
 #include "Command.hpp"
 #include "ProgramProcessor.hpp"
 #include "StateMachineProcessor.hpp"
 #include <sstream>
 #include <fstream>
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 
 namespace RTT
 {

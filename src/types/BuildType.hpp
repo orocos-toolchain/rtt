@@ -40,8 +40,8 @@
 #define ORO_CORELIB_BUILD_TYPE_HPP
 
 #include "Types.hpp"
-#include "DataSourceAdaptor.hpp"
-#include "DataSources.hpp"
+#include "../internal/DataSourceAdaptor.hpp"
+#include "../internal/DataSources.hpp"
 
 namespace RTT
 {

@@ -45,8 +45,8 @@
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
-#include "../Types.hpp"
-#include "../OperationInterface.hpp"
+#include "../types/Types.hpp"
+#include "../interface/OperationInterface.hpp"
 
 namespace RTT { namespace detail
 {

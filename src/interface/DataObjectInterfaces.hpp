@@ -43,7 +43,7 @@
 #include "os/oro_atomic.h"
 #include <string>
 
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 namespace RTT
 {

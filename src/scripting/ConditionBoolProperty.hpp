@@ -39,7 +39,7 @@
 #define CONDITIONBOOLPROPERTY_HPP
 
 #include "ConditionInterface.hpp"
-#include "Property.hpp"
+#include "../Property.hpp"
 
 
 

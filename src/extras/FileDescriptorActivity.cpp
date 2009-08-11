@@ -1,6 +1,6 @@
 #include "FileDescriptorActivity.hpp"
-#include "ExecutionEngine.hpp"
-#include "TaskCore.hpp"
+#include "../ExecutionEngine.hpp"
+#include "../internal/TaskCore.hpp"
 
 #include <sys/select.h>
 #include <unistd.h>
@@ -19,8 +19,8 @@ const int FileDescriptorActivity::CMD_TRIGGER;
  * @param priority The priority of the underlying thread.
  * @param _r The optional runner, if none, this->loop() is called.
  */
-FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* _r )
-    : NonPeriodicActivity(priority, _r)
+FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* _r, const std::string& name )
+    : Activity(priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
     , runner(_r)
@@ -37,24 +37,8 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
  * @param priority The priority of the underlying thread.
  * @param _r The optional runner, if none, this->loop() is called.
  */
-FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r )
-    : NonPeriodicActivity(scheduler, priority, _r)
-    , m_running(false)
-    , m_timeout(0)
-    , runner(_r)
-{
-    FD_ZERO(&m_fd_set);
-}
-
-/**
- * Create a FileDescriptorActivity with a given priority, name and
- * RunnableInterface instance.
- * @param priority The priority of the underlying thread.
- * @param name The name of the underlying thread.
- * @param _r The optional runner, if none, this->loop() is called.
- */
-FileDescriptorActivity::FileDescriptorActivity(int priority, const std::string& name, RunnableInterface* _r )
-    : NonPeriodicActivity(priority, name, _r)
+FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r, const std::string& name )
+    : Activity(scheduler, priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
     , runner(_r)
@@ -68,7 +52,7 @@ FileDescriptorActivity::~FileDescriptorActivity()
 }
 
 bool FileDescriptorActivity::isRunning() const
-{ return NonPeriodicActivity::isRunning() && m_running; }
+{ return Activity::isRunning() && m_running; }
 int FileDescriptorActivity::getTimeout() const
 { return m_timeout; }
 void FileDescriptorActivity::setTimeout(int timeout)
@@ -99,7 +83,7 @@ bool FileDescriptorActivity::start()
     if (pipe(m_interrupt_pipe) == -1)
         return false;
 
-    if (!NonPeriodicActivity::start())
+    if (!Activity::start())
     {
         close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]);
@@ -207,9 +191,9 @@ void FileDescriptorActivity::step()
 
 bool FileDescriptorActivity::stop()
 {
-    // NonPeriodicActivity::stop will call breakLoop and act upon its return
+    // Activity::stop will call breakLoop and act upon its return
     // value.
-    if (NonPeriodicActivity::stop())
+    if (Activity::stop())
     {
         close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]);

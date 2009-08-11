@@ -39,7 +39,7 @@
 #define ASYNCHCOMMANDDECORATOR_HPP
 
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 
 namespace RTT

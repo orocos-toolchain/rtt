@@ -40,7 +40,7 @@
 #define TYPESTREAM_HPP
 
 #include <vector>
-#include "MultiVector.hpp"
+#include "../extras/MultiVector.hpp"
 #include <ostream>
 
 namespace RTT

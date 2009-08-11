@@ -41,9 +41,9 @@
 
 #include "CommandDS.hpp"
 #include "Method.hpp"
-#include "FactoryExceptions.hpp"
+#include "../internal/FactoryExceptions.hpp"
 #include "ExecutionEngine.hpp"
-#include <DataSources.hpp>
+#include "../internal/DataSources.hpp"
 
 namespace RTT
 {

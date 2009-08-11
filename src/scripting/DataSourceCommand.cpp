@@ -38,7 +38,7 @@
 
 #include "DataSourceCommand.hpp"
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 namespace RTT
 {

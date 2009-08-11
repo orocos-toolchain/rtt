@@ -39,12 +39,12 @@
 #ifndef ORO_METHOD_REPOSITORY_HPP
 #define ORO_METHOD_REPOSITORY_HPP
 
-#include "OperationFactory.hpp"
-#include "LocalMethod.hpp"
-#include "DataSourceArgsMethod.hpp"
-#include "MethodC.hpp"
+#include "../internal/OperationFactory.hpp"
+#include "../internal/LocalMethod.hpp"
+#include "../internal/DataSourceArgsMethod.hpp"
+#include "../internal/MethodC.hpp"
 #ifdef ORO_REMOTING
-#include "RemoteMethod.hpp"
+#include "../internal/RemoteMethod.hpp"
 #endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>

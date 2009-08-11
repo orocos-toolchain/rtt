@@ -39,7 +39,7 @@
 #define PI_PROPERTYBASE
 
 #include <string>
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 #include "DataSourceBase.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE

@@ -38,18 +38,18 @@
 
 
 #include "rtt-config.h"
-#include <RealTimeToolkit.hpp>
-#include <Types.hpp>
-#include <Operators.hpp>
-#include <OperatorTypes.hpp>
-#include <TemplateTypeInfo.hpp>
-#include <TypeInfoName.hpp>
-#include <MultiVector.hpp>
-#include <mystd.hpp>
+#include "RealTimeToolkit.hpp"
+#include "Types.hpp"
+#include "Operators.hpp"
+#include "OperatorTypes.hpp"
+#include "TemplateTypeInfo.hpp"
+#include "TypeInfoName.hpp"
+#include "../extras/MultiVector.hpp"
+#include "../internal/mystd.hpp"
 
-#include <TypeStream.hpp>
-#include <PropertyBag.hpp>
-#include <VectorComposition.hpp>
+#include "TypeStream.hpp"
+#include "../PropertyBag.hpp"
+#include "VectorComposition.hpp"
 #include <ostream>
 
 namespace RTT

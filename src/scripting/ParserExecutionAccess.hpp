@@ -39,7 +39,7 @@
 #ifndef ORO_PARSEREXECUTION_ACCESS_HPP
 #define ORO_PARSEREXECUTION_ACCESS_HPP
 
-#include "../ExecutionAccess.hpp"
+#include "../interface/ExecutionAccess.hpp"
 #include "../rtt-config.h"
 
 namespace RTT

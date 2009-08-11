@@ -38,8 +38,8 @@
 #ifndef EXECUTION_COMMAND_DISPATCH
 #define EXECUTION_COMMAND_DISPATCH
 
-#include "DataSource.hpp"
-#include "DispatchInterface.hpp"
+#include "../internal/DataSource.hpp"
+#include "../interface/DispatchInterface.hpp"
 #include "ConditionInterface.hpp"
 
 

@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "CommandInterface.hpp"
+#include "../internal/CommandInterface.hpp"
 
 #include <string>
 

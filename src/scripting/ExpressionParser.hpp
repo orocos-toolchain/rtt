@@ -42,8 +42,8 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
-#include "../DataSource.hpp"
-#include "../Operators.hpp"
+#include "../internal/DataSource.hpp"
+#include "../types/Operators.hpp"
 #include "../Time.hpp"
 
 #include <stack>

@@ -1,5 +1,5 @@
 #include "PortInterface.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 #include "Method.hpp"
 
 using namespace RTT;

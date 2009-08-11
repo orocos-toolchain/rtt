@@ -42,9 +42,9 @@
 #include <string>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include "CommandBase.hpp"
-#include "LocalCommand.hpp"
-#include "UnMember.hpp"
+#include "interface/CommandBase.hpp"
+#include "internal/LocalCommand.hpp"
+#include "internal/UnMember.hpp"
 
 namespace RTT
 {

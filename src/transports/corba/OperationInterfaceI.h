@@ -77,7 +77,7 @@
 #else
 #include "OperationInterfaceC.h"
 #endif
-#include "../OperationInterface.hpp"
+#include "../../interface/OperationInterface.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once

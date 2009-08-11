@@ -38,10 +38,10 @@
 
 #include "FunctionGraph.hpp"
 #include "GraphCopier.hpp"
-#include "AttributeBase.hpp"
+#include "../interface/AttributeBase.hpp"
 #include "scripting/ProgramTask.hpp"
 #include "ProgramProcessor.hpp"
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 
 #include "CommandNOP.hpp"
 #include "ConditionFalse.hpp"

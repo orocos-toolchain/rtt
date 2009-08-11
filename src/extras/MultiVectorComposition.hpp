@@ -41,9 +41,9 @@
 #define MULTIVECTOR_COMPOSITION_HPP
 
 #include "MultiVector.hpp"
-#include "Property.hpp"
-#include "PropertyBag.hpp"
-#include "Logger.hpp"
+#include "../Property.hpp"
+#include "../PropertyBag.hpp"
+#include "../Logger.hpp"
 
 namespace RTT
 {

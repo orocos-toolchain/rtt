@@ -40,8 +40,8 @@
 #define EVENT_HOOK_HPP
 
 
-#include "Event.hpp"
-#include "ActivityInterface.hpp"
+#include "../Event.hpp"
+#include "../interface/ActivityInterface.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>

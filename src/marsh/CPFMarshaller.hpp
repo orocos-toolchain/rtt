@@ -42,7 +42,7 @@
 #include <fstream>
 #include <string>
 #include "../Property.hpp"
-#include "../PropertyIntrospection.hpp"
+#include "PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace RTT

@@ -39,9 +39,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "../DataSourceBase.hpp"
-#include "../OperationInterface.hpp"
-#include "../TaskObject.hpp"
+#include "../interface/DataSourceBase.hpp"
+#include "../interface/OperationInterface.hpp"
+#include "../internal/TaskObject.hpp"
 #include "DumpObject.hpp"
 
 

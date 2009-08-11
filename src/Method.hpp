@@ -41,10 +41,10 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "UnMember.hpp"
-#include "MethodBase.hpp"
-#include "LocalMethod.hpp"
-#include "ActionInterface.hpp"
+#include "internal/UnMember.hpp"
+#include "interface/MethodBase.hpp"
+#include "internal/LocalMethod.hpp"
+#include "interface/ActionInterface.hpp"
 #include "Logger.hpp"
 
 namespace RTT

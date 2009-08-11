@@ -39,7 +39,7 @@
 
 #include "ScriptingAccessProxy.hpp"
 #include "ScriptingAccessC.h"
-#include "ProgramExceptions.hpp"
+#include "../../scripting/ProgramExceptions.hpp"
 #include "CommandProxy.hpp"
 
 namespace RTT

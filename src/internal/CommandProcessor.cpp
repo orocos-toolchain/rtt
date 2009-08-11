@@ -37,9 +37,9 @@
 
 
 #include "CommandProcessor.hpp"
-#include <CommandInterface.hpp>
+#include "CommandInterface.hpp"
 #include "Queue.hpp"
-#include <Logger.hpp>
+#include "../Logger.hpp"
 
 namespace RTT
 {

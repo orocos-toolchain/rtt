@@ -63,8 +63,8 @@ ENDIF( BUILD_STATIC )
 
 create_pc_flags( "${CORBA_DEFINITIONS}" "${CORBA_INCLUDE_DIRS}" "${CORBA_LIBRARIES}" RTT_CORBA_DEFINES RTT_CORBA_CFLAGS RTT_CORBA_LINKFLAGS)
 
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/corba/orocos-rtt-corba.pc.in ${PROJ_BINARY_DIR}/src/corba/orocos-rtt-corba-${OROCOS_TARGET}.pc @ONLY)
-CONFIGURE_FILE( rtt-corba-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h @ONLY)
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-corba.pc.in ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc @ONLY)
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-corba-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h @ONLY)
 
 IF ( BUILD_STATIC )
   INSTALL(TARGETS orocos-rtt-corba-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )

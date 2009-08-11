@@ -2,7 +2,7 @@
 #define CORBA_TYPE_TRANSPORTER_H
 
 #include "DataFlowI.h"
-#include "../TypeTransporter.hpp"
+#include "../../types/TypeTransporter.hpp"
 
 namespace RTT {
     class ChannelElementBase;

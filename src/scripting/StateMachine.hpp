@@ -41,10 +41,10 @@
 
 #include "StateInterface.hpp"
 #include "ConditionInterface.hpp"
-#include "CommandInterface.hpp"
-#include "DataSourceBase.hpp"
-#include "Handle.hpp"
-#include "EventProcessor.hpp"
+#include "../internal/CommandInterface.hpp"
+#include "../interface/DataSourceBase.hpp"
+#include "../Handle.hpp"
+#include "../internal/EventProcessor.hpp"
 
 #include <map>
 #include <vector>

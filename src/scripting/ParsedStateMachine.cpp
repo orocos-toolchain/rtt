@@ -26,11 +26,11 @@
  ***************************************************************************/
 
 #include "ParsedStateMachine.hpp"
-#include "DataSource.hpp"
+#include "../internal/DataSource.hpp"
 #include "ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "TaskObject.hpp"
+#include "../internal/TaskObject.hpp"
 #include "StateMachineTask.hpp"
 #include <cassert>
 

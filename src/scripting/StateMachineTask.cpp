@@ -40,9 +40,9 @@
 #include "StateMachineTask.hpp"
 
 #include "../Attribute.hpp"
-#include "../FactoryExceptions.hpp"
+#include "../internal/FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
-#include "../CommandDS.hpp"
+#include "CommandDS.hpp"
 #include "../Method.hpp"
 
 namespace RTT
