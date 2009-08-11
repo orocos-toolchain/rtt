@@ -196,7 +196,7 @@ namespace RTT
 
     bool ProgramProcessor::runFunction( ProgramInterface* f )
     {
-        if (this->getActivity() && this->getActivity()->isRunning() && f) {
+        if (this->getActivity() && this->getActivity()->isActive() && f) {
             f->setProgramProcessor(this);
             if ( f->start() == false) {
                 f->setProgramProcessor(0);
