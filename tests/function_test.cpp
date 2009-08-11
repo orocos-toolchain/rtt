@@ -292,12 +292,12 @@ BOOST_AUTO_TEST_CASE( testFunctionFail)
         + "   try fooA()\n"
         + "   catch \n"
         + "      set success = true\n" // error caught.
-        + "   do test.assert(success)\n"
+        + "   do test.assertMsg(success,\"Program script did not detect exported function failure.\")\n"
         + "   set success = false\n"
         + "   try fooB()\n"
         + "   catch\n"
         + "      set success = true\n" // error caught.
-        + "   do test.assert(success)\n"
+        + "   do test.assertMsg(success,\"Program script did not detect exported function failure.\")\n"
         + "}";
 
     this->doFunction( prog, &gtc );
@@ -327,14 +327,14 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
     BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
-    BOOST_CHECK( gtask.stop() );
 
     if (test ) {
         stringstream errormsg;
         errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
         BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled " + errormsg.str() );
+        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
+    BOOST_CHECK( gtask.stop() );
 }
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
