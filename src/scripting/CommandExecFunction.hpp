@@ -168,7 +168,7 @@ namespace RTT
         }
 
         virtual bool valid() const {
-            return maccept->get();
+            return maccept->get() && ! _foo->inError();
         }
 
         virtual bool done() const {

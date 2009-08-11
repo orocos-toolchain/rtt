@@ -56,7 +56,7 @@ namespace RTT
         if (pp) {
             pStatus = Status::stopped;
         }else {
-            pStatus = Status::unloaded;
+            // preserve current pStatus for client reference.
             this->handleUnload();
         }
     }
