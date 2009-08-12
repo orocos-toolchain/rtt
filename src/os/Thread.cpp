@@ -169,7 +169,7 @@ namespace RTT
                     {
                         task->emergencyStop();
                         Logger::In in(rtos_task_get_name(task->getTask()));
-                        log(Fatal) << rtos_task_get_name(task->getTask())
+                        log(Critical) << rtos_task_get_name(task->getTask())
                                 << " got too many periodic overruns in step() ("
                                 << overruns << " times), stopped Thread !"
                                 << endlog();
@@ -181,17 +181,17 @@ namespace RTT
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
-                    log(Fatal) << rtos_task_get_name(task->getTask())
+                    log(Critical) << rtos_task_get_name(task->getTask())
                             << " caught a C++ exception, stopped thread !"
                             << endlog();
-                    log(Fatal) << "exception was: "
+                    log(Critical) << "exception was: "
                                << e.what() << endlog();
                 } CATCH_ALL
                 {
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
-                    log(Fatal) << rtos_task_get_name(task->getTask())
+                    log(Critical) << rtos_task_get_name(task->getTask())
                             << " caught an unknown C++ exception, stopped thread !"
                             << endlog();
                 }
