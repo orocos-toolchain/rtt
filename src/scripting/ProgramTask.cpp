@@ -40,9 +40,9 @@
 #include "scripting/ProgramTask.hpp"
 
 #include "CommandDS.hpp"
-#include "Method.hpp"
+#include "../Method.hpp"
 #include "../internal/FactoryExceptions.hpp"
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 #include "../internal/DataSources.hpp"
 
 namespace RTT

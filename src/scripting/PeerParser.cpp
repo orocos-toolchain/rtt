@@ -40,7 +40,7 @@
 #include "PeerParser.hpp"
 #include "parser-debug.hpp"
 #include "parse_exception.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "parser-types.hpp"
 
 #include <boost/bind.hpp>

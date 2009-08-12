@@ -29,7 +29,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "dev/AxisInterface.hpp"
+#include "AxisInterface.hpp"
 
 namespace RTT {
 }

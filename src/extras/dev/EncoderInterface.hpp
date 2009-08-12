@@ -38,8 +38,8 @@
 #ifndef ENCODERINTERFACE_HPP
 #define ENCODERINTERFACE_HPP
 
-#include "../NameServer.hpp"
-#include "../NameServerRegistrator.hpp"
+#include "NameServer.hpp"
+#include "NameServerRegistrator.hpp"
 #include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE

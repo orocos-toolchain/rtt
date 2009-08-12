@@ -37,7 +37,7 @@
 
 #include "fosi_internal_interface.hpp"
 #include "Thread.hpp"
-#include "Time.hpp"
+#include "../Time.hpp"
 #include "threads.hpp"
 #include "../Logger.hpp"
 #include "MutexLock.hpp"

@@ -40,7 +40,7 @@
 #include "PropertyParser.hpp"
 #include "parser-debug.hpp"
 #include "parse_exception.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "parser-types.hpp"
 
 #include <Property.hpp>

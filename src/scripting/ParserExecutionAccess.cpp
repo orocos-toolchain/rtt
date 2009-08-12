@@ -38,11 +38,11 @@
 
 
 #include "ParserExecutionAccess.hpp"
-#include "Logger.hpp"
-#include "TaskContext.hpp"
+#include "../Logger.hpp"
+#include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
-#include "Method.hpp"
-#include "Command.hpp"
+#include "../Method.hpp"
+#include "../Command.hpp"
 #include "../internal/TaskObject.hpp"
 
 namespace RTT

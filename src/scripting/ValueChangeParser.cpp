@@ -31,7 +31,7 @@
 
 #include "../interface/OperationInterface.hpp"
 #include "../types/Types.hpp"
-#include "Attribute.hpp"
+#include "../Attribute.hpp"
 #include "../TaskContext.hpp"
 //#include "DumpObject.hpp"
 

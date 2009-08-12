@@ -35,12 +35,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "../internal/DataSource.hpp"
+#include "DataSource.hpp"
 
 #ifndef ORO_ASSIGNCOMMAND_HPP
 #define ORO_ASSIGNCOMMAND_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "CommandInterface.hpp"
 
 namespace RTT
 {

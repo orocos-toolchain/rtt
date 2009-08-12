@@ -33,7 +33,7 @@
 #include "CommandNOP.hpp"
 #include "CommandDataSource.hpp"
 #include "ConditionTrue.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include "DataSourceCondition.hpp"
 
 #include "ConditionComposite.hpp"

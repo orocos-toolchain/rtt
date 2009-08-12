@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "Property.hpp"
-#include "PropertyBag.hpp"
+#include "../Property.hpp"
+#include "../PropertyBag.hpp"
 #include "VectorComposition.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include <ostream>
 #include <sstream>
 

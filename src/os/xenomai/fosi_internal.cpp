@@ -44,7 +44,7 @@
 #include <cassert>
 #define INTERNAL_QUAL
 
-#include "Logger.hpp"
+#include "../../Logger.hpp"
 
 namespace RTT
 { namespace OS {

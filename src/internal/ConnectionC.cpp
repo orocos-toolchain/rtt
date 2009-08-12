@@ -40,7 +40,7 @@
 #include "ConnectionC.hpp"
 #include "FactoryExceptions.hpp"
 #include "EventProcessor.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include <vector>
 #include <boost/bind.hpp>
 

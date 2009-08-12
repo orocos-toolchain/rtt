@@ -58,7 +58,7 @@
 #include <fstream>
 
 #include "os/threads.hpp"
-#include "Activity.hpp"
+#include "../../Activity.hpp"
 
 namespace RTT
 {namespace Corba

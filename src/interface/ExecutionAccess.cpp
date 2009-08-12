@@ -37,10 +37,10 @@
 
 
 #include "ExecutionAccess.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "OperationInterface.hpp"
-#include "Command.hpp"
-#include "Method.hpp"
+#include "../Command.hpp"
+#include "../Method.hpp"
 #include "../internal/NA.hpp"
 
 namespace RTT

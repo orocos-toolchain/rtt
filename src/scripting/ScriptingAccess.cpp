@@ -38,8 +38,8 @@
 
 
 #include "ScriptingAccess.hpp"
-#include "Logger.hpp"
-#include "TaskContext.hpp"
+#include "../Logger.hpp"
+#include "../TaskContext.hpp"
 
 #include "rtt-config.h"
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS

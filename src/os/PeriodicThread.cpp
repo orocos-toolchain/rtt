@@ -39,7 +39,7 @@
 #include <os/PeriodicThread.hpp>
 #include <os/Time.hpp>
 #include "os/threads.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 
 #include "../rtt-config.h"
 

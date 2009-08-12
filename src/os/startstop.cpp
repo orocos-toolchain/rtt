@@ -60,7 +60,7 @@ using namespace std;
 #include <cstdio>
 #endif
     
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include "TimeService.hpp"
 
 using namespace RTT;

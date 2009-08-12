@@ -1,7 +1,7 @@
 #ifndef FILEDESCRIPTOR_ACTIVITY_HPP
 #define FILEDESCRIPTOR_ACTIVITY_HPP
 
-#include "Activity.hpp"
+#include "../Activity.hpp"
 #include <set>
 
 namespace RTT {

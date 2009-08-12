@@ -45,7 +45,7 @@
 #endif
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include <tao/corba.h>
+#include "corba.h"
 #include "ControlTaskS.h"
 #else
 #include <omniORB4/CORBA.h>

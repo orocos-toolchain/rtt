@@ -40,7 +40,7 @@
 #include "ProgramLoader.hpp"
 #include "Parser.hpp"
 #include "ParsedStateMachine.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 
 #include <iostream>
 #include <fstream>

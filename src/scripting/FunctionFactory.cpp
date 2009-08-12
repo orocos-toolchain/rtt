@@ -38,7 +38,7 @@
 
 #include "scripting/FunctionFactory.hpp"
 
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 #include "CommandExecFunction.hpp"
@@ -50,7 +50,7 @@
 #include "../internal/mystd.hpp"
 #include <PropertyBag.hpp>
 #include <Property.hpp>
-#include "Attribute.hpp"
+#include "../Attribute.hpp"
 #include "parse_exception.hpp"
 
 namespace RTT

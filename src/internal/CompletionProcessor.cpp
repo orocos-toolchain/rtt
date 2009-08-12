@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 #include "CompletionProcessor.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include <os/threads.hpp>
 
 #include <os/StartStopManager.hpp>

@@ -40,8 +40,8 @@
 #include <os/SingleThread.hpp>
 #include <os/MutexLock.hpp>
 
-#include "Time.hpp"
-#include "Logger.hpp"
+#include "../Time.hpp"
+#include "../Logger.hpp"
 #include "os/threads.hpp"
 
 #include "../rtt-config.h"

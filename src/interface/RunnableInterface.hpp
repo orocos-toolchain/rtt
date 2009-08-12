@@ -38,7 +38,7 @@
 #ifndef CORELIB_RUNNABLE_INTERFACE_HPP
 #define CORELIB_RUNNABLE_INTERFACE_HPP
 
-#include "os/RunnableInterface.hpp"
+#include "RunnableInterface.hpp"
 #include "ActivityInterface.hpp"
 
 namespace RTT

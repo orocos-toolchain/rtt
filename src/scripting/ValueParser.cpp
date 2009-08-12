@@ -28,9 +28,9 @@
 #include "parser-debug.hpp"
 #include "parse_exception.hpp"
 #include "ValueParser.hpp"
-#include "Attribute.hpp"
+#include "../Attribute.hpp"
 
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
 
 #include <boost/bind.hpp>

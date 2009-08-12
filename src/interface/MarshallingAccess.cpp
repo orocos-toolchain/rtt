@@ -38,12 +38,12 @@
 
 
 #include "MarshallingAccess.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "Method.hpp"
+#include "../Method.hpp"
 #endif
 #include "PropertyLoader.hpp"
 

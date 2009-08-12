@@ -42,7 +42,7 @@
 #include "RunnableInterface.hpp"
 #include "fosi.h"
 #include "threads.hpp"
-#include "../Time.hpp"
+#include "Time.hpp"
 #include "../rtt-config.h"
 
 namespace RTT

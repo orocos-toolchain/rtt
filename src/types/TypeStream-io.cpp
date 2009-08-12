@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "TypeStream-io.hpp"
+#include "../types/TypeStream-io.hpp"
 
 namespace RTT {
     // Code ripped from KDL 0.2

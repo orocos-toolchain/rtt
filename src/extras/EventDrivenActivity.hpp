@@ -38,7 +38,7 @@
 #ifndef TASK_EVENT_DRIVEN_HPP
 #define TASK_EVENT_DRIVEN_HPP
 
-#include "Activity.hpp"
+#include "../Activity.hpp"
 #include "../Event.hpp"
 #include "../interface/Buffer.hpp"
 #include <set>

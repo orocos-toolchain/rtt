@@ -27,7 +27,7 @@
 
 #include "ParsedStateMachine.hpp"
 #include "../internal/DataSource.hpp"
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
 #include "../internal/TaskObject.hpp"

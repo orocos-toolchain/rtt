@@ -37,7 +37,7 @@
 
 
 #include "TaskObject.hpp"
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 
 namespace RTT
 {

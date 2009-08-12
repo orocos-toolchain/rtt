@@ -38,7 +38,7 @@
 
 #include "DataFlowInterface.hpp"
 #include "../internal/TaskObject.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include "OperationInterface.hpp"
 #include "../internal/TaskObject.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef IRQ_ACTIVITY_HPP
 #define IRQ_ACTIVITY_HPP
 
-#include "Activity.hpp"
+#include "../Activity.hpp"
 #include "rtt-config.h"
 
 #ifdef OROPKG_OS_XENOMAI
