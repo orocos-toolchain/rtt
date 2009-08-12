@@ -12,7 +12,7 @@
 #error "You _must_ define OROCOS_TARGET to an installed target (for example: -DOROCOS_TARGET=gnulinux )"
 #endif
 
-#include "targets/rtt-target.h"
+#include "os/targets/rtt-target.h"
 
 // Detect the CPU we are compiling for
 # if defined( __GNUC__ ) && defined( __i386__ )

@@ -16,3 +16,6 @@ ADD_SUBDIRECTORY( win32 )
 ADD_SUBDIRECTORY( oro_i386 )
 ADD_SUBDIRECTORY( oro_x86_64 )
 ADD_SUBDIRECTORY( oro_powerpc )
+
+# Target specific config files
+ADD_SUBDIRECTORY( targets )

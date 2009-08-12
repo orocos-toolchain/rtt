@@ -87,7 +87,7 @@ if ( OS_NO_ASM )
 endif()
 
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
-GLOBAL_ADD_INCLUDE( rtt rtt-config.h)
+GLOBAL_ADD_INCLUDE( rtt ${CMAKE_CURRENT_BINARY_DIR}/rtt-config.h)
 
 GLOBAL_ADD_SRC( ${CPPS})
 
@@ -152,7 +152,7 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/rtt-target.h.in ${PROJ_BINARY_
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/target.in ${PROJ_BINARY_DIR}/src/os/targets/${OROCOS_TARGET} @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
-INSTALL(FILES orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
 INSTALL(TARGETS orocos-rtt-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
 IF(BUILD_STATIC)
   INSTALL(TARGETS orocos-rtt-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
