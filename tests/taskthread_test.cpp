@@ -538,11 +538,13 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     t_task_p->stop();
 
     // see if we recovered ok :
+    Logger::log().setLogLevel( Logger::Never );
     BOOST_CHECK( t_task_np_bad->thread()->start() );
     BOOST_CHECK(t_task_np->start());
     BOOST_CHECK(t_task_a->start());
 
     sleep(1);
+    Logger::log().setLogLevel( ll );
     t_task_p->reset(true);
     BOOST_CHECK( t_task_np->isRunning() );
     BOOST_CHECK( t_task_np->init );

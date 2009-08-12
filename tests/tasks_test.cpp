@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
 
   t->run(0);
 
-  BOOST_CHECK_MESSAGE( r, "Failed to detect step overrun in Thread");
+  BOOST_REQUIRE_MESSAGE( r, "Failed to detect step overrun in Thread");
 
   BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
 
