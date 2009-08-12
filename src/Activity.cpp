@@ -16,6 +16,11 @@ namespace RTT
     {
     }
 
+    Activity::Activity(int priority, RunnableInterface* r, const std::string& name )
+        : ActivityInterface(r), OS::Thread(ORO_SCHED_RT, priority, 0.0, name )
+    {
+    }
+
     Activity::Activity(int priority, Seconds period, RunnableInterface* r, const std::string& name )
         : ActivityInterface(r), OS::Thread(ORO_SCHED_RT, priority, period, name )
     {

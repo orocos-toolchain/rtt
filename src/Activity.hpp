@@ -38,6 +38,19 @@ namespace RTT
         Activity(RunnableInterface* r = 0, const std::string& name ="Activity" );
 
         /**
+         * @brief Create a real-time Activity with a given priority.
+         * The thread is run in the ORO_SCHED_RT scheduler.
+         *
+         * @param priority
+         *        The priority of this activity.
+         * @param r
+         *        The optional RunnableInterface to run exclusively within this Activity
+         * @param name The name of the underlying thread.
+         */
+        Activity(int priority,
+                 RunnableInterface* r = 0, const std::string& name ="Activity");
+
+        /**
          * @brief Create a real-time Activity with a given priority and period.
          * The thread is run in the ORO_SCHED_RT scheduler.
          *
@@ -49,7 +62,7 @@ namespace RTT
          *        The optional RunnableInterface to run exclusively within this Activity
          * @param name The name of the underlying thread.
          */
-        Activity(int priority, Seconds period = 0.0,
+        Activity(int priority, Seconds period,
                  RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
