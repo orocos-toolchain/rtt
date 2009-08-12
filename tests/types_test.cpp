@@ -21,15 +21,15 @@
 #include "types_test.hpp"
 
 #include <iostream>
-#include <FunctionGraph.hpp>
+#include <scripting/FunctionGraph.hpp>
 #include <Method.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <TaskObject.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 #include <TaskContext.hpp>
-#include <ProgramProcessor.hpp>
-#include <StateMachineProcessor.hpp>
-#include <TaskObject.hpp>
+#include <scripting/ProgramProcessor.hpp>
+#include <scripting/StateMachineProcessor.hpp>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 

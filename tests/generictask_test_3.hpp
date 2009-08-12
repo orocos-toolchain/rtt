@@ -20,7 +20,7 @@
 #ifndef GENERIC_TASK_3_H
 #define GENERIC_TASK_3_H
 
-#include "TaskContext.hpp"
+#include <TaskContext.hpp>
 #include <string>
 
 using namespace RTT;

@@ -15,8 +15,8 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
 
     LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src )
     IF(ENABLE_CORBA)
-      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba/ ${CORBA_INCLUDE_DIRS})
-      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba/ ${CORBA_LINK_DIRECTORIES})
+      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/corba/ ${CORBA_INCLUDE_DIRS})
+      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/corba/ ${CORBA_LINK_DIRECTORIES})
       # Work around unresolved symbols in tests when using CORBA *and* STATIC
       IF(BUILD_STATIC)
 	LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})

@@ -20,7 +20,7 @@
 
 #include "tasks_multiple_test.hpp"
 #include <os/threads.hpp>
-#include "Logger.hpp"
+#include <Logger.hpp>
 
 #include <iostream>
 using namespace std;

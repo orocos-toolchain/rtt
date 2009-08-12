@@ -23,9 +23,9 @@
 
 #include <iostream>
 
-#include <Activities.hpp>
-#include <TimerThread.hpp>
-#include <SimulationThread.hpp>
+#include <extras/Activities.hpp>
+#include <extras/TimerThread.hpp>
+#include <extras/SimulationThread.hpp>
 #include <os/MainThread.hpp>
 #include <Logger.hpp>
 #include <rtt-config.h>
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
 {
     // Test periodic task sequencing...
 
-    NonPeriodicActivity mtask( 15 );
+    Activity mtask( 15 );
 
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
     BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
-    NonPeriodicActivity m2task( 15 );
+    Activity m2task( 15 );
     BOOST_CHECK( mtask.thread() != m2task.thread() );
 
     // starting...
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     bprio = 15;
     rtsched = ORO_SCHED_OTHER;
     if ( OS::CheckPriority( rtsched, bprio ) ) {
-        NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
+        Activity m3task(ORO_SCHED_OTHER, 15);
         BOOST_CHECK( mtask.thread() != m3task.thread() );
         BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     }

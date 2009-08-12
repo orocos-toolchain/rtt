@@ -19,7 +19,7 @@
 
 #include "time_test.hpp"
 #include <boost/bind.hpp>
-#include <Timer.hpp>
+#include <extras/Timer.hpp>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>

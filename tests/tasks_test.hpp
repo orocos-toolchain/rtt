@@ -21,9 +21,9 @@
 #define TASKSTEST_H
 
 #include <RTT.hpp>
-#include <PeriodicActivity.hpp>
-#include <SimulationActivity.hpp>
-#include <NonPeriodicActivity.hpp>
+#include <extras/PeriodicActivity.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <Activity.hpp>
 #include <Activity.hpp>
 
 using namespace RTT;

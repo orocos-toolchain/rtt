@@ -21,10 +21,10 @@
 #define DISPATCHTEST_H
 
 #include <scripting/Parser.hpp>
-#include <CommandProcessor.hpp>
+#include <internal/CommandProcessor.hpp>
 #include <TaskContext.hpp>
 #include <string>
-#include <SimulationActivity.hpp>
+#include <extras/SimulationActivity.hpp>
 
 using namespace RTT;
 

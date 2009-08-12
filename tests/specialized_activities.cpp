@@ -2,7 +2,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include "specialized_activities.hpp"
-#include <FileDescriptorActivity.hpp>
+#include <extras/FileDescriptorActivity.hpp>
 #include <iostream>
 
 using namespace std;

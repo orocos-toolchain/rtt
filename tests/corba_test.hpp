@@ -1,11 +1,11 @@
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
-#include <corba/corba.h>
+#include <transports/corba/corba.h>
 #include <Ports.hpp>
 #include <TaskContext.hpp>
-#include <corba/ControlTaskServer.hpp>
-#include <corba/ControlTaskProxy.hpp>
+#include <transports/corba/ControlTaskServer.hpp>
+#include <transports/corba/ControlTaskProxy.hpp>
 #include <string>
 
 using namespace RTT;

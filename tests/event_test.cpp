@@ -20,11 +20,11 @@
 
 #include <Event.hpp>
 #include <Logger.hpp>
-#include <RunnableInterface.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <NonPeriodicActivity.hpp>
-#include <CompletionProcessor.hpp>
+#include <interface/RunnableInterface.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <Activity.hpp>
+#include <internal/CompletionProcessor.hpp>
 #include <os/Atomic.hpp>
 
 #include "event_test.hpp"
@@ -340,10 +340,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentEmit )
     EmitAndcount brunobj(event);
     EmitAndcount crunobj(event);
     EmitAndcount drunobj(event);
-    NonPeriodicActivity atask(ORO_SCHED_OTHER, 0, &arunobj);
-    NonPeriodicActivity btask(ORO_SCHED_OTHER, 0, &brunobj);
-    NonPeriodicActivity ctask(ORO_SCHED_OTHER, 0, &crunobj);
-    NonPeriodicActivity dtask(ORO_SCHED_OTHER, 0, &drunobj);
+    Activity atask(ORO_SCHED_OTHER, 0, &arunobj);
+    Activity btask(ORO_SCHED_OTHER, 0, &brunobj);
+    Activity ctask(ORO_SCHED_OTHER, 0, &crunobj);
+    Activity dtask(ORO_SCHED_OTHER, 0, &drunobj);
     Handle h = event.connect( &testConcurrentEmitHandler );
     BOOST_CHECK( h.connected() );
     BOOST_CHECK( atask.start() );
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( testBlockingTask )
 {
     Event<void(int)> event("Event");
     Runner runobj(event);
-    NonPeriodicActivity task(15, &runobj);
+    Activity task(15, &runobj);
     BOOST_CHECK(task.start());
     usleep(100000);
     BOOST_CHECK(task.stop());

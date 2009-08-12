@@ -28,8 +28,8 @@
 #ifndef FAKEANALOGDEVICE_HPP
 #define FAKEANALOGDEVICE_HPP
 
-#include "dev/AnalogInInterface.hpp"
-#include "dev/AnalogOutInterface.hpp"
+#include <extras/dev/AnalogInInterface.hpp>
+#include <extras/dev/AnalogOutInterface.hpp>
 
 namespace RTT
 {

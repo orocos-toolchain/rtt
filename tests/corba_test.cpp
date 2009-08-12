@@ -26,9 +26,9 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <Method.hpp>
-#include <OperationInterface.hpp>
-#include <corba/DataFlowI.h>
-#include <corba/RemotePorts.hpp>
+#include <interface/OperationInterface.hpp>
+#include <transports/corba/DataFlowI.h>
+#include <transports/corba/RemotePorts.hpp>
 
 using namespace std;
 using Corba::ControlTaskProxy;

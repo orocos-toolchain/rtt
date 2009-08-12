@@ -22,11 +22,11 @@
 
 #include <iostream>
 #include <sstream>
-#include <FunctionGraph.hpp>
-#include <SimulationThread.hpp>
+#include <scripting/FunctionGraph.hpp>
+#include <extras/SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
-#include <TaskObject.hpp>
+#include <internal/TaskObject.hpp>
 
 
 using namespace std;

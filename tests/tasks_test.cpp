@@ -22,8 +22,8 @@
 
 #include <iostream>
 
-#include <PeriodicActivity.hpp>
-#include <TimeService.hpp>
+#include <extras/PeriodicActivity.hpp>
+#include <os/TimeService.hpp>
 
 #include <boost/scoped_ptr.hpp>
 
@@ -343,8 +343,8 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
         ( new TestRunnableInterface(true) );
     // force ordering of scoped_ptr destruction.
     {
-        scoped_ptr<NonPeriodicActivity> t_task_nonper
-            ( new NonPeriodicActivity( 14 ) );
+        scoped_ptr<Activity> t_task_nonper
+            ( new Activity( 14 ) );
 
         BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
         BOOST_CHECK( t_task_nonper->start() );
@@ -418,8 +418,8 @@ BOOST_AUTO_TEST_CASE( testSelfRemove )
 {
     scoped_ptr<TestSelfRemove> t_run_int_nonper
         ( new TestSelfRemove() );
-    scoped_ptr<NonPeriodicActivity> t_task_nonper
-        ( new NonPeriodicActivity( 14 ) );
+    scoped_ptr<Activity> t_task_nonper
+        ( new Activity( 14 ) );
     BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
     BOOST_CHECK( t_task_nonper->start() );
     BOOST_CHECK( t_task_prio->run(t_self_remove) );

@@ -27,12 +27,12 @@
 #include <scripting/ParsedStateMachine.hpp>
 #include <scripting/DumpObject.hpp>
 #endif
-#include <SimulationThread.hpp>
-#include <CommandFunctor.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/CommandFunctor.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
-#include <StateMachine.hpp>
-#include <TaskObject.hpp>
+#include <scripting/StateMachine.hpp>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 

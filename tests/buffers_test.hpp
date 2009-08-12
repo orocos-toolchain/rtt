@@ -20,12 +20,12 @@
 #define BUFFERSTEST_H
 
 #include <RTT.hpp>
-#include <AtomicQueue.hpp>
-#include <BufferLockFree.hpp>
-#include <ListLockFree.hpp>
-#include <DataObjectInterfaces.hpp>
-#include <MemoryPool.hpp>
-//#include <SortedList.hpp>
+#include <internal/AtomicQueue.hpp>
+#include <interface/BufferLockFree.hpp>
+#include <internal/ListLockFree.hpp>
+#include <interface/DataObjectInterfaces.hpp>
+#include <internal/MemoryPool.hpp>
+//#include <internal/SortedList.hpp>
 
 #include <os/SingleThread.hpp>
 #include <os/Thread.hpp>

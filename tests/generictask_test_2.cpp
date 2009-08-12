@@ -22,14 +22,14 @@
 
 #include <iostream>
 #include <Command.hpp>
-#include <CommandDS.hpp>
-#include <OperationInterface.hpp>
-#include <RemoteCommand.hpp>
-#include <TaskObject.hpp>
+#include <scripting/CommandDS.hpp>
+#include <interface/OperationInterface.hpp>
+#include <internal/RemoteCommand.hpp>
+#include <internal/TaskObject.hpp>
 
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <TaskObject.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testCommandThreading )
     // Sends periodic commands.
     Sender scomp ( tc ); // tc is receiver.
 
-    tc->setActivity( new NonPeriodicActivity(ORO_SCHED_OTHER, 0) );
+    tc->setActivity( new Activity(ORO_SCHED_OTHER, 0, 0.0) );
     scomp.setActivity( new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.01) );
 
     BOOST_CHECK( tc->start() );

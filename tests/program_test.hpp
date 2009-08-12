@@ -23,7 +23,7 @@
 #include <scripting/Parser.hpp>
 #include <TaskContext.hpp>
 #include <string>
-#include <SimulationActivity.hpp>
+#include <extras/SimulationActivity.hpp>
 
 using namespace RTT;
 

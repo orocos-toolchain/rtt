@@ -21,17 +21,17 @@
 #include "template_factory_test.hpp"
 
 #include <iostream>
-#include <FunctionGraph.hpp>
+#include <scripting/FunctionGraph.hpp>
 #include <Command.hpp>
 #include <Method.hpp>
-#include <DataSourceAdaptor.hpp>
-#include <DataSourceGenerator.hpp>
-#include <ProgramProcessor.hpp>
-#include <TaskObject.hpp>
+#include <internal/DataSourceAdaptor.hpp>
+#include <internal/DataSourceGenerator.hpp>
+#include <scripting/ProgramProcessor.hpp>
+#include <internal/TaskObject.hpp>
 
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <TaskObject.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 
 #include <rtt-config.h>
 

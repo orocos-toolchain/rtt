@@ -20,11 +20,11 @@
 #ifndef TEMPLATE_FACTORYTEST_H
 #define TEMPLATE_FACTORYTEST_H
 
-#include <MultiVector.hpp>
+#include <extras/MultiVector.hpp>
 #include <scripting/Parser.hpp>
-#include <CommandProcessor.hpp>
+#include <internal/CommandProcessor.hpp>
 #include <TaskContext.hpp>
-#include <SlaveActivity.hpp>
+#include <extras/SlaveActivity.hpp>
 #include <string>
 
 using namespace RTT;

@@ -22,16 +22,16 @@
 
 #include <iostream>
 #include <Ports.hpp>
-#include <DataObjectInterfaces.hpp>
-#include <BufferLocked.hpp>
+#include <interface/DataObjectInterfaces.hpp>
+#include <interface/BufferLocked.hpp>
 
-#include <SlaveActivity.hpp>
-#include <SequentialActivity.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
+#include <extras/SlaveActivity.hpp>
+#include <extras/SequentialActivity.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
-#include "Method.hpp"
+#include <Method.hpp>
 
 using namespace std;
 using namespace RTT;

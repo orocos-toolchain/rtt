@@ -23,11 +23,11 @@
 
 #include "property_test.hpp"
 #include <boost/bind.hpp>
-#include <PropertyBagIntrospector.hpp>
-#include "MultiVector.hpp"
+#include <marsh/PropertyBagIntrospector.hpp>
+#include <extras/MultiVector.hpp>
 #include "marsh/PropertyMarshaller.hpp"
 #include "marsh/PropertyDemarshaller.hpp"
-#include "DataSourceTypeInfo.hpp"
+#include <internal/DataSourceTypeInfo.hpp>
 #include <rtt-config.h>
 #include <iostream>
 

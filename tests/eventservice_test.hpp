@@ -22,8 +22,8 @@
 
 
 #include <Event.hpp>
-#include <EventService.hpp>
-#include <SlaveActivity.hpp>
+#include <interface/EventService.hpp>
+#include <extras/SlaveActivity.hpp>
 #include <string>
 
 class EventServiceTest
