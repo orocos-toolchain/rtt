@@ -42,7 +42,7 @@
 #else
 #include "DataFlowC.h"
 #endif
-#include "../../interface/PortInterface.hpp"
+#include "../../base/PortInterface.hpp"
 #include "../../Logger.hpp"
 #include "ControlTaskProxy.hpp"
 #include "CorbaTypeTransporter.hpp"

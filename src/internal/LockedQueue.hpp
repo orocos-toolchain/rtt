@@ -2,7 +2,7 @@
 #define ORO_LOCKED_QUEUE_HPP
 
 #include <deque>
-#include "../interface/BufferPolicy.hpp"
+#include "../base/BufferPolicy.hpp"
 #include "os/Mutex.hpp"
 #include "os/MutexLock.hpp"
 

@@ -39,9 +39,9 @@
 #define PI_PROPERTYINTROSPECTION_INL
 
 #include "PropertyIntrospection.hpp"
-#include "Property.hpp"
-#include "PropertyBag.hpp"
-#include "Logger.hpp"
+#include "../Property.hpp"
+#include "../PropertyBag.hpp"
+#include "../Logger.hpp"
 
 namespace RTT
 {

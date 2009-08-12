@@ -1,6 +1,6 @@
 #include "FileDescriptorActivity.hpp"
 #include "../ExecutionEngine.hpp"
-#include "../internal/TaskCore.hpp"
+#include "../base/TaskCore.hpp"
 
 #include <sys/select.h>
 #include <unistd.h>

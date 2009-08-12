@@ -49,6 +49,6 @@
 #include "SlaveActivity.hpp"
 #include "SequentialActivity.hpp"
 #include "PeriodicActivity.hpp"
-#include "Activity.hpp"
-#include "../interface/RunnableInterface.hpp"
+#include "../Activity.hpp"
+#include "../base/RunnableInterface.hpp"
 

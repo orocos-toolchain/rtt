@@ -1,7 +1,7 @@
 #ifndef ORO_EXECUTION_CHANNELS_HPP
 #define ORO_EXECUTION_CHANNELS_HPP
 
-#include "ChannelInterface.hpp"
+#include "../base/ChannelInterface.hpp"
 
 namespace RTT {
     /** A connection element that stores a single data sample

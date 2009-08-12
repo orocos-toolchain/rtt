@@ -43,7 +43,7 @@
 #include "../rtt-config.h"
 #include "fosi.h"
 
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 #include "ThreadInterface.hpp"
 #include "Mutex.hpp"
 

@@ -59,7 +59,7 @@
 #include "DataSource.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 /**
  * @file OperationFactory.hpp This file contains some code that is common

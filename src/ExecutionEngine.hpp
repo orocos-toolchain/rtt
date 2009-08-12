@@ -39,8 +39,8 @@
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
-#include "interface/RunnableInterface.hpp"
-#include "interface/ActivityInterface.hpp"
+#include "base/RunnableInterface.hpp"
+#include "base/ActivityInterface.hpp"
 #include <vector>
 
 #include "rtt-config.h"

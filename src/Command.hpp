@@ -42,7 +42,7 @@
 #include <string>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include "interface/CommandBase.hpp"
+#include "base/CommandBase.hpp"
 #include "internal/LocalCommand.hpp"
 #include "internal/UnMember.hpp"
 

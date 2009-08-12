@@ -38,10 +38,10 @@
 #ifndef ORO_PERIODIC_ACTIVITY_HPP
 #define ORO_PERIODIC_ACTIVITY_HPP
 
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 
 #include "../Time.hpp"
-#include "../interface/ActivityInterface.hpp"
+#include "../base/ActivityInterface.hpp"
 #include "TimerThread.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE

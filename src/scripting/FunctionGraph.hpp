@@ -41,8 +41,8 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include "CommandNOP.hpp"
-#include "../interface/AttributeBase.hpp"
-#include "../interface/ProgramInterface.hpp"
+#include "../base/AttributeBase.hpp"
+#include "../base/ProgramInterface.hpp"
 
 namespace RTT
 {

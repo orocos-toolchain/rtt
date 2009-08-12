@@ -42,7 +42,7 @@
 #include <boost/function.hpp>
 #include <string>
 #include "Invoker.hpp"
-#include "../interface/MethodBase.hpp"
+#include "../base/MethodBase.hpp"
 #include "BindStorage.hpp"
 
 namespace RTT

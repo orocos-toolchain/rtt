@@ -42,7 +42,7 @@
 #include "CommandFunctors.hpp"
 #include "CommandProcessor.hpp"
 #include "../scripting/CommandDSFunctors.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 namespace RTT
 {

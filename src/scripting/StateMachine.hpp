@@ -42,7 +42,7 @@
 #include "StateInterface.hpp"
 #include "ConditionInterface.hpp"
 #include "../internal/CommandInterface.hpp"
-#include "../interface/DataSourceBase.hpp"
+#include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"
 #include "../internal/EventProcessor.hpp"
 

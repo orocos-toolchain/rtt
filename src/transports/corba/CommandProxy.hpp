@@ -39,7 +39,7 @@
 #ifndef ORO_CORBA_COMMANDPROXY_HPP
 #define ORO_CORBA_COMMANDPROXY_HPP
 
-#include "../../interface/DispatchInterface.hpp"
+#include "../../base/DispatchInterface.hpp"
 #include "OperationsC.h"
 #include "../../Logger.hpp"
 

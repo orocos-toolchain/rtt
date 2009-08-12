@@ -40,7 +40,7 @@
 
 #include "rtt-config.h"
 #include "marsh/Marshaller.hpp"
-#include "interface/PropertyBase.hpp"
+#include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "internal/PropertyCommands.hpp"
 #include "internal/DataSources.hpp"

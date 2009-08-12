@@ -46,7 +46,7 @@
 #include <vector>
 #include "parse_exception.hpp"
 #include "../internal/DataSource.hpp"
-#include "../interface/ProgramInterface.hpp"
+#include "../base/ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 #include "../rtt-config.h"
 

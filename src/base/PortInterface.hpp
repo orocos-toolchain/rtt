@@ -2,7 +2,7 @@
 #define ORO_EXECUTION_PORT_INTERFACE_HPP
 
 #include <string>
-#include "Channels.hpp"
+#include "../internal/Channels.hpp"
 #include "../extras/Events.hpp"
 #include "../internal/ListLockFree.hpp"
 

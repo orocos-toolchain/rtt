@@ -41,10 +41,10 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "CommandProcessor.hpp"
 #include "CommandFunctors.hpp"
-#include "../interface/CommandBase.hpp"
+#include "../base/CommandBase.hpp"
 #include "DataSourceStorage.hpp"
 #include "Invoker.hpp"
 

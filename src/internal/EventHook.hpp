@@ -41,7 +41,7 @@
 
 
 #include "../Event.hpp"
-#include "../interface/ActivityInterface.hpp"
+#include "../base/ActivityInterface.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>

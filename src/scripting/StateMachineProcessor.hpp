@@ -38,7 +38,7 @@
 #ifndef ORO_STATE_MACHINE_PROCESSOR_HPP
 #define ORO_STATE_MACHINE_PROCESSOR_HPP
 
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 #include "StateMachine.hpp"
 #include "ProgramExceptions.hpp"
 

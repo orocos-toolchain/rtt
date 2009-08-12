@@ -37,7 +37,7 @@
  
  
 #include <cassert>
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 #include "os/ThreadInterface.hpp"
 
 namespace RTT

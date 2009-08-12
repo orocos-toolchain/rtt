@@ -39,7 +39,7 @@
 #ifndef ORO_DISPATCH_ACTION_HPP
 #define ORO_DISPATCH_ACTION_HPP
 
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 namespace RTT
 {

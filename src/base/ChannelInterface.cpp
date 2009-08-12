@@ -1,4 +1,4 @@
-#include "Channels.hpp"
+#include "../internal/Channels.hpp"
 #include <os/Atomic.hpp>
 
 using namespace RTT;

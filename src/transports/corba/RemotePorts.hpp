@@ -1,8 +1,8 @@
 #ifndef RTT_CORBA_REMOTE_PORTS_HPP
 #define RTT_CORBA_REMOTE_PORTS_HPP
 
-#include "../../interface/PortInterface.hpp"
-#include "../../interface/ChannelInterface.hpp"
+#include "../../base/PortInterface.hpp"
+#include "../../base/ChannelInterface.hpp"
 #include "../../Ports.hpp"
 #include "DataFlowI.h"
 

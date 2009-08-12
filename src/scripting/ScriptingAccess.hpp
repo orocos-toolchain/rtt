@@ -41,8 +41,8 @@
 
 #include <vector>
 #include <string>
-#include "../interface/ProgramInterface.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/ProgramInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 namespace RTT
 {

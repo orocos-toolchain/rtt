@@ -1,12 +1,12 @@
 #ifndef ORO_EXECUTION_PORTS_HPP
 #define ORO_EXECUTION_PORTS_HPP
 
-#include "interface/Channels.hpp"
-#include "interface/PortInterface.hpp"
+#include "internal/Channels.hpp"
+#include "base/PortInterface.hpp"
 
-#include "interface/DataObjectInterfaces.hpp"
-#include "interface/BufferLocked.hpp"
-#include "interface/BufferLockFree.hpp"
+#include "base/DataObjectInterfaces.hpp"
+#include "base/BufferLocked.hpp"
+#include "base/BufferLockFree.hpp"
 #include "internal/TaskObject.hpp"
 #include "Method.hpp"
 

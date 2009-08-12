@@ -41,7 +41,7 @@
 
 #include "CommandComposite.hpp"
 #include "../internal/Exceptions.hpp"
-#include "../interface/AttributeBase.hpp"
+#include "../base/AttributeBase.hpp"
 #include "ConditionTrue.hpp"
 #include "ConditionInvert.hpp"
 #include "StateDescription.hpp"

@@ -51,7 +51,7 @@
 #include "scripting/ScriptingAccess.hpp"
 #include "interface/ExecutionAccess.hpp"
 #include "interface/MarshallingAccess.hpp"
-#include "internal/TaskCore.hpp"
+#include "base/TaskCore.hpp"
 #include "PropertyBag.hpp"
 
 #include <string>

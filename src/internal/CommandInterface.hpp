@@ -38,7 +38,7 @@
 #ifndef COMMANDINTERFACE_HPP
 #define COMMANDINTERFACE_HPP
 
-#include "../interface/ActionInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {

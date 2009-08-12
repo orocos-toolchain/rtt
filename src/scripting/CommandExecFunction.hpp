@@ -42,9 +42,9 @@
 #include "ConditionInterface.hpp"
 #include "../internal/CommandInterface.hpp"
 #include "../internal/DataSources.hpp"
-#include "../interface/ProgramInterface.hpp"
+#include "../base/ProgramInterface.hpp"
 #include "ProgramProcessor.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "../internal/DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 

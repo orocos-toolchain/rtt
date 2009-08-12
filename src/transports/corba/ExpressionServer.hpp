@@ -47,7 +47,7 @@
 #include <omniORB4/poa.h>
 #endif
 #include "OperationsC.h"
-#include "../../interface/DataSourceBase.hpp"
+#include "../../base/DataSourceBase.hpp"
 
 
 // forward decl.

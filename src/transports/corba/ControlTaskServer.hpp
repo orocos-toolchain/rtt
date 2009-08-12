@@ -53,7 +53,7 @@
 #endif
 #include "../../TaskContext.hpp"
 #include "ApplicationServer.hpp"
-#include "../../interface/ActivityInterface.hpp"
+#include "../../base/ActivityInterface.hpp"
 
 class Orocos_ControlTask_i;
 namespace RTT

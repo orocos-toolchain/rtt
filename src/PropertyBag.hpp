@@ -38,7 +38,7 @@
 #ifndef PI_PROPERTY_BAG
 #define PI_PROPERTY_BAG
 
-#include "interface/PropertyBase.hpp"
+#include "base/PropertyBase.hpp"
 
 #include <vector>
 #include <algorithm>

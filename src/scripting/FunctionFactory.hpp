@@ -41,8 +41,8 @@
 
 #include "../internal/OperationFactory.hpp"
 #include "../Property.hpp"
-#include "../interface/ProgramInterface.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/ProgramInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 #include <map>
 #include <string>

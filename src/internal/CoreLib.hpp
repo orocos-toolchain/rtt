@@ -55,7 +55,7 @@
 #include "../extras/Properties.hpp"
 #include "../extras/Events.hpp"
 #include "../extras/Activities.hpp"
-#include "../interface/Buffers.hpp"
+#include "../base/Buffers.hpp"
 #include "../os/TimeService.hpp"
 #include "../Logger.hpp"
 

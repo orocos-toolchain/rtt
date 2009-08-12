@@ -41,7 +41,7 @@
 
 #include "internal/DataSource.hpp"
 #include "internal/DataSources.hpp"
-#include "interface/AttributeBase.hpp"
+#include "base/AttributeBase.hpp"
 #include "types/BuildType.hpp"
 
 namespace RTT

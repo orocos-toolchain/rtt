@@ -38,7 +38,7 @@
 
 
 #include "ProgramProcessor.hpp"
-#include "../interface/ProgramInterface.hpp"
+#include "../base/ProgramInterface.hpp"
 #include "../internal/Queue.hpp"
 #include "../Logger.hpp"
 #include "../internal/Exceptions.hpp"

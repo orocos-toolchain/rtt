@@ -40,7 +40,7 @@
 
 #include "../Activity.hpp"
 #include "../Event.hpp"
-#include "../interface/Buffer.hpp"
+#include "../base/Buffer.hpp"
 #include <set>
 
 #ifdef ORO_PRAGMA_INTERFACE

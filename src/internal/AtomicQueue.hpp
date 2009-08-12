@@ -42,7 +42,7 @@
 #include <vector>
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
-#include "../interface/BufferPolicy.hpp"
+#include "../base/BufferPolicy.hpp"
 
 namespace RTT
 {

@@ -41,9 +41,9 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "../interface/DataSourceBase.hpp"
+#include "../base/DataSourceBase.hpp"
 #include <boost/shared_ptr.hpp>
-#include "../interface/AttributeBase.hpp"
+#include "../base/AttributeBase.hpp"
 #include "../Logger.hpp"
 
 /**

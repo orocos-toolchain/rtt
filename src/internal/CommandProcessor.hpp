@@ -40,9 +40,9 @@
 #ifndef ORO_COMMAND_PROCESSOR_HPP
 #define ORO_COMMAND_PROCESSOR_HPP
 
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 #include "CommandInterface.hpp"
-#include "../interface/BufferPolicy.hpp"
+#include "../base/BufferPolicy.hpp"
 
 #include <string>
 #include <vector>

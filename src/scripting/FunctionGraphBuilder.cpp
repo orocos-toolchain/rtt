@@ -39,7 +39,7 @@
 
 #include "FunctionGraphBuilder.hpp"
 #include "CommandComposite.hpp"
-#include "../interface/AttributeBase.hpp"
+#include "../base/AttributeBase.hpp"
 #include "../internal/DataSource.hpp"
 //#include "parse_exception.hpp"
 #include "../internal/FactoryExceptions.hpp"

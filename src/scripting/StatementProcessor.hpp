@@ -40,7 +40,7 @@
 #define ORO_EXECUTION_STATEMENT_PROCESSOR_HPP
 
 #include <string>
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "../rtt-config.h"
 
 namespace RTT

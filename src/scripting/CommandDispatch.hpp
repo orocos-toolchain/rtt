@@ -39,7 +39,7 @@
 #define EXECUTION_COMMAND_DISPATCH
 
 #include "../internal/DataSource.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "ConditionInterface.hpp"
 
 

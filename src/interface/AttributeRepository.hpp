@@ -43,7 +43,7 @@
 #include <map>
 #include "../Attribute.hpp"
 #include "../internal/DataSources.hpp"
-#include "DataObjectInterfaces.hpp"
+#include "../base/DataObjectInterfaces.hpp"
 #include "../Property.hpp"
 #include "../PropertyBag.hpp"
 

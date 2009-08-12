@@ -39,7 +39,7 @@
 
 #include "TaskCore.hpp"
 #include "../ExecutionEngine.hpp"
-#include "../interface/ActivityInterface.hpp"
+#include "ActivityInterface.hpp"
 
 namespace RTT
 {

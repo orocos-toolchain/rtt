@@ -39,7 +39,7 @@
 
 #include "Logger.hpp"
 #include "ExecutionEngine.hpp"
-#include "internal/TaskCore.hpp"
+#include "base/TaskCore.hpp"
 #include <algorithm>
 
 namespace RTT

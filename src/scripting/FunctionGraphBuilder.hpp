@@ -39,7 +39,7 @@
 #define PROGRAMGRAPH_HPP
 
 #include "FunctionGraph.hpp"
-#include "../interface/DataSourceBase.hpp"
+#include "../base/DataSourceBase.hpp"
 
 #include <utility>                   // for std::pair
 #include <stack>

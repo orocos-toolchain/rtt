@@ -43,10 +43,10 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 #include <string>
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "../internal/CommandFunctors.hpp"
 #include "../internal/Invoker.hpp"
-#include "../interface/CommandBase.hpp"
+#include "../base/CommandBase.hpp"
 
 namespace RTT
 {

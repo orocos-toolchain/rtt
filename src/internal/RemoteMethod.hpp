@@ -41,7 +41,7 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "../interface/MethodBase.hpp"
+#include "../base/MethodBase.hpp"
 #include "MethodC.hpp"
 #include "DataSourceStorage.hpp"
 #include "Invoker.hpp"

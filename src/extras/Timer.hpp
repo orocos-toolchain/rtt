@@ -44,7 +44,7 @@
 #include "os/Mutex.hpp"
 #include "os/Semaphore.hpp"
 #include "os/ThreadInterface.hpp"
-#include "../interface/RunnableInterface.hpp"
+#include "../base/RunnableInterface.hpp"
 #include <vector>
 #include <utility>
 

@@ -42,7 +42,7 @@
 #include <string>
 #include <utility>
 
-#include "../interface/DataSourceBase.hpp"
+#include "../base/DataSourceBase.hpp"
 #include "OperationFactory.hpp"
 
 namespace RTT

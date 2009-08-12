@@ -42,7 +42,7 @@
 #include "parse_exception.hpp"
 
 #include "../TaskContext.hpp"
-#include "../interface/DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "ConditionInterface.hpp"
 #include "../extras/MultiVector.hpp"
 #include "../types/TypeStream.hpp"
