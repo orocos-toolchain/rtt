@@ -39,7 +39,7 @@
 #include "FunctionGraph.hpp"
 #include "GraphCopier.hpp"
 #include "../base/AttributeBase.hpp"
-#include "scripting/ProgramTask.hpp"
+#include "ProgramTask.hpp"
 #include "ProgramProcessor.hpp"
 #include "../internal/TaskObject.hpp"
 

@@ -80,7 +80,7 @@
 #endif
 #include "CorbaConversion.hpp"
 #include "AnyDataSource.hpp"
-#include "../../interface/DispatchInterface.hpp"
+#include "../../base/DispatchInterface.hpp"
 #include "../../Logger.hpp"
 #include "../../internal/MethodC.hpp"
 #include "../../internal/DataSources.hpp"

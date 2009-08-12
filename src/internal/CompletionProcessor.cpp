@@ -37,9 +37,9 @@
 
 #include "CompletionProcessor.hpp"
 #include "../Logger.hpp"
-#include <os/threads.hpp>
+#include "../os/threads.hpp"
 
-#include <os/StartStopManager.hpp>
+#include "../os/StartStopManager.hpp"
 namespace RTT
 {
    namespace {

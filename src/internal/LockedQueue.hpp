@@ -3,8 +3,8 @@
 
 #include <deque>
 #include "../base/BufferPolicy.hpp"
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/Mutex.hpp"
+#include "../os/MutexLock.hpp"
 
 namespace RTT
 {

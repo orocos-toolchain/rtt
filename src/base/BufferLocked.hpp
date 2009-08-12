@@ -42,8 +42,8 @@
 #ifndef ORO_CORELIB_BUFFER_LOCKED_HPP
 #define ORO_CORELIB_BUFFER_LOCKED_HPP
 
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/Mutex.hpp"
+#include "../os/MutexLock.hpp"
 #include "BufferInterface.hpp"
 #include "BufferPolicy.hpp"
 #include <deque>

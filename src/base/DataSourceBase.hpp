@@ -43,7 +43,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <string>
-#include "os/Atomic.hpp"
+#include "../os/Atomic.hpp"
 #include "rtt-config.h"
 #include "../internal/CommandInterface.hpp"
 

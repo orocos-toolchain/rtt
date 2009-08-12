@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "marsh/TinyDemarshaller.hpp"
+#include "TinyDemarshaller.hpp"
 
 
 // Modified tinyxml* to include it in the RTT namespace to avoid clashes

@@ -37,7 +37,7 @@
 
 
 
-#include "marsh/CPFDTD.hpp"
+#include "CPFDTD.hpp"
 
 namespace RTT
 {

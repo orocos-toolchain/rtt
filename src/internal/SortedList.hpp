@@ -39,7 +39,7 @@
 #ifndef ORO_SORTED_LIST_HPP
 #define ORO_SORTED_LIST_HPP
 
-#include "os/CAS.hpp"
+#include "../os/CAS.hpp"
 #include <boost/shared_ptr.hpp>
 #include "MemoryPool.hpp"
 

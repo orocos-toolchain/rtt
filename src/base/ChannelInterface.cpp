@@ -1,5 +1,5 @@
 #include "../internal/Channels.hpp"
-#include <os/Atomic.hpp>
+#include "../os/Atomic.hpp"
 
 using namespace RTT;
 

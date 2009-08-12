@@ -46,7 +46,7 @@
 #include "DataFlowC.h"
 #endif
 #include "CorbaConversion.hpp"
-#include "../../interface/ChannelInterface.hpp"
+#include "../../base/ChannelInterface.hpp"
 #include "../../internal/DataSources.hpp"
 #include "../../types/TypeTransporter.hpp"
 #include <list>

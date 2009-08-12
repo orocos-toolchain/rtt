@@ -40,7 +40,7 @@
 #endif
 #include "../Time.hpp"
 #include "PeriodicActivity.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/MutexLock.hpp"
 #include "../Logger.hpp"
 #include "TimerThread.hpp"
 #include <cmath>

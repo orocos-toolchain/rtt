@@ -38,7 +38,7 @@
 
 #ifndef ORO_CORELIB_BUFFER_POLICY_HPP
 #define ORO_CORELIB_BUFFER_POLICY_HPP
-#include "os/Semaphore.hpp"
+#include "../os/Semaphore.hpp"
 
 namespace RTT
 {

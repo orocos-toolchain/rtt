@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "scripting/FunctionFactory.hpp"
+#include "FunctionFactory.hpp"
 
 #include "../ExecutionEngine.hpp"
 #include "CommandComposite.hpp"

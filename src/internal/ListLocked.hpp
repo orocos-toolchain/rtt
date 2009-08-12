@@ -8,8 +8,8 @@
 #include <stack>
 #include <vector>
 #include <algorithm>
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/Mutex.hpp"
+#include "../os/MutexLock.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

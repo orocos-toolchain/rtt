@@ -38,8 +38,8 @@
 #ifndef ORO_BUFFER_LOCK_FREE_HPP
 #define ORO_BUFFER_LOCK_FREE_HPP
 
-#include "os/oro_atomic.h"
-#include "os/CAS.hpp"
+#include "../os/oro_atomic.h"
+#include "../os/CAS.hpp"
 #include "BufferPolicy.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicQueue.hpp"

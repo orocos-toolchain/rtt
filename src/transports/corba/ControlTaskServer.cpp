@@ -57,7 +57,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "os/threads.hpp"
+#include "../../os/threads.hpp"
 #include "../../Activity.hpp"
 
 namespace RTT

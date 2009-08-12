@@ -37,7 +37,7 @@
 
 
 #include "SlaveActivity.hpp"
-#include "os/MainThread.hpp"
+#include "../os/MainThread.hpp"
 
 namespace RTT
 {

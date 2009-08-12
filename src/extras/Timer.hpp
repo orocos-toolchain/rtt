@@ -41,9 +41,9 @@
 
 #include "../Time.hpp"
 #include "../os/TimeService.hpp"
-#include "os/Mutex.hpp"
-#include "os/Semaphore.hpp"
-#include "os/ThreadInterface.hpp"
+#include "../os/Mutex.hpp"
+#include "../os/Semaphore.hpp"
+#include "../os/ThreadInterface.hpp"
 #include "../base/RunnableInterface.hpp"
 #include <vector>
 #include <utility>

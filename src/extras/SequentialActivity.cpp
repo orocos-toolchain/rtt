@@ -1,6 +1,6 @@
 #include "SequentialActivity.hpp"
-#include "os/MainThread.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/MainThread.hpp"
+#include "../os/MutexLock.hpp"
 
 namespace RTT
 {

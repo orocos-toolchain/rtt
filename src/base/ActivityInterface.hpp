@@ -39,7 +39,7 @@
 #define ORO_ACTIVITY_INTERFACE_HPP
 
 #include "../Time.hpp"
-#include "os/ThreadInterface.hpp"
+#include "../os/ThreadInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

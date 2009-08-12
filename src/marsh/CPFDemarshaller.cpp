@@ -37,8 +37,8 @@
 
 
 
-#include "marsh/CPFDemarshaller.hpp"
-#include "marsh/CPFDTD.hpp"
+#include "CPFDemarshaller.hpp"
+#include "CPFDTD.hpp"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>

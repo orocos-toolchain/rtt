@@ -40,8 +40,8 @@
 #define ORO_QUEUE_LOCK_FREE_HPP
 
 #include <vector>
-#include "os/oro_atomic.h"
-#include "os/CAS.hpp"
+#include "../os/oro_atomic.h"
+#include "../os/CAS.hpp"
 #include "../base/BufferPolicy.hpp"
 
 namespace RTT

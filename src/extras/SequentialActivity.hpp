@@ -3,7 +3,7 @@
 
 #include "../base/ActivityInterface.hpp"
 #include "../base/RunnableInterface.hpp"
-#include "os/Mutex.hpp"
+#include "../os/Mutex.hpp"
 
 namespace RTT
 {

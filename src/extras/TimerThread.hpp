@@ -40,9 +40,9 @@
 #define ORO_TIMERTHREAD_HPP
 
 
-#include "os/PeriodicThread.hpp"
+#include "../os/PeriodicThread.hpp"
 
-#include "os/Mutex.hpp"
+#include "../os/Mutex.hpp"
 
 #include <list>
 #include <vector>

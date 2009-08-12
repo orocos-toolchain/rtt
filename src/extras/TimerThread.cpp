@@ -43,7 +43,7 @@
 #include "../Time.hpp"
 #include "../Logger.hpp"
 #include <algorithm>
-#include <os/MutexLock.hpp>
+#include "../os/MutexLock.hpp"
 
 namespace RTT
 {

@@ -4,8 +4,8 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include "../os/Mutex.hpp"
+#include "../os/MutexLock.hpp"
 
 namespace RTT
 {

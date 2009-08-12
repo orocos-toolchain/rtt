@@ -39,8 +39,8 @@
 #define CORELIB_DATAOBJECTINTERFACES_HPP
 
 
-#include "os/MutexLock.hpp"
-#include "os/oro_atomic.h"
+#include "../os/MutexLock.hpp"
+#include "../os/oro_atomic.h"
 #include <string>
 
 #include "../internal/DataSource.hpp"

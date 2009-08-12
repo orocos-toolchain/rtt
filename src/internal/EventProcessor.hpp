@@ -48,7 +48,7 @@
 #include "List.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"
-#include "os/Atomic.hpp"
+#include "../os/Atomic.hpp"
 
 namespace RTT
 {

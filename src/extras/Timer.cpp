@@ -37,8 +37,8 @@
 
 
 #include "Timer.hpp"
-#include "os/MutexLock.hpp"
-#include "os/SingleThread.hpp"
+#include "../os/MutexLock.hpp"
+#include "../os/SingleThread.hpp"
 
 namespace RTT
 {
