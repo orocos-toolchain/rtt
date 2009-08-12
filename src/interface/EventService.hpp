@@ -44,7 +44,6 @@
 #include "../internal/OperationFactory.hpp"
 #include "../internal/EventHook.hpp"
 #include "../Event.hpp"
-#include "../internal/CompletionProcessor.hpp"
 #include "../internal/EventC.hpp"
 #include "../internal/ConnectionC.hpp"
 #include "../internal/DataSourceArgsEvent.hpp"
@@ -420,7 +419,7 @@ namespace RTT
         Handle setupAsyn(const std::string& ename,
                          boost::function<void(void)> afunc,
                          const std::vector<DataSourceBase::shared_ptr>& args,
-                         EventProcessor* ep = CompletionProcessor::Instance(),
+                         EventProcessor* ep = 0,
                          EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //!@}
 

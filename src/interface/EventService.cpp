@@ -39,7 +39,7 @@
 #include "EventService.hpp"
 #include "../internal/mystd.hpp"
 
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 #include "../internal/CompletionProcessor.hpp"
 
 
@@ -122,8 +122,8 @@ namespace RTT
     }
 
     Handle EventService::setupSyn(const std::string& ename,
-                                               boost::function<void(void)> func,
-                                               std::vector<DataSourceBase::shared_ptr> args ) const {
+                                  boost::function<void(void)> func,
+                                  std::vector<DataSourceBase::shared_ptr> args ) const {
         if ( mhooks.count(ename) != 1 ) {
             log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
             return Handle(); // empty handle.
@@ -135,16 +135,18 @@ namespace RTT
     }
 
     Handle EventService::setupAsyn(const std::string& ename,
-                                                boost::function<void(void)> afunc,
-                                                const std::vector<DataSourceBase::shared_ptr>& args,
-                                                EventProcessor* ep /* = CompletionProcessor::Instance()*/,
-                                                EventProcessor::AsynStorageType s_type) const {
+                                   boost::function<void(void)> afunc,
+                                   const std::vector<DataSourceBase::shared_ptr>& args,
+                                   EventProcessor* ep /* = 0 */,
+                                   EventProcessor::AsynStorageType s_type) const {
         if ( mhooks.count(ename) != 1 ) {
             log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
             return Handle(); // empty handle.
         }
         detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
 
+        if (ep == 0)
+            ep = CompletionProcessor::Instance();
         // ehi is stored _inside_ the connection object !
         return ehi->setupAsyn( afunc, ep, s_type );
     }
