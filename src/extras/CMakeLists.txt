@@ -3,3 +3,5 @@ FILE( GLOB HPPS [^.]*.hpp )
 
 GLOBAL_ADD_INCLUDE( rtt/extras ${HPPS})
 GLOBAL_ADD_SRC( ${CPPS})
+
+ADD_SUBDIRECTORY( dev )

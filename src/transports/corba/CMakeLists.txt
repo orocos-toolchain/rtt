@@ -30,7 +30,7 @@ IF(ENABLE_CORBA)
 
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
   #MESSAGE("HPPS: ${HPPS}")
-  GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})
+  GLOBAL_ADD_INCLUDE( rtt/transports/corba ${HPPS})
   #GLOBAL_ADD_SRC( ${CPPS} )
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -72,7 +72,7 @@ ENDIF( BUILD_STATIC )
 
   INSTALL(FILES orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
   INSTALL(TARGETS orocos-rtt-corba_dynamic-${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
-  INSTALL( FILES rtt-corba-config.h ${IDLS} DESTINATION include/rtt/corba )
+  INSTALL( FILES rtt-corba-config.h ${IDLS} DESTINATION include/rtt/transports/corba )
 
 ENDIF(ENABLE_CORBA)
 
