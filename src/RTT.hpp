@@ -44,7 +44,7 @@
  */
 
 /**
- * @brief State Machines, Activities, XML Properties, Scripting,...
+ * @brief State Machines, extras::Activities, XML extras::Properties, Scripting,...
  *
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
@@ -65,16 +65,7 @@ namespace RTT {}
 #include "extras/dev/DeviceInterface.hpp"
 #endif
 
-namespace RTT {
-    /**
-     * Implementation specific classes, not intended for
-     * users.
-     */
-    namespace detail {}
-
-    namespace OS {}
-    namespace Corba {}
-}
+#include "rtt-fwd.hpp"
 
 namespace BFL {
 }
