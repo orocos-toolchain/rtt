@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObjectInterfaces.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObjectLockFree.hpp
 
-                        DataObjectInterfaces.hpp -  description
+                        DataObjectLockFree.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -35,176 +35,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef CORELIB_DATAOBJECTINTERFACES_HPP
-#define CORELIB_DATAOBJECTINTERFACES_HPP
+#ifndef CORELIB_DATAOBJECT_LOCK_FREE_HPP
+#define CORELIB_DATAOBJECT_LOCK_FREE_HPP
 
 
-#include "../os/MutexLock.hpp"
 #include "../os/oro_atomic.h"
-#include <string>
-
-#include "../internal/DataSource.hpp"
+#include "DataObjectInterface.hpp"
 
 namespace RTT
 {
-
-    /**
-     * @brief A DataObjectInterface extends the AssignableDataSource with
-     * implementations of multi-threaded read/write solutions. It is initially not
-     * reference counted, such that DataObjects may be created on the stack.
-     * Store a DataObject in a shared_ptr and use this->deref() to get a reference counted version.
-     * This dual policy was introduced to be consistent with the other buffer
-     * implementations.
-     *
-     * @see DataObject
-     * @param T The \a DataType which can be Get() or Set() with this DataObject.
-     * @ingroup Ports
-     */
-    template <class T>
-    class DataObjectInterface
-        : public AssignableDataSource<T>
-    {
-    public:
-        /**
-         * If you plan to use a reference counted DataObject, use this
-         * type to store it and apply this->deref() to enable reference counting.
-         */
-        typedef typename boost::intrusive_ptr<DataObjectInterface<T> > shared_ptr;
-
-        /**
-         * Create a DataObject which is initially not reference counted.
-         */
-        DataObjectInterface() {
-            this->ref();
-        }
-
-        /**
-         * Destructor.
-         */
-        virtual ~DataObjectInterface() {}
-
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of this data object.
-         *
-         * @param pull A copy of the data.
-         */
-        virtual void Get( DataType& pull ) const = 0;
-
-        /**
-         * Get a copy of the data of this data object.
-         *
-         * @return A copy of the data.
-         */
-        virtual DataType Get() const = 0;
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        virtual void Set( const DataType& push ) = 0;
-
-        /**
-         * Normally, value() does not trigger a get(), but for
-         * DataObjects, this is actually the sanest thing to
-         * do.
-         */
-        typename DataSource<T>::result_t value() const {
-            return this->Get();
-        }
-
-        virtual typename DataSource<DataType>::result_t get() const {
-            return this->Get();
-        }
-
-        virtual void set( typename AssignableDataSource<DataType>::param_t t ) {
-            this->Set( t );
-        }
-
-        virtual typename AssignableDataSource<DataType>::reference_t set() {
-            // return null reference, allowed by API.
-            typename DataSource<DataType>::value_t* tmp = 0;
-            return typename AssignableDataSource<DataType>::reference_t(*tmp);
-        }
-
-        virtual typename AssignableDataSource<DataType>::const_reference_t rvalue() const {
-            // return null reference, allowed by API.
-            typename DataSource<DataType>::value_t* tmp = 0;
-            return typename AssignableDataSource<DataType>::const_reference_t(*tmp);
-        }
-
-    };
-
-
-    /**
-     * @brief A class which provides locked/protected access to one typed element of data.
-     *
-     * It allows multiple read/write requests using a single lock. This is the in any case
-     * threadsafe implementation, and can be blocking in situations where you do not want
-     * that. Use the DataObjectPrioritySet and DataObjectPriorityGet classes for non
-     * blocking Set or Get operations.
-     * @ingroup Ports
-     */
-    template<class T>
-    class DataObjectLocked
-        : public DataObjectInterface<T>
-    {
-        mutable OS::Mutex lock;
-
-        /**
-         * One element of Data.
-         */
-        T data;
-    public:
-        /**
-         * Construct a DataObjectLocked by name.
-         *
-         * @param _name The name of this DataObject.
-         */
-        DataObjectLocked( const T& initial_value = T() )
-            : data(initial_value) {}
-
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const { OS::MutexLock locker(lock); pull = data; }
-
-        /**
-         * Get a copy of the data of the module.
-         * This method is thread-safe.
-         *
-         * @return The result of the module.
-         */
-        DataType Get() const { DataType cache;  Get(cache); return cache; }
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push ) { OS::MutexLock locker(lock); data = push; }
-
-        DataObjectLocked<DataType>* clone() const {
-            return new DataObjectLocked<DataType>();
-        }
-
-        DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectLocked<DataType>*>(this);
-        }
-    };
-
     /**
      * @brief This DataObject is a Lock-Free implementation,
      * such that reads and writes can happen concurrently without priority
@@ -384,66 +223,6 @@ namespace RTT
 
         DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
             return const_cast<DataObjectLockFree<DataType>*>(this);
-        }
-
-    };
-
-    /**
-     * @brief A class which provides unchecked access to one typed element of data.
-     *
-     * It is the most simple form of the DataObjectInterface implementation and
-     * hence also the fastest. It is however not thread safe.
-     * @ingroup CoreLibBuffers
-     */
-    template<class T>
-    class DataObject
-        : public DataObjectInterface<T>
-    {
-        /**
-         * One element of Data.
-         */
-        T data;
-    public:
-        /**
-         * Construct a DataObject by name.
-         *
-         * @param _name The name of this DataObject.
-         */
-        DataObject( const T& initial_value = T()  )
-            : data(initial_value) {}
-
-        /**
-         * The type of the data.
-         */
-        typedef T DataType;
-
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const { pull = data; }
-
-        /**
-         * Get a copy of the data of the module.
-         *
-         * @return The result of the module.
-         */
-        DataType Get() const { return data; }
-
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push ) { data = push; }
-
-        DataObject<DataType>* clone() const {
-            return new DataObject<DataType>();
-        }
-
-        DataObject<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObject<DataType>*>(this);
         }
 
     };

@@ -1,6 +1,6 @@
 
-#ifndef ORO_LIST_HPP
-#define ORO_LIST_HPP
+#ifndef ORO_BUFFER_HPP
+#define ORO_BUFFER_HPP
 
 #include "rtt-config.h"
 
@@ -18,7 +18,7 @@
 namespace RTT
 {
     /**
-     * This object represents the default queue implementation used
+     * This object represents the default thread-safe buffer implementation used
      * by Orocos objects.
      */
     template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy >
@@ -52,4 +52,4 @@ namespace RTT
 }
 
 
-#endif /* LIST_HPP_ */
+#endif /* ORO_BUFFER_HPP */

@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  Buffers.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObject.hpp
 
-                        Buffers.hpp -  description
+                        DataObject.hpp -  description
                            -------------------
-    begin                : Wed January 18 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.be
+    begin                : Mon January 19 2004
+    copyright            : (C) 2004 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,22 +35,57 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef CORELIB_DATAOBJECT_HPP
+#define CORELIB_DATAOBJECT_HPP
+
+#include "rtt-config.h"
 
 /**
- * @file Buffers.hpp
- * This file includes the common header files from the
- * RTT data storage and buffering package.
+ * We can't use typedefs since C++ doesn't allow it for
+ * templated classes without specifying all the template
+ * parameters.
  */
-/*
- * @defgroup CoreLibBuffers Data Storage and Buffering classes.
- * @ingroup CoreLib
- * Thread-safe implementations of data container objects
- * such as Buffers and DataObjects.
- */
-
-#include "Buffer.hpp"
-#include "BufferLocked.hpp"
-#include "BufferLockFree.hpp"
-#include "DataObject.hpp"
-#include "DataObjectLockFree.hpp"
+#if defined(OROBLD_OS_NO_ASM)
 #include "DataObjectLocked.hpp"
+#else
+#include "DataObjectLockFree.hpp"
+#endif
+
+namespace RTT
+{
+    /**
+     * This object represents the default thread-safe data object implementation used
+     * by Orocos objects.
+     * @ingroup CoreLibBuffers
+     */
+    template< class T >
+    class DataObject
+#if defined(OROBLD_OS_NO_ASM)
+        : public DataObjectLocked<T>
+#else
+        : public DataObjectLockFree<T>
+#endif
+    {
+    public:
+        /**
+         * The type of the data.
+         */
+        typedef T DataType;
+        typedef T value_t;
+
+    public:
+        /**
+         * Create a data object for holding a user defined struct.
+         */
+        DataObject( const T& initial_value = T())
+#if defined(OROBLD_OS_NO_ASM)
+            : DataObjectLocked<T>(initial_value)
+#else
+            : DataObjectLockFree<T>(initial_value)
+#endif
+        {}
+    };
+}
+
+#endif
+

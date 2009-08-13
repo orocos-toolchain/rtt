@@ -44,7 +44,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include "../base/DataObjectInterfaces.hpp"
+#include "../base/DataObject.hpp"
 #include "List.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"
@@ -212,7 +212,7 @@ namespace RTT
             {
                 Data() : work(false), val_() {}
                 bool work;
-                DataObjectLockFree<T> val_;
+                DataObject<T> val_;
                 typedef T type;
                 operator bool() const {
                     return work;

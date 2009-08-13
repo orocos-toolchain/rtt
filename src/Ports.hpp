@@ -4,7 +4,8 @@
 #include "internal/Channels.hpp"
 #include "base/PortInterface.hpp"
 
-#include "base/DataObjectInterfaces.hpp"
+#include "base/DataObjectLocked.hpp"
+#include "base/DataObjectLockFree.hpp"
 #include "base/BufferLocked.hpp"
 #include "base/BufferLockFree.hpp"
 #include "internal/TaskObject.hpp"

@@ -22,8 +22,6 @@
 
 #include <iostream>
 #include <Ports.hpp>
-#include <interface/DataObjectInterfaces.hpp>
-#include <interface/BufferLocked.hpp>
 
 #include <extras/SlaveActivity.hpp>
 #include <extras/SequentialActivity.hpp>

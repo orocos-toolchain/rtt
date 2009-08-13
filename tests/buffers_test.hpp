@@ -21,9 +21,9 @@
 
 #include <RTT.hpp>
 #include <internal/AtomicQueue.hpp>
-#include <interface/BufferLockFree.hpp>
+#include <interface/Buffer.hpp>
 #include <internal/ListLockFree.hpp>
-#include <interface/DataObjectInterfaces.hpp>
+#include <interface/DataObject.hpp>
 #include <internal/MemoryPool.hpp>
 //#include <internal/SortedList.hpp>
 
