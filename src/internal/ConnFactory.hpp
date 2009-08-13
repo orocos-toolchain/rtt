@@ -4,10 +4,10 @@
 #include "Channels.hpp"
 #include "ConnInputEndPoint.hpp"
 #include "ConnOutputEndPoint.hpp"
-#include "base/PortInterface.hpp"
+#include "../base/PortInterface.hpp"
 
-#include "base/DataObject.hpp"
-#include "base/Buffer.hpp"
+#include "../base/DataObject.hpp"
+#include "../base/Buffer.hpp"
 
 namespace RTT
 {

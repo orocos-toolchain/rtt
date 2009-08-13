@@ -1,7 +1,7 @@
 #ifndef ORO_CONN_INPUT_ENDPOINT_HPP
 #define ORO_CONN_INPUT_ENDPOINT_HPP
 
-#include "internal/Channels.hpp"
+#include "Channels.hpp"
 
 namespace RTT
 {

@@ -1,8 +1,8 @@
 #ifndef ORO_INPUT_PORT_SOURCE_HPP
 #define ORO_INPUT_PORT_SOURCE_HPP
 
-#include "internal/Channels.hpp"
-#include "base/PortInterface.hpp"
+#include "Channels.hpp"
+#include "../base/PortInterface.hpp"
 
 namespace RTT
 {
