@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../internal/Channels.hpp"
+#include "../internal/ConnPolicy.hpp"
 
 namespace RTT
 {

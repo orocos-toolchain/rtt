@@ -1,7 +1,8 @@
 #ifndef ORO_CHANNEL_DATA_ELEMENT_HPP
 #define ORO_CHANNEL_DATA_ELEMENT_HPP
 
-#include "../base/ChannelInterface.hpp"
+#include "../base/ChannelElement.hpp"
+#include "../base/DataObjectInterface.hpp"
 
 namespace RTT {
     /** A connection element that stores a single data sample

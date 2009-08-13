@@ -1,7 +1,8 @@
 #ifndef ORO_CHANNEL_BUFFER_ELEMENT_HPP
 #define ORO_CHANNEL_BUFFER_ELEMENT_HPP
 
-#include "../base/ChannelInterface.hpp"
+#include "../base/ChannelElement.hpp"
+#include "../base/BufferInterface.hpp"
 
 namespace RTT {
     /** A connection element that can store a fixed number of data samples.

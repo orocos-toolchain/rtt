@@ -48,7 +48,6 @@
 
 #include "internal/DataSource.hpp"
 #include "Method.hpp"
-#include "base/ChannelInterface.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
