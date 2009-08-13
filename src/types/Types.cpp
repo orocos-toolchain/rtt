@@ -214,7 +214,7 @@ namespace RTT
     {
     }
 
-    TypeInfoRepository::shared_ptr types() { return TypeInfoRepository::Instance(); }
+    TypeInfoRepository::shared_ptr Types() { return TypeInfoRepository::Instance(); }
 
     boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::Instance()
     {

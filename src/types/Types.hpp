@@ -319,7 +319,7 @@ namespace RTT
      * Obtain a pointer to the global type system.
      * This is a short notation for TypeInfoRepository::Instance().
      */
-    RTT_API TypeInfoRepository::shared_ptr types();
+    RTT_API TypeInfoRepository::shared_ptr Types();
 }
 
 #endif
