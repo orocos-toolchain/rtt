@@ -43,7 +43,7 @@ namespace RTT
         using namespace internal;
         using namespace interface;
         using namespace extras;
-        using namespace mash;
+        using namespace marsh;
         using namespace os;
         using namespace scripting;
         using namespace types;
