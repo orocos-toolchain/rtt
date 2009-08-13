@@ -72,7 +72,7 @@ namespace RTT
         typedef int TimerId;
     protected:
         TimeService* mTimeserv;
-        OS::ThreadInterface* mThread;
+        ActivityInterface* mThread;
         OS::Semaphore msem;
         mutable OS::Mutex m;
         typedef TimeService::nsecs Time;

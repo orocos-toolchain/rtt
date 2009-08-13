@@ -38,7 +38,7 @@
 
 #include "Timer.hpp"
 #include "../os/MutexLock.hpp"
-#include "../os/SingleThread.hpp"
+#include "../Activity.hpp"
 
 namespace RTT
 {
@@ -124,7 +124,7 @@ namespace RTT
         mTimeserv = TimeService::Instance();
         mtimers.resize(max_timers);
         if (scheduler != -1) {
-            mThread = new OS::SingleThread(scheduler, priority, "Timer", this);
+            mThread = new Activity(scheduler, priority, 0.0, this, "Timer");
             mThread->start();
         }
     }

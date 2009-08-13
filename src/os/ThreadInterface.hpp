@@ -39,7 +39,6 @@
 #ifndef OS_THREAD_INTERFACE_HPP
 #define OS_THREAD_INTERFACE_HPP
 
-#include "RunnableInterface.hpp"
 #include "fosi.h"
 #include "threads.hpp"
 #include "Time.hpp"
@@ -50,7 +49,7 @@ namespace RTT
     namespace OS
     {
         /**
-         * A thread which is being run (or runs a RunnableInterface).
+         * A thread which is being run.
          * The periodicity is the time between the starting
          * of two runs or zero for non periodic threads.
          */
@@ -59,15 +58,6 @@ namespace RTT
         public:
             ThreadInterface();
             virtual ~ThreadInterface();
-
-            /**
-             * Run the functionality of one RunnableInterface object.
-             * Only one RunnableInterface object can be run, the old one is
-             * disconnected.
-             * @param r The object to run or zero to clear.
-             * @return true if accepted, false if the thread is running.
-             */
-            virtual bool run(RunnableInterface* r) = 0;
 
             /**
              * Start the Thread.
@@ -182,6 +172,10 @@ namespace RTT
              * @see setScheduler
              */
             virtual int getPriority() const = 0;
+
+            virtual void setMaxOverrun(int m) = 0;
+
+            virtual int getMaxOverrun() const = 0;
 
             /**
              * Yields (put to the back of the scheduler queue) the calling thread.

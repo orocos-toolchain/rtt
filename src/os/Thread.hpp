@@ -42,7 +42,6 @@
 #include "../rtt-config.h"
 #include "fosi.h"
 
-#include "../base/RunnableInterface.hpp"
 #include "ThreadInterface.hpp"
 #include "Mutex.hpp"
 
@@ -97,10 +96,6 @@ namespace RTT
          * finalize() if the thread executes loop() and breakLoop() is not
          * reimplemented to return true.
          *
-         * When a RunnableInterface object is given, the above methods
-         * initialize(), loop(), breakLoop() and finalize() are called
-         * on that object instead of on the SingleThread's virtual functions.
-         *
          * @section Periodicities, priorities, schedulers and stack sizes
          *
          * These four parameters are the parameters that users wish to set
@@ -125,12 +120,10 @@ namespace RTT
              * @param priority The priority of the thread, this is interpreted by your RTOS.
              * @param period   The period in seconds (eg 0.001) of the thread, or zero if not periodic.
              * @param name     The name of the Thread. May be used by your OS to identify the thread.
-             * @param r        The optional RunnableInterface instance to run. If not present,
              *                 the thread's own virtual functions are executed.
              */
             Thread(int scheduler, int priority, double period,
-                    const std::string & name,
-                    OS::RunnableInterface* r = 0);
+                   const std::string & name);
 
             virtual ~Thread();
 
@@ -142,8 +135,6 @@ namespace RTT
              * @param ssize the size of the stack in bytes
              */
             static void setStackSize(unsigned int ssize);
-
-            virtual bool run(OS::RunnableInterface* r);
 
             virtual bool start();
 
@@ -195,9 +186,9 @@ namespace RTT
 
             virtual void yield();
 
-            void setMaxOverrun(int m);
+            virtual void setMaxOverrun(int m);
 
-            int getMaxOverrun() const;
+            virtual int getMaxOverrun() const;
         protected:
             /**
              * Exit and destroy the thread
@@ -209,27 +200,27 @@ namespace RTT
             void emergencyStop();
 
             /**
-             * @see RTT::OS::RunnableInterface::step()
+             * @see RTT::RunnableInterface::step()
              */
             virtual void step();
 
             /**
-             * @see RTT::OS::RunnableInterface::loop()
+             * @see RTT::RunnableInterface::loop()
              */
             virtual void loop();
 
             /**
-             * @see RTT::OS::RunnableInterface::breakLoop()
+             * @see RTT::RunnableInterface::breakLoop()
              */
             virtual bool breakLoop();
 
             /**
-             * @see RTT::OS::RunnableInterface::initialize()
+             * @see RTT::RunnableInterface::initialize()
              */
             virtual bool initialize();
 
             /**
-             * @see RTT::OS::RunnableInterface::finalize()
+             * @see RTT::RunnableInterface::finalize()
              */
             virtual void finalize();
         private:
@@ -285,11 +276,6 @@ namespace RTT
              * the thread and the constructor/destructor.
              */
             rt_sem_t confDone;
-
-            /**
-             * The possible Runnable to run in this Component
-             */
-            OS::RunnableInterface* runComp;
 
             /**
              * Used to implement synchronising breakLoop().

@@ -25,9 +25,6 @@ namespace RTT
     class RTT_API Activity: public ActivityInterface, public OS::Thread
     {
     public:
-        using OS::Thread::run;
-        using ActivityInterface::run;
-
         /**
          * @brief Create a not real-time Activity.
          * This creates a not real-time, non-periodic thread.
@@ -131,13 +128,6 @@ namespace RTT
          * @see RunnableInterface::finalize()
          */
         virtual void finalize();
-
-        /**
-         * Run another (or self in case of null)
-         * task. This overload is needed to redirect
-         * the call of run( 0 ) to the correct function.
-         */
-        bool run( int ) { RunnableInterface* d(0); return ActivityInterface::run(d); }
 
     };
 

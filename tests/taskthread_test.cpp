@@ -482,10 +482,10 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    BOOST_CHECK( tt->setScheduler(ORO_SCHED_RT) == false );
-    BOOST_CHECK( tt->setScheduler(ORO_SCHED_OTHER) == false );
+    BOOST_CHECK( tt->setScheduler(ORO_SCHED_RT) == true );
+    BOOST_CHECK( tt->setScheduler(ORO_SCHED_OTHER) == true );
     Logger::log().setLogLevel( ll );
-    BOOST_CHECK( tt->setPeriod(0.3) == false );
+    BOOST_CHECK( tt->setPeriod(0.3) == true );
 
     // reconfigure periodicity
     BOOST_CHECK( tt->stop() );

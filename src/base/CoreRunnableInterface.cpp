@@ -57,6 +57,11 @@ namespace RTT
 
     RunnableInterface::RunnableInterface() : owner_task(0) {}
 
+    void RunnableInterface::loop() { this->step(); }
+
+    bool RunnableInterface::breakLoop() { return false; }
+
+
     bool RunnableInterface::hasWork() {
         return false;
     }
@@ -73,7 +78,7 @@ namespace RTT
     OS::ThreadInterface* RunnableInterface::getThread() const {
         if (owner_task)
             return owner_task->thread();
-        return OS::RunnableInterface::getThread();
+        return 0;
     }
 
 }

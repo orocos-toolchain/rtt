@@ -38,16 +38,28 @@
 #ifndef CORELIB_RUNNABLE_INTERFACE_HPP
 #define CORELIB_RUNNABLE_INTERFACE_HPP
 
-#include "RunnableInterface.hpp"
 #include "ActivityInterface.hpp"
 
 namespace RTT
 {
+    namespace OS {
+        class ThreadInterface;
+    }
     /**
-     * This class adds
-     * Activity specific semantics to OS::RunnableInterface and sits in the RTT
-     * namespace. Applications should always use this class
-     * instead of the OS version.
+     * @brief A class for running a certain piece of code in a thread.
+     *
+     * It defines three methods which can execute functionality.
+     *
+     * In a start-run-stop cycle, before step() is called the first time,
+     * initialize() will be called in the thread that started this RunnableInterface.
+     * When step() is ran the last time in this cycle, finalize() will be
+     * called, after it finishes, in the threaad that stopped this RunnableInterface.
+     *
+     * A non periodic thread will call \a loop(), which indicates that the
+     * RunnableInterface is allowed to block ( step() is not allowed to block ).
+     * By default, loop() calls step(), but a subclass may override the loop() method
+     * to put its own blocking functionality in. To break out of the loop() method,
+     * reimplement \a breakLoop() such that loop() returns when breakLoop() is called.
      *
      * The getActivity() method is guaranteed to return a valid task
      * pointer during initialize(), step() or loop() and finalize(). This allows
@@ -58,16 +70,70 @@ namespace RTT
      * @ingroup CoreLibActivities
      */
     class RTT_API RunnableInterface
-        : public OS::RunnableInterface
     {
+        /**
+         * The Activityobject which owns this RunnableInterface.
+         */
         ActivityInterface* owner_task;
     public:
+        /**
+         * Create a runnable object. The optional constructor parameter
+         * allows the object to attach directly to a thread. Otherwise,
+         * ThreadInterface::run(RunnableInterface*) must be used to
+         * attach this object to a thread. A thread can only run one
+         * RunnableInterface object, use CoreLib tasks otherwise.
+         * @param t The thread this object must attach to.
+         */
         RunnableInterface();
 
         /**
          * Checks if this is still in a task and if so, issues a critical warning.
          */
         ~RunnableInterface();
+
+        /**
+         * The method that will be called before the first periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ),
+         * when the thread is started.
+         */
+        virtual bool initialize() = 0;
+
+        /**
+         * The method that will be periodically executed when this
+         * class RTT_API is run in a periodic thread.
+         */
+        virtual void step() = 0;
+
+        /**
+         * The method that will be executed once when this
+         * class RTT_API is run in a non periodic thread. The default
+         * implementation calls step() once.
+         */
+        virtual void loop();
+
+        /**
+         * This method is called by the framework to break out of the \a loop() method.
+         * Reimplement this method to signal \a loop() to return and return
+         * true on success. When this method is not reimplemented by you, it
+         * will always return \a false, denoting that the loop can not
+         * be broken. If breakLoop() returns \a true, the caller will wait
+         * until loop() returns.
+         * @return true if the loop could be notified to return.
+         */
+        virtual bool breakLoop();
+
+        /**
+         * The method that will be called after the last periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ),
+         * when the RunnableInterface is stopped.
+         */
+        virtual void finalize() = 0;
+
+        /**
+         * Get the thread this object is run in.
+         * @return a pointer to the thread or 0 if not run by a thread.
+         */
+        virtual OS::ThreadInterface* getThread() const;
 
         /**
          * This method is for 'intelligent' activity implementations
@@ -98,8 +164,6 @@ namespace RTT
          * @param task The ActivityInterface running this interface.
          */
         virtual void setActivity( ActivityInterface* task );
-
-        virtual OS::ThreadInterface* getThread() const;
     };
 
 

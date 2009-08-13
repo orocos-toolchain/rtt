@@ -70,8 +70,6 @@ namespace RTT
         mt.reset();
     }
 
-    bool MainThread::run( OS::RunnableInterface* ) { return false; }
-
     bool MainThread::start()  { return false; }
 
     bool MainThread::stop()  { return false; }
@@ -112,6 +110,15 @@ namespace RTT
     {
         return false;
     }
+
+        void MainThread::setMaxOverrun( int m )
+        {
+        }
+
+        int MainThread::getMaxOverrun() const
+        {
+            return 0;
+        }
 
     void MainThread::yield()
     {

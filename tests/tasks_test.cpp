@@ -41,7 +41,7 @@ using namespace RTT::detail;
 #define BOOST_CHECK_EQUAL_MESSAGE(M, v1, v2) BOOST_CHECK_MESSAGE( v1==v2, M)
 
 struct TestOverrun
-  : public RTT::OS::RunnableInterface
+  : public RTT::RunnableInterface
 {
   bool fini;
   bool initialize() { fini = false; return true; }
@@ -56,7 +56,7 @@ struct TestOverrun
 };
 
 struct TestPeriodic
-    : public RTT::OS::RunnableInterface
+    : public RTT::RunnableInterface
 {
     int overfail, underfail, succ;
     bool stepped;
@@ -259,10 +259,10 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
-  boost::scoped_ptr<RTT::OS::PeriodicThread> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
+  boost::scoped_ptr<RTT::Activity> t( new RTT::Activity(25, 0.1, 0,"ORThread") );
   //BOOST_CHECK_EQUAL(25,t->getPriority() );
   BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
-  t->setMaxOverrun(1);
+  t->thread()->setMaxOverrun(1);
 
   t->run( run.get() );
 
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( testThread )
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::Thread(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, "PThread") );
+  boost::scoped_ptr<RTT::ActivityInterface> t( new RTT::Activity(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, 0, "PThread") );
   t->run( run.get() );
 
   r = t->start();
@@ -305,34 +305,6 @@ BOOST_AUTO_TEST_CASE( testThread )
   BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
   BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
   BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
-  t->run(0);
-}
-
-BOOST_AUTO_TEST_CASE( testThreads )
-{
-  bool r = false;
-  // create
-  boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
-
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(RTT::OS::HighestPriority,"PThread", 0.1) );
-  t->run( run.get() );
-
-  r = t->start();
-  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
-  r = t->stop();
-  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
-  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
-  run->reset();
-  r = t->start();
-  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
-  sleep(1);
-  r = t->stop();
-  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread" );
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
-  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
-  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
   t->run(0);
 }
 

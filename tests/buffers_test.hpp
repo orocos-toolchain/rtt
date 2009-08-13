@@ -27,7 +27,6 @@
 #include <internal/MemoryPool.hpp>
 //#include <internal/SortedList.hpp>
 
-#include <os/SingleThread.hpp>
 #include <os/Thread.hpp>
 #include <rtt-config.h>
 

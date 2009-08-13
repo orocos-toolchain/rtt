@@ -82,13 +82,13 @@ namespace RTT
     }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : PeriodicThread( priority, name, periodicity), cleanup(false)
+        : Thread( ORO_SCHED_RT, priority, periodicity, name), cleanup(false)
     {
     	tasks.reserve(MAX_ACTIVITIES);
     }
 
     TimerThread::TimerThread(int scheduler, int priority, const std::string& name, double periodicity)
-        : PeriodicThread(scheduler, priority, name, periodicity), cleanup(false)
+        : Thread(scheduler, priority, periodicity, name), cleanup(false)
     {
     	tasks.reserve(MAX_ACTIVITIES);
     }

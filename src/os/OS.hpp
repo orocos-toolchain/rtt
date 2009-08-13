@@ -40,8 +40,7 @@
  *  This file includes commonly used headers from the Orocos OS package. 
  */
 
-#include "PeriodicThread.hpp"
-#include "SingleThread.hpp"
+#include "Thread.hpp"
 #include "Mutex.hpp"
 #include "MutexLock.hpp"
 #include "Semaphore.hpp"

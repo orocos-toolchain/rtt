@@ -40,7 +40,7 @@
 #define ORO_TIMERTHREAD_HPP
 
 
-#include "../os/PeriodicThread.hpp"
+#include "../os/Thread.hpp"
 
 #include "../os/Mutex.hpp"
 
@@ -69,7 +69,7 @@ namespace RTT
      * @see PeriodicActivity
      */
     class RTT_API TimerThread
-        : public OS::PeriodicThread
+        : public OS::Thread
     {
         typedef std::vector<PeriodicActivity*> ActivityList ;
         ActivityList tasks;

@@ -77,11 +77,6 @@ namespace RTT
         /**
          * Always fails.
          */
-        virtual bool run( OS::RunnableInterface* r);
-
-        /**
-         * Always fails.
-         */
         virtual bool start();
 
         /**
@@ -128,6 +123,10 @@ namespace RTT
         virtual bool setPriority(int priority);
 
         virtual int getPriority() const;
+
+        virtual void setMaxOverrun(int m);
+
+        virtual int getMaxOverrun() const;
 
         virtual void yield();
 

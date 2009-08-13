@@ -89,7 +89,6 @@ namespace RTT
     {
         Logger::In in("SimulationThread");
         this->setScheduler(ORO_SCHED_OTHER);
-        this->continuousStepping( true );
         Logger::log() << Logger::Info << this->getName() <<" created with "<< this->getPeriod() <<"s periodicity";
         Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
     }
@@ -100,13 +99,13 @@ namespace RTT
 
     bool SimulationThread::isRunning() const
     {
-        return sim_running || PeriodicThread::isRunning();
+        return sim_running || Thread::isRunning();
     }
 
     bool SimulationThread::start()
     {
         maxsteps_ = 0;
-        return OS::PeriodicThread::start();
+        return OS::Thread::start();
     }
 
     bool SimulationThread::start(unsigned int maxsteps)
@@ -114,7 +113,7 @@ namespace RTT
         if (maxsteps == 0)
             return false;
         maxsteps_ = maxsteps;
-        return OS::PeriodicThread::start();
+        return OS::Thread::start();
     }
 
     bool SimulationThread::run(unsigned int ms)
@@ -169,7 +168,7 @@ namespace RTT
 
         // call stop once :
         if ( cursteps == maxsteps_ ) { // if maxsteps == 0, will never call stop().
-            this->setToStop();
+            this->stop();
         }
     }
 

@@ -211,10 +211,9 @@ namespace RTT
         }
 
         Thread::Thread(int scheduler, int _priority,
-                Seconds periods, const std::string & name, RunnableInterface* r) :
+                Seconds periods, const std::string & name) :
                     msched_type(scheduler), active(false), prepareForExit(false),
                     inloop(false),running(false),
-                    runComp(r),
                     maxOverRun(OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
                     period(Seconds_to_nsecs(periods)) // Do not call setPeriod(), since the semaphores are not yet used !
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -244,9 +243,6 @@ namespace RTT
                 return;
 #endif
             }
-
-            if (runComp)
-                runComp->setThread(this);
 
 #ifdef OROPKG_OS_THREAD_SCOPE
             // Check if threadscope device already exists
@@ -302,21 +298,6 @@ namespace RTT
             log(Debug) << " done" << endlog();
             rtos_sem_destroy(&sem);
 
-            if (runComp)
-                runComp->setThread(0);
-
-        }
-
-        bool Thread::run(RunnableInterface* r)
-        {
-            if (isRunning())
-                return false;
-            if (runComp)
-                runComp->setThread(0);
-            runComp = r;
-            if (runComp)
-                runComp->setThread(this);
-            return true;
         }
 
         bool Thread::start()
@@ -496,38 +477,26 @@ namespace RTT
 
         void Thread::step()
         {
-            if (runComp)
-                runComp->step();
         }
 
         void Thread::loop()
         {
-            if ( runComp != 0 )
-                runComp->loop();
-            else
-                this->step();
+            this->step();
         }
 
         bool Thread::breakLoop()
         {
-            if ( runComp != 0 )
-                return runComp->breakLoop();
             return false;
         }
 
 
         bool Thread::initialize()
         {
-            if (runComp)
-                return runComp->initialize();
-
             return true;
         }
 
         void Thread::finalize()
         {
-            if (runComp)
-                runComp->finalize();
         }
 
         bool Thread::setPeriod(double s)

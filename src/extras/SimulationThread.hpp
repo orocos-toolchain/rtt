@@ -108,7 +108,6 @@ namespace RTT
          */
         virtual bool start(unsigned int maxsteps);
 
-        using OS::PeriodicThread::run;
         /**
          * Execute \a maxsteps steps immediately. This function will
          * call the step() functions \a maxsteps times, without requiring

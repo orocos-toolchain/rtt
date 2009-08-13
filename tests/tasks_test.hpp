@@ -24,7 +24,6 @@
 #include <extras/PeriodicActivity.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <Activity.hpp>
-#include <Activity.hpp>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -52,7 +51,6 @@ public:
     void setUp();
     void tearDown();
 
-    void testThreads();
     void testOverrun();
 
     void testStartStop();
