@@ -24,5 +24,30 @@ namespace RTT
     class OutputPort;
     class TaskContext;
 
+    namespace base {}
+    namespace internal {}
+    namespace interface {}
+    namespace extras {}
+    namespace marsh {}
+    namespace os {}
+    namespace scripting {}
+    namespace types {}
+    namespace plugin {}
+
+    /**
+     * Implementation specific classes, not intended for
+     * users.
+     */
+    namespace detail {
+        using namespace base;
+        using namespace internal;
+        using namespace interface;
+        using namespace extras;
+        using namespace mash;
+        using namespace os;
+        using namespace scripting;
+        using namespace types;
+        using namespace plugin;
+    }
 
 }
