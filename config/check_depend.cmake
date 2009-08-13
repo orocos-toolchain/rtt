@@ -247,6 +247,10 @@ if (ENABLE_CORBA)
 	    # Flag used in rtt-corba-config.h
 	    SET(CORBA_IS_TAO 1)
 
+            if( TAO_Messaging_FOUND )
+              SET(CORBA_TAO_HAS_MESSAGING 1)
+            endif()
+
         ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
         INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
