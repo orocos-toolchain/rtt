@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  Types.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TypeBuilder.hpp
 
-                        Types.hpp -  description
+                        TypeBuilder.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -35,26 +35,34 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ORO_CORELIB_TYPES_HPP
-#define ORO_CORELIB_TYPES_HPP
+#ifndef ORO_CORELIB_TYPE_BUILDER_HPP
+#define ORO_CORELIB_TYPE_BUILDER_HPP
 
-#include "TypeInfo.hpp"
-#include "TypeBuilder.hpp"
-#include "TypeInfoRepository.hpp"
-
-/**
- * \file We need some information on types if we want to make
- * properties, variables or corba types of them, the classes in this file
- * provide that information.
- */
+#include <vector>
+#include "../base/DataSourceBase.hpp"
 
 namespace RTT
 {
     /**
-     * Obtain a pointer to the global type system.
-     * This is a short notation for TypeInfoRepository::Instance().
+     * This interface describes how constructors work.
      */
-    RTT_API TypeInfoRepository::shared_ptr Types();
+    struct RTT_API TypeBuilder
+    {
+        virtual ~TypeBuilder();
+        /**
+         * Inspect args and return a type constructed with these args
+         * if such a constructor exists.
+         */
+        virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+
+        /**
+         * Automatic type conversion (float->double,... ). Fails by default.
+         */
+        virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const
+        {
+            return DataSourceBase::shared_ptr();
+        }
+    };
 }
 
 #endif

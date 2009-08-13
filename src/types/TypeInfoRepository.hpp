@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  Types.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TypeInfoRepository.hpp
 
-                        Types.hpp -  description
+                        TypeInfoRepository.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -35,26 +35,77 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ORO_CORELIB_TYPES_HPP
-#define ORO_CORELIB_TYPES_HPP
+#ifndef ORO_CORELIB_TYPEINFOREPOSITORY_HPP
+#define ORO_CORELIB_TYPEINFOREPOSITORY_HPP
 
+#include <map>
+#include <vector>
+#include <string>
+#include <boost/shared_ptr.hpp>
+#include "../base/AttributeBase.hpp"
+#include "../Logger.hpp"
 #include "TypeInfo.hpp"
-#include "TypeBuilder.hpp"
-#include "TypeInfoRepository.hpp"
-
-/**
- * \file We need some information on types if we want to make
- * properties, variables or corba types of them, the classes in this file
- * provide that information.
- */
 
 namespace RTT
 {
     /**
-     * Obtain a pointer to the global type system.
-     * This is a short notation for TypeInfoRepository::Instance().
+     * This class contains all known types to Orocos.
+     * @see TemplateTypeInfo to add your own classes to Orocos.
      */
-    RTT_API TypeInfoRepository::shared_ptr Types();
+    class RTT_API TypeInfoRepository
+    {
+        TypeInfoRepository();
+        typedef std::map<std::string, TypeInfo*> map_t;
+        map_t data;
+
+        typedef std::vector<TransportPlugin*> Transports;
+        Transports transports;
+    public:
+        ~TypeInfoRepository();
+        typedef boost::shared_ptr<TypeInfoRepository> shared_ptr;
+        static shared_ptr Instance();
+        /**
+         * Retrieve a type with a given \a name.
+         */
+        TypeInfo* type( const std::string& name ) const;
+
+        /**
+         * Add a type to the Orocos type repository.
+         */
+        bool addType( TypeInfo* );
+
+        /**
+         * List all types.
+         */
+        std::vector<std::string> getTypes() const;
+
+        /**
+         * Return the type info structure of a given type name.
+         */
+        TypeInfo* getTypeById(std::string type_id_name) const;
+
+        /**
+         * Return the type info structure of a given type T.
+         */
+        template<class T>
+        TypeInfo* getTypeInfo() const {
+            return getTypeById( typeid(T).name() );
+        }
+
+        /**
+         * Call this function to add a new (network) transport
+         * for Orocos types.
+         */
+        void registerTransport( TransportPlugin* tr );
+
+        /**
+         * Dump all known types, along with transports and their types, to
+         * the log.
+         */
+        void logTypeInfo() const;
+
+    };
+
 }
 
 #endif
