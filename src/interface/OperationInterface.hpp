@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 #include "rtt-config.h"
-#include "../internal/CommandRepository.hpp"
+#include "CommandRepository.hpp"
 #include "MethodRepository.hpp"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "EventService.hpp"

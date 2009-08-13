@@ -39,12 +39,12 @@
 #ifndef ORO_COMMAND_REPOSITORY_HPP
 #define ORO_COMMAND_REPOSITORY_HPP
 
-#include "DataSourceArgsCommand.hpp"
-#include "OperationFactory.hpp"
-#include "CommandC.hpp"
-#include "LocalCommand.hpp"
+#include "../internal/DataSourceArgsCommand.hpp"
+#include "../internal/OperationFactory.hpp"
+#include "../internal/CommandC.hpp"
+#include "../internal/LocalCommand.hpp"
 #ifdef ORO_REMOTING
-#include "RemoteCommand.hpp"
+#include "../internal/RemoteCommand.hpp"
 #endif
 #include "../Logger.hpp"
 #include <boost/static_assert.hpp>

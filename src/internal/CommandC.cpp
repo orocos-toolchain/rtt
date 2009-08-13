@@ -37,7 +37,7 @@
 
 
 #include "CommandC.hpp"
-#include "CommandRepository.hpp"
+#include "../interface/CommandRepository.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "../scripting/TryCommand.hpp"
 #include "../scripting/ConditionComposite.hpp"
