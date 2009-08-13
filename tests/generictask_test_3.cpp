@@ -21,7 +21,8 @@
 #include "generictask_test_3.hpp"
 
 #include <iostream>
-#include <Ports.hpp>
+#include <InputPort.hpp>
+#include <OutputPort.hpp>
 
 #include <extras/SlaveActivity.hpp>
 #include <extras/SequentialActivity.hpp>

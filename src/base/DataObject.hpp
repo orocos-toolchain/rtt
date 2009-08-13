@@ -38,7 +38,7 @@
 #ifndef CORELIB_DATAOBJECT_HPP
 #define CORELIB_DATAOBJECT_HPP
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 /**
  * We can't use typedefs since C++ doesn't allow it for
@@ -48,6 +48,7 @@
 #if defined(OROBLD_OS_NO_ASM)
 #include "DataObjectLocked.hpp"
 #else
+#include "DataObjectLocked.hpp"
 #include "DataObjectLockFree.hpp"
 #endif
 

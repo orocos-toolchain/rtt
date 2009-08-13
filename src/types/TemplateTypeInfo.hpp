@@ -42,7 +42,8 @@
 #include "../Property.hpp"
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
-#include "../Ports.hpp"
+#include "../InputPort.hpp"
+#include "../OutputPort.hpp"
 #include <ostream>
 #include "../internal/FunctorFactory.hpp"
 #include "../internal/DataSourceArgsMethod.hpp"

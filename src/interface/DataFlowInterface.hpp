@@ -42,7 +42,8 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "../base/PortInterface.hpp"
+#include "../base/InputPortInterface.hpp"
+#include "../base/OutputPortInterface.hpp"
 #include "OperationInterface.hpp"
 
 namespace RTT

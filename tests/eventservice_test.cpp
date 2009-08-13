@@ -19,7 +19,7 @@
 
 #include <Event.hpp>
 #include <Logger.hpp>
-#include <interface/RunnableInterface.hpp>
+#include <base/RunnableInterface.hpp>
 
 #include <interface/EventService.hpp>
 #include <internal/DataSourceGenerator.hpp>

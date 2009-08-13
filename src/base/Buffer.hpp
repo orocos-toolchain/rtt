@@ -2,7 +2,7 @@
 #ifndef ORO_BUFFER_HPP
 #define ORO_BUFFER_HPP
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 /**
  * We can't use typedefs since C++ doesn't allow it for
@@ -12,6 +12,7 @@
 #if defined(OROBLD_OS_NO_ASM)
 #include "BufferLocked.hpp"
 #else
+#include "BufferLocked.hpp"
 #include "BufferLockFree.hpp"
 #endif
 

@@ -20,7 +20,7 @@
 
 #include <Event.hpp>
 #include <Logger.hpp>
-#include <interface/RunnableInterface.hpp>
+#include <base/RunnableInterface.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 #include <Activity.hpp>

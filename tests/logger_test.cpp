@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
-#include "os/PeriodicThread.hpp"
+#include <os/PeriodicThread.hpp>
 
 using namespace boost;
 using namespace std;
