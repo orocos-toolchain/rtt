@@ -39,7 +39,7 @@
 #define VERTEXNODE_HPP
 
 #include <map>
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {
@@ -101,7 +101,7 @@ namespace RTT
        * Construct a program node with given command,
        * no conditional branches and line number 0.
        */
-      explicit VertexNode(CommandInterface* cmd);
+      explicit VertexNode(ActionInterface* cmd);
 
       /**
        * The copy constructor creates a shallow copy.
@@ -161,7 +161,7 @@ namespace RTT
          *
          * @return The previous command (can be null).
          */
-         CommandInterface* setCommand(CommandInterface* c);
+         ActionInterface* setCommand(ActionInterface* c);
 
         /**
          * Set line number of this program node to given line number.
@@ -178,7 +178,7 @@ namespace RTT
          * @return The command currently associated with
          * this node
          */
-         CommandInterface* getCommand() const;
+         ActionInterface* getCommand() const;
 
         /**
          * Returns the program line number currently associated
@@ -190,7 +190,7 @@ namespace RTT
         /**
          * The command to be executed in this node.
          */
-        CommandInterface* command;
+        ActionInterface* command;
 
         /**
          * The line number associated with this node

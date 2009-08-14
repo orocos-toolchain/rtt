@@ -39,7 +39,7 @@
 #ifndef ORO_CORBA_ACTIONPROXY_HPP
 #define ORO_CORBA_ACTIONPROXY_HPP
 
-#include "../../internal/CommandInterface.hpp"
+#include "../../base/ActionInterface.hpp"
 #include "OperationsC.h"
 
 namespace RTT
@@ -50,7 +50,7 @@ namespace RTT
      * This class manages the access of remote Action Corba Servers.
      */
     class RTT_CORBA_API ActionProxy
-        : public CommandInterface
+        : public ActionInterface
     {
     protected:
         static std::map<Corba::Action_ptr, ActionProxy*> proxies;
@@ -89,11 +89,11 @@ namespace RTT
             mdata->reset();
         }
 
-        virtual CommandInterface* clone() const {
+        virtual ActionInterface* clone() const {
             return new ActionProxy( mdata.in() );
         }
 
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

@@ -99,8 +99,8 @@ namespace RTT { namespace detail
       machinenamemap_t rootmachines;
       machinebuilders_t machinebuilders;
       ParsedStateMachinePtr curtemplate;
-      std::vector<CommandInterface*> paraminitcommands;
-      std::vector<CommandInterface*> varinitcommands;
+      std::vector<ActionInterface*> paraminitcommands;
+      std::vector<ActionInterface*> varinitcommands;
       ParsedStateMachinePtr curinstantiatedmachine;
       StateMachineBuilder* curmachinebuilder;
       std::string curinstmachinename;

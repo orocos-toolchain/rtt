@@ -46,7 +46,7 @@ namespace RTT
 {
 
 
-    CommandDispatch::CommandDispatch(CommandProcessor* p, CommandInterface* c, ConditionInterface* cn )
+    CommandDispatch::CommandDispatch(CommandProcessor* p, ActionInterface* c, ConditionInterface* cn )
         : send(true), maccepted(false), proc(p), com( c ), mcn(cn), dispatcher(this) {}
 
     CommandDispatch::~CommandDispatch() {

@@ -61,7 +61,7 @@ namespace RTT { namespace detail
   {
       // all the AssignVariableCommand we've built..
       // This list is cleared in cleanup().
-      std::vector<CommandInterface*> assigncommands;
+      std::vector<ActionInterface*> assigncommands;
 
       // the defined values...
       // This list is cleared in cleanup().
@@ -143,20 +143,20 @@ namespace RTT { namespace detail
       void store( OperationInterface* other );
 
     /**
-     * This CommandInterface holds the command assigning a value to
+     * This ActionInterface holds the command assigning a value to
      * a variable that should be included in the program.  After a
      * constant definition, variable definition or variable
      * assignment is parsed, you should check it, and include it in
      * your program if it is non-zero.
      */
-    CommandInterface* assignCommand()
+    ActionInterface* assignCommand()
       {
           if ( assigncommands.empty() )
               return 0;
           return assigncommands.back();
       }
 
-    std::vector<CommandInterface*> assignCommands()
+    std::vector<ActionInterface*> assignCommands()
       {
           return assigncommands;
       }

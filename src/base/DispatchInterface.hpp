@@ -39,17 +39,17 @@
 #ifndef ORO_EXECUTION_DISPATCHINTERFACE_HPP
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "ActionInterface.hpp"
 #include "../scripting/ConditionInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
     /**
-     * Dispatch a CommandInterface to a CommandProcessor and track its status.
+     * Dispatch a ActionInterface to a CommandProcessor and track its status.
      */
     class RTT_API DispatchInterface
-        : public CommandInterface
+        : public ActionInterface
     {
     public:
         /**

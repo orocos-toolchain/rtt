@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:19:04 CEST 2002  CommandInterface.hpp
+  tag: Peter Soetens  Thu Oct 10 16:19:04 CEST 2002  ActionInterface.hpp
 
-                        CommandInterface.hpp -  description
+                        ActionInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
@@ -38,7 +38,7 @@
 #ifndef COMMANDINTERFACE_HPP
 #define COMMANDINTERFACE_HPP
 
-#include "../base/ActionInterface.hpp"
+#include "ActionInterface.hpp"
 
 namespace RTT
 {
@@ -54,7 +54,7 @@ namespace RTT
      * look at the DispatchInterface, which exposes
      * an interface for asynchronous execution of functions.
      */
-    typedef ActionInterface CommandInterface;
+    typedef ActionInterface ActionInterface;
 }
 
 #endif // COMMANDINTERFACE_HPP

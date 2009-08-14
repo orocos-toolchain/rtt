@@ -41,7 +41,7 @@
 #define ORO_COMMAND_PROCESSOR_HPP
 
 #include "../base/RunnableInterface.hpp"
-#include "CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../base/BufferPolicy.hpp"
 
 #include <string>
@@ -92,7 +92,7 @@ namespace RTT
         /**
          * Queue and execute (process) a given command. The command is
          * executed in step() or loop() directly after all other
-         * queued CommandInterface objects. The constructor parameter
+         * queued ActionInterface objects. The constructor parameter
          * \a queue_size limits how many commands can be queued in
          * between step()s or loop().
          *
@@ -107,7 +107,7 @@ namespace RTT
          * @return 0 when the CommandProcessor is not running or does not accept commands.
          * @see isProcessed, acceptCommands
          */
-        virtual int process(CommandInterface* c);
+        virtual int process(ActionInterface* c);
 
         /**
          * Check if a given command id has been processed.
@@ -122,7 +122,7 @@ namespace RTT
 
     protected:
 
-        Queue<CommandInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
+        Queue<ActionInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
 
         /**
          * Counting how much commands we processed.

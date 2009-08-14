@@ -43,7 +43,7 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/function_traits.hpp>
 
-#include "CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../scripting/ConditionInterface.hpp"
 #include "DataSource.hpp"
 #include "DataSource.hpp"
@@ -344,13 +344,13 @@ namespace RTT
 
 
         /**
-         * A functor with the CommandInterface.
+         * A functor with the ActionInterface.
          * @param Signature The function signature of this command.
          * @param FunctorT The function that stores the command.
          */
         template<typename SignatureT, typename FunctorT = Functor<SignatureT> >
         class CommandFunctor
-            :public CommandInterface
+            :public ActionInterface
         {
         public:
             typedef typename FunctorT::FunctionImpl Function;
@@ -388,11 +388,11 @@ namespace RTT
         };
 
         /**
-         * A functor with the CommandInterface, for the case where
+         * A functor with the ActionInterface, for the case where
          * the functor is a bool(void).
          */
         class CommandFunction
-            :public CommandInterface
+            :public ActionInterface
         {
         public:
             typedef boost::function<bool(void)> Function;

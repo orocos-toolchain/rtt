@@ -61,7 +61,7 @@
 #include "ScriptingAccessProxy.hpp"
 #include "../../internal/TaskObject.hpp"
 
-#include "../../internal/CommandInterface.hpp"
+#include "../../base/ActionInterface.hpp"
 #include "../../types/Types.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
@@ -224,7 +224,7 @@ namespace RTT
         }
         // commands:
         log(Debug) << "Fetching Commands."<<endlog();
-        CommandInterface_var cfact = mtask->commands();
+        ActionInterface_var cfact = mtask->commands();
         if (cfact) {
             CommandList_var objs;
             objs = cfact->getCommands();
@@ -417,7 +417,7 @@ namespace RTT
             }
             // commands:
             log(Debug) << plist[i] << ": fetching Commands."<<endlog();
-            CommandInterface_var cfact = cobj->commands();
+            ActionInterface_var cfact = cobj->commands();
             if (cfact) {
                 CommandList_var objs;
                 objs = cfact->getCommands();

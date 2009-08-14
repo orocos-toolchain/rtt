@@ -139,7 +139,7 @@ namespace RTT
     }
 
     template<class T>
-    CommandInterface* AssignableDataSource<T>::updateCommand( DataSourceBase* other) {
+    ActionInterface* AssignableDataSource<T>::updateCommand( DataSourceBase* other) {
         // Use the same rules of parameter passing as C++, but no const for 'int',...
         DataSourceBase::shared_ptr r( other );
         typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( detail::DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );

@@ -179,7 +179,7 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
     return MethodInterface::_duplicate( mMFact.in() );
 }
 
-::RTT::Corba::CommandInterface_ptr Orocos_ControlObject_i::commands (
+::RTT::Corba::ActionInterface_ptr Orocos_ControlObject_i::commands (
 
   )
   ACE_THROW_SPEC ((
@@ -187,16 +187,16 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
   ))
 {
     if ( CORBA::is_nil( mCFact ) ) {
-        log(Debug) << "Creating CommandInterface."<<endlog();
-        Orocos_CommandInterface_i* mserv;
-        mCFact_i = mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa );
+        log(Debug) << "Creating ActionInterface."<<endlog();
+        Orocos_ActionInterface_i* mserv;
+        mCFact_i = mserv = new Orocos_ActionInterface_i( mobj->commands(), mpoa );
         try {
             mCFact = mserv->_this();
         } catch( ... ) {
-            log(Error) << "Failed to create CommandInterface." <<endlog();
+            log(Error) << "Failed to create ActionInterface." <<endlog();
         }
     }
-    return ::RTT::Corba::CommandInterface::_duplicate( mCFact.in() );
+    return ::RTT::Corba::ActionInterface::_duplicate( mCFact.in() );
 }
 
 ::RTT::Corba::ControlObject_ptr Orocos_ControlObject_i::getObject (

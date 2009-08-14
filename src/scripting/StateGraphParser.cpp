@@ -598,7 +598,7 @@ namespace RTT
         if ( varinitcommands.size() > 1 )
             {
                 CommandComposite* comcom = new CommandComposite;
-                for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
+                for ( std::vector<ActionInterface*>::iterator i = varinitcommands.begin();
                       i != varinitcommands.end(); ++i )
                     comcom->add( *i );
                 curtemplate->setInitCommand( comcom );
@@ -748,11 +748,11 @@ namespace RTT
           curtemplate.reset();
         }
         // should be empty in most cases :
-        for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
+        for ( std::vector<ActionInterface*>::iterator i = varinitcommands.begin();
               i != varinitcommands.end(); ++ i )
             delete *i;
         varinitcommands.clear();
-        for ( std::vector<CommandInterface*>::iterator i = paraminitcommands.begin();
+        for ( std::vector<ActionInterface*>::iterator i = paraminitcommands.begin();
               i != paraminitcommands.end(); ++ i )
             delete *i;
         paraminitcommands.clear();
@@ -949,7 +949,7 @@ namespace RTT
                     throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
                 }
 #else
-            CommandInterface* ret =  i->second->getDataSource()->updateCommand( j->second.get());
+            ActionInterface* ret =  i->second->getDataSource()->updateCommand( j->second.get());
             if (ret)
                 paraminitcommands.push_back( ret );
             else
@@ -964,7 +964,7 @@ namespace RTT
         if ( paraminitcommands.size() > 0 )
             {
                 CommandComposite* comcom = new CommandComposite;
-                for ( std::vector<CommandInterface*>::iterator i = paraminitcommands.begin();
+                for ( std::vector<ActionInterface*>::iterator i = paraminitcommands.begin();
                       i != paraminitcommands.end(); ++i )
                     comcom->add( *i );
                 // init the vars as last (if any), so that they can be inited by an expression containing the params :
@@ -982,8 +982,8 @@ namespace RTT
     }
 
     void StateGraphParser::seenmachinevariable() {
-        std::vector<CommandInterface*> acv = valuechangeparser->assignCommands();
-        for(std::vector<CommandInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
+        std::vector<ActionInterface*> acv = valuechangeparser->assignCommands();
+        for(std::vector<ActionInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
             varinitcommands.push_back( *it );
         // this only clears the last parsed variables, not the 'store' (see reset())
         valuechangeparser->clear();

@@ -49,7 +49,7 @@ namespace RTT
     class CommandProcessor;
 
     /**
-     * Dispatch a CommandInterface to a CommandProcessor.
+     * Dispatch a ActionInterface to a CommandProcessor.
      * The execute() method will return false from the moment
      * on that the dispatched command failed. Hence, this execute()
      * must not wrapped in an AsyncCommandDecorator, but directly
@@ -62,14 +62,14 @@ namespace RTT
         bool send;
         bool maccepted;
         CommandProcessor* proc;
-        CommandInterface* com;
+        ActionInterface* com;
         ConditionInterface* mcn;
 
         /**
          * Helper class which is sent to the CommandProcessor
          * in order to execute the command.
          */
-        struct Dispatcher : public CommandInterface {
+        struct Dispatcher : public ActionInterface {
             bool mexecuted, mvalid;
             CommandDispatch* cd;
             // trick: set mvalid to true internally but return in valid(): mexecuted && mvalid.
@@ -84,7 +84,7 @@ namespace RTT
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
          */
-        CommandDispatch(CommandProcessor* p, CommandInterface* c, ConditionInterface* cn );
+        CommandDispatch(CommandProcessor* p, ActionInterface* c, ConditionInterface* cn );
 
         /**
          * Be sure only to delete this command if the target processor is

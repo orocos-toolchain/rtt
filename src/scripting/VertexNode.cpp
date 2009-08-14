@@ -36,7 +36,7 @@
  ***************************************************************************/
 #include "VertexNode.hpp"
 #include "CommandNOP.hpp"
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 namespace RTT
@@ -55,7 +55,7 @@ namespace RTT
         {
         }
 
-        VertexNode::VertexNode(CommandInterface* cmd)
+        VertexNode::VertexNode(ActionInterface* cmd)
         : command( cmd ),
           lineNumber( 0 )
 	{
@@ -80,14 +80,14 @@ namespace RTT
         return command->valid();
     }
 
-	CommandInterface* VertexNode::getCommand() const
+	ActionInterface* VertexNode::getCommand() const
 	{
 		return command;
 	}
 
-	CommandInterface* VertexNode::setCommand(CommandInterface* cmd)
+	ActionInterface* VertexNode::setCommand(ActionInterface* cmd)
 	{
-        CommandInterface* old = command;
+        ActionInterface* old = command;
 		command = cmd;
         return old;
 	}

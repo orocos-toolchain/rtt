@@ -38,7 +38,7 @@
 
 
 #include "TaskContext.hpp"
-#include "internal/CommandInterface.hpp"
+#include "base/ActionInterface.hpp"
 
 #include <string>
 #include <algorithm>

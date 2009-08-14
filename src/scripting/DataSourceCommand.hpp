@@ -40,7 +40,7 @@
 #define DATASOURCECOMMAND_HPP
 
 #include "../internal/DataSource.hpp"
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {
@@ -52,20 +52,20 @@ namespace RTT
   class RTT_API DataSourceCommand
     : public DataSource<bool>
   {
-      CommandInterface* comm;
+      ActionInterface* comm;
       mutable bool mresult;
   public:
     /**
      * DataSourceCommand takes ownership of the command you pass
      * it.
      */
-      DataSourceCommand( CommandInterface* c );
+      DataSourceCommand( ActionInterface* c );
       DataSourceCommand( const DataSourceCommand& orig );
       ~DataSourceCommand();
       bool get() const;
       bool value() const;
       void reset();
-      CommandInterface* command() const;
+      ActionInterface* command() const;
       virtual DataSourceCommand* clone() const;
       virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
   };

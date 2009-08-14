@@ -244,7 +244,7 @@ namespace RTT
         definedvalues.push_back( alias );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
-        CommandInterface* nc(0);
+        ActionInterface* nc(0);
         assigncommands.push_back( nc );
     }
 
@@ -304,7 +304,7 @@ namespace RTT
             //assert( !expressionparser.hasResult() );
 #ifndef ORO_EMBEDDED
             try {
-                CommandInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
                 assert(ac);
                 assigncommands.push_back( ac );
             }
@@ -314,7 +314,7 @@ namespace RTT
                     ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
 #else
-            CommandInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+            ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
             if (ac)
                 assigncommands.push_back( ac );
             else {
@@ -371,7 +371,7 @@ namespace RTT
         if ( index_ds && prop ) {
             //           throw parse_exception_semantic_error(
             //               "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
-            CommandInterface* ac;
+            ActionInterface* ac;
 #ifndef ORO_EMBEDDED
             try {
                 ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
@@ -396,7 +396,7 @@ namespace RTT
         }
 
         if ( index_ds && var ) {
-            CommandInterface* ac;
+            ActionInterface* ac;
 #ifndef ORO_EMBEDDED
             try {
                 ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
@@ -422,7 +422,7 @@ namespace RTT
         if ( !index_ds && var) {
 #ifndef ORO_EMBEDDED
             try {
-                CommandInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
                 assigncommands.push_back(assigncommand);
                 // if null, not allowed.
                 if ( ! assigncommand )
@@ -435,7 +435,7 @@ namespace RTT
                         ( "Attempt to assign variable of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
                 }
 #else
-            CommandInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
+            ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
             if (assigncommand)
                 assigncommands.push_back(assigncommand);
             else
@@ -445,7 +445,7 @@ namespace RTT
         if ( !index_ds && prop) {
 #ifndef ORO_EMBEDDED
             try {
-                CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
                 if ( ! assigncommand ) {
                     throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
                 }
@@ -456,7 +456,7 @@ namespace RTT
                     ( "Attempt to assign property of type "+prop->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
 #else
-            CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
+            ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
             if ( assigncommand )
                 assigncommands.push_back(assigncommand);
             else

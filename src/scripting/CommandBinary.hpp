@@ -39,18 +39,18 @@
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 namespace RTT
 {
 
 
-    struct CommandBinary : public CommandInterface
+    struct CommandBinary : public ActionInterface
     {
-        CommandInterface* _f;
-        CommandInterface* _s;
-        CommandBinary( CommandInterface* f, CommandInterface* s)
+        ActionInterface* _f;
+        ActionInterface* _s;
+        CommandBinary( ActionInterface* f, ActionInterface* s)
             : _f(f), _s(s) {}
         virtual ~CommandBinary() {
             delete _f;
@@ -74,10 +74,10 @@ namespace RTT
             _f->reset();
             _s->reset();
         }
-        virtual CommandInterface* clone() const {
+        virtual ActionInterface* clone() const {
             return new CommandBinary( _f->clone(), _s->clone() );
         }
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new CommandBinary( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
         }
     };
@@ -126,18 +126,18 @@ namespace RTT
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 namespace RTT
 {
 
 
-    struct CommandBinary : public CommandInterface
+    struct CommandBinary : public ActionInterface
     {
-        CommandInterface* _f;
-        CommandInterface* _s;
-        CommandBinary( CommandInterface* f, CommandInterface* s)
+        ActionInterface* _f;
+        ActionInterface* _s;
+        CommandBinary( ActionInterface* f, ActionInterface* s)
             : _f(f), _s(s) {}
         virtual ~CommandBinary() {
             delete _f;
@@ -161,10 +161,10 @@ namespace RTT
             _f->reset();
             _s->reset();
         }
-        virtual CommandInterface* clone() const {
+        virtual ActionInterface* clone() const {
             return new CommandBinary( _f->clone(), _s->clone() );
         }
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new CommandBinary( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
         }
     };

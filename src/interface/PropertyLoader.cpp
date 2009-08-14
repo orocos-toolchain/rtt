@@ -76,7 +76,7 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
     }
     try {
         PropertyBag propbag;
-        vector<CommandInterface*> assignComs;
+        vector<ActionInterface*> assignComs;
 
         if ( demarshaller->deserialize( propbag ) )
         {
@@ -139,7 +139,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
     }
     try {
         PropertyBag propbag;
-        vector<CommandInterface*> assignComs;
+        vector<ActionInterface*> assignComs;
 
         if ( demarshaller->deserialize( propbag ) )
         {

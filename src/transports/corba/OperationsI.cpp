@@ -79,7 +79,7 @@ using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
-Orocos_Action_i::Orocos_Action_i (MethodC* orig, CommandInterface* com, PortableServer::POA_ptr the_poa )
+Orocos_Action_i::Orocos_Action_i (MethodC* orig, ActionInterface* com, PortableServer::POA_ptr the_poa )
     : morig(*orig), mcom(com), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }

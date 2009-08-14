@@ -94,7 +94,7 @@ namespace RTT
     {}
 
 
-    CommandInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
+    ActionInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
         return 0;
     }
 
@@ -102,7 +102,7 @@ namespace RTT
         return false;
     }
 
-    CommandInterface* DataSourceBase::updatePartCommand( DataSourceBase*, DataSourceBase* ) {
+    ActionInterface* DataSourceBase::updatePartCommand( DataSourceBase*, DataSourceBase* ) {
         return 0;
     }
 

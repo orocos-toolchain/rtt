@@ -133,7 +133,7 @@ namespace RTT
          *
          * @return the 'new' build CommandNode.
          */
-        CommandNode addCommand( ConditionInterface* cond,  CommandInterface* com );
+        CommandNode addCommand( ConditionInterface* cond,  ActionInterface* com );
 
         /**
          * Add an edge from the build CommandNode to the given CommandNode
@@ -159,13 +159,13 @@ namespace RTT
          * Sets a new Command on the build CommandNode.
          *
          */
-        void setCommand( CommandInterface* comm );
+        void setCommand( ActionInterface* comm );
 
         /**
          * Get the Command on a given CommandNode.
          *
          */
-        CommandInterface* getCommand( CommandNode cn );
+        ActionInterface* getCommand( CommandNode cn );
 
         /**
          * Sets a (new) command on a given CommandNode.
@@ -174,7 +174,7 @@ namespace RTT
          * @param comm The new Command to be executed in that node.
          *
          */
-        void setCommand( CommandNode vert, CommandInterface* comm);
+        void setCommand( CommandNode vert, ActionInterface* comm);
 
         /**
          * Append a function to the build CommandNode.

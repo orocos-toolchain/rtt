@@ -124,7 +124,7 @@ namespace RTT
          * @brief Parses the command in s.
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
-        std::pair<CommandInterface*,ConditionInterface*>
+        std::pair<ActionInterface*,ConditionInterface*>
         parseCommand( const std::string&s, TaskContext* t, bool dispatch );
 
       /**

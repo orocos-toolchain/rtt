@@ -39,7 +39,7 @@
 #define ASYNCHCOMMANDDECORATOR_HPP
 
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 
 namespace RTT
@@ -61,7 +61,7 @@ namespace RTT
      * will return false until the AsynchCommandDecorator
      * is \a reset().
      */
-    class RTT_API AsynchCommandDecorator: public CommandInterface
+    class RTT_API AsynchCommandDecorator: public ActionInterface
     {
 
     public:
@@ -74,7 +74,7 @@ namespace RTT
          * @post The given command is decorated as an
          * 		 asynchronous command.
          */
-        AsynchCommandDecorator(CommandInterface* cmd);
+        AsynchCommandDecorator(ActionInterface* cmd);
 
         AsynchCommandDecorator(const AsynchCommandDecorator& orig);
 
@@ -89,17 +89,17 @@ namespace RTT
 
         virtual void reset();
 
-        const CommandInterface* getCommand() const;
+        const ActionInterface* getCommand() const;
 
-        virtual CommandInterface* clone() const;
+        virtual ActionInterface* clone() const;
 
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     private:
 
         /**
          * Asynchronous command being decorated.
          */
-        CommandInterface* command;
+        ActionInterface* command;
 
         /**
          * Variable indicating whether corresponding command

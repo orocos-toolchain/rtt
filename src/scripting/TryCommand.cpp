@@ -45,7 +45,7 @@ namespace RTT
 
     using namespace detail;
 
-        TryCommand::TryCommand( CommandInterface* command,
+        TryCommand::TryCommand( ActionInterface* command,
                                 AssignableDataSource<bool>::shared_ptr storage /*=0*/)
             :_result( storage == 0 ? new UnboundDataSource< ValueDataSource<bool> >(true) : storage ),
              c(command) {}
@@ -75,7 +75,7 @@ namespace RTT
             c->readArguments();
         }
 
-        CommandInterface* TryCommand::theCommand() const {
+        ActionInterface* TryCommand::theCommand() const {
             return c;
         }
 
@@ -139,12 +139,12 @@ namespace RTT
             return _cache;
         }
 
-        CommandInterface* EvalCommand::clone() const {
+        ActionInterface* EvalCommand::clone() const {
             return new EvalCommand( _ds,
                                     _cache );
         }
 
-        CommandInterface* EvalCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        ActionInterface* EvalCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new EvalCommand( _ds->copy( alreadyCloned ),
                                     _cache->copy(alreadyCloned) );
         }

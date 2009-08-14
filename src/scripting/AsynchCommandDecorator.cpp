@@ -39,7 +39,7 @@
 namespace RTT
 {
 
-	AsynchCommandDecorator::AsynchCommandDecorator(CommandInterface* cmd)
+	AsynchCommandDecorator::AsynchCommandDecorator(ActionInterface* cmd)
 		: command(cmd),executed(false)
 	{
 	}
@@ -55,12 +55,12 @@ namespace RTT
 		delete command;
 	}
 
-     CommandInterface* AsynchCommandDecorator::clone() const
+     ActionInterface* AsynchCommandDecorator::clone() const
      {
          return new AsynchCommandDecorator( command->clone() );
      }
 
-    const CommandInterface* AsynchCommandDecorator::getCommand() const
+    const ActionInterface* AsynchCommandDecorator::getCommand() const
     {
         return command;
     }
@@ -84,7 +84,7 @@ namespace RTT
         executed = false;
     }
 
-    CommandInterface* AsynchCommandDecorator::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ActionInterface* AsynchCommandDecorator::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
     {
       return new AsynchCommandDecorator( command->copy( alreadyCloned ) );
     }

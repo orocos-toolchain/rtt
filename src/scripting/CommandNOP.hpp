@@ -38,7 +38,7 @@
 #ifndef COMMANDNOP_HPP
 #define COMMANDNOP_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {
@@ -47,7 +47,7 @@ namespace RTT
      *
      * This command does nothing when executed.
      */
-    class RTT_API CommandNOP : public CommandInterface
+    class RTT_API CommandNOP : public ActionInterface
     {
     public:
         /**
@@ -61,7 +61,7 @@ namespace RTT
 
         virtual void readArguments();
 
-        virtual CommandInterface* clone() const;
+        virtual ActionInterface* clone() const;
     };
 
 }

@@ -45,7 +45,7 @@
 #include <string>
 #include "../os/Atomic.hpp"
 #include "rtt-config.h"
-#include "../internal/CommandInterface.hpp"
+#include "ActionInterface.hpp"
 
 namespace RTT
 {
@@ -143,12 +143,12 @@ namespace RTT
       virtual bool update( DataSourceBase* other );
 
       /**
-       * Generate a CommandInterface object which will update this DataSource
+       * Generate a ActionInterface object which will update this DataSource
        * with the value of another DataSource when execute()'ed.
        * @return zero if the DataSource types do not match OR if the
        * contents of this DataSource can not be updated.
        */
-      virtual CommandInterface* updateCommand( DataSourceBase* other);
+      virtual ActionInterface* updateCommand( DataSourceBase* other);
 
       /**
        * Update \a part of the value of this DataSource with the value of an \a other DataSource.
@@ -160,13 +160,13 @@ namespace RTT
       virtual bool updatePart( DataSourceBase* part, DataSourceBase* other );
 
       /**
-       * Generate a CommandInterface object which will partially update this DataSource
+       * Generate a ActionInterface object which will partially update this DataSource
        * with the value of another DataSource when execute()'ed. \a part is an index or
        * hash value of some type.
        * @return zero if the DataSource types do not match OR if the
        * contents of this DataSource can not be partially updated.
        */
-      virtual CommandInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other);
+      virtual ActionInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other);
 
       /**
        * Return a shallow clone of this DataSource. This method

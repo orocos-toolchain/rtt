@@ -37,7 +37,7 @@
 
 
 #include "CommandProcessor.hpp"
-#include "CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "Queue.hpp"
 #include "../Logger.hpp"
 
@@ -49,7 +49,7 @@ namespace RTT
     using namespace OS;
 
     CommandProcessor::CommandProcessor(int queue_size)
-        :a_queue( new Queue<CommandInterface*>(queue_size) ),
+        :a_queue( new Queue<ActionInterface*>(queue_size) ),
          coms_processed(0),
          accept(false)
     {
@@ -75,7 +75,7 @@ namespace RTT
 	void CommandProcessor::step()
     {
         // execute one command from the AtomicQueue.
-        CommandInterface* com(0);
+        ActionInterface* com(0);
         while ( !a_queue->isEmpty() ) {
             int res = a_queue->dequeueCounted( com );
             if ( com ) {
@@ -94,7 +94,7 @@ namespace RTT
         return ! a_queue->isEmpty();
     }
 
-    int CommandProcessor::process( CommandInterface* c )
+    int CommandProcessor::process( ActionInterface* c )
     {
         if (accept && c) {
             int result = a_queue->enqueueCounted( c );

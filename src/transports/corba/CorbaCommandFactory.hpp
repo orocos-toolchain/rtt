@@ -56,16 +56,16 @@ namespace RTT
         : public RTT::detail::OperationFactoryPart<DispatchInterface*>
     {
         std::string com;
-        Corba::CommandInterface_var mfact;
+        Corba::ActionInterface_var mfact;
         PortableServer::POA_var mpoa;
     public:
         typedef std::vector< RTT::ArgumentDescription > Descriptions;
         typedef std::vector<std::string> Commands;
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
-        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact, PortableServer::POA_ptr the_poa)
+        CorbaCommandFactory(const std::string& command, Corba::ActionInterface_ptr fact, PortableServer::POA_ptr the_poa)
             : RTT::detail::OperationFactoryPart<DispatchInterface*>("Corba Command"),
-              com(command), mfact( Corba::CommandInterface::_duplicate(fact) ),
+              com(command), mfact( Corba::ActionInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa) )
         {}
 

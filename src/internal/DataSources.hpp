@@ -218,7 +218,7 @@ namespace RTT
         IndexedValueDataSource()
         {}
 
-        CommandInterface* updateCommand( DataSourceBase* other)
+        ActionInterface* updateCommand( DataSourceBase* other)
         {
             DataSourceBase::const_ptr r( other );
             typedef typename AssignableDataSource<T>::copy_t copy_t;
@@ -233,7 +233,7 @@ namespace RTT
 #endif
         }
 
-        CommandInterface* updatePartCommand( DataSourceBase* index, DataSourceBase* rhs )
+        ActionInterface* updatePartCommand( DataSourceBase* index, DataSourceBase* rhs )
         {
             DataSourceBase::shared_ptr r( rhs );
             DataSourceBase::shared_ptr i( index );

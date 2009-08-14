@@ -105,11 +105,11 @@ namespace RTT
     /**
      * Retrieve the result as a command, condition pair.
      */
-    std::pair<CommandInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
+    std::pair<ActionInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
     {
         EvalCommand* ec = new EvalCommand( ds_bool );
         EvalCommandResult* ecr = new EvalCommandResult( ec->cache() );
         return std::make_pair( ec, ecr );
-        //return std::pair<CommandInterface*,ConditionInterface*>(0,0);
+        //return std::pair<ActionInterface*,ConditionInterface*>(0,0);
     }
 }

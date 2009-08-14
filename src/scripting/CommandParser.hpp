@@ -74,7 +74,7 @@ namespace RTT
       bool mas_action;
 
     DispatchInterface* dcom;
-    CommandInterface* retcommand;
+    ActionInterface* retcommand;
     ConditionInterface* implicittermcondition;
     ConditionInterface* dispatchCond;
     TaskContext* peer;
@@ -140,7 +140,7 @@ namespace RTT
      * generated command, otherwise it will be deleted in the
      * CommandParser's destructor..
      */
-    CommandInterface* getCommand()
+    ActionInterface* getCommand()
       {
         return retcommand;
       }

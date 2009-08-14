@@ -114,7 +114,7 @@ namespace RTT
             }
 #else
             for (; dit != args.end(); ++dit, ++tit) {
-                CommandInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+                ActionInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
                 if (ret)
                     icom->add( ret );
                 else {

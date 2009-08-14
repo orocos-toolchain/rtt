@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 #include <string>
 
@@ -47,7 +47,7 @@ namespace RTT
 	 * @brief This command displays a string when executed.
      * @deprecated Remove this low-level class since it's nowhere used.
 	 */
-	class RTT_API CommandString : public CommandInterface
+	class RTT_API CommandString : public ActionInterface
 	{
 
     public:
@@ -61,7 +61,7 @@ namespace RTT
 
         virtual bool execute();
 
-        virtual CommandInterface* clone() const
+        virtual ActionInterface* clone() const
         {
             return new CommandString( *this );
         }

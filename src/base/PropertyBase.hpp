@@ -39,7 +39,7 @@
 #define PI_PROPERTYBASE
 
 #include <string>
-#include "../internal/CommandInterface.hpp"
+#include "ActionInterface.hpp"
 #include "DataSourceBase.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -134,12 +134,12 @@ namespace RTT
         virtual bool update( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a CommandInterface object which will update this Property
+         * Generate a ActionInterface object which will update this Property
          * with the value of another Property when execute()'ed.
          * @return zero if the Property types do not match
          * @todo: check if this method is necessary/used.
          */
-        virtual CommandInterface* updateCommand( const PropertyBase* other) = 0;
+        virtual ActionInterface* updateCommand( const PropertyBase* other) = 0;
 
         /**
          * Refresh the value of this Property with the value of an \a other Property.
@@ -151,12 +151,12 @@ namespace RTT
         virtual bool refresh( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a CommandInterface object which will refresh this Property
+         * Generate a ActionInterface object which will refresh this Property
          * with the value of another Property when execute()'ed. The resulting
          * Command is real-time.
          * @return zero if the Property types do not match
          */
-        virtual CommandInterface* refreshCommand( const PropertyBase* other) = 0;
+        virtual ActionInterface* refreshCommand( const PropertyBase* other) = 0;
 
         /**
          * Copy an \a other Property onto this property.
@@ -168,11 +168,11 @@ namespace RTT
         virtual bool copy( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a CommandInterface object which will copy this Property
+         * Generate a ActionInterface object which will copy this Property
          * with the value of another Property when execute()'ed.
          * @return zero if the Property types do not match
          */
-        virtual CommandInterface* copyCommand( const PropertyBase* other) = 0;
+        virtual ActionInterface* copyCommand( const PropertyBase* other) = 0;
 
         /**
          * Deliver an identical clone of this PropertyBase. The

@@ -49,7 +49,7 @@ namespace RTT
 
     CommandNOP::~CommandNOP() {}
 
-    CommandInterface* CommandNOP::clone() const
+    ActionInterface* CommandNOP::clone() const
     {
         return new CommandNOP(*this);
     }

@@ -400,7 +400,7 @@ namespace RTT
         for ( ; v != vend; ++v )
         {
             int index = get( imap, *v );
-            CommandInterface* cmd = get( cmap, *v ).getCommand();
+            ActionInterface* cmd = get( cmap, *v ).getCommand();
             if ( cmd )
                 std::cerr << " " << index << " " << typeid( *cmd ).name() << std::endl;
             else

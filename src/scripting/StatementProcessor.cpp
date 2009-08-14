@@ -268,7 +268,7 @@ namespace RTT
         }
 
         Parser _parser;
-        std::pair< CommandInterface*, ConditionInterface*> comcon;
+        std::pair< ActionInterface*, ConditionInterface*> comcon;
         DispatchInterface* command;
         ConditionInterface* condition;
 

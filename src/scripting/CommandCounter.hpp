@@ -38,7 +38,7 @@
 #ifndef COMMANDCOUNTER_HPP
 #define COMMANDCOUNTER_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {
@@ -48,7 +48,7 @@ namespace RTT
      * @deprecated Remove this low-level class since it's nowhere used.
      */
     class RTT_API CommandCounter
-        : public CommandInterface
+        : public ActionInterface
     {
 
     public:
@@ -72,7 +72,7 @@ namespace RTT
          */
         virtual int getCounter();
 
-        virtual CommandInterface* clone() const
+        virtual ActionInterface* clone() const
         {
             return new CommandCounter( *this );
         }

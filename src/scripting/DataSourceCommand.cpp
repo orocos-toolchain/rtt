@@ -38,11 +38,11 @@
 
 #include "DataSourceCommand.hpp"
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 
 namespace RTT
 {
-  DataSourceCommand::DataSourceCommand( CommandInterface* c )
+  DataSourceCommand::DataSourceCommand( ActionInterface* c )
       : comm( c ), mresult(false)
   {
   }
@@ -69,7 +69,7 @@ namespace RTT
     return mresult;
   }
 
-  CommandInterface* DataSourceCommand::command() const
+  ActionInterface* DataSourceCommand::command() const
   {
       return comm;
   }

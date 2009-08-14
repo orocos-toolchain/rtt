@@ -41,7 +41,7 @@
 
 #include "StateInterface.hpp"
 #include "ConditionInterface.hpp"
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"
 #include "../internal/EventProcessor.hpp"
@@ -546,12 +546,12 @@ namespace RTT
          * \a c is aggregated by this state machine and deleted in
          * the destructor.
          */
-        void setInitCommand( CommandInterface* c)
+        void setInitCommand( ActionInterface* c)
         {
             initc = c;
         }
 
-        CommandInterface* getInitCommand() const
+        ActionInterface* getInitCommand() const
         {
             return initc;
         }
@@ -683,7 +683,7 @@ namespace RTT
          */
         StateInterface* next;
 
-        CommandInterface* initc;
+        ActionInterface* initc;
 
         ProgramInterface* currentProg;
         ProgramInterface* currentExit;

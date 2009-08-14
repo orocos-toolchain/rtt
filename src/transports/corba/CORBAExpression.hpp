@@ -42,7 +42,7 @@
 #include "../../internal/DataSource.hpp"
 #include "../../Logger.hpp"
 #include "../../types/BuildType.hpp"
-#include "../../internal/CommandInterface.hpp"
+#include "../../base/ActionInterface.hpp"
 #include "../../scripting/CommandBinary.hpp"
 #include "CorbaConversion.hpp"
 #include <cassert>
@@ -50,7 +50,7 @@
 namespace RTT
 {namespace Corba
 {
-    struct  UpdatedCommand : public ::RTT::CommandInterface
+    struct  UpdatedCommand : public ::RTT::ActionInterface
     {
         DataSourceBase::shared_ptr mds;
         UpdatedCommand( DataSourceBase* ds )
@@ -64,11 +64,11 @@ namespace RTT
 
         void readArguments() {}
 
-        ::RTT::CommandInterface* clone() const {
+        ::RTT::ActionInterface* clone() const {
             return new UpdatedCommand(mds.get());
         }
 
-        ::RTT::CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        ::RTT::ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new UpdatedCommand(mds->copy(alreadyCloned));
         }
     };
@@ -272,17 +272,17 @@ namespace RTT
             return false;
         }
 
-        ::RTT::CommandInterface* updateCommand( DataSourceBase* other)
+        ::RTT::ActionInterface* updateCommand( DataSourceBase* other)
         {
-            ::RTT::CommandInterface* ci = storage->updateCommand(other);
+            ::RTT::ActionInterface* ci = storage->updateCommand(other);
             if (ci)
                 return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual ::RTT::CommandInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
+        virtual ::RTT::ActionInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
         {
-            ::RTT::CommandInterface* ci = storage->updatePartCommand(index, rhs);
+            ::RTT::ActionInterface* ci = storage->updatePartCommand(index, rhs);
             if (ci)
                 return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;

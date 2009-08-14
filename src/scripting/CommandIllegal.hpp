@@ -38,7 +38,7 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include <string>
 
 namespace RTT
@@ -53,7 +53,7 @@ namespace RTT
      * @deprecated Remove this low-level class since it's nowhere used.
      */
     class RTT_API CommandIllegal
-        : public CommandInterface
+        : public ActionInterface
     {
 
     public:
@@ -89,7 +89,7 @@ namespace RTT
          */
         virtual void warn();
 
-        virtual CommandInterface* clone() const
+        virtual ActionInterface* clone() const
         {
             return new CommandIllegal( *this );
         }

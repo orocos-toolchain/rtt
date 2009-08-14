@@ -471,7 +471,7 @@ namespace RTT
 
         virtual bool updatePart( DataSourceBase* part, DataSourceBase* other ) { return orig_->updatePart( part, other); }
 
-        virtual CommandInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other) { return orig_->updatePartCommand(part, other ); }
+        virtual ActionInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other) { return orig_->updatePartCommand(part, other ); }
 
         virtual AssignableDataSource<To>* clone() const {
             return new AssignableDataSourceAdaptor( orig_->clone() );

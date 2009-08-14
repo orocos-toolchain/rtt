@@ -220,22 +220,22 @@ PortableServer::POA_ptr Orocos_MethodInterface_i::_default_POA()
 }
 
 // Implementation skeleton constructor
-Orocos_CommandInterface_i::Orocos_CommandInterface_i (CommandFactory* gcf, PortableServer::POA_ptr the_poa)
+Orocos_ActionInterface_i::Orocos_ActionInterface_i (CommandFactory* gcf, PortableServer::POA_ptr the_poa)
     :mfact(gcf), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
 // Implementation skeleton destructor
-Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
+Orocos_ActionInterface_i::~Orocos_ActionInterface_i (void)
 {
 }
 
-PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
+PortableServer::POA_ptr Orocos_ActionInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
-::RTT::Corba::CommandList * Orocos_CommandInterface_i::getCommands (
+::RTT::Corba::CommandList * Orocos_ActionInterface_i::getCommands (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -249,7 +249,7 @@ PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
     return rlist._retn();
 }
 
-::RTT::Corba::Descriptions * Orocos_CommandInterface_i::getArguments (
+::RTT::Corba::Descriptions * Orocos_ActionInterface_i::getArguments (
       const char* command
     )
     ACE_THROW_SPEC ((
@@ -272,7 +272,7 @@ PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
 }
 
 
- char * Orocos_CommandInterface_i::getResultType (
+ char * Orocos_ActionInterface_i::getResultType (
       const char* command
     )
     ACE_THROW_SPEC ((
@@ -285,7 +285,7 @@ PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
     return CORBA::string_dup( mfact->getResultType( string(command) ).c_str() );
 }
 
- char * Orocos_CommandInterface_i::getDescription (
+ char * Orocos_ActionInterface_i::getDescription (
       const char* command
     )
     ACE_THROW_SPEC ((
@@ -298,7 +298,7 @@ PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
     return CORBA::string_dup( mfact->getDescription( string(command) ).c_str() );
 }
 
-::RTT::Corba::Command_ptr Orocos_CommandInterface_i::createCommand (
+::RTT::Corba::Command_ptr Orocos_ActionInterface_i::createCommand (
     const char * command,
     const ::RTT::Corba::Arguments& args
   )
@@ -332,7 +332,7 @@ PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
     return ::RTT::Corba::Command::_nil();
 }
 
-::RTT::Corba::Command_ptr Orocos_CommandInterface_i::createCommandAny (
+::RTT::Corba::Command_ptr Orocos_ActionInterface_i::createCommandAny (
     const char * command,
     const ::RTT::Corba::AnyArguments& args
   )

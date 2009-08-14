@@ -206,7 +206,7 @@ namespace RTT
          * Return a new copy of this repository with the copy operation semantics.
          * @param instantiate set to true if you want a copy which will upon any future
          * copy return the same DataSources, thus 'fixating' or 'instantiating' the DataSources.
-         * @see CommandInterface
+         * @see ActionInterface
          * @note this does not copy the properties() within this repository.
          */
         AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;

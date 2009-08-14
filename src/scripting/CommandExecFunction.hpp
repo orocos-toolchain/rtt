@@ -40,7 +40,7 @@
 #define COMMAND_EXEC_FUNCTION_HPP
 
 #include "ConditionInterface.hpp"
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "../internal/DataSources.hpp"
 #include "../base/ProgramInterface.hpp"
 #include "ProgramProcessor.hpp"
@@ -89,7 +89,7 @@ namespace RTT
     class RTT_API CommandExecFunction
         : public DispatchInterface
     {
-        CommandInterface* minit;
+        ActionInterface* minit;
         ProgramProcessor* _proc;
         AssignableDataSource<ProgramInterface*>::shared_ptr _v;
         boost::shared_ptr<ProgramInterface> _foo;
@@ -104,7 +104,7 @@ namespace RTT
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
+        CommandExecFunction( ActionInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
             : minit(init_com),
               _proc(p),
               _v( v==0 ? new detail::UnboundDataSource< ValueDataSource<ProgramInterface*> >(foo.get()) : v ),

@@ -117,7 +117,7 @@ namespace RTT
         return tfunc;
     }
 
-    FunctionGraphBuilder::CommandNode FunctionGraphBuilder::addCommand( ConditionInterface* cond,  CommandInterface* com )
+    FunctionGraphBuilder::CommandNode FunctionGraphBuilder::addCommand( ConditionInterface* cond,  ActionInterface* com )
     {
         add_edge(build, next, EdgeCondition(cond), *graph);
         build = next;
@@ -146,7 +146,7 @@ namespace RTT
         return old;
     }
 
-    CommandInterface* FunctionGraphBuilder::getCommand( CommandNode cn )
+    ActionInterface* FunctionGraphBuilder::getCommand( CommandNode cn )
     {
         // the map contains _references_ to all vertex_command properties
         boost::property_map<Graph, vertex_command_t>::type
@@ -155,12 +155,12 @@ namespace RTT
         return cmap[cn].getCommand();
     }
 
-    void FunctionGraphBuilder::setCommand( CommandInterface* comm )
+    void FunctionGraphBuilder::setCommand( ActionInterface* comm )
     {
         this->setCommand(build, comm);
     }
 
-    void FunctionGraphBuilder::setCommand(CommandNode cn, CommandInterface* comm )
+    void FunctionGraphBuilder::setCommand(CommandNode cn, ActionInterface* comm )
     {
         // the map contains _references_ to all vertex_command properties
         boost::property_map<Graph, vertex_command_t>::type
@@ -288,7 +288,7 @@ namespace RTT
         }
 #else
         for (; dit != fnargs.end(); ++dit, ++tit) {
-            CommandInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+            ActionInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
             if (ret)
                 icom->add( ret );
             else {
@@ -472,7 +472,7 @@ namespace RTT
     }
 
 #if 0
-    void FunctionGraphBuilder::prependCommand( CommandInterface* command, int line_nr )
+    void FunctionGraphBuilder::prependCommand( ActionInterface* command, int line_nr )
     {
         CommandNode previousstart = start;
         start = add_vertex( program );

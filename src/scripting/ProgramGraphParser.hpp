@@ -201,8 +201,8 @@ namespace RTT { namespace detail
       boost::shared_ptr<FunctionGraphBuilder> program_builder;
       std::vector< FunctionGraphPtr > program_list;
 
-      CommandInterface* for_init_command;
-      CommandInterface* for_incr_command;
+      ActionInterface* for_init_command;
+      ActionInterface* for_incr_command;
       std::string program_text;
       bool exportf;
       int ln_offset;

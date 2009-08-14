@@ -42,7 +42,7 @@
 #ifndef ORO_CORELIB_PROPERTY_COMMANDS
 #define ORO_CORELIB_PROPERTY_COMMANDS
 
-#include "CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "DataSource.hpp"
 
 
@@ -57,7 +57,7 @@ namespace RTT
          */
         template<class T>
         class UpdatePropertyCommand
-            : public CommandInterface
+            : public ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -84,7 +84,7 @@ namespace RTT
          */
         template<class T>
         class CopyPropertyCommand
-            : public CommandInterface
+            : public ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -111,7 +111,7 @@ namespace RTT
          */
         template<class T>
         class RefreshPropertyCommand
-            : public CommandInterface
+            : public ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -139,7 +139,7 @@ namespace RTT
          */
         template<class T>
         class RefreshPropertyFromDSCommand
-            : public CommandInterface
+            : public ActionInterface
         {
             Property<T>* target;
             typename DataSource<T>::shared_ptr source;

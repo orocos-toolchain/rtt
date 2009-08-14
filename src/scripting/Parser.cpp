@@ -183,7 +183,7 @@ namespace RTT
     throw parse_exception_parser_fail();
   }
 
-  std::pair<CommandInterface*, ConditionInterface*>
+  std::pair<ActionInterface*, ConditionInterface*>
   Parser::parseCommand( const std::string& _s,
                         TaskContext* tc, bool dodispatch )
   {
@@ -209,7 +209,7 @@ namespace RTT
         {
             throw parse_exception_syntactic_error( e.descriptor );
         }
-    CommandInterface* ret = parser.getCommand();
+    ActionInterface* ret = parser.getCommand();
     ConditionInterface* cond_ret = parser.getImplTermCondition();
     parser.reset();
     return std::make_pair( ret, cond_ret );

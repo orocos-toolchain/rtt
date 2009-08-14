@@ -271,7 +271,7 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* updateCommand( const PropertyBase* other)
+        virtual ActionInterface* updateCommand( const PropertyBase* other)
         {
             // try to update from identical type or from const_reference_t.
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
@@ -289,7 +289,7 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* refreshCommand( const PropertyBase* other)
+        virtual ActionInterface* refreshCommand( const PropertyBase* other)
         {
             if ( !_value )
                 return 0;
@@ -307,7 +307,7 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* copyCommand( const PropertyBase* other)
+        virtual ActionInterface* copyCommand( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 && _value )

@@ -39,7 +39,7 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
-#include "../internal/CommandInterface.hpp"
+#include "../base/ActionInterface.hpp"
 #include "ConditionInterface.hpp"
 #include "../Logger.hpp"
 #include "../internal/DataSource.hpp"
@@ -55,17 +55,17 @@ namespace RTT
      * @see TryCommandResult.
      */
     class RTT_API TryCommand :
-        public CommandInterface
+        public ActionInterface
     {
         // we must use a DataSource for correct
         // copy sementics ...
         AssignableDataSource<bool>::shared_ptr _result;
-        CommandInterface* c;
+        ActionInterface* c;
     public:
         /**
          * Try a command.
          */
-        TryCommand( CommandInterface* command,
+        TryCommand( ActionInterface* command,
                     AssignableDataSource<bool>::shared_ptr storage=0);
 
         ~TryCommand();
@@ -77,7 +77,7 @@ namespace RTT
 
         void readArguments();
 
-        CommandInterface* theCommand() const;
+        ActionInterface* theCommand() const;
 
         AssignableDataSource<bool>::shared_ptr result();
 
@@ -123,7 +123,7 @@ namespace RTT
      * @see EvalCommandResult
      */
     class RTT_API EvalCommand :
-        public CommandInterface
+        public ActionInterface
     {
         // the result
         AssignableDataSource<bool>::shared_ptr _cache;
@@ -142,9 +142,9 @@ namespace RTT
 
         AssignableDataSource<bool>::shared_ptr cache();
 
-        CommandInterface* clone() const;
+        ActionInterface* clone() const;
 
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**

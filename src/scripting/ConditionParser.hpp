@@ -90,7 +90,7 @@ namespace RTT { namespace detail
       /**
        * Retrieve the result as a command, condition pair.
        */
-      std::pair<CommandInterface*,ConditionInterface*> getParseResultAsCommand();
+      std::pair<ActionInterface*,ConditionInterface*> getParseResultAsCommand();
 
     void reset();
   };
