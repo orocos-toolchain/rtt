@@ -3,6 +3,21 @@
 
 using namespace RTT::Corba;
 
+namespace {
+    struct RemotePortID : public RTT::PortID
+    {
+        DataFlowInterface_var dataflow;
+        std::string name;
+        
+        RemotePortID(DataFlowInterface_ptr dataflow, std::string const& name);
+    };
+
+    RemotePortID::RemotePortID(DataFlowInterface_ptr dataflow, std::string const& name)
+        : dataflow(DataFlowInterface::_duplicate(dataflow))
+        , name(name) {}
+
+}
+
 static RTT::Corba::ConnPolicy toCORBA(RTT::ConnPolicy const& policy)
 {
     RTT::Corba::ConnPolicy corba_policy;
@@ -42,17 +57,12 @@ PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
 
 template<typename BaseClass>
-RemotePort<BaseClass>::PortID::PortID(DataFlowInterface_ptr dataflow, std::string const& name)
-    : dataflow(DataFlowInterface::_duplicate(dataflow))
-    , name(name) {}
-
-template<typename BaseClass>
 RTT::PortID* RemotePort<BaseClass>::getPortID() const
-{ return new PortID(dataflow, this->getName()); }
+{ return new RemotePortID(dataflow, this->getName()); }
 template<typename BaseClass>
 bool RemotePort<BaseClass>::isSameID(RTT::PortID const& id) const
 {
-    PortID const* real_id = dynamic_cast<PortID const*>(&id);
+    RemotePortID const* real_id = dynamic_cast<RemotePortID const*>(&id);
     if (!real_id) return false;
     return real_id->dataflow->_is_equivalent(dataflow) && real_id->name == this->getName();
 }

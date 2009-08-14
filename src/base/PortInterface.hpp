@@ -26,13 +26,6 @@ namespace RTT
 
     class RTT_API PortInterface
     {
-        struct PortID : public RTT::PortID
-        {
-            PortInterface const* ptr;
-            PortID(PortInterface const* obj)
-                : ptr(obj) {}
-        };
-
         std::string name;
 
     protected:

@@ -2,8 +2,9 @@
 #define RTT_CORBA_REMOTE_PORTS_HPP
 
 #include "../../base/PortInterface.hpp"
-#include "../../base/ChannelInterface.hpp"
-#include "../../Ports.hpp"
+#include "../../base/ChannelElement.hpp"
+#include "../../InputPort.hpp"
+#include "../../OutputPort.hpp"
 #include "DataFlowI.h"
 
 namespace RTT {
@@ -11,14 +12,6 @@ namespace RTT {
         template<typename PortClass>
         class RemotePort : public PortClass
         {
-            struct PortID : public RTT::PortID
-            {
-                DataFlowInterface_var dataflow;
-                std::string name;
-
-                PortID(DataFlowInterface_ptr dataflow, std::string const& name);
-            };
-
         protected:
             RTT::TypeInfo const* type_info;
             DataFlowInterface_var dataflow;

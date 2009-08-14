@@ -46,7 +46,8 @@
 #include "../../Logger.hpp"
 #include "ControlTaskProxy.hpp"
 #include "CorbaTypeTransporter.hpp"
-#include "../../Ports.hpp"
+#include "../../InputPort.hpp"
+#include "../../OutputPort.hpp"
 
 #include "RemotePorts.hpp"
 

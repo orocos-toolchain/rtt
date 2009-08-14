@@ -41,7 +41,8 @@
 
 #include "CorbaTypeTransporter.hpp"
 #include "../../types/Types.hpp"
-#include "../../Ports.hpp"
+#include "../../InputPort.hpp"
+#include "../../OutputPort.hpp"
 #include "ExpressionProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"

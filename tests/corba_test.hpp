@@ -2,7 +2,8 @@
 #define CORBA_TEST_H
 
 #include <transports/corba/corba.h>
-#include <Ports.hpp>
+#include <InputPort.hpp>
+#include <OutputPort.hpp>
 #include <TaskContext.hpp>
 #include <transports/corba/ControlTaskServer.hpp>
 #include <transports/corba/ControlTaskProxy.hpp>
