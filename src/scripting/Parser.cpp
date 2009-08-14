@@ -38,7 +38,7 @@
 #include "ProgramTask.hpp"
 #include "StateMachineTask.hpp"
 #include "DataSourceCommand.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 #include <iostream>
 #include <fstream>

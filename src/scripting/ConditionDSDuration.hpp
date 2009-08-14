@@ -39,7 +39,7 @@
 #ifndef CONDITION_DS_DURATION_HPP
 #define CONDITION_DS_DURATION_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 #include "../internal/DataSource.hpp"
 

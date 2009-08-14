@@ -39,7 +39,7 @@
 #ifndef COMMAND_EXEC_FUNCTION_HPP
 #define COMMAND_EXEC_FUNCTION_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
 #include "../internal/DataSources.hpp"
 #include "../base/ProgramInterface.hpp"

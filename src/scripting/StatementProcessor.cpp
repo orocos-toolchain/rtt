@@ -43,7 +43,7 @@
 
 #include "../TaskContext.hpp"
 #include "../base/DispatchInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../extras/MultiVector.hpp"
 #include "../types/TypeStream.hpp"
 #include "../Logger.hpp"

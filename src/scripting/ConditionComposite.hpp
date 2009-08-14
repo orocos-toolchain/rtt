@@ -38,7 +38,7 @@
 #ifndef CONDITIONCOMPOSITE_HPP
 #define CONDITIONCOMPOSITE_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 namespace RTT {
 

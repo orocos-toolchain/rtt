@@ -40,7 +40,7 @@
 
 #include "../internal/DataSource.hpp"
 #include "../base/DispatchInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 
 namespace RTT

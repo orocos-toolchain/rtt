@@ -44,7 +44,7 @@
 #include <boost/type_traits/function_traits.hpp>
 
 #include "../base/ActionInterface.hpp"
-#include "../scripting/ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "DataSource.hpp"
 #include "DataSource.hpp"
 

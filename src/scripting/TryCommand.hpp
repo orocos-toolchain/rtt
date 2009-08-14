@@ -40,7 +40,7 @@
 #define ORO_TRY_COMMAND_HPP
 
 #include "../base/ActionInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../Logger.hpp"
 #include "../internal/DataSource.hpp"
 

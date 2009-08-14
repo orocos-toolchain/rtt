@@ -39,7 +39,7 @@
 #ifndef CONDITIONBOOL_HPP
 #define CONDITIONBOOL_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 namespace RTT
 {

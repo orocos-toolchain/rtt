@@ -39,7 +39,7 @@
 #ifndef CONDITIONONCE_HPP
 #define CONDITIONONCE_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "rtt-config.h"
 
 namespace RTT

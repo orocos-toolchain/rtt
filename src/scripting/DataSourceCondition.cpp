@@ -36,7 +36,7 @@
  ***************************************************************************/
 #include "DataSourceCondition.hpp"
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 namespace RTT
 {

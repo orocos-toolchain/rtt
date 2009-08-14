@@ -40,7 +40,7 @@
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
 
 #include "ActionInterface.hpp"
-#include "../scripting/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

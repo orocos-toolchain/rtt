@@ -38,7 +38,7 @@
 #ifndef CONDITIONBOOLDATASOURCE_HPP
 #define CONDITIONBOOLDATASOURCE_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 

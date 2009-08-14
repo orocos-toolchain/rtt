@@ -40,7 +40,7 @@
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
 #include "StateInterface.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"

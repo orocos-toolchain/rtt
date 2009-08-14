@@ -39,7 +39,7 @@
 #ifndef CONDITIONDURATION_HPP
 #define CONDITIONDURATION_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 
 namespace RTT

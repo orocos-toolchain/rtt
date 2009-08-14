@@ -39,7 +39,7 @@
 #ifndef CONDITIONTRUE_HPP
 #define CONDITIONTRUE_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 namespace RTT
 {

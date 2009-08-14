@@ -38,7 +38,7 @@
 #ifndef CONDITIONCOMPARE_HPP
 #define CONDITIONCOMPARE_HPP
 
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 #include <typeinfo>
 
 #include "../internal/DataSource.hpp"
