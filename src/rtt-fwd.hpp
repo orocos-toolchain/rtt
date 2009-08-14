@@ -1,28 +1,40 @@
+#ifndef ORO_RTT_FWD_HPP
+#define ORO_RTT_FWD_HPP
+
+#include "os/rtt-os-fwd.hpp"
+#include "base/rtt-base-fwd.hpp"
+#include "internal/rtt-internal-fwd.hpp"
+#include "interface/rtt-interface-fwd.hpp"
+#include "plugin/rtt-plugin-fwd.hpp"
+#include "types/rtt-types-fwd.hpp"
 
 namespace RTT
 {
 
-    class Handle;
-    class PropertyBag;
-    template<class T>
-    class Attribute;
-    template<class T>
-    class Constant;
-    template<class T>
-    class Alias;
-    template<class T>
-    class Property;
-    template<class T>
+    class CleanupHandle;
     class Event;
-    template<class T>
-    class Method;
-    template<class T>
-    class Command;
-    template<class T>
-    class InputPort;
-    template<class T>
-    class OutputPort;
+    class ExecutionEngine;
+    class Handle;
+    class Logger;
+    class PropertyBag;
+    class ScopedHandle;
     class TaskContext;
+    template<class CommandT>
+    class Command;
+    template<class FunctionT>
+    class Method;
+    template<typename T>
+    class Alias;
+    template<typename T>
+    class Attribute;
+    template<typename T>
+    class Constant;
+    template<typename T>
+    class InputPort;
+    template<typename T>
+    class OutputPort;
+    template<typename T>
+    class Property;
 
     namespace base {}
     namespace internal {}
@@ -51,3 +63,4 @@ namespace RTT
     }
 
 }
+#endif
