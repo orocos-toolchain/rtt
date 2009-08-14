@@ -266,51 +266,5 @@ ENDIF ( DOXYGEN_EXECUTABLE )
 #
 # Detect CORBA using user's CORBA_IMPLEMENTATION
 #
-if (ENABLE_CORBA)
-    IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-        # Look for TAO and ACE
-	if(OROCOS_TARGET MATCHES "win32|macosx")
-	  set(XTRA_TAO_LIBS AnyTypeCode)
-	endif()
-        find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
-        IF(NOT TAO_FOUND)
-            MESSAGE(FATAL_ERROR "Cannot find TAO")
-        ELSE(NOT TAO_FOUND)
-            MESSAGE(STATUS "CORBA enabled: ${TAO_FOUND_COMPONENTS}")
-
-	    # Copy flags:
-            SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
-            SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
-	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
-	    # Flag used in rtt-corba-config.h
-	    SET(CORBA_IS_TAO 1)
-
-            if( TAO_Messaging_FOUND )
-              SET(CORBA_TAO_HAS_MESSAGING 1)
-            endif()
-
-	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS TAO_PortableServer)
-
-        ENDIF(NOT TAO_FOUND)
-    ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
-        INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
-        IF(NOT OMNIORB4_FOUND)
-            MESSAGE(FATAL_ERROR "cannot find OmniORB4")
-        ELSE(NOT OMNIORB4_FOUND)
-            MESSAGE(STATUS "CORBA enabled: OMNIORB")
-
-	    # Copy flags:
-	    SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
-	    SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
-	    SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
-	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
-	    # Flag used in rtt-corba-config.h
-	    SET(CORBA_IS_OMNIORB 1)
-
-        ENDIF(NOT OMNIORB4_FOUND)
-    ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-        MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")
-    ENDIF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-endif (ENABLE_CORBA)
+find_package(Corba REQUIRED)
 

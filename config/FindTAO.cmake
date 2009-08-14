@@ -132,9 +132,7 @@ IF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
             # definitions that ACE/TAO needs. Personally, I think this is a bug in
             # ACE/TAO, but ....
             LIST(APPEND TAO_DEFINITIONS "_DARWIN_C_SOURCE")
-            # and needs additional libraries 
-            LIST(APPEND TAO_LIBRARIES TAO_AnyTypeCode)
-        ENDIF(APPLE)
+          ENDIF(APPLE)
 
         IF( NOT TAO_15 )
             LIST(APPEND TAO_LIBRARIES TAO_IDL_BE)
