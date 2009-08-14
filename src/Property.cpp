@@ -39,7 +39,7 @@
 #pragma implementation
 #endif
 #include "Property.hpp"
-#include "marsh/PropertyIntrospection.hpp"
+#include "base/PropertyIntrospection.hpp"
 
 namespace RTT {
 

@@ -60,7 +60,7 @@
 #include <iostream>
 
 #include <Property.hpp>
-#include "PropertyIntrospection.hpp"
+#include "../base/PropertyIntrospection.hpp"
 #include <Logger.hpp>
 
 namespace RTT

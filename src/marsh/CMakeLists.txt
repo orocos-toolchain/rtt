@@ -1,6 +1,6 @@
 
 GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp)
-GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp marsh/PropertyIntrospection.cpp marsh/PropertyBagIntrospector.cpp)
+GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp marsh/PropertyBagIntrospector.cpp)
 
 IF (ENABLE_MARSHALLING)
   GLOBAL_ADD_INCLUDE( rtt/marsh CPFMarshaller.hpp

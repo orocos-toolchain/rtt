@@ -40,7 +40,7 @@
 
 #include "../PropertyBag.hpp"
 #include "../Property.hpp"
-#include "PropertyIntrospection.hpp"
+#include "../base/PropertyIntrospection.hpp"
 #include <stack>
 
 #ifdef ORO_PRAGMA_INTERFACE

@@ -436,7 +436,7 @@ namespace RTT
 #endif
 }
 
-#include "marsh/PropertyIntrospection.hpp"
+#include "base/PropertyIntrospection.hpp"
 
 namespace RTT
 {
