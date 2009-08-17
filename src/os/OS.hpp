@@ -46,8 +46,8 @@
 #include "Semaphore.hpp"
 
 namespace RTT
-{ namespace os {
- 
+{ 
+
     /**
      * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
      *
@@ -56,4 +56,7 @@ namespace RTT
      * Mutexes and standard libraries. 
      *
      */
-}}
+    namespace os {
+        
+    }
+}

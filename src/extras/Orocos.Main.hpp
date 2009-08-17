@@ -59,10 +59,10 @@
  * A component is implemented using the RTT::TaskContext class. The
  * Component interface consits of five parts: events: RTT::Event, commands:
  * RTT::Command, methods: RTT::Method, properties: RTT::Property,
- * RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort.
+ * RTT::Attribute and data ports: RTT::InputPort, RTT::OutputPort.
  *
- * A Component is run by a PeriodicActivity or
- * RTT::NonPeriodicActivity which attaches a thread to the Execution Engine.
+ * A Component is run by an RTT::Activity 
+ * which attaches a thread to the component's private Execution Engine.
  * The RTT::ExecutionEngine is the beating heart of each
  * component which executes the the application code, reacts to
  * events, processes commands etc.  Scripting is enabled by the
@@ -85,7 +85,7 @@
  *
  * Orocos has an abstraction layer and some utility classes to access
  * common devices (IO, encoders,...) from applications. The Device
- * Interface headers can be found in rtt/dev.
+ * Interface headers can be found in rtt/extras/dev.
  *
  * The device drivers are not implemented by the RTT, but provided by components.
  * See the Orocos Components Library (OCL) documentation for a list of supported

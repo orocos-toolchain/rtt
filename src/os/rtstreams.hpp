@@ -43,10 +43,8 @@
 #ifndef RTSTREAMS_HPP
 #define RTSTREAMS_HPP
 
-namespace RTT
-{
 /**
- * (Almost) Real-Time output streams.
+ * @file (Almost) Real-Time output streams.
  * If you really have to print something out from a RealTime thread,
  * you can use the streams of the os namespace, which will call
  * the rtos_printf functions (which are supposed to be as realtime as possible)
@@ -54,6 +52,9 @@ namespace RTT
  * extensively and might in certain cases still break hard-realtime behaviour.
  * avoid using it from your most critical threads and production code.
  */
+
+namespace RTT
+{
 namespace os
 {
 
