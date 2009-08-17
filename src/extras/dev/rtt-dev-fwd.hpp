@@ -17,16 +17,15 @@ namespace RTT {
         class EncoderInterface;
         class HomingInterface;
         class PulseTrainGeneratorInterface;
-        class name_iterator;
-        class name_iterator;
-        class value_iterator;
-        class value_iterator;
         template < class _ValueType >
         class NameServer;
         template <class SensorData>
         class SensorInterface;
         template <class T>
         class NameServerRegistrator;
+    }
+    namespace detail {
+        using namespace dev;
     }
 }
 #endif

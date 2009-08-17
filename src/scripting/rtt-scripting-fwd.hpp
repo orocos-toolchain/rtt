@@ -63,15 +63,10 @@ namespace RTT {
         class ValueChangeParser;
         class ValueParser;
         class VertexNode;
-        class program_load_exception;
-        class program_unload_exception;
-        struct CommandBinary;
         struct CommandBinary;
         struct CommandDataSource;
         struct CommandDataSourceBool;
         struct Dispatcher;
-        struct eol_skip_functor;
-        struct wrong_context_params_exception;
         template<class CommandT>
         class CommandDS;
         template<typename FunctionT>

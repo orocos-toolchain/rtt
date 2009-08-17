@@ -8,8 +8,6 @@ namespace RTT {
         class EmptyTypeInfo;
         class OperatorRepository;
         class RealTimeToolkitPlugin;
-        template<typename T, bool use_ostream>
-        class TemplateTypeInfo;
         class Toolkit;
         class ToolkitPlugin;
         class TypeInfo;
@@ -32,6 +30,8 @@ namespace RTT {
         struct SizeAssignChecker;
         template<class T>
         struct BuildType;
+        template<typename T, bool use_ostream>
+        class TemplateTypeInfo;
         template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>
         class TemplateContainerTypeInfo;
         template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>

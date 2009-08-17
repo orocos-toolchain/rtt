@@ -17,7 +17,6 @@ namespace RTT {
         class TimeService;
         struct CleanupFunction;
         struct InitFunction;
-        struct rt_list;
     }
     namespace detail {
         using namespace os;

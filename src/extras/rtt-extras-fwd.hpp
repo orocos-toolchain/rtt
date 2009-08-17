@@ -17,7 +17,7 @@ namespace RTT {
         class TimerThread;
         struct Provider;
         struct RT_INTR;
-        template <unsigned S , class T >
+        template <unsigned S, class T>
         struct MultiVector;
         template<class CommandT, class ProtocolT>
         class DLibCommand;

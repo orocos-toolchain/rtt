@@ -13,28 +13,26 @@ namespace RTT
 {
 
     class CleanupHandle;
-    template<
-        typename SignatureT
-    >
-    class Event;
     class ExecutionEngine;
     class Handle;
     class Logger;
     class PropertyBag;
     class ScopedHandle;
     class TaskContext;
-    template<class CommandT>
-    class Command;
-    template<class FunctionT>
-    class Method;
     template<typename T>
     class Alias;
     template<typename T>
     class Attribute;
     template<typename T>
     class Constant;
+    template<typename CommandT>
+    class Command;
+    template<typename SignatureT>
+    class Event;
     template<typename T>
     class InputPort;
+    template<typename FunctionT>
+    class Method;
     template<typename T>
     class OutputPort;
     template<typename T>

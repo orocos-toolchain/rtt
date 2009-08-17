@@ -11,10 +11,6 @@ namespace RTT {
         class ConditionInterface;
         class DataSourceBase;
         class DispatchInterface;
-        template<
-            typename Signature
-        >
-        class EventBase;
         class InputPortInterface;
         class OutputPortInterface;
         class PortID;
@@ -28,19 +24,23 @@ namespace RTT {
         struct BlockingPolicy;
         struct DataBuf;
         struct NonBlockingPolicy;
-        template< class T >
-        class DataObject;
-        template< class T, class ReadPolicy, class WritePolicy >
-        class Buffer;
         template <class T>
         class DataObjectInterface;
-        template< class T, class ReadPolicy , class WritePolicy >
+        template<
+            typename Signature
+        >
+        class EventBase;
+        template< class T >
+        class DataObject;
+        template< class T, class ReadPolicy, class WritePolicy>
+        class Buffer;
+        template< class T, class ReadPolicy, class WritePolicy>
         class BufferLockFree;
         template<class F>
         struct CommandBase;
         template<class F>
         struct MethodBase;
-        template<class T, class ReadPolicy , class WritePolicy >
+        template<class T, class ReadPolicy, class WritePolicy>
         class BufferLocked;
         template<class T>
         class BufferInterface;

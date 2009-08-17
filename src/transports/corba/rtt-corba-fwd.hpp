@@ -17,7 +17,7 @@ namespace RTT {
         class CorbaTemplateProtocol;
         template<class T>
         struct CreateConstantHelper;
-        template<class Type, class _CorbaType = Type>
+        template<class Type, class _CorbaType>
         struct AnyConversionHelper;
         template<class Type>
         struct AnyConversion;
