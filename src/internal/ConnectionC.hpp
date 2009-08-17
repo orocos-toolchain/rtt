@@ -44,7 +44,7 @@
 #include "../Handle.hpp"
 #include "EventCallBack.hpp"
 #include "EventProcessor.hpp"
-#include "boost/function_types/function_type_arity.hpp"
+#include "../boost/function_types/function_type_arity.hpp"
 
 namespace RTT { namespace internal {
 
