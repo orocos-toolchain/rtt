@@ -39,7 +39,7 @@
 #define ORO_CORBA_CONTROLTASK_PROXY_HPP
 
 
-#include "../rtt-config.h"
+#include "../../rtt-config.h"
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif

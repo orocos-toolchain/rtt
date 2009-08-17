@@ -41,7 +41,7 @@
 
 #include <string>
 #include <vector>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "rtt-types-fwd.hpp"
 #include "../plugin/rtt-plugin-fwd.hpp"
 

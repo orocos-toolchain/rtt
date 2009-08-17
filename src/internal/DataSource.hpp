@@ -40,7 +40,7 @@
 
 #include <map>
 #include <string>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
 

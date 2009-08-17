@@ -22,7 +22,7 @@
 #define HEART_BEAT_GENERATOR_HPP
 
 #include "../Time.hpp"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace os {

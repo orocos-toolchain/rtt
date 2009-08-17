@@ -39,7 +39,7 @@
 #define EDGECONDITION_HPP
 
 #include <map>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../base/rtt-base-fwd.hpp"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.

@@ -41,7 +41,7 @@
 
 #include <string>
 #include <typeinfo>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../types/rtt-types-fwd.hpp"
 
 namespace RTT

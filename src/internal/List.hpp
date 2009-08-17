@@ -2,7 +2,7 @@
 #ifndef ORO_LIST_HPP_
 #define ORO_LIST_HPP_
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 /**
  * @file We can't use typedefs since C++ doesn't allow it for

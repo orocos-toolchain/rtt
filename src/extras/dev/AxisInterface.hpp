@@ -30,7 +30,7 @@
 #include "SensorInterface.hpp"
 #include "DigitalInput.hpp"
 #include "DigitalOutput.hpp"
-#include "../rtt-config.h"
+#include "../../rtt-config.h"
 #include <string>
 #include <vector>
 

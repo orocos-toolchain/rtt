@@ -40,7 +40,7 @@
 #define ORO_EXECUTION_ACCESS_HPP
 
 #include <string>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT

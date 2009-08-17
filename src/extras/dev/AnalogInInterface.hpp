@@ -52,7 +52,7 @@
 
 #include "NameServer.hpp"
 #include "NameServerRegistrator.hpp"
-#include "../rtt-config.h"
+#include "../../rtt-config.h"
 
 namespace RTT
 { namespace dev {

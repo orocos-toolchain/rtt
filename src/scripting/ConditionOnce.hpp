@@ -40,7 +40,7 @@
 #define CONDITIONONCE_HPP
 
 #include "../base/ConditionInterface.hpp"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace scripting {

@@ -2,7 +2,7 @@
 #ifndef ORO_QUEUE_HPP
 #define ORO_QUEUE_HPP
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 /**
  * @file We can't use typedefs since C++ doesn't allow it for

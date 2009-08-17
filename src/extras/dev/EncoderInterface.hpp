@@ -40,7 +40,7 @@
 
 #include "NameServer.hpp"
 #include "NameServerRegistrator.hpp"
-#include "../rtt-config.h"
+#include "../../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

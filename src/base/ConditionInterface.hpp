@@ -40,7 +40,7 @@
 #define CONDITIONINTERFACE_HPP
 
 #include <map>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "rtt-base-fwd.hpp"
 
 namespace RTT

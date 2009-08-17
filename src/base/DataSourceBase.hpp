@@ -44,7 +44,7 @@
 #include <map>
 #include <string>
 #include "../os/Atomic.hpp"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "ActionInterface.hpp"
 #include "../rtt-fwd.hpp"
 

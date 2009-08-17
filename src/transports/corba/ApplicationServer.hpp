@@ -39,7 +39,7 @@
 #ifndef ORO_APPLICATION_SERVER_HPP
 #define ORO_APPLICATION_SERVER_HPP
 
-#include "../rtt-config.h"
+#include "../../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "corba.h"

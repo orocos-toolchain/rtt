@@ -42,7 +42,7 @@
 #include "Types.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
 #include "../Logger.hpp"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace types {

@@ -2,7 +2,7 @@
 #define IRQ_ACTIVITY_HPP
 
 #include "../Activity.hpp"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 #ifdef OROPKG_OS_XENOMAI
 #include <native/intr.h>

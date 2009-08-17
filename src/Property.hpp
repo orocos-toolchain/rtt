@@ -38,7 +38,7 @@
 #ifndef ORO_PROPERTY_HPP
 #define ORO_PROPERTY_HPP
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "internal/PropertyCommands.hpp"
