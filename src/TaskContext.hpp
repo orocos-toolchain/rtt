@@ -41,7 +41,7 @@
 
 #include "interface/AttributeRepository.hpp"
 
-#include "../rtt-config.h"
+#include "rtt-config.h"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "interface/EventService.hpp"
 #endif
