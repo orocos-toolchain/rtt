@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal_base.hpp
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  SignalBase.hpp
 
-                        signal_base.hpp -  description
+                        SignalBase.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -68,7 +68,7 @@ namespace RTT
 {
     namespace internal {
 
-        class signal_base;
+        class SignalBase;
 
         /**
          * A connection 'memorises' the connection between an
@@ -77,12 +77,12 @@ namespace RTT
          * It is the central object which knows about one signal
          * and its slot (the latter in its derived classes).
          */
-        class RTT_API connection_base
+        class RTT_API ConnectionBase
         {
-            RTT_API friend void intrusive_ptr_add_ref(connection_base*);
-            RTT_API friend void intrusive_ptr_release(connection_base*);
+            RTT_API friend void intrusive_ptr_add_ref(ConnectionBase*);
+            RTT_API friend void intrusive_ptr_release(ConnectionBase*);
             bool mconnected;
-            signal_base* m_sig;
+            SignalBase* m_sig;
 
             /**
              * We require an internal refcount to ease self-addition
@@ -99,13 +99,13 @@ namespace RTT
              */
             void deref();
 
-            connection_base(const connection_base&);
+            ConnectionBase(const ConnectionBase&);
         protected:
-            virtual ~connection_base();
+            virtual ~ConnectionBase();
         public:
-            connection_base(signal_base* sig);
+            ConnectionBase(SignalBase* sig);
 
-            typedef boost::intrusive_ptr<connection_base> shared_ptr;
+            typedef boost::intrusive_ptr<ConnectionBase> shared_ptr;
 
             inline bool connected() { return mconnected && m_sig; }
             bool connect();
@@ -113,8 +113,8 @@ namespace RTT
             void destroy();
         };
 
-        RTT_API void intrusive_ptr_add_ref( connection_base* p );
-        RTT_API void intrusive_ptr_release( connection_base* p );
+        RTT_API void intrusive_ptr_add_ref( ConnectionBase* p );
+        RTT_API void intrusive_ptr_release( ConnectionBase* p );
 
         /**
          * The base signal class which stores connection objects.
@@ -122,10 +122,10 @@ namespace RTT
          * connection/disconnetion of a handler is always thread-safe
          * and real-time.
          */
-        class RTT_API signal_base
+        class RTT_API SignalBase
         {
         public:
-            typedef connection_base::shared_ptr        connection_t;
+            typedef ConnectionBase::shared_ptr        connection_t;
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             typedef ListLockFree<connection_t> connections_list;
 #else
@@ -138,7 +138,7 @@ namespace RTT
             typedef connections_list::iterator const_iterator;
 #endif
         protected:
-            friend class connection_base;
+            friend class ConnectionBase;
 
             void conn_setup( connection_t conn );
 
@@ -166,9 +166,9 @@ namespace RTT
 #endif
 #endif
             bool emitting;
-            signal_base();
+            SignalBase();
         public:
-            virtual ~signal_base();
+            virtual ~SignalBase();
 
             /**
              * Reserves memory for a number of connections.

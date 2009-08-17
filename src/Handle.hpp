@@ -39,7 +39,7 @@
 #ifndef ORO_CORELIB_SIGNAL_HANDLE_HPP
 #define ORO_CORELIB_SIGNAL_HANDLE_HPP
 
-#include "internal/signal_base.hpp"
+#include "internal/SignalBase.hpp"
 
 namespace RTT
 {
@@ -67,7 +67,7 @@ namespace RTT
 	class RTT_API Handle
 	{
 	private:
-		typedef internal::signal_base           sender_t; //! the signal type
+		typedef internal::SignalBase      sender_t; //! the signal type
         typedef sender_t::connection_t    connection_t; //! the connection type for the slot of this Handle
 	public:
         /**

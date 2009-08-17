@@ -57,7 +57,7 @@ namespace RTT
             typename Signature
         >
         class LocalEvent
-            : public signal<Signature>
+            : public Signal<Signature>
         {
         public:
             base::ActionInterface* clone() const { return new LocalEvent(); }

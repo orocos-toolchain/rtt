@@ -39,7 +39,7 @@
 
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
-#include "signal_base.hpp"
+#include "SignalBase.hpp"
 #include "../base/EventBase.hpp"
 #include "NA.hpp"
 
@@ -62,15 +62,15 @@ namespace RTT {
     namespace internal {
 
         template<class SlotFunction>
-        class OROCOS_SIGNAL_CONNECTION_N : public connection_base
+        class OROCOS_SIGNAL_CONNECTION_N : public ConnectionBase
         {
         public:
             typedef SlotFunction slot_function;
             typedef SlotFunction function_type;
             OROCOS_SIGNATURE_TYPEDEFS
 
-            OROCOS_SIGNAL_CONNECTION_N(signal_base* s, const slot_function& f)
-                : connection_base(s), func(f)
+            OROCOS_SIGNAL_CONNECTION_N(SignalBase* s, const slot_function& f)
+                : ConnectionBase(s), func(f)
             {
             }
 
@@ -85,7 +85,7 @@ namespace RTT {
 	template<typename R, OROCOS_SIGNATURE_TEMPLATE_PARMS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
              class SlotFunctionT = OROCOS_SIGNATURE_FUNCTION_N< R OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS OROCOS_SIGNATURE_TEMPLATE_ARGS> >
 	class OROCOS_SIGNAL_N
-        : public signal_base,
+        : public SignalBase,
           public base::EventBase< R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >
 	{
 		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNATURE_TEMPLATE_ARGS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS SlotFunctionT>& s);

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  signal_base.cxx
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  SignalBase.cxx
 
-                        signal_base.cxx -  description
+                        SignalBase.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "signal_base.hpp"
+#include "SignalBase.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
@@ -46,46 +46,46 @@
 namespace RTT {
     namespace internal {
 
-        // connection_base
+        // ConnectionBase
 
-        void intrusive_ptr_add_ref( connection_base* p ) { p->ref(); }
-        void intrusive_ptr_release( connection_base* p ) { p->deref(); }
+        void intrusive_ptr_add_ref( ConnectionBase* p ) { p->ref(); }
+        void intrusive_ptr_release( ConnectionBase* p ) { p->deref(); }
 
-        void connection_base::ref() { refcount.inc(); };
-        void connection_base::deref() { if ( refcount.dec_and_test() ) delete this; };
+        void ConnectionBase::ref() { refcount.inc(); };
+        void ConnectionBase::deref() { if ( refcount.dec_and_test() ) delete this; };
 
-        connection_base::connection_base(signal_base* sig)
+        ConnectionBase::ConnectionBase(SignalBase* sig)
             : mconnected(false), m_sig(sig)
             , refcount(0)
         {
         }
 
-        connection_base::~connection_base() {}
+        ConnectionBase::~ConnectionBase() {}
 
-        bool connection_base::connect() {
+        bool ConnectionBase::connect() {
             if( !m_sig ) return false;
             mconnected = true;
             m_sig->conn_connect(this);
             return true;
         }
-        bool connection_base::disconnect() {
+        bool ConnectionBase::disconnect() {
             if (!m_sig) return false;
             mconnected = false;
             m_sig->conn_disconnect(this);
             return true;
         }
-        void connection_base::destroy() {
+        void ConnectionBase::destroy() {
             if( !m_sig ) return;
             mconnected = false;
-            signal_base* copy = m_sig;
+            SignalBase* copy = m_sig;
             m_sig = 0;
             copy->conn_destroy(this);
             // after this point this object may be destructed !
         }
 
-        // signal_base
+        // SignalBase
 
-        void signal_base::conn_setup( connection_t conn ) {
+        void SignalBase::conn_setup( connection_t conn ) {
             // allocate empty slot in list.
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             mconnections.grow(1);
@@ -99,7 +99,7 @@ namespace RTT {
 #endif
         }
 
-        void signal_base::conn_connect( connection_t conn ) {
+        void SignalBase::conn_connect( connection_t conn ) {
             assert( conn.get() && "virtually impossible ! only connection base should call this function !" );
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
@@ -126,7 +126,7 @@ namespace RTT {
 #endif
         }
 
-        void signal_base::conn_destroy( connection_t conn ) {
+        void SignalBase::conn_destroy( connection_t conn ) {
             this->conn_disconnect(conn);
             // increase number of connections destroyed.
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
@@ -142,7 +142,7 @@ namespace RTT {
 #endif
         }
 
-        void signal_base::conn_disconnect( connection_t conn ) {
+        void SignalBase::conn_disconnect( connection_t conn ) {
             assert( conn.get() && "virtually impossible ! only connection base should call this function !" );
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
@@ -172,7 +172,7 @@ namespace RTT {
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             // NOP
 #else
-        void signal_base::cleanup() {
+        void SignalBase::cleanup() {
             // this is called from within emit().
             // mutex already locked !
 #ifdef ORO_SIGNAL_USE_RT_LIST
@@ -206,7 +206,7 @@ namespace RTT {
         }
 #endif
 
-        signal_base::signal_base() :
+        SignalBase::SignalBase() :
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             mconnections(4) // this is a 'sane' starting point, this number will be grown if required.
 #else
@@ -225,7 +225,7 @@ namespace RTT {
 #endif
     }
 
-        signal_base::~signal_base(){
+        SignalBase::~SignalBase(){
             // call destroy on all connections.
             while ( !mconnections.empty() ) {
                 if ( mconnections.front() )
@@ -242,7 +242,7 @@ namespace RTT {
             }
         }
 
-        void signal_base::reserve( size_t conns ) {
+        void SignalBase::reserve( size_t conns ) {
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             mconnections.reserve( conns );
 #endif

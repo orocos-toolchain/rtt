@@ -145,7 +145,7 @@ namespace RTT {
         typename Signature,
         typename SlotFunction = boost::function<Signature>
     >
-    class signal :
+    class Signal :
         public get_signal_impl<Signature,
                                        SlotFunction>::type
     {
@@ -154,7 +154,7 @@ namespace RTT {
                                                   SlotFunction>::type base_type;
 
     public:
-        signal() {}
+        Signal() {}
     };
 
     } // end namespace detail
