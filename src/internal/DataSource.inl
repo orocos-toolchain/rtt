@@ -6,7 +6,7 @@
 #include "DataSourceAdaptor.hpp"
 #include "../types/TypeTransporter.hpp"
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace internal {
