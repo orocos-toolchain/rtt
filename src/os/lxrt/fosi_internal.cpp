@@ -56,8 +56,8 @@
 #include "../../Logger.hpp"
 
 namespace RTT
-{ namespace os {
-    namespace lxrt {
+{
+    namespace os {
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
         {
@@ -372,6 +372,6 @@ namespace RTT
         }
 
     }
-}}
+}
 #undef INTERNAL_QUAL
 #endif
