@@ -43,8 +43,8 @@
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
-#include "boost/function_types/function_type.hpp"
-#include "boost/function_types/function_type_arity.hpp"
+#include "../boost/function_types/function_type.hpp"
+#include "../boost/function_types/function_type_arity.hpp"
 
 namespace RTT
 {
