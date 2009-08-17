@@ -45,28 +45,29 @@
 #include "../internal/DataSource.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 
     /**
      * A command which tries another command
-     * and stores the result in a DataSource<bool>.
+     * and stores the result in a internal::DataSource<bool>.
      * @see TryCommandResult.
      */
     class RTT_API TryCommand :
-        public ActionInterface
+        public base::ActionInterface
     {
-        // we must use a DataSource for correct
+        // we must use a internal::DataSource for correct
         // copy sementics ...
-        AssignableDataSource<bool>::shared_ptr _result;
-        ActionInterface* c;
+        internal::AssignableDataSource<bool>::shared_ptr _result;
+        base::ActionInterface* c;
     public:
         /**
          * Try a command.
          */
-        TryCommand( ActionInterface* command,
-                    AssignableDataSource<bool>::shared_ptr storage=0);
+        TryCommand( base::ActionInterface* command,
+                    internal::AssignableDataSource<bool>::shared_ptr storage=0);
 
         ~TryCommand();
 
@@ -77,13 +78,13 @@ namespace RTT
 
         void readArguments();
 
-        ActionInterface* theCommand() const;
+        base::ActionInterface* theCommand() const;
 
-        AssignableDataSource<bool>::shared_ptr result();
+        internal::AssignableDataSource<bool>::shared_ptr result();
 
         TryCommand* clone() const;
 
-        TryCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        TryCommand* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -92,9 +93,9 @@ namespace RTT
      * @see TryCommand
      */
     class RTT_API TryCommandResult :
-        public ConditionInterface
+        public base::ConditionInterface
     {
-        DataSource<bool>::shared_ptr c;
+        internal::DataSource<bool>::shared_ptr c;
         bool _invert;
     public:
         /**
@@ -104,33 +105,33 @@ namespace RTT
          * If \a invert is \a false, evaluate() will return the return value of the
          * original command.
          */
-        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert);
+        TryCommandResult( internal::DataSource<bool>::shared_ptr ec, bool invert);
 
         ~TryCommandResult();
 
         bool evaluate();
 
-        ConditionInterface* clone() const;
+        base::ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
-     * Evaluates a DataSource<bool> in a command. The result will be evaluated
+     * Evaluates a internal::DataSource<bool> in a command. The result will be evaluated
      * in a EvalCommandResult, so this Command returns always true : ie the evaluation
      * itself always succeeds. An EvalCommand should never be dispatched, since the
      * EvalCommandResult assumes the EvalCommand has been executed when evaluated.
      * @see EvalCommandResult
      */
     class RTT_API EvalCommand :
-        public ActionInterface
+        public base::ActionInterface
     {
         // the result
-        AssignableDataSource<bool>::shared_ptr _cache;
+        internal::AssignableDataSource<bool>::shared_ptr _cache;
         // the data to evaluate in the command.
-        DataSource<bool>::shared_ptr _ds;
+        internal::DataSource<bool>::shared_ptr _ds;
     public:
-        EvalCommand( DataSource<bool>::shared_ptr ds, AssignableDataSource<bool>::shared_ptr cache=0);
+        EvalCommand( internal::DataSource<bool>::shared_ptr ds, internal::AssignableDataSource<bool>::shared_ptr cache=0);
 
         ~EvalCommand();
 
@@ -140,11 +141,11 @@ namespace RTT
 
         void reset();
 
-        AssignableDataSource<bool>::shared_ptr cache();
+        internal::AssignableDataSource<bool>::shared_ptr cache();
 
-        ActionInterface* clone() const;
+        base::ActionInterface* clone() const;
 
-        ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -153,20 +154,20 @@ namespace RTT
      * @see EvalCommand
      */
     class RTT_API EvalCommandResult :
-        public ConditionInterface
+        public base::ConditionInterface
     {
-        DataSource<bool>::shared_ptr c;
+        internal::DataSource<bool>::shared_ptr c;
     public:
-        EvalCommandResult( DataSource<bool>::shared_ptr ec);
+        EvalCommandResult( internal::DataSource<bool>::shared_ptr ec);
 
         ~EvalCommandResult();
 
         bool evaluate();
 
-        ConditionInterface* clone() const;
+        base::ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
-}
+}}
 
 #endif

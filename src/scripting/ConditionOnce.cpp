@@ -39,8 +39,9 @@
 
 #include "ConditionOnce.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
+    using namespace base;
 
     ConditionOnce::ConditionOnce(bool what) : ran( false ), _what(what)
     {}

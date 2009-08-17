@@ -45,8 +45,9 @@
 #include "TimerThread.hpp"
 #include <cmath>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace extras;
+    using namespace base;
 
     PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r )
         : ActivityInterface(r), running(false), active(false),
@@ -183,7 +184,7 @@ namespace RTT
             runner->finalize();
     }
 
-    OS::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
+    os::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
 
     bool PeriodicActivity::isPeriodic() const {
         return true;

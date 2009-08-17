@@ -39,8 +39,8 @@
 #include "CPFMarshaller.hpp"
 #include "../rtt-config.h"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     template<class T>
     void CPFMarshaller<std::ostream>::doWrite( const Property<T> &v, const std::string& type )
     {

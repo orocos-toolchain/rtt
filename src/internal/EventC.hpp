@@ -43,8 +43,7 @@
 #include "DataSources.hpp"
 
 namespace RTT
-{
-    class EventService;
+{ namespace internal {
 
     /**
      * A user friendly event of a TaskContext.
@@ -56,7 +55,7 @@ namespace RTT
          */
         class D;
         D* d;
-        ActionInterface::shared_ptr m;
+        base::ActionInterface::shared_ptr m;
     public:
         /**
          * Default constructor.
@@ -67,9 +66,9 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see EventService
+         * @see interface::EventService
          */
-        EventC( const EventService* gcf, const std::string& name );
+        EventC( const interface::EventService* gcf, const std::string& name );
 
         /**
          * A EventC is copyable by value.
@@ -88,7 +87,7 @@ namespace RTT
          * @param a A DataSource which contents are consulted each time
          * when emit() is called.
          */
-        EventC& arg( DataSourceBase::shared_ptr a );
+        EventC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Event.
@@ -98,7 +97,7 @@ namespace RTT
         template< class ArgT >
         EventC& argC( const ArgT a )
         {
-            return this->arg( DataSourceBase::shared_ptr(new ConstantDataSource<ArgT>( a )) );
+            return this->arg( base::DataSourceBase::shared_ptr(new ConstantDataSource<ArgT>( a )) );
         }
 
         /**
@@ -110,7 +109,7 @@ namespace RTT
         template< class ArgT >
         EventC& arg( ArgT& a )
         {
-            return this->arg( DataSourceBase::shared_ptr(new ReferenceDataSource<ArgT>( a )) );
+            return this->arg( base::DataSourceBase::shared_ptr(new ReferenceDataSource<ArgT>( a )) );
         }
 
         /**
@@ -123,6 +122,6 @@ namespace RTT
          */
         bool ready() const;
     };
-}
+}}
 
 #endif

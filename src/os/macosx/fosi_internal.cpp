@@ -40,7 +40,7 @@
 #define INTERNAL_QUAL
 
 namespace RTT
-{ namespace OS { namespace detail {
+{ namespace os {
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
@@ -245,5 +245,5 @@ namespace RTT
 	}
 
     }
-}}
+}
 #undef INTERNAL_QUAL

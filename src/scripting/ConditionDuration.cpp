@@ -39,8 +39,10 @@
 
 #include "ConditionDuration.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace os;
+    using namespace scripting;
+    using namespace base;
 
     ConditionDuration::ConditionDuration( nsecs t, bool invert )
         : time( t ), hb( TimeService::Instance() ),

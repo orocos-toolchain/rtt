@@ -26,7 +26,7 @@
 #include <string>
 
 using namespace RTT;
-using namespace RTT;
+using namespace RTT::detail;
 
 class Generic_TaskTest_2
 {

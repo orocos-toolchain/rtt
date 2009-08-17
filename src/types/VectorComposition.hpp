@@ -39,13 +39,10 @@
 #define VECTOR_COMPOSITION_HPP
 
 #include <vector>
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class PropertyIntrospection;
-    class PropertyBag;
-    template<class T>
-    class Property;
+{ namespace types {
 
     /**
      * A decomposeProperty method for decomposing a vector<double>
@@ -60,7 +57,7 @@ namespace RTT
      */
     bool composeProperty(const PropertyBag& bag, std::vector<double>& result);
 
-}; // namespace RTT
+}}; // namespace RTT
 
 
 #endif

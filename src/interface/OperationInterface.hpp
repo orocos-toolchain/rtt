@@ -50,8 +50,7 @@
 #include "AttributeRepository.hpp"
 
 namespace RTT
-{
-    class ExecutionEngine;
+{ namespace interface {
 
     /**
      * The interface for accessing and executing 'operations', being commands,
@@ -151,9 +150,9 @@ namespace RTT
         virtual bool addObject( OperationInterface *obj );
 
         /**
-         * Get a pointer to a previously added TaskObject
+         * Get a pointer to a previously added internal::TaskObject
          *
-         * @param obj_name The name of the TaskObject
+         * @param obj_name The name of the internal::TaskObject
          *
          * @return the pointer
          */
@@ -172,15 +171,15 @@ namespace RTT
          * You can avoid deletion by first calling
          * @code this->getObject( obj_name )->setParent(0); @endcode
          *
-         * @param obj_name The name of the TaskObject to remove
+         * @param obj_name The name of the internal::TaskObject to remove
          *
          * @return true if found and removed, false otherwise.
          */
         virtual bool removeObject(const std::string& obj_name );
 
         /**
-         * Returns the parent OperationInterface in which this TaskObject lives.
-         * A TaskObject can have only one parent.
+         * Returns the parent OperationInterface in which this internal::TaskObject lives.
+         * A internal::TaskObject can have only one parent.
          * @return null in case no parent is set, the parent otherwise.
          */
         virtual OperationInterface* getParent() = 0;
@@ -188,19 +187,19 @@ namespace RTT
         /**
          * Set a new parent for this interface.  Do not call this
          * method directly. This function is automatically called when
-         * a TaskObject is added to another TaskObject.
+         * a internal::TaskObject is added to another TaskObject.
          */
         virtual void setParent(OperationInterface* newparent) = 0;
 
         /**
          * Set the execution engine of the parent TaskContext.  Do not
          * call this method directly. This function is automatically
-         * called when a TaskObject is added to a TaskContext.
+         * called when a internal::TaskObject is added to a TaskContext.
          */
         virtual void setEngine(ExecutionEngine* newengine) = 0;
 
     };
-}
+}}
 
 
 #endif

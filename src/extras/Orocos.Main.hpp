@@ -50,7 +50,7 @@
  *
  * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
  *
- * @section corelib Real-Time Toolkit classes (RTT)
+ * @section corelib Real-Time types::Toolkit classes (RTT)
  *
  * The classes in the RTT namespace form the application independent
  * control services which defines the portable framework for
@@ -61,19 +61,19 @@
  * RTT::Command, methods: RTT::Method, properties: RTT::Property,
  * RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort.
  *
- * A Component is run by a RTT::PeriodicActivity or
+ * A Component is run by a PeriodicActivity or
  * RTT::NonPeriodicActivity which attaches a thread to the Execution Engine.
  * The RTT::ExecutionEngine is the beating heart of each
  * component which executes the the application code, reacts to
  * events, processes commands etc.  Scripting is enabled by the
- * RTT::ScriptingAccess, XML can be read by the
- * RTT::MarshallingAccess. Many other classes are available as well.
+ * scripting::ScriptingAccess, XML can be read by the
+ * interface::MarshallingAccess. Many other classes are available as well.
  *
  * @section rttcorba CORBA support (network communication)
  *
  * Components can be connected over a network using the CORBA classes.
- * Only two classes are required: RTT::Corba::ControlTaskServer and
- * RTT::Corba::ControlTaskProxy. The former exports a local TaskContext instance
+ * Only two classes are required: RTT::corba::ControlTaskServer and
+ * RTT::corba::ControlTaskProxy. The former exports a local TaskContext instance
  * to the network, using the CORBA Naming Service if available, the latter
  * represents a remote TaskContext (located using the name or IOR) and allows
  * local TaskContexts to communicate with the remote instance.

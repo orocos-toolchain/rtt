@@ -43,17 +43,18 @@
 #include "../os/TimeService.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
     /**
      * A conditional that evaluates true after a certain time has passed.
      * The behaviour can be inverted upon construction.
      */
     class RTT_API ConditionDuration
-        : public ConditionInterface
+        : public base::ConditionInterface
     {
-        typedef TimeService::nsecs nsecs;
-        typedef TimeService::ticks ticks;
+        typedef os::TimeService::nsecs nsecs;
+        typedef os::TimeService::ticks ticks;
 
     public:
         /**
@@ -71,7 +72,7 @@ namespace RTT
 
         virtual void reset();
 
-        ConditionInterface* clone() const;
+        base::ConditionInterface* clone() const;
 
     private:
 
@@ -82,7 +83,7 @@ namespace RTT
         /**
          * A local reference to the HeartBeat Generator
          */
-        TimeService *hb;
+        os::TimeService *hb;
         /**
          * The time the evaluation is called the first time
          */
@@ -94,6 +95,6 @@ namespace RTT
         bool _invert;
     };
 
-}
+}}
 
 #endif

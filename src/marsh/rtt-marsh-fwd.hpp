@@ -17,5 +17,8 @@ namespace RTT {
         template<typename output_stream>
         class XMLRPCMarshaller;
     }
+    namespace detail {
+        using namespace marsh;
+    }
 }
 #endif

@@ -53,7 +53,7 @@ namespace RTT
 
 
 
-    namespace detail {
+    namespace internal {
 
         template<int, class F>
         class FunctorImpl;
@@ -73,7 +73,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
+            void setArguments( base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0  )
             {
             }
 
@@ -91,7 +91,7 @@ namespace RTT
                 return fun();
             }
 
-            FunctorImpl<0,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<0,FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun );
             }
@@ -114,7 +114,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
+            void setArguments( DataSource<Arg1T>* a, base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0  )
             {
                 aa = a;
             }
@@ -138,7 +138,7 @@ namespace RTT
                 return r;
             }
 
-            FunctorImpl<1,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<1,FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ) );
             }
@@ -159,7 +159,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSourceBase* = 0, DataSourceBase* = 0  )
+            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, base::DataSourceBase* = 0, base::DataSourceBase* = 0  )
             {
                 aa = a;
                 bb = b;
@@ -188,7 +188,7 @@ namespace RTT
                 return r;
             }
 
-            FunctorImpl<2,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<2,FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned));
             }
@@ -212,7 +212,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, DataSourceBase* = 0  )
+            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, base::DataSourceBase* = 0  )
             {
                 aa = a;
                 bb = b;
@@ -246,7 +246,7 @@ namespace RTT
                 return r;
             }
 
-            FunctorImpl<3,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<3,FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned), cc->copy(alreadyCloned) );
             }
@@ -311,7 +311,7 @@ namespace RTT
                 return r;
             }
 
-            FunctorImpl<4,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<4,FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned), cc->copy(alreadyCloned), dd->copy(alreadyCloned) );
             }
@@ -350,7 +350,7 @@ namespace RTT
          */
         template<typename SignatureT, typename FunctorT = Functor<SignatureT> >
         class CommandFunctor
-            :public ActionInterface
+            :public base::ActionInterface
         {
         public:
             typedef typename FunctorT::FunctionImpl Function;
@@ -381,18 +381,18 @@ namespace RTT
                 return new CommandFunctor( com );
             }
 
-            virtual CommandFunctor<Signature,FunctorT>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            virtual CommandFunctor<Signature,FunctorT>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return new CommandFunctor( FunctorT(com.copy(alreadyCloned)) );
             }
         };
 
         /**
-         * A functor with the ActionInterface, for the case where
+         * A functor with the base::ActionInterface, for the case where
          * the functor is a bool(void).
          */
         class CommandFunction
-            :public ActionInterface
+            :public base::ActionInterface
         {
         public:
             typedef boost::function<bool(void)> Function;
@@ -425,7 +425,7 @@ namespace RTT
          */
         template<typename SignatureT, typename FunctorT = Functor<SignatureT> >
         class ConditionFunctor
-            :public ConditionInterface
+            :public base::ConditionInterface
         {
         public:
             typedef typename FunctorT::FunctionImpl Function;
@@ -455,18 +455,18 @@ namespace RTT
                 return new ConditionFunctor( con, minvert );
             }
 
-            virtual ConditionFunctor<Signature,FunctorT>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            virtual ConditionFunctor<Signature,FunctorT>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return new ConditionFunctor( FunctorT(con.copy(alreadyCloned)), minvert );
             }
         };
 
         /**
-         * A functor with the ConditionInterface, for the case where
+         * A functor with the base::ConditionInterface, for the case where
          * the functor is a bool(void).
          */
         class ConditionFunction
-            :public ConditionInterface
+            :public base::ConditionInterface
         {
         public:
             typedef boost::function<bool(void)> Function;

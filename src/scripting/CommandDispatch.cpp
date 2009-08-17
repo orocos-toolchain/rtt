@@ -42,8 +42,8 @@
 #include "ConditionComposite.hpp"
 #include "../internal/CommandProcessor.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
     CommandDispatch::CommandDispatch(CommandProcessor* p, ActionInterface* c, ConditionInterface* cn )

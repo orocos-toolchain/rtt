@@ -43,7 +43,8 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * A Buffer is an object which is used to store (Push) and retrieve (Pop) values from.
      * @param T The value type stored in this buffer.
@@ -63,6 +64,6 @@ namespace RTT
         virtual ~BufferInterface()
         {}
     };
-}
+}}
 
 #endif

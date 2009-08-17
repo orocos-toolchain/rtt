@@ -71,7 +71,7 @@ namespace RTT {
             return true;
         }
 
-        OS::InitFunction RTTLoader( &loadRTT );
+        os::InitFunction RTTLoader( &loadRTT );
     }
 }
 #endif

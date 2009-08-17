@@ -41,14 +41,11 @@
 #define SIMULATIONTHREAD_HPP
 
 #include "TimerThread.hpp"
+#include "../os/rtt-os-fwd.hpp"
 
 
 namespace RTT
-{
-
-    class SimulationActivity;
-    class SimulationThread;
-    class TimeService;
+{ namespace extras {
     typedef boost::shared_ptr<SimulationThread> SimulationThreadPtr;
 
     /**
@@ -59,7 +56,7 @@ namespace RTT
      * that it appears to the activities as they are executed periodically.
      *
      * All your activities in the same program must be a SimulationActivity for this
-     * to work, since the TimeService global time is updated when this thread runs.
+     * to work, since the os::TimeService global time is updated when this thread runs.
      *
      * By default, the update period is 0.001 seconds. If you want to run
      * with a finer or coarser grained time step, use the Instance() method and
@@ -138,12 +135,12 @@ namespace RTT
         /**
          * The System clock.
          */
-        TimeService* beat;
+        os::TimeService* beat;
 
         unsigned int maxsteps_, cursteps;
 
         bool sim_running;
     };
-} // namespace RTT
+}} // namespace RTT
 
 #endif

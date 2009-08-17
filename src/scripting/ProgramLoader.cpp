@@ -49,8 +49,8 @@ using namespace boost;
 using namespace std;
 
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     ProgramLoader::ProgramLoader(bool rethrow /*=false*/)
         : mrethrow(rethrow)
     {}

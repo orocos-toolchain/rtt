@@ -55,7 +55,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * An interface for reading analog input, like
      * for addressing a whole subdevice in comedi
@@ -181,6 +182,6 @@ namespace RTT
     private:
 
     };
-};
+}};
 
 #endif

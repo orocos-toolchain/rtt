@@ -43,11 +43,13 @@
 #include "../interface/OperationInterface.hpp"
 #include "../internal/TaskObject.hpp"
 #include "DumpObject.hpp"
+#include "rtt-fwd.hpp"
 
 
 using namespace std;
+using namespace RTT::detail;
 
-namespace RTT { namespace detail {
+namespace RTT { namespace scripting {
 
 void DumpObject(OperationInterface* peer)
 {
@@ -84,5 +86,5 @@ void DumpObject(OperationInterface* peer)
         if ( *it != "this" )
             DumpObject( peer->getObject( *it ) );
 
-}
 }}
+}

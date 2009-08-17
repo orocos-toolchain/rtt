@@ -26,7 +26,8 @@
 #include <boost/checked_delete.hpp>
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * @brief An activity which executes asynchronous (defered) handlers
      * of Events.
@@ -74,6 +75,6 @@ namespace RTT
          */
         static boost::shared_ptr<CompletionProcessor> cp;
     };
-}
+}}
 
 #endif

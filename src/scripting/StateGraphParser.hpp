@@ -45,27 +45,8 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include "../internal/DataSource.hpp"
-
-namespace RTT
+namespace RTT { namespace scripting
 {
-    class StateDescription;
-    class TaskContext;
-    class FunctionGraph;
-    class ParsedStateMachine;
-    class ProgramInterface;
-    class StateMachineTask;
-    class OperationInterface;
-}
-namespace RTT { namespace detail
-{
-    class StateMachineBuilder;
-    class ProgramGraphParser;
-    class ConditionParser;
-    class ValueChangeParser;
-    class ExpressionParser;
-    class CommonParser;
-    class PeerParser;
-    class ArgumentsParser;
 
   /**
    * This is not a parser in the Boost.spirit sense of the word, it's
@@ -81,9 +62,9 @@ namespace RTT { namespace detail
   {
       // Our task we are loaded in :
       TaskContext* context;
-      // The TaskObject of the current StateMachine
+      // The internal::TaskObject of the current StateMachine
       StateMachineTask* curobject ;
-      OperationInterface* peer;
+      interface::OperationInterface* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.
@@ -91,16 +72,16 @@ namespace RTT { namespace detail
 
       typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
       typedef std::map<std::string, ParsedStateMachinePtr> machinenamemap_t;
-      typedef std::map<std::string, AttributeBase*> machineparams_t;
-      typedef std::map<std::string, DataSourceBase::shared_ptr> machineparamvalues_t;
+      typedef std::map<std::string, base::AttributeBase*> machineparams_t;
+      typedef std::map<std::string, base::DataSourceBase::shared_ptr> machineparamvalues_t;
       typedef std::map<std::string, StateDescription*> machinestatesmap_t;
       typedef std::map<std::string, StateMachineBuilder*> machinebuilders_t;
 
       machinenamemap_t rootmachines;
       machinebuilders_t machinebuilders;
       ParsedStateMachinePtr curtemplate;
-      std::vector<ActionInterface*> paraminitcommands;
-      std::vector<ActionInterface*> varinitcommands;
+      std::vector<base::ActionInterface*> paraminitcommands;
+      std::vector<base::ActionInterface*> varinitcommands;
       ParsedStateMachinePtr curinstantiatedmachine;
       StateMachineBuilder* curmachinebuilder;
       std::string curinstmachinename;
@@ -112,10 +93,10 @@ namespace RTT { namespace detail
       StateDescription* curstate;
       StateDescription* curnonprecstate;
       ProgramGraphParser* progParser;
-      boost::shared_ptr<ProgramInterface> transProgram;
+      boost::shared_ptr<base::ProgramInterface> transProgram;
       StateDescription* elsestate;
-      boost::shared_ptr<ProgramInterface> elseProgram;
-      ConditionInterface* curcondition;
+      boost::shared_ptr<base::ProgramInterface> elseProgram;
+      base::ConditionInterface* curcondition;
 #if 0
       std::string curscvcmachinename;
       std::string curscvcparamname;
@@ -128,7 +109,7 @@ namespace RTT { namespace detail
       bool isroot; //! are we instantiating a rootmachine ?
       unsigned int selectln; //! store line number of select's 'if' statement.
 
-      std::vector<DataSourceBase::shared_ptr> evargs;
+      std::vector<base::DataSourceBase::shared_ptr> evargs;
       std::string evname;
 
       rule_t production;
@@ -188,7 +169,7 @@ namespace RTT { namespace detail
       void seenexit();
       void seenhandle();
       void seenrun();
-      boost::shared_ptr<ProgramInterface> finishProgram();
+      boost::shared_ptr<base::ProgramInterface> finishProgram();
 
       void seencondition();
       void seenendcondition();

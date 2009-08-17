@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE( testEventC)
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
     h1 = cc.handle();
-    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, RTT::EventProcessor::OnlyLast );
+    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, EventProcessor::OnlyLast );
     h2 = cc.handle();
 
     h1.connect();

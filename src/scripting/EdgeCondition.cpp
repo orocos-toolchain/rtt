@@ -39,8 +39,8 @@
 #include "../base/ConditionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
     int EdgeCondition::condition_counter = 0;

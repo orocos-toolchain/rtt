@@ -41,6 +41,8 @@
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
 #include <algorithm>
+#include "rtt-fwd.hpp"
+#include "scripting/ProgramProcessor.hpp"
 
 namespace RTT
 {
@@ -52,6 +54,7 @@ namespace RTT
      */
 
     using namespace std;
+    using namespace detail;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner), estate( Stopped ),

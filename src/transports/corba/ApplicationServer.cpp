@@ -45,7 +45,7 @@
 #endif
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
 
     CORBA::ORB_var ApplicationServer::orb;

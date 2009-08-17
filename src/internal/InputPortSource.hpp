@@ -5,8 +5,7 @@
 #include "../base/PortInterface.hpp"
 
 namespace RTT
-{
-    template<typename T> class InputPort;
+{ namespace internal {
 
     /** This class represents a read port using the data source interface.
      * Beware that, depending on the connection used, ports actually change
@@ -17,7 +16,7 @@ namespace RTT
      *
      * This class should not be used directly in normal code. What you would
      * usually do is create a new read port using OutputPort::antiClone() and
-     * call InputPortInterface::getDataSource() to get the corresponding data
+     * call base::InputPortInterface::getDataSource() to get the corresponding data
      * source.  This is your duty to destroy the port when it is not needed
      * anymore.
      */
@@ -48,10 +47,10 @@ namespace RTT
         }
         DataSource<T>* clone() const
         { return new InputPortSource<T>(port); }
-        DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         { return const_cast<InputPortSource<T>*>(this); }
     };
-}
+}}
 
 #endif
 

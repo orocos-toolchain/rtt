@@ -67,7 +67,7 @@ namespace RTT
 	class RTT_API Handle
 	{
 	private:
-		typedef detail::signal_base           sender_t; //! the signal type
+		typedef internal::signal_base           sender_t; //! the signal type
         typedef sender_t::connection_t    connection_t; //! the connection type for the slot of this Handle
 	public:
         /**

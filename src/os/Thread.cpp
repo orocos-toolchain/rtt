@@ -63,12 +63,10 @@
 #define CATCH_ALL if (false)
 #endif
 
-namespace RTT
-{
-    namespace OS
+namespace RTT {
+    namespace os
     {
         using RTT::Logger;
-        using namespace detail;
 
         unsigned int Thread::default_stack_size = 0;
 
@@ -79,7 +77,7 @@ namespace RTT
             /**
              * This is one time initialisation
              */
-            Thread* task = static_cast<OS::Thread*> (t);
+            Thread* task = static_cast<os::Thread*> (t);
             Logger::In in(task->getName());
 
             task->configure();
@@ -435,7 +433,7 @@ namespace RTT
         bool Thread::setScheduler(int sched_type)
         {
             Logger::In in("Thread::setScheduler");
-            if (OS::CheckScheduler(sched_type) == false)
+            if (os::CheckScheduler(sched_type) == false)
                 return false;
             if (this->getScheduler() == sched_type)
             {

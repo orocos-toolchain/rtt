@@ -10,10 +10,7 @@
 #include "../base/Buffer.hpp"
 
 namespace RTT
-{
-    class TypeInfo;
-    template<typename T> class OutputPort;
-    template<typename T> class InputPort;
+{ namespace internal {
 
     /** This class provides the basic tools to create channels that represent
      * connections between two ports
@@ -25,24 +22,24 @@ namespace RTT
         /** This method is analoguous to the static ConnFactory::buildOutputHalf.
          * It is provided for remote connection building: for these connections,
          * no template can be used and therefore the connection setup should be
-         * done based on the TypeInfo object
+         * done based on the types::TypeInfo object
          */
-        virtual ChannelElementBase* buildOutputHalf(TypeInfo const* type_info,
-                InputPortInterface& output, ConnPolicy const& policy) = 0;
+        virtual base::ChannelElementBase* buildOutputHalf(types::TypeInfo const* type_info,
+                base::InputPortInterface& output, ConnPolicy const& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
          */
         template<typename T>
-        static ChannelElementBase* buildDataStorage(ConnPolicy const& policy)
+        static base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy)
         {
             if (policy.type == ConnPolicy::DATA)
             {
-                DataObjectInterface<T>* data_object = 0;
+                base::DataObjectInterface<T>* data_object = 0;
                 if (policy.lock_policy == ConnPolicy::LOCKED)
-                    data_object = new DataObjectLocked<T>();
+                    data_object = new base::DataObjectLocked<T>();
                 else
-                    data_object = new DataObjectLockFree<T>();
+                    data_object = new base::DataObjectLockFree<T>();
 
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 data_object->deref(); // data objects are initialized with a refcount of 1
@@ -50,13 +47,13 @@ namespace RTT
             }
             else if (policy.type == ConnPolicy::BUFFER)
             {
-                BufferInterface<T>* buffer_object = 0;
+                base::BufferInterface<T>* buffer_object = 0;
                 if (policy.lock_policy == ConnPolicy::LOCKED)
-                    buffer_object = new BufferLocked<T>(policy.size);
+                    buffer_object = new base::BufferLocked<T>(policy.size);
                 else
-                    buffer_object = new BufferLockFree<T>(policy.size);
+                    buffer_object = new base::BufferLockFree<T>(policy.size);
 
-                return new ChannelBufferElement<T>(typename BufferInterface<T>::shared_ptr(buffer_object));
+                return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object));
             }
             return NULL;
         }
@@ -73,12 +70,12 @@ namespace RTT
          * @see buildOutputHalf
          */
         template<typename T>
-        static ChannelElementBase* buildInputHalf(OutputPort<T>& port, ConnPolicy const& policy, ChannelElementBase* output_channel)
+        static base::ChannelElementBase* buildInputHalf(OutputPort<T>& port, ConnPolicy const& policy, base::ChannelElementBase* output_channel)
         {
-            ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port);
+            base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port);
             if (policy.pull)
             {
-                ChannelElementBase* data_object = buildDataStorage<T>(policy);
+                base::ChannelElementBase* data_object = buildDataStorage<T>(policy);
                 endpoint->setOutput(data_object);
                 data_object->setOutput(output_channel);
             }
@@ -96,12 +93,12 @@ namespace RTT
          * @see buildInputHalf
          */
         template<typename T>
-        static ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy)
+        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy)
         {
-            ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port);
+            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port);
             if (!policy.pull)
             {
-                ChannelElementBase* data_object = buildDataStorage<T>(policy);
+                base::ChannelElementBase* data_object = buildDataStorage<T>(policy);
                 data_object->setOutput(endpoint);
                 return data_object;
             }
@@ -109,7 +106,7 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif
 

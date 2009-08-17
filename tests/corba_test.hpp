@@ -10,6 +10,7 @@
 #include <string>
 
 using namespace RTT;
+using namespace RTT::detail;
 
 class CorbaTest
 {
@@ -20,9 +21,9 @@ public:
     TaskContext* tc;
     TaskContext* t2;
     TaskContext* tp;
-    Corba::ControlTaskServer* ts;
+    corba::ControlTaskServer* ts;
     TaskContext* tp2;
-    Corba::ControlTaskServer* ts2;
+    corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
 
     PortInterface* signalled_port;

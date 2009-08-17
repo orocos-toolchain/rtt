@@ -49,7 +49,8 @@
 #include "../base/CommandBase.hpp"
 
 namespace RTT
-{
+{ namespace extras {
+
     /**
      * This Namespace contains helper classes for the minimal and real-time
      * 'Distribution Library' of Orocos. The implementation of such a
@@ -72,7 +73,7 @@ namespace RTT
          */
         template<class CommandT, class ProtocolT>
         class DLibCommandImpl
-            : public detail::CommandBase<CommandT>
+            : public base::CommandBase<CommandT>
         {
         protected:
             int id;
@@ -92,35 +93,35 @@ namespace RTT
              * @return true if ready and succesfully sent.
              */
             bool invoke() {
-                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                if (id && (this->protocol->getCommandStatus(id) & ( base::DispatchInterface::Ready | base::DispatchInterface::Done) ) )
                     return protocol->sendCommand(id);
                 return false;
             }
 
             template<class T1>
             bool invoke( T1 a1 ) {
-                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                if (id && (this->protocol->getCommandStatus(id) & ( base::DispatchInterface::Ready | base::DispatchInterface::Done) ) )
                     return protocol->sendCommand(id, a1);
                 return false;
             }
 
             template<class T1, class T2>
             bool invoke( T1 a1, T2 a2 ) {
-                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                if (id && (this->protocol->getCommandStatus(id) & ( base::DispatchInterface::Ready | base::DispatchInterface::Done) ) )
                     return protocol->sendCommand(id, a1, a2);
                 return false;
             }
 
             template<class T1, class T2, class T3>
             bool invoke( T1 a1, T2 a2, T3 a3 ) {
-                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                if (id && (this->protocol->getCommandStatus(id) & ( base::DispatchInterface::Ready | base::DispatchInterface::Done) ) )
                     return protocol->sendCommand(id, a1, a2, a3);
                 return false;
             }
 
             template<class T1, class T2, class T3, class T4>
             bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
-                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                if (id && (this->protocol->getCommandStatus(id) & ( base::DispatchInterface::Ready | base::DispatchInterface::Done) ) )
                     return protocol->sendCommand(id, a1, a2, a3, a4);
                 return false;
             }
@@ -137,7 +138,7 @@ namespace RTT
          */
         template<class CommandT, class ProtocolT>
         class DLibCommand
-            : public detail::Invoker<CommandT,DLibCommandImpl<CommandT,ProtocolT> >
+            : public internal::Invoker<CommandT,DLibCommandImpl<CommandT,ProtocolT> >
         {
         public:
             typedef CommandT Signature;
@@ -161,7 +162,7 @@ namespace RTT
 
             virtual bool ready() const {
                 unsigned int st = this->protocol->getCommandStatus(this->id);
-                return st == DispatchInterface::Ready || st == DispatchInterface::Done;
+                return st == base::DispatchInterface::Ready || st == base::DispatchInterface::Done;
             }
 
             virtual bool dispatch() {
@@ -173,7 +174,7 @@ namespace RTT
             }
 
             virtual bool done() const {
-                return this->protocol->getCommandStatus(this->id) == DispatchInterface::Done;
+                return this->protocol->getCommandStatus(this->id) == base::DispatchInterface::Done;
             }
 
             virtual void reset() {
@@ -181,24 +182,24 @@ namespace RTT
             }
 
             virtual bool sent() const {
-                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Sent;
+                return this->protocol->getCommandStatus(this->id) >= base::DispatchInterface::Sent;
             }
 
             virtual bool accepted() const {
-                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Accepted;
+                return this->protocol->getCommandStatus(this->id) >= base::DispatchInterface::Accepted;
             }
 
             virtual bool executed() const {
-                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Executed;
+                return this->protocol->getCommandStatus(this->id) >= base::DispatchInterface::Executed;
             }
 
             virtual bool valid() const {
-                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Valid;
+                return this->protocol->getCommandStatus(this->id) >= base::DispatchInterface::Valid;
             }
 
-            virtual ConditionInterface* createCondition() const
+            virtual base::ConditionInterface* createCondition() const
             {
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&DLibCommand::done), this) );
+                return new internal::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&DLibCommand::done), this) );
             }
 
             /**
@@ -208,14 +209,14 @@ namespace RTT
              *
              * @return
              */
-            virtual DispatchInterface* clone() const {
+            virtual base::DispatchInterface* clone() const {
                 return new DLibCommand(*this);
             }
 
-            virtual detail::CommandBase<CommandT>* cloneI() const {
+            virtual base::CommandBase<CommandT>* cloneI() const {
                 return new DLibCommand(*this);
             }
         };
     }
-}
+}}
 #endif

@@ -49,9 +49,8 @@
 
 namespace RTT
 {
-    class DigitalOutInterface;
 
-    namespace OS
+    namespace os
     {
         /**
          * A Thread object executes user code in its own thread.
@@ -107,7 +106,7 @@ namespace RTT
          * safe value.
          * @see setPeriod, setScheduler, setPriority, setStackSize
          */
-        class RTT_API Thread: public OS::ThreadInterface
+        class RTT_API Thread: public ThreadInterface
         {
             friend void* thread_function(void* t);
 
@@ -200,27 +199,27 @@ namespace RTT
             void emergencyStop();
 
             /**
-             * @see RTT::RunnableInterface::step()
+             * @see base::RunnableInterface::step()
              */
             virtual void step();
 
             /**
-             * @see RTT::RunnableInterface::loop()
+             * @see base::RunnableInterface::loop()
              */
             virtual void loop();
 
             /**
-             * @see RTT::RunnableInterface::breakLoop()
+             * @see base::RunnableInterface::breakLoop()
              */
             virtual bool breakLoop();
 
             /**
-             * @see RTT::RunnableInterface::initialize()
+             * @see base::RunnableInterface::initialize()
              */
             virtual bool initialize();
 
             /**
-             * @see RTT::RunnableInterface::finalize()
+             * @see base::RunnableInterface::finalize()
              */
             virtual void finalize();
         private:
@@ -295,7 +294,7 @@ namespace RTT
 
 #ifdef OROPKG_OS_THREAD_SCOPE
             // Pointer to Threadscope device
-            DigitalOutInterface * d;
+            dev::DigitalOutInterface * d;
 #endif
         };
 

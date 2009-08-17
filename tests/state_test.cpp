@@ -28,7 +28,6 @@
 #include <scripting/DumpObject.hpp>
 #endif
 #include <extras/SimulationThread.hpp>
-#include <internal/CommandFunctor.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
 #include <scripting/StateMachine.hpp>
@@ -887,19 +886,19 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
     BOOST_CHECK( sm );
-    CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
-    CommandInterface* cs = newCommandFunctor(boost::bind(&StateMachine::automatic,sm ));
+    Command<bool(void)> act = tc->getObject("x")->commands()->getCommand<bool(void)>("activate");
+    Command<bool(void)> autom = tc->getObject("x")->commands()->getCommand<bool(void)>("automatic");
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( ca->execute()  );
+    BOOST_CHECK( act()  );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( gtc.engine()->commands()->process( cs ) != 0 );
+    BOOST_CHECK( autom() );
 //     while (1)
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
-    delete ca;
-    delete cs;
+
 //     cerr << "After run :"<<endl;
 //     tc->getPeer("states")->getPeer("x")->debug(true);
 // //     tc->getPeer("__states")->getPeer("X")->debug(false);

@@ -38,8 +38,8 @@
 
 #include "../base/ConditionInterface.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
   DataSourceCondition::DataSourceCondition( ConditionInterface* c )
       : cond( c ), result(false)
   {

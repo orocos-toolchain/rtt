@@ -42,14 +42,15 @@
 #include "../base/ConditionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
     /**
      * A conditional that evaluates true
      */
 
     class RTT_API ConditionTrue
-                : public ConditionInterface
+                : public base::ConditionInterface
     {
 
         public:
@@ -64,12 +65,12 @@ namespace RTT
                 return true;
             }
 
-            virtual ConditionInterface* clone() const
+            virtual base::ConditionInterface* clone() const
             {
                 return new ConditionTrue;
             }
     };
 
-}
+}}
 
 #endif

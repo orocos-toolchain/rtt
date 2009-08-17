@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace base
     {
         /**
          * The base class for all command implementations. Both local and remove
@@ -52,7 +52,7 @@ namespace RTT
          */
         template<class F>
         struct CommandBase
-            : public InvokerBase<F>,
+            : public internal::InvokerBase<F>,
               public DispatchInterface
         {
             virtual ~CommandBase() {}

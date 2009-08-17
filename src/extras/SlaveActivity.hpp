@@ -47,10 +47,11 @@
 #endif
 
 namespace RTT
-{
+{ namespace extras {
+
 
     /**
-     * @brief An ActivityInterface implementation which executes
+     * @brief An base::ActivityInterface implementation which executes
      * 'step' upon the invocation of 'execute()', which is called by
      * another Activity ('master').  The SlaveActivity can only be started if the
      * master is active or if no master is present. If a master is used,
@@ -71,10 +72,10 @@ namespace RTT
      *
      * \section ExecReact Reactions to execute():
      *
-     * In the non periodic case, RunnableInterface::loop() is called, in the
-     * periodic case, RunnableInterface::step() is called. In case the
-     * RunnableInterface did not implement loop(), step() is invoked by default.
-     * If no RunnableInterface is given, said functions are called upon
+     * In the non periodic case, base::RunnableInterface::loop() is called, in the
+     * periodic case, base::RunnableInterface::step() is called. In case the
+     * base::RunnableInterface did not implement loop(), step() is invoked by default.
+     * If no base::RunnableInterface is given, said functions are called upon
      * SlaveActivity itself.
      *
      * \section TrigReact Reactions to trigger(): 
@@ -87,7 +88,7 @@ namespace RTT
      * @ingroup CoreLibActivities
      */
     class RTT_API SlaveActivity
-        :public ActivityInterface
+        :public base::ActivityInterface
     {
     public:
         /**
@@ -95,7 +96,7 @@ namespace RTT
          * @param master The activity which will execute this activity.
          * @param run Run this instance.
          */
-        SlaveActivity( ActivityInterface* master, RunnableInterface* run = 0 );
+        SlaveActivity( base::ActivityInterface* master, base::RunnableInterface* run = 0 );
 
         /**
          * Create an activity which is periodic. If \a period == 0.0, this constructor
@@ -103,23 +104,23 @@ namespace RTT
          * @param period The periodicity at which you will \a trigger() this activity.
          * @param run Run this instance.
          */
-        SlaveActivity( double period, RunnableInterface* run = 0 );
+        SlaveActivity( double period, base::RunnableInterface* run = 0 );
 
         /**
          * Create an activity for which \a trigger() will not be periodically called.
          * The period of this activity will be 0.0.
          * @param run Run this instance.
          */
-        SlaveActivity( RunnableInterface* run = 0 );
+        SlaveActivity( base::RunnableInterface* run = 0 );
 
         /**
-         * Cleanup and notify the RunnableInterface that we are gone.
+         * Cleanup and notify the base::RunnableInterface that we are gone.
          */
         ~SlaveActivity();
 
         Seconds getPeriod() const;
 
-        OS::ThreadInterface* thread();
+        os::ThreadInterface* thread();
 
         bool initialize();
         void step();
@@ -146,13 +147,13 @@ namespace RTT
 
         bool trigger();
     private:
-        ActivityInterface* mmaster;
+        base::ActivityInterface* mmaster;
         double mperiod;
         bool running;
         bool active;
 };
 
-}
+}}
 
 
 #endif

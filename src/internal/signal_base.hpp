@@ -66,7 +66,8 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
+
         class signal_base;
 
         /**
@@ -87,7 +88,7 @@ namespace RTT
              * We require an internal refcount to ease self-addition
              * and removal of this connection.
              */
-            OS::AtomicInt refcount;
+            os::AtomicInt refcount;
 
             /**
              * Increase the reference count by one.
@@ -126,10 +127,10 @@ namespace RTT
         public:
             typedef connection_base::shared_ptr        connection_t;
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-            typedef RTT::ListLockFree<connection_t> connections_list;
+            typedef ListLockFree<connection_t> connections_list;
 #else
 #ifdef ORO_SIGNAL_USE_RT_LIST
-            typedef RTT::OS::rt_list< connection_t >    connections_list;
+            typedef RTT::os::rt_list< connection_t >    connections_list;
 #else
             typedef std::list< connection_t > connections_list;
 #endif
@@ -156,7 +157,7 @@ namespace RTT
              */
             void cleanup();
 
-            RTT::OS::MutexRecursive m;
+            RTT::os::MutexRecursive m;
             iterator itend;
 #ifdef ORO_SIGNAL_USE_RT_LIST
             int disconcount;

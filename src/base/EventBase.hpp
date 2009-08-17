@@ -46,21 +46,21 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace base
     {
         /**
          * The base class of Event implementations.
          */
         template<
-            typename Signature // function type R (T1, T2, ..., TN)
+            typename Signature
         >
         class EventBase
-            : public detail::InvokerBase<Signature>,
-              public detail::SubscriberBase<Signature>,
+            : public internal::InvokerBase<Signature>,
+              public internal::SubscriberBase<Signature>,
               public ActionInterface
         {
         public:
-            typedef typename detail::SubscriberBase<Signature>::SlotFunction SlotFunction;
+            typedef typename internal::SubscriberBase<Signature>::SlotFunction SlotFunction;
 
             void readArguments() {}
             bool execute() {return false;}

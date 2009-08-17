@@ -52,30 +52,30 @@
 #include "../../scripting/ScriptingAccess.hpp"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
 
     /**
-     * A Corba Proxy for the ScriptingAccess class.
+     * A Corba Proxy for the scripting::ScriptingAccess class.
      */
     class RTT_CORBA_API ScriptingAccessProxy
-        : public RTT::ScriptingAccess
+        : public scripting::ScriptingAccess
     {
     protected:
-        Corba::ScriptingAccess_var msa;
+        corba::ScriptingAccess_var msa;
     public:
-        ScriptingAccessProxy( Corba::ScriptingAccess_ptr sa )
-            : ScriptingAccess( 0 ),
-              msa( Corba::ScriptingAccess::_duplicate( sa ) )
+        ScriptingAccessProxy( corba::ScriptingAccess_ptr sa )
+            : scripting::ScriptingAccess( 0 ),
+            msa( corba::ScriptingAccess::_duplicate( sa ) )
         {}
 
         virtual ~ScriptingAccessProxy();
 
-        using ScriptingAccess::loadPrograms;
-        using ScriptingAccess::loadStateMachines;
+        using scripting::ScriptingAccess::loadPrograms;
+        using scripting::ScriptingAccess::loadStateMachines;
 
         virtual int execute( const std::string& code );
-        virtual DispatchInterface::shared_ptr getCommand( int ticket );
+        virtual base::DispatchInterface::shared_ptr getCommand( int ticket );
 
         virtual bool hasProgram( std::string name) const;
         virtual bool loadPrograms( std::string code, std::string filename, bool do_throw = false );

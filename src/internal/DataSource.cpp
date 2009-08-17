@@ -41,8 +41,15 @@
 #include "../types/Types.hpp"
 #include "../types/TypeTransporter.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    namespace base {
+        std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr mobj)
+        {
+            return mobj->getTypeInfo()->write( os, mobj );
+        }
+    }
+
+    using namespace detail;
 
     DataSourceBase::DataSourceBase() : refcount(0) {  }
     void DataSourceBase::ref() const { refcount.inc(); }
@@ -62,11 +69,6 @@ namespace RTT
         return mobj->getTypeInfo()->write( os, mobj );
     }
 
-
-    std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr mobj)
-    {
-        return mobj->getTypeInfo()->write( os, mobj );
-    }
 
     std::string DataSourceBase::toString()
     {
@@ -164,7 +166,7 @@ namespace RTT
         return 0;
     }
 
-    namespace detail {
+    namespace internal {
 
         TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
 
@@ -197,12 +199,12 @@ namespace RTT
     }
 }
 
-void intrusive_ptr_add_ref(const RTT::DataSourceBase* p )
+void intrusive_ptr_add_ref(const RTT::base::DataSourceBase* p )
 {
   p->ref();
 }
 
-void intrusive_ptr_release(const RTT::DataSourceBase* p )
+void intrusive_ptr_release(const RTT::base::DataSourceBase* p )
 {
   p->deref();
 };

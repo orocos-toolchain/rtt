@@ -43,7 +43,8 @@
 #include "BufferBase.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * This interface describes a write interface for value types.
      * @param T The value type write into this buffer.
@@ -77,7 +78,7 @@ namespace RTT
 
     };
 
-}
+}}
 
 #endif // WRITEINTERFACE_HPP
 

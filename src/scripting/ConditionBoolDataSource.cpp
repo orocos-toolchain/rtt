@@ -36,8 +36,8 @@
  ***************************************************************************/
 #include "ConditionBoolDataSource.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
   ConditionBoolDataSource::~ConditionBoolDataSource()
   {
       // data is shared_ptr !

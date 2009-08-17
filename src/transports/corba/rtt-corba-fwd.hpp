@@ -26,5 +26,8 @@ namespace RTT {
         template<typename T>
         class RemoteChannelElement;
     }
+    namespace detail {
+        using namespace corba;
+    }
 }
 #endif

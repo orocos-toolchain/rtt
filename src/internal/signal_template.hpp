@@ -59,7 +59,7 @@
 
 namespace RTT {
 
-    namespace detail {
+    namespace internal {
 
         template<class SlotFunction>
         class OROCOS_SIGNAL_CONNECTION_N : public connection_base
@@ -82,19 +82,17 @@ namespace RTT {
             slot_function func;
         };
 
-    }
-
 	template<typename R, OROCOS_SIGNATURE_TEMPLATE_PARMS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
              class SlotFunctionT = OROCOS_SIGNATURE_FUNCTION_N< R OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS OROCOS_SIGNATURE_TEMPLATE_ARGS> >
 	class OROCOS_SIGNAL_N
-        : public detail::signal_base,
-          public detail::EventBase< R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >
+        : public signal_base,
+          public base::EventBase< R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >
 	{
 		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNATURE_TEMPLATE_ARGS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS SlotFunctionT>& s);
 
 	public:
         typedef SlotFunctionT slot_function_type;
-        typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunctionT> connection_impl;
+        typedef OROCOS_SIGNAL_CONNECTION_N<SlotFunctionT> connection_impl;
 
         typedef R result_type;
         OROCOS_SIGNATURE_ARG_TYPES
@@ -114,8 +112,8 @@ namespace RTT {
         }
 #endif
     public:
-        using detail::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::connect;
-        using detail::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::setup;
+        using base::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::connect;
+        using base::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::setup;
 
 		OROCOS_SIGNAL_N()
 		{
@@ -153,9 +151,9 @@ namespace RTT {
                                                     ) );
             this->emitting = false;
 #else
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             if (this->emitting)
-                return detail::NA<R>::na(); // avoid uglyness : Handlers calling emit.
+                return NA<R>::na(); // avoid uglyness : Handlers calling emit.
             this->emitting = true;
             iterator it = mconnections.begin();
             const_iterator end = mconnections.end();
@@ -167,7 +165,7 @@ namespace RTT {
             this->emitting = false;
             this->cleanup();
 #endif
-            return detail::NA<R>::na();
+            return NA<R>::na();
 		}
 
 		R operator()(OROCOS_SIGNATURE_PARMS)
@@ -183,7 +181,7 @@ namespace RTT {
         virtual int arity() const { return OROCOS_SIGNATURE_NUM_ARGS; }
 	};
 
-} // namespace sigslot
+}} // namespace sigslot
 
 
 #undef OROCOS_SIGNAL_N

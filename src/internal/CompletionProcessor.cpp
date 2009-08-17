@@ -40,8 +40,8 @@
 #include "../os/threads.hpp"
 
 #include "../os/StartStopManager.hpp"
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
    namespace {
        // this function is required to cleanup the CP
        // resources before the OS is being 'cleaned up'.
@@ -49,12 +49,12 @@ namespace RTT
        {
            CompletionProcessor::Release();
        }
-       OS::CleanupFunction CPPCleanup( &stopCPPThread );
+       os::CleanupFunction CPPCleanup( &stopCPPThread );
    }
 }
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     boost::shared_ptr<CompletionProcessor> CompletionProcessor::cp;
 
@@ -80,7 +80,7 @@ namespace RTT
     }
 
     CompletionProcessor::CompletionProcessor()
-        : Activity( OS::LowestPriority + 2* OS::IncreasePriority, 0, 
+        : Activity( os::LowestPriority + 2* os::IncreasePriority, 0, 
                     this, "CompletionProcessor" ) // execute 'BlockingEventProcessor' base class.
     {
         Logger::log() << Logger::Info << "CompletionProcessor created with priority ";

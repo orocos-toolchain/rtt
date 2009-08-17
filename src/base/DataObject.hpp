@@ -53,7 +53,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * This object represents the default thread-safe data object implementation used
      * by Orocos objects.
@@ -86,7 +87,7 @@ namespace RTT
 #endif
         {}
     };
-}
+}}
 
 #endif
 

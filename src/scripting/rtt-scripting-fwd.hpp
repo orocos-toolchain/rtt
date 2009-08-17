@@ -24,7 +24,6 @@ namespace RTT {
         class ConditionExecFunction;
         class ConditionExpire;
         class ConditionFalse;
-        class ConditionInterface;
         class ConditionInvert;
         class ConditionOnce;
         class ConditionParser;
@@ -40,8 +39,6 @@ namespace RTT {
         class FunctionFactory;
         class FunctionGraph;
         class FunctionGraphBuilder;
-        class GraphEdgeCopier;
-        class GraphVertexCopier;
         class ParsedStateMachine;
         class Parser;
         class ParserExecutionAccess;
@@ -73,8 +70,6 @@ namespace RTT {
         struct CommandDataSource;
         struct CommandDataSourceBool;
         struct Dispatcher;
-        struct Status;
-        struct X;
         struct eol_skip_functor;
         struct wrong_context_params_exception;
         template<class CommandT>
@@ -85,6 +80,9 @@ namespace RTT {
         class FunctorDS1;
         template<typename T, typename compare_op>
         class ConditionCompare;
+    }
+    namespace detail {
+        using namespace scripting;
     }
 }
 #endif

@@ -43,7 +43,8 @@
 #include <string>
 
 namespace RTT
-{
+{ namespace marsh {
+
     /**
      * @brief A TinyXML demarshaller for extracting properties and property bags
      * from a Component Property File (CPF) following the CORBA 3 standard.
@@ -59,5 +60,5 @@ namespace RTT
         ~TinyDemarshaller();
         virtual bool deserialize( PropertyBag &v );
     };
-}
+}}
 #endif

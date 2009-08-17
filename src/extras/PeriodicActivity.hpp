@@ -49,7 +49,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace extras {
+
 
     /**
      * @brief A PeriodicActivity is the general implementation of a Activity
@@ -59,7 +60,7 @@ namespace RTT
      * PeriodicActivities having the same priority and periodicity will be executed
      * in the same TimerThread one after the other.
      *
-     * It will execute a RunnableInterface, or the equivalent methods in
+     * It will execute a base::RunnableInterface, or the equivalent methods in
      * it's own interface when none is given.
      * When initialize() returns false, it will abort start().
      * If the PeriodicActivity is stop()'ed, finalize()
@@ -67,7 +68,7 @@ namespace RTT
      * @ingroup CoreLibActivities
      */
     class RTT_API PeriodicActivity
-        : public ActivityInterface
+        : public base::ActivityInterface
     {
     public:
 
@@ -82,9 +83,9 @@ namespace RTT
          * @param period
          *        The periodicity of the PeriodicActivity
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          */
-        PeriodicActivity(int priority, Seconds period, RunnableInterface* r=0 );
+        PeriodicActivity(int priority, Seconds period, base::RunnableInterface* r=0 );
 
         /**
          * @brief Create a Periodic Activity with a given scheduler type, priority and period.
@@ -99,9 +100,9 @@ namespace RTT
          * @param period
          *        The periodicity of the PeriodicActivity
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          */
-        PeriodicActivity(int scheduler, int priority, Seconds period, RunnableInterface* r=0 );
+        PeriodicActivity(int scheduler, int priority, Seconds period, base::RunnableInterface* r=0 );
 
 
         /**
@@ -111,9 +112,9 @@ namespace RTT
          *        The thread this Activity will be run in. Both period and priority of this activity
          *        will be the same as \a thread.
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          */
-        PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r=0);
+        PeriodicActivity(TimerThreadPtr thread, base::RunnableInterface* r=0);
 
         /**
          * @brief Create a Periodic Activity with a given period and thread.
@@ -124,9 +125,9 @@ namespace RTT
          *        The thread this Activity will be run in. The given \a period must be a
          *        multiple of the thread's period.
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          */
-        PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r=0 );
+        PeriodicActivity(Seconds period, TimerThreadPtr thread, base::RunnableInterface* r=0 );
 
         /**
          * @brief Create a Periodic Activity with a given period and thread.
@@ -139,9 +140,9 @@ namespace RTT
          *        The thread this Activity will be run in. The given period (\a sec, \a nsec) must be a
          *        multiple of the thread's period.
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          */
-        PeriodicActivity(secs sec, nsecs nsec, TimerThreadPtr thread, RunnableInterface* r=0 );
+        PeriodicActivity(secs sec, nsecs nsec, TimerThreadPtr thread, base::RunnableInterface* r=0 );
 
         /**
          * Stops and terminates a PeriodicActivity
@@ -164,20 +165,20 @@ namespace RTT
 
         virtual Seconds getPeriod() const;
 
-        virtual OS::ThreadInterface* thread();
+        virtual os::ThreadInterface* thread();
 
         /**
-         * @see RunnableInterface::initialize()
+         * @see base::RunnableInterface::initialize()
          */
         virtual bool initialize();
 
         /**
-         * @see RunnableInterface::step()
+         * @see base::RunnableInterface::step()
          */
         virtual void step();
 
         /**
-         * @see RunnableInterface::finalize()
+         * @see base::RunnableInterface::finalize()
          */
         virtual void finalize();
 
@@ -200,6 +201,6 @@ namespace RTT
         TimerThreadPtr thread_;
     };
 
-}
+}}
 
 #endif

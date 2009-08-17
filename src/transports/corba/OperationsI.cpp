@@ -72,10 +72,11 @@
 #include "../../scripting/DataSourceCondition.hpp"
 #include "../../scripting/CommandDataSource.hpp"
 #include "../../Logger.hpp"
+#include "../../rtt-detail-fwd.hpp"
 
 
 using namespace RTT;
-using namespace RTT::Corba;
+using namespace RTT::detail;
 
 
 // Implementation skeleton constructor
@@ -102,30 +103,30 @@ CORBA::Boolean Orocos_Action_i::execute (
 }
 
 CORBA::Boolean Orocos_Action_i::executeAny (
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
 	  )) {
-      RTT::MethodC mgen = morig;
+      MethodC mgen = morig;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
+            mgen.arg( DataSourceBase::shared_ptr( new RTT::corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
-            throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
+            throw ::RTT::corba::WrongNumbArgException( args.length()+1, args.length() );
         delete mcom;
         if ( dynamic_cast< DataSource<bool>* >(mgen.getDataSource().get() ) )
             mcom = new CommandDataSourceBool( dynamic_cast<DataSource<bool>*>(mgen.getDataSource().get() ));
         else
             mcom = new CommandDataSource( mgen.getDataSource() );
         return this->execute();
-    } catch ( RTT::wrong_number_of_args_exception& wna ) {
-        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
-    } catch ( RTT::wrong_types_of_args_exception& wta ) {
-        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    } catch ( wrong_number_of_args_exception& wna ) {
+        throw ::RTT::corba::WrongNumbArgException( wna.wanted, wna.received );
+    } catch ( wrong_types_of_args_exception& wta ) {
+        throw ::RTT::corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
     return false;
   }
@@ -174,12 +175,12 @@ CORBA::Boolean Orocos_Command_i::execute (
 }
 
 CORBA::Boolean Orocos_Command_i::executeAny (
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
 	  )) {
     // if morig is already set, we can not create a new command.
     if ( morig->ready() ) {
@@ -190,21 +191,21 @@ CORBA::Boolean Orocos_Command_i::executeAny (
       *mcomm = *morig;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mcomm->arg( DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
+            mcomm->arg( DataSourceBase::shared_ptr( new RTT::corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mcomm->ready() )
-            throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
+            throw ::RTT::corba::WrongNumbArgException( args.length()+1, args.length() );
         return this->execute();
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
     return false;
   }
 
 
-RTT::Corba::CommandStatus Orocos_Command_i::status ( 
+RTT::corba::CommandStatus Orocos_Command_i::status ( 
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -213,18 +214,18 @@ RTT::Corba::CommandStatus Orocos_Command_i::status (
     int status = mcomm->status();
     switch(status)
     {
-    case DispatchInterface::NotReady:     return RTT::Corba::NotReady;
-    case DispatchInterface::Ready:        return RTT::Corba::Ready;
-    case DispatchInterface::Sent:         return RTT::Corba::Sent;
-    case DispatchInterface::NotAccepted:  return RTT::Corba::NotAccepted;
-    case DispatchInterface::Accepted:     return RTT::Corba::Accepted;
-    case DispatchInterface::Executed:     return RTT::Corba::Executed;
-    case DispatchInterface::NotValid:     return RTT::Corba::NotValid;
-    case DispatchInterface::Valid:        return RTT::Corba::Valid;
-    case DispatchInterface::Done:         return RTT::Corba::Done;
+    case DispatchInterface::NotReady:     return RTT::corba::NotReady;
+    case DispatchInterface::Ready:        return RTT::corba::Ready;
+    case DispatchInterface::Sent:         return RTT::corba::Sent;
+    case DispatchInterface::NotAccepted:  return RTT::corba::NotAccepted;
+    case DispatchInterface::Accepted:     return RTT::corba::Accepted;
+    case DispatchInterface::Executed:     return RTT::corba::Executed;
+    case DispatchInterface::NotValid:     return RTT::corba::NotValid;
+    case DispatchInterface::Valid:        return RTT::corba::Valid;
+    case DispatchInterface::Done:         return RTT::corba::Done;
     default:
         log(Error) << "wrong status " << status << " returned by command object" << endlog();
-        return RTT::Corba::NotReady;
+        return RTT::corba::NotReady;
     }
 }
 

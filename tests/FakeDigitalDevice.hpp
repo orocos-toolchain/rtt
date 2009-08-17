@@ -34,6 +34,7 @@
 
 namespace RTT
 {
+    using namespace dev;
     /**
      * A Fake (Simulated) Digital Input/Output Device which replicates the inputs
      * on its outputs.

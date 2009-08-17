@@ -40,8 +40,10 @@
 #pragma implementation
 #endif
 #include "ActionInterface.hpp"
+#include "rtt-fwd.hpp"
 
 namespace RTT {
+    using namespace detail;
   ActionInterface::~ActionInterface() {
   }
 

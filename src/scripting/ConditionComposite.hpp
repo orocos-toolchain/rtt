@@ -40,33 +40,34 @@
 
 #include "../base/ConditionInterface.hpp"
 
-namespace RTT {
+namespace RTT { namespace scripting {
+
 
   /**
    * Compose an 'AND' function of two Conditions.
    */
   class RTT_API ConditionBinaryCompositeAND
-    : public ConditionInterface
+    : public base::ConditionInterface
   {
-    ConditionInterface* lhs;
-    ConditionInterface* rhs;
+    base::ConditionInterface* lhs;
+    base::ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeAND( ConditionInterface* l, ConditionInterface* r )
+    ConditionBinaryCompositeAND( base::ConditionInterface* l, base::ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual ConditionInterface* clone() const
+    virtual base::ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeAND( lhs->clone(), rhs->clone() );
       }
 
-      ConditionBinaryCompositeAND* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      ConditionBinaryCompositeAND* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new ConditionBinaryCompositeAND(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
       }
 
@@ -93,27 +94,27 @@ namespace RTT {
      * Compose an 'OR' function of two Conditions.
      */
   class RTT_API ConditionBinaryCompositeOR
-    : public ConditionInterface
+    : public base::ConditionInterface
   {
-    ConditionInterface* lhs;
-    ConditionInterface* rhs;
+    base::ConditionInterface* lhs;
+    base::ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeOR( ConditionInterface* l, ConditionInterface* r )
+    ConditionBinaryCompositeOR( base::ConditionInterface* l, base::ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual ConditionInterface* clone() const
+    virtual base::ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeOR( lhs->clone(), rhs->clone() );
       }
 
-      ConditionBinaryCompositeOR* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      ConditionBinaryCompositeOR* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new ConditionBinaryCompositeOR(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
       }
 
@@ -138,20 +139,20 @@ namespace RTT {
   };
 
   class RTT_API ConditionCompositeNOT
-    : public ConditionInterface
+    : public base::ConditionInterface
   {
-    ConditionInterface* cond;
+    base::ConditionInterface* cond;
   public:
-    ConditionCompositeNOT( ConditionInterface* c )
+    ConditionCompositeNOT( base::ConditionInterface* c )
       : cond( c )
       {
       }
     ~ConditionCompositeNOT();
     bool evaluate();
     ConditionCompositeNOT* clone() const;
-    ConditionCompositeNOT* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+    ConditionCompositeNOT* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     void reset();
   };
-}
+}}
 
 #endif

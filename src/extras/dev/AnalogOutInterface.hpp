@@ -54,7 +54,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
 
     /**
      * An interface for writing analog output, like
@@ -189,6 +190,6 @@ namespace RTT
          */
         static NameServer<AnalogOutInterface*> nameserver;
     };
-}
+}}
 
 #endif

@@ -43,7 +43,8 @@
 #include "../os/TimeService.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * A conditional that evaluates \a true until
      * a certain time has elapsed since construction
@@ -51,18 +52,18 @@ namespace RTT
      */
 
     class RTT_API ConditionExpire
-        : public ConditionInterface
+        : public base::ConditionInterface
     {
-        typedef TimeService::ticks ticks;
+        typedef os::TimeService::ticks ticks;
 
     public:
         /**
          * Create a Condition that evaluates to false when t is reached
-         * @param t the time in TimeService::ticks on and after which the condition
+         * @param t the time in os::TimeService::ticks on and after which the condition
          *          will evaluate to false
          */
         ConditionExpire( ticks t )
-            : time( t ), hb( TimeService::Instance() )
+            : time( t ), hb( os::TimeService::Instance() )
         {
             timestamp = hb->getTicks();
         }
@@ -80,7 +81,7 @@ namespace RTT
             timestamp = hb->getTicks();
         }
 
-        virtual ConditionInterface* clone() const
+        virtual base::ConditionInterface* clone() const
         {
             return new ConditionExpire( time );
         }
@@ -94,9 +95,9 @@ namespace RTT
         /**
          * A local reference to the HeartBeat Generator
          */
-        TimeService *hb;
+        os::TimeService *hb;
     };
 
-}
+}}
 
 #endif

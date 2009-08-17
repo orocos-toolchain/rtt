@@ -43,18 +43,8 @@
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
-{
-    class PropertyBase;
-    class PropertyBag;
-    class AttributeBase;
-    class TransportPlugin;
-    class InputPortInterface;
-    class OutputPortInterface;
-    class TypeBuilder;
+{ namespace types {
 
-    namespace detail {
-        class TypeTransporter;
-    }
 
     /**
      * A class for representing a user type, and which can build
@@ -64,7 +54,7 @@ namespace RTT
     {
     protected:
         typedef std::vector<TypeBuilder*> Constructors;
-        typedef std::vector<detail::TypeTransporter*> Transporters;
+        typedef std::vector<TypeTransporter*> Transporters;
         Constructors constructors;
         Transporters transporters;
     public:
@@ -84,29 +74,29 @@ namespace RTT
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr, int sizehint) const;
-        virtual AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr) const = 0;
+        virtual base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr, int sizehint) const;
+        virtual base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr) const = 0;
         /**
          * Build a modifyable instance of this type.
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual AttributeBase* buildVariable(std::string name,int sizehint) const;
-        virtual AttributeBase* buildVariable(std::string name) const = 0;
+        virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const;
+        virtual base::AttributeBase* buildVariable(std::string name) const = 0;
 
         /**
-         * Constructor syntax: construct a DataSource which returns an instance of data
+         * Constructor syntax: construct a internal::DataSource which returns an instance of data
          * depending on the given arguments.  When \a args is empty, the default 'variable'
          * is returned.
          */
-        virtual DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const;
+        virtual base::DataSourceBase::shared_ptr construct(const std::vector<base::DataSourceBase::shared_ptr>& args) const;
 
         /**
-         * Automatic conversion: convert a DataSource to this type.
+         * Automatic conversion: convert a internal::DataSource to this type.
          * For example, for converting float -> double. If no valid conversion was found,
          * returns arg again, otherwise, a new data source.
          */
-        virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const;
+        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
 
         /**
          * Add a constructor/convertor object.
@@ -117,27 +107,27 @@ namespace RTT
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..
          */
-        virtual AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr b ) const = 0;
+        virtual base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr b ) const = 0;
 
         /**
          * Build a Property of this type.
          */
-        virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase::shared_ptr source = 0) const = 0;
+        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const = 0;
 
         /**
          * Build an Attribute of this type.
          */
-        virtual AttributeBase* buildAttribute(std::string name, DataSourceBase::shared_ptr source = 0 ) const = 0;
+        virtual base::AttributeBase* buildAttribute(std::string name, base::DataSourceBase::shared_ptr source = 0 ) const = 0;
 
         /**
-         * Build a ValueDataSource of this type.
+         * Build a internal::ValueDataSource of this type.
          */
-        virtual DataSourceBase::shared_ptr buildValue() const = 0;
+        virtual base::DataSourceBase::shared_ptr buildValue() const = 0;
 
-        /** Build a ReferenceDataSource of this type, pointing to the given
+        /** Build a internal::ReferenceDataSource of this type, pointing to the given
          * pointer
          */
-        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
+        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
 
         /** @} */
 
@@ -150,23 +140,23 @@ namespace RTT
          * Output this datasource as a human readable string.
          * The default just writes the type name in parentheses to \a os.
          */
-        virtual std::ostream& write(std::ostream& os, DataSourceBase::shared_ptr in ) const = 0;
+        virtual std::ostream& write(std::ostream& os, base::DataSourceBase::shared_ptr in ) const = 0;
 
         /**
          * Read a new value for this datasource from a human readable string.
          * The default does nothing.
          */
-        virtual std::istream& read(std::istream& os, DataSourceBase::shared_ptr out ) const = 0;
+        virtual std::istream& read(std::istream& os, base::DataSourceBase::shared_ptr out ) const = 0;
 
         /**
          * Usability function which converts data to a string.
          */
-        virtual std::string toString( DataSourceBase::shared_ptr in ) const;
+        virtual std::string toString( base::DataSourceBase::shared_ptr in ) const;
 
         /**
          * Usability function which converts a string to data.
          */
-        virtual bool fromString( const std::string& value, DataSourceBase::shared_ptr out ) const;
+        virtual bool fromString( const std::string& value, base::DataSourceBase::shared_ptr out ) const;
         /** @} */
 
         /**
@@ -179,14 +169,14 @@ namespace RTT
          * @retval true decomposition resulted in new types added to targetbag.
          * @retval false nothing was added to targetbag.
          */
-        virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
 
         /**
-         * Compose a structure from a PropertyBase containing its basic components.
+         * Compose a structure from a base::PropertyBase containing its basic components.
          * The default behavior tries to assign \a source to \a target. If this does
          * not work, because source and target have different type, this function returns false.
          */
-        virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr target) const = 0;
+        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
         /**
          * @}
          */
@@ -200,9 +190,9 @@ namespace RTT
         /**
          * Register a protocol for data transport over a network.
          */
-        bool addProtocol(int protocol_id, detail::TypeTransporter* tt);
+        bool addProtocol(int protocol_id, TypeTransporter* tt);
 
-        detail::TypeTransporter* getProtocol(int protocol_id) const;
+        TypeTransporter* getProtocol(int protocol_id) const;
 
         /** 
          * Return a list of protocols that have transporters
@@ -215,15 +205,15 @@ namespace RTT
          * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual InputPortInterface* inputPort(std::string const& name) const = 0;
+        virtual base::InputPortInterface* inputPort(std::string const& name) const = 0;
         
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual OutputPortInterface* outputPort(std::string const& name) const = 0;
+        virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
     };
 
-}
+}}
 
 #endif

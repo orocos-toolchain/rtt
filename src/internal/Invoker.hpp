@@ -46,7 +46,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A class which converts a function type signature \a F

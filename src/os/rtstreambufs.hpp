@@ -42,7 +42,7 @@
 #include "fosi.h"
 
 namespace RTT
-{namespace rt_std
+{namespace os
 {
 
 

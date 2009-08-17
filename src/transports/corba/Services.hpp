@@ -49,7 +49,7 @@
 
 
 namespace RTT
-{ namespace Corba {
+{ namespace corba {
 
     /**
      * Helper class which locates common CORBA services.

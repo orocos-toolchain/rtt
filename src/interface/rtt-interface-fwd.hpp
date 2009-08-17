@@ -13,5 +13,8 @@ namespace RTT {
         class OperationInterface;
         class PropertyLoader;
     }
+    namespace detail {
+        using namespace interface;
+    }
 }
 #endif

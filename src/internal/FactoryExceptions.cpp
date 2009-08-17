@@ -39,8 +39,8 @@
 #include "FactoryExceptions.hpp"
 #include <sstream>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace internal;
 
     name_not_found_exception::name_not_found_exception( const std::string& n )
           : name(n)

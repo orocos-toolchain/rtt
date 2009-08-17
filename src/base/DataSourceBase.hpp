@@ -46,33 +46,31 @@
 #include "../os/Atomic.hpp"
 #include "rtt-config.h"
 #include "ActionInterface.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class TypeInfo;
-    class PropertyBag;
-    class MethodC;
+{ namespace base {
 
   /**
-   * @brief The base class for all DataSource's
+   * @brief The base class for all internal::DataSource's
    *
-   * The DataSource is an object containing Data of any type. It's
+   * The internal::DataSource is an object containing Data of any type. It's
    * interface is designed for dynamic build-up and destruction of
    * these objects and allowing Commands, Properties etc to use them
    * as 'storage' devices which have the dual \a copy() /\a clone() semantics
    * (which is heavily used by the Orocos Task Infrastructure).
    *
-   * @important DataSource's are reference counted and must be allocated on the headp. Use
-   * DataSourceBase::shared_ptr or DataSource<T>::shared_ptr to deal
+   * @important internal::DataSource's are reference counted and must be allocated on the headp. Use
+   * DataSourceBase::shared_ptr or internal::DataSource<T>::shared_ptr to deal
    * with cleanup of allocated DataSources. You are not allowed to delete
-   * a DataSource. If you must have the pointer of a DataSource, use
+   * a DataSource. If you must have the pointer of a internal::DataSource, use
    * the \a .get() method of the \a shared_ptr class.
    *
-   * Once a newly created DataSource is assigned to a \a shared_ptr,
+   * Once a newly created internal::DataSource is assigned to a \a shared_ptr,
    * it will be deleted when that pointer goes out of scope and is not
    * shared by other \a shared_ptr objects.
    *
-   * @see DataSource
+   * @see internal::DataSource
    */
   class RTT_API DataSourceBase
   {
@@ -86,7 +84,7 @@ namespace RTT
          much desired, and that refcounting happens in an efficient way,
          which is also nice :)
       */
-      mutable OS::AtomicInt refcount;
+      mutable os::AtomicInt refcount;
 
       /** the destructor is private.  You are not allowed to delete this
        * class RTT_API yourself, use a shared pointer !
@@ -122,64 +120,64 @@ namespace RTT
       /**
        * Force an evaluation of the DataSourceBase.
        * @return true on successful evaluation.
-       * If the DataSource itself contains a boolean, return that boolean.
+       * If the internal::DataSource itself contains a boolean, return that boolean.
        */
       virtual bool evaluate() const = 0;
 
       /**
-       * In case the DataSource returns a 'reference' type,
+       * In case the internal::DataSource returns a 'reference' type,
        * call this method to notify it that the data was updated
        * in the course of an invocation of get().
        */
       virtual void updated();
 
       /**
-       * Update the value of this DataSource with the value of an \a other DataSource.
+       * Update the value of this internal::DataSource with the value of an \a other DataSource.
        * Update does a full update of the value, adding extra
        * information if necessary.
        * @return false if the DataSources are of different type OR if the
-       * contents of this DataSource can not be updated.
+       * contents of this internal::DataSource can not be updated.
        */
       virtual bool update( DataSourceBase* other );
 
       /**
-       * Generate a ActionInterface object which will update this DataSource
-       * with the value of another DataSource when execute()'ed.
-       * @return zero if the DataSource types do not match OR if the
-       * contents of this DataSource can not be updated.
+       * Generate a ActionInterface object which will update this internal::DataSource
+       * with the value of another internal::DataSource when execute()'ed.
+       * @return zero if the internal::DataSource types do not match OR if the
+       * contents of this internal::DataSource can not be updated.
        */
       virtual ActionInterface* updateCommand( DataSourceBase* other);
 
       /**
-       * Update \a part of the value of this DataSource with the value of an \a other DataSource.
+       * Update \a part of the value of this internal::DataSource with the value of an \a other DataSource.
        * Update does a partial update of the value, according to \a part, which is
        * most likely an index or hash value of some type.
        * @return false if the DataSources are of different type OR if the
-       * contents of this DataSource can not be partially updated.
+       * contents of this internal::DataSource can not be partially updated.
        */
       virtual bool updatePart( DataSourceBase* part, DataSourceBase* other );
 
       /**
-       * Generate a ActionInterface object which will partially update this DataSource
-       * with the value of another DataSource when execute()'ed. \a part is an index or
+       * Generate a ActionInterface object which will partially update this internal::DataSource
+       * with the value of another internal::DataSource when execute()'ed. \a part is an index or
        * hash value of some type.
-       * @return zero if the DataSource types do not match OR if the
-       * contents of this DataSource can not be partially updated.
+       * @return zero if the internal::DataSource types do not match OR if the
+       * contents of this internal::DataSource can not be partially updated.
        */
       virtual ActionInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other);
 
       /**
        * Return a shallow clone of this DataSource. This method
        * returns a duplicate of this instance which re-uses the
-       * DataSources this DataSource holds reference to. The
+       * DataSources this internal::DataSource holds reference to. The
        * clone() function is thus a non-deep copy.
        */
       virtual DataSourceBase* clone() const = 0;
 
       /**
-       * Create a deep copy of this DataSource, unless it is already
+       * Create a deep copy of this internal::DataSource, unless it is already
        * cloned. Places the association (parent, clone) in \a
-       * alreadyCloned.  If the DataSource is non-copyable (for
+       * alreadyCloned.  If the internal::DataSource is non-copyable (for
        * example it represents the Property of a Task ), \a this may
        * be returned.
        */
@@ -193,7 +191,7 @@ namespace RTT
       /**
        * Return the Orocos type info object.
        */
-      virtual const TypeInfo* getTypeInfo() const = 0;
+      virtual const types::TypeInfo* getTypeInfo() const = 0;
 
       /**
        * Return the Orocos type name, without const, pointer or reference
@@ -203,25 +201,25 @@ namespace RTT
 
       /**
        * Stream the contents of this object.
-       * @see TypeInfo
+       * @see types::TypeInfo
        */
       std::ostream& write(std::ostream& os);
 
       /**
        * Get the contents of this object as a string.
-       * @see TypeInfo
+       * @see types::TypeInfo
        */
       std::string toString();
 
       /**
        * Decompose the contents of this object into properties.
-       * @see TypeInfo
+       * @see types::TypeInfo
        */
       bool decomposeType( PropertyBag& targetbag );
 
       /**
        * Compose the contents of this object from another datasource.
-       * @see TypeInfo
+       * @see types::TypeInfo
        */
       bool composeType( DataSourceBase::shared_ptr source);
 
@@ -244,7 +242,7 @@ namespace RTT
       virtual void* getBlob(int protocol);
 
       /**
-       * Updates the value of this DataSource with the
+       * Updates the value of this internal::DataSource with the
        * value of a transportable data object.
        * @param any The value to update to.
        * @return true if \a any had the correct type.
@@ -252,8 +250,8 @@ namespace RTT
       virtual bool updateBlob(int protocol, const void* data);
 
       /**
-       * Inspect if this DataSource is a proxy for a remote server object.
-       * @return 0 if it is a local DataSource, or the protocol id if it
+       * Inspect if this internal::DataSource is a proxy for a remote server object.
+       * @return 0 if it is a local internal::DataSource, or the protocol id if it
        * is a proxy for a remove server.
        */
       virtual int serverProtocol() const;
@@ -272,18 +270,18 @@ namespace RTT
        * \a new method object reference otherwise.
        * @see Operations.idl
        */
-      virtual void* method( int protocol, MethodC* orig, void* arg );
+      virtual void* method( int protocol, internal::MethodC* orig, void* arg );
   };
 
     /**
      * Stream the contents of this object.
-     * @see TypeInfo
+     * @see types::TypeInfo
      */
     RTT_API std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
 
-}
+}}
 
-RTT_API void intrusive_ptr_add_ref(const RTT::DataSourceBase* p );
-RTT_API void intrusive_ptr_release(const RTT::DataSourceBase* p );
+RTT_API void intrusive_ptr_add_ref(const RTT::base::DataSourceBase* p );
+RTT_API void intrusive_ptr_release(const RTT::base::DataSourceBase* p );
 
 #endif

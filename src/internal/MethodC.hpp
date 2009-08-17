@@ -45,7 +45,8 @@
 #include "OperationFactory.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A user friendly method to a TaskContext.
      */
@@ -56,7 +57,7 @@ namespace RTT
          */
         class D;
         D* d;
-        DataSourceBase::shared_ptr m;
+        base::DataSourceBase::shared_ptr m;
     public:
         /**
          * The default constructor.
@@ -67,7 +68,7 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see MethodRepository
+         * @see interface::MethodRepository
          */
         MethodC( const MethodFactory* mr, const std::string& name);
 
@@ -88,7 +89,7 @@ namespace RTT
          * @param a A DataSource which contents are consulted each time
          * when execute() is called.
          */
-        MethodC& arg( DataSourceBase::shared_ptr a );
+        MethodC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Method.
@@ -98,7 +99,7 @@ namespace RTT
         template< class ArgT >
         MethodC& argC( const ArgT a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
+            return this->arg(base::DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
         }
 
         /**
@@ -110,20 +111,20 @@ namespace RTT
         template< class ArgT >
         MethodC& arg( ArgT& a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT>( a ) ) );
+            return this->arg(base::DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT>( a ) ) );
         }
 
         /**
          * Store the result of the method in a task's attribute.
          * @param r A task attribute in which the result is stored.
          */
-        MethodC& ret( AttributeBase* r );
+        MethodC& ret( base::AttributeBase* r );
 
         /**
          * Store the result of the method in a DataSource.
          * @param r A data source in which the result is stored.
          */
-        MethodC& ret( DataSourceBase::shared_ptr r);
+        MethodC& ret( base::DataSourceBase::shared_ptr r);
 
         /**
          * Store the result of the method in variable.
@@ -133,7 +134,7 @@ namespace RTT
         MethodC& ret( RetT& r )
         {
             // this is semantically valid wrt Attribute::copy().
-            AttributeBase* ta = new Attribute<RetT>("ret", new ReferenceDataSource<RetT>(r));
+            base::AttributeBase* ta = new Attribute<RetT>("ret", new ReferenceDataSource<RetT>(r));
             this->ret( ta );
             delete ta;
             return *this;
@@ -158,8 +159,8 @@ namespace RTT
         /**
          * Get the contained data source.
          */
-        DataSourceBase::shared_ptr getDataSource();
+        base::DataSourceBase::shared_ptr getDataSource();
     };
-}
+}}
 
 #endif

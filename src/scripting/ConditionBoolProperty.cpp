@@ -36,8 +36,8 @@
  ***************************************************************************/
 #include "ConditionBoolProperty.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
   bool ConditionBoolProperty::evaluate()
   {
     return mprop.get();

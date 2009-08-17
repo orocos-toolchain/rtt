@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
 
         /**
          * An Event which calls back local functions.
@@ -54,15 +54,15 @@ namespace RTT
          * event to call a function 'void foo(int x, double y)';
          */
         template<
-            typename Signature // function type R (T1, T2, ..., TN)
+            typename Signature
         >
         class LocalEvent
             : public signal<Signature>
         {
         public:
-            ActionInterface* clone() const { return new LocalEvent(); }
+            base::ActionInterface* clone() const { return new LocalEvent(); }
 
-            EventBase<Signature>* cloneI() const { return new LocalEvent(); }
+            base::EventBase<Signature>* cloneI() const { return new LocalEvent(); }
         };
     }
 }

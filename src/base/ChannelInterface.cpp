@@ -2,6 +2,7 @@
 #include "../os/Atomic.hpp"
 
 using namespace RTT;
+using namespace RTT::detail;
 
 ChannelElementBase::ChannelElementBase()
     : input(0)
@@ -65,9 +66,9 @@ void ChannelElementBase::deref()
     if ( oro_atomic_dec_and_test(&refcount) ) delete this;
 }
 
-void RTT::intrusive_ptr_add_ref( ChannelElementBase* p )
+void RTT::base::intrusive_ptr_add_ref( ChannelElementBase* p )
 { p->ref(); }
 
-void RTT::intrusive_ptr_release( ChannelElementBase* p )
+void RTT::base::intrusive_ptr_release( ChannelElementBase* p )
 { p->deref(); }
 

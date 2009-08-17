@@ -44,7 +44,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     /**
      * A class which represents the main() thread.

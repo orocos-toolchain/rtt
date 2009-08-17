@@ -45,7 +45,8 @@
 
 // here we define some generally useful template stuff that is missing
 // from the STL..
-namespace RTT {
+namespace RTT { namespace internal {
+
 
     // combines remove_reference and remove_const
     template<typename T>
@@ -134,6 +135,7 @@ namespace RTT {
                         select1st<typename MapT::value_type>() );
         return ret;
     }
+    }
 }
 
 namespace std
@@ -184,7 +186,7 @@ namespace std
 
 // STL extensions, some are SGI extensions, others are my own..
 namespace RTT
-{
+{namespace internal {
 
   template<typename T>
   struct identity
@@ -262,7 +264,7 @@ namespace RTT
 #if 0
     /** This does not work with RedHat 8.0 **/
   // the STL lacks a functor multiplying two objects of distinct
-  // types.. std::multiplies<T> requires that a and b are both of type
+  // types.. multiplies<T> requires that a and b are both of type
   // T when calling operator()(a,b).  So I wrote my own replacement.
   // This relies on the GCC typeof C++ extension
   template<typename A, typename B>
@@ -356,7 +358,7 @@ namespace RTT
       }
   };
 #endif
-} // namespace RTT
+}} // namespace RTT
 
 
 

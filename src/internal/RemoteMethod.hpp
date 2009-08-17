@@ -48,7 +48,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A Method which executes a remote function directly.
@@ -58,8 +58,8 @@ namespace RTT
          */
         template<class MethodT>
         class RemoteMethodImpl
-            : public MethodBase<MethodT>,
-              protected detail::DataSourceStorage<MethodT>
+            : public base::MethodBase<MethodT>,
+              protected DataSourceStorage<MethodT>
         {
         protected:
             MethodC mmeth;
@@ -80,35 +80,35 @@ namespace RTT
              */
             result_type invoke() {
                 mmeth.execute();
-                return this->detail::DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1>
             result_type invoke( T1 a1 ) {
                 this->store( a1 );
                 mmeth.execute();
-                return this->detail::DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2>
             result_type invoke( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
                 mmeth.execute();
-                return this->detail::DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3>
             result_type invoke( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
                 mmeth.execute();
-                return this->detail::DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3, class T4>
             result_type invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
                 mmeth.execute();
-                return this->detail::DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<MethodT>::getResult();
             }
         };
 
@@ -158,11 +158,11 @@ namespace RTT
              *
              * @return
              */
-            virtual ActionInterface* clone() const {
+            virtual base::ActionInterface* clone() const {
                 return new RemoteMethod(*this);
             }
 
-            virtual MethodBase<MethodT>* cloneI() const {
+            virtual base::MethodBase<MethodT>* cloneI() const {
                 return new RemoteMethod(*this);
             }
         };

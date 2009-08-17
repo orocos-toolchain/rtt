@@ -41,7 +41,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * @brief A class which will calibrate a sensor. It is
      * useful for making 'calibration' objects.
@@ -74,6 +75,6 @@ namespace RTT
          */
         virtual void unCalibrate() { calibrated = false; }
     };
-}
+}}
 
 #endif

@@ -39,8 +39,8 @@
 
 #include "ConditionDSDuration.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     ConditionDSDuration::ConditionDSDuration( DataSource<double>::shared_ptr ds, bool invert )
         : time( ds ), hb( TimeService::Instance() ),

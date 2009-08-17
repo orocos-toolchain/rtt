@@ -1,7 +1,8 @@
 #ifndef ORO_CONN_POLICY_HPP
 #define ORO_CONN_POLICY_HPP
 
-namespace RTT {
+namespace RTT { namespace internal {
+
     /** A connection policy object describes how a given connection should
      * behave. Various parameters are available:
      *
@@ -67,13 +68,13 @@ namespace RTT {
         int    lock_policy;
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
-         * data is available by ChannelElementBase::signal()
+         * data is available by base::ChannelElementBase::signal()
          */
         bool   pull;
         /** If the connection is a buffered connection, the size of the buffer */
         int    size;
     };
-}
+}}
 
 #endif
 

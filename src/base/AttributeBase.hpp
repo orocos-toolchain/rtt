@@ -42,7 +42,8 @@
 #include "DataSourceBase.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
 
     /**
      * An attribute is a minimalistic, named placeholder for data.
@@ -84,7 +85,7 @@ namespace RTT
         }
 
         /**
-         * Return a DataSource which contains the same contents.
+         * Return a internal::DataSource which contains the same contents.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
 
@@ -101,5 +102,5 @@ namespace RTT
          */
         virtual AttributeBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) = 0;
     };
-}
+}}
 #endif

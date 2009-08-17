@@ -45,7 +45,8 @@
 #include "../Time.hpp"
 
 namespace RTT
-{
+{ namespace extras {
+
     /**
      * @brief A class which configures other objects in small steps
      * spread in time.
@@ -69,7 +70,7 @@ namespace RTT
          * @param period The period between each configuration step.
          */
         Configurator( double period )
-            :PeriodicActivity(RTT::OS::LowestPriority, period ), mtarget(0), status (false)
+            :PeriodicActivity(RTT::os::LowestPriority, period ), mtarget(0), status (false)
         {
         }
 
@@ -83,11 +84,11 @@ namespace RTT
         bool configure( ConfigurationInterface* target, Seconds _timeout = 0 )
         {
             mtarget = target;
-            TimeService::ticks timestamp = TimeService::Instance()->getTicks();
+            os::TimeService::ticks timestamp = os::TimeService::Instance()->getTicks();
             this->start();
 
             while ( this->isRunning() && ( _timeout == 0 ||
-                                           TimeService::Instance()->secondsSince(timestamp) < _timeout ) )
+                                           os::TimeService::Instance()->secondsSince(timestamp) < _timeout ) )
                 {
                     struct timespec tt;
                     tt.tv_nsec=100*1000*1000; // 0.1 Hz
@@ -135,7 +136,7 @@ namespace RTT
         bool status;
     };
 
-}
+}}
 
 
 #endif

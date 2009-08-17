@@ -54,7 +54,7 @@
  * Implementation.
  */
 class RTT_Corba_ServiceInterface_i
-    : public virtual POA_RTT::Corba::ServiceInterface,
+    : public virtual POA_RTT::corba::ServiceInterface,
       public virtual PortableServer::RefCountServantBase
 {
     PortableServer::POA_var mpoa;
@@ -80,9 +80,9 @@ public:
       CORBA::SystemException
     ))
     {
-        if ( RTT::Corba::Services::MayShutdown == false)
+        if ( RTT::corba::Services::MayShutdown == false)
             return false;
-        RTT::Corba::ControlTaskServer::ShutdownOrb(false);
+        RTT::corba::ControlTaskServer::ShutdownOrb(false);
         return true;
     }
 

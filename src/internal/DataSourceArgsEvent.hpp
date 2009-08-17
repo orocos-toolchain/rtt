@@ -45,15 +45,15 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A event which gets its arguments from a data source and
          * is an action object.
          */
-        template<class SignatureT, class FunctorT = detail::FunctorDataSource<boost::function<SignatureT> > >
+        template<class SignatureT, class FunctorT = FunctorDataSource<boost::function<SignatureT> > >
         class DataSourceArgsEvent
-            : public ActionInterface
+            : public base::ActionInterface
         {
             typename FunctorT::shared_ptr mmeth;
         public:
@@ -61,7 +61,7 @@ namespace RTT
             typedef SignatureT Signature;
 
             typedef typename boost::function_traits<Signature>::result_type result_type;
-            typedef ActionInterface Base;
+            typedef base::ActionInterface Base;
 
             DataSourceArgsEvent(boost::function<Signature> meth)
                 : mmeth( new FunctorT(meth) )
@@ -140,7 +140,7 @@ namespace RTT
                 return new DataSourceArgsEvent( typename FunctorT::shared_ptr(mmeth->clone()) );
             }
 
-            virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return new DataSourceArgsEvent<Signature,FunctorT>( typename FunctorT::shared_ptr(mmeth->copy(alreadyCloned)) );
             }

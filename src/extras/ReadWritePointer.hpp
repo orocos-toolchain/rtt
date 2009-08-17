@@ -8,13 +8,12 @@
 #include "../os/MutexLock.hpp"
 
 namespace RTT
-{
-    namespace details
-    {
+{ namespace extras {
+
         template<typename T>
         struct ROPtrInternal
         {
-            OS::Mutex  lock;
+            os::Mutex  lock;
             T*     value;
             size_t readers;
 
@@ -23,20 +22,19 @@ namespace RTT
             ~ROPtrInternal() { delete value; }
 
             void ref()
-            { OS::MutexLock do_lock(lock);
+            { os::MutexLock do_lock(lock);
                 ++readers;
             }
             bool deref()
-            { OS::MutexLock do_lock(lock);
+            { os::MutexLock do_lock(lock);
                 return (--readers);
             }
         };
-    }
 
     template<typename T>
     class ReadOnlyPointer
     {
-        typedef details::ROPtrInternal<T> Internal;
+        typedef ROPtrInternal<T> Internal;
         boost::intrusive_ptr<Internal> internal;
         typedef boost::call_traits<T> traits;
 
@@ -57,7 +55,7 @@ namespace RTT
                 return 0;
 
             T* value = 0;
-            { OS::MutexLock do_lock(safe->lock);
+            { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2)
                 { // we're the only owner (don't forget the one just above ...).
                   // Just promote the current copy
@@ -75,17 +73,17 @@ namespace RTT
     };
 
     template<typename T>
-    void intrusive_ptr_add_ref(typename RTT::details::ROPtrInternal<T>* data)
+    void intrusive_ptr_add_ref(typename RTT::extras::ROPtrInternal<T>* data)
     {
         data->ref();
     }
     template<typename T>
-    void intrusive_ptr_release(typename RTT::details::ROPtrInternal<T>* data)
+    void intrusive_ptr_release(typename RTT::extras::ROPtrInternal<T>* data)
     {
         if (!data->deref())
             delete data;
     }
-}
+}}
 
 #endif
 

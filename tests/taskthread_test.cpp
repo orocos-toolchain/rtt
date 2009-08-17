@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
 
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
-    OS::CheckPriority( rtsched, bprio );
+    os::CheckPriority( rtsched, bprio );
 
     BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
     BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
@@ -192,11 +192,11 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     // Different Scheduler (don't test if invalid priorities)
     bprio = 15;
     rtsched = ORO_SCHED_RT;
-    if ( OS::CheckPriority( rtsched, bprio ) ) {
+    if ( os::CheckPriority( rtsched, bprio ) ) {
         PeriodicActivity m3task(ORO_SCHED_OTHER, 15, 0.01);
         bprio = 15;
         rtsched = ORO_SCHED_OTHER;
-        if ( OS::CheckPriority( rtsched, bprio ) ) {
+        if ( os::CheckPriority( rtsched, bprio ) ) {
             BOOST_CHECK( mtask.thread() != m3task.thread() );
             BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
         }
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
 
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
-    OS::CheckPriority( rtsched, bprio );
+    os::CheckPriority( rtsched, bprio );
 
     BOOST_CHECK( mtask.isActive() == false );
     BOOST_CHECK( mtask.isRunning() == false );
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     // Different Scheduler
     bprio = 15;
     rtsched = ORO_SCHED_OTHER;
-    if ( OS::CheckPriority( rtsched, bprio ) ) {
+    if ( os::CheckPriority( rtsched, bprio ) ) {
         Activity m3task(ORO_SCHED_OTHER, 15);
         BOOST_CHECK( mtask.thread() != m3task.thread() );
         BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( mtask.isPeriodic() == false );
     BOOST_CHECK( mtask.getPeriod() == 0.0 );
     BOOST_CHECK( mtask.execute() == false );
-    BOOST_CHECK( mtask.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mtask.thread() == os::MainThread::Instance() );
 
     // starting...
     BOOST_CHECK( mtask.start() == true );
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( mslave_p.isPeriodic() == true );
     BOOST_CHECK( mslave_p.getPeriod() == 0.001 );
     BOOST_CHECK( mslave_p.execute() == false );
-    BOOST_CHECK( mslave_p.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mslave_p.thread() == os::MainThread::Instance() );
 
     BOOST_CHECK( mslave_p.start() );
     BOOST_CHECK( r.init == true );
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( testSequential )
     BOOST_CHECK( mtask.getPeriod() == 0.0 );
     BOOST_CHECK( mtask.execute() == false );
     BOOST_CHECK( mtask.trigger() == false );
-    BOOST_CHECK( mtask.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mtask.thread() == os::MainThread::Instance() );
 
     // starting...
     BOOST_CHECK( mtask.start() == true );
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
     int rtsched = ORO_SCHED_OTHER;
     int bprio = 15;
 
-    OS::CheckPriority( rtsched, bprio );
+    os::CheckPriority( rtsched, bprio );
     TimerThreadPtr tt = TimerThread::Instance(rtsched, bprio, 0.0123);
     BOOST_CHECK( tt != 0 );
 
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
     // different scheduler, different thread.
     rtsched = ORO_SCHED_RT;
     bprio = 15;
-    if ( OS::CheckPriority( rtsched, bprio ) ) {
+    if ( os::CheckPriority( rtsched, bprio ) ) {
         TimerThreadPtr tt2 = TimerThread::Instance(rtsched, bprio, 0.0123);
         BOOST_CHECK( tt2 != 0 );
         BOOST_CHECK( tt2 != tt );
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     BOOST_CHECK_EQUAL( 0.0123, tt->getPeriod());
 
     // only do this if valid priority/scheduler range:
-    if ( OS::CheckPriority( rtsched, bprio ) == true)
+    if ( os::CheckPriority( rtsched, bprio ) == true)
     {
         BOOST_CHECK_EQUAL( bprio, tt->getPriority());
 

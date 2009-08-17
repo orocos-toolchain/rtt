@@ -59,7 +59,7 @@
 //    class ProgramTask;
 //}
 
-namespace RTT { namespace detail
+namespace RTT { namespace scripting
 {
   /**
    * @brief A Parser for Orocos Program Scripts.
@@ -85,7 +85,7 @@ namespace RTT { namespace detail
       /**
        * The current subcontext of root where we are working in.
        */
-      OperationInterface* context;
+      interface::OperationInterface* context;
 
       /**
        * The current function context where we are working in.
@@ -119,14 +119,14 @@ namespace RTT { namespace detail
 
       // The implicit termination condition we just got for the
       // current command from the CommandParser..
-      ConditionInterface* implcond;
-      std::vector<ConditionInterface*> implcond_v;
-      std::vector<DataSourceBase::shared_ptr> callfnargs;
+      base::ConditionInterface* implcond;
+      std::vector<base::ConditionInterface*> implcond_v;
+      std::vector<base::DataSourceBase::shared_ptr> callfnargs;
 
       // last seen condition
-      ConditionInterface* mcondition;
+      base::ConditionInterface* mcondition;
       // try-block condition
-      ConditionInterface* try_cond;
+      base::ConditionInterface* try_cond;
 
       void seencondition();
 
@@ -178,7 +178,7 @@ namespace RTT { namespace detail
       void seenprogramend();
       void programtext(iter_t, iter_t);
 
-      void setStack(OperationInterface* st);
+      void setStack(interface::OperationInterface* st);
       void setup();
       void setup2();
       void cleanup();
@@ -201,8 +201,8 @@ namespace RTT { namespace detail
       boost::shared_ptr<FunctionGraphBuilder> program_builder;
       std::vector< FunctionGraphPtr > program_list;
 
-      ActionInterface* for_init_command;
-      ActionInterface* for_incr_command;
+      base::ActionInterface* for_init_command;
+      base::ActionInterface* for_incr_command;
       std::string program_text;
       bool exportf;
       int ln_offset;
@@ -213,13 +213,13 @@ namespace RTT { namespace detail
        * @brief Tries to parse programs, returns the generated programs on success.
        * @throw file_parse_exception The parser found an error.
        */
-      std::vector<ProgramInterfacePtr> parse( iter_t& begin, iter_t end );
+      std::vector<base::ProgramInterfacePtr> parse( iter_t& begin, iter_t end );
 
-      std::vector<ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
+      std::vector<base::ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
 
-      void initBodyParser(const std::string& name, OperationInterface* stck, int offset);
+      void initBodyParser(const std::string& name, interface::OperationInterface* stck, int offset);
       rule_t& bodyParser();
-      ProgramInterfacePtr bodyParserResult();
+      base::ProgramInterfacePtr bodyParserResult();
 
   };
 }}

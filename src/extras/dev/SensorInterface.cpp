@@ -39,6 +39,3 @@
 #pragma implementation
 #endif
 #include "SensorInterface.hpp"
-
-namespace RTT {
-}

@@ -48,14 +48,15 @@
 #endif
 
 namespace RTT
-{
+{ namespace marsh {
+
 
     /**
      * @brief This class fills up a given bag with
      * the results of an introspection.
      */
     class RTT_API PropertyBagIntrospector
-        : public PropertyBagVisitor
+        : public base::PropertyBagVisitor
     {
         std::stack<PropertyBag*> mystack;
     public:
@@ -96,7 +97,7 @@ namespace RTT
             v.identify(this);
         }
 
-        virtual void introspect(PropertyBase* v)
+        virtual void introspect(base::PropertyBase* v)
         {
             // if it is decomposable, identify a new bag, otherwise add a clone.
             Property<PropertyBag> res(v->getName(), v->getDescription() );
@@ -123,6 +124,6 @@ namespace RTT
             mystack.pop();
         }
     };
-}
+}}
 
 #endif

@@ -6,11 +6,7 @@
 #include "../internal/ConnPolicy.hpp"
 
 namespace RTT
-{
-    class ConnFactory;
-    class TypeInfo;
-    class TaskObject;
-    class ChannelElementBase;
+{ namespace base {
 
     /** This class is used in places where a permanent representation of a
      * reference to a port is needed, like in OutputPortInterface.
@@ -34,8 +30,8 @@ namespace RTT
     public:
         virtual ~PortInterface() {}
 
-        virtual RTT::PortID* getPortID() const;
-        virtual bool isSameID(RTT::PortID const& id) const;
+        virtual PortID* getPortID() const;
+        virtual bool isSameID(PortID const& id) const;
 
         /**
          * Get the name of this Port.
@@ -53,8 +49,8 @@ namespace RTT
         /** Returns true if this port is connected */
         virtual bool connected() const = 0;
 
-        /** Returns the TypeInfo object for the port's type */
-        virtual const TypeInfo* getTypeInfo() const = 0;
+        /** Returns the types::TypeInfo object for the port's type */
+        virtual const types::TypeInfo* getTypeInfo() const = 0;
 
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect() = 0;
@@ -62,7 +58,7 @@ namespace RTT
         /** The ChannelFactory object that allows to build the ChannelElement chain
          * needed to build connections to or from this port
          */
-        virtual ConnFactory* getConnFactory();
+        virtual internal::ConnFactory* getConnFactory();
 
         /** Returns true if this port is located on this process, and false
          * otherwise
@@ -95,7 +91,7 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual TaskObject* createPortObject();
+        virtual internal::TaskObject* createPortObject();
 
         /** Connects this port with \a other, using the given policy Unlike
          * OutputPortInterface::createConnection, \a other can be the write port
@@ -103,9 +99,9 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy) = 0;
+        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy) = 0;
     };
 
-}
+}}
 
 #endif

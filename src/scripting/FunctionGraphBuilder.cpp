@@ -54,8 +54,8 @@
 
 #include <iostream>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace boost;
     using namespace std;
 

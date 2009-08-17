@@ -41,7 +41,8 @@
 #include "DigitalOutInterface.hpp"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * A DigitalOut represents any on/off output. Examples are
      * brakes, valves, simple grippers etc.
@@ -132,6 +133,6 @@ namespace RTT
         unsigned int relaynumber;
         bool invert;
     };
-}
+}}
 
 #endif

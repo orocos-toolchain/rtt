@@ -47,8 +47,7 @@
 #include "OperationInterface.hpp"
 
 namespace RTT
-{
-    class OperationInterface;
+{ namespace interface {
 
     /**
      * The Interface of a TaskContext which exposes its data-flow ports.
@@ -60,7 +59,7 @@ namespace RTT
         /**
          * A sequence of pointers to ports.
          */
-        typedef std::vector<PortInterface*> Ports;
+        typedef std::vector<base::PortInterface*> Ports;
 
         /**
          * A sequence of names of ports.
@@ -69,7 +68,7 @@ namespace RTT
 
         /**
          * Construct the DataFlow interface of a TaskContext.
-         * @param parent If not null, a TaskObject will be added
+         * @param parent If not null, a internal::TaskObject will be added
          * to \a parent  for each port added to this interface.
          */
         DataFlowInterface(OperationInterface* parent = 0);
@@ -83,7 +82,7 @@ namespace RTT
          * @return true if the port could be added, false if already added.
          *
          */
-        bool addPort(PortInterface* port);
+        bool addPort(base::PortInterface* port);
 
         /**
          * Add an Event triggering Port to this task. It is only added to the C++
@@ -92,10 +91,10 @@ namespace RTT
          * @return true if the port could be added, false if already added.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
-         * directly using PortInterface::getNewDataOnPort().
+         * directly using base::PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(InputPortInterface* port,
-                InputPortInterface::NewDataOnPortEvent::SlotFunction callback = InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+        bool addEventPort(base::InputPortInterface* port,
+                base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Returns the list of all ports emitting events when new
@@ -109,7 +108,7 @@ namespace RTT
          * @param port The port to add.
          * @param description A user readable description of this port.
          */
-        bool addPort(PortInterface* port, std::string description);
+        bool addPort(base::PortInterface* port, std::string description);
 
         /**
          * Add an Event triggering Port to the interface of this task. It is added to
@@ -118,9 +117,9 @@ namespace RTT
          * @param description A user readable description of this port.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
-         * directly using PortInterface::getNewDataOnPort().
+         * directly using base::PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(InputPortInterface* port, std::string description, InputPortInterface::NewDataOnPortEvent::SlotFunction callback = InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+        bool addEventPort(base::InputPortInterface* port, std::string description, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Remove a Port from this interface.
@@ -152,7 +151,7 @@ namespace RTT
          * @param name The port name
          * @return a pointer to a port or null if it does not exist.
          */
-        PortInterface* getPort(const std::string& name) const;
+        base::PortInterface* getPort(const std::string& name) const;
 
         /**
          * Get the description of an added Port.
@@ -186,13 +185,13 @@ namespace RTT
          */
         void clear();
     protected:
-        typedef std::vector<std::pair<PortInterface*,std::string> > PortStore;
+        typedef std::vector<std::pair<base::PortInterface*,std::string> > PortStore;
         Ports eports;
         PortStore mports;
         OperationInterface* mparent;
 
     };
 
-}
+}}
 
 #endif

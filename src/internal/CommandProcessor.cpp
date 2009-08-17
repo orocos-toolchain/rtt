@@ -40,13 +40,14 @@
 #include "../base/ActionInterface.hpp"
 #include "Queue.hpp"
 #include "../Logger.hpp"
+#include "../rtt-fwd.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     using namespace std;
 
-    using namespace OS;
+    using namespace os;
 
     CommandProcessor::CommandProcessor(int queue_size)
         :a_queue( new Queue<ActionInterface*>(queue_size) ),

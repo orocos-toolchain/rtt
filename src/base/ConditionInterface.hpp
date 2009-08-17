@@ -41,21 +41,18 @@
 
 #include <map>
 #include "rtt-config.h"
-
-namespace RTT {
-    class DataSourceBase;
-}
+#include "rtt-base-fwd.hpp"
 
 namespace RTT
-{
+{ namespace base {
 
     /**
      * @brief This interface represents the concept of
      * a condition which can be evaluated and return
      * true or false.
      * @todo This class is a light-weight implementation of a
-     * DataSource<bool>. It may be profitable to remove this low
-     * level class and replace its use by DataSource<bool>. That
+     * internal::DataSource<bool>. It may be profitable to remove this low
+     * level class and replace its use by internal::DataSource<bool>. That
      * would also cause the removal of most Condition* classes.
      */
     class RTT_API ConditionInterface
@@ -73,12 +70,12 @@ namespace RTT
 
         /**
          * Some conditions need to be reset at some points.
-         * E.g. a ConditionDuration counts the time since the
+         * E.g. a scripting::ConditionDuration counts the time since the
          * first time a Command was executed, and if this time
          * exceeds a certain preset time, returns true.
          * Therefore, it needs to be reset, i.e. it needs to start
          * counting, when the command is first executed..
-         * ConditionOnce has a similar need.  This function is
+         * scripting::ConditionOnce has a similar need.  This function is
          * called at such times.
          */
         virtual void reset();
@@ -90,24 +87,24 @@ namespace RTT
 
         /**
          * When copying an Orocos program, we want identical
-         * DataSource's to be mapped to identical DataSources, in
+         * internal::DataSource's to be mapped to identical DataSources, in
          * order for the program to work correctly.  This is different
          * from the clone function, where we simply want a new Command
          * that can replace the old one directly.
          *
-         * This function takes a map that maps the old DataSource's
+         * This function takes a map that maps the old internal::DataSource's
          * onto their new replacements.  This way, it is possible to
-         * check before cloning a DataSource, whether it has already
+         * check before cloning a internal::DataSource, whether it has already
          * been copied, and if so, reuse the existing copy.
          *
          * To keep old source working, the standard implementation of
          * this function simply calls the clone function.  If your
-         * ConditionInterface uses a DataSource, it is important that
+         * ConditionInterface uses a internal::DataSource, it is important that
          * you reimplement this function correctly though.
          */
         virtual ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
-}
+}}
 
 #endif

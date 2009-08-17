@@ -45,8 +45,8 @@
 #include "../Command.hpp"
 #include "../internal/TaskObject.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
     ParserExecutionAccess::ParserExecutionAccess( TaskContext* parent )

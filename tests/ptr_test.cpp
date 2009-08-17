@@ -25,6 +25,7 @@
 using namespace std;
 
 using namespace RTT;
+using namespace RTT::extras;
 
 struct MyStruct
 {

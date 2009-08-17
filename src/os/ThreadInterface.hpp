@@ -46,7 +46,7 @@
 
 namespace RTT
 {
-    namespace OS
+    namespace os
     {
         /**
          * A thread which is being run.
@@ -193,7 +193,7 @@ namespace RTT
             /**
              * Threads are given an unique number,
              * which follows thread creation order.
-             * @see OS::threads
+             * @see os::threads
              */
             int threadnb;
         };

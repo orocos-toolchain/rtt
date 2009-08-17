@@ -41,10 +41,7 @@
 #include "ActivityInterface.hpp"
 
 namespace RTT
-{
-    namespace OS {
-        class ThreadInterface;
-    }
+{ namespace base {
     /**
      * @brief A class for running a certain piece of code in a thread.
      *
@@ -79,7 +76,7 @@ namespace RTT
         /**
          * Create a runnable object. The optional constructor parameter
          * allows the object to attach directly to a thread. Otherwise,
-         * ThreadInterface::run(RunnableInterface*) must be used to
+         * os::ThreadInterface::run(RunnableInterface*) must be used to
          * attach this object to a thread. A thread can only run one
          * RunnableInterface object, use CoreLib tasks otherwise.
          * @param t The thread this object must attach to.
@@ -133,7 +130,7 @@ namespace RTT
          * Get the thread this object is run in.
          * @return a pointer to the thread or 0 if not run by a thread.
          */
-        virtual OS::ThreadInterface* getThread() const;
+        virtual os::ThreadInterface* getThread() const;
 
         /**
          * This method is for 'intelligent' activity implementations
@@ -141,7 +138,7 @@ namespace RTT
          * By default, \a false is returned. You should only return \a true in
          * case there is a temporary reason to (re-)run step.
          * @return \a true if this object should be run.
-         * @see SequentialActivity implementation to see how this can be
+         * @see extras::SequentialActivity implementation to see how this can be
          * of use.
          */
         virtual bool hasWork();
@@ -168,6 +165,6 @@ namespace RTT
 
 
     ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
-}
+}}
 
 #endif

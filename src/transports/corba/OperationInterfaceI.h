@@ -84,14 +84,14 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 class  Orocos_MethodInterface_i
-    : public virtual POA_RTT::Corba::MethodInterface,
+    : public virtual POA_RTT::corba::MethodInterface,
       public virtual PortableServer::RefCountServantBase
 {
-    RTT::MethodFactory* mfact;
+    RTT::internal::MethodFactory* mfact;
     PortableServer::POA_var mpoa;
 public:
   //Constructor
-  Orocos_MethodInterface_i (RTT::MethodFactory* mfact, PortableServer::POA_ptr the_poa);
+    Orocos_MethodInterface_i (RTT::internal::MethodFactory* mfact, PortableServer::POA_ptr the_poa);
 
   //Destructor
   virtual ~Orocos_MethodInterface_i (void);
@@ -99,19 +99,19 @@ public:
     PortableServer::POA_ptr _default_POA();
 
   virtual
-  ::RTT::Corba::MethodList * getMethods (
+  ::RTT::corba::MethodList * getMethods (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
 
   virtual
-  ::RTT::Corba::Descriptions * getArguments (
+  ::RTT::corba::Descriptions * getArguments (
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,::RTT::Corba::NoSuchNameException
+      ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
@@ -120,7 +120,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,::RTT::Corba::NoSuchNameException
+      ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
@@ -129,43 +129,43 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,::RTT::Corba::NoSuchNameException
+      ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
-  ::RTT::Corba::Method_ptr createMethod (
+  ::RTT::corba::Method_ptr createMethod (
       const char * method,
-      const ::RTT::Corba::Arguments& args
+      const ::RTT::corba::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::NoSuchNameException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 
   virtual
-  ::RTT::Corba::Method_ptr createMethodAny (
+  ::RTT::corba::Method_ptr createMethodAny (
       const char * method,
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::NoSuchNameException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 };
 
 class  Orocos_CommandInterface_i
-    : public virtual POA_RTT::Corba::CommandInterface,
+    : public virtual POA_RTT::corba::CommandInterface,
       public virtual PortableServer::RefCountServantBase
 {
-    RTT::CommandFactory* mfact;
+    RTT::internal::CommandFactory* mfact;
     PortableServer::POA_var mpoa;
 public:
   //Constructor
-  Orocos_CommandInterface_i (RTT::CommandFactory* fact, PortableServer::POA_ptr the_poa);
+  Orocos_CommandInterface_i (RTT::internal::CommandFactory* fact, PortableServer::POA_ptr the_poa);
 
   //Destructor
   virtual ~Orocos_CommandInterface_i (void);
@@ -173,19 +173,19 @@ public:
     PortableServer::POA_ptr _default_POA();
 
   virtual
-  ::RTT::Corba::CommandList * getCommands (
+  ::RTT::corba::CommandList * getCommands (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
 
   virtual
-  ::RTT::Corba::Descriptions * getArguments (
+  ::RTT::corba::Descriptions * getArguments (
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
@@ -194,7 +194,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
@@ -203,31 +203,31 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::corba::NoSuchNameException
     ));
 
   virtual
-  ::RTT::Corba::Command_ptr createCommand (
+  ::RTT::corba::Command_ptr createCommand (
       const char * command,
-      const ::RTT::Corba::Arguments& args
+      const ::RTT::corba::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::NoSuchNameException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 
   virtual
-  ::RTT::Corba::Command_ptr createCommandAny (
+  ::RTT::corba::Command_ptr createCommandAny (
       const char * command,
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::NoSuchNameException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::NoSuchNameException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 };
 

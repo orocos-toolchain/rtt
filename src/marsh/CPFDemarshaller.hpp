@@ -47,7 +47,8 @@
 #include "Marshaller.hpp"
 
 namespace RTT
-{
+{ namespace marsh {
+
 #ifdef XERCES_CPP_NAMESPACE
     using XERCES_CPP_NAMESPACE::InputSource;
 #endif
@@ -70,6 +71,6 @@ namespace RTT
         ~CPFDemarshaller();
         virtual bool deserialize( PropertyBag &v );
     };
-}
+}}
 #endif
 #endif

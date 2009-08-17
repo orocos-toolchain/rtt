@@ -43,7 +43,8 @@
 
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 
@@ -51,14 +52,14 @@ namespace RTT
      * A Condition which holds a boolean DataSource.
      */
   class RTT_API ConditionBoolDataSource
-    : public ConditionInterface
+    : public base::ConditionInterface
   {
-    DataSource<bool>::shared_ptr data;
+    internal::DataSource<bool>::shared_ptr data;
   public:
       /**
-       * The constructor stores the DataSource \a s in a shared_ptr.
+       * The constructor stores the internal::DataSource \a s in a shared_ptr.
        */
-    ConditionBoolDataSource( DataSource<bool>* s )
+    ConditionBoolDataSource( internal::DataSource<bool>* s )
       : data( s )
       {
       }
@@ -66,8 +67,8 @@ namespace RTT
     bool evaluate();
     ConditionBoolDataSource* clone() const;
     void reset();
-    ConditionBoolDataSource* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+    ConditionBoolDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
   };
-};
+}};
 
 #endif

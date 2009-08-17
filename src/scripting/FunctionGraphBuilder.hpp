@@ -48,7 +48,8 @@
 #include <boost/graph/graph_traits.hpp>
 
 namespace RTT
-{
+{ namespace scripting {
+
 
     /**
      * @brief This class builds a program consisting of
@@ -105,7 +106,7 @@ namespace RTT
          * @param cond The Condition under which to return.
          * @param line The line number of that line in the function.
          */
-        void returnFunction( ConditionInterface* cond, int line );
+        void returnFunction( base::ConditionInterface* cond, int line );
 
         /**
          * Finish building the function and return the result.
@@ -118,11 +119,11 @@ namespace RTT
          */
         FunctionGraphPtr getFunction();
 
-        void startIfStatement( ConditionInterface* cond, int linenumber );
+        void startIfStatement( base::ConditionInterface* cond, int linenumber );
         void endIfBlock(int linenumber);
         void endElseBlock(int linenumber);
 
-        void startWhileStatement( ConditionInterface* cond, int linenumber );
+        void startWhileStatement( base::ConditionInterface* cond, int linenumber );
         void endWhileBlock(int linenumber);
 
         bool inLoop();
@@ -133,20 +134,20 @@ namespace RTT
          *
          * @return the 'new' build CommandNode.
          */
-        CommandNode addCommand( ConditionInterface* cond,  ActionInterface* com );
+        CommandNode addCommand( base::ConditionInterface* cond,  base::ActionInterface* com );
 
         /**
          * Add an edge from the build CommandNode to the given CommandNode
          * without changing the build CommandNode.
          *
          */
-        void addConditionEdge( ConditionInterface* cond, CommandNode vert );
+        void addConditionEdge( base::ConditionInterface* cond, CommandNode vert );
 
         /**
          * Add an edge between the given CommandNode and the build CommandNode.
          *
          */
-        void closeConditionEdge( CommandNode vert, ConditionInterface* cond );
+        void closeConditionEdge( CommandNode vert, base::ConditionInterface* cond );
 
         /**
          * Select an already added CommandNode.
@@ -159,13 +160,13 @@ namespace RTT
          * Sets a new Command on the build CommandNode.
          *
          */
-        void setCommand( ActionInterface* comm );
+        void setCommand( base::ActionInterface* comm );
 
         /**
          * Get the Command on a given CommandNode.
          *
          */
-        ActionInterface* getCommand( CommandNode cn );
+        base::ActionInterface* getCommand( CommandNode cn );
 
         /**
          * Sets a (new) command on a given CommandNode.
@@ -174,7 +175,7 @@ namespace RTT
          * @param comm The new Command to be executed in that node.
          *
          */
-        void setCommand( CommandNode vert, ActionInterface* comm);
+        void setCommand( CommandNode vert, base::ActionInterface* comm);
 
         /**
          * Append a function to the build CommandNode.
@@ -184,7 +185,7 @@ namespace RTT
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraphPtr fn, std::vector<DataSourceBase::shared_ptr> fnargs);
+        CommandNode appendFunction( base::ConditionInterface* cond, FunctionGraphPtr fn, std::vector<base::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -193,7 +194,7 @@ namespace RTT
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode setFunction( FunctionGraphPtr fn, std::vector<DataSourceBase::shared_ptr> fnargs);
+        CommandNode setFunction( FunctionGraphPtr fn, std::vector<base::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Proceed to the 'next' CommandNode.
@@ -211,12 +212,12 @@ namespace RTT
          * @param line_nr The line number of the 'build' command.
          * @return The new build CommandNode.
          */
-        CommandNode proceedToNext( ConditionInterface* cond, int line_nr = 0 );
+        CommandNode proceedToNext( base::ConditionInterface* cond, int line_nr = 0 );
 
         /**
          * Connect the given CommandNode to the 'next' CommandNode.
          */
-        void connectToNext( CommandNode v, ConditionInterface* cond );
+        void connectToNext( CommandNode v, base::ConditionInterface* cond );
 
         /**
          * Return the build CommandNode.
@@ -268,7 +269,7 @@ namespace RTT
          */
         std::stack<CommandNode> break_stack;
     };
-}
+}}
 
 #endif
 

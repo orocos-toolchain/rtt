@@ -40,18 +40,19 @@
 #include <vector>
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * @brief Based on the software pattern 'composite', this
      * class RTT_API allows composing command objects into one command object
      */
     class RTT_API CommandComposite
-        : public ActionInterface
+        : public base::ActionInterface
     {
         public:
         CommandComposite() {}
 
-        CommandComposite(std::vector<ActionInterface*> cv )
+        CommandComposite(std::vector<base::ActionInterface*> cv )
             : vect( cv )
         {}
 
@@ -59,15 +60,15 @@ namespace RTT
          * Copy-Construct a clone() of all commands
          */
         CommandComposite( const CommandComposite& orig )
-            : ActionInterface()
+            : base::ActionInterface()
         {
-            for (std::vector<ActionInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
+            for (std::vector<base::ActionInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
                 this->add( (*it)->clone() );
         }
 
         virtual ~CommandComposite() {
-            for (std::vector<ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
-                ActionInterface * cif=*it;
+            for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
+                base::ActionInterface * cif=*it;
                 delete cif;
             }
         }
@@ -77,7 +78,7 @@ namespace RTT
              * Commands will be executed in the order they have been added
              */
             virtual bool execute() {
-            	for (std::vector<ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
+            	for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
             		if ( !(*it)->execute() )
                         return false;
             	}
@@ -85,14 +86,14 @@ namespace RTT
 			};
 
         void readArguments() {
-            for (std::vector<ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<base::ActionInterface*>::iterator it=vect.begin();it!=vect.end();it++)
                 (*it)->readArguments();
         }
 
         bool valid() const {
             // valid if all are valid.
             bool v = true;
-            for (std::vector<ActionInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<base::ActionInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
                 v = v && (*it)->valid();
             return v;
         }
@@ -101,25 +102,25 @@ namespace RTT
          * add a command to the vect
          *
          */
-        virtual void add(ActionInterface * com) {
+        virtual void add(base::ActionInterface * com) {
             vect.push_back(com);
         };
 
-        virtual ActionInterface* clone() const
+        virtual base::ActionInterface* clone() const
         {
             return new CommandComposite( *this );
         }
 
-        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         {
             CommandComposite* res = new CommandComposite();
-            for (std::vector<ActionInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<base::ActionInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
                 res->add( (*it)->copy(alreadyCloned) );
             return res;
         }
 
     private:
-        std::vector<ActionInterface*> vect;
+        std::vector<base::ActionInterface*> vect;
     };
 
-}
+}}

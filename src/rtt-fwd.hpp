@@ -1,6 +1,7 @@
 #ifndef ORO_RTT_FWD_HPP
 #define ORO_RTT_FWD_HPP
 
+#include "rtt-detail-fwd.hpp"
 #include "os/rtt-os-fwd.hpp"
 #include "base/rtt-base-fwd.hpp"
 #include "internal/rtt-internal-fwd.hpp"
@@ -12,6 +13,9 @@ namespace RTT
 {
 
     class CleanupHandle;
+    template<
+        typename SignatureT
+    >
     class Event;
     class ExecutionEngine;
     class Handle;
@@ -35,32 +39,6 @@ namespace RTT
     class OutputPort;
     template<typename T>
     class Property;
-
-    namespace base {}
-    namespace internal {}
-    namespace interface {}
-    namespace extras {}
-    namespace marsh {}
-    namespace os {}
-    namespace scripting {}
-    namespace types {}
-    namespace plugin {}
-
-    /**
-     * Implementation specific classes, not intended for
-     * users.
-     */
-    namespace detail {
-        using namespace base;
-        using namespace internal;
-        using namespace interface;
-        using namespace extras;
-        using namespace marsh;
-        using namespace os;
-        using namespace scripting;
-        using namespace types;
-        using namespace plugin;
-    }
 
 }
 #endif

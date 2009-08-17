@@ -43,7 +43,8 @@
 #include "../../Event.hpp"
 
 namespace RTT
-{
+{ namespace dev {
+
     class RTT_API DigitalOutput;
 
     /**
@@ -116,6 +117,6 @@ namespace RTT
         virtual void limit(double lower, double higher, const Event<void(std::string)>& ev) = 0;
     };
 
-}
+}}
 
 #endif

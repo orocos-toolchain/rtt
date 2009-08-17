@@ -38,7 +38,8 @@
 #include "../types/Types.hpp"
 
 namespace RTT
-{
+{ namespace plugin {
+
 
     /**
      * A class which registers TransportProtocol instances to types.
@@ -52,13 +53,13 @@ namespace RTT
         virtual ~TransportPlugin() {}
 
         /**
-         * Add a transport for the given type to the TypeInfo
+         * Add a transport for the given type to the types::TypeInfo
          * instance.
          * @param type_name The name of the type to transport
          * @param ti The typ to which transports may be added.
          * @return false if no transport was added, true otherwise.
          */
-        virtual bool registerTransport(std::string type_name, TypeInfo* ti) = 0;
+        virtual bool registerTransport(std::string type_name, types::TypeInfo* ti) = 0;
 
         /**
          * Returns the (protocol) name of this transport.
@@ -73,6 +74,6 @@ namespace RTT
         virtual std::string getName() const = 0;
     };
 
-}
+}}
 
 #endif

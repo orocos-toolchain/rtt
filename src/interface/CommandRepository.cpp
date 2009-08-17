@@ -38,8 +38,8 @@
 
 #include "CommandRepository.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     CommandRepository::~CommandRepository()
     {
         clear();

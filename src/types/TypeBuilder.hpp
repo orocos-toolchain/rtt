@@ -42,7 +42,8 @@
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
-{
+{ namespace types {
+
     /**
      * This interface describes how constructors work.
      */
@@ -53,16 +54,16 @@ namespace RTT
          * Inspect args and return a type constructed with these args
          * if such a constructor exists.
          */
-        virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+        virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
 
         /**
          * Automatic type conversion (float->double,... ). Fails by default.
          */
-        virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const
+        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const
         {
-            return DataSourceBase::shared_ptr();
+            return base::DataSourceBase::shared_ptr();
         }
     };
-}
+}}
 
 #endif

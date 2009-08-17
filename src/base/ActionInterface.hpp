@@ -41,13 +41,13 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include "rtt-config.h"
+#include "rtt-base-fwd.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
-namespace RTT {
-    class DataSourceBase;
+namespace RTT { namespace base {
 
     /**
      * @brief Based on the software pattern 'action', this
@@ -58,15 +58,15 @@ namespace RTT {
      *
      * @section cc Copy versus clone semantics
      * @par Copy is used to copy a whole tree of actions,
-     * storing common information in web of \a DataSource's.
-     * The DataSource 'web' will be copied such that an
+     * storing common information in web of \a internal::DataSource's.
+     * The internal::DataSource 'web' will be copied such that an
      * entirely new action tree references the new DataSources.
      * @par When clone is used, the Datasources remain
      * in place, and only the action is cloned, thus,
      * the original and the clone point to the same DataSource.
      * The deletion of DataSources must thus be managed with
      * smart pointers. A clone is thus used for within the
-     * existing DataSource web.
+     * existing internal::DataSource web.
      */
     class RTT_API ActionInterface
     {
@@ -112,24 +112,24 @@ namespace RTT {
 
         /**
          * When copying an Orocos program, we want identical
-         * DataSource's to be mapped to identical DataSources, in
+         * internal::DataSource's to be mapped to identical DataSources, in
          * order for the program to work correctly.  This is different
          * from the clone function, where we simply want a new Action
          * that can replace the old one directly.
          *
-         * This function takes a map that maps the old DataSource's
+         * This function takes a map that maps the old internal::DataSource's
          * onto their new replacements.  This way, it is possible to
-         * check before cloning a DataSource, whether it has already
+         * check before cloning a internal::DataSource, whether it has already
          * been copied, and if so, reuse the existing copy.
          *
          * To keep old source working, the standard implementation of
          * this function simply calls the clone function.  If your
-         * ActionInterface uses a DataSource, it is important that
+         * ActionInterface uses a internal::DataSource, it is important that
          * you reimplement this function correctly though.
          */
         virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
-}
+}}
 
 #endif // ACTIONINTERFACE_HPP

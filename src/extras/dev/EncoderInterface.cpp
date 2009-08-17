@@ -41,5 +41,6 @@
 #include "EncoderInterface.hpp"
 
 namespace RTT {
+    using namespace dev;
     NameServer<EncoderInterface*> EncoderInterface::nameserver;
 }

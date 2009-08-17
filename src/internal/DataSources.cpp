@@ -38,8 +38,8 @@
 
 #include "DataSources.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     template<>
     void ValueDataSource<std::string>::set( AssignableDataSource<std::string>::param_t t )

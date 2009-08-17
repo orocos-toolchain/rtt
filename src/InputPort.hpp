@@ -13,22 +13,22 @@ namespace RTT
 {
 
     template<typename T>
-    class InputPort : public InputPortInterface
+    class InputPort : public base::InputPortInterface
     {
-        friend class ConnOutputEndpoint<T>;
-        InputPortSource<T>* data_source;
+        friend class internal::ConnOutputEndpoint<T>;
+        internal::InputPortSource<T>* data_source;
 
     public:
-        InputPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
-            : InputPortInterface(name, default_policy)
+        InputPort(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy())
+            : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
         ~InputPort() { delete data_source; }
 
-        bool read(DataSourceBase::shared_ptr source)
+        bool read(base::DataSourceBase::shared_ptr source)
         {
-            typename AssignableDataSource<T>::shared_ptr ds =
-                boost::dynamic_pointer_cast< AssignableDataSource<T> >(source);
+            typename internal::AssignableDataSource<T>::shared_ptr ds =
+                boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (! ds)
             {
                 log(Error) << "trying to read to an incompatible data source" << endlog();
@@ -42,22 +42,22 @@ namespace RTT
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        bool read(typename ChannelElement<T>::reference_t sample)
+        bool read(typename base::ChannelElement<T>::reference_t sample)
         {
-            typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->channel);
+            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >(this->channel);
             if (input)
                 return input->read(sample);
             else return false;
         }
 
-        /** Returns the TypeInfo object for the port's type */
-        virtual const TypeInfo* getTypeInfo() const
-        { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+        /** Returns the types::TypeInfo object for the port's type */
+        virtual const types::TypeInfo* getTypeInfo() const
+        { return internal::DataSourceTypeInfo<T>::getTypeInfo(); }
 
         /**
          * Create a clone of this port with the same name
          */
-        virtual PortInterface* clone() const
+        virtual base::PortInterface* clone() const
         { return new InputPort<T>(this->getName()); }
 
         /**
@@ -65,17 +65,17 @@ namespace RTT
          * A port for reading will return a new port for writing and
          * vice versa.
          */
-        virtual PortInterface* antiClone() const
+        virtual base::PortInterface* antiClone() const
         { return new OutputPort<T>(this->getName()); }
 
-        /** Returns a DataSourceBase interface to read this port. The returned
+        /** Returns a base::DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
          * port is destroyed.
          */
-        DataSourceBase* getDataSource()
+        base::DataSourceBase* getDataSource()
         {
             if (data_source) return data_source;
-            data_source = new InputPortSource<T>(*this);
+            data_source = new internal::InputPortSource<T>(*this);
             data_source->ref();
             return data_source;
         }
@@ -84,11 +84,11 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual TaskObject* createPortObject()
+        virtual internal::TaskObject* createPortObject()
         {
-            TaskObject* object = InputPortInterface::createPortObject();
+            internal::TaskObject* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef bool (InputPort<T>::*ReadSample)(typename ChannelElement<T>::reference_t);
+            typedef bool (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             object->methods()->addMethod( method("read", static_cast<ReadSample>(&InputPort<T>::read), this),
                     "Reads a sample from the port.",
                     "sample", "");

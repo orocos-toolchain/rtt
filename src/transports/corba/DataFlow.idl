@@ -9,7 +9,7 @@
 
 module RTT
 {
-  module Corba
+  module corba
   {
     enum ConnectionModel { Data, Buffer };
     enum LockPolicy { Locked, LockFree };

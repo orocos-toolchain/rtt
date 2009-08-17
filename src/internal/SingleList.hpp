@@ -44,7 +44,8 @@
 #include "MemoryPool.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A single-linked single list algorithm invented by Timothy
      * L. Harris. It will never work on 8bit computers as implemented
@@ -125,7 +126,7 @@ namespace RTT
                     else
                         return right_node;
 
-                if (OS::CAS(&(left_node->next), left_node_next, right_node)) {
+                if (os::CAS(&(left_node->next), left_node_next, right_node)) {
                     mpool.deallocate( get_unmarked_reference(left_node_next) );
                     if ((right_node != this->tail) && is_marked_reference(right_node->next))
                         goto search_again;
@@ -245,7 +246,7 @@ namespace RTT
                     return false;
                 }
                 new_node->next = right_node;
-                if (OS::CAS(&(left_node->next), right_node, new_node))
+                if (os::CAS(&(left_node->next), right_node, new_node))
                     return true;
             } while (true);
         }
@@ -265,10 +266,10 @@ namespace RTT
                     return false;
                 right_node_next = right_node->next;
                 if (!is_marked_reference(right_node_next))
-                    if (OS::CAS( &(right_node->next), right_node_next, get_marked_reference(right_node_next)))
+                    if (os::CAS( &(right_node->next), right_node_next, get_marked_reference(right_node_next)))
                         break;
             } while(true);
-            if (!OS::CAS(&(left_node->next), right_node, right_node_next))
+            if (!os::CAS(&(left_node->next), right_node, right_node_next))
                 right_node = search(right_node->key, left_node);
             else
                 mpool.deallocate( get_unmarked_reference(right_node) );
@@ -363,6 +364,6 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif

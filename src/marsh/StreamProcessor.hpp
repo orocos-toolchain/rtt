@@ -39,7 +39,8 @@
 #define STREAMPROCESSOR_HPP
 
 namespace RTT
-{
+{ namespace marsh {
+
 
     /**
      * @brief An interface for setting and getting a
@@ -87,6 +88,6 @@ namespace RTT
         Stream* s;
     };
 
-}
+}}
 
 #endif

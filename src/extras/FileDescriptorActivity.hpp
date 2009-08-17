@@ -4,9 +4,10 @@
 #include "../Activity.hpp"
 #include <set>
 
-namespace RTT {
+namespace RTT { namespace extras {
+
     /** An activity which is triggered by the availability of data on a given
-     * file descriptor. step() (and hence the RunnableInterface's step() method)
+     * file descriptor. step() (and hence the base::RunnableInterface's step() method)
      * is called when data is available or when an error is encountered on the
      * file descriptor.
      */
@@ -19,14 +20,14 @@ namespace RTT {
         fd_set m_fd_set;
         fd_set m_fd_work;
         bool m_error;
-        RunnableInterface* runner;
+        base::RunnableInterface* runner;
 
         static const int CMD_BREAK_LOOP = 0;
         static const int CMD_TRIGGER    = 1;
 
     public:
         /**
-         * Create a FileDescriptorActivity with a given priority and RunnableInterface
+         * Create a FileDescriptorActivity with a given priority and base::RunnableInterface
          * instance. The default scheduler for NonPeriodicActivity
          * objects is ORO_SCHED_RT.
          *
@@ -34,11 +35,11 @@ namespace RTT {
          * @param _r The optional runner, if none, this->loop() is called.
          * @param name The name of the underlying thread.
          */
-        FileDescriptorActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
+        FileDescriptorActivity(int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
         /**
          * Create a FileDescriptorActivity with a given scheduler type, priority and
-         * RunnableInterface instance.
+         * base::RunnableInterface instance.
          * @param scheduler
          *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
          *        ORO_SCHED_RT.
@@ -46,7 +47,7 @@ namespace RTT {
          * @param _r The optional runner, if none, this->loop() is called.
          * @param name The name of the underlying thread.
          */
-        FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
+        FileDescriptorActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="FileDescriptorActivity" );
 
         virtual ~FileDescriptorActivity();
 
@@ -74,14 +75,14 @@ namespace RTT {
         bool isWatched(int fd) const;
 
         /** True if this specific FD has been updated. This should only be
-         * called from the RunnableInterface this activity is driving.
+         * called from the base::RunnableInterface this activity is driving.
          */
         bool isUpdated(int fd) const;
 
         /** True if one of the file descriptors has a problem (for instance it
          * has been closed)
          *
-         * This should only be used from within the RunnableInterface this
+         * This should only be used from within the base::RunnableInterface this
          * activity is driving.
          */
         bool hasError() const;
@@ -111,6 +112,6 @@ namespace RTT {
          */
         virtual bool trigger();
     };
-}
+}}
 
 #endif

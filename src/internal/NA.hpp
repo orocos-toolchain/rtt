@@ -43,7 +43,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * This class is used to return a 'default' value

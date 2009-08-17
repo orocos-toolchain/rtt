@@ -99,7 +99,7 @@ namespace RTT
         /**
          * Function to get the loggers starting timestamp
          */
-        TimeService::ticks getReferenceTime()const;
+        os::TimeService::ticks getReferenceTime()const;
 
         /**
          * Enumerate all log-levels from absolute silence to

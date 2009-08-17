@@ -47,8 +47,8 @@
 #include "../../Logger.hpp"
 
 namespace RTT
-{ namespace OS {
-    namespace detail {
+{ namespace os {
+    namespace xenomai {
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main)
         {

@@ -264,7 +264,7 @@ void EventTest::reset()
     t_listener_what = "";
 }
 
-static OS::AtomicInt testConcurrentEmitHandlerCount;
+static AtomicInt testConcurrentEmitHandlerCount;
 
 void testConcurrentEmitHandler(void)
 {

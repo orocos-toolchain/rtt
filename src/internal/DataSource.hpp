@@ -47,12 +47,13 @@
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
 
 #ifndef ORO_EMBEDDED
     /**
      * This exception is thrown if the target and source type
-     * of an assignment of a DataSource with a DataSourceBase
+     * of an assignment of a DataSource with a base::DataSourceBase
      * differ.
      */
     struct RTT_EXPORT bad_assignment
@@ -65,7 +66,7 @@ namespace RTT
    * DataSource is a base class representing a generic way to read
    * data of type \a T.
    *
-   * @see DataSourceBase for shared_ptr use.
+   * @see base::DataSourceBase for shared_ptr use.
    * @param T The type of data returned by \a get(). It does not
    * necessarily say that the data is stored as a \a T, it only
    * specifies in which form the get() method returns the data.
@@ -74,7 +75,7 @@ namespace RTT
    */
   template<typename T>
   class DataSource
-    : public DataSourceBase
+    : public base::DataSourceBase
   {
   protected:
       virtual ~DataSource();
@@ -104,7 +105,7 @@ namespace RTT
 
       virtual DataSource<T>* clone() const = 0;
 
-      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+      virtual DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const = 0;
 
       virtual std::string getType() const;
 
@@ -113,12 +114,12 @@ namespace RTT
        */
       static  std::string GetType();
 
-      virtual const TypeInfo* getTypeInfo() const;
+      virtual const types::TypeInfo* getTypeInfo() const;
 
       /**
        * Return the Orocos type info.
        */
-      static const TypeInfo* GetTypeInfo();
+      static const types::TypeInfo* GetTypeInfo();
 
       /**
        * Return the Orocos type name, without const, pointer or reference
@@ -129,10 +130,10 @@ namespace RTT
       virtual std::string getTypeName() const;
 
       /**
-       * This method narrows a DataSourceBase to a typeded DataSource,
+       * This method narrows a base::DataSourceBase to a typeded DataSource,
        * possibly returning a new object.
        */
-      static DataSource<T>* narrow(DataSourceBase* db);
+      static DataSource<T>* narrow(base::DataSourceBase* db);
 
   };
 
@@ -186,26 +187,26 @@ namespace RTT
        */
       virtual const_reference_t rvalue() const = 0;
 
-      virtual bool update( DataSourceBase* other );
+      virtual bool update( base::DataSourceBase* other );
 
-      virtual ActionInterface* updateCommand( DataSourceBase* other);
+      virtual base::ActionInterface* updateCommand( base::DataSourceBase* other);
 
       virtual AssignableDataSource<T>* clone() const = 0;
 
-      virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+      virtual AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const = 0;
 
       virtual bool updateBlob(int protocol, const void* data);
 
       virtual void* server(int protocol, void* data );
 
       /**
-       * This method narrows a DataSourceBase to a typeded AssignableDataSource,
+       * This method narrows a base::DataSourceBase to a typeded AssignableDataSource,
        * possibly returning a new object.
        */
-      static AssignableDataSource<T>* narrow(DataSourceBase* db);
+      static AssignableDataSource<T>* narrow(base::DataSourceBase* db);
 
   };
-}
+}}
 
 // workaround inclusion dependencies.
 #ifndef ORO_CORELIB_DATASOURCES_HPP

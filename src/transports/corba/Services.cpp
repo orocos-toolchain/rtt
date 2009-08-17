@@ -50,7 +50,7 @@
 #endif
 
 namespace RTT
-{ namespace Corba {
+{ namespace corba {
 
     bool Services::MayShutdown = true;
 

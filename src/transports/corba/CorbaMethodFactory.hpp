@@ -46,28 +46,28 @@
 #include "OperationInterfaceC.h"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
 
     /**
      * A local factory for creating remote Corba methods.
-     * It connects to an Corba::MethodFactory and translates
+     * It connects to an corba::MethodFactory and translates
      * Corba objects to plain C++ objects.
      */
     class RTT_CORBA_API CorbaMethodFactory
-        : public RTT::detail::OperationFactoryPart<DataSourceBase*>
+        : public RTT::internal::OperationFactoryPart<base::DataSourceBase*>
     {
-        Corba::MethodInterface_var mfact;
+        corba::MethodInterface_var mfact;
         PortableServer::POA_var mpoa;
         std::string method;
     public:
-        typedef std::vector<DataSourceBase::shared_ptr> Arguments;
+        typedef std::vector<base::DataSourceBase::shared_ptr> Arguments;
         typedef std::vector<std::string> Members;
-        typedef std::vector< RTT::ArgumentDescription > Descriptions;
+        typedef std::vector< internal::ArgumentDescription > Descriptions;
 
-        CorbaMethodFactory( const std::string& method_name, Corba::MethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
-            : RTT::detail::OperationFactoryPart<DataSourceBase*>("Corba Method"),
-              mfact(Corba::MethodInterface::_duplicate(fact) ),
+        CorbaMethodFactory( const std::string& method_name, corba::MethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
+            : RTT::internal::OperationFactoryPart<base::DataSourceBase*>("Corba Method"),
+              mfact(corba::MethodInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa)),
               method(method_name)
         {}
@@ -82,8 +82,8 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getResultType( method.c_str() );
                 return std::string( result.in() );
-            } catch ( Corba::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
+            } catch ( corba::NoSuchNameException& nsn ) {
+                throw internal::name_not_found_exception( nsn.name.in() );
             }
             return std::string();
         }
@@ -92,41 +92,41 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getDescription( method.c_str() );
                 return std::string( result.in() );
-            } catch ( Corba::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
+            } catch ( corba::NoSuchNameException& nsn ) {
+                throw internal::name_not_found_exception( nsn.name.in() );
             }
             return std::string();
         }
 
-        virtual std::vector< RTT::ArgumentDescription > getArgumentList() const {
+        virtual std::vector< internal::ArgumentDescription > getArgumentList() const {
             Descriptions ret;
             try {
-                Corba::Descriptions_var result = mfact->getArguments( method.c_str() );
+                corba::Descriptions_var result = mfact->getArguments( method.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
-                    ret.push_back( RTT::ArgumentDescription(std::string( result[i].name.in() ),
+                    ret.push_back( internal::ArgumentDescription(std::string( result[i].name.in() ),
                                                        std::string( result[i].description.in() ),
                                                        std::string( result[i].type.in() ) ));
-            } catch ( Corba::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
+            } catch ( corba::NoSuchNameException& nsn ) {
+                throw internal:: name_not_found_exception( nsn.name.in() );
             }
             return ret;
         }
 
-        virtual DataSourceBase* produce( const Arguments& args ) const {
-            Corba::Arguments_var nargs = new Corba::Arguments();
+        virtual base::DataSourceBase* produce( const Arguments& args ) const {
+            corba::Arguments_var nargs = new corba::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = (Corba::Expression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
+                nargs[i] = (corba::Expression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
             try {
-                Corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
+                corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
                 return ExpressionProxy::CreateDataSource( result._retn() ).get();
-            } catch ( Corba::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
-            } catch ( Corba::WrongNumbArgException& wa ) {
-                throw wrong_number_of_args_exception( wa.wanted, wa.received );
-            } catch ( Corba::WrongTypeArgException& wta ) {
-                throw wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
+            } catch ( corba::NoSuchNameException& nsn ) {
+                throw internal:: name_not_found_exception( nsn.name.in() );
+            } catch ( corba::WrongNumbArgException& wa ) {
+                throw internal:: wrong_number_of_args_exception( wa.wanted, wa.received );
+            } catch ( corba::WrongTypeArgException& wta ) {
+                throw internal:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
             }
             return 0; // not reached.
         }

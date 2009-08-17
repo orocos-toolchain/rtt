@@ -41,7 +41,8 @@
 #include "AnalogInInterface.hpp"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * A class representing an analog input channel.
      *
@@ -90,6 +91,6 @@ namespace RTT
         AnalogInInterface *board;
         int channel;
     };
-}
+}}
 
 #endif // ANALOGINPUT_HPP

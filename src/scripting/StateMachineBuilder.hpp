@@ -41,7 +41,7 @@
 
 namespace RTT {
 
-    namespace detail {
+    namespace scripting {
 
     struct wrong_context_params_exception {
         std::string mwhat;

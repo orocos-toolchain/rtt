@@ -45,11 +45,10 @@
 #include "../base/ProgramInterface.hpp"
 
 namespace RTT
-{
-    class FunctionGraph;
+{ namespace scripting {
+
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
     typedef boost::weak_ptr<FunctionGraph> FunctionGraphWPtr;
-    class TaskObject;
 
     /**
      * This class represents a function. It has
@@ -57,7 +56,7 @@ namespace RTT
      * used for storing a Graph.
      */
     class RTT_API FunctionGraph
-        :public ProgramInterface
+        :public base::ProgramInterface
     {
     public:
         typedef EdgeCondition::EdgeProperty EdgeProperty;
@@ -104,7 +103,7 @@ namespace RTT
         /**
          * Ordered arguments (are also in the repository).
          */
-        std::vector<AttributeBase*> args;
+        std::vector<base::AttributeBase*> args;
 
         bool pausing;
         bool mstep;
@@ -114,7 +113,7 @@ namespace RTT
 
         virtual void handleUnload();
 
-        TaskObject* context;
+        internal::TaskObject* context;
     public:
         /**
          * Create a FunctionGraph with a given name.
@@ -128,7 +127,7 @@ namespace RTT
 
         ~FunctionGraph();
 
-        void setProgramTask(TaskObject* mytask);
+        void setProgramTask(internal::TaskObject* mytask);
 
         /**
          * To be called after a function is constructed.
@@ -156,7 +155,7 @@ namespace RTT
 
         virtual const std::string& getName() const;
 
-        virtual FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+        virtual FunctionGraph* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const;
 
         virtual FunctionGraph* clone() const;
 
@@ -198,21 +197,21 @@ namespace RTT
         /**
          * Return an ordered list of this funcion's arguments.
          */
-        std::vector<AttributeBase*> getArguments() const {
+        std::vector<base::AttributeBase*> getArguments() const {
             return args;
         }
 
-        void addArgument( AttributeBase* a) {
+        void addArgument( base::AttributeBase* a) {
             args.push_back(a);
         }
 
         /**
-         * Clear the arguments vector and release all AttributeBase resources.
+         * Clear the arguments vector and release all base::AttributeBase resources.
          */
         void clearArguments();
     };
 
 
-}
+}}
 
 #endif

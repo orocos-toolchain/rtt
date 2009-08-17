@@ -46,7 +46,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace dev {
+
 
     /**
      * @brief An interface that describes a general sensor
@@ -101,7 +102,7 @@ namespace RTT
 
     };
 
-}
+}}
 
 #endif // SENSORINTERFACE_HPP
 

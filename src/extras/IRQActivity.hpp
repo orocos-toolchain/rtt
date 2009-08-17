@@ -13,7 +13,8 @@ struct RT_INTR { };
 #warning "IRQActivity is available only on Xenomai. It will fail on startup"
 #endif
 
-namespace RTT {
+namespace RTT { namespace extras {
+
     /** An activity which is triggered by an IRQ edge. This activity is only
      * available on xenomai
      *
@@ -21,7 +22,7 @@ namespace RTT {
      * <ul>
      *   <li> setIRQ is called
      *   <li> one of the underlying task contexts (if any) provides the
-     *   IRQActivity::Provider interface. In that case, the getIRQ() method of
+     *   Provider interface. In that case, the getIRQ() method of
      *   that task context is called to get the descriptor
      * </ul>
      */
@@ -29,7 +30,7 @@ namespace RTT {
     {
         int      m_irq;
         RT_INTR  m_handle;
-        RunnableInterface* m_runner;
+        base::RunnableInterface* m_runner;
 
     public:
         /** If this interface is derived from one of the TaskContext objects
@@ -43,25 +44,25 @@ namespace RTT {
         };
 
         /**
-         * Create a IRQActivity with a given priority and RunnableInterface
+         * Create a IRQActivity with a given priority and base::RunnableInterface
          * instance. The default scheduler for IRQActivity
          * objects is ORO_SCHED_RT.
          *
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        IRQActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
+        IRQActivity(int priority, base::RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
 
         /**
          * Create a IRQActivity with a given scheduler type, priority and
-         * RunnableInterface instance.
+         * base::RunnableInterface instance.
          * @param scheduler
          *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
          *        ORO_SCHED_RT.
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        IRQActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
+        IRQActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="IRQActivity" );
 
         virtual ~IRQActivity();
 
@@ -75,6 +76,6 @@ namespace RTT {
         virtual void step();
 #endif
     };
-}
+}}
 
 #endif

@@ -46,8 +46,10 @@
 #include <boost/bind.hpp>
 
 
-namespace RTT
-{
+namespace RTT {
+    using namespace base;
+    using namespace extras;
+
     EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r, const std::string& name )
         : Activity(priority, 0.0, _r), m_pending_events(0) { }
 

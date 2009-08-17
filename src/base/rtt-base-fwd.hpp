@@ -8,8 +8,12 @@ namespace RTT {
         class AttributeBase;
         class BufferBase;
         class ChannelElementBase;
+        class ConditionInterface;
         class DataSourceBase;
         class DispatchInterface;
+        template<
+            typename Signature
+        >
         class EventBase;
         class InputPortInterface;
         class OutputPortInterface;
@@ -24,16 +28,19 @@ namespace RTT {
         struct BlockingPolicy;
         struct DataBuf;
         struct NonBlockingPolicy;
-        struct Status;
+        template< class T >
+        class DataObject;
+        template< class T, class ReadPolicy, class WritePolicy >
+        class Buffer;
         template <class T>
         class DataObjectInterface;
-        template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy >
+        template< class T, class ReadPolicy , class WritePolicy >
         class BufferLockFree;
         template<class F>
         struct CommandBase;
         template<class F>
         struct MethodBase;
-        template<class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+        template<class T, class ReadPolicy , class WritePolicy >
         class BufferLocked;
         template<class T>
         class BufferInterface;
@@ -47,6 +54,9 @@ namespace RTT {
         class WriteInterface;
         template<typename T>
         class ChannelElement;
+    }
+    namespace detail {
+        using namespace base;
     }
 }
 #endif

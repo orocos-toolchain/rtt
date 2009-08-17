@@ -42,7 +42,8 @@
 #include "PeriodicActivity.hpp"
 
 namespace RTT
-{
+{ namespace extras {
+
     /**
      * @brief A SimulationActivity is a PeriodicActivity which is used
      * for simulation.
@@ -63,12 +64,12 @@ namespace RTT
          * Construct a SimulationActivity with a periodicity \a period
          * Seconds
          */
-        SimulationActivity(Seconds period, RunnableInterface* r=0 );
+        SimulationActivity(Seconds period, base::RunnableInterface* r=0 );
         /**
          * Construct a SimulationActivity with a periodicity of
          * \a s seconds and \a ns nanoseconds
          */
-        SimulationActivity(secs s, nsecs ns, RunnableInterface* r=0 );
+        SimulationActivity(secs s, nsecs ns, base::RunnableInterface* r=0 );
 
         /**
          * A simulated activity can be started also if the
@@ -91,6 +92,6 @@ namespace RTT
 
     };
 
-}
+}}
 
 #endif

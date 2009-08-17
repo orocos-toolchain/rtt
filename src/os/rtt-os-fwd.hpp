@@ -15,20 +15,12 @@ namespace RTT {
         class StartStopManager;
         class ThreadInterface;
         class TimeService;
-        class basic_iostreams;
-        class basic_istreams;
-        class basic_ostreams;
-        class basic_streams;
-        class printbufs;
-        class printstream;
-        class streambufs;
-        class stringbufs;
-        class stringstreams;
         struct CleanupFunction;
         struct InitFunction;
-        struct print_helper;
         struct rt_list;
-        struct string_helper;
+    }
+    namespace detail {
+        using namespace os;
     }
 }
 #endif

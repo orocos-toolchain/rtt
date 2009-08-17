@@ -46,8 +46,8 @@
 #include <Logger.hpp>
 #include <fstream>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     PropertyMarshaller::PropertyMarshaller(const std::string& filename)
         : m( 0 )
     {

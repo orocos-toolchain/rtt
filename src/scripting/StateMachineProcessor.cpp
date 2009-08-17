@@ -43,8 +43,8 @@
 
 #include <boost/bind.hpp>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     using namespace boost;
     using namespace std;

@@ -32,6 +32,7 @@
 #include "HomingInterface.hpp"
 
 namespace RTT {
+    using namespace dev;
 
     HomingInterface::~HomingInterface() {}
 }

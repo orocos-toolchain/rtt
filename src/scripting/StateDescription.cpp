@@ -39,6 +39,7 @@
 #include "StateDescription.hpp"
 
 namespace RTT {
+    using namespace detail;
 
 
   StateDescription* StateDescription::postponeState()

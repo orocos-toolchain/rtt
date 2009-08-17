@@ -49,7 +49,7 @@
 namespace RTT
 {
 
-    namespace detail {
+    namespace internal {
 
         /**
          * Update a Property<T>.
@@ -57,7 +57,7 @@ namespace RTT
          */
         template<class T>
         class UpdatePropertyCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -84,7 +84,7 @@ namespace RTT
          */
         template<class T>
         class CopyPropertyCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -111,7 +111,7 @@ namespace RTT
          */
         template<class T>
         class RefreshPropertyCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             Property<T>* target;
             const Property<T>* source;
@@ -139,7 +139,7 @@ namespace RTT
          */
         template<class T>
         class RefreshPropertyFromDSCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             Property<T>* target;
             typename DataSource<T>::shared_ptr source;
@@ -160,7 +160,7 @@ namespace RTT
                 return new RefreshPropertyFromDSCommand<T>(target, source.get() );
             }
 
-            virtual RefreshPropertyFromDSCommand<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            virtual RefreshPropertyFromDSCommand<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 return new RefreshPropertyFromDSCommand<T>( target, source->copy(alreadyCloned) );
             }
         };

@@ -43,8 +43,7 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
-    class TaskContext;
+{ namespace scripting {
 
     /**
      * @brief The Parser Execution Access provides access to programs
@@ -52,7 +51,7 @@ namespace RTT
      * It can be found as the \a engine object of a TaskContext.
      */
     class RTT_API ParserExecutionAccess
-        : public ExecutionAccess
+        : public interface::ExecutionAccess
     {
     public:
         ParserExecutionAccess( TaskContext* parent );
@@ -60,6 +59,6 @@ namespace RTT
         virtual ~ParserExecutionAccess();
     };
 
-}
+}}
 
 #endif

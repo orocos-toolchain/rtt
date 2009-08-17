@@ -44,12 +44,10 @@
 
 
 namespace RTT
-{
-    class TryCommand;
-    class CommandProcessor;
+{ namespace scripting {
 
     /**
-     * Dispatch a ActionInterface to a CommandProcessor.
+     * Dispatch a base::ActionInterface to a CommandProcessor.
      * The execute() method will return false from the moment
      * on that the dispatched command failed. Hence, this execute()
      * must not wrapped in an AsyncCommandDecorator, but directly
@@ -57,19 +55,19 @@ namespace RTT
      * @deprecated This class is nowhere used and to low level for users.
      */
     class RTT_API CommandDispatch
-        : public DispatchInterface
+        : public base::DispatchInterface
     {
         bool send;
         bool maccepted;
-        CommandProcessor* proc;
-        ActionInterface* com;
-        ConditionInterface* mcn;
+        internal::CommandProcessor* proc;
+        base::ActionInterface* com;
+        base::ConditionInterface* mcn;
 
         /**
-         * Helper class which is sent to the CommandProcessor
+         * Helper class which is sent to the internal::CommandProcessor
          * in order to execute the command.
          */
-        struct Dispatcher : public ActionInterface {
+        struct Dispatcher : public base::ActionInterface {
             bool mexecuted, mvalid;
             CommandDispatch* cd;
             // trick: set mvalid to true internally but return in valid(): mexecuted && mvalid.
@@ -82,9 +80,9 @@ namespace RTT
 
     public:
         /**
-         * Create a command to dispatch another command \a c to a CommandProcessor \a p.
+         * Create a command to dispatch another command \a c to a internal::CommandProcessor \a p.
          */
-        CommandDispatch(CommandProcessor* p, ActionInterface* c, ConditionInterface* cn );
+        CommandDispatch(internal::CommandProcessor* p, base::ActionInterface* c, base::ConditionInterface* cn );
 
         /**
          * Be sure only to delete this command if the target processor is
@@ -118,7 +116,7 @@ namespace RTT
 
         /**
          * Returns true if the command was accepted when sent to the CommandProcessor.
-         * A Command is accepted when the CommandProcessor was running and its queue
+         * A Command is accepted when the internal::CommandProcessor was running and its queue
          * was not full.
          */
         bool accepted() const;
@@ -143,14 +141,14 @@ namespace RTT
          */
         bool done() const;
 
-	DispatchInterface::Status status() const;
+        base::DispatchInterface::Status status() const;
 
-        virtual ConditionInterface* createCondition() const;
+        virtual base::ConditionInterface* createCondition() const;
 
-        DispatchInterface* clone() const;
+        base::DispatchInterface* clone() const;
 
-        DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        base::DispatchInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
-}
+}}
 
 #endif

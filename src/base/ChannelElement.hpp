@@ -5,7 +5,8 @@
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
 
-namespace RTT {
+namespace RTT { namespace base {
+
 
     /** A typed version of ChannelElementBase. It defines generic methods that are
      * type-specific (like write and read)
@@ -45,7 +46,7 @@ namespace RTT {
             else return false;
         }
     };
-}
+}}
 
 #endif
 

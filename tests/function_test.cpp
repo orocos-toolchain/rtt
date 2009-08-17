@@ -44,7 +44,7 @@ using namespace std;
 void
 FunctionTest::setUp()
 {
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    SimulationThread::Instance()->stop();
     // ltc has a test object
     gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
     gtask.start();

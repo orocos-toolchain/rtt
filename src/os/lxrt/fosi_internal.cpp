@@ -56,8 +56,8 @@
 #include "../../Logger.hpp"
 
 namespace RTT
-{ namespace OS {
-    namespace detail {
+{ namespace os {
+    namespace lxrt {
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
         {

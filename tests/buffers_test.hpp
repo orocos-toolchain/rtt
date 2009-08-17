@@ -31,7 +31,7 @@
 #include <rtt-config.h>
 
 using namespace RTT;
-using namespace RTT::OS;
+using namespace RTT::detail;
 
 class Dummy {
 public:

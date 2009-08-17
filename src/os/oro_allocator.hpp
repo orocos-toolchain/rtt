@@ -17,7 +17,7 @@
 
 #include "MutexLock.hpp"
 
-namespace RTT { namespace OS {
+namespace RTT { namespace os {
     /**
      * A simple local allocator which
      * keeps a small pool which you can grow manually

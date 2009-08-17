@@ -75,11 +75,11 @@ namespace RTT
      * soon as an activity object is attached to it. If it is 'PreOperational',
      * it must first be configure()'d before it can be started. You can choose
      * between both using the constructor.
-     * @see TaskState (in TaskCore) for a detailed explanation.
+     * @see TaskState (in base::TaskCore) for a detailed explanation.
      *
      * @par Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
-     * be run by an ActivityInterface implementation. As long as
+     * be run by an base::ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
      * TaskContext will not accept any commands, nor process events,
      * nor execute programs or state machines.  In this way, the user
@@ -96,8 +96,8 @@ namespace RTT
      * Peers.
      */
     class RTT_API TaskContext
-        : public OperationInterface,
-          public TaskCore
+        : public interface::OperationInterface,
+          public base::TaskCore
     {
     public:
         /**
@@ -105,7 +105,7 @@ namespace RTT
          */
         typedef std::vector< std::string > PeerList;
         /**
-         * A list of internal TaskObject names.
+         * A list of internal internal::TaskObject names.
          */
 
         /**
@@ -137,16 +137,16 @@ namespace RTT
 
         virtual void setDescription(const std::string& descr);
 
-        virtual OperationInterface* getParent() { return this; }
+        virtual interface::OperationInterface* getParent() { return this; }
 
         /**
          * This method is ignored by the TaskContext.
          */
-        virtual void setParent(OperationInterface*) { }
+        virtual void setParent(interface::OperationInterface*) { }
 
         /**
          * This method is ignored by the TaskContext.
-         * @see TaskCore::setExecutionEngine for (re-)setting a new
+         * @see base::TaskCore::setExecutionEngine for (re-)setting a new
          * ExecutionEngine, which is a base class of TaskContext.
          */
         virtual void setEngine(ExecutionEngine*) { }
@@ -225,14 +225,14 @@ namespace RTT
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
         /**
-         * Add a new TaskObject to this TaskContext.
+         * Add a new internal::TaskObject to this TaskContext.
          *
          * @param obj This object becomes owned by this TaskContext.
          *
          * @return true if it cuold be added, false if such
          * object already exists.
          */
-        virtual bool addObject( OperationInterface *obj );
+        virtual bool addObject( interface::OperationInterface *obj );
 
         /**
          * Sets the activity of this TaskContext. The
@@ -242,14 +242,14 @@ namespace RTT
          * @param new_act The new activity for this TaskContext,
          * which becomes owned by this TaskContext.
          */
-        void setActivity( ActivityInterface* new_act );
+        void setActivity( base::ActivityInterface* new_act );
 
         /**
          * Get a pointer to the activity running this
          * component.
          * @return Our activity.
          */
-        ActivityInterface* getActivity();
+        base::ActivityInterface* getActivity();
 
         /**
          * Clear the complete interface of this Component.
@@ -283,14 +283,14 @@ namespace RTT
          *
          * The default implementation does nothing;
          */
-        virtual void updateHook(std::vector<PortInterface*> const& updated_ports);
+        virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
 
         /**
          * Get access to high level controls for
          * programs, state machines and scripting
          * statements.
          */
-        ScriptingAccess* scripting()
+        scripting::ScriptingAccess* scripting()
         {
             return mscriptAcc;
         }
@@ -300,7 +300,7 @@ namespace RTT
          * programs, state machines and scripting
          * statements.
          */
-        const ScriptingAccess* scripting() const
+        const scripting::ScriptingAccess* scripting() const
         {
             return mscriptAcc;
         }
@@ -311,7 +311,7 @@ namespace RTT
          * It is the implementation of the 'engine'
          * TaskObject.
          */
-        ExecutionAccess* execution()
+        interface::ExecutionAccess* execution()
         {
             return mengAcc;
         }
@@ -322,7 +322,7 @@ namespace RTT
          * It is the implementation of the 'engine'
          * TaskObject.
          */
-        const ExecutionAccess* execution() const
+        const interface::ExecutionAccess* execution() const
         {
             return mengAcc;
         }
@@ -331,7 +331,7 @@ namespace RTT
          * Get access to high level controls for
          * (de)serializing properties to/from an XML format.
          */
-        MarshallingAccess* marshalling()
+        interface::MarshallingAccess* marshalling()
         {
             return marshAcc;
         }
@@ -340,7 +340,7 @@ namespace RTT
          * Get access to high level controls for
          * (de)serializing properties to/from an XML format.
          */
-        const MarshallingAccess* marshalling() const
+        const interface::MarshallingAccess* marshalling() const
         {
             return marshAcc;
         }
@@ -362,14 +362,14 @@ namespace RTT
         /**
          * Get the Data flow ports of this task.
          */
-        DataFlowInterface* ports() {
+        interface::DataFlowInterface* ports() {
             return &dataPorts;
         }
 
         /**
          * Get the Data flow ports of this task.
          */
-        const DataFlowInterface* ports() const {
+        const interface::DataFlowInterface* ports() const {
             return &dataPorts;
         }
 
@@ -381,7 +381,7 @@ namespace RTT
 
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
-        typedef std::vector< OperationInterface* > Objects;
+        typedef std::vector< interface::OperationInterface* > Objects;
         /// map of the tasks we are using
         PeerMap         _task_map;
         /// map of the tasks that are using us.
@@ -389,11 +389,11 @@ namespace RTT
         /// the TaskObjects.
         Objects mobjects;
 
-        ScriptingAccess* mscriptAcc;
+        scripting::ScriptingAccess* mscriptAcc;
 
-        ExecutionAccess* mengAcc;
+        interface::ExecutionAccess* mengAcc;
 
-        MarshallingAccess* marshAcc;
+        interface::MarshallingAccess* marshAcc;
 
         /**
          * Inform this TaskContext that \a user is using
@@ -410,23 +410,23 @@ namespace RTT
         void setup();
 
     protected:
-        std::vector< PortInterface* > updated_ports;
+        std::vector< base::PortInterface* > updated_ports;
         /**
          * This callback is called each time data arrived on an
          * event port.
          */
-        void dataOnPort(PortInterface*);
+        void dataOnPort(base::PortInterface*);
     private:
         /**
          * The task-local ports.
          */
-        DataFlowInterface dataPorts;
+        interface::DataFlowInterface dataPorts;
 
         /**
          * This pointer tracks our activity which is set by
-         * setActivity. By default, a SequentialActivity is assigned.
+         * setActivity. By default, a extras::SequentialActivity is assigned.
          */
-        ActivityInterface::shared_ptr our_act;
+        base::ActivityInterface::shared_ptr our_act;
     };
 
     /**

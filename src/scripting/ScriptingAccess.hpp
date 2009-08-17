@@ -45,8 +45,7 @@
 #include "../base/DispatchInterface.hpp"
 
 namespace RTT
-{
-    class TaskContext;
+{ namespace scripting {
 
     /**
      * This interface allows to load program scripts
@@ -82,12 +81,12 @@ namespace RTT
          *
          * @return An object which represents the command.
          */
-        virtual DispatchInterface::shared_ptr getCommand( int ticket );
+        virtual base::DispatchInterface::shared_ptr getCommand( int ticket );
 
         /**
          * List of executed functions.
          */
-        typedef std::vector< ProgramInterfacePtr > Functions;
+        typedef std::vector< base::ProgramInterfacePtr > Functions;
 
         /**
          * Load and execute a set of functions into the Program Processor for execution
@@ -191,7 +190,7 @@ namespace RTT
          *
          * @param name The name of the program.
          *
-         * @return The ProgramInterface::Status as a string.
+         * @return The base::Status as a string.
          */
         virtual std::string getProgramStatus(std::string name ) const;
 
@@ -262,7 +261,7 @@ namespace RTT
          *
          * @param name The name of the state machine.
          *
-         * @return The State MachineInterface::Status as a string.
+         * @return The State base::Status as a string.
          */
         virtual std::string getStateMachineStatus(std::string name ) const;
 
@@ -287,6 +286,6 @@ namespace RTT
          */
         virtual std::string getCurrentState(std::string name ) const;
     };
-}
+}}
 
 #endif

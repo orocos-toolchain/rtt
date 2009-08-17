@@ -54,14 +54,14 @@
 
 namespace RTT
 {
-    namespace Corba
+    namespace corba
     {
         /**
-         * A DataSource which holds an any value and
+         * A internal::DataSource which holds an any value and
          * returns it in its get() method. It can not be changed after creation.
          */
         class RTT_CORBA_API AnyDataSource
-            : public DataSource<CORBA::Any_var>
+            : public internal::DataSource<CORBA::Any_var>
         {
             /**
              * The any.
@@ -78,13 +78,13 @@ namespace RTT
 
             AnyDataSource( CORBA::Any_ptr value );
 
-            DataSource<CORBA::Any_var>::result_t get() const;
+            internal::DataSource<CORBA::Any_var>::result_t get() const;
 
-            DataSource<CORBA::Any_var>::result_t value() const;
+            internal::DataSource<CORBA::Any_var>::result_t value() const;
 
             virtual AnyDataSource* clone() const;
 
-            virtual AnyDataSource* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+            virtual AnyDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
 
             virtual int serverProtocol() const;
 

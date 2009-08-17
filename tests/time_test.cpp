@@ -20,6 +20,7 @@
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 #include <extras/Timer.hpp>
+#include <rtt-detail-fwd.hpp>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -32,11 +33,12 @@
 
 using namespace std;
 using namespace RTT;
+using namespace RTT::detail;
 using namespace boost;
 
 TimeTest::TimeTest()
 {
-    hbg = RTT::TimeService::Instance();
+    hbg = TimeService::Instance();
     long_ns = 9007199254740992LL;       // == 2^53
     //long_ns = 4503599627370496LL;       // == 2^52
     //long_ns = 123456789123456789LL; // 1.234...e17 ns == approx 4 years, but double can not represent this.
@@ -62,7 +64,7 @@ struct TestTimer
     std::vector< std::pair<Timer::TimerId, Seconds> > occured;
     TimeService::Seconds mstart;
     TestTimer()
-        :Timer(32, ORO_SCHED_RT, OS::HighestPriority)
+        :Timer(32, ORO_SCHED_RT, os::HighestPriority)
     {
         occured.reserve(100);
         mstart = TimeService::Instance()->secondsSince(0);

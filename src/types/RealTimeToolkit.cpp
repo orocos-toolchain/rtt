@@ -46,6 +46,7 @@
 #include "TypeInfoName.hpp"
 #include "../extras/MultiVector.hpp"
 #include "../internal/mystd.hpp"
+#include "../rtt-fwd.hpp"
 
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
@@ -55,9 +56,12 @@
 namespace RTT
 {
     using namespace std;
+    using namespace detail;
 
 
-    RealTimeToolkitPlugin RealTimeToolkit;
+    namespace types {
+        RealTimeToolkitPlugin RealTimeToolkit;
+    }
 
     std::string RealTimeToolkitPlugin::getName()
     {
@@ -292,8 +296,6 @@ namespace RTT
         };
 #endif
     }
-
-    using namespace detail;
 
     bool RealTimeToolkitPlugin::loadConstructors()
     {

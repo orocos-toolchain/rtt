@@ -64,7 +64,8 @@ using namespace std;
 #include "TimeService.hpp"
 
 using namespace RTT;
-static OS::StartStopManager* initM;
+using namespace RTT::os;
+static os::StartStopManager* initM;
 
 extern "C"
 int __os_init(int argc, char** argv )
@@ -73,11 +74,11 @@ int __os_init(int argc, char** argv )
     DO_GLOBAL_CTORS();
 #endif
 
-    OS::MainThread::Instance();
+    os::MainThread::Instance();
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
-    initM = OS::StartStopManager::Instance();
+    initM = os::StartStopManager::Instance();
     int ret = initM->start();
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -147,7 +148,7 @@ void __os_exit(void)
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
     initM->stop();
-    OS::StartStopManager::Release();
+    os::StartStopManager::Release();
 
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
@@ -159,7 +160,7 @@ void __os_exit(void)
     TimeService::Release();
 
     // Stop Main Thread
-    OS::MainThread::Release();
+    os::MainThread::Release();
 
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_DTORS();

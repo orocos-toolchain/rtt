@@ -45,9 +45,10 @@
 #include <algorithm>
 #include "../os/MutexLock.hpp"
 
-namespace RTT
-{
-    using OS::MutexLock;
+namespace RTT {
+    using namespace extras;
+    using namespace base;
+    using os::MutexLock;
     using namespace std;
 
     TimerThread::TimerThreadList TimerThread::TimerThreads;
@@ -61,7 +62,7 @@ namespace RTT
     {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
-        OS::CheckPriority(scheduler, pri);
+        os::CheckPriority(scheduler, pri);
         TimerThreadList::iterator it = TimerThreads.begin();
         while ( it != TimerThreads.end() ) {
             TimerThreadPtr tptr = it->lock();

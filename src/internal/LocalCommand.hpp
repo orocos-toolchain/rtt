@@ -50,7 +50,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A Command which is dispatched locally to a CommandProcessor.
@@ -60,8 +60,8 @@ namespace RTT
          */
         template<class CommandT>
         class LocalCommandImpl
-            : public CommandBase<CommandT>,
-              protected detail::BindStorage<CommandT>
+            : public base::CommandBase<CommandT>,
+              protected BindStorage<CommandT>
         {
         protected:
             CommandProcessor* mcp;
@@ -264,26 +264,26 @@ namespace RTT
                 return this->mvalid;
             }
 
-	    virtual DispatchInterface::Status status() const {
-		if (!this->minvoked)
-		    return DispatchInterface::Ready;
-		else if (!this->maccept)
-		    return DispatchInterface::NotAccepted;
-		else if (!this->mexec)
-		    return DispatchInterface::Accepted;
-		else if (!this->mvalid)
-		    return DispatchInterface::NotValid;
+            virtual base::DispatchInterface::Status status() const {
+                if (!this->minvoked)
+                    return base::DispatchInterface::Ready;
+                else if (!this->maccept)
+                    return base::DispatchInterface::NotAccepted;
+                else if (!this->mexec)
+                    return base::DispatchInterface::Accepted;
+                else if (!this->mvalid)
+                    return base::DispatchInterface::NotValid;
                 else if (this->check() == this->minvert)
-		    return DispatchInterface::Valid;
-		else
-		    return DispatchInterface::Done;
-	    }
+                    return base::DispatchInterface::Valid;
+                else
+                    return base::DispatchInterface::Done;
+            }
 
-            virtual ConditionInterface* createCondition() const
+            virtual base::ConditionInterface* createCondition() const
             {
-                // LocalCommands are not used by the Parser, so this method is actually
+                // LocalCommands are not used by the scripting::Parser, so this method is actually
                 // not used within Orocos.
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::done), this) );
+                return new ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::done), this) );
             }
 
             /**
@@ -293,11 +293,11 @@ namespace RTT
              *
              * @return
              */
-            virtual DispatchInterface* clone() const {
+            virtual base::DispatchInterface* clone() const {
                 return new LocalCommand(*this);
             }
 
-            virtual CommandBase<CommandT>* cloneI() const {
+            virtual base::CommandBase<CommandT>* cloneI() const {
                 return new LocalCommand(*this);
             }
 

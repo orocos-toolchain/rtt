@@ -42,7 +42,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
 
         template<class From, class To>
         struct DataSourceAdaptor;
@@ -52,7 +52,7 @@ namespace RTT
 
     /**
      * Adapt parser DataSource storage type to user type.
-     * Rationale : the Parser chooses internally how to pass
+     * Rationale : the scripting::Parser chooses internally how to pass
      * values from DataSource to DataSource. The user however might
      * choose to receive the result by value or by const reference.
      * The parser thus needs to apply adaptors to convert from value
@@ -60,7 +60,7 @@ namespace RTT
      *
      * @verbatim
      *           (1)       (2)        (3)              (4)
-     * Parser:  value    constref   constref          value
+     * scripting::Parser:  value    constref   constref          value
      *            \/        \/   (copy to stack)   (copy to heap)
      *-----------------------------------------------------------
      * User  :  value    constref    value           constref
@@ -107,8 +107,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -157,8 +157,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual AssignableDataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -197,8 +197,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -244,8 +244,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual AssignableDataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -290,8 +290,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -338,8 +338,8 @@ namespace RTT
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -384,8 +384,8 @@ namespace RTT
             return new AssignableDataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -425,8 +425,8 @@ namespace RTT
             return new AssignableDataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual DataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -469,16 +469,16 @@ namespace RTT
 
         virtual bool evaluate() const { return orig_->evaluate(); }
 
-        virtual bool updatePart( DataSourceBase* part, DataSourceBase* other ) { return orig_->updatePart( part, other); }
+        virtual bool updatePart( base::DataSourceBase* part, base::DataSourceBase* other ) { return orig_->updatePart( part, other); }
 
-        virtual ActionInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other) { return orig_->updatePartCommand(part, other ); }
+        virtual base::ActionInterface* updatePartCommand( base::DataSourceBase* part, base::DataSourceBase* other) { return orig_->updatePartCommand(part, other ); }
 
         virtual AssignableDataSource<To>* clone() const {
             return new AssignableDataSourceAdaptor( orig_->clone() );
         }
 
-        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+        virtual AssignableDataSource<To>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+            std::map<const base::DataSourceBase*,  base::DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
@@ -491,17 +491,15 @@ namespace RTT
 
     };
 
-    }
-
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by value >.
+     * Try to adapt a base::DataSourceBase to a DataSource< by value >.
      */
     template< class TResult >
     struct AdaptDataSource
     {
         typedef TResult Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        DataSource<Result>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
@@ -511,18 +509,18 @@ namespace RTT
             // const ref to value case
             DataSource<const Result&>* t2 = DataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
-                return new detail::DataSourceAdaptor<const Result&, Result>( t2 );
+                return new DataSourceAdaptor<const Result&, Result>( t2 );
 
 #ifndef ORO_EMBEDDED
             // ref to value case
             DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
-                return new detail::DataSourceAdaptor<Result&, Result>( t3 );
+                return new DataSourceAdaptor<Result&, Result>( t3 );
 
             // const value to value case
             DataSource<const Result>* t4 = DataSource<const Result>::narrow( dsb.get() );
             if ( t4 )
-                return new detail::DataSourceAdaptor<const Result, Result>( t4 );
+                return new DataSourceAdaptor<const Result, Result>( t4 );
 #endif
 
             // complete type failure.
@@ -532,14 +530,14 @@ namespace RTT
     };
 
     /**
-     * Try to adapt a DataSourceBase to an  AssignableDataSource< by value >.
+     * Try to adapt a base::DataSourceBase to an  AssignableDataSource< by value >.
      */
     template< class TResult >
     struct AdaptAssignableDataSource
     {
         typedef TResult Result;
 
-        AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        AssignableDataSource<Result>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
@@ -551,14 +549,14 @@ namespace RTT
             // Assignable const ref case
             AssignableDataSource<const Result&>* t2 = AssignableDataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
-                return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t2 ); // will return AssignableDS !
+                return new AssignableDataSourceAdaptor<const Result&, Result>( t2 ); // will return AssignableDS !
 #endif
 
 #ifndef ORO_EMBEDDED
             // ref to assignable value case
             DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
-                return new detail::DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
+                return new DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
 #endif
             // complete type failure.
             return 0;
@@ -568,7 +566,7 @@ namespace RTT
 
 #ifndef ORO_EMBEDDED
     /**
-     * Try to adapt a DataSourceBase to an  AssignableDataSource< by reference >.
+     * Try to adapt a base::DataSourceBase to an  AssignableDataSource< by reference >.
      * Needed to avoid reference-to-reference dynamic_cast.
      */
     template< class TResult >
@@ -576,7 +574,7 @@ namespace RTT
     {
         typedef TResult& Result;
 
-        AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        AssignableDataSource<Result>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
@@ -586,7 +584,7 @@ namespace RTT
             // ref to assignable value case
             DataSource<Result>* t3 = DataSource<Result>::narrow( dsb.get() );
             if ( t3 )
-                return new detail::DataSourceAdaptor<Result, Result>( t3 ); // will return AssignableDS !
+                return new DataSourceAdaptor<Result, Result>( t3 ); // will return AssignableDS !
 
             // complete type failure.
             return 0;
@@ -595,14 +593,14 @@ namespace RTT
     };
 
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by const value >.
+     * Try to adapt a base::DataSourceBase to a DataSource< by const value >.
      */
     template< class TResult >
     struct AdaptDataSource< const TResult >
     {
         typedef const TResult Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        DataSource<Result>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
@@ -612,17 +610,17 @@ namespace RTT
             // const ref to const value case
             DataSource<const TResult&>* t2 = DataSource<const TResult&>::narrow( dsb.get() );
             if ( t2 )
-                return new detail::DataSourceAdaptor<const TResult&, Result>( t2 );
+                return new DataSourceAdaptor<const TResult&, Result>( t2 );
 
             // ref to const value case
             DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
-                return new detail::DataSourceAdaptor<TResult&, Result>( t3 );
+                return new DataSourceAdaptor<TResult&, Result>( t3 );
 
             // value to const value case
             DataSource<TResult>* t4 = DataSource<TResult>::narrow( dsb.get() );
             if ( t4 )
-                return new detail::DataSourceAdaptor<TResult, Result>( t4 );
+                return new DataSourceAdaptor<TResult, Result>( t4 );
 
             // complete type failure.
             return 0;
@@ -631,7 +629,7 @@ namespace RTT
     };
 
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by ref >.
+     * Try to adapt a base::DataSourceBase to a DataSource< by ref >.
      * Only allow one 'conversion' : ref to ref. All the others are
      * illegal in C++ too.
      */
@@ -640,7 +638,7 @@ namespace RTT
     {
         typedef TResult& Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        DataSource<Result>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
@@ -650,7 +648,7 @@ namespace RTT
             // assignable case
             AssignableDataSource<TResult>* t2 = AssignableDataSource<TResult>::narrow( dsb.get() );
             if (t2 && &(t2->set()) != 0 )
-                return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
+                return new AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
 
             // complete type failure.
             return 0;
@@ -661,13 +659,13 @@ namespace RTT
 #endif
 
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by const reference >
+     * Try to adapt a base::DataSourceBase to a DataSource< by const reference >
      * Allows all conversions. This one is used for assignments of class types.
      */
     template<class TResult>
     struct AdaptDataSource<const TResult&>
     {
-        DataSource<const TResult&>* operator()( DataSourceBase::shared_ptr dsb) const
+        DataSource<const TResult&>* operator()( base::DataSourceBase::shared_ptr dsb) const
         {
             // equal case
             DataSource<const TResult&>* t1 = DataSource<const TResult&>::narrow( dsb.get() );
@@ -678,24 +676,24 @@ namespace RTT
             // makes a copy !
             DataSource<TResult>* t2 = DataSource<TResult>::narrow( dsb.get() );
             if ( t2 )
-                return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
+                return new DataSourceAdaptor<TResult, const TResult&>( t2 );
 
             // assignable case: this is a more efficient implementation than the one above (t2)
             // does not involve a copy.
             AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
             if (ta1 && &(ta1->set()) != 0 ) // check for null set()
-                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
+                return new AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
 
 #ifndef ORO_EMBEDDED
             // ref to const ref case
             DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
-                return new detail::DataSourceAdaptor<TResult&, const TResult&>( t3 );
+                return new DataSourceAdaptor<TResult&, const TResult&>( t3 );
 
             // const value to const ref case
             DataSource<const TResult>* t4 = DataSource<const TResult>::narrow( dsb.get() );
             if ( t4 )
-                return new detail::DataSourceAdaptor<const TResult, const TResult&>( t4 );
+                return new DataSourceAdaptor<const TResult, const TResult&>( t4 );
 
 #endif
 
@@ -704,6 +702,7 @@ namespace RTT
         }
 
     };
+    }
 }
 
 #endif

@@ -53,8 +53,8 @@
 #include "../Attribute.hpp"
 #include "parse_exception.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)

@@ -63,12 +63,12 @@
 
 /**
  * @file OperationFactory.hpp This file contains some code that is common
- * for the CommandRepository and Method Repository.
+ * for the interface::CommandRepository and Method Repository.
  */
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
 
         /**
          * @internal
@@ -123,7 +123,7 @@ namespace RTT
              * Create one part (function object) for a given component.
              * @param args The arguments for the target object's function.
              */
-            virtual ResultT produce( const std::vector<DataSourceBase::shared_ptr>& args ) const = 0;
+            virtual ResultT produce( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
         };
 
         template<typename ResultT, typename FunctorT>
@@ -153,7 +153,7 @@ namespace RTT
             }
 
             ResultT produce(
-                            const std::vector<DataSourceBase::shared_ptr>& args) const
+                            const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( ! args.empty() )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.size() ), ResultT());
@@ -193,7 +193,7 @@ namespace RTT
             int arity() const { return 1; }
 
             ResultT produce(
-                            const std::vector<DataSourceBase::shared_ptr>& args) const
+                            const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 1 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 1, args.size() ), ResultT());
@@ -243,7 +243,7 @@ namespace RTT
 
             int arity() const { return 2; }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 2 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 2, args.size() ), ResultT());
@@ -306,7 +306,7 @@ namespace RTT
 
             int arity() const { return 3; }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 3 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 3, args.size() ), ResultT());
@@ -379,7 +379,7 @@ namespace RTT
 
             int arity() const { return 4; }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 4 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 4, args.size() ), ResultT());
@@ -407,7 +407,6 @@ namespace RTT
         /**
          * @}
          */
-    }
 
     /**
      * @brief This factory is a template for creating parts.
@@ -416,7 +415,7 @@ namespace RTT
     class OperationFactory
     {
     protected:
-        typedef std::map<std::string, detail::OperationFactoryPart<ResultT>* > map_t;
+        typedef std::map<std::string, OperationFactoryPart<ResultT>* > map_t;
         map_t data;
     public:
         /**
@@ -427,7 +426,7 @@ namespace RTT
         /**
          * The arguments for an operation.
          */
-        typedef std::vector<DataSourceBase::shared_ptr> Arguments;
+        typedef std::vector<base::DataSourceBase::shared_ptr> Arguments;
 
         /**
          * Remove and delete all added operations.
@@ -483,10 +482,10 @@ namespace RTT
         {
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
-            std::vector<DataSourceBase::shared_ptr> dsVect;
+            std::vector<base::DataSourceBase::shared_ptr> dsVect;
             std::transform( args.begin(), args.end(),
                             std::back_inserter( dsVect ),
-                            boost::bind( &PropertyBase::getDataSource, _1));
+                            boost::bind( &base::PropertyBase::getDataSource, _1));
             return i->second->produce(dsVect);
         }
 
@@ -499,7 +498,7 @@ namespace RTT
          * @return a new object
          */
         ResultT produce( const std::string& name,
-                         const std::vector<DataSourceBase::shared_ptr>& args ) const
+                         const std::vector<base::DataSourceBase::shared_ptr>& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
@@ -555,7 +554,7 @@ namespace RTT
          * @param part A part which creates the operation.
          */
         void add( const std::string& name,
-                  detail::OperationFactoryPart<ResultT>* part )
+                  OperationFactoryPart<ResultT>* part )
         {
             typename map_t::iterator i = data.find( name );
             // XXX, wouldn't it be better to throw ?
@@ -579,8 +578,8 @@ namespace RTT
         }
     };
 
-    typedef OperationFactory<DispatchInterface*> CommandFactory;
-    typedef OperationFactory<DataSourceBase*> MethodFactory;
-}
+    typedef OperationFactory<base::DispatchInterface*> CommandFactory;
+    typedef OperationFactory<base::DataSourceBase*> MethodFactory;
+}}
 
 #endif

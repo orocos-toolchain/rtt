@@ -5,7 +5,8 @@
 #include "DataSource.inl"
 
 namespace RTT
-{
+{ namespace internal {
+
     template<typename T>
     ValueDataSource<T>::~ValueDataSource() {}
 
@@ -34,7 +35,7 @@ namespace RTT
     }
 
     template<typename T>
-    ValueDataSource<T>* ValueDataSource<T>::copy( std::map<const DataSourceBase*, DataSourceBase*>& replace ) const {
+    ValueDataSource<T>* ValueDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const {
         // if somehow a copy exists, return the copy, otherwise return this (see Attribute copy)
         if ( replace[this] != 0 ) {
             assert ( dynamic_cast<ValueDataSource<T>*>( replace[this] ) == static_cast<ValueDataSource<T>*>( replace[this] ) );
@@ -62,7 +63,7 @@ namespace RTT
     }
 
     template<typename T>
-    ConstantDataSource<T>* ConstantDataSource<T>::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+    ConstantDataSource<T>* ConstantDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
         // no copy needed, share this with all instances.
         return const_cast<ConstantDataSource<T>*>(this);
     }
@@ -88,11 +89,9 @@ namespace RTT
     }
 
     template<typename T>
-    ReferenceDataSource<T>* ReferenceDataSource<T>::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+    ReferenceDataSource<T>* ReferenceDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
         return const_cast<ReferenceDataSource<T>*>(this); // no copy needed, data is outside.
     }
-
-	namespace detail {
 
         template< typename BoundT>
         UnboundDataSource<BoundT>::UnboundDataSource( typename BoundT::result_t data )
@@ -106,7 +105,7 @@ namespace RTT
         }
 
         template< typename BoundT>
-        UnboundDataSource<BoundT>* UnboundDataSource<BoundT>::copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) const {
+        UnboundDataSource<BoundT>* UnboundDataSource<BoundT>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const {
             if ( replace[this] != 0 )
                 return static_cast<UnboundDataSource<BoundT>*>(replace[this]);
             replace[this] = new UnboundDataSource<BoundT>( this->get() );

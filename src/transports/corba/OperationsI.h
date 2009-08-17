@@ -85,36 +85,31 @@
 #include "../../internal/MethodC.hpp"
 #include "../../internal/DataSources.hpp"
 
-namespace RTT
-{
-    class CommandC;
-}
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 /**
- * A servant which serves a RTT::DataSource through the 'Any' methods.
+ * A servant which serves a RTT::internal::DataSource through the 'Any' methods.
  */
 class  Orocos_AnyExpression_i
-  : public virtual POA_RTT::Corba::Expression,
+  : public virtual POA_RTT::corba::Expression,
     public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::DataSourceBase::shared_ptr morig;
+    RTT::base::DataSourceBase::shared_ptr morig;
     CORBA::Any_var last_value;
     PortableServer::POA_var mpoa;
 public:
-    typedef RTT::DataSourceBase::const_ptr SourceType;
+    typedef RTT::base::DataSourceBase::const_ptr SourceType;
     typedef CORBA::Any                             ResultType;
 
-    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
+    virtual void copy( RTT::base::DataSourceBase::shared_ptr new_ds ) {
         morig = new_ds;
     }
 
   // Constructor
-  Orocos_AnyExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
+  Orocos_AnyExpression_i (RTT::base::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), last_value( (CORBA::Any_ptr)morig->createBlob(ORO_CORBA_PROTOCOL_ID) ) // create default Any.
         , mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
@@ -147,7 +142,7 @@ public:
       last_value = (CORBA::Any_ptr)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
       bool result = true;
       // if it is a bool, update result and return it, otherwise, just return true:
-      RTT::AnyConversion<bool>::update( last_value.in(), result );
+      RTT::corba::AnyConversion<bool>::update( last_value.in(), result );
       return result;
   }
 
@@ -205,18 +200,18 @@ public:
 
 class  Orocos_AnyAssignableExpression_i
     : public Orocos_AnyExpression_i,
-      public virtual POA_RTT::Corba::AssignableExpression
+      public virtual POA_RTT::corba::AssignableExpression
 {
-    RTT::DataSourceBase::shared_ptr mset;
+    RTT::base::DataSourceBase::shared_ptr mset;
 public:
 
-    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
+    virtual void copy( RTT::base::DataSourceBase::shared_ptr new_ds ) {
         mset = new_ds;
         morig = new_ds;
     }
 
   // Constructor
-  Orocos_AnyAssignableExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
+  Orocos_AnyAssignableExpression_i (RTT::base::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : Orocos_AnyExpression_i(orig, the_poa), mset( orig )
    {}
 
@@ -242,8 +237,8 @@ public:
       )) {
 
       if ( !mset->getTypeInfo()->fromString( value, mset ) ) {
-          RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign string to "<<mset->getType() <<"." <<RTT::endlog()
-							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
+          RTT::log(RTT::Error) << "corba::AssignableExpression: Could not assign string to "<<mset->getType() <<"." <<RTT::endlog()
+			       <<" Tried to assign as "<< RTT::internal::DataSource<ResultType>::GetType() << " to native type "<< RTT::internal::DataSource<SourceType>::GetType()<< RTT::endlog();
           return false;
       }
       return true;
@@ -253,15 +248,15 @@ public:
 
 
 class  Orocos_Action_i
-    : public virtual POA_RTT::Corba::Action,
+    : public virtual POA_RTT::corba::Action,
       public virtual PortableServer::RefCountServantBase
 {
-	RTT::MethodC morig;
-    RTT::CommandInterface* mcom;
+	RTT::internal::MethodC morig;
+	RTT::base::ActionInterface* mcom;
     PortableServer::POA_var mpoa;
 public:
   //Constructor
-  Orocos_Action_i ( RTT::MethodC* orig, RTT::CommandInterface* com, PortableServer::POA_ptr the_poa );
+  Orocos_Action_i ( RTT::internal::MethodC* orig, RTT::base::ActionInterface* com, PortableServer::POA_ptr the_poa );
 
     PortableServer::POA_ptr _default_POA()
     {
@@ -281,12 +276,12 @@ public:
 
   virtual
   CORBA::Boolean executeAny (
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 
   virtual
@@ -308,18 +303,18 @@ public:
 
 class  Orocos_AnyMethod_i
     : public virtual Orocos_AnyExpression_i,
-      public virtual POA_RTT::Corba::Method
+      public virtual POA_RTT::corba::Method
 {
 protected:
-	RTT::MethodC mmethodc;
+	RTT::internal::MethodC mmethodc;
 
 public:
-    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
+  virtual void copy( RTT::base::DataSourceBase::shared_ptr new_ds ) {
         morig = new_ds;
     }
 
   //Constructor
-  Orocos_AnyMethod_i (RTT::MethodC orig, RTT::DataSourceBase::shared_ptr datas, PortableServer::POA_ptr the_poa )
+  Orocos_AnyMethod_i (RTT::internal::MethodC orig, RTT::base::DataSourceBase::shared_ptr datas, PortableServer::POA_ptr the_poa )
       : Orocos_AnyExpression_i( datas, the_poa ), mmethodc(orig)
     {}
 
@@ -337,26 +332,26 @@ public:
   }
 
   CORBA::Boolean executeAny (
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
 	  )) {
-      RTT::MethodC mgen = mmethodc;
+      RTT::internal::MethodC mgen = mmethodc;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
+	  mgen.arg( RTT::base::DataSourceBase::shared_ptr( new RTT::corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
-            throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
+            throw ::RTT::corba::WrongNumbArgException( args.length()+1, args.length() );
         morig = mgen.getDataSource();
         return this->evaluate();
-    } catch ( RTT::wrong_number_of_args_exception& wna ) {
-        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
-    } catch ( RTT::wrong_types_of_args_exception& wta ) {
-        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    } catch ( RTT::internal::wrong_number_of_args_exception& wna ) {
+        throw ::RTT::corba::WrongNumbArgException( wna.wanted, wna.received );
+    } catch ( RTT::internal::wrong_types_of_args_exception& wta ) {
+        throw ::RTT::corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
     return false;
   }
@@ -382,27 +377,27 @@ public:
 
 
 class  Orocos_Command_i
-    : public virtual POA_RTT::Corba::Command,
+    : public virtual POA_RTT::corba::Command,
       public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::CommandC* morig;
-    RTT::CommandC* mcomm;
+    RTT::internal::CommandC* morig;
+    RTT::internal::CommandC* mcomm;
     PortableServer::POA_var mpoa;
 public:
   //Constructor
     /**
-     * Create a CORBA servant for a CommandC object.
-     * @param orig A CommandC object being ready for receiving arg() calls. This is required
+     * Create a CORBA servant for a internal::CommandC object.
+     * @param orig A internal::CommandC object being ready for receiving arg() calls. This is required
      * for executeAny(), such that new arguments can be provided.
-     * @param c A CommandC object being ready for execute(). This is required for execute().
+     * @param c A internal::CommandC object being ready for execute(). This is required for execute().
      */
-  Orocos_Command_i (RTT::CommandC& orig,RTT::CommandC& c, PortableServer::POA_ptr the_poa);
+  Orocos_Command_i (RTT::internal::CommandC& orig,RTT::internal::CommandC& c, PortableServer::POA_ptr the_poa);
 
   /**
-   * Create a CORBA servant for a CommandC object without executeAny() support.
+   * Create a CORBA servant for a internal::CommandC object without executeAny() support.
    */
-  Orocos_Command_i (RTT::DispatchInterface::shared_ptr orig, PortableServer::POA_ptr the_poa);
+  Orocos_Command_i (RTT::base::DispatchInterface::shared_ptr orig, PortableServer::POA_ptr the_poa);
 
     PortableServer::POA_ptr _default_POA()
     {
@@ -422,16 +417,16 @@ public:
 
   virtual
   CORBA::Boolean executeAny (
-      const ::RTT::Corba::AnyArguments& args
+      const ::RTT::corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::Corba::WrongNumbArgException
-    ,::RTT::Corba::WrongTypeArgException
+    ,::RTT::corba::WrongNumbArgException
+    ,::RTT::corba::WrongTypeArgException
     ));
 
   virtual
-  RTT::Corba::CommandStatus status ()
+  RTT::corba::CommandStatus status ()
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));

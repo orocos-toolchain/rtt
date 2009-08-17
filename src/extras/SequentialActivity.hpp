@@ -6,7 +6,8 @@
 #include "../os/Mutex.hpp"
 
 namespace RTT
-{
+{ namespace extras {
+
 
     /**
      * @brief The default, thread-less activity for any newly created TaskContext.
@@ -14,7 +15,7 @@ namespace RTT
      * The presence of this activity object indicates that the TaskContext does
      * not have its own active thread, but executes all asynchronous operations
      * (such as commands and events) in the thread of the caller, so in fact
-     * synchronously. The SequentialActivity uses a Mutex lock to guard against
+     * synchronously. The SequentialActivity uses a os::Mutex lock to guard against
      * concurrent executions and makes your TaskContext equally thread-safe as
      * the other activity implementations.
      *
@@ -30,23 +31,23 @@ namespace RTT
      * @ingroup CoreLibActivities
      */
     class RTT_API SequentialActivity
-        :public ActivityInterface
+        :public base::ActivityInterface
     {
     public:
         /**
          * Create an activity which is the Sequential. The period will be 0.0.
          * @param run Run this instance.
          */
-        SequentialActivity( RunnableInterface* run = 0 );
+        SequentialActivity( base::RunnableInterface* run = 0 );
 
         /**
-         * Cleanup and notify the RunnableInterface that we are gone.
+         * Cleanup and notify the base::RunnableInterface that we are gone.
          */
         ~SequentialActivity();
 
         Seconds getPeriod() const;
 
-        OS::ThreadInterface* thread();
+        os::ThreadInterface* thread();
 
         bool initialize();
         void step();
@@ -70,10 +71,10 @@ namespace RTT
     private:
         bool running;
         bool active;
-        OS::Mutex execution_lock;
+        os::Mutex execution_lock;
 };
 
-}
+}}
 
 
 #endif

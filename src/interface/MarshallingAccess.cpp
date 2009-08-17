@@ -47,8 +47,8 @@
 #endif
 #include "PropertyLoader.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     MarshallingAccess::MarshallingAccess(TaskContext* parent)
         : mparent(parent)
     {

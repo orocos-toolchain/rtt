@@ -42,12 +42,11 @@
 #include <string>
 #include <vector>
 #include "rtt-config.h"
+#include "rtt-types-fwd.hpp"
+#include "../plugin/rtt-plugin-fwd.hpp"
 
 namespace RTT
-{
-
-    class ToolkitPlugin;
-    class TransportPlugin;
+{ namespace types {
 
     /**
      * This class allows the Orocos Real-Time Toolkit to be extended
@@ -60,7 +59,7 @@ namespace RTT
         /** Loaded tools. */
         static std::vector<ToolkitPlugin*> Tools;
         /** Loaded transports. */
-        static std::vector<TransportPlugin*> Transports;
+        static std::vector<plugin::TransportPlugin*> Transports;
     public:
         /**
          * Import a plugin into Orocos.
@@ -77,7 +76,7 @@ namespace RTT
          * import will succeed. Multiple imports will not
          * be considered as an error.
          */
-        static void Import( TransportPlugin& tr );
+        static void Import( plugin::TransportPlugin& tr );
 
         /**
          * Get the names of all imported tools.
@@ -98,7 +97,7 @@ namespace RTT
         static bool hasTransport( const std::string& transportname );
     };
 
-}
+}}
 
 /**
  * Once you defined your Toolkit Plugin static object,
@@ -112,7 +111,7 @@ namespace RTT
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
         bool loadRTTPlugin(RTT::TaskContext* ) {    \
-        RTT::Toolkit::Import( TOOLKIT ); \
+        Toolkit::Import( TOOLKIT ); \
         return true; \
     } \
     std::string getRTTPluginName() { \

@@ -37,7 +37,3 @@
 
 
 #include "CommandExecFunction.hpp"
-
-namespace RTT
-{
-}

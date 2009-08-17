@@ -51,8 +51,8 @@
 #include <fstream>
 #include "../internal/TaskObject.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
     ParserScriptingAccess::ParserScriptingAccess( TaskContext* parent )

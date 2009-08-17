@@ -42,7 +42,8 @@
 #include <string>
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 
@@ -53,7 +54,7 @@ namespace RTT
      * @deprecated Remove this low-level class since it's nowhere used.
      */
     class RTT_API CommandIllegal
-        : public ActionInterface
+        : public base::ActionInterface
     {
 
     public:
@@ -89,7 +90,7 @@ namespace RTT
          */
         virtual void warn();
 
-        virtual ActionInterface* clone() const
+        virtual base::ActionInterface* clone() const
         {
             return new CommandIllegal( *this );
         }
@@ -104,6 +105,6 @@ namespace RTT
         std::string description;
     };
 
-}
+}}
 
 #endif //COMMANDILLEGAL_HPP

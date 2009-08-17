@@ -41,8 +41,8 @@
 #include "../Logger.hpp"
 #include <cassert>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace base;
 
     RunnableInterface::~RunnableInterface() {
         if ( this->owner_task && this->owner_task->isRunning() ) {
@@ -75,7 +75,7 @@ namespace RTT
         owner_task = task;
     }
 
-    OS::ThreadInterface* RunnableInterface::getThread() const {
+    os::ThreadInterface* RunnableInterface::getThread() const {
         if (owner_task)
             return owner_task->thread();
         return 0;

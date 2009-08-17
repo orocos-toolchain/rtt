@@ -39,8 +39,9 @@
 #include "SlaveActivity.hpp"
 #include "../os/MainThread.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace extras;
+    using namespace base;
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
         :ActivityInterface(run), mmaster(master), mperiod( master->getPeriod() ), running(false), active(false)
     {
@@ -66,9 +67,9 @@ namespace RTT
         return mperiod;
     }
 
-    OS::ThreadInterface* SlaveActivity::thread()
+    os::ThreadInterface* SlaveActivity::thread()
     {
-        return mmaster ? mmaster->thread() : OS::MainThread::Instance();
+        return mmaster ? mmaster->thread() : os::MainThread::Instance();
     }
 
     bool SlaveActivity::initialize()

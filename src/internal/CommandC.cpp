@@ -46,8 +46,8 @@
 #include "Exceptions.hpp"
 #include <vector>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
     class CommandC::D

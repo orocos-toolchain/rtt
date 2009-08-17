@@ -43,7 +43,8 @@
 #include "../TaskContext.hpp"
 
 namespace RTT
-{
+{ namespace interface {
+
     /**
      * Load and save property files to a TaskContext's PropertyBag.
      * The default file format is 'cpf' from the CPFMarshaller class.
@@ -105,6 +106,6 @@ namespace RTT
          */
         bool save(const std::string& filename, TaskContext* target, const std::string& name) const;
     };
-}
+}}
 
 #endif

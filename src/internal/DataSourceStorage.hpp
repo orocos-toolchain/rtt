@@ -48,7 +48,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         // Partial specialisations for storing a void, not a void or reference
         template<class R>
@@ -63,7 +63,7 @@ namespace RTT
 
             template<class ContainerT>
             void initRet(ContainerT& cc) {
-                cc.ret(DataSourceBase::shared_ptr(result));
+                cc.ret(base::DataSourceBase::shared_ptr(result));
             }
 
             R getResult() {
@@ -98,7 +98,7 @@ namespace RTT
 
             template<class ContainerT>
             void initRet(ContainerT& cc) {
-                cc.ret(DataSourceBase::shared_ptr(result));
+                cc.ret(base::DataSourceBase::shared_ptr(result));
             }
 
             R getResult() {
@@ -154,7 +154,7 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( DataSourceBase::shared_ptr(ma1.value.get()) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value.get()) );
             }
 
             void store(arg1_type a1) {
@@ -173,8 +173,8 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
             }
             void store(arg1_type a1, arg2_type a2) {
                 ma1.value->set(a1);
@@ -195,9 +195,9 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3) {
                 ma1.value->set(a1);
@@ -221,10 +221,10 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma3.value) );
-                cc.arg( DataSourceBase::shared_ptr(ma4.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
                 ma1.value->set(a1);

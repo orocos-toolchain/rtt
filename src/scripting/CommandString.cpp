@@ -38,8 +38,8 @@
 
 #include <iostream>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
 	CommandString::CommandString(std::string s)
 	{
 		command = s;

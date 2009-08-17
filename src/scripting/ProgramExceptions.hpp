@@ -44,7 +44,8 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * This exception is thrown when a program or state machine
      * could not be loaded into a ProgramProcessor or StateMachineProcessor.
@@ -84,5 +85,5 @@ namespace RTT
             return merror.c_str();
         }
     };
-}
+}}
 #endif

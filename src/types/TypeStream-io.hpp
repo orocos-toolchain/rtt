@@ -40,7 +40,8 @@
 
 #include <iostream>
 
-namespace RTT {
+namespace RTT { namespace types {
+
     // Code ripped from KDL 0.2
 
 
@@ -56,6 +57,6 @@ namespace RTT {
     //  Checks wether delim char. is encountered.
     // EatEnd does not eat all space-like char's at the end.
     extern bool EatEnd( std::istream& is, int delim );
-}
+}}
 
 #endif

@@ -47,7 +47,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * @brief The most generic interface to a position/turn counter,
      * for encoding positions.
@@ -125,6 +126,6 @@ namespace RTT
          */
         virtual bool upcounting() const = 0;
     };
-}
+}}
 
 #endif

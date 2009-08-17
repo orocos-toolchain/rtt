@@ -50,8 +50,7 @@
 
 namespace RTT
 {
-    class DispatchInterface;
-    namespace detail {
+    namespace scripting {
 
 
   /**
@@ -73,10 +72,10 @@ namespace RTT
       // dispatch the command per definition or let it be context dependent.
       bool mas_action;
 
-    DispatchInterface* dcom;
-    ActionInterface* retcommand;
-    ConditionInterface* implicittermcondition;
-    ConditionInterface* dispatchCond;
+    base::DispatchInterface* dcom;
+    base::ActionInterface* retcommand;
+    base::ConditionInterface* implicittermcondition;
+    base::ConditionInterface* dispatchCond;
     TaskContext* peer;
 
     void seenmethodname( iter_t begin, iter_t end )
@@ -101,8 +100,8 @@ namespace RTT
       /**
        * Create a CommandParser operating in a taskcontext.
        * @param as_action return an action, meaning wrap the
-       * created DispatchInterface in an DispatchAction such that
-       * execute() of the returned command does a DispatchInterface::dispatch().
+       * created base::DispatchInterface in an internal::DispatchAction such that
+       * execute() of the returned command does a base::DispatchInterface::dispatch().
        */
     CommandParser( TaskContext* context, bool as_action );
     ~CommandParser();
@@ -123,7 +122,7 @@ namespace RTT
        * Each condition, which relates to this command,
        * might be subject to wrapping.
        */
-      ConditionInterface* wrapCondition( ConditionInterface* );
+      base::ConditionInterface* wrapCondition( base::ConditionInterface* );
 
       /**
        * Return a condition evaluating to true if the command
@@ -133,14 +132,14 @@ namespace RTT
        * are involved, this condition must be kept by the
        * parent of this parser and used if necessary.
        */
-      ConditionInterface* dispatchCondition();
+      base::ConditionInterface* dispatchCondition();
 
     /**
      * Get the parsed command.  Call the reset method if you use the
      * generated command, otherwise it will be deleted in the
      * CommandParser's destructor..
      */
-    ActionInterface* getCommand()
+    base::ActionInterface* getCommand()
       {
         return retcommand;
       }
@@ -150,7 +149,7 @@ namespace RTT
      * if any.  Ownership semantics are the same as for the
      * getCommand() function.
      */
-    ConditionInterface* getImplTermCondition()
+    base::ConditionInterface* getImplTermCondition()
       {
         return implicittermcondition;
       }

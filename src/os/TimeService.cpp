@@ -25,8 +25,9 @@
 #include "os/fosi.h"
 #include "TimeService.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace os;
+
     TimeService* TimeService::_instance = 0;
 
     const TimeService::ticks TimeService::InfiniteTicks = ::InfiniteTicks;
@@ -70,12 +71,12 @@ namespace RTT
     TimeService::TimeService()
         : offset(0), use_clock(true)
     {
-        //rt_std::cout << "HeartBeat Created\n";
+        //os::cout << "HeartBeat Created\n";
     }
 
     TimeService::~TimeService()
     {
-        //rt_std::cout << "HB DESTRUCTOR\n";
+        //os::cout << "HB DESTRUCTOR\n";
     }
 
     void TimeService::enableSystemClock( bool yes_no )

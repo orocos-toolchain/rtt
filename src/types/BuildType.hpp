@@ -45,7 +45,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace types
     {
         /**
          * A helper class to build a value of type T.
@@ -53,22 +53,22 @@ namespace RTT
         template<class T>
         struct BuildType
         {
-            static typename AssignableDataSource<T>::shared_ptr Value(const T& value = T()) {
-                typename AssignableDataSource<T>::shared_ptr _value;
+            static typename internal::AssignableDataSource<T>::shared_ptr Value(const T& value = T()) {
+                typename internal::AssignableDataSource<T>::shared_ptr _value;
 #ifndef ORO_EMBEDDED
-                assert( detail::DataSourceTypeInfo<T>::getTypeInfo() );
-                DataSourceBase::shared_ptr dsb = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildValue();
+                assert( internal::DataSourceTypeInfo<T>::getTypeInfo() );
+                base::DataSourceBase::shared_ptr dsb = internal::DataSourceTypeInfo<T>::getTypeInfo()->buildValue();
                 if (dsb)
                     // First see if it is a predefined type (not unknown) and if so, build that one.
-                    _value = AdaptAssignableDataSource<T>()(dsb);
+                    _value = internal::AdaptAssignableDataSource<T>()(dsb);
                 if ( _value ) {
                     _value->set( value );
                 } else {
                     // this type is unknown, build a default one.
-                    _value = new ValueDataSource<T>(value);
+                    _value = new internal::ValueDataSource<T>(value);
                 }
 #else
-                _value = new ValueDataSource<T>(value);
+                _value = new internal::ValueDataSource<T>(value);
 #endif
                 return _value;
             }

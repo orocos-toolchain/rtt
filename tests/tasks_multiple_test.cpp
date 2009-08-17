@@ -48,15 +48,15 @@ using namespace RTT;
         np_tasks.reserve(nr_of_np);
         p_tasks.reserve(nr_of_p);
         for (unsigned int i=0; i< nr_of_np/2; ++i)
-            np_tasks.push_back( new DummyNPTask( RTT::OS::HighestPriority, 0.001 ) );
+            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.001 ) );
         for (unsigned int i=0; i< nr_of_np/2; ++i)
-            np_tasks.push_back( new DummyNPTask( RTT::OS::HighestPriority, 0.001*8) );
+            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.001*8) );
         for (unsigned int i=0; i< nr_of_p/3; ++i)
-            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority - RTT::OS::IncreasePriority, 0.032 ) );
+            p_tasks.push_back( new DummyPTask( os::HighestPriority - os::IncreasePriority, 0.032 ) );
         for (unsigned int i=0; i< nr_of_p/3; ++i)
-            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority - RTT::OS::IncreasePriority, 0.032*2) );
+            p_tasks.push_back( new DummyPTask( os::HighestPriority - os::IncreasePriority, 0.032*2) );
         for (unsigned int i=0; i< nr_of_p/3; ++i)
-            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority - RTT::OS::IncreasePriority, 0.032*7) );
+            p_tasks.push_back( new DummyPTask( os::HighestPriority - os::IncreasePriority, 0.032*7) );
 
         log(Info) << "Done."<<endlog();
 

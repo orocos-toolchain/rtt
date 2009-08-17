@@ -42,6 +42,7 @@
 
 #ifdef __GNUC__
 namespace RTT {
+    using namespace extras;
     template class MultiVector<6, double>;
     template class MultiVector<6, int>;
     template class MultiVector<6, bool>;

@@ -39,8 +39,8 @@
 #include "TaskObject.hpp"
 #include "../ExecutionEngine.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     TaskObject::TaskObject(std::string name, std::string description)
         : mname(name), mdescription(description), mparent(0)

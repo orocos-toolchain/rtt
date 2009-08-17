@@ -41,14 +41,15 @@
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * @brief This command increments a counter when executed.
      *
      * @deprecated Remove this low-level class since it's nowhere used.
      */
     class RTT_API CommandCounter
-        : public ActionInterface
+        : public base::ActionInterface
     {
 
     public:
@@ -72,7 +73,7 @@ namespace RTT
          */
         virtual int getCounter();
 
-        virtual ActionInterface* clone() const
+        virtual base::ActionInterface* clone() const
         {
             return new CommandCounter( *this );
         }
@@ -81,7 +82,7 @@ namespace RTT
         int counter;
     };
 
-}
+}}
 
 #endif
 

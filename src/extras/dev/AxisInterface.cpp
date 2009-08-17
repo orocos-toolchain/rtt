@@ -30,6 +30,3 @@
 #pragma implementation
 #endif
 #include "AxisInterface.hpp"
-
-namespace RTT {
-}

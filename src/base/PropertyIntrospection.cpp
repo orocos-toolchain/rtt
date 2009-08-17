@@ -38,7 +38,8 @@
 
 #include "PropertyIntrospection.hpp"
 
-namespace RTT{
+namespace RTT {
+    using namespace detail;
 
     void PropertyIntrospection::introspect_T(PropertyBase* v)
     {

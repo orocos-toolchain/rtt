@@ -43,19 +43,14 @@
 #include "../base/RunnableInterface.hpp"
 #include "../base/ActionInterface.hpp"
 #include "../base/BufferPolicy.hpp"
+#include "rtt-internal-fwd.hpp"
 
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
-    template< class T, class RP, class WP>
-    class Queue;
-}
-
-namespace RTT
-{
+{ namespace internal {
     /**
      * @brief This class implements an Orocos command processor.
      * It executes external commands when running.
@@ -73,7 +68,7 @@ namespace RTT
      * @ingroup Processor
      */
     class RTT_API CommandProcessor
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     public:
         /**
@@ -92,12 +87,12 @@ namespace RTT
         /**
          * Queue and execute (process) a given command. The command is
          * executed in step() or loop() directly after all other
-         * queued ActionInterface objects. The constructor parameter
+         * queued base::ActionInterface objects. The constructor parameter
          * \a queue_size limits how many commands can be queued in
          * between step()s or loop().
          *
          * @warning process() assumes that step() is executed once
-         * for each command, hence, it invokes ActivityInterface::trigger() each time.
+         * for each command, hence, it invokes base::ActivityInterface::trigger() each time.
          * In case you override step() in a subclass, override
          * process as well in order to reduce calling trigger().
          *
@@ -107,7 +102,7 @@ namespace RTT
          * @return 0 when the CommandProcessor is not running or does not accept commands.
          * @see isProcessed, acceptCommands
          */
-        virtual int process(ActionInterface* c);
+        virtual int process(base::ActionInterface* c);
 
         /**
          * Check if a given command id has been processed.
@@ -122,7 +117,7 @@ namespace RTT
 
     protected:
 
-        Queue<ActionInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
+        Queue<base::ActionInterface*,base::NonBlockingPolicy,base::NonBlockingPolicy>* a_queue;
 
         /**
          * Counting how much commands we processed.
@@ -132,6 +127,6 @@ namespace RTT
         bool accept;
     };
 
-}
+}}
 
 #endif

@@ -43,7 +43,7 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     /**
      * The number of threads in addition to the main() thread.

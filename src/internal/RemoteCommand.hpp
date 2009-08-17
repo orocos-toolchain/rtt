@@ -50,7 +50,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A Command which is dispatched remotely to a CommandProcessor.
@@ -60,8 +60,8 @@ namespace RTT
          */
         template<class CommandT>
         class RemoteCommandImpl
-            : public CommandBase<CommandT>,
-              protected detail::DataSourceStorage<CommandT>
+            : public base::CommandBase<CommandT>,
+              protected DataSourceStorage<CommandT>
         {
         protected:
             CommandC mcom;
@@ -173,13 +173,13 @@ namespace RTT
                 return this->mcom.valid();
             }
 
-            virtual DispatchInterface::Status status() const {
+            virtual base::DispatchInterface::Status status() const {
                 return this->mcom.status();
             }
 
-            virtual ConditionInterface* createCondition() const
+            virtual base::ConditionInterface* createCondition() const
             {
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::done), this) );
+                return new ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::done), this) );
             }
 
             /**
@@ -189,11 +189,11 @@ namespace RTT
              *
              * @return
              */
-            virtual DispatchInterface* clone() const {
+            virtual base::DispatchInterface* clone() const {
                 return new RemoteCommand(*this);
             }
 
-            virtual CommandBase<CommandT>* cloneI() const {
+            virtual base::CommandBase<CommandT>* cloneI() const {
                 return new RemoteCommand(*this);
             }
         };

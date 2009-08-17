@@ -39,9 +39,11 @@
 #define ARGUMENTDESCRIPTION_HPP
 
 #include <string>
+#include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * @brief Description of one Argument of a Command.
      */
@@ -54,6 +56,6 @@ namespace RTT
         std::string description;
         std::string type;
     };
-}
+}}
 
 #endif

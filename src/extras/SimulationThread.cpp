@@ -44,8 +44,8 @@
 #include "../os/threads.hpp"
 
 #include "../os/StartStopManager.hpp"
-namespace RTT
-{
+namespace RTT {
+    using namespace extras;
     namespace
     {
         // Stop it before the application quits.
@@ -54,12 +54,13 @@ namespace RTT
             SimulationThread::Release();
         }
 
-        OS::CleanupFunction SIMCleanup( &stopSIMThread );
+        os::CleanupFunction SIMCleanup( &stopSIMThread );
     }
 }
 
-namespace RTT
-{
+namespace RTT {
+    using namespace extras;
+    using namespace os;
 
     // The static class variables
     SimulationThreadPtr SimulationThread::_instance;
@@ -82,7 +83,7 @@ namespace RTT
 
 
     SimulationThread::SimulationThread(double period)
-        : TimerThread( OS::LowestPriority,
+        : TimerThread( os::LowestPriority,
                       "SimulationThread",
                       period),
           beat( TimeService::Instance() ), maxsteps_(0), sim_running(false)
@@ -105,7 +106,7 @@ namespace RTT
     bool SimulationThread::start()
     {
         maxsteps_ = 0;
-        return OS::Thread::start();
+        return os::Thread::start();
     }
 
     bool SimulationThread::start(unsigned int maxsteps)
@@ -113,7 +114,7 @@ namespace RTT
         if (maxsteps == 0)
             return false;
         maxsteps_ = maxsteps;
-        return OS::Thread::start();
+        return os::Thread::start();
     }
 
     bool SimulationThread::run(unsigned int ms)

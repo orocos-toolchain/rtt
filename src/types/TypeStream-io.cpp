@@ -38,6 +38,7 @@
 #include "../types/TypeStream-io.hpp"
 
 namespace RTT {
+    namespace types {
     // Code ripped from KDL 0.2
 
 
@@ -88,6 +89,6 @@ namespace RTT {
         }
         return true;
     }
-
+    }
 }
 

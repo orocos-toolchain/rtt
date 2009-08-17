@@ -48,7 +48,7 @@
 #include "../types/Types.hpp"
 #include "../interface/OperationInterface.hpp"
 
-namespace RTT { namespace detail
+namespace RTT { namespace scripting
 {
   /**
    * This class is responsible for parsing constant definitions,
@@ -61,11 +61,11 @@ namespace RTT { namespace detail
   {
       // all the AssignVariableCommand we've built..
       // This list is cleared in cleanup().
-      std::vector<ActionInterface*> assigncommands;
+      std::vector<base::ActionInterface*> assigncommands;
 
       // the defined values...
       // This list is cleared in cleanup().
-      std::vector<AttributeBase*> definedvalues;
+      std::vector<base::AttributeBase*> definedvalues;
 
       // the parsed variable or constant or alias or param
       // definition name.
@@ -81,9 +81,9 @@ namespace RTT { namespace detail
     // definition or assignment..
     std::string valuename;
 
-    // A TypeInfo of the type that was specified.  We use it to get
+    // A types::TypeInfo of the type that was specified.  We use it to get
     // hold of a Constant or a TaskVariable or ...
-    TypeInfo* type;
+    types::TypeInfo* type;
 
     void seenconstantdefinition();
     void seenaliasdefinition();
@@ -104,16 +104,16 @@ namespace RTT { namespace detail
         vardecl, constdecl, baredecl;
 
       TaskContext* context;
-      OperationInterface* mstore;
+      interface::OperationInterface* mstore;
       ExpressionParser expressionparser;
       PeerParser peerparser;
       PropertyParser propparser;
       CommonParser commonparser;
 
-      DataSourceBase::shared_ptr index_ds;
+      base::DataSourceBase::shared_ptr index_ds;
 
       int sizehint;
-      boost::shared_ptr<TypeInfoRepository> typerepos;
+      boost::shared_ptr<types::TypeInfoRepository> typerepos;
 
       /**
        * Delete temporary variables before throwing an exception.
@@ -129,7 +129,7 @@ namespace RTT { namespace detail
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc, OperationInterface* storage= 0);
+      ValueChangeParser( TaskContext* tc, interface::OperationInterface* storage= 0);
 
       /**
        * Clear assignCommands(), definedValues() and
@@ -140,35 +140,35 @@ namespace RTT { namespace detail
       /**
        * Store allDefinedNames() in an additional TaskContext.
        */
-      void store( OperationInterface* other );
+      void store( interface::OperationInterface* other );
 
     /**
-     * This ActionInterface holds the command assigning a value to
+     * This base::ActionInterface holds the command assigning a value to
      * a variable that should be included in the program.  After a
      * constant definition, variable definition or variable
      * assignment is parsed, you should check it, and include it in
      * your program if it is non-zero.
      */
-    ActionInterface* assignCommand()
+    base::ActionInterface* assignCommand()
       {
           if ( assigncommands.empty() )
               return 0;
           return assigncommands.back();
       }
 
-    std::vector<ActionInterface*> assignCommands()
+    std::vector<base::ActionInterface*> assignCommands()
       {
           return assigncommands;
       }
 
-    AttributeBase* lastDefinedValue()
+    base::AttributeBase* lastDefinedValue()
       {
           if ( definedvalues.empty() )
               return 0;
           return definedvalues.back();
       }
 
-    std::vector<AttributeBase*> definedValues()
+    std::vector<base::AttributeBase*> definedValues()
       {
           return definedvalues;
       }

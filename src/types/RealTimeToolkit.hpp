@@ -42,7 +42,8 @@
 #include "ToolkitPlugin.hpp"
 
 namespace RTT
-{
+{ namespace types {
+
 
     /**
      * This interface defines the types of the realTime package.
@@ -62,6 +63,6 @@ namespace RTT
      * The single global instance of the RealTime Toolkit.
      */
     extern RealTimeToolkitPlugin RealTimeToolkit;
-}
+}}
 
 #endif

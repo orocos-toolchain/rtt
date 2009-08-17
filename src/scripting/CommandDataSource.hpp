@@ -43,15 +43,16 @@
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
-     * A Command which evaluates a DataSourceBase and always returns true.
+     * A Command which evaluates a base::DataSourceBase and always returns true.
      */
     struct CommandDataSource :
-        public ActionInterface
+        public base::ActionInterface
     {
-        DataSourceBase::shared_ptr _dsb;
-        CommandDataSource( DataSourceBase::shared_ptr dsb )
+        base::DataSourceBase::shared_ptr _dsb;
+        CommandDataSource( base::DataSourceBase::shared_ptr dsb )
             : _dsb(dsb) {}
 
         void readArguments()
@@ -67,24 +68,24 @@ namespace RTT
             _dsb->reset();
         }
 
-        ActionInterface* clone() const {
+        base::ActionInterface* clone() const {
             return new CommandDataSource( _dsb );
         }
 
-        ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return new CommandDataSource( _dsb->copy( alreadyCloned ) );
         }
 
     };
 
     /**
-     * A Command which evaluates a DataSource<bool> and returns the result of get().
+     * A Command which evaluates a internal::DataSource<bool> and returns the result of get().
      */
     struct CommandDataSourceBool :
-        public ActionInterface
+        public base::ActionInterface
     {
-        DataSource<bool>::shared_ptr _dsb;
-        CommandDataSourceBool( DataSource<bool>::shared_ptr dsb )
+        internal::DataSource<bool>::shared_ptr _dsb;
+        CommandDataSourceBool( internal::DataSource<bool>::shared_ptr dsb )
             : _dsb(dsb) {}
 
         void readArguments()
@@ -98,16 +99,16 @@ namespace RTT
         void reset() {
             _dsb->reset();
         }
-        ActionInterface* clone() const {
+        base::ActionInterface* clone() const {
             return new CommandDataSourceBool( _dsb );
         }
 
-        ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return new CommandDataSourceBool( _dsb->copy( alreadyCloned ) );
         }
 
     };
 
-}
+}}
 
 #endif

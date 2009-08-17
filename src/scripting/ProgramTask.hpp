@@ -45,17 +45,16 @@
 #include "../internal/DataSources.hpp"
 
 namespace RTT
-{
-    class ExecutionEngine;
+{ namespace scripting {
 
     /**
-     * @brief This class represents a program as an TaskObject in
+     * @brief This class represents a program as an internal::TaskObject in
      * the Orocos TaskContext system.
      */
     class ProgramTask
-        : public TaskObject
+        : public internal::TaskObject
     {
-        ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
+        internal::ValueDataSource<base::ProgramInterfaceWPtr>::shared_ptr program;
         FunctionGraphWPtr function;
     public:
         /**
@@ -69,9 +68,9 @@ namespace RTT
         /**
          * Returns the Program of this task.
          */
-        ProgramInterfacePtr getProgram() const { return program->get().lock(); }
+        base::ProgramInterfacePtr getProgram() const { return program->get().lock(); }
 
     };
-}
+}}
 
 #endif

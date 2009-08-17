@@ -46,21 +46,15 @@
 #include "EventProcessor.hpp"
 #include "boost/function_types/function_type_arity.hpp"
 
-namespace RTT {
-    class EventProcessor;
-}
-
-namespace RTT
-{
-    class EventService;
+namespace RTT { namespace internal {
 
     /**
      * A user friendly callback connection to an event of a TaskContext.
      * At most one synchronous and one asynchronous \a callback() can be added to a ConnectionC object.
      * The returned \a handle() connects or disconnects the added callbacks.
      *
-     * @important Use the EventService to create ConnectionC objects.
-     * @see EventService
+     * @important Use the interface::EventService to create ConnectionC objects.
+     * @see interface::EventService
      */
     class RTT_API ConnectionC
     {
@@ -70,9 +64,9 @@ namespace RTT
         class D;
         D* d;
 
-        ConnectionC& mcallback(detail::EventCallBack* ecb);
+        ConnectionC& mcallback(EventCallBack* ecb);
 
-        ConnectionC& mcallback(detail::EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type);
+        ConnectionC& mcallback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type);
     public:
         /**
          * The default constructor.
@@ -83,9 +77,9 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see EventService
+         * @see interface::EventService
          */
-        ConnectionC( const EventService* gcf, const std::string& name );
+        ConnectionC( const interface::EventService* gcf, const std::string& name );
 
         /**
          * A ConnectionC is copyable by value.
@@ -163,6 +157,6 @@ namespace RTT
          */
         Handle handle();
     };
-}
+}}
 
 #endif

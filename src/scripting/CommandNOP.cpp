@@ -36,8 +36,9 @@
  ***************************************************************************/
 #include "CommandNOP.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
+    using namespace base;
     bool CommandNOP::execute()
     {
         return true;

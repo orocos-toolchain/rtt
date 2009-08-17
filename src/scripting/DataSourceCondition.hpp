@@ -41,33 +41,32 @@
 #include "../internal/DataSource.hpp"
 
 namespace RTT
-{
-  class ConditionInterface;
+{ namespace scripting {
 
   /**
-   * A class that wraps a Condition in a DataSource<bool>
+   * A class that wraps a Condition in a internal::DataSource<bool>
    * interface.
    */
   class RTT_API DataSourceCondition
-    : public DataSource<bool>
+    : public internal::DataSource<bool>
   {
-      ConditionInterface* cond;
+      base::ConditionInterface* cond;
       mutable bool result;
   public:
       /**
        * DataSourceCondition takes ownership of the condition you pass
        * it.
        */
-      DataSourceCondition( ConditionInterface* c );
+      DataSourceCondition( base::ConditionInterface* c );
       DataSourceCondition( const DataSourceCondition& orig );
       ~DataSourceCondition();
       bool get() const;
       bool value() const;
       void reset();
-      ConditionInterface* condition() const;
+      base::ConditionInterface* condition() const;
       virtual DataSourceCondition* clone() const;
-      virtual DataSourceCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+      virtual DataSourceCondition* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
   };
-}
+}}
 
 #endif

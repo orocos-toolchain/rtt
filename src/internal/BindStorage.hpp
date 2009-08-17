@@ -48,7 +48,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         template<class F, class O, int>
         struct quickbind_impl;

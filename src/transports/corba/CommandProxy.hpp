@@ -44,23 +44,23 @@
 #include "../../Logger.hpp"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
 
     /**
      * This class manages the access of remote Command Corba Servers.
      */
     class RTT_CORBA_API CommandProxy
-        : public DispatchInterface
+        : public base::DispatchInterface
     {
     protected:
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        CommandProxy( ::RTT::Corba::Command_ptr t );
+        CommandProxy( ::RTT::corba::Command_ptr t );
 
-        Corba::Command_var mdata;
+        corba::Command_var mdata;
 
     public:
         ~CommandProxy();
@@ -70,14 +70,14 @@ namespace RTT
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static CommandProxy* Create(::RTT::Corba::Command_ptr act);
+        static CommandProxy* Create(::RTT::corba::Command_ptr act);
 
         /**
          * Get the Corba Object reference of the Command.
          * This object universally identifies the remote Command Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        Corba::Command_ptr server() const;
+        corba::Command_ptr server() const;
 
         virtual void readArguments() {}
 
@@ -117,31 +117,31 @@ namespace RTT
             return mdata->done();
         }
 
-	virtual DispatchInterface::Status status() const {
-	    switch(mdata->status())
-	    {
-		case RTT::Corba::NotReady: return DispatchInterface::NotReady;
-		case RTT::Corba::Ready: return DispatchInterface::Ready;
-		case RTT::Corba::Sent: return DispatchInterface::Sent;
-		case RTT::Corba::NotAccepted: return DispatchInterface::NotAccepted;
-		case RTT::Corba::Accepted: return DispatchInterface::Accepted;
-		case RTT::Corba::Executed: return DispatchInterface::Executed;
-		case RTT::Corba::NotValid: return DispatchInterface::NotValid;
-		case RTT::Corba::Valid: return DispatchInterface::Valid;
-		case RTT::Corba::Done: return DispatchInterface::Done;
-		default:
-		    log(Error) << "wrong status returned by remote host" << endlog();
-		    return DispatchInterface::NotReady;
-	    }
-	}
+        virtual base::DispatchInterface::Status status() const {
+            switch(mdata->status())
+                {
+                case RTT::corba::NotReady: return base::DispatchInterface::NotReady;
+                case RTT::corba::Ready: return base::DispatchInterface::Ready;
+                case RTT::corba::Sent: return base::DispatchInterface::Sent;
+                case RTT::corba::NotAccepted: return base::DispatchInterface::NotAccepted;
+                case RTT::corba::Accepted: return base::DispatchInterface::Accepted;
+                case RTT::corba::Executed: return base::DispatchInterface::Executed;
+                case RTT::corba::NotValid: return base::DispatchInterface::NotValid;
+                case RTT::corba::Valid: return base::DispatchInterface::Valid;
+                case RTT::corba::Done: return base::DispatchInterface::Done;
+                default:
+                    log(Error) << "wrong status returned by remote host" << endlog();
+                    return base::DispatchInterface::NotReady;
+                }
+        }
 
-        virtual ConditionInterface* createCondition() const;
+        virtual base::ConditionInterface* createCondition() const;
 
         virtual CommandProxy* clone() const {
             return new CommandProxy( mdata.in() );
         }
 
-        virtual CommandProxy* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual CommandProxy* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

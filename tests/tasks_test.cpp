@@ -41,7 +41,7 @@ using namespace RTT::detail;
 #define BOOST_CHECK_EQUAL_MESSAGE(M, v1, v2) BOOST_CHECK_MESSAGE( v1==v2, M)
 
 struct TestOverrun
-  : public RTT::RunnableInterface
+  : public RunnableInterface
 {
   bool fini;
   bool initialize() { fini = false; return true; }
@@ -56,7 +56,7 @@ struct TestOverrun
 };
 
 struct TestPeriodic
-    : public RTT::RunnableInterface
+    : public RunnableInterface
 {
     int overfail, underfail, succ;
     bool stepped;
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
-  boost::scoped_ptr<RTT::Activity> t( new RTT::Activity(25, 0.1, 0,"ORThread") );
+  boost::scoped_ptr<Activity> t( new Activity(25, 0.1, 0,"ORThread") );
   //BOOST_CHECK_EQUAL(25,t->getPriority() );
   BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
   t->thread()->setMaxOverrun(1);
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( testThread )
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<RTT::ActivityInterface> t( new RTT::Activity(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, 0, "PThread") );
+  boost::scoped_ptr<ActivityInterface> t( new Activity(ORO_SCHED_RT, os::HighestPriority, 0.1, 0, "PThread") );
   t->run( run.get() );
 
   r = t->start();

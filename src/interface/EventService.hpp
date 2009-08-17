@@ -51,9 +51,7 @@
 #include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
-{
-
-    class ExecutionEngine;
+{ namespace interface {
 
     /**
      * The EventService represents the event interface. It stores pointers
@@ -62,19 +60,19 @@ namespace RTT
      *
      */
     class RTT_API EventService
-        : public OperationFactory< ActionInterface* >
+        : public internal::OperationFactory< base::ActionInterface* >
     {
         // creates event hooks
-        typedef std::map<std::string, detail::FunctorFactoryPart<detail::EventHookBase*>* > Hooks;
+        typedef std::map<std::string, internal::FunctorFactoryPart<internal::EventHookBase*>* > Hooks;
         Hooks mhooks;
         // creates emittor objects
-        typedef std::map<std::string, boost::shared_ptr<ActionInterface> > Events;
+        typedef std::map<std::string, boost::shared_ptr<base::ActionInterface> > Events;
         Events mevents;
 
         ExecutionEngine* eeproc;
-        EventProcessor* eproc;
+        internal::EventProcessor* eproc;
     public:
-        typedef OperationFactory< ActionInterface* > Factory;
+        typedef internal::OperationFactory< base::ActionInterface* > Factory;
 
         /**
          * Create an EventService with an associated ExecutionEngine.
@@ -85,17 +83,17 @@ namespace RTT
 
         /**
          * Create an EventService with an associated EventService.
-         * The EventProcessor is optional and defaults to the CompletionProcessor.
+         * The internal::EventProcessor is optional and defaults to the CompletionProcessor.
          * If you want the owner task of this object to process an event use
          * EventService::getEventProcessor() in the \a setup functions below.
          */
-        EventService( EventProcessor* ep = 0 );
+        EventService( internal::EventProcessor* ep = 0 );
 
         ~EventService();
 
-        EventProcessor* getEventProcessor();
+        internal::EventProcessor* getEventProcessor();
 
-        void setEventProcessor(EventProcessor* ep);
+        void setEventProcessor(internal::EventProcessor* ep);
 
         /**
          * Clear all added methods from the repository, saving memory space.
@@ -147,14 +145,14 @@ namespace RTT
          * @internal We need Signature for two reasons: 1. for consistency with the general
          * getPrimitive<T>(name) API in RTT and 2. because we may need the type to reconstruct the
          * object dynamically, for example, when the Event is remote. See the CommandRepository
-         * for and example where this is necessary (see also RTT::RemoteCommand )
+         * for and example where this is necessary (see also internal::RemoteCommand )
          */
         template<class Signature>
-        boost::shared_ptr<ActionInterface> getEvent(const std::string& ename)
+        boost::shared_ptr<base::ActionInterface> getEvent(const std::string& ename)
         {
             if ( mevents.count(ename) )
                 return mevents[ename];
-            return boost::shared_ptr<ActionInterface>();
+            return boost::shared_ptr<base::ActionInterface>();
         }
 
         /**
@@ -175,11 +173,11 @@ namespace RTT
                 return false;
 
             this->add(e->getName(),
-                      new detail::OperationFactoryPart0<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e), description) );
+                      new internal::OperationFactoryPart0<base::ActionInterface*,
+                      internal::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e), description) );
 
             this->mhooks[e->getName()]
-                = new detail::FunctorFactoryPart0<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+                = new internal::FunctorFactoryPart0<internal::EventHookBase*, internal::EventHookGenerator<EventT> >( internal::EventHookGenerator<EventT>(e) );
 
             return true;
         }
@@ -204,13 +202,13 @@ namespace RTT
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
-                      new detail::OperationFactoryPart1<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e, _1),
+                      new internal::OperationFactoryPart1<base::ActionInterface*,
+                      internal::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e, _1),
                       description,
                       arg1, arg1_description) );
 
             this->mhooks[e->getName()]
-                = new detail::FunctorFactoryPart1<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+                = new internal::FunctorFactoryPart1<internal::EventHookBase*, internal::EventHookGenerator<EventT> >( internal::EventHookGenerator<EventT>(e) );
 
             return true;
         }
@@ -238,14 +236,14 @@ namespace RTT
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
-                      new detail::OperationFactoryPart2<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2),
+                      new internal::OperationFactoryPart2<base::ActionInterface*,
+                      internal::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2),
                       description,
                       arg1, arg1_description,
                       arg2, arg2_description) );
 
             this->mhooks[e->getName()]
-                = new detail::FunctorFactoryPart2<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+                = new internal::FunctorFactoryPart2<internal::EventHookBase*, internal::EventHookGenerator<EventT> >( internal::EventHookGenerator<EventT>(e) );
 
             return true;
         }
@@ -276,15 +274,15 @@ namespace RTT
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
-                      new detail::OperationFactoryPart3<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3),
+                      new internal::OperationFactoryPart3<base::ActionInterface*,
+                      internal::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3),
                       description,
                       arg1, arg1_description,
                       arg2, arg2_description,
                       arg3, arg3_description));
 
             this->mhooks[e->getName()]
-                = new detail::FunctorFactoryPart3<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+                = new internal::FunctorFactoryPart3<internal::EventHookBase*, internal::EventHookGenerator<EventT> >( internal::EventHookGenerator<EventT>(e) );
             return true;
         }
 
@@ -317,8 +315,8 @@ namespace RTT
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
-                      new detail::OperationFactoryPart4<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3,_4),
+                      new internal::OperationFactoryPart4<base::ActionInterface*,
+                      internal::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3,_4),
                       description,
                       arg1, arg1_description,
                       arg2, arg2_description,
@@ -326,7 +324,7 @@ namespace RTT
                       arg4, arg4_description));
 
             this->mhooks[e->getName()]
-                = new detail::FunctorFactoryPart4<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+                = new internal::FunctorFactoryPart4<internal::EventHookBase*, internal::EventHookGenerator<EventT> >( internal::EventHookGenerator<EventT>(e) );
             return true;
         }
 
@@ -355,33 +353,33 @@ namespace RTT
          @verbatim
          createEmit("EventName").arg(2.0).arg(1.0).emit();
          // or:
-         EventC em = createEmit("EventName").arg(2.0).arg(1.0);
+         internal::EventC em = createEmit("EventName").arg(2.0).arg(1.0);
          em.emit();
          @endverbatim
          * Also variables or reference to variables may be given
          * within arg().
-         * @see EventC
+         * @see internal::EventC
          * @throw name_not_found_exception
          * @throw wrong_number_of_args_exception
          * @throw wrong_types_of_args_exception
         */
-        EventC setupEmit(const std::string& ename) const;
+        internal::EventC setupEmit(const std::string& ename) const;
 
         /**
-         * Setup a ConnectionC object to connect a number of synchronous or asynchronous callbacks to an event.
+         * Setup a internal::ConnectionC object to connect a number of synchronous or asynchronous callbacks to an event.
          * Use this method as in
          @verbatim
          Handle h = setupConnection("EventName").callback( &my_function ).handle();
          h.connect();
          // or for adding a class method:
-         h = setupConnection("EventName").callback( boost::bind( &MyClass::function, obj) ).handle();
+         h = setupConnection("EventName").callback( boost::bind( &types::MyClass::function, obj) ).handle();
          h.connect();
          @endverbatim
-         * @see ConnectionC
+         * @see internal::ConnectionC
          * @see Handle
          * @throw name_not_found_exception
          */
-        ConnectionC setupConnection(const std::string& ename) const;
+        internal::ConnectionC setupConnection(const std::string& ename) const;
 
         /**
          * For internal use only. Setup a synchronous Event handler which will set \a args and
@@ -389,12 +387,12 @@ namespace RTT
          * @param ename The name of the previously added Event.
          * @param func  A function object which will be called.
          * @param args  The arguments which will be set before \a func is called.
-         * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
+         * They must be of type \a internal::AssignableDataSource<Tn> or \a internal::DataSource<Tn&>,
          * where \a Tn is the type of the n'th argument of the Event.
          */
         Handle setupSyn(const std::string& ename,
                         boost::function<void(void)> func,
-                        std::vector<DataSourceBase::shared_ptr> args ) const;
+                        std::vector<base::DataSourceBase::shared_ptr> args ) const;
 
         /**
          * For internal use only. Setup a asynchronous Event handler which will set \a args and
@@ -402,25 +400,25 @@ namespace RTT
          * @param ename The name of the previously added Event.
          * @param afunc  A function object which will be called.
          * @param args  The arguments which will be set before \a afunc is called.
-         * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
+         * They must be of type \a internal::AssignableDataSource<Tn> or \a internal::DataSource<Tn&>,
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
-         * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
+         * @param ep The internal::EventProcessor in which the \a args will be set and \a afunc will be called.
          * @param s_type The method used when event overruns happen. By default, only the first event
          * is propagated to the callbacks.
          * @{
          */
         Handle setupAsyn(const std::string& ename,
                          boost::function<void(void)> afunc,
-                         const std::vector<DataSourceBase::shared_ptr>& args,
-                         ActivityInterface* t,
-                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
+                         const std::vector<base::DataSourceBase::shared_ptr>& args,
+                         base::ActivityInterface* t,
+                         internal::EventProcessor::AsynStorageType s_type = internal::EventProcessor::OnlyFirst) const;
 
         Handle setupAsyn(const std::string& ename,
                          boost::function<void(void)> afunc,
-                         const std::vector<DataSourceBase::shared_ptr>& args,
-                         EventProcessor* ep = 0,
-                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
+                         const std::vector<base::DataSourceBase::shared_ptr>& args,
+                         internal::EventProcessor* ep = 0,
+                         internal::EventProcessor::AsynStorageType s_type = internal::EventProcessor::OnlyFirst) const;
         //!@}
 
         /**
@@ -431,11 +429,11 @@ namespace RTT
          * @param args  DataSources holding the values for each parameter of the event.
          * They are read at the moment of execute().
          */
-        ActionInterface* getEvent(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const;
+        base::ActionInterface* getEvent(const std::string& ename,const std::vector<base::DataSourceBase::shared_ptr>& args) const;
 
     };
 
 
-}
+}}
 
 #endif

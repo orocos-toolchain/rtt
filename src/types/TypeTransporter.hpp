@@ -44,9 +44,8 @@
 
 namespace RTT
 {
-    class PortInterface;
 
-    namespace detail {
+    namespace types {
 
         /**
          * This interface defines the function a transport protocol
@@ -67,44 +66,44 @@ namespace RTT
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
              */
-            virtual void* createBlob(DataSourceBase::shared_ptr source) const = 0;
+            virtual void* createBlob(base::DataSourceBase::shared_ptr source) const = 0;
 
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const = 0;
+            virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const = 0;
 
             /**
-             * Create a DataSource which is a proxy for a remote server object.
+             * Create a internal::DataSource which is a proxy for a remote server object.
              * Used to read/write remote attributes, properties and general data over a network.
              */
-            virtual DataSourceBase* proxy(void* data ) const = 0;
+            virtual base::DataSourceBase* proxy(void* data ) const = 0;
 
             /**
-             * Create a server for a DataSource, which can be picked up by a proxy.
+             * Create a server for a internal::DataSource, which can be picked up by a proxy.
              * Used to export local data to a network.
              */
-            virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg) const = 0;
+            virtual void* server(base::DataSourceBase::shared_ptr source, bool assignable, void* arg) const = 0;
 
             /**
              * Create a server for a local method.
              * Used to export local methods to a network.
              */
-            virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const = 0;
+            virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.
              * Used internally to determine the type of a remote object.
              * @return 0 if \a dsb is not of this type.
              */
-            virtual DataSourceBase* narrowDataSource(DataSourceBase* dsb) = 0;
+            virtual base::DataSourceBase* narrowDataSource(base::DataSourceBase* dsb) = 0;
 
             /**
              * Narrows a remote assignable data source object or proxy to this type.
              * Used internally to determine the type of a remote object.
              * @return 0 if \a dsb is not of this type.
              */
-            virtual DataSourceBase* narrowAssignableDataSource(DataSourceBase* dsb) = 0;
+            virtual base::DataSourceBase* narrowAssignableDataSource(base::DataSourceBase* dsb) = 0;
         };
     }
 }

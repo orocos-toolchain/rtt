@@ -36,8 +36,8 @@
  ***************************************************************************/
 #include "ConditionBool.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
 
     ConditionBool::ConditionBool() :
             state( false )

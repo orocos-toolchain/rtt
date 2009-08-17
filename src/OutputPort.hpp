@@ -13,17 +13,17 @@
 namespace RTT
 {
     template<typename T>
-    class OutputPort : public OutputPortInterface
+    class OutputPort : public base::OutputPortInterface
     {
-        friend class ConnInputEndpoint<T>;
+        friend class internal::ConnInputEndpoint<T>;
 
         bool written;
-        typename DataObjectInterface<T>::shared_ptr last_written_value;
+        typename base::DataObjectInterface<T>::shared_ptr last_written_value;
 
-        bool do_write(typename ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
+        bool do_write(typename base::ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
         {
-            typename ChannelElement<T>::shared_ptr output
-                = boost::static_pointer_cast< ChannelElement<T> >(descriptor.get<1>());
+            typename base::ChannelElement<T>::shared_ptr output
+                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
             if (output->write(sample))
                 return false;
             else
@@ -35,7 +35,7 @@ namespace RTT
 
     public:
         OutputPort(std::string const& name, bool keep_last_written_value = false)
-            : OutputPortInterface(name)
+            : base::OutputPortInterface(name)
             , written(false)
         {
             if (keep_last_written_value)
@@ -49,7 +49,7 @@ namespace RTT
             {
                 if (!last_written_value)
                 {
-                    last_written_value = new DataObject<T>();
+                    last_written_value = new base::DataObject<T>();
                     last_written_value->deref(); // Data objects are initialized with a refcount of 1
                 }
             }
@@ -58,14 +58,14 @@ namespace RTT
         }
         T getLastWrittenValue() const
         {
-            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (written && last_written_value)
                 return last_written_value->Get();
             else return T();
         }
         bool getLastWrittenValue(T& sample) const
         {
-            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (written && last_written_value)
             {
                 sample = last_written_value->Get();
@@ -74,9 +74,9 @@ namespace RTT
             return false;
         }
 
-        void write(typename ChannelElement<T>::param_t sample)
+        void write(typename base::ChannelElement<T>::param_t sample)
         {
-            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
                 last_written_value->Set(sample);
             written = true;
@@ -86,16 +86,16 @@ namespace RTT
                     );
         }
 
-        void write(DataSourceBase::shared_ptr source)
+        void write(base::DataSourceBase::shared_ptr source)
         {
-            typename AssignableDataSource<T>::shared_ptr ds =
-                boost::dynamic_pointer_cast< AssignableDataSource<T> >(source);
+            typename internal::AssignableDataSource<T>::shared_ptr ds =
+                boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (ds)
                 write(ds->rvalue());
             else
             {
-                typename DataSource<T>::shared_ptr ds =
-                    boost::dynamic_pointer_cast< DataSource<T> >(source);
+                typename internal::DataSource<T>::shared_ptr ds =
+                    boost::dynamic_pointer_cast< internal::DataSource<T> >(source);
                 if (ds)
                     write(ds->get());
                 else
@@ -103,14 +103,14 @@ namespace RTT
             }
         }
 
-        /** Returns the TypeInfo object for the port's type */
-        virtual const TypeInfo* getTypeInfo() const
-        { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+        /** Returns the types::TypeInfo object for the port's type */
+        virtual const types::TypeInfo* getTypeInfo() const
+        { return internal::DataSourceTypeInfo<T>::getTypeInfo(); }
 
         /**
          * Create a clone of this port with the same name
          */
-        virtual PortInterface* clone() const
+        virtual base::PortInterface* clone() const
         { return new OutputPort<T>(this->getName()); }
 
         /**
@@ -118,17 +118,17 @@ namespace RTT
          * A port for reading will return a new port for writing and
          * vice versa.
          */
-        virtual PortInterface* antiClone() const
+        virtual base::PortInterface* antiClone() const
         { return new InputPort<T>(this->getName()); }
 
-        using OutputPortInterface::createConnection;
+        using base::OutputPortInterface::createConnection;
 
         /** Connects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection(InputPortInterface& input_port, ConnPolicy const& policy)
+        virtual bool createConnection(base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
         {
             // This is the input channel element of the output half
-            ChannelElementBase* output_half = 0;
+            base::ChannelElementBase* output_half = 0;
             if (input_port.isLocal())
             {
                 InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
@@ -138,11 +138,11 @@ namespace RTT
                     return false;
                 }
 
-                output_half = ConnFactory::buildOutputHalf(*input_p, policy);
+                output_half = internal::ConnFactory::buildOutputHalf(*input_p, policy);
             }
             else
             {
-                TypeInfo const* type_info = getTypeInfo();
+                types::TypeInfo const* type_info = getTypeInfo();
                 if (!type_info || input_port.getTypeInfo() != type_info)
                 {
                     log(Error) << "type of port " << getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
@@ -166,8 +166,8 @@ namespace RTT
                 return false;
 
             // This this the input channel element of the whole connection
-            typename ChannelElement<T>::shared_ptr channel_input =
-                static_cast< ChannelElement<T>* >(ConnFactory::buildInputHalf(*this, policy, output_half));
+            typename base::ChannelElement<T>::shared_ptr channel_input =
+                static_cast< base::ChannelElement<T>* >(internal::ConnFactory::buildInputHalf(*this, policy, output_half));
 
             // Register the channel's input 
             addConnection( input_port.getPortID(), channel_input, policy );
@@ -176,7 +176,7 @@ namespace RTT
             // (and available)
             if (policy.init && written)
             {
-                typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
                 if (last_written_value)
                 {
                     T sample;
@@ -191,11 +191,11 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual TaskObject* createPortObject()
+        virtual internal::TaskObject* createPortObject()
         {
-            TaskObject* object = OutputPortInterface::createPortObject();
+            internal::TaskObject* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef void (OutputPort<T>::*WriteSample)(typename ChannelElement<T>::param_t);
+            typedef void (OutputPort<T>::*WriteSample)(typename base::ChannelElement<T>::param_t);
             object->methods()->addMethod(
                     method("write", static_cast<WriteSample>(&OutputPort::write), this),
                     "Writes a sample on the port.",

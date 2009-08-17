@@ -39,7 +39,8 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace types {
+
 
     /**
      * This interface defines how additional toolkits
@@ -69,7 +70,7 @@ namespace RTT
          * Implement this method to load Scripting
          * operators on types, such as '+', '*', ...
          * @see The OperatorRepository for adding the Operators
-         * @see The detail::UnaryOp, detail::BinaryOp and detail::DotOp
+         * @see The UnaryOp, BinaryOp and DotOp
          * classes for the interface of an operation.
          * @see The newUnaryOperator, newBinaryOperator and newDotOperator
          * functions for creating new operator objects.
@@ -96,6 +97,6 @@ namespace RTT
         virtual std::string getName() = 0;
     };
 
-}
+}}
 
 #endif

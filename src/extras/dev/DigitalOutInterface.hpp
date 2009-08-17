@@ -44,7 +44,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * A class representing a Digital Output device which can read or write a maximum of 32
      * bits at once. When there are N bits, the bits are numbered from Zero to N-1.
@@ -128,7 +129,7 @@ namespace RTT
 
     };
 
-};
+}};
 
 
 #endif

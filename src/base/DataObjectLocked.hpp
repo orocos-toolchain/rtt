@@ -43,7 +43,8 @@
 #include "DataObjectInterface.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * @brief A class which provides locked/protected access to one typed element of data.
      *
@@ -57,7 +58,7 @@ namespace RTT
     class DataObjectLocked
         : public DataObjectInterface<T>
     {
-        mutable OS::Mutex lock;
+        mutable os::Mutex lock;
 
         /**
          * One element of Data.
@@ -82,7 +83,7 @@ namespace RTT
          *
          * @param pull A copy of the data.
          */
-        void Get( DataType& pull ) const { OS::MutexLock locker(lock); pull = data; }
+        void Get( DataType& pull ) const { os::MutexLock locker(lock); pull = data; }
 
         /**
          * Get a copy of the data of the module.
@@ -97,7 +98,7 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) { OS::MutexLock locker(lock); data = push; }
+        void Set( const DataType& push ) { os::MutexLock locker(lock); data = push; }
 
         DataObjectLocked<DataType>* clone() const {
             return new DataObjectLocked<DataType>();
@@ -107,7 +108,7 @@ namespace RTT
             return const_cast<DataObjectLocked<DataType>*>(this);
         }
     };
-}
+}}
 
 #endif
 

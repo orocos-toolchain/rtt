@@ -42,10 +42,11 @@
 #include "../internal/DataSource.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
 
     /**
-     * @brief A DataObjectInterface extends the AssignableDataSource with
+     * @brief A DataObjectInterface extends the internal::AssignableDataSource with
      * implementations of multi-threaded read/write solutions. It is initially not
      * reference counted, such that DataObjects may be created on the stack.
      * Store a DataObject in a shared_ptr and use this->deref() to get a reference counted version.
@@ -58,7 +59,7 @@ namespace RTT
      */
     template <class T>
     class DataObjectInterface
-        : public AssignableDataSource<T>
+        : public internal::AssignableDataSource<T>
     {
     public:
         /**
@@ -110,32 +111,32 @@ namespace RTT
          * DataObjects, this is actually the sanest thing to
          * do.
          */
-        typename DataSource<T>::result_t value() const {
+        typename internal::DataSource<T>::result_t value() const {
             return this->Get();
         }
 
-        virtual typename DataSource<DataType>::result_t get() const {
+        virtual typename internal::DataSource<DataType>::result_t get() const {
             return this->Get();
         }
 
-        virtual void set( typename AssignableDataSource<DataType>::param_t t ) {
+        virtual void set( typename internal::AssignableDataSource<DataType>::param_t t ) {
             this->Set( t );
         }
 
-        virtual typename AssignableDataSource<DataType>::reference_t set() {
+        virtual typename internal::AssignableDataSource<DataType>::reference_t set() {
             // return null reference, allowed by API.
-            typename DataSource<DataType>::value_t* tmp = 0;
-            return typename AssignableDataSource<DataType>::reference_t(*tmp);
+            typename internal::DataSource<DataType>::value_t* tmp = 0;
+            return typename internal::AssignableDataSource<DataType>::reference_t(*tmp);
         }
 
-        virtual typename AssignableDataSource<DataType>::const_reference_t rvalue() const {
+        virtual typename internal::AssignableDataSource<DataType>::const_reference_t rvalue() const {
             // return null reference, allowed by API.
-            typename DataSource<DataType>::value_t* tmp = 0;
-            return typename AssignableDataSource<DataType>::const_reference_t(*tmp);
+            typename internal::DataSource<DataType>::value_t* tmp = 0;
+            return typename internal::AssignableDataSource<DataType>::const_reference_t(*tmp);
         }
 
     };
-}
+}}
 
 #endif
 

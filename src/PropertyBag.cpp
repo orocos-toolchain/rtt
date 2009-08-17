@@ -42,9 +42,11 @@
 #include "Property.hpp"
 #include "Logger.hpp"
 #include <algorithm>
+#include "rtt-fwd.hpp"
 
 namespace RTT
 {
+    using namespace detail;
 
     PropertyBag::PropertyBag( )
         : mproperties(), type("PropertyBag")

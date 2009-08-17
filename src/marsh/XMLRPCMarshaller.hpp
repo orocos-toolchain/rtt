@@ -49,7 +49,8 @@
 
 
 namespace RTT
-{
+{ namespace marsh {
+
     using namespace std;
 
     /**
@@ -58,7 +59,7 @@ namespace RTT
      */
     template<typename output_stream>
     class XMLRPCMarshaller
-        : public Marshaller, public PropertyIntrospection,
+        : public Marshaller, public base::PropertyIntrospection,
         public StreamProcessor<output_stream>
     {
         public:
@@ -102,7 +103,7 @@ namespace RTT
                 *(this->s) << "<xmlrpc>\n";
 
                 for (
-                    std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
+                    std::vector<base::PropertyBase*>::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
                     i++ )
                 {
@@ -116,7 +117,7 @@ namespace RTT
                 *(this->s) <<"<struct><name>"<<b.getName()<<"</name>\n";
 				PropertyBag v = b.get();
                 for (
-                    std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
+                    std::vector<base::PropertyBase*>::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
                     i++ )
                 {
@@ -160,5 +161,5 @@ namespace RTT
 		virtual void flush()
 			{}
 	};
-}
+}}
 #endif

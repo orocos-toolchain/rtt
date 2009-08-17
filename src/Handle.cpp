@@ -37,10 +37,11 @@
 
 
 #include "Handle.hpp"
+#include "rtt-fwd.hpp"
 
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     Handle::Handle()
         : m_conn(0)
@@ -111,8 +112,8 @@ namespace RTT
 }
 
 #if 0
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     Handle::Handle( const sigslot::Handle & c,
                     const sigslot::Handle & c2 )
         : _c(c), _c2(c2) {}

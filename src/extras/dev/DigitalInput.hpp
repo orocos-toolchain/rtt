@@ -41,7 +41,8 @@
 #include "DigitalInInterface.hpp"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * A class representing a switch which can be on or off.
      * This class can be used in combination with a DigitalInInterface
@@ -101,6 +102,6 @@ namespace RTT
         bool minvert;
         const bool& mvalue;
     };
-}
+}}
 
 #endif // DIGITALINPUT_HPP

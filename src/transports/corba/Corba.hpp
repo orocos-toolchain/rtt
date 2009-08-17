@@ -43,7 +43,8 @@
  */
 
 namespace RTT
-{
+{ namespace corba {
+
     /**
      * The Corba namespace is used to hold both the
      * Orocos CORBA interfaces and Orocos CORBA implementations.
@@ -52,7 +53,4 @@ namespace RTT
      * accessed through the 'idl' interface or communicate
      * transparantly using CORBA as a hidden transport medium.
      */
-    namespace Corba
-    {
-    }
-}
+}}

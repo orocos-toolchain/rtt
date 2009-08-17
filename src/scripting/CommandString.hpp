@@ -40,14 +40,15 @@
 #include <string>
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 	/**
 	 * @brief This command displays a string when executed.
      * @deprecated Remove this low-level class since it's nowhere used.
 	 */
-	class RTT_API CommandString : public ActionInterface
+	class RTT_API CommandString : public base::ActionInterface
 	{
 
     public:
@@ -61,7 +62,7 @@ namespace RTT
 
         virtual bool execute();
 
-        virtual ActionInterface* clone() const
+        virtual base::ActionInterface* clone() const
         {
             return new CommandString( *this );
         }
@@ -71,4 +72,4 @@ namespace RTT
 
 	};
 
-}
+}}

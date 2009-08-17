@@ -46,18 +46,14 @@
 #include "../Logger.hpp"
 
 namespace RTT
-{
-    class PropertyIntrospection;
-    class PropertyBag;
-    template<class T>
-    class Property;
+{ namespace extras {
 
     /**
      * A decomposeProperty method for decomposing a Property< MultiVector<S,T> >
      * into a PropertyBag with Property<T>'s.
      */
     template<class T, int S>
-    void decomposeProperty(PropertyIntrospection *pi, const Property< MultiVector<S, T> >& c)
+    void decomposeProperty(base::PropertyIntrospection *pi, const Property< MultiVector<S, T> >& c)
     {
         Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("MultiVector") );
 
@@ -81,7 +77,7 @@ namespace RTT
     }
 
     template<class T, int S>
-    void decomposeProperty(PropertyIntrospection *pi, const Property< const MultiVector<S, T>& >& c)
+    void decomposeProperty(base::PropertyIntrospection *pi, const Property< const MultiVector<S, T>& >& c)
     {
         Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("MultiVector") );
 
@@ -110,7 +106,7 @@ namespace RTT
     template<class T, int S>
     bool composeProperty(const PropertyBag& bag, Property<MultiVector<S,T> >& result)
     {
-        PropertyBase* v_base = bag.find( result.getName() );
+        base::PropertyBase* v_base = bag.find( result.getName() );
         if ( v_base == 0 )
             return false;
 
@@ -141,7 +137,7 @@ namespace RTT
                 for (int i = 0; i < dimension ; i++)
                     {
                         data_name  << i;
-                        PropertyBase* element = v_bag->get().find( data_name.str() );
+                        base::PropertyBase* element = v_bag->get().find( data_name.str() );
                         if ( element == 0 ) {
                             Logger::log() << Logger::Error << "Aborting composition of Property< MultiVector<S,T> > "<<result.getName()
                                           << ": Data element "<< data_name.str() <<" not found !"
@@ -150,9 +146,9 @@ namespace RTT
                         }
                         comp = dynamic_cast< Property<T>* >( element );
                         if ( comp == 0 ) {
-                            DataSourceBase::shared_ptr ds = element->getDataSource();
+                            base::DataSourceBase::shared_ptr ds = element->getDataSource();
                             Logger::log() << Logger::Error << "Aborting composition of Property< MultiVector<S,T> > "<<result.getName()
-                                          << ": Exptected data element "<< data_name.str() << " to be of type "<<DataSource<T>::GetType()
+                                          << ": Exptected data element "<< data_name.str() << " to be of type "<<internal::DataSource<T>::GetType()
                                           <<" got type " << element->getType()
                                           <<Logger::endl;
                             return false;
@@ -179,7 +175,7 @@ namespace RTT
 
     }
 
-}; // namespace RTT
+}}; // namespace RTT
 
 
 #endif

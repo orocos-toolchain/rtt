@@ -43,7 +43,7 @@
 namespace RTT
 {
 
-    namespace detail
+    namespace internal
     {
         EventCatcher::EventCatcher()
             : mep(0), refCount(0), enabled(false)

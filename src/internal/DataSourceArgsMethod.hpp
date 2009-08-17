@@ -45,13 +45,13 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A method which gets its arguments from a data source and
          * is a datasource itself.
          */
-        template<class SignatureT, class FunctorT = detail::FunctorDataSource<boost::function<SignatureT> > >
+        template<class SignatureT, class FunctorT = FunctorDataSource<boost::function<SignatureT> > >
         class DataSourceArgsMethod
             : public DataSource< typename boost::function_traits<SignatureT>::result_type >
         {
@@ -143,7 +143,7 @@ namespace RTT
                 return new DataSourceArgsMethod( typename FunctorT::shared_ptr(mmeth->clone()) );
             }
 
-            virtual DataSource<result_type>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            virtual DataSource<result_type>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return new DataSourceArgsMethod<Signature,FunctorT>( typename FunctorT::shared_ptr(mmeth->copy(alreadyCloned)) );
             }

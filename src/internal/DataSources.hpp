@@ -47,6 +47,7 @@
 
 namespace RTT
 {
+    namespace internal {
 
     /**
      * A simple, yet very useful DataSource, which keeps a value, and
@@ -98,7 +99,7 @@ namespace RTT
 
         virtual ValueDataSource<T>* clone() const;
 
-        virtual ValueDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace ) const;
+        virtual ValueDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const;
     };
 
     /**
@@ -145,7 +146,7 @@ namespace RTT
 
         virtual ConstantDataSource<T>* clone() const;
 
-        virtual ConstantDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual ConstantDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -193,7 +194,7 @@ namespace RTT
 
         virtual ReferenceDataSource<T>* clone() const;
 
-        virtual ReferenceDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual ReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -218,13 +219,13 @@ namespace RTT
         IndexedValueDataSource()
         {}
 
-        ActionInterface* updateCommand( DataSourceBase* other)
+        base::ActionInterface* updateCommand( base::DataSourceBase* other)
         {
-            DataSourceBase::const_ptr r( other );
+            base::DataSourceBase::const_ptr r( other );
             typedef typename AssignableDataSource<T>::copy_t copy_t;
             DataSource< copy_t >* ct = AdaptDataSource<copy_t>()( other );
             if ( ct )
-                return new detail::AssignContainerCommand<T,APred,copy_t >( this, ct );
+                return new AssignContainerCommand<T,APred,copy_t >( this, ct );
 
 #ifndef ORO_EMBEDDED
             throw bad_assignment();
@@ -233,11 +234,11 @@ namespace RTT
 #endif
         }
 
-        ActionInterface* updatePartCommand( DataSourceBase* index, DataSourceBase* rhs )
+        base::ActionInterface* updatePartCommand( base::DataSourceBase* index, base::DataSourceBase* rhs )
         {
-            DataSourceBase::shared_ptr r( rhs );
-            DataSourceBase::shared_ptr i( index );
-            DataSource<SetType>* t = AdaptDataSource<SetType>()( detail::DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
+            base::DataSourceBase::shared_ptr r( rhs );
+            base::DataSourceBase::shared_ptr i( index );
+            DataSource<SetType>* t = AdaptDataSource<SetType>()( DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
             if ( ! t ) {
 #ifndef ORO_EMBEDDED
                 throw bad_assignment();
@@ -254,7 +255,7 @@ namespace RTT
 #endif
             }
             typename AssignableDataSource<T>::shared_ptr mthis(this);
-            return new detail::AssignIndexCommand<T, Index, SetType, IPred>( mthis, ind ,t );
+            return new AssignIndexCommand<T, Index, SetType, IPred>( mthis, ind ,t );
         }
 
         IndexedValueDataSource<T, Index, SetType,IPred,APred>* clone() const
@@ -262,7 +263,7 @@ namespace RTT
             return new IndexedValueDataSource( this->mdata );
         }
 
-        IndexedValueDataSource<T, Index, SetType,IPred,APred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) const
+        IndexedValueDataSource<T, Index, SetType,IPred,APred>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const
         {
             // if somehow a copy exists, return the copy, otherwise return this.
             if ( replace[this] != 0 ) {
@@ -277,7 +278,6 @@ namespace RTT
         }
     };
 
-    namespace detail {
         /**
          * A special DataSource only to be used for if you understand
          * the copy()/clone() semantics very well.
@@ -308,10 +308,8 @@ namespace RTT
                 return BoundType::clone();
             }
 
-            virtual UnboundDataSource<BoundType>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) const;
+            virtual UnboundDataSource<BoundType>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const;
         };
-
-    }
 
   /**
    * A generic binary composite DataSource.  It takes a function
@@ -374,7 +372,7 @@ namespace RTT
           return new BinaryDataSource<function>(mdsa.get(), mdsb.get(), fun);
       }
 
-      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual BinaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new BinaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), fun );
       }
   };
@@ -437,7 +435,7 @@ namespace RTT
           return new TernaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(), fun);
       }
 
-      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual TernaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new TernaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), mdsc->copy( alreadyCloned ), fun );
       }
 
@@ -523,7 +521,7 @@ namespace RTT
                                                 fun);
       }
 
-      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual SixaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new SixaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ),
                                                  mdsc->copy( alreadyCloned ), mdsd->copy( alreadyCloned ),
                                                  mdse->copy( alreadyCloned ), mdsf->copy( alreadyCloned ), fun );
@@ -573,7 +571,7 @@ namespace RTT
           return new UnaryDataSource<function>(mdsa.get(), fun);
       }
 
-    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+    virtual UnaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           return new UnaryDataSource<function>( mdsa->copy( alreadyCloned ), fun );
       }
   };
@@ -647,13 +645,14 @@ namespace RTT
           return new NArityDataSource<function>(fun, mdsargs);
       }
 
-      virtual NArityDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual NArityDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
           std::vector<typename DataSource<arg_t>::shared_ptr > newargs( mdsargs.size() );
           for( unsigned int i=0; i !=mdsargs.size(); ++i)
               newargs[i] = mdsargs[i]->copy(alreadyCloned);
           return new NArityDataSource<function>( fun, newargs );
       }
   };
+    }
 }
 
 #include "DataSources.inl"

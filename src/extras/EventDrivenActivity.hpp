@@ -48,10 +48,11 @@
 #endif
 
 namespace RTT
-{
+{ namespace extras {
+
 
     /**
-     * @brief An Event-driven ActivityInterface implementation.
+     * @brief An Event-driven base::ActivityInterface implementation.
      *
      * This class represents a Activity which can be attached
      * to an Event<void(void)> and execute its functionality each time
@@ -71,7 +72,7 @@ namespace RTT
 
         // The set of pending events (i.e. events that have been emitted since
         // the last time the activity went to sleep)
-        typedef Buffer< Event< void() >*, BlockingPolicy, NonBlockingPolicy > Triggers;
+        typedef base::Buffer< Event< void() >*, base::BlockingPolicy, base::NonBlockingPolicy > Triggers;
         Triggers* m_pending_events;
 
         // The set of wakeup events (i.e. the events which triggered the
@@ -92,7 +93,7 @@ namespace RTT
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        EventDrivenActivity(int priority, RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity"  );
+        EventDrivenActivity(int priority, base::RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity"  );
 
         /**
          * Create an EventDrivenActivity which will run in a separate thread,
@@ -103,10 +104,10 @@ namespace RTT
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity" );
+        EventDrivenActivity(int scheduler, int priority, base::RunnableInterface* _r = 0, const std::string& name ="EventDrivenActivity" );
 
         /**
-         * Cleanup and notify the RunnableInterface that we are gone.
+         * Cleanup and notify the base::RunnableInterface that we are gone.
          */
         ~EventDrivenActivity();
 
@@ -116,7 +117,7 @@ namespace RTT
         bool breakLoop();
 
         /** Returns the set of events that caused the activity to wake up. This
-         * is only valid in the associated RunnableInterface's step() method
+         * is only valid in the associated base::RunnableInterface's step() method
          * (and, by extension, in the TaskContext hook functions)
          */
         std::vector<Event<void()>*> const& getWakeupEvents() const;
@@ -128,7 +129,7 @@ namespace RTT
         bool addEvent( Event<void(void)>* _event);
     };
 
-}
+}}
 
 
 #endif

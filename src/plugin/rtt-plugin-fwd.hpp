@@ -5,5 +5,8 @@ namespace RTT {
     namespace plugin {
         class TransportPlugin;
     }
+    namespace detail {
+        using namespace plugin;
+    }
 }
 #endif

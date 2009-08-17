@@ -50,7 +50,7 @@
 #endif
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
     /**
      * A class which an provides ORB to

@@ -8,17 +8,17 @@
 #include "DataFlowI.h"
 
 namespace RTT {
-    namespace Corba {
+    namespace corba {
         template<typename PortClass>
         class RemotePort : public PortClass
         {
         protected:
-            RTT::TypeInfo const* type_info;
+            types::TypeInfo const* type_info;
             DataFlowInterface_var dataflow;
             PortableServer::POA_var mpoa;
 
         public:
-            RemotePort(RTT::TypeInfo const* type_info,
+            RemotePort(types::TypeInfo const* type_info,
                     DataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
@@ -26,10 +26,10 @@ namespace RTT {
             PortableServer::POA_ptr _default_POA();
             DataFlowInterface_ptr getDataFlowInterface() const;
 
-            RTT::PortID* getPortID() const;
-            bool isSameID(RTT::PortID const& id) const;
+            base::PortID* getPortID() const;
+            bool isSameID(base::PortID const& id) const;
 
-            RTT::TypeInfo const* getTypeInfo() const;
+            types::TypeInfo const* getTypeInfo() const;
             int serverProtocol() const;
             bool connected() const;
 
@@ -37,10 +37,10 @@ namespace RTT {
         };
 
         class RemoteOutputPort
-            : public RemotePort<RTT::OutputPortInterface>
+            : public RemotePort<base::OutputPortInterface>
         {
         public:
-            RemoteOutputPort(RTT::TypeInfo const* type_info,
+            RemoteOutputPort(types::TypeInfo const* type_info,
                     DataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
@@ -48,33 +48,33 @@ namespace RTT {
             bool keepsLastWrittenValue() const;
             void keepLastWrittenValue(bool new_flag);
 
-            using RTT::OutputPortInterface::createConnection;
-            bool createConnection( InputPortInterface& sink, RTT::ConnPolicy const& policy );
+            using base::OutputPortInterface::createConnection;
+            bool createConnection( base::InputPortInterface& sink, internal::ConnPolicy const& policy );
 
-            RTT::PortInterface* clone() const;
-            RTT::PortInterface* antiClone() const;
+            base::PortInterface* clone() const;
+            base::PortInterface* antiClone() const;
         };
 
         class RemoteInputPort
-            : public RemotePort<RTT::InputPortInterface>
-            , public RTT::ConnFactory
+            : public RemotePort<base::InputPortInterface>
+            , public internal::ConnFactory
         {
         public:
-            RemoteInputPort(RTT::TypeInfo const* type_info,
+            RemoteInputPort(types::TypeInfo const* type_info,
                     DataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 
-            ConnFactory* getConnFactory();
+            internal::ConnFactory* getConnFactory();
 
-            RTT::ChannelElementBase* buildOutputHalf(RTT::TypeInfo const* type,
-                    RTT::InputPortInterface& reader_,
-                    RTT::ConnPolicy const& policy);
+            base::ChannelElementBase* buildOutputHalf(types::TypeInfo const* type,
+                    base::InputPortInterface& reader_,
+                    internal::ConnPolicy const& policy);
 
-            RTT::PortInterface* clone() const;
-            RTT::PortInterface* antiClone() const;
+            base::PortInterface* clone() const;
+            base::PortInterface* antiClone() const;
 
-            RTT::DataSourceBase* getDataSource();
+            base::DataSourceBase* getDataSource();
         };
     }
 }

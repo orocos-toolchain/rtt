@@ -41,7 +41,8 @@
 #include "ActionInterface.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
 
     /**
      * @brief Based on the software pattern 'command', this
@@ -55,6 +56,6 @@ namespace RTT
      * an interface for asynchronous execution of functions.
      */
     typedef ActionInterface ActionInterface;
-}
+}}
 
 #endif // COMMANDINTERFACE_HPP

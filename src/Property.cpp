@@ -42,6 +42,7 @@
 #include "base/PropertyIntrospection.hpp"
 
 namespace RTT {
+    using namespace detail;
 
 #if !defined(ORO_EMBEDDED) && defined(__GNUC__)
      template class Property<double>;

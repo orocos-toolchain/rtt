@@ -38,7 +38,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * @brief A generic interface to a pulsetraingenerator for
      * simulation of encoder like behaviour.
@@ -98,6 +99,6 @@ namespace RTT
          */
         virtual bool stop() = 0;
     };
-}
+}}
 
 #endif

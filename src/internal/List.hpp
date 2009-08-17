@@ -16,7 +16,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * This object represents the default queue implementation used
      * by Orocos objects.
@@ -43,7 +44,7 @@ namespace RTT
 #endif
         {}
     };
-}
+}}
 
 
 #endif /* LIST_HPP_ */

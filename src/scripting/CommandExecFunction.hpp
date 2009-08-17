@@ -49,16 +49,17 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * A condition which checks if a CommandExecFunction is done or not.
      */
     class RTT_API ConditionExecFunction
-        : public ConditionInterface
+        : public base::ConditionInterface
     {
-        DataSource<ProgramInterface*>::shared_ptr _v;
+        internal::DataSource<base::ProgramInterface*>::shared_ptr _v;
     public:
-        ConditionExecFunction( DataSource<ProgramInterface*>* v)
+        ConditionExecFunction( internal::DataSource<base::ProgramInterface*>* v)
             : _v( v )
         {}
 
@@ -67,12 +68,12 @@ namespace RTT
             return _v->get()->isStopped();
         }
 
-        ConditionInterface* clone() const
+        base::ConditionInterface* clone() const
         {
             return new ConditionExecFunction( _v.get() );
         }
 
-        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         {
             // after *all* the copying is done, _v will be set to the correct function
             // by the Command's copy.
@@ -87,14 +88,14 @@ namespace RTT
      * it is done or not.
      */
     class RTT_API CommandExecFunction
-        : public DispatchInterface
+        : public base::DispatchInterface
     {
-        ActionInterface* minit;
+        base::ActionInterface* minit;
         ProgramProcessor* _proc;
-        AssignableDataSource<ProgramInterface*>::shared_ptr _v;
-        boost::shared_ptr<ProgramInterface> _foo;
+        internal::AssignableDataSource<base::ProgramInterface*>::shared_ptr _v;
+        boost::shared_ptr<base::ProgramInterface> _foo;
         bool isqueued;
-        AssignableDataSource<bool>::shared_ptr maccept;
+        internal::AssignableDataSource<bool>::shared_ptr maccept;
     public:
         /**
          * Create a Command to send a function to a ProgramProcessor.
@@ -104,11 +105,11 @@ namespace RTT
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( ActionInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
+        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 )
             : minit(init_com),
               _proc(p),
-              _v( v==0 ? new detail::UnboundDataSource< ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
-              _foo( foo ), isqueued(false), maccept( a ? a : new detail::UnboundDataSource<ValueDataSource<bool> >(false) )
+              _v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<base::ProgramInterface*> >(foo.get()) : v ),
+              _foo( foo ), isqueued(false), maccept( a ? a : new internal::UnboundDataSource<internal::ValueDataSource<bool> >(false) )
         {
         }
 
@@ -175,44 +176,44 @@ namespace RTT
             return maccept->get() && _v->get()->isStopped();
         }
 
-	virtual DispatchInterface::Status status() const {
+        virtual base::DispatchInterface::Status status() const {
             if (!isqueued)
-                return DispatchInterface::Ready;
+                return base::DispatchInterface::Ready;
             else if (!maccept->get())
-                return DispatchInterface::NotAccepted;
+                return base::DispatchInterface::NotAccepted;
             else if (!_v->get()->isStopped())
-                return DispatchInterface::Valid;
+                return base::DispatchInterface::Valid;
             else
-                return DispatchInterface::Done;
-	}
+                return base::DispatchInterface::Done;
+        }
 
         /**
          * Create a condition which checks if this command is finished or not.
          */
-        ConditionInterface* createCondition() const
+        base::ConditionInterface* createCondition() const
         {
             return new ConditionExecFunction( _v.get() );
         }
 
-        DispatchInterface* clone() const
+        base::DispatchInterface* clone() const
         {
             // _v is shared_ptr, so don't clone.
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );
         }
 
-        DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        base::DispatchInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         {
             // this may seem strange, but :
             // make a copy of foo (a function), make a copy of _v (a datasource), store pointer to new foo in _v !
-            boost::shared_ptr<ProgramInterface> fcpy( _foo->copy(alreadyCloned) );
-            AssignableDataSource<ProgramInterface*>* vcpy = _v->copy(alreadyCloned);
+            boost::shared_ptr<base::ProgramInterface> fcpy( _foo->copy(alreadyCloned) );
+            internal::AssignableDataSource<base::ProgramInterface*>* vcpy = _v->copy(alreadyCloned);
             vcpy->set( fcpy.get() ); // since we own _foo, we may manipulate the copy of _v
-            AssignableDataSource<bool>* acpy = maccept->copy(alreadyCloned);
+            internal::AssignableDataSource<bool>* acpy = maccept->copy(alreadyCloned);
             return new CommandExecFunction( minit->copy(alreadyCloned), fcpy , _proc, vcpy, acpy );
         }
 
     };
 
-}
+}}
 
 #endif

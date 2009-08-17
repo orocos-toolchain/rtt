@@ -57,24 +57,21 @@
 
 
 namespace RTT {
-    class DataFlowInterface;
-    class InputPortInterface;
 
-    namespace Corba {
-        class CorbaTypeTransporter;
+    namespace corba {
 
         class ChannelElement_i
-            : public POA_RTT::Corba::ChannelElement
+            : public POA_RTT::corba::ChannelElement
             , public virtual PortableServer::RefCountServantBase
         {
         protected:
             ChannelElement_var remote_side;
-            RTT::detail::TypeTransporter const& transport;
+            RTT::types::TypeTransporter const& transport;
             PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
-            ChannelElement_i(detail::TypeTransporter const& transport,
+            ChannelElement_i(types::TypeTransporter const& transport,
 			  PortableServer::POA_ptr poa);
             virtual ~ChannelElement_i();
 
@@ -84,32 +81,32 @@ namespace RTT {
 	};
 
         class DataFlowInterface_i
-            : public POA_RTT::Corba::DataFlowInterface
+            : public POA_RTT::corba::DataFlowInterface
             , public virtual PortableServer::RefCountServantBase
         {
-            RTT::DataFlowInterface* mdf;
+            interface::DataFlowInterface* mdf;
 	    PortableServer::POA_var mpoa;
 
             typedef std::list<
-                std::pair<RTT::Corba::DataFlowInterface_var, RTT::DataFlowInterface*>
+                std::pair<RTT::corba::DataFlowInterface_var, interface::DataFlowInterface*>
                 > ServantMap;
             static ServantMap s_servant_map;
 
         public:
             // standard constructor
-            DataFlowInterface_i(RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa);
+            DataFlowInterface_i(interface::DataFlowInterface* interface, PortableServer::POA_ptr poa);
             virtual ~DataFlowInterface_i();
 
-            static void registerServant(DataFlowInterface_ptr objref, RTT::DataFlowInterface* obj);
-            static void deregisterServant(RTT::DataFlowInterface* obj);
-            static RTT::DataFlowInterface* getLocalInterface(DataFlowInterface_ptr objref);
+            static void registerServant(DataFlowInterface_ptr objref, interface::DataFlowInterface* obj);
+            static void deregisterServant(interface::DataFlowInterface* obj);
+            static interface::DataFlowInterface* getLocalInterface(DataFlowInterface_ptr objref);
 
             PortableServer::POA_ptr _default_POA();
 
             // methods corresponding to defined IDL attributes and operations
-            Corba::DataFlowInterface::PortNames* getPorts();
-            Corba::DataFlowInterface::PortDescriptions* getPortDescriptions();
-            Corba::PortType getPortType(const char* port_name);
+            RTT::corba::DataFlowInterface::PortNames* getPorts();
+            RTT::corba::DataFlowInterface::PortDescriptions* getPortDescriptions();
+	    RTT::corba::PortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
             void disconnect(const char* port_name);
@@ -117,12 +114,12 @@ namespace RTT {
                     const char* writer_port,
 		    DataFlowInterface_ptr reader_interface, const char* reader_port);
 
-            ChannelElement_ptr buildOutputHalf(const char* reader_port, const ConnPolicy& policy);
+            ChannelElement_ptr buildOutputHalf(const char* reader_port, const RTT::corba::ConnPolicy& policy);
 
             ::CORBA::Boolean createConnection(
                     const char* writer_port,
 		    DataFlowInterface_ptr reader_interface, const char* reader_port,
-		    ConnPolicy const& policy);
+		    RTT::corba::ConnPolicy const& policy);
         };
     }
 };

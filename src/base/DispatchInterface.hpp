@@ -44,9 +44,10 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
+{ namespace base {
+
     /**
-     * Dispatch a ActionInterface to a CommandProcessor and track its status.
+     * Dispatch a ActionInterface to a internal::CommandProcessor and track its status.
      */
     class RTT_API DispatchInterface
         : public ActionInterface
@@ -99,7 +100,7 @@ namespace RTT
 
         /**
          * Returns true if the command was accepted when sent to the CommandProcessor.
-         * A Command is accepted when the CommandProcessor was running and its queue
+         * A Command is accepted when the internal::CommandProcessor was running and its queue
          * was not full.
          */
         virtual bool accepted() const = 0;
@@ -132,6 +133,6 @@ namespace RTT
             return this->clone();
         }
     };
-}
+}}
 
 #endif

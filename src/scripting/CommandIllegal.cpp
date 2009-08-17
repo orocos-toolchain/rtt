@@ -37,8 +37,8 @@
 #include "CommandIllegal.hpp"
 
 #include <iostream>
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
     using namespace std;
 
     CommandIllegal::CommandIllegal( const std::string& cmd )

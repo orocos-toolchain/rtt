@@ -42,13 +42,14 @@
 #include "../base/ConditionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 
 
     class RTT_API ConditionBool :
-                public ConditionInterface
+                public base::ConditionInterface
     {
 
         public:
@@ -95,6 +96,6 @@ namespace RTT
             bool state;
     };
 
-}
+}}
 
 #endif

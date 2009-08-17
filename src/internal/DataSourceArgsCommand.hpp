@@ -46,16 +46,16 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * A Command which dispatches locally.
          * The arguments are fetched from DataSources.
          */
         template<class CommandT,
-                 class CommandF = detail::Functor<CommandT> >
+                 class CommandF = Functor<CommandT> >
         class DataSourceArgsCommand
-            : public DispatchInterface
+            : public base::DispatchInterface
         {
             CommandF mcom;
             mutable CommandF mcon;
@@ -172,31 +172,31 @@ namespace RTT
                 return mvalid;
             }
 
-	    virtual DispatchInterface::Status status() const {
-		if (!minvoked)
-		    return DispatchInterface::Ready;
-		else if (!maccept)
-		    return DispatchInterface::NotAccepted;
-		else if (!mexec)
-		    return DispatchInterface::Accepted;
-		else if (!mvalid)
-		    return DispatchInterface::NotValid;
-		else if (mcon.evaluate() == minvert)
-		    return DispatchInterface::Valid;
-		else
-		    return DispatchInterface::Done;
-	    }
+            virtual base::DispatchInterface::Status status() const {
+                if (!minvoked)
+                    return base::DispatchInterface::Ready;
+                else if (!maccept)
+                    return base::DispatchInterface::NotAccepted;
+                else if (!mexec)
+                    return base::DispatchInterface::Accepted;
+                else if (!mvalid)
+                    return base::DispatchInterface::NotValid;
+                else if (mcon.evaluate() == minvert)
+                    return base::DispatchInterface::Valid;
+                else
+                    return base::DispatchInterface::Done;
+            }
 
-            virtual ConditionInterface* createCondition() const
+            virtual base::ConditionInterface* createCondition() const
             {
-                return new detail::ConditionFunctor<CommandT,CommandF>(mcon, minvert);
+                return new ConditionFunctor<CommandT,CommandF>(mcon, minvert);
             }
 
             virtual DataSourceArgsCommand<CommandT,CommandF>* clone() const {
                 return new DataSourceArgsCommand<CommandT,CommandF>(*this);
             }
 
-            virtual DataSourceArgsCommand<CommandT,CommandF>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            virtual DataSourceArgsCommand<CommandT,CommandF>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 return new DataSourceArgsCommand<CommandT,CommandF>(CommandF(mcom.copy(alreadyCloned)),
                                                                     CommandF(mcon.copy(alreadyCloned)),mcp, minvert);
             }

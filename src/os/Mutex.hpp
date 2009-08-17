@@ -44,10 +44,7 @@
 #include "../Time.hpp"
 
 namespace RTT
-{ namespace OS {
-    class MutexLock;
-    class MutexTryLock;
-    class MutexTimedLock;
+{ namespace os {
 
     /**
      * @brief An interface to a Mutex.
@@ -76,9 +73,9 @@ namespace RTT
      */
 	class RTT_API Mutex : public MutexInterface
     {
-	    friend class OS::MutexLock;
-	    friend class OS::MutexTryLock;
-	    friend class OS::MutexTimedLock;
+	    friend class MutexLock;
+	    friend class MutexTryLock;
+	    friend class MutexTimedLock;
 	protected:
 	    rt_mutex_t m;
 	public:

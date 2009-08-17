@@ -40,6 +40,7 @@
 
 #include <map>
 #include "rtt-config.h"
+#include "../base/rtt-base-fwd.hpp"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS
@@ -61,13 +62,7 @@ namespace boost {
 }
 
 namespace RTT
-{
-    class ConditionInterface;
-    class DataSourceBase;
-}
-
-namespace RTT
-{
+{ namespace scripting {
     /**
      * @brief This class represents a conditional branch in a program
      * tree.  It contains a condition which must be satisfied
@@ -90,7 +85,7 @@ namespace RTT
          * check.
          * This EdgeCondition takes ownership of cond.
          */
-        EdgeCondition(ConditionInterface* cond );
+        EdgeCondition(base::ConditionInterface* cond );
 
         ~EdgeCondition();
 
@@ -98,12 +93,12 @@ namespace RTT
 
         EdgeCondition& operator=( const EdgeCondition& orig );
 
-        EdgeCondition copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+        EdgeCondition copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const;
 
         /**
          * Reset the condition in this
          * EdgeCondition.  See the documentation
-         * of ConditionInterface::reset() for more
+         * of base::ConditionInterface::reset() for more
          * details..
          */
         void reset();
@@ -116,18 +111,18 @@ namespace RTT
         /**
          * Return the condition coupled with this termination clause.
          */
-        ConditionInterface* getCondition() const;
+        base::ConditionInterface* getCondition() const;
 
         int getRank() const { return rank; }
     protected:
 
-        void setCondition(ConditionInterface* cond);
+        void setCondition(base::ConditionInterface* cond);
 
     private:
-        ConditionInterface* condition;
+        base::ConditionInterface* condition;
         int rank;
     };
 
-}
+}}
 
 #endif

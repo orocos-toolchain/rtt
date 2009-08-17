@@ -41,11 +41,12 @@
 
 #include "../ExecutionEngine.hpp"
 #include "../internal/CompletionProcessor.hpp"
+#include "../internal/ConnectionC.hpp"
 
 
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace boost;
 
     EventService::EventService( ExecutionEngine* ee ) : eeproc(ee), eproc( 0 ) {}

@@ -5,31 +5,28 @@
 #include "../../types/TypeTransporter.hpp"
 
 namespace RTT {
-    class ChannelElementBase;
-    class ConnPolicy;
-    class InputPortInterface;
 
-    namespace Corba {
-	class CorbaTypeTransporter : public RTT::detail::TypeTransporter
+    namespace corba {
+	class CorbaTypeTransporter : public RTT::types::TypeTransporter
 	{
 	public:
 	    virtual ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
-	    virtual ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port,
-		    RTT::ConnPolicy const& policy) const = 0;
+	    virtual base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port,
+		    internal::ConnPolicy const& policy) const = 0;
 
 	};
 
         template<typename T>
 	class RemoteChannelElement 
 	    : public ChannelElement_i
-	    , public RTT::ChannelElement<T>
+	    , public base::ChannelElement<T>
 	{
-	    typename RTT::ValueDataSource<T>::shared_ptr data_source;
+	    typename internal::ValueDataSource<T>::shared_ptr data_source;
 
 	public:
 	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa)
 		: ChannelElement_i(transport, poa)
-		, data_source(new RTT::ValueDataSource<T>)
+		, data_source(new internal::ValueDataSource<T>)
             {
                 // CORBA refcount-managed servants must start with a refcount of
                 // 1
@@ -45,7 +42,7 @@ namespace RTT {
 
 
             CORBA::Boolean remoteSignal()
-            { return RTT::ChannelElement<T>::signal(); }
+            { return base::ChannelElement<T>::signal(); }
             bool signal() const
             {
                 try
@@ -56,7 +53,7 @@ namespace RTT {
 
             void remoteDisconnect(bool writer_to_reader)
             {
-		RTT::ChannelElement<T>::disconnect(writer_to_reader);
+		base::ChannelElement<T>::disconnect(writer_to_reader);
                 remote_side = 0;
 		PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
 		mpoa->deactivate_object(oid.in());
@@ -72,9 +69,9 @@ namespace RTT {
 		mpoa->deactivate_object(oid.in());
 	    }
 
-            bool read(typename RTT::ChannelElement<T>::reference_t sample)
+            bool read(typename base::ChannelElement<T>::reference_t sample)
             {
-                ::CORBA::Any_var remote_value;
+                CORBA::Any_var remote_value;
                 try
                 {
                     if (remote_side->read(remote_value))
@@ -88,9 +85,9 @@ namespace RTT {
                 catch(CORBA::Exception&) { return false; }
             }
 
-            ::CORBA::Boolean read(::CORBA::Any_out sample)
+            CORBA::Boolean read(::CORBA::Any_out sample)
             {
-                if (RTT::ChannelElement<T>::read(data_source->set()))
+                if (base::ChannelElement<T>::read(data_source->set()))
                 {
                     sample = static_cast<CORBA::Any*>(transport.createBlob(data_source));
                     return true;
@@ -98,7 +95,7 @@ namespace RTT {
                 else return false;
             }
 
-            bool write(typename RTT::ChannelElement<T>::param_t sample)
+            bool write(typename base::ChannelElement<T>::param_t sample)
             {
                 data_source->set(sample);
                 CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source));
@@ -116,7 +113,7 @@ namespace RTT {
             bool write(const ::CORBA::Any& sample)
             {
                 transport.updateBlob(&sample, data_source);
-                return RTT::ChannelElement<T>::write(data_source->rvalue());
+                return base::ChannelElement<T>::write(data_source->rvalue());
             }
 
         };

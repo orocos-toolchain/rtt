@@ -59,7 +59,7 @@ using namespace std;
 
 namespace RTT
 {
-    namespace detail
+    namespace marsh
     {
         class Tiny2CPFHandler
         {

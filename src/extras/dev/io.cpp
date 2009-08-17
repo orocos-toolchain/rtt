@@ -44,6 +44,7 @@
 #include "DigitalOutput.hpp"
 
 using namespace RTT;
+using namespace RTT::dev;
 
 NameServer<DigitalInInterface*> DigitalInInterface::nameserver;
 NameServer<DigitalOutInterface*> DigitalOutInterface::nameserver;

@@ -46,8 +46,7 @@
 #include "OperationFactory.hpp"
 
 namespace RTT
-{
-    class ConditionInterface;
+{ namespace internal {
 
     /**
      * A user friendly Command to a TaskContext.
@@ -59,7 +58,7 @@ namespace RTT
          */
         class D;
         D* d;
-        DispatchInterface::shared_ptr cc;
+        base::DispatchInterface::shared_ptr cc;
     public:
         /**
          * The default constructor
@@ -70,7 +69,7 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see CommandRepository
+         * @see interface::CommandRepository
          */
         CommandC( const CommandFactory* gcf, const std::string& name);
 
@@ -83,13 +82,13 @@ namespace RTT
          * Create a CommandC object from a dispatch command.
          * @param di The command, the CommandC takes ownership.
          */
-        CommandC(DispatchInterface* di);
+        CommandC(base::DispatchInterface* di);
 
         /**
          * Create a CommandC object from a dispatch command.
          * @param di The command shares ownership of di.
          */
-        CommandC(DispatchInterface::shared_ptr di);
+        CommandC(base::DispatchInterface::shared_ptr di);
 
         /**
          * A CommandC is assignable.
@@ -103,7 +102,7 @@ namespace RTT
          * @param a A DataSource which contents are consulted each time
          * when execute() is called.
          */
-        CommandC& arg( DataSourceBase::shared_ptr a );
+        CommandC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Command.
@@ -175,7 +174,7 @@ namespace RTT
          */
         bool done() const;
 
-	DispatchInterface::Status status() const;
+        base::DispatchInterface::Status status() const;
 
         /**
          * Reset the command.
@@ -184,25 +183,25 @@ namespace RTT
         void reset();
 
     };
-}
+}}
 
 #include "DataSources.hpp"
 
 namespace RTT
-{
+{ namespace internal {
 
         template< class ArgT >
         CommandC& CommandC::argC( const ArgT a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
+            return this->arg(base::DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
         }
 
         template< class ArgT >
         CommandC& CommandC::arg( ArgT& a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT&>( a ) ) );
+            return this->arg(base::DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT&>( a ) ) );
         }
 
-}
+}}
 
 #endif

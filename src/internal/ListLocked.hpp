@@ -16,7 +16,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A \a simple lock-based list implementation to \a append or \a erase
      * data of type \a T.
@@ -44,7 +45,7 @@ namespace RTT
         StackType  mreserved;
         unsigned int required;
 
-        mutable OS::Mutex m;
+        mutable os::Mutex m;
     public:
         /**
          * Create a lock-based list wich can store \a lsize elements.
@@ -67,19 +68,19 @@ namespace RTT
 
         size_t capacity() const
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             return mreserved.size() + mlist.size();
         }
 
         size_t size() const
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             return mlist.size();
         }
 
         bool empty() const
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             return mlist.empty();
         }
 
@@ -91,7 +92,7 @@ namespace RTT
          * @param items The number of items to at least additionally reserve.
          */
         void grow(size_t items = 1) {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             required += items;
             if (required > mreserved.size() + mlist.size() ) {
                 while ( mreserved.size() + mlist.size() < required * 2) {
@@ -107,7 +108,7 @@ namespace RTT
          * @param items The number of items to at most remove from the capacity.
          */
         void shrink(size_t items = 1) {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             required -= items;
         }
 
@@ -119,7 +120,7 @@ namespace RTT
          */
         void reserve(size_t lsize)
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             while ( mreserved.size() + mlist.size() < lsize) {
                 mreserved.push( new Cont() );
             }
@@ -127,7 +128,7 @@ namespace RTT
 
         void clear()
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             mlist.clear_and_dispose( boost::bind(&ListLocked::give_back, this, _1) );
         }
 
@@ -138,7 +139,7 @@ namespace RTT
          */
         bool append( value_t item )
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             if ( mreserved.empty() )
                 return false;
             mlist.push_back( this->get_item(item) );
@@ -150,7 +151,7 @@ namespace RTT
          */
         value_t front() const
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             return mlist.front().data;
         }
 
@@ -159,7 +160,7 @@ namespace RTT
          */
         value_t back() const
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             return mlist.back().data;
         }
 
@@ -170,7 +171,7 @@ namespace RTT
          */
         size_t append(const std::vector<T>& items)
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             unsigned int max = mreserved.size();
             typename std::vector<T>::const_iterator it = items.begin();
             for(; it != items.end() && max != 0; ++it, --max )
@@ -186,7 +187,7 @@ namespace RTT
          */
         bool erase( value_t item )
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             mlist.remove_and_dispose_if( boost::bind(&ListLocked::is_item, this, item, _1), boost::bind(&ListLocked::give_back, this, _1) );
             return true;
         }
@@ -198,7 +199,7 @@ namespace RTT
         template<class Function>
         void apply(Function func )
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             // A free beer for the one that can express this with a for_each construct.
             for (Iterator it = mlist.begin(); it != mlist.end(); ++it)
                 func( it->data );
@@ -212,7 +213,7 @@ namespace RTT
         template<class Function>
         value_t find_if( Function func, value_t blank = value_t() )
         {
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             Iterator it = std::find_if(mlist.begin(), mlist.end(), boost::bind(func, boost::bind(&ListLocked::get_data, this,_1)));
             if (it != mlist.end() )
                 return it->data;
@@ -255,6 +256,6 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif

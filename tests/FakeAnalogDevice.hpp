@@ -33,6 +33,7 @@
 
 namespace RTT
 {
+    using namespace dev;
     /**
      * A test class which replaces a real device driver.
      * It reproduces on the output what it gets on the input.

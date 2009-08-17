@@ -41,21 +41,23 @@
     namespace {
 
         using namespace RTT;
+        using namespace RTT::detail;
         using namespace boost;
 
         // these two are used as policy parameters for the
         // boost::copy_graph function.
         class RTT_API GraphVertexCopier {
+
             typedef FunctionGraph::Graph Graph;
             typedef graph_traits<Graph>::vertex_descriptor VertexDesc;
-            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
+            std::map<const base::DataSourceBase*, base::DataSourceBase*>& rdss;
             property_map<Graph, vertex_command_t>::const_type commandmap1;
             property_map<Graph, vertex_exec_t>::const_type allmap1;
             property_map<Graph, vertex_command_t>::type commandmap2;
             property_map<Graph, vertex_exec_t>::type allmap2;
         public:
             GraphVertexCopier( const Graph& g1, Graph& g2,
-                                      std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
+                                      std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss )
                 : rdss( replacementdss ),
                   commandmap1( get( vertex_command, g1 ) ), allmap1( get( vertex_exec, g1 ) ),
                   commandmap2( get( vertex_command, g2 ) ), allmap2( get( vertex_exec, g2 ) )
@@ -73,14 +75,14 @@
         class RTT_API GraphEdgeCopier {
             typedef FunctionGraph::Graph Graph;
             typedef graph_traits<Graph>::edge_descriptor EdgeDesc;
-            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
+            std::map<const base::DataSourceBase*, base::DataSourceBase*>& rdss;
             property_map<Graph, edge_condition_t>::const_type conditionmap1;
             property_map<Graph, edge_condition_t>::type conditionmap2;
 //             property_map<Graph, edge_exec_t>::const_type allmap1;
 //             property_map<Graph, edge_exec_t>::type allmap2;
         public:
             GraphEdgeCopier( const Graph& g1, Graph& g2,
-                                    std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
+                                    std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss )
                 : rdss( replacementdss ),
                   conditionmap1( get( edge_condition, g1 ) ), conditionmap2( get( edge_condition, g2 ) )
 //                   allmap1( get( edge_all, g1 ) ), allmap2( get( edge_all, g2 ) )

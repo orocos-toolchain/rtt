@@ -9,7 +9,7 @@
 #define CORBA_EXCEPTION_INFO(x) x._info().c_str()
 #else
 #include <omniORB4/CORBA.h>
-namespace CORBA {
+namespace corba {
     typedef Any* Any_ptr;
 }
 #define ACE_THROW_SPEC(x) throw x

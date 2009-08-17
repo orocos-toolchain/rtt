@@ -35,7 +35,8 @@
 #include <vector>
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * The AxisInterface  represents an axis from a control
      * point of view
@@ -134,7 +135,7 @@ namespace RTT
     };
 
 
-} // namespace RTT
+}} // namespace RTT
 
 #endif //_AXISINTERFACE_HPP
 

@@ -39,7 +39,8 @@
 #define CONFIGURATIONINTERFACE_HPP
 
 namespace RTT
-{
+{ namespace extras {
+
     /**
      * @brief Generic run-time class configuration interface.
      *
@@ -80,6 +81,6 @@ namespace RTT
 
 
 
-}
+}}
 
 #endif

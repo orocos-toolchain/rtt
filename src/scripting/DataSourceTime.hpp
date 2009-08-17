@@ -40,27 +40,28 @@
 #include "../internal/DataSource.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
-     * A DataSource which returns the time elapsed since the last reset
+     * A internal::DataSource which returns the time elapsed since the last reset
      * in Seconds.
      */
     class RTT_API DataSourceTime
-        : public DataSource<TimeService::Seconds>
+        : public internal::DataSource<os::TimeService::Seconds>
     {
-        TimeService::ticks stamp;
-        mutable TimeService::Seconds last;
-        TimeService* ts;
+        os::TimeService::ticks stamp;
+        mutable os::TimeService::Seconds last;
+        os::TimeService* ts;
     public:
         DataSourceTime()
-            : stamp( 0 ), last(0), ts( TimeService::Instance() )
+            : stamp( 0 ), last(0), ts( os::TimeService::Instance() )
         {}
 
-        TimeService::Seconds get() const {
+        os::TimeService::Seconds get() const {
             return last = ts->secondsSince(stamp);
         }
 
-        TimeService::Seconds value() const {
+        os::TimeService::Seconds value() const {
             return last;
         }
 
@@ -73,9 +74,9 @@ namespace RTT
             return new DataSourceTime();
         }
 
-        DataSourceTime* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        DataSourceTime* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return new DataSourceTime();
         }
 
     };
-}
+}}

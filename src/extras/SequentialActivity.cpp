@@ -2,8 +2,9 @@
 #include "../os/MainThread.hpp"
 #include "../os/MutexLock.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace extras;
+    using namespace base;
 
     SequentialActivity::SequentialActivity( RunnableInterface* run /*= 0*/ )
         : ActivityInterface(run), running(false), active(false)
@@ -20,9 +21,9 @@ namespace RTT
         return 0.0;
     }
 
-    OS::ThreadInterface* SequentialActivity::thread()
+    os::ThreadInterface* SequentialActivity::thread()
     {
-        return OS::MainThread::Instance();
+        return os::MainThread::Instance();
     }
 
     bool SequentialActivity::initialize()
@@ -100,7 +101,7 @@ namespace RTT
         if ( active ) {
             bool did_step = false;
             do {
-                OS::MutexTryLock lock(execution_lock);
+                os::MutexTryLock lock(execution_lock);
                 if ( lock.isSuccessful() ) {
                     running = true;
                     if (runner) runner->step(); else this->step();

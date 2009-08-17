@@ -4,19 +4,20 @@
 #include "../base/ChannelElement.hpp"
 #include "../base/BufferInterface.hpp"
 
-namespace RTT {
+namespace RTT { namespace internal {
+
     /** A connection element that can store a fixed number of data samples.
      */
     template<typename T>
-    class ChannelBufferElement : public ChannelElement<T>
+    class ChannelBufferElement : public base::ChannelElement<T>
     {
-        typename BufferInterface<T>::shared_ptr buffer;
+        typename base::BufferInterface<T>::shared_ptr buffer;
 
     public:
-        typedef typename ChannelElement<T>::param_t param_t;
-        typedef typename ChannelElement<T>::reference_t reference_t;
+        typedef typename base::ChannelElement<T>::param_t param_t;
+        typedef typename base::ChannelElement<T>::reference_t reference_t;
 
-        ChannelBufferElement(typename BufferInterface<T>::shared_ptr buffer)
+        ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
             : buffer(buffer) {}
  
         /** Appends a sample at the end of the FIFO
@@ -44,10 +45,10 @@ namespace RTT {
         virtual void clear()
         { 
             buffer->clear();
-            ChannelElement<T>::clear();
+            base::ChannelElement<T>::clear();
         }
     };
-}
+}}
 
 #endif
 

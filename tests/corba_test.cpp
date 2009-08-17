@@ -31,7 +31,7 @@
 #include <transports/corba/RemotePorts.hpp>
 
 using namespace std;
-using Corba::ControlTaskProxy;
+using corba::ControlTaskProxy;
 
 void
 CorbaTest::setUp()
@@ -164,15 +164,15 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( setupCorba )
 {
-    Corba::ControlTaskProxy::InitOrb(0,0);
+    corba::ControlTaskProxy::InitOrb(0,0);
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
 
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    ts = corba::ControlTaskServer::Create( tc, false ); //no-naming
     BOOST_CHECK( ts );
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+    tp = corba::ControlTaskProxy::Create( ts->server(), true );
     BOOST_CHECK( tp );
 
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
@@ -199,16 +199,16 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 BOOST_AUTO_TEST_CASE( testRemoteMethod )
 {
 
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+    ts = corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = corba::ControlTaskProxy::Create( ts->server(), true );
 
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
-    Method<double(void)> m0 = tp->getObject("methods")->methods()->getMethod<double(void)>("m0");
-    Method<double(int)> m1 = tp->getObject("methods")->methods()->getMethod<double(int)>("m1");
-    Method<double(int,double)> m2 = tp->getObject("methods")->methods()->getMethod<double(int,double)>("m2");
-    Method<double(int,double,bool)> m3 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool)>("m3");
-    Method<double(int,double,bool,std::string)> m4 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool,std::string)>("m4");
+    RTT::Method<double(void)> m0 = tp->getObject("methods")->methods()->getMethod<double(void)>("m0");
+    RTT::Method<double(int)> m1 = tp->getObject("methods")->methods()->getMethod<double(int)>("m1");
+    RTT::Method<double(int,double)> m2 = tp->getObject("methods")->methods()->getMethod<double(int,double)>("m2");
+    RTT::Method<double(int,double,bool)> m3 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool)>("m3");
+    RTT::Method<double(int,double,bool,std::string)> m4 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool,std::string)>("m4");
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -220,50 +220,50 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
 BOOST_AUTO_TEST_CASE( testAnyMethod )
 {
 
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() , true);
+    ts = corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = corba::ControlTaskProxy::Create( ts->server() , true);
 
     // This test tests the createMethodAny() function of the server.
-    Corba::ControlObject_var co = ts->server()->getObject("methods");
+    corba::ControlObject_var co = ts->server()->getObject("methods");
     BOOST_CHECK( co.in() );
 
-    Corba::MethodInterface_var methods = co->methods();
+    corba::MethodInterface_var methods = co->methods();
     BOOST_CHECK( methods.in() );
 
-    Corba::AnyArguments_var any_args = new Corba::AnyArguments(0);
-    Corba::Method_var vm0 = methods->createMethodAny("vm0", any_args.in());
+    corba::AnyArguments_var any_args = new corba::AnyArguments(0);
+    corba::Method_var vm0 = methods->createMethodAny("vm0", any_args.in());
     BOOST_CHECK( vm0.in() );
 
     BOOST_CHECK( vm0->executeAny( any_args.in() ) );
 
-    Corba::Method_var m0 = methods->createMethodAny("m0", any_args.in());
+    corba::Method_var m0 = methods->createMethodAny("m0", any_args.in());
     BOOST_CHECK( m0.in() );
 
     BOOST_CHECK( m0->executeAny( any_args.in() ) );
 
-    any_args = new Corba::AnyArguments(1);
+    any_args = new corba::AnyArguments(1);
     any_args->length(1);
     unsigned int index = 0;
     any_args[index] <<= (CORBA::Long) 1;
-    Corba::Method_var m1;
+    corba::Method_var m1;
     BOOST_CHECK_NO_THROW( m1 = methods->createMethodAny("m1", any_args.in()));
     BOOST_CHECK( m1.in() );
 
     BOOST_CHECK(m1->executeAny( any_args.in() ));
 
-    any_args = new Corba::AnyArguments(2);
+    any_args = new corba::AnyArguments(2);
     any_args->length(2);
     index = 0;
     any_args[index] <<= (CORBA::Long) 1;
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
-    Corba::Method_var m2;
+    corba::Method_var m2;
     BOOST_CHECK_NO_THROW( m2 = methods->createMethodAny("m2", any_args.in()));
     BOOST_CHECK( m2.in() );
 
     BOOST_CHECK(m2->executeAny( any_args.in() ));
 
-    any_args = new Corba::AnyArguments(3);
+    any_args = new corba::AnyArguments(3);
     any_args->length(3);
      index = 0;
     any_args[index] <<= (CORBA::Long) 1;
@@ -271,13 +271,13 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     any_args[index] <<= (CORBA::Double) 2.0;
     ++index;
     any_args[index] <<= CORBA::Any::from_boolean( false );
-    Corba::Method_var m3;
+    corba::Method_var m3;
     BOOST_CHECK_NO_THROW( m3= methods->createMethodAny("m3", any_args.in()) );
     BOOST_CHECK( m3.in() );
 
     BOOST_CHECK(m3->executeAny( any_args.in() ));
 
-    any_args = new Corba::AnyArguments(4);
+    any_args = new corba::AnyArguments(4);
     any_args->length(4);
     index = 0;
     any_args[index] <<= (CORBA::Long) 1;
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     any_args[index] <<= CORBA::Any::from_boolean( false );
     ++index;
     any_args[index] <<= "hello";
-    Corba::Method_var m4;
+    corba::Method_var m4;
     BOOST_CHECK_NO_THROW ( m4 = methods->createMethodAny("m4", any_args.in()) );
     BOOST_CHECK( m4.in() );
 
@@ -296,11 +296,11 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    ts = corba::ControlTaskServer::Create( tc, false ); //no-naming
 
-    Corba::DataFlowInterface_var ports = ts->server()->ports();
+    corba::DataFlowInterface_var ports = ts->server()->ports();
 
-    Corba::DataFlowInterface::PortNames_var names =
+    corba::DataFlowInterface::PortNames_var names =
 	ports->getPorts();
 
     BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
@@ -308,9 +308,9 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
     BOOST_CHECK_EQUAL(string("mw"), string(names[1]));
 
     // Now check directions
-    BOOST_CHECK_EQUAL(RTT::Corba::Output,
+    BOOST_CHECK_EQUAL(RTT::corba::Output,
 	    ports->getPortType("mw"));
-    BOOST_CHECK_EQUAL(RTT::Corba::Input,
+    BOOST_CHECK_EQUAL(RTT::corba::Input,
 	    ports->getPortType("mr"));
 
     // And check type names
@@ -321,14 +321,14 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
-    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    ts  = corba::ControlTaskServer::Create( tc, false ); //no-naming
+    ts2 = corba::ControlTaskServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::Corba::ConnPolicy policy;
-    policy.type = RTT::Corba::Data;
+    RTT::corba::ConnPolicy policy;
+    policy.type = RTT::corba::Data;
     policy.init = false;
-    policy.lock_policy = RTT::Corba::LockFree;
+    policy.lock_policy = RTT::corba::LockFree;
     policy.size = 0;
 
     // Set up an event handler to check if signalling works properly as well
@@ -336,8 +336,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
                 boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
     hl.connect();
 
-    Corba::DataFlowInterface_var ports  = ts->server()->ports();
-    Corba::DataFlowInterface_var ports2 = ts2->server()->ports();
+    corba::DataFlowInterface_var ports  = ts->server()->ports();
+    corba::DataFlowInterface_var ports2 = ts2->server()->ports();
 
     // Test cases that should not connect
     BOOST_CHECK( !ports->createConnection("mw", ports2, "does_not_exist", policy) );
@@ -351,21 +351,21 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     // also three different ways to disconnect. We need to test those three
     // "disconnection methods", so beware when you change something ...
 
-    policy.type = RTT::Corba::Data;
+    policy.type = RTT::corba::Data;
     policy.pull = false;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortDataConnection();
     ports->disconnect("mw");
     testPortDisconnected();
 
-    policy.type = RTT::Corba::Data;
+    policy.type = RTT::corba::Data;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortDataConnection();
     ports2->disconnect("mr");
     testPortDisconnected();
 
-    policy.type = RTT::Corba::Buffer;
+    policy.type = RTT::corba::Buffer;
     policy.pull = false;
     policy.size = 3;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ports->disconnect("mw");
     testPortDisconnected();
 
-    policy.type = RTT::Corba::Buffer;
+    policy.type = RTT::corba::Buffer;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortBufferConnection();
@@ -390,10 +390,10 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( testPortProxying )
 {
-    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2  = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2  = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    ts  = corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp  = corba::ControlTaskProxy::Create( ts->server(), true );
+    ts2  = corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2  = corba::ControlTaskProxy::Create( ts2->server(), true );
 
     PortInterface* untyped_port;
      
@@ -409,8 +409,8 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 
     // Just make sure 'read_port' and 'write_port' are actually proxies and not
     // the real thing
-    BOOST_CHECK(dynamic_cast<Corba::RemoteInputPort*>(read_port));
-    BOOST_CHECK(dynamic_cast<Corba::RemoteOutputPort*>(write_port));
+    BOOST_CHECK(dynamic_cast<corba::RemoteInputPort*>(read_port));
+    BOOST_CHECK(dynamic_cast<corba::RemoteOutputPort*>(write_port));
 
     BOOST_CHECK(!read_port->connected());
     BOOST_CHECK(read_port->getTypeInfo() == mr1->getTypeInfo());
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 
 BOOST_AUTO_TEST_CASE( cleanupCorba )
 {
-    Corba::ControlTaskProxy::DestroyOrb();
+    corba::ControlTaskProxy::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

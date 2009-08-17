@@ -49,7 +49,8 @@
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * A State contains an entry, run, handle and exit program.
      *
@@ -91,32 +92,32 @@ namespace RTT
         /**
          * Get the entry program of this State.
          */
-        virtual ProgramInterface* getEntryProgram() const = 0;
+        virtual base::ProgramInterface* getEntryProgram() const = 0;
 
         /**
          * Get the run program of this State.
          */
-        virtual ProgramInterface* getRunProgram() const = 0;
+        virtual base::ProgramInterface* getRunProgram() const = 0;
 
         /**
          * Get the handle program of this State.
          */
-        virtual ProgramInterface* getHandleProgram() const = 0;
+        virtual base::ProgramInterface* getHandleProgram() const = 0;
 
         /**
          * Get the exit program of this State.
          */
-        virtual ProgramInterface* getExitProgram() const = 0;
+        virtual base::ProgramInterface* getExitProgram() const = 0;
 
         /**
          * Get the beginning definition of this State.
          */
         virtual int getEntryPoint() const = 0;
 
-        virtual StateInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const = 0;
+        virtual StateInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const = 0;
 
     };
-}
+}}
 
 
 

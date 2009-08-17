@@ -41,10 +41,10 @@
 
 #include <string>
 #include "rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class TaskContext;
+{ namespace interface {
 
     /**
      * @brief The ExecutionAccess provides access to programs
@@ -164,13 +164,13 @@ namespace RTT
         bool pauseStateMachine(const std::string& name);
 
         /**
-         * Stops the execution of a StateMachine and enters the Final_State.
+         * Stops the execution of a scripting::StateMachine and enters the Final_State.
          * @param name The name of the StateMachine.
          */
         bool stopStateMachine(const std::string& name);
 
         /**
-         * Resets the execution of a StateMachine and enters the Initial_State.
+         * Resets the execution of a scripting::StateMachine and enters the Initial_State.
          * @param name The name of the StateMachine.
          */
         bool resetStateMachine(const std::string& name);
@@ -243,6 +243,6 @@ namespace RTT
         bool true_gen() const;
     };
 
-}
+}}
 
 #endif

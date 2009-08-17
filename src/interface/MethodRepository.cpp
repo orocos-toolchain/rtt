@@ -38,8 +38,8 @@
 
 #include "MethodRepository.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     MethodRepository::~MethodRepository()
     {

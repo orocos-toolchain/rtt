@@ -49,8 +49,8 @@
 #include <boost/graph/copy.hpp>
 #include <utility>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace boost;
     using namespace std;
 

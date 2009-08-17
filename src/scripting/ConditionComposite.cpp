@@ -36,8 +36,9 @@
  ***************************************************************************/
 #include "ConditionComposite.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
+    using namespace base;
 
 
   bool ConditionCompositeNOT::evaluate()

@@ -63,7 +63,8 @@
 #include "CorbaLib.hpp"
 
 namespace RTT
-{
+{ namespace corba {
+
     /**
      * This class converts a given application-specific type
      * to a CORBA::Any object and vice versa.
@@ -90,7 +91,7 @@ namespace RTT
          * @return true if the any was convertible to tp.
          */
         static bool update(const CORBA::Any& any, StdType tp) {
-            Logger::log() << Logger::Debug << "Failing conversion of type "<<detail::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
+            Logger::log() << Logger::Debug << "Failing conversion of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
             return false;
         }
 
@@ -101,7 +102,7 @@ namespace RTT
          * empty Any object if the conversion was not possible.
          */
         static CORBA::Any_ptr createAny( StdType tp ) {
-            Logger::log() << Logger::Error << "Failing Corba::Any creation of type "<<detail::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
+            Logger::log() << Logger::Error << "Failing corba::Any creation of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
             return new CORBA::Any();
         }
     };
@@ -112,7 +113,7 @@ namespace RTT
         typedef _CorbaType CorbaType;
         typedef Type StdType;
         static CorbaType toAny( Type t ) {
-            //Logger::log() << Logger::Debug << "Converting type "<<detail::DataSourceTypeInfo<Type>::getType()<<" to same CORBA type." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Converting type "<<internal::DataSourceTypeInfo<Type>::getType()<<" to same CORBA type." <<Logger::endl;
             return t;
         }
         static Type& fromAny( Type& t ) {
@@ -133,7 +134,7 @@ namespace RTT
 
         static CORBA::Any_ptr createAny( const Type& t ) {
             CORBA::Any_ptr ret = new CORBA::Any();
-            //Logger::log() << Logger::Debug << "Creating Corba::Any from "<<detail::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Creating corba::Any from "<<internal::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
             *ret <<= toAny( static_cast<CorbaType>(t) );
             return ret;
         }
@@ -194,7 +195,7 @@ namespace RTT
     template<>
     struct RTT_CORBA_API AnyConversion<PropertyBag>
     {
-        typedef Corba::AttributeInterface_ptr CorbaType;
+        typedef corba::AttributeInterface_ptr CorbaType;
         typedef PropertyBag StdType;
 
         static bool update(const CORBA::Any& any, StdType& _value);
@@ -299,7 +300,7 @@ namespace RTT
     template<>
     struct RTT_CORBA_API AnyConversion< std::vector<double> >
     {
-        typedef Corba::DoubleSequence CorbaType;
+        typedef corba::DoubleSequence CorbaType;
         typedef std::vector<double> StdType;
         static CorbaType* toAny(const std::vector<double>& orig) {
             //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;
@@ -338,6 +339,6 @@ namespace RTT
     };
 
 
-}
+}}
 
 #endif

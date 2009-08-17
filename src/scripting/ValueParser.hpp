@@ -49,8 +49,7 @@
 
 namespace RTT
 {
-    class TaskContext;
-    namespace detail {
+    namespace scripting {
     /**
      * @brief A class for parsing const values.
      *
@@ -71,12 +70,12 @@ namespace RTT
     // delete it, as it remains in the values map, however a
     // constant only gets stored temporarily in ret, so this
     // variable makes sure it gets deleted.
-    //std::auto_ptr<AttributeBase> deleter;
-    // the DataSource we've just parsed..  we only store it and
+    //std::auto_ptr<base::AttributeBase> deleter;
+    // the internal::DataSource we've just parsed..  we only store it and
     // assume that the ProgramParser will do something useful with
     // it.  We don't ever own it, and don't delete it, or set it to
     // 0..
-    DataSourceBase::shared_ptr ret;
+    base::DataSourceBase::shared_ptr ret;
     // contains the string constant we're parsing ( it has to be
     // parsed char-by-char, because of the way c_escape_ch_p works
     // )..
@@ -106,7 +105,7 @@ namespace RTT
 
     rule_t& parser();
 
-    const DataSourceBase::shared_ptr lastParsed() const
+    const base::DataSourceBase::shared_ptr lastParsed() const
       {
         return ret;
       }

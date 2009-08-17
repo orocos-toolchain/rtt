@@ -42,10 +42,10 @@
 
 #include <string>
 #include "rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class TaskContext;
+{ namespace interface {
 
     /**
      * Load and save properties of a TaskContext.
@@ -130,6 +130,6 @@ namespace RTT
         bool writeProperty(const std::string& name, const std::string& filename);
 
     };
-}
+}}
 
 #endif

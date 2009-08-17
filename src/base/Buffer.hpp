@@ -17,7 +17,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * This object represents the default thread-safe buffer implementation used
      * by Orocos objects.
@@ -50,7 +51,7 @@ namespace RTT
 #endif
         {}
     };
-}
+}}
 
 
 #endif /* ORO_BUFFER_HPP */

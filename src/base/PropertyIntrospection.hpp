@@ -43,12 +43,7 @@
 #include "PropertyBagVisitor.hpp"
 
 namespace RTT
-{
-    class PropertyBase;
-    class PropertyBag;
-
-    template<class T>
-    class Property;
+{ namespace base {
 
 	/**
 	 * An interface which all classes which wish to visit
@@ -116,12 +111,12 @@ namespace RTT
 
         /**
          * Unknown types must decompose theirselves into the primitives.
-         * @see TemplateTypeInfo
+         * @see types::TemplateTypeInfo
          */
         template< class T >
         void introspect(Property<T> &v );
 	};
-}
+}}
 #endif
 
 #include "PropertyIntrospection.inl"

@@ -5,11 +5,12 @@
 #include "../Method.hpp"
 
 using namespace RTT;
+using namespace detail;
 using namespace std;
 
 namespace {
 
-    struct LocalPortID : public RTT::PortID
+    struct LocalPortID : public PortID
     {
         PortInterface const* ptr;
         LocalPortID(PortInterface const* obj)
@@ -37,14 +38,14 @@ bool PortInterface::isLocal() const
 int PortInterface::serverProtocol() const
 { return 0; }
 
-bool PortInterface::isSameID(RTT::PortID const& id) const
+bool PortInterface::isSameID(PortID const& id) const
 { 
     LocalPortID const* real_id = dynamic_cast<LocalPortID const*>(&id);
     if (!real_id)
         return false;
     else return real_id->ptr == this;
 }
-RTT::PortID* PortInterface::getPortID() const
+PortID* PortInterface::getPortID() const
 { return new LocalPortID(this); }
 
 TaskObject* PortInterface::createPortObject()
@@ -163,12 +164,12 @@ void OutputPortInterface::disconnect()
     connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
 }
 
-void OutputPortInterface::addConnection(RTT::PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+void OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
     ChannelDescriptor descriptor = boost::make_tuple(port_id, channel_input, policy);
     addChannel(descriptor.get<1>());
     if (!connections.append(descriptor))
-    { OS::MutexLock locker(connection_resize_mtx);
+    { os::MutexLock locker(connection_resize_mtx);
         connections.grow(1);
         connections.append(descriptor);
     }
@@ -177,7 +178,7 @@ void OutputPortInterface::addConnection(RTT::PortID* port_id, ChannelElementBase
 void OutputPortInterface::addChannel(ChannelElementBase::shared_ptr channel)
 {
     if (!channels.append(channel))
-    { OS::MutexLock locker(connection_resize_mtx);
+    { os::MutexLock locker(connection_resize_mtx);
         channels.grow(1);
         channels.append(channel);
     }

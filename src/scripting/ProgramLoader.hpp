@@ -44,7 +44,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * This class loads and unloads Orocos Program Script and Orocos State Description files
      * to a TaskContext's Processor.
@@ -68,7 +69,7 @@ namespace RTT
         /**
          * List of executed functions.
          */
-        typedef std::vector< ProgramInterfacePtr > Functions;
+        typedef std::vector< base::ProgramInterfacePtr > Functions;
 
         /**
          * Executes all not exported functions in \a target's
@@ -124,6 +125,6 @@ namespace RTT
          */
         bool unloadStateMachine( const std::string& name, TaskContext* target);
     };
-}
+}}
 
 #endif

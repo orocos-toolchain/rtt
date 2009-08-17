@@ -38,6 +38,7 @@
 //CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
 
 using namespace RTT;
+using namespace RTT::detail;
 using namespace boost;
 using namespace std;
 

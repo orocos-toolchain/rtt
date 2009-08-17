@@ -51,14 +51,15 @@
 #include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
-{
+{ namespace interface {
+
     /**
      * This class allows storage and retrieval of Method objects.
      *
      * @ingroup Methods
      */
     class RTT_API MethodRepository
-        : public OperationFactory<DataSourceBase*>
+        : public internal::OperationFactory<base::DataSourceBase*>
     {
         template<class T>
         inline T* getpointer(T& t) {
@@ -70,10 +71,10 @@ namespace RTT
         }
 
     protected:
-        typedef std::map<std::string,boost::shared_ptr<ActionInterface> > SimpleMethods;
+        typedef std::map<std::string,boost::shared_ptr<base::ActionInterface> > SimpleMethods;
         SimpleMethods simplemethods;
     public:
-        typedef MethodFactory Factory;
+        typedef internal::MethodFactory Factory;
 
         ~MethodRepository();
 
@@ -131,24 +132,24 @@ namespace RTT
          * @return true if it could be found, false otherwise.
          */
         template<class Signature>
-        boost::shared_ptr<ActionInterface> getMethod( std::string name )
+        boost::shared_ptr<base::ActionInterface> getMethod( std::string name )
         {
             Logger::In in("MethodRepository::getMethod");
             if ( simplemethods.count(name) ) {
-                if ( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(simplemethods[name]) )
+                if ( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(simplemethods[name]) )
                     return simplemethods[name];
                 else
                     log(Error) << "Method '"<< name <<"' found, but has wrong Signature."<<endlog();
-                return boost::shared_ptr<ActionInterface>();
+                return boost::shared_ptr<base::ActionInterface>();
             }
 
 #ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {
-                return boost::shared_ptr<ActionInterface>(new detail::RemoteMethod<Signature>(this, name));
+                return boost::shared_ptr<base::ActionInterface>(new internal::RemoteMethod<Signature>(this, name));
             }
 #endif
             log(Warning) << "No such method: "<< name <<endlog();
-            return boost::shared_ptr<ActionInterface>();
+            return boost::shared_ptr<base::ActionInterface>();
         }
 
         /**
@@ -176,15 +177,15 @@ namespace RTT
 
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm ) {
                 log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
                 return false;
             }
             if ( this->addMethod( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart0<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >(
-                  detail::DataSourceArgsMethod<Sig>( lm->getMethodFunction()), description) );
+            this->add( c->getName(), new internal::OperationFactoryPart0<base::DataSourceBase*, internal::DataSourceArgsMethod<Sig> >(
+                  internal::DataSourceArgsMethod<Sig>( lm->getMethodFunction()), description) );
             return true;
         }
 
@@ -211,15 +212,15 @@ namespace RTT
 
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm ) {
                 log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
                 return false;
             }
             if ( this->addMethod( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart1<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >(
-                  detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
+            this->add( c->getName(), new internal::OperationFactoryPart1<base::DataSourceBase*, internal::DataSourceArgsMethod<Sig> >(
+                  internal::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
                   description, arg1, arg1_description) );
             return true;
         }
@@ -250,15 +251,15 @@ namespace RTT
 
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm ) {
                 log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
                 return false;
             }
             if ( this->addMethod( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart2<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >(
-                  detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
+            this->add( c->getName(), new internal::OperationFactoryPart2<base::DataSourceBase*, internal::DataSourceArgsMethod<Sig> >(
+                  internal::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
                   description,
                   arg1, arg1_description,
                   arg2, arg2_description) );
@@ -294,15 +295,15 @@ namespace RTT
 
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm ) {
                 log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
                 return false;
             }
             if ( this->addMethod( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart3<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >(
-                  detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
+            this->add( c->getName(), new internal::OperationFactoryPart3<base::DataSourceBase*, internal::DataSourceArgsMethod<Sig> >(
+                  internal::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
                   description,
                   arg1, arg1_description,
                   arg2, arg2_description,
@@ -342,15 +343,15 @@ namespace RTT
 
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm ) {
                 log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
                 return false;
             }
             if ( this->addMethod( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart4<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >(
-                  detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
+            this->add( c->getName(), new internal::OperationFactoryPart4<base::DataSourceBase*, internal::DataSourceArgsMethod<Sig> >(
+                  internal::DataSourceArgsMethod<Sig>(lm->getMethodFunction()),
                   description,
                   arg1, arg1_description,
                   arg2, arg2_description,
@@ -361,23 +362,23 @@ namespace RTT
 
         /**
          * For internal use only. The pointer of the object of which a member function
-         * must be invoked is stored in a DataSource such that the pointer can change
+         * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
         template<class MethodT,class CompT>
-        bool addMethodDS( DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description)
+        bool addMethodDS( internal::DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description)
         {
             using namespace detail;
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c.getMethodImpl().get() );
             if ( !lm )
                 return false;
-            typedef FunctorDataSourceDS0<CompT, boost::function<Sig> > FunctorT;
-            typedef detail::DataSourceArgsMethod<Sig, FunctorT> DSMeth;
+            typedef internal::FunctorDataSourceDS0<CompT, boost::function<Sig> > FunctorT;
+            typedef internal::DataSourceArgsMethod<Sig, FunctorT> DSMeth;
 
-            this->add( c.getName(), new detail::OperationFactoryPart0<DataSourceBase*, DSMeth>(
+            this->add( c.getName(), new internal::OperationFactoryPart0<base::DataSourceBase*, DSMeth>(
                         DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, lm->getMethodFunction()))),
                         description));
             return true;
@@ -385,24 +386,24 @@ namespace RTT
 
         /**
          * For internal use only. The pointer of the object of which a member function
-         * must be invoked is stored in a DataSource such that the pointer can change
+         * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
         template<class MethodT,class CompT>
-        bool addMethodDS( DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description,
+        bool addMethodDS( internal::DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description,
                           const char* a1, const char* d1)
         {
             using namespace detail;
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl().get() );
+            const internal::LocalMethod<Sig>* lm = dynamic_cast< const internal::LocalMethod<Sig>* >( c.getMethodImpl().get() );
             if ( !lm )
                 return false;
             typedef typename MethodT::traits::arg2_type arg1_type; // second arg is 1st data arg.
-            typedef FunctorDataSourceDS1<CompT, boost::function<Sig>, arg1_type > FunctorT;
-            typedef detail::DataSourceArgsMethod<Sig, FunctorT> DSMeth;
-            this->add( c.getName(), new detail::OperationFactoryPart1<DataSourceBase*, DSMeth, arg1_type >(
+            typedef internal::FunctorDataSourceDS1<CompT, boost::function<Sig>, arg1_type > FunctorT;
+            typedef internal::DataSourceArgsMethod<Sig, FunctorT> DSMeth;
+            this->add( c.getName(), new internal::OperationFactoryPart1<base::DataSourceBase*, DSMeth, arg1_type >(
                         DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, lm->getMethodFunction()))),
                         description, a1, d1));
             return true;
@@ -415,30 +416,30 @@ namespace RTT
          * @param name The name of the method
          * @param args The arguments of the method as Data Sources.
          *
-         * @return A DataSource which, when evaluated, invokes the method.
+         * @return A internal::DataSource which, when evaluated, invokes the method.
          */
-        DataSourceBase* getMethod( std::string name,
-                                   const std::vector<DataSourceBase::shared_ptr>& args) const
+        base::DataSourceBase* getMethod( std::string name,
+                                   const std::vector<base::DataSourceBase::shared_ptr>& args) const
         {
             return this->produce(name, args);
         }
 
         /**
-         * Create a MethodC object, a template-less method invocation
+         * Create a internal::MethodC object, a template-less method invocation
          * object. This function is inferior to getMethod(std::string name).
          *
          * @param name The name of the method
          *
          * @return An object which can invoke a method.
          */
-        MethodC create(std::string name) {
-            return MethodC( this, name );
+        internal::MethodC create(std::string name) {
+            return internal::MethodC( this, name );
         }
 
         /**
          * Reset the implementation of a method.
          */
-        bool resetMethod(std::string name, ActionInterface::shared_ptr impl)
+        bool resetMethod(std::string name, base::ActionInterface::shared_ptr impl)
         {
             if (!hasMethod(name))
                 return false;
@@ -446,7 +447,7 @@ namespace RTT
             return true;
         }
     };
-}
+}}
 
 
 #endif

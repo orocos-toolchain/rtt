@@ -43,19 +43,20 @@
 #include "../interface/OperationInterface.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A task object groups a set of commands and methods (operations)
      * which may be invoked.
      */
     class RTT_API TaskObject
-        : public OperationInterface
+        : public interface::OperationInterface
     {
     protected:
         std::string mname;
         std::string mdescription;
 
-        OperationInterface* mparent;
+        interface::OperationInterface* mparent;
 
     public:
         /**
@@ -65,17 +66,17 @@ namespace RTT
 
         /**
          * Create a TaskObject with a given \a name and \a description and tie it to a \a parent.
-         * @param parent The OperationInterface to tie the new TaskObject to. In case
+         * @param parent The interface::OperationInterface to tie the new TaskObject to. In case
          * a TaskObject with the same name is already present in \a parent, the TaskObject
          * will not be tied and new->getParent() == 0.
          */
-        TaskObject(OperationInterface* parent, std::string name, std::string description ="A Task Object.");
+        TaskObject(interface::OperationInterface* parent, std::string name, std::string description ="A Task Object.");
 
         ~TaskObject();
 
-        virtual OperationInterface* getParent() { return mparent; }
+        virtual interface::OperationInterface* getParent() { return mparent; }
 
-        virtual void setParent(OperationInterface* newparent) { mparent = newparent; }
+        virtual void setParent(interface::OperationInterface* newparent) { mparent = newparent; }
 
         virtual void setEngine(ExecutionEngine* newengine);
 
@@ -87,7 +88,7 @@ namespace RTT
 
         void setName(const std::string& n) { mname = n;}
     };
-}
+}}
 
 
 #endif

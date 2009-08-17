@@ -61,13 +61,13 @@
 #include "../../Activity.hpp"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
     using namespace std;
 
     std::map<TaskContext*, ControlTaskServer*> ControlTaskServer::servers;
 
-    ActivityInterface* ControlTaskServer::orbrunner = 0;
+    base::ActivityInterface* ControlTaskServer::orbrunner = 0;
 
   ControlTaskServer::~ControlTaskServer()
   {
@@ -279,7 +279,7 @@ namespace RTT
         : public Activity
     {
         OrbRunner()
-            : Activity(RTT::OS::LowestPriority)
+            : Activity(RTT::os::LowestPriority)
         {}
         void loop()
         {
@@ -381,9 +381,9 @@ namespace RTT
     }
 
 
-    Corba::ControlTask_ptr ControlTaskServer::server() const
+    corba::ControlTask_ptr ControlTaskServer::server() const
     {
-        return Corba::ControlTask::_duplicate(mtask.in());
+        return corba::ControlTask::_duplicate(mtask.in());
     }
 
 }}

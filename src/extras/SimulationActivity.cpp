@@ -39,8 +39,9 @@
 #include "SimulationActivity.hpp"
 #include "SimulationThread.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace base;
+    using namespace extras;
 
     SimulationActivity::SimulationActivity(Seconds period, RunnableInterface* r )
         :PeriodicActivity(period,SimulationThread::Instance(), r)

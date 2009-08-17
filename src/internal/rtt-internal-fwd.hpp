@@ -5,63 +5,57 @@ namespace RTT {
     namespace internal {
         class BlockingEventProcessor;
         class CommandC;
-        class CommandFunction;
-        class CommandFunctor;
         class CommandProcessor;
         class CompletionProcessor;
-        class ConditionFunction;
-        class ConditionFunctor;
         class ConnFactory;
         class ConnPolicy;
         class ConnectionC;
-        class DataSourceArgsCommand;
-        class DataSourceArgsEvent;
-        class DataSourceArgsMethod;
         class DispatchAction;
         class EventC;
         class EventProcessor;
-        class FunctorFactoryPart1;
+        template<
+            typename Signature
+        >
         class LocalEvent;
         class MethodC;
-        class OROCOS_SIGNAL_N;
-        class OperationFactoryPart1;
+        template<
+            typename Signature 
+        >
         class SubscriberBase;
         class TaskObject;
         class connection_base;
+        template<
+            typename Signature,
+            typename SlotFunction
+            >
         class signal;
         class signal_base;
         struct ArgumentDescription;
-        struct Cont;
         struct EventCallBack;
         struct EventCatcher;
         struct EventHookBase;
         struct GenerateDataSource;
         struct IntrusiveStorage;
-        struct Item;
-        struct Item;
-        struct Item;
-        struct Item;
-        struct NodeType;
         struct NodeType;
         struct OnlyFirstCont;
         struct OnlyLastCont;
-        struct StorageImpl;
-        struct StorageImpl;
         struct UnknownType;
+        template< class T, class ReadPolicy, class WritePolicy>
+        class Queue;
+        template< class T>
+        class List;
         template <typename function>
         class UnaryDataSource;
         template< class FunctionT>
         struct Functor;
-        template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+        template< class T, class ReadPolicy , class WritePolicy >
         class AtomicQueue;
-        template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+        template< class T, class ReadPolicy , class WritePolicy >
         class LockedQueue;
         template< class T>
         class ListLockFree;
         template< class T>
         class ListLocked;
-        template< class T>
-        struct Data;
         template< class T>
         struct Data;
         template< class T>
@@ -124,7 +118,7 @@ namespace RTT {
         struct DataSourceResultStorage;
         template<class SlotFunction>
         class OROCOS_SIGNAL_CONNECTION_N;
-        template<class T, class Enable = void >
+        template<class T, class Enable >
         struct DSWrap;
         template<class T>
         class CopyPropertyCommand;
@@ -195,6 +189,10 @@ namespace RTT {
         struct pointer_to_sixary_function;
         template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
         struct pointer_to_ternary_function;
+        template<typename ResultT, typename FunctorT, typename arg1_type >
+        class FunctorFactoryPart1;
+        template<typename ResultT, typename FunctorT, typename arg1_type >
+        class OperationFactoryPart1;
         template<typename ResultT, typename FunctorT>
         class FunctorFactoryPart0;
         template<typename ResultT, typename FunctorT>
@@ -224,13 +222,13 @@ namespace RTT {
         template<typename Signature,
                typename SlotFunction>
         struct get_signal_impl;
-        template<typename T, typename APred, typename S = T>
+        template<typename T, typename APred, typename S >
         class AssignContainerCommand;
         template<typename T, typename Index, typename SetType, typename IPred, typename APred>
         class IndexedValueDataSource;
         template<typename T, typename Index, typename SetType, typename Pred>
         class AssignIndexCommand;
-        template<typename T, typename S = T>
+        template<typename T, typename S >
         class AssignCommand;
         template<typename T>
         class AssignableDataSource;
@@ -268,6 +266,9 @@ namespace RTT {
         class SixaryDataSource;
         template<typename function>
         class TernaryDataSource;
+    }
+    namespace detail {
+        using namespace internal;
     }
 }
 #endif

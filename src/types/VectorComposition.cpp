@@ -43,8 +43,9 @@
 #include <ostream>
 #include <sstream>
 
-namespace RTT
-{
+namespace RTT {
+    namespace types {
+    using namespace detail;
 
     // A decomposeProperty method for decomposing a Property< vector<double> >
     // into a PropertyBag with Property<double>'s.
@@ -103,5 +104,5 @@ namespace RTT
     }
 
 
-}; // namespace RTT
+}}; // namespace RTT
 

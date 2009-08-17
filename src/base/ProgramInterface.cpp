@@ -40,8 +40,8 @@
 #include "ProgramInterface.hpp"
 #include <Logger.hpp>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
     void ProgramInterface::handleUnload() {}

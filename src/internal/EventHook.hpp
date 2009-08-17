@@ -49,7 +49,7 @@
 
 namespace RTT{
 
-    namespace detail {
+    namespace internal {
 
         /**
          * Create end-user event handles.

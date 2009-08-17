@@ -8,7 +8,7 @@
 
 module RTT
 {
-  module Corba
+  module corba
   {
     // Classical Orocos type
     typedef sequence<double> DoubleSequence;

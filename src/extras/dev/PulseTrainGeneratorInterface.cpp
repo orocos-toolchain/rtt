@@ -31,5 +31,6 @@
 #include "PulseTrainGeneratorInterface.hpp"
 
 namespace RTT {
+    using namespace dev;
     NameServer<PulseTrainGeneratorInterface*> PulseTrainGeneratorInterface::nameserver;
 }

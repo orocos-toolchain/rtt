@@ -43,11 +43,11 @@
 #include "DataSourceBase.hpp"
 #include "AttributeBase.hpp"
 #include <boost/shared_ptr.hpp>
+#include "../rtt-fwd.hpp"
+#include "../scripting/rtt-scripting-fwd.hpp"
 
 namespace RTT
-{
-	class ProgramProcessor;
-    class ProgramInterface;
+{ namespace base {
     typedef boost::shared_ptr<ProgramInterface> ProgramInterfacePtr;
     typedef boost::weak_ptr<ProgramInterface> ProgramInterfaceWPtr;
 
@@ -65,7 +65,7 @@ namespace RTT
             /**
              * Enumerates the statuses of a ProgramInterface.
              */
-            enum ProgramStatus { stopped, //! The program is loaded in a ProgramProcessor but not running.
+            enum ProgramStatus { stopped, //! The program is loaded in a scripting::ProgramProcessor but not running.
                                  running, //! The program is running.
                                  paused,  //! The program was running but is now paused.
                                  error,   //! The program was running but has encountered an error.
@@ -74,16 +74,16 @@ namespace RTT
         };
     protected:
         Status::ProgramStatus pStatus;
-        ProgramProcessor* pp;
+        scripting::ProgramProcessor* pp;
         virtual void handleUnload();
     public:
-        ProgramInterface(ProgramProcessor* progp = 0);
+        ProgramInterface(scripting::ProgramProcessor* progp = 0);
 
         virtual ~ProgramInterface();
 
-        void setProgramProcessor(ProgramProcessor* progp);
+        void setProgramProcessor(scripting::ProgramProcessor* progp);
 
-        ProgramProcessor* getProgramProcessor() const { return pp; }
+        scripting::ProgramProcessor* getProgramProcessor() const { return pp; }
 
         /**
          * Start the execution of this program.
@@ -189,7 +189,7 @@ namespace RTT
 	};
 
 
-}
+}}
 
 
 #endif

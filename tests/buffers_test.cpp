@@ -95,7 +95,7 @@ void subOne(Dummy& d)
 }
 
 
-struct LLFWorker : public RTT::RunnableInterface
+struct LLFWorker : public RunnableInterface
 {
     volatile bool stop;
     typedef ListLockFree<Dummy> T;
@@ -127,7 +127,7 @@ struct LLFWorker : public RTT::RunnableInterface
     }
 };
 
-struct LLFGrower : public RTT::RunnableInterface
+struct LLFGrower : public RunnableInterface
 {
     volatile bool stop;
     typedef ListLockFree<Dummy> T;
@@ -155,7 +155,7 @@ struct LLFGrower : public RTT::RunnableInterface
     }
 };
 
-struct AQWorker : public RTT::RunnableInterface
+struct AQWorker : public RunnableInterface
 {
     bool stop;
     typedef QueueType T;
@@ -189,7 +189,7 @@ struct AQWorker : public RTT::RunnableInterface
     }
 };
 
-struct AQGrower : public RTT::RunnableInterface
+struct AQGrower : public RunnableInterface
 {
     volatile bool stop;
     typedef QueueType T;

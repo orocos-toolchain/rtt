@@ -39,9 +39,9 @@
 #include "AnyDataSource.hpp"
 #include "CorbaLib.hpp"
 
-namespace RTT
-{
-    namespace Corba {
+namespace RTT {
+    using namespace detail;
+    namespace corba {
 
     AnyDataSource::~AnyDataSource() {}
 

@@ -41,12 +41,6 @@
 #include <map>
 #include "../base/ActionInterface.hpp"
 
-namespace RTT
-{
-    class DataSourceBase;
-}
-
-
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS
@@ -59,23 +53,21 @@ namespace RTT
 #define BOOST_NO_HASH
 #include <boost/graph/adjacency_list.hpp>
 
-namespace RTT {
+namespace RTT
+{ namespace scripting {
     enum vertex_command_t { vertex_command };
     enum vertex_exec_t { vertex_exec };
-}
+}}
 
 namespace boost {
-    using RTT::vertex_exec_t;
-    using RTT::vertex_command_t;
+    using RTT::scripting::vertex_exec_t;
+    using RTT::scripting::vertex_command_t;
     BOOST_INSTALL_PROPERTY(vertex, command);
     BOOST_INSTALL_PROPERTY(vertex, exec);
 }
 
 namespace RTT
-{
-	class ProcessorControlInterface;
-	class ProcessorInterface;
-    class StateDescription;
+{ namespace scripting {
 
 	/**
 	 * This class represents elements in a program tree.
@@ -101,14 +93,14 @@ namespace RTT
        * Construct a program node with given command,
        * no conditional branches and line number 0.
        */
-      explicit VertexNode(ActionInterface* cmd);
+      explicit VertexNode(base::ActionInterface* cmd);
 
       /**
        * The copy constructor creates a shallow copy.
        */
       VertexNode( const VertexNode& orig );
 
-      VertexNode copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const;
+      VertexNode copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& rdss ) const;
 
       VertexNode& operator=( const VertexNode& orig );
 
@@ -139,7 +131,7 @@ namespace RTT
          * method will not be called.  The reason this is
          * here is because the node has to reset its
          * termination conditions at this point.  See the
-         * documentation of ConditionInterface::reset()
+         * documentation of base::ConditionInterface::reset()
          * for more information about this..
          */
          void startExecution();
@@ -161,7 +153,7 @@ namespace RTT
          *
          * @return The previous command (can be null).
          */
-         ActionInterface* setCommand(ActionInterface* c);
+         base::ActionInterface* setCommand(base::ActionInterface* c);
 
         /**
          * Set line number of this program node to given line number.
@@ -178,7 +170,7 @@ namespace RTT
          * @return The command currently associated with
          * this node
          */
-         ActionInterface* getCommand() const;
+         base::ActionInterface* getCommand() const;
 
         /**
          * Returns the program line number currently associated
@@ -190,7 +182,7 @@ namespace RTT
         /**
          * The command to be executed in this node.
          */
-        ActionInterface* command;
+        base::ActionInterface* command;
 
         /**
          * The line number associated with this node
@@ -200,7 +192,7 @@ namespace RTT
         int lineNumber;
 
 	};
-}
+}}
 
 #endif
 

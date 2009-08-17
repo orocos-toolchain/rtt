@@ -41,6 +41,7 @@
 #include "PropertyBase.hpp"
 
 namespace RTT {
+    using namespace detail;
 
     PropertyBase::~PropertyBase()
     {}
@@ -62,9 +63,11 @@ namespace RTT {
         _description = desc;
     }
 
-    std::ostream& operator<<(std::ostream &os, PropertyBase* p)
-    {
-        os << p->getDataSource();
-        return os;
+    namespace base {
+        std::ostream& operator<<(std::ostream &os, PropertyBase* p)
+        {
+            os << p->getDataSource();
+            return os;
+        }
     }
 }

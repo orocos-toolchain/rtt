@@ -3,15 +3,18 @@
 
 #include "PortInterface.hpp"
 #include "../internal/ListLockFree.hpp"
+#include <boost/tuple/tuple.hpp>
+#include "../os/Mutex.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        typedef boost::tuple<RTT::PortID*, ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
-        ListLockFree< ChannelElementBase::shared_ptr > channels;
-        ListLockFree< ChannelDescriptor > connections;
+        typedef boost::tuple<PortID*, ChannelElementBase::shared_ptr, internal::ConnPolicy> ChannelDescriptor;
+        internal::ListLockFree< ChannelElementBase::shared_ptr > channels;
+        internal::ListLockFree< ChannelDescriptor > connections;
 
         /** Helper method for disconnect(PortInterface*)
          *
@@ -33,11 +36,11 @@ namespace RTT
         bool matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
 
         /** Helper method for port-to-port connection establishment */
-        void addConnection(RTT::PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
+        void addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
 
 
-        /** Mutex for when it is needed to resize the connections list */
-        OS::Mutex connection_resize_mtx;
+        /** os::Mutex for when it is needed to resize the connections list */
+        os::Mutex connection_resize_mtx;
 
     public:
         OutputPortInterface(std::string const& name);
@@ -83,13 +86,13 @@ namespace RTT
         /** Connects this write port to the given read port, using a single-data
          * policy with the given locking mechanism
          */
-        bool createDataConnection( InputPortInterface& sink, int lock_policy = ConnPolicy::LOCK_FREE );
+        bool createDataConnection( InputPortInterface& sink, int lock_policy = internal::ConnPolicy::LOCK_FREE );
 
         /** Connects this write port to the given read port, using a buffered
          * policy, with the buffer of the given size and the given locking
          * mechanism
          */
-        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
+        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = internal::ConnPolicy::LOCK_FREE );
 
         /** Connects this write port to the given read port, using the as policy
          * the default policy of the sink port
@@ -98,7 +101,7 @@ namespace RTT
 
         /** Connects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
+        virtual bool createConnection( InputPortInterface& sink, internal::ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */
         void disconnect(PortInterface& port);
@@ -114,8 +117,8 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
     };
-}
+}}
 
 #endif

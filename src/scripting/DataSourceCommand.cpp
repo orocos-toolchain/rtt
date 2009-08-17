@@ -40,8 +40,8 @@
 
 #include "../base/ActionInterface.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
   DataSourceCommand::DataSourceCommand( ActionInterface* c )
       : comm( c ), mresult(false)
   {

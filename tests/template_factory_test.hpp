@@ -28,6 +28,7 @@
 #include <string>
 
 using namespace RTT;
+using namespace RTT::detail;
 
 class Template_FactoryTest
 {
@@ -44,7 +45,7 @@ public:
     RTT::Event<int( float, float )> t_event_float;
     int float_listener(float a, float b);
     int float_completer(float a, float b);
-    RTT::EventProcessor* event_proc;
+    EventProcessor* event_proc;
     float float_sum, float_sub;
 
     void executePrograms(const Parser::ParsedPrograms& pg_list );

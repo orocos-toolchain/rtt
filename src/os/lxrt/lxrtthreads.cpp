@@ -40,7 +40,7 @@
 #include <os/threads.hpp>
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     const int LowestPriority = 255;
     

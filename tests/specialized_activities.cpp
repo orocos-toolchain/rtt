@@ -4,6 +4,8 @@
 #include "specialized_activities.hpp"
 #include <extras/FileDescriptorActivity.hpp>
 #include <iostream>
+#include <rtt-detail-fwd.hpp>
+using namespace RTT::detail;
 
 using namespace std;
 using namespace RTT;

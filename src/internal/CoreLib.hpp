@@ -46,12 +46,11 @@
  * @brief Buffers, DataObjects, Commands, NameServing, Activities, Events, Timing, Properties
  *
  * The most frequently used Core primitives in Orocos are Logger, Event,
- * PeriodicActivity, NonPeriodicActivity, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
+ * extras::PeriodicActivity, NonPeriodicActivity, base::BufferLockFree, base::DataObjectLockFree, os::TimeService, dev::NameServer, Property,
  * PropertyBag, Attribute, Toolkit.
  *
  */
 
-#include "../os/win32/winthreads.cpp"
 #include "../extras/Properties.hpp"
 #include "../extras/Events.hpp"
 #include "../extras/Activities.hpp"

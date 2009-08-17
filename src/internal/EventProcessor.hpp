@@ -52,9 +52,9 @@
 
 namespace RTT
 {
-    class EventProcessor;
-
-    namespace detail {
+    
+    namespace internal {
+        class EventProcessor;
         using boost::make_tuple;
 
         struct RTT_API EventCatcher {
@@ -127,7 +127,7 @@ namespace RTT
                 work = this->enabled;
                 if ( work && mep ) // if enabled and mep, there is an getActivity() present.
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -161,12 +161,12 @@ namespace RTT
 
             Result handler( typename Function::arg1_type a1 ) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 // the container decides if a1 needs to be stored
                 _a1 = a1;
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -212,7 +212,7 @@ namespace RTT
             {
                 Data() : work(false), val_() {}
                 bool work;
-                DataObject<T> val_;
+                base::DataObject<T> val_;
                 typedef T type;
                 operator bool() const {
                     return work;
@@ -254,11 +254,11 @@ namespace RTT
             Result handler( typename Function::arg1_type a1,
                             typename Function::arg2_type a2 ) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 args = make_tuple( a1, a2 );
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -297,11 +297,11 @@ namespace RTT
                             typename Function::arg2_type a2,
                             typename Function::arg3_type a3 ) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 args = make_tuple( a1, a2, a3 );
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -346,11 +346,11 @@ namespace RTT
                             typename Function::arg3_type a3,
                             typename Function::arg4_type a4 ) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4 );
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -399,11 +399,11 @@ namespace RTT
                             typename Function::arg4_type a4,
                             typename Function::arg5_type a5) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4, a5 );
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -450,11 +450,11 @@ namespace RTT
                             typename Function::arg5_type a5,
                             typename Function::arg6_type a6) {
                 if ( !this->enabled )
-                    return detail::NA<Result>::na();
+                    return NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4, a5, a6 );
                 if ( mep )
                     signalWork();
-                return detail::NA<Result>::na();
+                return NA<Result>::na();
             }
 
             virtual void complete() {
@@ -465,11 +465,10 @@ namespace RTT
                 signalWorkDone();
             }
         };
-    }
 
     /**
      * An Asynchronous Event Processor, which catches events and executes
-     * the asynchronous callbacks in its RunnableInterface::step(). This class
+     * the asynchronous callbacks in its base::RunnableInterface::step(). This class
      * is mostly used internally by Orocos, but users can use it to process
      * asynchronous callbacks in their own implementation. The EventProcessor
      * is an argument in the Event's asynchronous connect method.
@@ -488,7 +487,7 @@ namespace RTT
      * @ingroup Processor
      */
     class RTT_API EventProcessor
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     protected:
         friend class EventCatcher;
@@ -496,13 +495,12 @@ namespace RTT
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
          */
-        typedef List<detail::EventCatcher*> ECList;
+        typedef List<EventCatcher*> ECList;
         ECList catchers;
 
-        friend struct detail::EventCatcher;
-        void destroyed( detail::EventCatcher* ec );
+        void destroyed( EventCatcher* ec );
 
-        OS::AtomicInt has_work;
+        os::AtomicInt has_work;
     public:
 
         /**
@@ -568,14 +566,14 @@ namespace RTT
         template<class SignalType>
         Handle setup(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
         {
-            detail::EventCatcher::shared_ptr eci;
+            EventCatcher::shared_ptr eci;
             Handle h;
             switch ( t ) {
             case OnlyFirst:
                 {
                     // Use function arity to select implementation :
-                    typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>::shared_ptr ecf
-                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig));
+                    typename EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, OnlyFirstCont>::shared_ptr ecf
+                        (new EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, OnlyFirstCont>(f, sig));
                     h = ecf->setup( sig );
                     eci = ecf;
                 }
@@ -583,8 +581,8 @@ namespace RTT
             case OnlyLast:
                 {
                     // Use function arity to select implementation :
-                    typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>::shared_ptr ecl
-                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig));
+                    typename EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, OnlyLastCont>::shared_ptr ecl
+                        (new EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, OnlyLastCont>(f, sig));
                     h = ecl->setup( sig );
                     eci = ecl;
                 }
@@ -616,7 +614,7 @@ namespace RTT
         ~BlockingEventProcessor();
 
     };
-
+    }
 }
 
 #endif

@@ -45,7 +45,8 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace types {
+
     /**
      * Empty implementation of TypeInfo interface.
      */
@@ -62,28 +63,28 @@ namespace RTT
         using TypeInfo::buildConstant;
         using TypeInfo::buildVariable;
 
-        AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr dsb) const
+        base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr dsb) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Constant of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildVariable(std::string name) const
+        base::AttributeBase* buildVariable(std::string name) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Variable of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildAttribute(std::string name, DataSourceBase::shared_ptr in) const
+        base::AttributeBase* buildAttribute(std::string name, base::DataSourceBase::shared_ptr in) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Attribute of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
+        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Alias of "<<tname<<"."<<Logger::endl;
@@ -92,33 +93,33 @@ namespace RTT
 
         virtual const std::string& getTypeName() const { return tname; }
 
-        virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase::shared_ptr source = 0) const {
+        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Property of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        virtual DataSourceBase::shared_ptr buildValue() const {
+        virtual base::DataSourceBase::shared_ptr buildValue() const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build ValueDataSource of "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not build internal::ValueDataSource of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        virtual DataSourceBase::shared_ptr buildReference(void*) const {
+        virtual base::DataSourceBase::shared_ptr buildReference(void*) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build ReferenceDataSource of "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not build internal::ReferenceDataSource of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
 
-        DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& ) const {
+        base::DataSourceBase::shared_ptr construct(const std::vector<base::DataSourceBase::shared_ptr>& ) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not construct value of "<<tname<<"."<<Logger::endl;
-            return DataSourceBase::shared_ptr();
+            return base::DataSourceBase::shared_ptr();
         }
 
 
-        virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
+        virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");
 #ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
@@ -127,18 +128,18 @@ namespace RTT
             return os;
         }
 
-        virtual std::istream& read( std::istream& is, DataSourceBase::shared_ptr out ) const {
+        virtual std::istream& read( std::istream& is, base::DataSourceBase::shared_ptr out ) const {
             Logger::In loc("TypeInfoName");
             return is;
         }
 
-        virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not decompose "<<tname<<"."<<Logger::endl;
             return false;
         }
 
-        virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr result) const {
+        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not compose "<<tname<<"."<<Logger::endl;
             return false;
@@ -146,9 +147,9 @@ namespace RTT
 		
 		virtual std::string getTypeIdName() const { return ""; }
 
-        virtual InputPortInterface* inputPort(std::string const& name) const
+        virtual base::InputPortInterface* inputPort(std::string const& name) const
         { return 0; }
-        virtual OutputPortInterface* outputPort(std::string const& name) const
+        virtual base::OutputPortInterface* outputPort(std::string const& name) const
         { return 0; }
     };
 
@@ -174,15 +175,15 @@ namespace RTT
         {
             Logger::In in("TypeInfoName");
             // Install the type info object for T.
-            if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
+            if ( internal::DataSourceTypeInfo<T>::TypeInfoObject != 0) {
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
-                              << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                              << internal::DataSourceTypeInfo<T>::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
             }
-            detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            internal::DataSourceTypeInfo<T>::TypeInfoObject = this;
         }
     };
 
-}
+}}
 
 #endif

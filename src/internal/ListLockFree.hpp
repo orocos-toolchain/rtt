@@ -50,7 +50,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
         struct IntrusiveStorage
         {
             oro_atomic_t ref;
@@ -64,11 +64,12 @@ namespace RTT
 }
 
 
-void intrusive_ptr_add_ref(RTT::detail::IntrusiveStorage* p );
-void intrusive_ptr_release(RTT::detail::IntrusiveStorage* p );
+void intrusive_ptr_add_ref(RTT::internal::IntrusiveStorage* p );
+void intrusive_ptr_release(RTT::internal::IntrusiveStorage* p );
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A \a simple lock-free list implementation to \a append or \a erase
      * data of type \a T.
@@ -104,7 +105,7 @@ namespace RTT
             BufferType data;
         };
 
-        struct StorageImpl : public detail::IntrusiveStorage
+        struct StorageImpl : public IntrusiveStorage
         {
             Item* items;
             StorageImpl(size_t alloc) : items( new Item[alloc] ) {
@@ -281,7 +282,7 @@ namespace RTT
                 // and still point in old buffer. we could check this
                 // with pointer arithmetics, but this is not a performant
                 // method.
-            } while ( OS::CAS(&active, orig, nextbuf ) == false);
+            } while ( os::CAS(&active, orig, nextbuf ) == false);
             // now,
             // active is guaranteed to point into bufs.
             assert( pointsTo( active, bufs ) );
@@ -305,7 +306,7 @@ namespace RTT
                 items = orig->data.size();
                 nextbuf = findEmptyBuf(bufptr); // find unused Item in bufs
                 nextbuf->data.clear();
-            } while ( OS::CAS(&active, orig, nextbuf ) == false );
+            } while ( os::CAS(&active, orig, nextbuf ) == false );
             oro_atomic_dec( &orig->count ); // lockAndGetActive
             oro_atomic_dec( &orig->count ); // ref count
         }
@@ -333,7 +334,7 @@ namespace RTT
                 usingbuf = findEmptyBuf( bufptr ); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.push_back( item );
-            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
+            } while ( os::CAS(&active, orig, usingbuf ) ==false);
             oro_atomic_dec( &orig->count ); // lockAndGetActive()
             oro_atomic_dec( &orig->count ); // set list free
             return true;
@@ -391,7 +392,7 @@ namespace RTT
                 usingbuf = findEmptyBuf( bufptr ); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.insert( usingbuf->data.end(), items.begin(), items.begin() + towrite );
-            } while ( OS::CAS(&active, orig, usingbuf ) ==false );
+            } while ( os::CAS(&active, orig, usingbuf ) ==false );
             oro_atomic_dec( &orig->count ); // lockAndGetActive()
             oro_atomic_dec( &orig->count ); // set list free
             return towrite;
@@ -431,7 +432,7 @@ namespace RTT
                     nextbuf->data.push_back( *it );
                     ++it;
                 }
-            } while ( OS::CAS(&active, orig, nextbuf ) ==false );
+            } while ( os::CAS(&active, orig, nextbuf ) ==false );
             oro_atomic_dec( &orig->count ); // lockAndGetActive
             oro_atomic_dec( &orig->count ); // ref count
             return true;
@@ -474,7 +475,7 @@ namespace RTT
                     oro_atomic_dec( &nextbuf->count );
                     return false; // no matching item found.
                 }
-            } while ( OS::CAS(&active, orig, nextbuf ) == false );
+            } while ( os::CAS(&active, orig, nextbuf ) == false );
             oro_atomic_dec( &orig->count ); // lockAndGetActive
             oro_atomic_dec( &orig->count ); // ref count
             return true;
@@ -694,6 +695,7 @@ namespace RTT
         }
 
     };
+    }
 }
 
 #endif

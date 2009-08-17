@@ -48,12 +48,12 @@
 #include <cassert>
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
-    struct  UpdatedCommand : public ::RTT::ActionInterface
+    struct  UpdatedCommand : public ::RTT::base::ActionInterface
     {
-        DataSourceBase::shared_ptr mds;
-        UpdatedCommand( DataSourceBase* ds )
+        base::DataSourceBase::shared_ptr mds;
+        UpdatedCommand( base::DataSourceBase* ds )
             :mds(ds)
         {}
 
@@ -64,11 +64,11 @@ namespace RTT
 
         void readArguments() {}
 
-        ::RTT::ActionInterface* clone() const {
+        ::RTT::base::ActionInterface* clone() const {
             return new UpdatedCommand(mds.get());
         }
 
-        ::RTT::ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        ::RTT::base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return new UpdatedCommand(mds->copy(alreadyCloned));
         }
     };
@@ -79,13 +79,13 @@ namespace RTT
      */
     template<class T>
     class CORBAExpression
-        : public DataSource<T>
+        : public internal::DataSource<T>
     {
-        Corba::Expression_var mexpr;
-        mutable typename DataSource<T>::value_t last_value;
+        corba::Expression_var mexpr;
+        mutable typename internal::DataSource<T>::value_t last_value;
     public:
-        CORBAExpression( Corba::Expression_ptr expr )
-            : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
+        CORBAExpression( corba::Expression_ptr expr )
+            : mexpr( corba::Expression::_duplicate( expr ) ), last_value()
         {
             assert( !CORBA::is_nil(mexpr) );
         }
@@ -93,42 +93,42 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
-        typename DataSource<T>::result_t value() const {
+        typename internal::DataSource<T>::result_t value() const {
             return last_value;
         }
 
-        virtual typename DataSource<T>::result_t get() const {
+        virtual typename internal::DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            ReferenceDataSource<T> rds(last_value);
+            internal::ReferenceDataSource<T> rds(last_value);
             rds.ref();
             if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAExpression to remote value!"<<Logger::endl;
             return last_value;
         }
 
-        virtual DataSource<T>* clone() const {
-            return new CORBAExpression<T>( Corba::Expression::_duplicate( mexpr.in() ) );
+        virtual internal::DataSource<T>* clone() const {
+            return new CORBAExpression<T>( corba::Expression::_duplicate( mexpr.in() ) );
         }
 
-        virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual internal::DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<T>*>(this);
             return const_cast<CORBAExpression<T>*>(this);
         }
 
         virtual std::string getType() const {
             // both should be equivalent, but we display the local type.
-            return DataSource<T>::GetType();
+            return internal::DataSource<T>::GetType();
             //return std::string( mexpr->getType() );
         }
 
@@ -143,12 +143,12 @@ namespace RTT
      */
     template<>
     class CORBAExpression<void>
-        : public DataSource<void>
+        : public internal::DataSource<void>
     {
-        Corba::Expression_var mexpr;
+        corba::Expression_var mexpr;
     public:
-        CORBAExpression( Corba::Expression_ptr expr )
-            : mexpr( Corba::Expression::_duplicate( expr ) )
+        CORBAExpression( corba::Expression_ptr expr )
+            : mexpr( corba::Expression::_duplicate( expr ) )
         {
             assert( expr );
         }
@@ -156,14 +156,14 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
@@ -175,11 +175,11 @@ namespace RTT
             CORBA::Any_var res = mexpr->get();
         }
 
-        virtual DataSource<void>* clone() const {
-            return new CORBAExpression<void>( Corba::Expression::_duplicate( mexpr.in() ) );
+        virtual internal::DataSource<void>* clone() const {
+            return new CORBAExpression<void>( corba::Expression::_duplicate( mexpr.in() ) );
         }
 
-        virtual DataSource<void>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual internal::DataSource<void>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<void>*>(this);
             return const_cast<CORBAExpression<void>*>(this);
         }
@@ -195,73 +195,73 @@ namespace RTT
      */
     template<class T>
     class CORBAAssignableExpression
-        : public AssignableDataSource<T>
+        : public internal::AssignableDataSource<T>
     {
-        typedef typename AssignableDataSource<T>::value_t value_t;
-        Corba::AssignableExpression_var mexpr;
-        typename AssignableDataSource<value_t>::shared_ptr storage;
-        //mutable typename DataSource<T>::value_t last_value;
+        typedef typename internal::AssignableDataSource<T>::value_t value_t;
+        corba::AssignableExpression_var mexpr;
+        typename internal::AssignableDataSource<value_t>::shared_ptr storage;
+        //mutable typename internal::DataSource<T>::value_t last_value;
     public:
-        CORBAAssignableExpression( Corba::AssignableExpression_ptr expr )
-            : mexpr( Corba::AssignableExpression::_duplicate(expr) )//, last_value()
+        CORBAAssignableExpression( corba::AssignableExpression_ptr expr )
+            : mexpr( corba::AssignableExpression::_duplicate(expr) )//, last_value()
         {
-            storage = detail::BuildType<value_t>::Value();
+            storage = types::BuildType<value_t>::Value();
             assert( expr );
         }
 
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate( mexpr );
+                return corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
-        typename DataSource<T>::result_t value() const {
+        typename internal::DataSource<T>::result_t value() const {
             return storage->rvalue();
         }
 
-        typename AssignableDataSource<T>::const_reference_t rvalue() const {
+        typename internal::AssignableDataSource<T>::const_reference_t rvalue() const {
             return storage->rvalue();
         }
 
 
-        virtual typename DataSource<T>::result_t get() const {
+        virtual typename internal::DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            ReferenceDataSource<T> rds( storage->set() );
+            internal::ReferenceDataSource<T> rds( storage->set() );
             rds.ref();
             if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAAssignableExpression to remote value!"<<Logger::endl;
             return storage->rvalue();
         }
 
-        virtual void set( typename AssignableDataSource<T>::param_t t ) {
-            ValueDataSource<T> vds(t);
+        virtual void set( typename internal::AssignableDataSource<T>::param_t t ) {
+            internal::ValueDataSource<T> vds(t);
             vds.ref();
             CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             mexpr->set( toset.in() );
             storage->set( t );
         }
 
-        virtual typename AssignableDataSource<T>::reference_t set() {
+        virtual typename internal::AssignableDataSource<T>::reference_t set() {
             return storage->set();
         }
 
         virtual void updated()
         {
-            ValueDataSource<T> vds( storage->value() );
+            internal::ValueDataSource<T> vds( storage->value() );
             vds.ref();
             CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             mexpr->set( toset.in() );
         }
 
-        using AssignableDataSource<T>::update;
+        using internal::AssignableDataSource<T>::update;
 
         virtual bool update(const CORBA::Any& any) {
             // send update and get result back.
@@ -272,27 +272,27 @@ namespace RTT
             return false;
         }
 
-        ::RTT::ActionInterface* updateCommand( DataSourceBase* other)
+        ::RTT::base::ActionInterface* updateCommand( base::DataSourceBase* other)
         {
-            ::RTT::ActionInterface* ci = storage->updateCommand(other);
+            ::RTT::base::ActionInterface* ci = storage->updateCommand(other);
             if (ci)
-                return new CommandBinary( ci, new UpdatedCommand( this ) );
+                return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual ::RTT::ActionInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
+        virtual ::RTT::base::ActionInterface* updatePartCommand(base::DataSourceBase* index, base::DataSourceBase* rhs )
         {
-            ::RTT::ActionInterface* ci = storage->updatePartCommand(index, rhs);
+            ::RTT::base::ActionInterface* ci = storage->updatePartCommand(index, rhs);
             if (ci)
-                return new CommandBinary( ci, new UpdatedCommand( this ) );
+                return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual AssignableDataSource<T>* clone() const {
-            return new CORBAAssignableExpression<T>( Corba::AssignableExpression::_duplicate( mexpr.in() ) );
+        virtual internal::AssignableDataSource<T>* clone() const {
+            return new CORBAAssignableExpression<T>( corba::AssignableExpression::_duplicate( mexpr.in() ) );
         }
 
-        virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual internal::AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAAssignableExpression<T>*>(this);
             return const_cast<CORBAAssignableExpression<T>*>(this);
         }

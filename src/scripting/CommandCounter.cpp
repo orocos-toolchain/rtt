@@ -36,8 +36,8 @@
  ***************************************************************************/
 #include "CommandCounter.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
 
 	 CommandCounter::CommandCounter()
 	 	:counter(0)

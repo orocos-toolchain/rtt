@@ -47,12 +47,7 @@
 #endif
 
 namespace RTT
-{
-    namespace detail {
-        class PropertyOperation;
-    }
-    class PropertyBagVisitor;
-    class PropertyIntrospection;
+{ namespace base {
 
 	/**
 	 * Base class for all properties.
@@ -189,7 +184,7 @@ namespace RTT
         virtual PropertyBase* create() const = 0;
 
         /**
-         * Get a DataSource through which this PropertyBase can be
+         * Get a internal::DataSource through which this PropertyBase can be
          * manipulated.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
@@ -201,9 +196,9 @@ namespace RTT
         virtual std::string getType() const = 0;
 
         /**
-         * Returns the TypeInfo object of this Property.
+         * Returns the types::TypeInfo object of this Property.
          */
-        virtual const TypeInfo* getTypeInfo() const = 0;
+        virtual const types::TypeInfo* getTypeInfo() const = 0;
 
     protected:
         /**
@@ -225,5 +220,6 @@ namespace RTT
     RTT_API std::ostream& operator<<(std::ostream &os, PropertyBase* p);
 
 
+    }
 } // namespace RTT
 #endif

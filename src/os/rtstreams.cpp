@@ -39,7 +39,7 @@
 #include <cstring>
 
 namespace RTT
-{namespace rt_std
+{namespace os
 {
 
     printstream cout;

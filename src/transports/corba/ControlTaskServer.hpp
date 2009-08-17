@@ -57,10 +57,10 @@
 
 class Orocos_ControlTask_i;
 namespace RTT
-{namespace Corba
+{namespace corba
 {
-    class RTT_CORBA_API OrbRunner;
-    class RTT_CORBA_API ControlTaskProxy;
+    class OrbRunner;
+    class ControlTaskProxy;
 
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -77,7 +77,7 @@ namespace RTT
 
         typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
-        static ActivityInterface* orbrunner;
+        static base::ActivityInterface* orbrunner;
 
 	PortableServer::POA_var mpoa;
 
@@ -87,7 +87,7 @@ namespace RTT
         ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
 	PortableServer::ServantBase_var mtask_i;
-        Corba::ControlTask_var mtask;
+        corba::ControlTask_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
 

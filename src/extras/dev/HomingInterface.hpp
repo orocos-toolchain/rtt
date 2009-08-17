@@ -41,7 +41,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
 
 class RTT_API HomingInterface
 {
@@ -79,7 +80,7 @@ public:
 
 };
 
-}; //namespace RTT
+}}; //namespace RTT
 
 #endif //_HOMING_INTERFACE_HPP
 

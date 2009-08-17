@@ -45,7 +45,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * @internal
@@ -63,7 +63,7 @@ namespace RTT
              * Create one part (function object) for a given component.
              * @param args The arguments for the target object's function.
              */
-            virtual ResultT produce( const std::vector<DataSourceBase::shared_ptr>& args ) const = 0;
+            virtual ResultT produce( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
         };
 
         template<typename ResultT, typename FunctorT>
@@ -80,7 +80,7 @@ namespace RTT
             }
 
             ResultT produce(
-                            const std::vector<DataSourceBase::shared_ptr>& args) const
+                            const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( ! args.empty() )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.size() ), ResultT());
@@ -101,7 +101,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 1 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 1, args.size() ), ResultT());
@@ -128,7 +128,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 2 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 2, args.size() ), ResultT());
@@ -163,7 +163,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 3 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 3, args.size() ), ResultT());
@@ -203,7 +203,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 4 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 4, args.size() ), ResultT());
@@ -248,7 +248,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 5 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 5, args.size() ), ResultT());
@@ -299,7 +299,7 @@ namespace RTT
             {
             }
 
-            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 6 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 6, args.size() ), ResultT());

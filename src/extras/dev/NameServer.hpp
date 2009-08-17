@@ -47,7 +47,8 @@
 // #endif
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * @brief A nameserver for Orocos Device classes.
      *
@@ -391,6 +392,6 @@ namespace RTT
     template<class T>
     std::string NameServer<T>::NoName;
 
-}
+}}
 
 #endif // NAMESERVER_HPP

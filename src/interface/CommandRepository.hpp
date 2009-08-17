@@ -51,14 +51,15 @@
 #include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
-{
+{ namespace interface {
+
     /**
      * A command repository stores a number of commands from a Task which
      * can be used by other tasks or from scripts.
      * @ingroup Commands
      */
     class RTT_API CommandRepository
-        : public OperationFactory<DispatchInterface*>
+        : public internal::OperationFactory<base::DispatchInterface*>
     {
         template<class T>
         inline T* getpointer(T& t) {
@@ -69,10 +70,10 @@ namespace RTT
             return t;
         }
 
-        typedef std::map<std::string,DispatchInterface*> SimpleCommands;
+        typedef std::map<std::string,base::DispatchInterface*> SimpleCommands;
         SimpleCommands simplecommands;
     public:
-        typedef CommandFactory Factory;
+        typedef internal::CommandFactory Factory;
 
         ~CommandRepository();
 
@@ -87,11 +88,11 @@ namespace RTT
          * @return A new pointer to a Command, or null if it does not exist.
          */
         template<class Signature>
-        DispatchInterface* getCommand( std::string name )
+        base::DispatchInterface* getCommand( std::string name )
         {
             Logger::In in("CommandRepository::getCommand");
             if ( simplecommands.count(name) ) {
-                if ( dynamic_cast< detail::CommandBase<Signature>* >(simplecommands[name]) )
+                if ( dynamic_cast< base::CommandBase<Signature>* >(simplecommands[name]) )
                     return simplecommands[name]->clone();
                 else
                     log(Error) << "Command '"<< name <<"' found, but has wrong Signature."<<endlog();
@@ -100,7 +101,7 @@ namespace RTT
 
 #ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {
-                return new detail::RemoteCommand<Signature>(this, name);
+                return new internal::RemoteCommand<Signature>(this, name);
             }
 #endif
             log(Warning) << "No such command: "<< name <<endlog();
@@ -174,7 +175,7 @@ namespace RTT
             BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 0 );
 
             CommandPT c = this->getpointer(com);
-            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            internal::LocalCommand<ComSig>* lc = dynamic_cast<internal::LocalCommand<ComSig>*>( c->getCommandImpl() );
             // We can only add local commands.
             if ( !lc ) {
                 log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
@@ -183,9 +184,9 @@ namespace RTT
             // First add the command to the normal interface.
             if ( this->addCommand( c ) == false )
                 return false;
-            // Next, add it to the Command from 'DataSource' interface.
-            this->add( c->getName(), new detail::OperationFactoryPart0<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
-                  detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
+            // Next, add it to the Command from 'internal::DataSource' interface.
+            this->add( c->getName(), new internal::OperationFactoryPart0<base::DispatchInterface*, internal::DataSourceArgsCommand<ComSig> >(
+                  internal::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
                                         lc->getConditionFunction(),
                                         lc->getCommandProcessor(), lc->isInverted() ), description) );
             return true;
@@ -214,15 +215,15 @@ namespace RTT
             BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 1 );
 
             CommandPT c = this->getpointer(com);
-            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            internal::LocalCommand<ComSig>* lc = dynamic_cast<internal::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
                 log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart1<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
-                  detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
+            this->add( c->getName(), new internal::OperationFactoryPart1<base::DispatchInterface*, internal::DataSourceArgsCommand<ComSig> >(
+                  internal::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
                                         lc->getConditionFunction(),
                                         lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description) );
@@ -255,15 +256,15 @@ namespace RTT
             BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 2 );
 
             CommandPT c = this->getpointer(com);
-            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            internal::LocalCommand<ComSig>* lc = dynamic_cast<internal::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
                 log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart2<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
-                  detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
+            this->add( c->getName(), new internal::OperationFactoryPart2<base::DispatchInterface*, internal::DataSourceArgsCommand<ComSig> >(
+                  internal::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
                                         lc->getConditionFunction(),
                                         lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
@@ -301,15 +302,15 @@ namespace RTT
             BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 3 );
 
             CommandPT c = this->getpointer(com);
-            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            internal::LocalCommand<ComSig>* lc = dynamic_cast<internal::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
                 log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart3<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
-                  detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
+            this->add( c->getName(), new internal::OperationFactoryPart3<base::DispatchInterface*, internal::DataSourceArgsCommand<ComSig> >(
+                  internal::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
                                                lc->getConditionFunction(),
                                                lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
@@ -350,15 +351,15 @@ namespace RTT
             BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 4 );
 
             CommandPT c = this->getpointer(com);
-            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            internal::LocalCommand<ComSig>* lc = dynamic_cast<internal::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
                 log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart4<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
-                  detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
+            this->add( c->getName(), new internal::OperationFactoryPart4<base::DispatchInterface*, internal::DataSourceArgsCommand<ComSig> >(
+                  internal::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
                                                lc->getConditionFunction(),
                                                lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
@@ -376,28 +377,28 @@ namespace RTT
          *
          * @return A dispatchable object which is a new Command object.
          */
-        DispatchInterface* getCommand( std::string name,
-                                          const std::vector<DataSourceBase::shared_ptr>& args) const
+        base::DispatchInterface* getCommand( std::string name,
+                                          const std::vector<base::DataSourceBase::shared_ptr>& args) const
         {
             return this->produce(name, args);
         }
 
         /**
          * For internal use only. The pointer of the object of which a member function
-         * must be invoked is stored in a DataSource such that the pointer can change
+         * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
         template<class CommandT,class CompT>
-        bool addCommandDS( DataSource< boost::weak_ptr<CompT> >* wp, CommandT c, const char* description)
+        bool addCommandDS( internal::DataSource< boost::weak_ptr<CompT> >* wp, CommandT c, const char* description)
         {
             using namespace detail;
             typedef typename CommandT::Signature ComSig;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            typedef FunctorDS0<ComSig> CommandF;
-            typedef detail::DataSourceArgsCommand<ComSig,
+            typedef scripting::FunctorDS0<ComSig> CommandF;
+            typedef internal::DataSourceArgsCommand<ComSig,
                                   CommandF> DSComm;
-            this->add( c.getName(), new detail::OperationFactoryPart0<DispatchInterface*, DSComm>(
+            this->add( c.getName(), new internal::OperationFactoryPart0<base::DispatchInterface*, DSComm>(
                         DSComm( CommandF(wp, c.getCommandFunction()),
                                 CommandF(wp, c.getConditionFunction()),
                                 c.getCommandProcessor(), c.isInverted() ),
@@ -407,21 +408,21 @@ namespace RTT
 
         /**
          * For internal use only. The pointer of the object of which a member function
-         * must be invoked is stored in a DataSource such that the pointer can change
+         * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
         template<class CommandT, class CompT>
-        bool addCommandDS( DataSource<boost::weak_ptr<CompT> >* wp, CommandT c, const char* description,
+        bool addCommandDS( internal::DataSource<boost::weak_ptr<CompT> >* wp, CommandT c, const char* description,
                          const char* arg1, const char* arg1_description)
         {
             using namespace detail;
             typedef typename CommandT::Signature ComSig;
-            typedef FunctorDS1<ComSig> CommandF;
-            typedef detail::DataSourceArgsCommand<ComSig,
+            typedef scripting::FunctorDS1<ComSig> CommandF;
+            typedef internal::DataSourceArgsCommand<ComSig,
                                   CommandF> DSComm;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            this->add( c.getName(), new detail::OperationFactoryPart1<DispatchInterface*, DSComm, typename DSComm::traits::arg2_type>(
+            this->add( c.getName(), new internal::OperationFactoryPart1<base::DispatchInterface*, DSComm, typename DSComm::traits::arg2_type>(
                         DSComm( CommandF(wp, c.getCommandFunction()),
                                 CommandF(wp, c.getConditionFunction()),
                                 c.getCommandProcessor(), c.isInverted() ),
@@ -437,31 +438,31 @@ namespace RTT
          *
          * @return A condition which evaluates the command's completion.
          */
-        ConditionInterface* getCondition( std::string name,
-                                         const std::vector<DataSourceBase::shared_ptr>& args) const
+        base::ConditionInterface* getCondition( std::string name,
+                                         const std::vector<base::DataSourceBase::shared_ptr>& args) const
         {
-            DispatchInterface* di = this->produce(name, args);
-            ConditionInterface* ret = di->createCondition();
+            base::DispatchInterface* di = this->produce(name, args);
+            base::ConditionInterface* ret = di->createCondition();
             delete di;
             return ret;
         }
 
         /**
-         * Create a CommandC container object, which can be used
+         * Create a internal::CommandC container object, which can be used
          * to access an added Command.
          *
          * @param name The name of the Command
          *
-         * @return A new CommandC object.
+         * @return A new internal::CommandC object.
          */
-        CommandC create(std::string name) {
-            return CommandC( this, name );
+        internal::CommandC create(std::string name) {
+            return internal::CommandC( this, name );
         }
 
 
     };
 
-}
+}}
 
 
 #endif

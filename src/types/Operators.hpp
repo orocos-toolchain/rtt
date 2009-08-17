@@ -43,7 +43,7 @@
 #include "../internal/DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace RTT { namespace detail
+namespace RTT { namespace types
 {
 
   /**
@@ -59,7 +59,7 @@ namespace RTT { namespace detail
    * operates on one arg of a certain type.  Examples of unary
    * operators are logical not for booleans, unary minus for ints,
    * unary minus for doubles, unary minus for vectors, unary plus for
-   * ints (identity operator) etc.  We always provide templates that
+   * ints (internal::identity operator) etc.  We always provide templates that
    * accept a STL style adaptable functor..
    */
   class RTT_API UnaryOp
@@ -68,13 +68,13 @@ namespace RTT { namespace detail
     virtual ~UnaryOp();
     /**
      * If op is the operator you are responsible for, and if the
-     * argument DataSource is of the correct type, then return an
-     * appropriate DataSource. ( i.e. a DataSource that will apply a
+     * argument internal::DataSource is of the correct type, then return an
+     * appropriate DataSource. ( i.e. a internal::DataSource that will apply a
      * certain operation on the value it gets from its argument
-     * DataSource, and will return that value ).  Otherwise, return 0.
+     * internal::DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual DataSourceBase* build( const std::string& op,
-                                   DataSourceBase* a ) = 0;
+    virtual base::DataSourceBase* build( const std::string& op,
+                                   base::DataSourceBase* a ) = 0;
   };
 
   class RTT_API BinaryOp
@@ -83,14 +83,14 @@ namespace RTT { namespace detail
     virtual ~BinaryOp();
     /**
      * If op is the operator you are responsible for, and if the
-     * argument DataSource's are of the correct type, then return an
-     * appropriate DataSource ( i.e. a DataSource that will apply a
+     * argument internal::DataSource's are of the correct type, then return an
+     * appropriate internal::DataSource ( i.e. a internal::DataSource that will apply a
      * certain operation on the values it gets from its argument
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual DataSourceBase* build(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b ) = 0;
+    virtual base::DataSourceBase* build(
+      const std::string& op, base::DataSourceBase* a, base::DataSourceBase* b ) = 0;
   };
 
   /**
@@ -106,31 +106,31 @@ namespace RTT { namespace detail
     virtual ~DotOp();
     /**
      * If op is the operator you are responsible for, and if the
-     * argument DataSource is of the correct type, then return an
-     * appropriate DataSource. ( i.e. a DataSource that will apply a
+     * argument internal::DataSource is of the correct type, then return an
+     * appropriate DataSource. ( i.e. a internal::DataSource that will apply a
      * certain operation on the value it gets from its argument
-     * DataSource, and will return that value ).  Otherwise, return 0.
+     * internal::DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual DataSourceBase* build( const std::string& member,
-                                   DataSourceBase* a ) = 0;
+    virtual base::DataSourceBase* build( const std::string& member,
+                                   base::DataSourceBase* a ) = 0;
   };
-}
+
     /**
      * This class builds on upon construction all expression
      * operators known to Orocos. Mainly used for scripting.
      */
     class RTT_API OperatorRepository
     {
-        std::vector<detail::DotOp*> dotops;
-        std::vector<detail::UnaryOp*> unaryops;
-        std::vector<detail::BinaryOp*> binaryops;
+        std::vector<DotOp*> dotops;
+        std::vector<UnaryOp*> unaryops;
+        std::vector<BinaryOp*> binaryops;
         OperatorRepository();
         OperatorRepository( const OperatorRepository& );
 
     public:
-        void add( detail::UnaryOp* o );
-        void add( detail::DotOp* o );
-        void add( detail::BinaryOp* o );
+        void add( UnaryOp* o );
+        void add( DotOp* o );
+        void add( BinaryOp* o );
 
         typedef boost::shared_ptr<OperatorRepository> shared_ptr;
         ~OperatorRepository();
@@ -138,10 +138,10 @@ namespace RTT { namespace detail
          * Returns a shared pointer to the singleton of this class.
          */
         static shared_ptr Instance();
-        DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
-        DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
-        DataSourceBase* applyBinary(
-                                    const std::string& op, DataSourceBase* a, DataSourceBase* b );
+        base::DataSourceBase* applyDot( const std::string& member, base::DataSourceBase* value );
+        base::DataSourceBase* applyUnary( const std::string& op, base::DataSourceBase* a );
+        base::DataSourceBase* applyBinary(
+                                    const std::string& op, base::DataSourceBase* a, base::DataSourceBase* b );
     };
 
     /**
@@ -149,6 +149,6 @@ namespace RTT { namespace detail
      * OperatorRepository::Instance()
      */
     RTT_API OperatorRepository::shared_ptr operators();
-}
+}}
 
 #endif

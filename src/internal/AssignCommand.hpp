@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace internal {
 
         /**
          * This is a command that will assign the value of an expression to
@@ -58,7 +58,7 @@ namespace RTT
          */
         template<typename T, typename S = T>
         class AssignCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
         public:
             typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
@@ -85,12 +85,12 @@ namespace RTT
                 return true;
             }
 
-            virtual ActionInterface* clone() const
+            virtual base::ActionInterface* clone() const
             {
                 return new AssignCommand( lhs.get(), rhs.get() );
             }
 
-            virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 return new AssignCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
             }
         };
@@ -105,7 +105,7 @@ namespace RTT
          */
         template<typename T, typename APred, typename S = T>
         class AssignContainerCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
             LHSSource lhs;
@@ -129,12 +129,12 @@ namespace RTT
                 return true;
             }
 
-            virtual ActionInterface* clone() const
+            virtual base::ActionInterface* clone() const
             {
                 return new AssignContainerCommand( lhs.get(), rhs.get() );
             }
 
-            virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 return new AssignContainerCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
             }
         };
@@ -149,7 +149,7 @@ namespace RTT
          */
         template<typename T, typename Index, typename SetType, typename Pred>
         class AssignIndexCommand
-            : public ActionInterface
+            : public base::ActionInterface
         {
             typedef typename DataSource<Index>::shared_ptr IndexSource;
             IndexSource i;
@@ -178,12 +178,12 @@ namespace RTT
                 return false;
             }
 
-            virtual ActionInterface* clone() const
+            virtual base::ActionInterface* clone() const
             {
                 return new AssignIndexCommand( lhs.get(), i.get(), rhs.get() );
             }
 
-            virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
             }
         };

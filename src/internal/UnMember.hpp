@@ -53,7 +53,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * This class converts a member function type R (X::)(Args) to

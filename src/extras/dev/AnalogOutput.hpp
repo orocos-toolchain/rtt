@@ -41,7 +41,8 @@
 #include "AnalogOutInterface.hpp"
 
 namespace RTT
-{
+{ namespace dev {
+
 
 
 
@@ -127,6 +128,6 @@ namespace RTT
         AnalogOutInterface *board;
         int channel;
     };
-}
+}}
 
 #endif // ANALOGOUTPUT_HPP

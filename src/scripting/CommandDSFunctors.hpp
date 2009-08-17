@@ -47,7 +47,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace scripting {
 
         template<typename FunctionT>
         class FunctorDS0
@@ -57,20 +57,20 @@ namespace RTT
             typedef FunctionT Function;
             typedef typename boost::remove_pointer<typename FunctionImpl::arg1_type>::type CompT;
             FunctionImpl fun;
-            typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
+            typename internal::DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
             typedef boost::weak_ptr<CompT> CompW;
             typedef boost::shared_ptr<CompT> CompS;
 
-            FunctorDS0( DataSource<CompW>* c, FunctionImpl f )
+            FunctorDS0( internal::DataSource<CompW>* c, FunctionImpl f )
                 : fun( f ), ds(c)
             {}
 
-            void setArguments( DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  ) {}
+            void setArguments( base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0  ) {}
             void readArguments(){}
 
             bool execute()
             {
-                // the Component pointer is stored in a DataSource
+                // the Component pointer is stored in a internal::DataSource
                 CompS c = ds->get().lock();
                 if (c) {
                     CompT* ct = c.get();
@@ -91,7 +91,7 @@ namespace RTT
                     return false;
             }
 
-            FunctorDS0<FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorDS0<FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorDS0( ds->copy(alreadyCloned), fun );
             }
@@ -99,7 +99,7 @@ namespace RTT
 
         /**
          * A functor that stores a function needing one argument,
-         * and one DataSource to get the data from.
+         * and one internal::DataSource to get the data from.
          */
         template<typename FunctionT>
         class FunctorDS1
@@ -111,15 +111,15 @@ namespace RTT
             typedef typename boost::remove_pointer<typename FunctionImpl::arg1_type>::type CompT;
             typedef typename FunctionImpl::arg2_type Arg2T;
             FunctionImpl fun;
-            typename DataSource<Arg2T>::shared_ptr aa;
-            typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
+            typename internal::DataSource<Arg2T>::shared_ptr aa;
+            typename internal::DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
 
-            FunctorDS1( DataSource<boost::weak_ptr<CompT> >* c, FunctionImpl f, DataSource<Arg2T>* a = 0)
+            FunctorDS1( internal::DataSource<boost::weak_ptr<CompT> >* c, FunctionImpl f, internal::DataSource<Arg2T>* a = 0)
                 : fun( f ), aa( a ), ds(c)
             {
             }
 
-            void setArguments( DataSource<Arg2T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
+            void setArguments( internal::DataSource<Arg2T>* a, base::DataSourceBase* = 0, base::DataSourceBase* = 0, base::DataSourceBase* = 0  )
             {
                 aa = a;
             }
@@ -155,7 +155,7 @@ namespace RTT
                     return false;
             }
 
-            FunctorDS1<FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+            FunctorDS1<FunctionT> copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorDS1( ds->copy(alreadyCloned), fun, aa->copy( alreadyCloned ) );
             }

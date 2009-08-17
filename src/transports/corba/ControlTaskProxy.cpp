@@ -61,7 +61,7 @@
 #include "ScriptingAccessProxy.hpp"
 #include "../../internal/TaskObject.hpp"
 
-#include "../../base/ActionInterface.hpp"
+#include "../../base/CommandInterface.hpp"
 #include "../../types/Types.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
@@ -81,9 +81,10 @@
 
 
 using namespace std;
+using namespace RTT::detail;
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
     IllegalServer::IllegalServer() : reason("This server does not exist or has the wrong type.") {}
 
@@ -92,7 +93,7 @@ namespace RTT
     const char* IllegalServer::what() const throw() { return reason.c_str(); }
 
 
-    std::map<ControlTaskProxy*, Corba::ControlTask_ptr> ControlTaskProxy::proxies;
+    std::map<ControlTaskProxy*, corba::ControlTask_ptr> ControlTaskProxy::proxies;
 
     PortableServer::POA_var ControlTaskProxy::proxy_poa;
 
@@ -123,7 +124,7 @@ namespace RTT
                     orb->string_to_object ( name.c_str() );
 
                 // Now downcast the object reference to the appropriate type
-                mtask = Corba::ControlTask::_narrow (task_object.in ());
+                mtask = corba::ControlTask::_narrow (task_object.in ());
             } else {
                 // NameService
                 CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
@@ -140,7 +141,7 @@ namespace RTT
 
                 // Get object reference
                 CORBA::Object_var task_object = rootContext->resolve(serverName);
-                mtask = Corba::ControlTask::_narrow (task_object.in ());
+                mtask = corba::ControlTask::_narrow (task_object.in ());
             }
             if ( CORBA::is_nil( mtask ) ) {
                 Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
@@ -165,8 +166,8 @@ namespace RTT
         this->synchronizeOnce();
     }
 
-    ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc)
-        : TaskContext("CORBAProxy"), mtask( Corba::ControlTask::_duplicate(taskc) )
+    ControlTaskProxy::ControlTaskProxy( ::RTT::corba::ControlTask_ptr taskc)
+        : TaskContext("CORBAProxy"), mtask( corba::ControlTask::_duplicate(taskc) )
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
@@ -193,7 +194,7 @@ namespace RTT
             return;
         log(Info) << "Creating Proxy interface for " << mtask_name <<endlog();
         log(Debug) << "Fetching ScriptingAccess."<<endlog();
-        Corba::ScriptingAccess_var saC = mtask->scripting();
+        corba::ScriptingAccess_var saC = mtask->scripting();
         if ( saC ) {
             delete mscriptAcc;
             mscriptAcc = new ScriptingAccessProxy( saC.in() );
@@ -224,7 +225,7 @@ namespace RTT
         }
         // commands:
         log(Debug) << "Fetching Commands."<<endlog();
-        ActionInterface_var cfact = mtask->commands();
+        CommandInterface_var cfact = mtask->commands();
         if (cfact) {
             CommandList_var objs;
             objs = cfact->getCommands();
@@ -335,7 +336,7 @@ namespace RTT
                 else
                 {
                     PortInterface* new_port;
-                    if (port.type == RTT::Corba::Input)
+                    if (port.type == RTT::corba::Input)
                         new_port = new RemoteInputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
                     else
                         new_port = new RemoteOutputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
@@ -356,7 +357,7 @@ namespace RTT
     {
         log(Debug) << "Fetching Objects of "<<parent->getName()<<":"<<endlog();
 
-        Corba::ObjectList_var plist = mtask->getObjectList();
+        corba::ObjectList_var plist = mtask->getObjectList();
 
         for( size_t i =0; i != plist->length(); ++i) {
             if ( string( plist[i] ) == "this")
@@ -417,7 +418,7 @@ namespace RTT
             }
             // commands:
             log(Debug) << plist[i] << ": fetching Commands."<<endlog();
-            ActionInterface_var cfact = cobj->commands();
+            CommandInterface_var cfact = cobj->commands();
             if (cfact) {
                 CommandList_var objs;
                 objs = cfact->getCommands();
@@ -465,7 +466,7 @@ namespace RTT
         return 0;
     }
 
-    TaskContext* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t, bool force_remote) {
+    TaskContext* ControlTaskProxy::Create(::RTT::corba::ControlTask_ptr t, bool force_remote) {
         Logger::In in("ControlTaskProxy::Create");
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
@@ -761,7 +762,7 @@ namespace RTT
         TaskContext::PeerList vlist;
         try {
             if (! CORBA::is_nil(mtask) ) {
-                Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
+                corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
                 for( size_t i =0; i != plist->length(); ++i)
                     vlist.push_back( std::string( plist[i] ) );
             }
@@ -787,7 +788,7 @@ namespace RTT
         try {
             if (CORBA::is_nil(mtask))
                 return 0;
-            Corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
+            corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
             if ( CORBA::is_nil(ct) )
                 return 0;
             return ControlTaskProxy::Create( ct );
@@ -829,10 +830,10 @@ namespace RTT
         return false;
     }
 
-    Corba::ControlTask_ptr ControlTaskProxy::server() const {
+    corba::ControlTask_ptr ControlTaskProxy::server() const {
         if ( CORBA::is_nil(mtask) )
             return ControlTask::_nil();
-        return Corba::ControlTask::_duplicate(mtask);
+        return corba::ControlTask::_duplicate(mtask);
     }
 
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {

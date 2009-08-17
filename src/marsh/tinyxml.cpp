@@ -68,7 +68,7 @@ distribution.
 #include <iostream>
 #endif
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 bool TiXmlBase::condenseWhiteSpace = true;
 

@@ -67,6 +67,7 @@ namespace RTT
 
     using namespace boost;
     using namespace std;
+    using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore(name, initial_state)
@@ -414,7 +415,7 @@ namespace RTT
         return true;
     }
 
-    void TaskContext::setActivity(RTT::ActivityInterface* new_act)
+    void TaskContext::setActivity(ActivityInterface* new_act)
     {
         if (this->isActive())
             return;

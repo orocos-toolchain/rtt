@@ -51,7 +51,8 @@
 #include "../../os/StartStopManager.hpp"
 
 namespace RTT {
-    namespace Corba {
+    using namespace detail;
+    namespace corba {
 
         using namespace RTT::detail;
 
@@ -91,7 +92,7 @@ namespace RTT {
              */
             virtual DataSourceBase* proxy(void* data ) const {
                 DataSourceBase* result = 0;
-                Corba::Expression_ptr e = static_cast<Corba::Expression_ptr>(data);
+                corba::Expression_ptr e = static_cast<corba::Expression_ptr>(data);
 
                 // return a dumb proxy.
                 result = ExpressionProxy::Create( e ).get();
@@ -107,9 +108,9 @@ namespace RTT {
                 // Return a dumb server, it will return empty any's using the methods above.
                 PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
                 if (assignable){
-                    return static_cast<Expression_ptr>(Corba::ExpressionServer::CreateAssignableExpression( source, p ));
+                    return static_cast<Expression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
                 } else {
-                    return Corba::ExpressionServer::CreateExpression( source, p );
+                    return corba::ExpressionServer::CreateExpression( source, p );
               }
             }
 
@@ -120,7 +121,7 @@ namespace RTT {
             virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const {
                 // Return a dumb method server.
                 PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
-                return Corba::ExpressionServer::CreateMethod( source, orig, p );
+                return corba::ExpressionServer::CreateMethod( source, orig, p );
             }
 
             /**
@@ -202,7 +203,7 @@ namespace RTT {
             return 0;
         }
 
-        OS::InitFunction CorbaLoader( &loadCorbaLib );
+        os::InitFunction CorbaLoader( &loadCorbaLib );
     }
 
 

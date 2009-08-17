@@ -25,7 +25,8 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace os {
+
 
     /**
      * The TimeService is used for system-wide time keeping and conversions.
@@ -224,6 +225,6 @@ namespace RTT
 
         bool use_clock;
     };
-} // namespace RTT
+}} // namespace RTT
 
 #endif

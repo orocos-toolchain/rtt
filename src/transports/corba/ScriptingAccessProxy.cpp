@@ -43,9 +43,11 @@
 #include "CommandProxy.hpp"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
     using namespace std;
+    using namespace base;
+    using namespace scripting;
 
 
     ScriptingAccessProxy::~ScriptingAccessProxy()
@@ -66,7 +68,7 @@ namespace RTT
     bool ScriptingAccessProxy::loadPrograms( string code, string filename, bool do_throw ) {
         try {
             msa->loadPrograms( code.c_str(), filename.c_str() );
-        } catch (Corba::ScriptingAccess::LoadException& le)
+        } catch (corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -79,7 +81,7 @@ namespace RTT
     bool ScriptingAccessProxy::unloadProgram( string name, bool do_throw ){
         try {
             msa->unloadProgram( name.c_str() );
-        } catch (Corba::ScriptingAccess::LoadException& le)
+        } catch (corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -91,7 +93,7 @@ namespace RTT
 
     std::vector<std::string> ScriptingAccessProxy::getPrograms() const{
         std::vector<std::string> ret;
-        Corba::ScriptingAccess::ProgramNames_var cret = msa->getPrograms();
+        corba::ScriptingAccess::ProgramNames_var cret = msa->getPrograms();
         for(CORBA::ULong i= 0; i != cret->length(); ++i)
             ret.push_back( string(cret[i]) );
         return ret;
@@ -116,7 +118,7 @@ namespace RTT
     bool ScriptingAccessProxy::loadStateMachines( string code, string filename, bool do_throw ) {
         try {
             msa->loadStateMachines( code.c_str(), filename.c_str() );
-        } catch (Corba::ScriptingAccess::LoadException& le)
+        } catch (corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -129,7 +131,7 @@ namespace RTT
     bool ScriptingAccessProxy::unloadStateMachine( string name, bool do_throw ) {
         try {
             msa->unloadStateMachine( name.c_str() );
-        } catch (Corba::ScriptingAccess::LoadException& le)
+        } catch (corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -141,7 +143,7 @@ namespace RTT
 
     std::vector<std::string> ScriptingAccessProxy::getStateMachines() const {
         std::vector<std::string> ret;
-        Corba::ScriptingAccess::StateMachineNames_var cret = msa->getStateMachines();
+        corba::ScriptingAccess::StateMachineNames_var cret = msa->getStateMachines();
         for(CORBA::ULong i= 0; i != cret->length(); ++i)
             ret.push_back( string(cret[i]) );
         return ret;

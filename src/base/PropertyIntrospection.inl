@@ -44,12 +44,13 @@
 #include "../Logger.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
     template< class T >
     void PropertyIntrospection::introspect(Property<T> &v )
     {
         this->introspect_T( &v );
     }
-}
+}}
 
 #endif

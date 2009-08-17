@@ -49,13 +49,7 @@
 #include <vector>
 
 namespace RTT
-{
-    template< class T, class RP, class WP>
-    class Queue;
-}
-
-namespace RTT
-{
+{ namespace scripting {
     /**
      * This class implements a real-time program processor.
      * It executes Realtime Programs when running.
@@ -63,7 +57,7 @@ namespace RTT
      * @par Changing the Program Processing Policy
      *
      * The default policy of the ProgramProcessor is to call
-     * ProgramInterface::execute() of all loaded programs in each step(). Within
+     * base::ProgramInterface::execute() of all loaded programs in each step(). Within
      * the same step(), after all programs are executed, any loaded
      * function is executed. The functions are automatically unloaded
      * when they are in error or finished.
@@ -74,7 +68,7 @@ namespace RTT
      * @ingroup Processor
      */
     class RTT_API ProgramProcessor
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     public:
         /**
@@ -85,14 +79,14 @@ namespace RTT
 
         virtual ~ProgramProcessor();
 
-        typedef ProgramInterface::Status Status;
+        typedef base::ProgramInterface::Status Status;
 
         /**
          * Load a new Program. The Processor takes full ownership and will
          * delete it upon destruction.
          * @throw program_load_exception if a program with the same name already exists.
          */
-        bool loadProgram( ProgramInterfacePtr pi );
+        bool loadProgram( base::ProgramInterfacePtr pi );
 
         /**
          * Completely discard a loaded Program.
@@ -138,14 +132,14 @@ namespace RTT
          * @return false if the Processor is not running or the 'pending' queue is full.
          * @see isFunctionFinished, acceptCommands, removeFunction
          */
-        virtual bool runFunction(ProgramInterface* f);
+        virtual bool runFunction(base::ProgramInterface* f);
 
         /**
          * Remove a running function added with runFunction.
          * This method is only required if the function is to be destroyed
          * and is still present in the ProgramProcessor.
          */
-        virtual bool removeFunction(ProgramInterface* f);
+        virtual bool removeFunction(base::ProgramInterface* f);
 
         /**
          * Get a list of all loaded Programs.
@@ -155,19 +149,19 @@ namespace RTT
         /**
          * Get a pointer to a loaded Program.
          */
-        const ProgramInterfacePtr getProgram(const std::string& name) const;
+        const base::ProgramInterfacePtr getProgram(const std::string& name) const;
 
-        ProgramInterfacePtr getProgram(const std::string& name);
+        base::ProgramInterfacePtr getProgram(const std::string& name);
 
     protected:
-        typedef List<ProgramInterfacePtr> ProgMap;
+        typedef internal::List<base::ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
 
-        std::vector<ProgramInterface*> funcs;
+        std::vector<base::ProgramInterface*> funcs;
 
-        Queue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
+        internal::Queue<base::ProgramInterface*,base::NonBlockingPolicy,base::NonBlockingPolicy>* f_queue;
     };
 
-}
+}}
 
 #endif

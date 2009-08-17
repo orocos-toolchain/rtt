@@ -6,11 +6,7 @@
 #include "../extras/Events.hpp"
 
 namespace RTT
-{
-    class ConnFactory;
-    class TypeInfo;
-    class TaskObject;
-    class ChannelElementBase;
+{ namespace base {
 
 
     class RTT_API InputPortInterface : public PortInterface
@@ -20,11 +16,11 @@ namespace RTT
 
     protected:
         ChannelElementBase* channel;
-        ConnPolicy          default_policy;
+        internal::ConnPolicy          default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
-        InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
+        InputPortInterface(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy());
         ~InputPortInterface();
 
         /** Sets the channel from which this port should get samples
@@ -41,7 +37,7 @@ namespace RTT
          */
         virtual void clearInputChannel();
 
-        ConnPolicy getDefaultPolicy() const;
+        internal::ConnPolicy getDefaultPolicy() const;
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
@@ -78,9 +74,9 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
     };
 
-}
+}}
 
 #endif

@@ -41,7 +41,8 @@
 #include "NameServer.hpp"
 #include <boost/call_traits.hpp>
 namespace RTT
-{
+{ namespace dev {
+
 
     /**
      * @brief Utility class to register a given object with a nameserver, and deregister upon destruction.
@@ -81,6 +82,6 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif // NAMESERVERREGISTRATION_HPP

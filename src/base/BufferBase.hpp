@@ -42,7 +42,8 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * Any Buffer has a capacity, size and can be empty or full.
      * This class contains the type-independent methods of a Buffer.
@@ -88,6 +89,6 @@ namespace RTT
          */
         virtual void clear() = 0;
     };
-}
+}}
 
 #endif

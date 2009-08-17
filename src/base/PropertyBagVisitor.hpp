@@ -39,14 +39,10 @@
 #define PI_PROPERTY_BAG_VISITOR_HPP
 
 #include "../rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class PropertyBase;
-    class PropertyBag;
-
-    template<class T>
-    class Property;
+{ namespace base {
 
     /**
      * A simple introspection interface to visit PropertyBags.
@@ -76,6 +72,6 @@ namespace RTT
         virtual void introspect(Property<PropertyBag>& p) = 0;
     };
 
-}
+}}
 #endif
 

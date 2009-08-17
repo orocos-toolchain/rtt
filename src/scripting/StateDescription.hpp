@@ -42,7 +42,8 @@
 #include "../base/ProgramInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * @brief This class represents a state with all actions stored
      * in an external program.
@@ -50,10 +51,10 @@ namespace RTT
     class RTT_API StateDescription
         : public StateInterface
     {
-        ProgramInterfacePtr mentry;
-        ProgramInterfacePtr mexit;
-        ProgramInterfacePtr mhandle;
-        ProgramInterfacePtr mrun;
+        base::ProgramInterfacePtr mentry;
+        base::ProgramInterfacePtr mexit;
+        base::ProgramInterfacePtr mhandle;
+        base::ProgramInterfacePtr mrun;
         std::string name;
         int entrypoint;
         ProgramProcessor* pp;
@@ -90,41 +91,41 @@ namespace RTT
          */
         StateDescription* postponeState();
 
-        ProgramInterface* getEntryProgram() const {
+        base::ProgramInterface* getEntryProgram() const {
             return mentry.get();
         }
 
-        ProgramInterface* getRunProgram() const {
+        base::ProgramInterface* getRunProgram() const {
             return mrun.get();
         }
 
-        ProgramInterface* getHandleProgram() const {
+        base::ProgramInterface* getHandleProgram() const {
             return mhandle.get();
         }
 
-        ProgramInterface* getExitProgram() const {
+        base::ProgramInterface* getExitProgram() const {
             return mexit.get();
         }
 
-        void setEntryProgram( ProgramInterfacePtr entry ) {
+        void setEntryProgram( base::ProgramInterfacePtr entry ) {
             mentry = entry;
             if (mentry)
                 mentry->setProgramProcessor( pp );
         }
 
-        void setRunProgram( ProgramInterfacePtr run ) {
+        void setRunProgram( base::ProgramInterfacePtr run ) {
             mrun = run;
             if (mrun)
                 mrun->setProgramProcessor( pp );
         }
 
-        void setHandleProgram( ProgramInterfacePtr handle ) {
+        void setHandleProgram( base::ProgramInterfacePtr handle ) {
             mhandle = handle;
             if (mhandle)
                 mhandle->setProgramProcessor( pp );
         }
 
-        void setExitProgram( ProgramInterfacePtr exit ) {
+        void setExitProgram( base::ProgramInterfacePtr exit ) {
             mexit = exit;
             if (mexit)
                 mexit->setProgramProcessor( pp );
@@ -139,9 +140,9 @@ namespace RTT
             inited = d;
         }
 
-        StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+        StateDescription* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const;
 
     };
-};
+}};
 
 #endif

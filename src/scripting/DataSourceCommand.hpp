@@ -43,32 +43,33 @@
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
   /**
-   * A class that wraps a Command in a DataSource<bool>
+   * A class that wraps a Command in a internal::DataSource<bool>
    * interface.
    */
   class RTT_API DataSourceCommand
-    : public DataSource<bool>
+    : public internal::DataSource<bool>
   {
-      ActionInterface* comm;
+      base::ActionInterface* comm;
       mutable bool mresult;
   public:
     /**
      * DataSourceCommand takes ownership of the command you pass
      * it.
      */
-      DataSourceCommand( ActionInterface* c );
+      DataSourceCommand( base::ActionInterface* c );
       DataSourceCommand( const DataSourceCommand& orig );
       ~DataSourceCommand();
       bool get() const;
       bool value() const;
       void reset();
-      ActionInterface* command() const;
+      base::ActionInterface* command() const;
       virtual DataSourceCommand* clone() const;
-      virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+      virtual DataSourceCommand* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
   };
-}
+}}
 
 #endif

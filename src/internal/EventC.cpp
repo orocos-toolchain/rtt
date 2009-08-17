@@ -42,8 +42,8 @@
 #include "../Logger.hpp"
 #include <vector>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
     class EventC::D

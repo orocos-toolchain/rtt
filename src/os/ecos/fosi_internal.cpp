@@ -38,9 +38,9 @@
 #define INTERNAL_QUAL
 
 namespace RTT
-{namespace OS {
+{namespace os {
 
-  namespace detail {
+  namespace ecos {
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
         const char* name = "main";

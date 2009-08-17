@@ -42,12 +42,12 @@
 #include <string>
 #include <typeinfo>
 #include "rtt-config.h"
+#include "../types/rtt-types-fwd.hpp"
 
 namespace RTT
 {
-    class TypeInfo;
 
-    namespace detail {
+    namespace internal {
 
         struct RTT_API UnknownType {};
 
@@ -64,7 +64,7 @@ namespace RTT
             typedef UnknownType value_type;
             typedef DataSourceTypeInfo<UnknownType> value_type_info;
 
-            static TypeInfo* TypeInfoObject;
+            static types::TypeInfo* TypeInfoObject;
 
             static const std::string noqual;
             static const std::string cqual;
@@ -76,7 +76,7 @@ namespace RTT
             static const std::string& getQualifier();
             // we drop the const qualifier in this specialisation, since it is
             // not registered in the type repository (which returns a non const in type() )
-            static TypeInfo* getTypeInfo();
+            static types::TypeInfo* getTypeInfo();
         };
 
         /**
@@ -89,7 +89,7 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::crefqual; }
-            static const TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
 
         template< class T>
@@ -98,7 +98,7 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::refqual; }
-            static const TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
 
         template< class T>
@@ -107,7 +107,7 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::cqual; }
-            static const TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
 
         template< class T>
@@ -116,7 +116,7 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::ptrqual; }
-            static const TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
 
         template< class T>
@@ -125,13 +125,13 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::cptrqual; }
-            static const TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
 
         /**
          * Every DataSource of type T has a type info class which
          * it can ask type information. The default is 'UnknownType', but
-         * by adding a TemplateTypeInfo specialisation in the TypeRepository,
+         * by adding a types::TemplateTypeInfo specialisation in the TypeRepository,
          * the type will get known to Orocos.
          */
         template< class T>
@@ -140,10 +140,10 @@ namespace RTT
             typedef DataSourceTypeInfo<T> value_type_info;
 
             /**
-             * Defaults to 0. If a TemplateTypeInfo object is created for T,
+             * Defaults to 0. If a types::TemplateTypeInfo object is created for T,
              * this pointer will be set to that type.
              */
-            static TypeInfo* TypeInfoObject;
+            static types::TypeInfo* TypeInfoObject;
 
             /**
              * Return the unqualified typename.
@@ -158,7 +158,7 @@ namespace RTT
             /**
              * Return the typeinfo object.
              */
-            static const TypeInfo* getTypeInfo();
+            static const types::TypeInfo* getTypeInfo();
         };
 
         /**
@@ -172,10 +172,10 @@ namespace RTT
             typedef DataSourceTypeInfo<void> value_type_info;
 
             /**
-             * Defaults to 0. If a TemplateTypeInfo object is created for T,
+             * Defaults to 0. If a types::TemplateTypeInfo object is created for T,
              * this pointer will be set to that type.
              */
-            static TypeInfo* TypeInfoObject;
+            static types::TypeInfo* TypeInfoObject;
 
             /**
              * Return the unqualified typename.
@@ -190,7 +190,7 @@ namespace RTT
             /**
              * Return the typeinfo object.
              */
-            static const TypeInfo* getTypeInfo();
+            static const types::TypeInfo* getTypeInfo();
         };
     }
 

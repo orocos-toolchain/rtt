@@ -41,13 +41,14 @@
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * The empty command.
      *
      * This command does nothing when executed.
      */
-    class RTT_API CommandNOP : public ActionInterface
+    class RTT_API CommandNOP : public base::ActionInterface
     {
     public:
         /**
@@ -61,9 +62,9 @@ namespace RTT
 
         virtual void readArguments();
 
-        virtual ActionInterface* clone() const;
+        virtual base::ActionInterface* clone() const;
     };
 
-}
+}}
 
 #endif

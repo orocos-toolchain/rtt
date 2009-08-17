@@ -44,8 +44,10 @@ namespace RTT {
     using boost::bind;
     using namespace detail;
 
-    // see parser-types.hpp
-    functor_parser<eol_skip_functor> eol_skip_p;
+    namespace scripting {
+        // see parser-types.hpp
+        functor_parser<eol_skip_functor> eol_skip_p;
+    }
 
     bool eol_skip_functor::skipeol = true;
 

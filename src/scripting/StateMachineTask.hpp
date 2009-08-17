@@ -44,22 +44,20 @@
 #include "ParsedStateMachine.hpp"
 
 namespace RTT
-{
-    class StateMachineTask;
-    class ExecutionEngine;
+{ namespace scripting {
     typedef boost::shared_ptr<StateMachineTask> StateMachineTaskPtr;
 
     /**
-     * @brief This class represents a stateMachine as a TaskObject in
+     * @brief This class represents a stateMachine as a internal::TaskObject in
      * the Orocos TaskContext system.
      */
     class StateMachineTask
-        : public TaskObject
+        : public internal::TaskObject
     {
         //boost::weak_ptr<StateMachine> sm;
         // used when state machines are copied.
         // functions have a similar mechanism
-        ValueDataSource< StateMachineWPtr >::shared_ptr _this;
+        internal::ValueDataSource< StateMachineWPtr >::shared_ptr _this;
         ParsedStateMachineWPtr statemachine;
         ExecutionEngine* mengine;
 
@@ -69,11 +67,11 @@ namespace RTT
         void createMethodFactory();
 
     public:
-        StateMachineTask* copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate );
+        StateMachineTask* copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext
-         * as a TaskObject, with its commands and methods.
+         * as a internal::TaskObject, with its commands and methods.
          */
         StateMachineTask(ParsedStateMachinePtr statemachine, ExecutionEngine* ee=0);
 
@@ -86,6 +84,6 @@ namespace RTT
 
         ExecutionEngine* engine() const { return mengine; }
     };
-}
+}}
 
 #endif

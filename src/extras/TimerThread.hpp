@@ -40,20 +40,18 @@
 #define ORO_TIMERTHREAD_HPP
 
 
-#include "../os/Thread.hpp"
-
-#include "../os/Mutex.hpp"
-
 #include <list>
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+#include "../os/Thread.hpp"
+#include "../os/Mutex.hpp"
+#include "rtt-extras-fwd.hpp"
+
 namespace RTT
-{
-    class PeriodicActivity;
-    class TimerThread;
+{ namespace extras {
 
     /**
      * TimerThread objects are reference counted such that
@@ -69,7 +67,7 @@ namespace RTT
      * @see PeriodicActivity
      */
     class RTT_API TimerThread
-        : public OS::Thread
+        : public os::Thread
     {
         typedef std::vector<PeriodicActivity*> ActivityList ;
         ActivityList tasks;
@@ -129,7 +127,7 @@ namespace RTT
          * A Activity can not create a activity of same priority from step().
          * If so a deadlock will occur.
          */
-        mutable OS::MutexRecursive mutex;
+        mutable os::MutexRecursive mutex;
 
         /**
          * A Boost weak pointer is used to store non-owning pointers
@@ -142,6 +140,6 @@ namespace RTT
          */
         static TimerThreadList TimerThreads;
     };
-} // namespace RTT
+}} // namespace RTT
 
 #endif

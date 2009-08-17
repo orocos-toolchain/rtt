@@ -38,8 +38,8 @@
 
 #include "OperationInterface.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     OperationInterface::OperationInterface()
     {}
 

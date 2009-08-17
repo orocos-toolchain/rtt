@@ -27,6 +27,8 @@
 #include <extras/SimulationActivity.hpp>
 
 using namespace RTT;
+using namespace RTT::detail;
+
 
 class FunctionTest
 {

@@ -4,7 +4,7 @@
 #include <list>
 #include "oro_allocator.hpp"
 
-namespace RTT { namespace OS {
+namespace RTT { namespace os {
 
     /**
      * Implements a list with real-time insertion/removal

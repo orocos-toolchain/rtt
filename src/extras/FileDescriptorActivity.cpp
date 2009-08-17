@@ -7,6 +7,8 @@
 #include <boost/cstdint.hpp>
 
 using namespace RTT;
+using namespace extras;
+using namespace base;
 const int FileDescriptorActivity::CMD_BREAK_LOOP;
 const int FileDescriptorActivity::CMD_TRIGGER;
 
@@ -177,7 +179,7 @@ bool FileDescriptorActivity::breakLoop()
     if (write(m_interrupt_pipe[1], &CMD_BREAK_LOOP, 1) != 1)
         return false;
 
-    // OS::SingleThread properly waits for loop() to return
+    // os::SingleThread properly waits for loop() to return
     return true;
 }
 

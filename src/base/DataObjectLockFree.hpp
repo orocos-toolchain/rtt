@@ -43,7 +43,8 @@
 #include "DataObjectInterface.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
     /**
      * @brief This DataObject is a Lock-Free implementation,
      * such that reads and writes can happen concurrently without priority
@@ -65,7 +66,7 @@ namespace RTT
      * legend : L : Low Priority thread
      *          H : High Priority thread
      *          Blk: Blocks High Priority thread (bad!)
-     *          NA : Not allowed !
+     *          internal::NA : Not allowed !
      * @endverbatim
      * Further, multiple reads may occur before, during and after
      * a write operation simultaneously. The buffer needs readers+2*writers
@@ -226,7 +227,7 @@ namespace RTT
         }
 
     };
-}
+}}
 
 #endif
 

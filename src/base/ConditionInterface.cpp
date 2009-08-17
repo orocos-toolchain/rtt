@@ -39,6 +39,7 @@
 #include "ConditionInterface.hpp"
 
 namespace RTT {
+    using namespace base;
     ConditionInterface::~ConditionInterface() {
     }
 

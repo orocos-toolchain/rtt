@@ -41,10 +41,10 @@
 #include "../Time.hpp"
 #include "../os/ThreadInterface.hpp"
 #include <boost/shared_ptr.hpp>
+#include "rtt-base-fwd.hpp"
 
 namespace RTT
-{
-    class RunnableInterface;
+{ namespace base {
 
     /**
      * @brief Interface to start/stop and query a Activity.
@@ -192,9 +192,9 @@ namespace RTT
          * Returns a pointer to the thread which will
          * run this activity. Will not be null.
          */
-        virtual OS::ThreadInterface* thread() = 0;
+        virtual os::ThreadInterface* thread() = 0;
     };
 
-}
+}}
 
 #endif

@@ -43,8 +43,7 @@
 #include <string>
 
 namespace RTT
-{
-    class ExecutionEngine;
+{ namespace base {
 
     /**
      * The minimal Orocos task. It has a name and an ExecutionEngine
@@ -410,7 +409,7 @@ namespace RTT
 
         /**
          * Function where the user must insert his 'application' code.
-         * When the ExecutionEngine's Activity is a PeriodicActivity, this
+         * When the ExecutionEngine's Activity is a extras::PeriodicActivity, this
          * function is called by the ExecutionEngine in each periodic
          * step after all command, event,... are processed. When it is executed by a
          * NonPeriodicActivity, this function is called after an Event or
@@ -432,7 +431,7 @@ namespace RTT
 
         /**
          * Function where the user must insert his 'application' code.
-         * When the ExecutionEngine's Activity is a PeriodicActivity, this
+         * When the ExecutionEngine's Activity is a extras::PeriodicActivity, this
          * function is called by the ExecutionEngine in each periodic
          * step after all command, event,... processors. When it's Task is a
          * NonPeriodicActivity, this function is called after an Event or
@@ -501,7 +500,7 @@ namespace RTT
 
         // Required to set mTaskState to Running or Stopped.
         // As an alternative, one could query the EE.
-        friend class ExecutionEngine;
+        friend class ::RTT::ExecutionEngine;
 
         std::string    mtask_name;
 
@@ -519,6 +518,6 @@ namespace RTT
         // non copyable
         TaskCore( TaskCore& );
     };
-}
+}}
 
 #endif

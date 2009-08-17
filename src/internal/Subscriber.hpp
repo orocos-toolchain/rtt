@@ -44,13 +44,13 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         /**
          * The base class of Subscriber implementations.
          */
         template<
-            typename Signature //! function type R (T1, T2, ..., TN)
+            typename Signature 
         >
         class SubscriberBase
         {

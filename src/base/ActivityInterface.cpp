@@ -2,6 +2,7 @@
 #include "RunnableInterface.hpp"
 
 using namespace RTT;
+using namespace RTT::base;
 
 ActivityInterface::ActivityInterface(RunnableInterface* run) : runner(run) {
     if (runner)

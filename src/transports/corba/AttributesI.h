@@ -85,15 +85,15 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_AttributeInterface_i : public virtual POA_RTT::Corba::AttributeInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_AttributeInterface_i : public virtual POA_RTT::corba::AttributeInterface, public virtual PortableServer::RefCountServantBase
 {
-    RTT::AttributeRepository* mar;
+    RTT::interface::AttributeRepository* mar;
     RTT::PropertyBag* mbag;
     PortableServer::POA_var mpoa;
 
 public:
   //Constructor
-  Orocos_AttributeInterface_i ( RTT::AttributeRepository* ar, PortableServer::POA_ptr the_poa);
+  Orocos_AttributeInterface_i ( RTT::interface::AttributeRepository* ar, PortableServer::POA_ptr the_poa);
   Orocos_AttributeInterface_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
 
   //Destructor
@@ -102,7 +102,7 @@ public:
   PortableServer::POA_ptr _default_POA();
 
   virtual
-  ::RTT::Corba::AttributeInterface::AttributeNames * getAttributeList (
+  ::RTT::corba::AttributeInterface::AttributeNames * getAttributeList (
 
     )
     ACE_THROW_SPEC ((
@@ -110,7 +110,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::AttributeInterface::PropertyNames * getPropertyList (
+  ::RTT::corba::AttributeInterface::PropertyNames * getPropertyList (
 
     )
     ACE_THROW_SPEC ((
@@ -118,7 +118,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::Expression_ptr getAttribute (
+  ::RTT::corba::Expression_ptr getAttribute (
       const char * name
     )
     ACE_THROW_SPEC ((
@@ -126,7 +126,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::Expression_ptr getProperty (
+  ::RTT::corba::Expression_ptr getProperty (
       const char * name
     )
     ACE_THROW_SPEC ((

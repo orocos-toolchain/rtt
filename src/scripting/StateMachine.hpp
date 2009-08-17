@@ -55,15 +55,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
-
-
-
-    class TaskContext;
-    class EventService;
-    class StateMachineProcessor;
-
-    class StateMachine;
+{ namespace scripting {
     typedef boost::shared_ptr<StateMachine> StateMachinePtr;
     typedef boost::weak_ptr<StateMachine> StateMachineWPtr;
 
@@ -92,22 +84,22 @@ namespace RTT
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int), on a line (int), with a transition program
          */
-        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
+        typedef std::vector< boost::tuple<base::ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<base::ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
-        typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
-        typedef std::vector< boost::tuple<EventService*,
-                                          std::string, std::vector<DataSourceBase::shared_ptr>,
+        typedef std::multimap< StateInterface*, std::pair<base::ConditionInterface*, int> > PreConditionMap;
+        typedef std::vector< boost::tuple<interface::EventService*,
+                                          std::string, std::vector<base::DataSourceBase::shared_ptr>,
                                           StateInterface*,
-                                          ConditionInterface*, boost::shared_ptr<ProgramInterface>,
+                                          base::ConditionInterface*, boost::shared_ptr<base::ProgramInterface>,
                                           Handle,
-                                          StateInterface*, boost::shared_ptr<ProgramInterface> > > EventList;
+                                          StateInterface*, boost::shared_ptr<base::ProgramInterface> > > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
         std::vector<StateMachinePtr> _children;
         typedef boost::weak_ptr<StateMachine> StateMachineParentPtr;
         StateMachineParentPtr _parent;
 
         std::string _name;
-        EventProcessor* eproc;
+        internal::EventProcessor* eproc;
         Status::StateMachineStatus smStatus;
         StateMachineProcessor* smp;
 
@@ -134,9 +126,9 @@ namespace RTT
          * Create a new StateMachine in a TaskContext with an optional parent.
          * Set \a parent to zero for the top state machine. The initial Status of
          * a StateMachine is always inactive.
-         * @param ep The EventProcessor of this StateMachine when transition events are used.
+         * @param ep The internal::EventProcessor of this StateMachine when transition events are used.
          */
-        StateMachine(StateMachinePtr parent, EventProcessor* ep, const std::string& name="Default");
+        StateMachine(StateMachinePtr parent, internal::EventProcessor* ep, const std::string& name="Default");
 
         void setStateMachineProcessor(StateMachineProcessor* smproc) {
             smp = smproc;
@@ -148,7 +140,7 @@ namespace RTT
             }
         }
 
-        void setEventProcessor(EventProcessor* smproc) {
+        void setEventProcessor(internal::EventProcessor* smproc) {
             eproc = smproc;
         }
 
@@ -428,7 +420,7 @@ namespace RTT
          * @param line
          *        The line number where this precondition was introduced.
          */
-        void preconditionSet( StateInterface* state, ConditionInterface* cnd, int line);
+        void preconditionSet( StateInterface* state, base::ConditionInterface* cnd, int line);
 
         /**
          * Express a possible transition from one state to another under
@@ -449,7 +441,7 @@ namespace RTT
          * @post  All transitions from \a from to \a to will succeed under
          *        condition \a cnd
          */
-        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line);
+        void transitionSet( StateInterface* from, StateInterface* to, base::ConditionInterface* cnd, int priority, int line);
 
         /**
          * Express a possible transition from one state to another under
@@ -474,7 +466,7 @@ namespace RTT
          *        condition \a cnd
          */
         void transitionSet( StateInterface* from, StateInterface* to,
-                            ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
+                            base::ConditionInterface* cnd, boost::shared_ptr<base::ProgramInterface> transprog,
                             int priority, int line);
 
         /**
@@ -494,14 +486,14 @@ namespace RTT
          * @param transprog
          *        The program to be executed between exit of \a from and entry of \a to.
          * @param es
-         *        The EventService in which \a ename can be found.
+         *        The interface::EventService in which \a ename can be found.
          */
-        bool createEventTransition( EventService* es,
-                                    const std::string& ename, std::vector<DataSourceBase::shared_ptr> args,
+        bool createEventTransition( interface::EventService* es,
+                                    const std::string& ename, std::vector<base::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
-                                    ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
-                                    StateInterface* elseto = 0, boost::shared_ptr<ProgramInterface> elseprog =
-                                    boost::shared_ptr<ProgramInterface>() );
+                                    base::ConditionInterface* guard, boost::shared_ptr<base::ProgramInterface> transprog,
+                                    StateInterface* elseto = 0, boost::shared_ptr<base::ProgramInterface> elseprog =
+                                    boost::shared_ptr<base::ProgramInterface>() );
 
         /**
          * Set the initial state of this StateMachine.
@@ -523,7 +515,7 @@ namespace RTT
          * Retrieve the current program in execution. Returns null if
          * the StateMachine is not active or no programs are being run.
          */
-        ProgramInterface* currentProgram() const;
+        base::ProgramInterface* currentProgram() const;
 
         /**
          * Retrieve the initial state of the state machine.
@@ -546,12 +538,12 @@ namespace RTT
          * \a c is aggregated by this state machine and deleted in
          * the destructor.
          */
-        void setInitCommand( ActionInterface* c)
+        void setInitCommand( base::ActionInterface* c)
         {
             initc = c;
         }
 
-        ActionInterface* getInitCommand() const
+        base::ActionInterface* getInitCommand() const
         {
             return initc;
         }
@@ -636,7 +628,7 @@ namespace RTT
         EventMap eventMap;
 
 
-        void changeState( StateInterface* s, ProgramInterface* tprog, bool stepping = false );
+        void changeState( StateInterface* s, base::ProgramInterface* tprog, bool stepping = false );
 
         void leaveState( StateInterface* s );
 
@@ -646,7 +638,7 @@ namespace RTT
 
         void handleState( StateInterface* s );
 
-        bool executeProgram(ProgramInterface*& cp, bool stepping);
+        bool executeProgram(base::ProgramInterface*& cp, bool stepping);
 
         int checkConditions( StateInterface* state, bool stepping = false );
 
@@ -658,9 +650,9 @@ namespace RTT
          * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.
          * if from != current or in transition already, discard transition.
          */
-        void eventTransition( StateInterface* from, ConditionInterface* c,
-                              ProgramInterface* p, StateInterface* to,
-                              ProgramInterface* elsep, StateInterface* elseto );
+        void eventTransition( StateInterface* from, base::ConditionInterface* c,
+                              base::ProgramInterface* p, StateInterface* to,
+                              base::ProgramInterface* elsep, StateInterface* elseto );
 
         /**
          * The Initial State.
@@ -683,14 +675,14 @@ namespace RTT
          */
         StateInterface* next;
 
-        ActionInterface* initc;
+        base::ActionInterface* initc;
 
-        ProgramInterface* currentProg;
-        ProgramInterface* currentExit;
-        ProgramInterface* currentHandle;
-        ProgramInterface* currentEntry;
-        ProgramInterface* currentRun;
-        ProgramInterface* currentTrans;
+        base::ProgramInterface* currentProg;
+        base::ProgramInterface* currentExit;
+        base::ProgramInterface* currentHandle;
+        base::ProgramInterface* currentEntry;
+        base::ProgramInterface* currentRun;
+        base::ProgramInterface* currentTrans;
 
         TransList::iterator reqstep;
         TransList::iterator reqend;
@@ -701,6 +693,6 @@ namespace RTT
 
         int evaluating;
     };
-}
+}}
 
 #endif

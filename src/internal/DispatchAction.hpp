@@ -42,17 +42,18 @@
 #include "../base/DispatchInterface.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * An action which invokes a dispatch command
      * in execute().
      */
     class RTT_API DispatchAction
-        : public ActionInterface
+        : public base::ActionInterface
     {
-        DispatchInterface*  mdi;
+        base::DispatchInterface*  mdi;
     public:
-        DispatchAction(DispatchInterface* di)
+        DispatchAction(base::DispatchInterface* di)
             : mdi(di)
         {}
 
@@ -84,12 +85,12 @@ namespace RTT
             return new DispatchAction( mdi->clone() );
         }
 
-        virtual DispatchAction* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual DispatchAction* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return new DispatchAction( mdi->copy(alreadyCloned));
         }
 
     };
 
-}
+}}
 
 #endif

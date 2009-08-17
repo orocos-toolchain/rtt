@@ -44,7 +44,7 @@
 #endif
 
 namespace RTT {
-    namespace detail {
+    namespace internal {
 
         // connection_base
 
@@ -110,7 +110,7 @@ namespace RTT {
 
             // connection (push_back) in emit() does not invalidate iterators, so this
             // function is straightforwardly implemented.
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
 #ifdef ORO_SIGNAL_USE_RT_LIST
             mconnections.push_back( conn );
 #else
@@ -150,7 +150,7 @@ namespace RTT {
 #else
             iterator tgt;
             // avoid invalidating iterator of emit() upon self or cross removal of conn.
-            OS::MutexLock lock(m);
+            os::MutexLock lock(m);
             if ( (tgt = std::find( mconnections.begin(),
                                    mconnections.end(),
                                    conn)) != mconnections.end() ) {

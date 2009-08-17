@@ -48,7 +48,8 @@
 #include "../PropertyBag.hpp"
 
 namespace RTT
-{
+{ namespace interface {
+
     /**
      * @brief A class for keeping track of Attribute, Constant
      * and Property objects of a TaskContext.
@@ -57,7 +58,7 @@ namespace RTT
      */
     class RTT_API AttributeRepository
     {
-        typedef std::vector<AttributeBase*> map_t;
+        typedef std::vector<base::AttributeBase*> map_t;
         map_t values;
         /**
          * The bag is only constructed if queried for.
@@ -82,7 +83,7 @@ namespace RTT
          * A vector containing pointers to all attribute objects
          * stored in this repository.
          */
-        typedef std::vector<AttributeBase*> AttributeObjects;
+        typedef std::vector<base::AttributeBase*> AttributeObjects;
 
         /**
          * Erases the whole repository.
@@ -95,12 +96,12 @@ namespace RTT
         bool hasAttribute( const std::string& name ) const;
 
         /**
-         * Add an AttributeBase which remains owned by the
+         * Add an base::AttributeBase which remains owned by the
          * user.
          * @param a remains owned by the user, and becomes
          * served by the repository.
          */
-        bool addAttribute( AttributeBase* a )
+        bool addAttribute( base::AttributeBase* a )
         {
             return a->getDataSource() && setValue( a->clone() );
         }
@@ -130,7 +131,7 @@ namespace RTT
          * Add a Constant with a given value.
          * @see getConstant
          */
-        bool addConstant( AttributeBase* c)
+        bool addConstant( base::AttributeBase* c)
         {
             return c->getDataSource() && setValue( c->clone() );
         }
@@ -155,24 +156,24 @@ namespace RTT
         bool hasProperty( const std::string& name ) const;
 
         /**
-         * Add an PropertyBase as a property.
+         * Add an base::PropertyBase as a property.
          * @return false if a property with the same name already exists.
          * @see removeProperty
          */
-        bool addProperty( PropertyBase* pb );
+        bool addProperty( base::PropertyBase* pb );
 
         /**
          * Remove a previously added Property and associated attribute.
          * @return false if no such property by that name exists.
          */
-        bool removeProperty( PropertyBase* p );
+        bool removeProperty( base::PropertyBase* p );
 
         /**
          * Transfer the ownership of an attribute to the repository.
          * @param ab The attribute which becomes owned by this repository.
          * @return false if an Attribute with the same \a name already present.
          */
-        bool setValue( AttributeBase* ab );
+        bool setValue( base::AttributeBase* ab );
 
         /**
          * Get a pointer to the attribute with name \a name.  If no such value exists, this method
@@ -183,7 +184,7 @@ namespace RTT
            Attribute<double> d_attr = getValue("Xval");
            @endexample
          */
-        AttributeBase* getValue( const std::string& name ) const;
+        base::AttributeBase* getValue( const std::string& name ) const;
 
         /**
          * Delete a value added with setValue from the repository.
@@ -198,7 +199,7 @@ namespace RTT
          * @return true if doi->getName() is unique within this repository.
          */
         template<class T>
-        bool addDataObject( DataObjectInterface<T>* doi) {
+        bool addDataObject( base::DataObjectInterface<T>* doi) {
             return this->setValue( new Alias<T>(doi, doi->getName() ));
         }
 
@@ -206,10 +207,10 @@ namespace RTT
          * Return a new copy of this repository with the copy operation semantics.
          * @param instantiate set to true if you want a copy which will upon any future
          * copy return the same DataSources, thus 'fixating' or 'instantiating' the DataSources.
-         * @see ActionInterface
+         * @see base::ActionInterface
          * @note this does not copy the properties() within this repository.
          */
-        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;
+        AttributeRepository* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
          * Return the names of all attributes.
@@ -231,6 +232,6 @@ namespace RTT
         PropertyBag* properties() const;
 
     };
-}
+}}
 
 #endif

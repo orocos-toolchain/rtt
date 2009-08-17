@@ -51,7 +51,7 @@
 #include "signal4.hpp"
 
 namespace RTT {
-    namespace detail {
+    namespace internal {
       template<int Arity,
                typename Signature,
                typename SlotFunction>
@@ -142,15 +142,15 @@ namespace RTT {
      * class name.
      */
     template<
-        typename Signature, // function type R (T1, T2, ..., TN)
+        typename Signature,
         typename SlotFunction = boost::function<Signature>
     >
     class signal :
-        public detail::get_signal_impl<Signature,
+        public get_signal_impl<Signature,
                                        SlotFunction>::type
     {
     protected:
-        typedef typename detail::get_signal_impl< Signature,
+        typedef typename get_signal_impl< Signature,
                                                   SlotFunction>::type base_type;
 
     public:

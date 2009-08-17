@@ -25,6 +25,8 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SlaveActivity.hpp>
 #include <Activity.hpp>
+#include <rtt-detail-fwd.hpp>
+using namespace RTT::detail;
 
 using namespace RTT;
 

@@ -39,8 +39,8 @@
 #include "../base/ActionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
 	VertexNode::VertexNode()

@@ -24,6 +24,7 @@
 #include <string>
 
 using namespace RTT;
+using namespace RTT::detail;
 
 class StatesTC;
 class EventPortsTC;

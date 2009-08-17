@@ -43,7 +43,8 @@
 
 
 namespace RTT
-{
+{ namespace scripting {
+
 
 
 
@@ -61,7 +62,7 @@ namespace RTT
      * will return false until the AsynchCommandDecorator
      * is \a reset().
      */
-    class RTT_API AsynchCommandDecorator: public ActionInterface
+    class RTT_API AsynchCommandDecorator: public base::ActionInterface
     {
 
     public:
@@ -74,7 +75,7 @@ namespace RTT
          * @post The given command is decorated as an
          * 		 asynchronous command.
          */
-        AsynchCommandDecorator(ActionInterface* cmd);
+        AsynchCommandDecorator(base::ActionInterface* cmd);
 
         AsynchCommandDecorator(const AsynchCommandDecorator& orig);
 
@@ -89,17 +90,17 @@ namespace RTT
 
         virtual void reset();
 
-        const ActionInterface* getCommand() const;
+        const base::ActionInterface* getCommand() const;
 
-        virtual ActionInterface* clone() const;
+        virtual base::ActionInterface* clone() const;
 
-        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     private:
 
         /**
          * Asynchronous command being decorated.
          */
-        ActionInterface* command;
+        base::ActionInterface* command;
 
         /**
          * Variable indicating whether corresponding command
@@ -109,6 +110,6 @@ namespace RTT
         bool status;
     };
 
-}
+}}
 
 #endif

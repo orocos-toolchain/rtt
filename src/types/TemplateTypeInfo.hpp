@@ -56,7 +56,7 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace types {
         template<typename T, bool b_value>
         struct TypeStreamSelector;
         template<typename T>
@@ -89,7 +89,6 @@ namespace RTT
                 return os;
             }
         };
-    }
 
     /**
      * This helper class allows user types to be added to Orocos.
@@ -159,7 +158,7 @@ namespace RTT
      *  }
      * \endcode
      */
-    template<typename T, bool use_ostream = false> //, typename ParamT = T>
+    template<typename T, bool use_ostream = false>
     class TemplateTypeInfo
         : public TypeInfo
     {
@@ -188,19 +187,19 @@ namespace RTT
             : tname(name)
         {
             // Install the type info object for T.
-            if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
+            if ( internal::DataSourceTypeInfo<T>::TypeInfoObject != 0) {
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
-                              << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                              << internal::DataSourceTypeInfo<T>::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
             }
-            detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            internal::DataSourceTypeInfo<T>::TypeInfoObject = this;
 
         }
 
-        AttributeBase* buildConstant(std::string name, DataSourceBase::shared_ptr dsb) const
+        base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
         {
-            typename DataSource<PropertyType>::shared_ptr res =
-                AdaptDataSource<PropertyType>()( detail::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
+            typename internal::DataSource<PropertyType>::shared_ptr res =
+                internal::AdaptDataSource<PropertyType>()( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
             if ( res ) {
                 res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
@@ -210,20 +209,20 @@ namespace RTT
                 return 0;
         }
 
-        AttributeBase* buildVariable(std::string name) const
+        base::AttributeBase* buildVariable(std::string name) const
         {
             // A variable starts its life as unbounded.
             Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
-            return new Attribute<T>( name, new detail::UnboundDataSource<ValueDataSource<T> >() );
+            return new Attribute<T>( name, new internal::UnboundDataSource<internal::ValueDataSource<T> >() );
         }
 
-        AttributeBase* buildAttribute( std::string name, DataSourceBase::shared_ptr in) const
+        base::AttributeBase* buildAttribute( std::string name, base::DataSourceBase::shared_ptr in) const
         {
-            typename AssignableDataSource<PropertyType>::shared_ptr ds;
+            typename internal::AssignableDataSource<PropertyType>::shared_ptr ds;
             if ( !in )
-                ds = new ValueDataSource<PropertyType>();
+                ds = new internal::ValueDataSource<PropertyType>();
             else
-                ds = AssignableDataSource<PropertyType>::narrow( in.get() );
+                ds = internal::AssignableDataSource<PropertyType>::narrow( in.get() );
             if (!ds)
                 return 0;
             // A variable starts its life as unbounded.
@@ -231,9 +230,9 @@ namespace RTT
             return new Attribute<PropertyType>( name, ds.get() );
         }
 
-        AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
+        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
         {
-            typename DataSource<T>::shared_ptr ds = AdaptDataSource<T>()( detail::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
             if ( ! ds )
                 return 0;
             return new Alias<T>( name, ds );
@@ -241,10 +240,10 @@ namespace RTT
 
         virtual const std::string& getTypeName() const { return tname; }
 
-        virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase::shared_ptr source = 0) const {
+        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
             if (source) {
-               typename AssignableDataSource<PropertyType>::shared_ptr ad
-                    = AdaptAssignableDataSource<PropertyType>()( source );
+               typename internal::AssignableDataSource<PropertyType>::shared_ptr ad
+                    = internal::AdaptAssignableDataSource<PropertyType>()( source );
                 if (ad)
                     return new Property<PropertyType>(name, desc, ad );
                 // else ?
@@ -252,15 +251,15 @@ namespace RTT
             return new Property<PropertyType>(name, desc);
         }
 
-        virtual DataSourceBase::shared_ptr buildValue() const {
-            return new ValueDataSource<PropertyType>();
+        virtual base::DataSourceBase::shared_ptr buildValue() const {
+            return new internal::ValueDataSource<PropertyType>();
         }
-        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const {
-            return new ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
+        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
+            return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
         }
 
-        virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
-            typename DataSource<T>::shared_ptr d = AdaptDataSource<T>()( in );
+        virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
+            typename internal::DataSource<T>::shared_ptr d = internal::AdaptDataSource<T>()( in );
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
@@ -273,8 +272,8 @@ namespace RTT
             //return os << "("<< tname <<")"
         }
 
-        virtual std::istream& read( std::istream& os, DataSourceBase::shared_ptr out ) const {
-            typename AssignableDataSource<T>::shared_ptr d = AdaptAssignableDataSource<T>()( out );
+        virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
+            typename internal::AssignableDataSource<T>::shared_ptr d = internal::AdaptAssignableDataSource<T>()( out );
             if ( d && use_ostream ) {
                 detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
@@ -282,9 +281,9 @@ namespace RTT
             return os;
         }
 
-        virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             // Extract typed values
-            typename DataSource<PropertyType>::shared_ptr ds = AdaptDataSource<PropertyType>()( source.get() );
+            typename internal::DataSource<PropertyType>::shared_ptr ds = internal::AdaptDataSource<PropertyType>()( source.get() );
             if ( !ds )
                 return false; // happens in the case of 'unknown type'
             // Try user's function.
@@ -294,20 +293,20 @@ namespace RTT
         /**
          * User, implement this function. Add the structural elements of source to targetbag.
          */
-        virtual bool decomposeTypeImpl( typename AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
+        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
             return false;
         }
 
-        virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr result) const {
+        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
             // First, try a plain update.
             if ( result->update( source.get() ) )
                 return true;
 
             // Did not work, maybe the type needs to be composed.
-            const DataSource<PropertyBag>* pb = dynamic_cast< const DataSource<PropertyBag>* > (source.get() );
+            const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (source.get() );
             if ( !pb )
                 return false;
-            typename AssignableDataSource<PropertyType>::shared_ptr ads = AdaptAssignableDataSource<PropertyType>()( result.get() );
+            typename internal::AssignableDataSource<PropertyType>::shared_ptr ads = internal::AdaptAssignableDataSource<PropertyType>()( result.get() );
             if ( !ads )
                 return false;
 
@@ -324,15 +323,15 @@ namespace RTT
         /**
          * User, implement this function. Extract the structural elements in source to result.
          */
-        virtual bool composeTypeImpl(const PropertyBag& source,  typename AssignableDataSource<T>::reference_t result) const {
+        virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
             return false;
         }
 		
 		std::string getTypeIdName() const { return typeid(T).name(); }
 
       
-        InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }  
-        OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }  
+        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }  
+        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }  
 
     };
 
@@ -407,24 +406,24 @@ namespace RTT
         TemplateContainerTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}
 
-        AttributeBase* buildVariable(std::string name) const
+        base::AttributeBase* buildVariable(std::string name) const
         {
             // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
+            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
         }
 
-        DataSourceBase::shared_ptr buildValue() const
+        base::DataSourceBase::shared_ptr buildValue() const
         {
-            return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
+            return new internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
         }
 
-        AttributeBase* buildVariable(std::string name,int size) const
+        base::AttributeBase* buildVariable(std::string name,int size) const
         {
             // if a sizehint is given, create a TaskIndexContainerVariable instead,
             // which checks capacities.
             _T t_init(size, SetType());
 
-            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, APred> >( t_init ) );
+            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, APred> >( t_init ) );
         }
     };
 
@@ -443,22 +442,20 @@ namespace RTT
         TemplateIndexTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}
 
-        AttributeBase* buildVariable(std::string name) const
+        base::AttributeBase* buildVariable(std::string name) const
         {
             // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
+            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
         }
 
-        DataSourceBase::shared_ptr buildValue() const
+        base::DataSourceBase::shared_ptr buildValue() const
         {
             Logger::log() <<Logger::Debug << "Building Indexable value of "<< this->getTypeName()<<Logger::endl;
-            return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
+            return new internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
         }
 
     };
 
-    namespace detail
-    {
         /**
          * The constructor classes allow to define type constructors
          * or type conversions (convert type B from type A).
@@ -470,7 +467,7 @@ namespace RTT
         template<class S>
         struct TemplateConstructor<S,1>
             : public TypeBuilder,
-              public FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >
+              public internal::FunctorFactoryPart1<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
         {
             typedef typename boost::function_traits<S>::result_type result_type;
             typedef typename boost::function_traits<S>::arg1_type arg1_type;
@@ -478,41 +475,41 @@ namespace RTT
             bool automatic;
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >(f ),
+                : internal::FunctorFactoryPart1<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f ),
                 automatic(autom)
             {}
 
-            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
                 // detect same type converion.
-                if ( args.size() == 1 && args[0]->getTypeInfo() == DataSourceTypeInfo<result_type>::getTypeInfo() ) {
+                if ( args.size() == 1 && args[0]->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
                     return args[0];
                 }
                 // detect invalid type conversion.
-                if ( args.size() == 1 && args[0]->getTypeInfo() != DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
-                    return DataSourceBase::shared_ptr();
+                if ( args.size() == 1 && args[0]->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                    return base::DataSourceBase::shared_ptr();
                 }
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
-            virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const {
+            virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const {
                 // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
                 // detect same type converion.
-                if ( arg->getTypeInfo() == DataSourceTypeInfo<result_type>::getTypeInfo() ) {
+                if ( arg->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
                     return arg;
                 }
                 // detect invalid type conversion.
-                if ( arg->getTypeInfo() != DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
-                    return DataSourceBase::shared_ptr();
+                if ( arg->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                    return base::DataSourceBase::shared_ptr();
                 }
                 // from now on, it should always succeed.
-                std::vector<DataSourceBase::shared_ptr> args;
+                std::vector<base::DataSourceBase::shared_ptr> args;
                 args.push_back(arg);
-                DataSourceBase::shared_ptr ret = this->build(args);
+                base::DataSourceBase::shared_ptr ret = this->build(args);
                 if (ret && !automatic)
                     log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
                 return ret;
@@ -522,19 +519,19 @@ namespace RTT
         template<class S>
         struct TemplateConstructor<S,2>
             : public TypeBuilder,
-              public FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >
+              public internal::FunctorFactoryPart2<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
         {
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+                : internal::FunctorFactoryPart2<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
             {}
 
-            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
         };
@@ -542,19 +539,19 @@ namespace RTT
         template<class S>
         struct TemplateConstructor<S,3>
             : public TypeBuilder,
-              public FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >
+              public internal::FunctorFactoryPart3<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
         {
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+                : internal::FunctorFactoryPart3<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
             {}
 
-            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
         };
@@ -562,19 +559,19 @@ namespace RTT
         template<class S>
         struct TemplateConstructor<S,4>
             : public TypeBuilder,
-              public FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >
+              public internal::FunctorFactoryPart4<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
         {
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+                : internal::FunctorFactoryPart4<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
             {}
 
-            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
         };
@@ -582,23 +579,22 @@ namespace RTT
         template<class S>
         struct TemplateConstructor<S,6>
             : public TypeBuilder,
-              public FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >
+              public internal::FunctorFactoryPart6<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
         {
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+                : internal::FunctorFactoryPart6<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
             {}
 
-            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
         };
-    }
 
     /**
      * Create a new Constructor.
@@ -624,6 +620,6 @@ namespace RTT
     TypeBuilder* newConstructor( Object obj, bool automatic = false) {
         return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj, automatic);
     }
-}
+}}
 
 #endif

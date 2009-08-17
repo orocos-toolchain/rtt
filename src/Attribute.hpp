@@ -53,9 +53,9 @@ namespace RTT
      */
     template<typename T>
     class Attribute
-        : public AttributeBase
+        : public base::AttributeBase
     {
-        typename AssignableDataSource<T>::shared_ptr data;
+        typename internal::AssignableDataSource<T>::shared_ptr data;
     public:
 
         /**
@@ -71,8 +71,8 @@ namespace RTT
          * @param name The name of this instance.
          */
         Attribute(const std::string& name)
-            : AttributeBase(name),
-              data( detail::BuildType<T>::Value( T() ) )
+            : base::AttributeBase(name),
+              data( types::BuildType<T>::Value( T() ) )
         {}
 
         /**
@@ -82,19 +82,19 @@ namespace RTT
          * @param t The value for initialisation.
          */
         explicit Attribute(const std::string& name, T t)
-            : AttributeBase(name),
-              data( detail::BuildType<T>::Value( t ) )
+            : base::AttributeBase(name),
+              data( types::BuildType<T>::Value( t ) )
         {
         }
 
         /**
-         * Create an Attribute which uses a DataSource \a d.
+         * Create an Attribute which uses a internal::DataSource \a d.
          *
          * @param name The name
          * @param d The data source to read from and write to.
          */
-        Attribute( const std::string& name, AssignableDataSource<T>* d)
-            : AttributeBase(name),
+        Attribute( const std::string& name, internal::AssignableDataSource<T>* d)
+            : base::AttributeBase(name),
               data( d )
         {
         }
@@ -103,7 +103,7 @@ namespace RTT
          * Copy constructor copies both name and \b deep copy of the data.
          */
         Attribute( const Attribute<T>& a)
-            : AttributeBase( a.mname ),
+            : base::AttributeBase( a.mname ),
               data( a.data->clone() )
         {
         }
@@ -121,26 +121,26 @@ namespace RTT
         }
 
         /**
-         * Create an Attribute which \b mirrors a AttributeBase \a ab.
+         * Create an Attribute which \b mirrors a base::AttributeBase \a ab.
          * If successful, this attribute will always have the same
          * value as \a ab and vice versa.
          *
          * @param ab The Attribute to mirror.
          * @see ready() to check if \a ab was accepted.
          */
-        Attribute( AttributeBase* ab)
-            : AttributeBase( ab ? ab->getName() : "" ),
-              data( ab ? AssignableDataSource<T>::narrow( ab->getDataSource().get() ) : 0 )
+        Attribute( base::AttributeBase* ab)
+            : base::AttributeBase( ab ? ab->getName() : "" ),
+              data( ab ? internal::AssignableDataSource<T>::narrow( ab->getDataSource().get() ) : 0 )
         {
         }
 
         /**
-         * Initialise an Attribute which \a mirrors an AttributeBase \a ab.
+         * Initialise an Attribute which \a mirrors an base::AttributeBase \a ab.
          * If successful, this attribute will always have the same
          * value as \a ab and vice versa.
          * @see ready() to check if ab was accepted.
          */
-        Attribute<T>& operator=(AttributeBase* ab)
+        Attribute<T>& operator=(base::AttributeBase* ab)
         {
             if (!ab) {
                 data = 0;
@@ -172,16 +172,16 @@ namespace RTT
         /**
          * Set the value of this Attribute.
          */
-        typename AssignableDataSource<T>::reference_t set() {
+        typename internal::AssignableDataSource<T>::reference_t set() {
             return data->set();
         }
 
-        DataSourceBase::shared_ptr getDataSource() const
+        base::DataSourceBase::shared_ptr getDataSource() const
         {
             return data;
         }
 
-        typename AssignableDataSource<T>::shared_ptr getAssignableDataSource() const
+        typename internal::AssignableDataSource<T>::shared_ptr getAssignableDataSource() const
         {
             return data;
         }
@@ -191,12 +191,12 @@ namespace RTT
             return new Attribute<T>( mname, data.get() );
         }
 
-        Attribute<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+        Attribute<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate )
         {
             if ( instantiate ) {
                 // by taking a clone(), the DS has a chance to instantiate itself.
-                // A clone() of an UnboundDataSource returns the bound type.
-                AssignableDataSource<T>* instds = data->clone();
+                // A clone() of an internal::UnboundDataSource returns the bound type.
+                internal::AssignableDataSource<T>* instds = data->clone();
                 replacements[ data.get() ] = instds;
                 return new Attribute<T>( mname, instds );
             }
@@ -213,25 +213,25 @@ namespace RTT
      */
     template<typename T>
     class Constant
-        : public AttributeBase
+        : public base::AttributeBase
     {
     public:
-        typename DataSource<T>::shared_ptr data;
+        typename internal::DataSource<T>::shared_ptr data;
 
         /**
          * Create a constant with a fixed value \a t.
          */
         Constant(const std::string& name, T t)
-            : AttributeBase(name),
-              data( new ConstantDataSource<T>( t ) )
+            : base::AttributeBase(name),
+              data( new internal::ConstantDataSource<T>( t ) )
         {
         }
 
         /**
-         * Create a constant wich holds a DataSource \a d.
+         * Create a constant wich holds a internal::DataSource \a d.
          */
-        Constant(const std::string& name, DataSource<T>* d )
-            : AttributeBase(name),
+        Constant(const std::string& name, internal::DataSource<T>* d )
+            : base::AttributeBase(name),
               data( d )
         {
         }
@@ -243,8 +243,8 @@ namespace RTT
          * In case \a ab is non constant, it is not accepted.
          * @see ready() to check if ab was accepted.
          */
-        Constant( AttributeBase* ab )
-            : AttributeBase( ab ? ab->getName() : "")
+        Constant( base::AttributeBase* ab )
+            : base::AttributeBase( ab ? ab->getName() : "")
         {
             if ( !ab )
                 return;
@@ -260,7 +260,7 @@ namespace RTT
          * In case \a ab is non constant, it is not accepted.
          * @see ready() to check if ab was accepted.
          */
-        Constant<T>& operator=(AttributeBase* ab)
+        Constant<T>& operator=(base::AttributeBase* ab)
         {
             if (!ab) {
                 data = 0;
@@ -280,7 +280,7 @@ namespace RTT
             return data->get();
         }
 
-        DataSourceBase::shared_ptr getDataSource() const
+        base::DataSourceBase::shared_ptr getDataSource() const
         {
             return data;
         }
@@ -290,9 +290,9 @@ namespace RTT
             return new Constant<T>( mname, data.get() );
         }
 
-        Constant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+        Constant<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate )
         {
-            // 'symbolic' copy, ConstantDataSource returns 'this' on copy...
+            // 'symbolic' copy, internal::ConstantDataSource returns 'this' on copy...
             Constant<T>* ret = new Constant<T>( mname, data.get() );
             return ret;
         }
@@ -300,25 +300,25 @@ namespace RTT
 
     /**
      * This class is the most basic Attribute implementation
-     * (only suitable for reading a DataSource), does
-     * not allow any assignment, just stores a DataSource<T>, and
+     * (only suitable for reading a internal::DataSource), does
+     * not allow any assignment, just stores a internal::DataSource<T>, and
      * returns it.  This also makes it useful as an alias of
      * temporary expressions like literal values, and rhs
      * expressions.
      */
     template<typename T>
     class Alias
-        : public AttributeBase
+        : public base::AttributeBase
     {
-        typename DataSource<T>::shared_ptr data;
+        typename internal::DataSource<T>::shared_ptr data;
     public:
-        Alias(const std::string& name, typename DataSource<T>::shared_ptr d )
-            : AttributeBase(name),
+        Alias(const std::string& name, typename internal::DataSource<T>::shared_ptr d )
+            : base::AttributeBase(name),
               data( d )
         {
         }
 
-        DataSourceBase::shared_ptr getDataSource() const
+        base::DataSourceBase::shared_ptr getDataSource() const
         {
             return data;
         }
@@ -327,7 +327,7 @@ namespace RTT
         {
             return new Alias<T>( mname, data.get() );
         }
-        Alias<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool )
+        Alias<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool )
         {
             // instantiate does not apply.
             return new Alias<T>( mname, data->copy( replacements ) );

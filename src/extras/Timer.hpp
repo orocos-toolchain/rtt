@@ -49,7 +49,8 @@
 #include <utility>
 
 namespace RTT
-{
+{ namespace extras {
+
     /**
      * This class allows to define a timer object which can be
      * armed in single shot and periodic mode. In Order to use this
@@ -63,7 +64,7 @@ namespace RTT
      * when the Timer is destroyed.
      */
     class RTT_API Timer
-        : protected RunnableInterface
+        : protected base::RunnableInterface
     {
     public:
         /**
@@ -71,11 +72,11 @@ namespace RTT
          */
         typedef int TimerId;
     protected:
-        TimeService* mTimeserv;
-        ActivityInterface* mThread;
-        OS::Semaphore msem;
-        mutable OS::Mutex m;
-        typedef TimeService::nsecs Time;
+        os::TimeService* mTimeserv;
+        base::ActivityInterface* mThread;
+        os::Semaphore msem;
+        mutable os::Mutex m;
+        typedef os::TimeService::nsecs Time;
         /**
          * Index in vector is the timer id.
          * 1st Time is the absolute time upon which the timer expires.
@@ -148,7 +149,7 @@ namespace RTT
          * @retval 0.0 if the timer is not armed or has already elapsed.
          * @return the remaining time in seconds.
          */
-        TimeService::Seconds timeRemaining(TimerId timer_id) const;
+        os::TimeService::Seconds timeRemaining(TimerId timer_id) const;
 
         /**
          * Check if a given timer id is armed.
@@ -163,6 +164,6 @@ namespace RTT
         bool killTimer(TimerId timer_id);
 
     };
-}
+}}
 
 #endif

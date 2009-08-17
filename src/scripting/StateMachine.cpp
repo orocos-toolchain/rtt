@@ -47,8 +47,8 @@
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using boost::tuples::get;
     using namespace std;
     using namespace boost;

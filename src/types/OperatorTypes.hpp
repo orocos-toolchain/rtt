@@ -45,10 +45,10 @@
 
 namespace RTT
 {
-    namespace detail {
+    namespace types {
 
         /**
-         * An operator which reads a single DataSource
+         * An operator which reads a single internal::DataSource
          * and returns a modified result.
          */
         template<typename function>
@@ -64,13 +64,13 @@ namespace RTT
                 : mop( op ), fun( f )
             {
             }
-            DataSource<result_t>* build( const std::string& op, DataSourceBase* a )
+            internal::DataSource<result_t>* build( const std::string& op, base::DataSourceBase* a )
             {
                 if ( op != mop ) return 0;
-                typename DataSource<arg_t>::shared_ptr arg =
-                    AdaptDataSource<arg_t>()( a ); // do not call convert(a) here ! Would always succeed.
+                typename internal::DataSource<arg_t>::shared_ptr arg =
+                    internal::AdaptDataSource<arg_t>()( a ); // do not call convert(a) here ! Would always succeed.
                 if ( ! arg ) return 0;
-                return new UnaryDataSource<function>( arg, fun );
+                return new internal::UnaryDataSource<function>( arg, fun );
             }
         };
 
@@ -93,21 +93,21 @@ namespace RTT
                 : mop( op ), fun( f )
             {
             }
-            DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
-                                         DataSourceBase* b )
+            internal::DataSource<result_t>* build( const std::string& op, base::DataSourceBase* a,
+                                         base::DataSourceBase* b )
             {
                 // operation (+,-,...) and first argument type must match.
-                if ( op != mop || a->getTypeInfo() != DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
+                if ( op != mop || a->getTypeInfo() != internal::DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
                 //         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
-                typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a ); // first argument must be exact match.
-                typename DataSource<arg2_t>::shared_ptr arg2 =
-                    AdaptDataSource<arg2_t>()( DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
+                typename internal::DataSource<arg1_t>::shared_ptr arg1 =
+                    internal::AdaptDataSource<arg1_t>()( a ); // first argument must be exact match.
+                typename internal::DataSource<arg2_t>::shared_ptr arg2 =
+                    internal::AdaptDataSource<arg2_t>()( internal::DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
                 //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
                 //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
                 if ( !arg1 || ! arg2 ) return 0;
                 //         Logger::log() << "success !"<< Logger::endl;
-                return new BinaryDataSource<function>( arg1, arg2, fun );
+                return new internal::BinaryDataSource<function>( arg1, arg2, fun );
             }
         };
 
@@ -130,48 +130,46 @@ namespace RTT
                 : memb( m ), fun( f )
             {
             }
-            DataSource<result_t>* build( const std::string& member, DataSourceBase* a)
+            internal::DataSource<result_t>* build( const std::string& member, base::DataSourceBase* a)
             {
                 if ( member != memb ) return 0;
                 //         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
-                typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a );
+                typename internal::DataSource<arg1_t>::shared_ptr arg1 =
+                    internal::AdaptDataSource<arg1_t>()( a );
                 if ( !arg1 ) return 0;
                 //         Logger::log() << "success !"<< Logger::endl;
-                return new UnaryDataSource<function>( arg1, fun );
+                return new internal::UnaryDataSource<function>( arg1, fun );
             }
         };
-
-    }
 
     /**
      * helper function to create a new UnaryOperator
      */
     template<typename function>
-    detail::UnaryOperator<function>*
+    UnaryOperator<function>*
     newUnaryOperator( const char* op, function f )
     {
-        return new detail::UnaryOperator<function>( op, f );
+        return new UnaryOperator<function>( op, f );
     }
 
     /**
      * helper function to create a new BinaryOperator
      */
     template<typename function>
-    detail::BinaryOperator<function>*
+    BinaryOperator<function>*
     newBinaryOperator( const char* op, function f )
     {
-        return new detail::BinaryOperator<function>( op, f );
+        return new BinaryOperator<function>( op, f );
     }
 
     /**
      * helper function to create a new DotOperator
      */
     template<typename function>
-    detail::DotOperator<function>*
+    DotOperator<function>*
     newDotOperator( const char* member, function f )
     {
-        return new detail::DotOperator<function>( member, f );
+        return new DotOperator<function>( member, f );
     }
-}
+}}
 #endif

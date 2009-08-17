@@ -10,7 +10,7 @@
 
 module RTT
 {
-  module Corba
+  module corba
   {
     typedef sequence<string> MethodList;
     typedef sequence<string> CommandList;

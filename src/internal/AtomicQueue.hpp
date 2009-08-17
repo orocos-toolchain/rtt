@@ -45,7 +45,8 @@
 #include "../base/BufferPolicy.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A lock-free queue implementation to \a enqueue or \a dequeue
      * a pointer of type \a T.
@@ -55,14 +56,14 @@ namespace RTT
      * @param T The pointer type to be stored in the queue.
      * Example : \begincode AtomicQueue<A*> \endcode is a queue which holds values of type A.
      * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
      * This does not influence partial filled queue behaviour.
      * @param WritePolicy The Policy to block (wait) on \a full (during enqueue),
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
      * @ingroup CoreLibBuffers
      */
-    template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+    template< class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
     class AtomicQueue
     {
     public:
@@ -216,7 +217,7 @@ namespace RTT
                 orig = lockAndGetActive();
                 items = orig->data.size();
                 nextbuf = findEmptyBuf(); // find unused Item in bufs
-            } while ( OS::CAS(&active, orig, nextbuf ) == false );
+            } while ( os::CAS(&active, orig, nextbuf ) == false );
             oro_atomic_dec( &orig->count ); // lockAndGetActive
             oro_atomic_dec( &orig->count ); // ref count
             oro_atomic_set(&counter,0);
@@ -247,7 +248,7 @@ namespace RTT
                 usingbuf = findEmptyBuf(); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.push_back( value );
-            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
+            } while ( os::CAS(&active, orig, usingbuf ) ==false);
             oro_atomic_dec( &orig->count ); // lockAndGetActive()
             oro_atomic_dec( &orig->count ); // set queue free
             read_policy.push();
@@ -296,7 +297,7 @@ namespace RTT
                 for ( ;  it != orig->data.end(); ++it )
                     usingbuf->data.push_back(*it);
                 //usingbuf->data.insert( usingbuf->data.end(), it, orig->data.end() ); // ALTERNATIVE. (does it allocate??)
-            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
+            } while ( os::CAS(&active, orig, usingbuf ) ==false);
             oro_atomic_dec( &orig->count ); // lockAndGetActive()
             oro_atomic_dec( &orig->count ); // set queue free
             write_policy.push();
@@ -411,6 +412,6 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif

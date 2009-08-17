@@ -60,8 +60,9 @@
 #include <istream>
 
 namespace RTT
-{
-    //using namespace rt_std; // Should be removed soon
+{ namespace marsh {
+
+    //using namespace os; // Should be removed soon
     using std::cerr;
     using std::endl;
 
@@ -300,5 +301,5 @@ namespace RTT
             }
 
     };
-}
+}}
 #endif

@@ -51,9 +51,10 @@
 #endif
 
 namespace RTT
-{
+{ namespace base {
 
-    using OS::CAS;
+
+    using os::CAS;
 
     /**
      * A Lock-free buffer implementation to read and write
@@ -83,9 +84,9 @@ namespace RTT
         typedef T value_t;
     private:
         typedef T Item;
-        AtomicQueue<Item*,ReadPolicy,WritePolicy> bufs;
+        internal::AtomicQueue<Item*,ReadPolicy,WritePolicy> bufs;
         // is mutable because of reference counting.
-        mutable FixedSizeMemoryPool<Item> mpool;
+        mutable internal::FixedSizeMemoryPool<Item> mpool;
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
@@ -230,6 +231,6 @@ namespace RTT
         }
 
     };
-}
+}}
 
 #endif

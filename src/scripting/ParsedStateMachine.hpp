@@ -44,11 +44,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
-    class TaskObject;
-    class StateMachineTask;
-
-    class ParsedStateMachine;
+{ namespace scripting {
     typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
     typedef boost::weak_ptr<ParsedStateMachine> ParsedStateMachineWPtr;
 
@@ -58,7 +54,7 @@ namespace RTT
     class ParsedStateMachine
         : public StateMachine
     {
-        typedef std::map<std::string, AttributeBase*> VisibleWritableValuesMap;
+        typedef std::map<std::string, base::AttributeBase*> VisibleWritableValuesMap;
     protected:
         virtual void handleUnload();
     public:
@@ -68,11 +64,11 @@ namespace RTT
         /**
          * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
          */
-        ParsedStateMachinePtr copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
+        ParsedStateMachinePtr copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate = false ) const;
 
-        void addParameter( const std::string& name, AttributeBase* var );
+        void addParameter( const std::string& name, base::AttributeBase* var );
 
-        AttributeBase* getParameter( const std::string& name ) const;
+        base::AttributeBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
         std::vector<std::string> getParameterNames() const;
 
@@ -103,6 +99,6 @@ namespace RTT
 
         StateMachineTask* object;
     };
-}
+}}
 
 #endif

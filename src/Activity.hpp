@@ -12,17 +12,17 @@ namespace RTT
     /**
      * @brief An Activity is an object that represents a thread.
      *
-     * This object implements the ActivityInterface and maps that to an
-     * OS thread, using the RTT::OS::Thread class. One Activity object
+     * This object implements the base::ActivityInterface and maps that to an
+     * OS thread, using the RTT::os::Thread class. One Activity object
      * maps to one OS thread. It can execute periodically the step() function
      * or the loop() function in case of non-periodic execution.
      *
-     * When provided one, it will execute a RunnableInterface object, or the equivalent methods in
+     * When provided one, it will execute a base::RunnableInterface object, or the equivalent methods in
      * it's own interface when none is given.
      *
      * @ingroup CoreLibActivities
      */
-    class RTT_API Activity: public ActivityInterface, public OS::Thread
+    class RTT_API Activity: public base::ActivityInterface, public os::Thread
     {
     public:
         /**
@@ -32,7 +32,7 @@ namespace RTT
          * @param _r The optional runner, if none, this->loop() is called.
          * @param name The name of the underlying thread.
          */
-        Activity(RunnableInterface* r = 0, const std::string& name ="Activity" );
+        Activity(base::RunnableInterface* r = 0, const std::string& name ="Activity" );
 
         /**
          * @brief Create a real-time Activity with a given priority.
@@ -41,11 +41,11 @@ namespace RTT
          * @param priority
          *        The priority of this activity.
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          * @param name The name of the underlying thread.
          */
         Activity(int priority,
-                 RunnableInterface* r = 0, const std::string& name ="Activity");
+                 base::RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
          * @brief Create a real-time Activity with a given priority and period.
@@ -56,11 +56,11 @@ namespace RTT
          * @param period
          *        The periodicity of the Activity. A zero is interpreted as non periodic.
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          * @param name The name of the underlying thread.
          */
         Activity(int priority, Seconds period,
-                 RunnableInterface* r = 0, const std::string& name ="Activity");
+                 base::RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
          * @brief Create an Activity with a given scheduler type, priority and period.
@@ -73,11 +73,11 @@ namespace RTT
          * @param period
          *        The periodicity of the Activity
          * @param r
-         *        The optional RunnableInterface to run exclusively within this Activity
+         *        The optional base::RunnableInterface to run exclusively within this Activity
          * @param name The name of the underlying thread.
          */
         Activity(int scheduler, int priority, Seconds period,
-                 RunnableInterface* r = 0, const std::string& name ="Activity");
+                 base::RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
          * Stops and terminates a Activity
@@ -102,30 +102,30 @@ namespace RTT
 
         virtual bool setPeriod(Seconds period);
 
-        virtual OS::ThreadInterface* thread();
+        virtual os::ThreadInterface* thread();
 
         /**
-         * @see RunnableInterface::initialize()
+         * @see base::RunnableInterface::initialize()
          */
         virtual bool initialize();
 
         /**
-         * @see RunnableInterface::step()
+         * @see base::RunnableInterface::step()
          */
         virtual void step();
 
         /**
-         * @see RunnableInterface::loop()
+         * @see base::RunnableInterface::loop()
          */
         virtual void loop();
 
         /**
-         * @see RunnableInterface::breakLoop()
+         * @see base::RunnableInterface::breakLoop()
          */
         virtual bool breakLoop();
 
         /**
-         * @see RunnableInterface::finalize()
+         * @see base::RunnableInterface::finalize()
          */
         virtual void finalize();
 

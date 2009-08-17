@@ -4,14 +4,13 @@
 #include "Channels.hpp"
 
 namespace RTT
-{
-    template<typename T> class InputPort;
+{ namespace internal {
 
     /** This is a channel element that represents the output endpoint of a
      * connection, i.e. the part that is connected to the InputPort
      */
     template<typename T>
-    class ConnOutputEndpoint : public ChannelElement<T>
+    class ConnOutputEndpoint : public base::ChannelElement<T>
     {
         InputPort<T>* port;
 
@@ -25,7 +24,7 @@ namespace RTT
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
-        virtual bool write(typename ChannelElement<T>::param_t sample)
+        virtual bool write(typename base::ChannelElement<T>::param_t sample)
         { return false; }
 
         virtual void disconnect(bool forward)
@@ -39,7 +38,7 @@ namespace RTT
                     port->clearInputChannel();
             }
             else
-                ChannelElement<T>::disconnect(false);
+                base::ChannelElement<T>::disconnect(false);
         }
 
         virtual bool signal() const
@@ -51,7 +50,7 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif
 

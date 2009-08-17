@@ -42,9 +42,7 @@
 #include "os/MainThread.hpp"
 
 namespace RTT
-{ namespace OS {
-
-    using namespace detail;
+{ namespace os {
 
     boost::shared_ptr<ThreadInterface> MainThread::mt;
 

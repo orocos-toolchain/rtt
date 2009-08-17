@@ -49,8 +49,8 @@
 #include "StateMachineProcessor.hpp"
 #endif
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
 

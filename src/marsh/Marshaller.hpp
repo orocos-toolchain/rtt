@@ -40,12 +40,10 @@
 
 #include <string>
 #include "rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-
-    class PropertyBag;
-	class PropertyBase;
+{ namespace marsh {
 
 	/**
      * @brief A Marshaller converts Property objects to a (file/text) format.
@@ -64,7 +62,7 @@ namespace RTT
          * Serialize a property.
          * @param v The property to be serialized.
          */
-        virtual void serialize(PropertyBase* v) = 0;
+        virtual void serialize(base::PropertyBase* v) = 0;
 
         /**
          * Serialize the contents of a property bag with headers and footers. Use this method
@@ -104,5 +102,5 @@ namespace RTT
          */
         virtual bool deserialize(PropertyBag &v) = 0;
     };
-} // Namespace RTT
+}} // Namespace RTT
 #endif

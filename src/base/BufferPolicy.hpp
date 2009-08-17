@@ -41,7 +41,8 @@
 #include "../os/Semaphore.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
 
     /**
      * Use this policy to indicate that you \b do \b not want
@@ -84,7 +85,7 @@ namespace RTT
         }
 #endif
     private:
-        OS::Semaphore count;
+        os::Semaphore count;
     };
-}
+}}
 #endif

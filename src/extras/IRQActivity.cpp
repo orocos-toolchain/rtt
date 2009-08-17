@@ -7,6 +7,8 @@
 #include <iostream>
 
 using namespace RTT;
+using namespace extras;
+using namespace base;
 
 IRQActivity::IRQActivity(int priority, RunnableInterface* _r, const std::string& name )
     : Activity(priority, 0.0, _r, name)

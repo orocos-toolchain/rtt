@@ -9,7 +9,7 @@
 
 module RTT
 {
-  module Corba
+  module corba
   {
     /**
      * Exposes both attributes and properties

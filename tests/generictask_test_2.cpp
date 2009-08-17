@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE( testCommandFromDS)
     BOOST_CHECK( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
 
-    std::vector<RTT::DataSourceBase::shared_ptr> args;
+    std::vector<DataSourceBase::shared_ptr> args;
     CommandC c0  = to.commands()->create("c0");
     CommandC c10 = to.commands()->create("c10").argC(1);
     CommandC c11 = to.commands()->create("c11").argC(1);

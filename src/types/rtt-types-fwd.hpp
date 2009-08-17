@@ -8,6 +8,7 @@ namespace RTT {
         class EmptyTypeInfo;
         class OperatorRepository;
         class RealTimeToolkitPlugin;
+        template<typename T, bool use_ostream>
         class TemplateTypeInfo;
         class Toolkit;
         class ToolkitPlugin;
@@ -31,8 +32,6 @@ namespace RTT {
         struct SizeAssignChecker;
         template<class T>
         struct BuildType;
-        template<class T>
-        struct get_size;
         template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>
         class TemplateContainerTypeInfo;
         template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>
@@ -41,20 +40,15 @@ namespace RTT {
         struct StdVectorBuilder;
         template<typename T>
         struct TypeInfoName;
-        template<typename T>
-        struct stdvector_ctor2;
-        template<typename T>
-        struct stdvector_ctor;
-        template<typename T>
-        struct stdvector_index;
-        template<typename T>
-        struct stdvector_varargs_ctor;
         template<typename function>
         class BinaryOperator;
         template<typename function>
         class DotOperator;
         template<typename function>
         class UnaryOperator;
+    }
+    namespace detail {
+        using namespace types;
     }
 }
 #endif

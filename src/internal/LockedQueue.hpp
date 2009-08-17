@@ -7,7 +7,8 @@
 #include "../os/MutexLock.hpp"
 
 namespace RTT
-{
+{ namespace internal {
+
     /**
      * A lock-based queue implementation to \a enqueue or \a dequeue
      * a pointer of type \a T.
@@ -15,14 +16,14 @@ namespace RTT
      * @param T The pointer type to be stored in the queue.
      * Example : \begincode LockedQueue<A*> \endcode is a queue which holds values of type A.
      * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
      * This does not influence partial filled queue behaviour.
      * @param WritePolicy The Policy to block (wait) on \a full (during enqueue),
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
      * @ingroup CoreLibBuffers
      */
-    template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+    template< class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
     class LockedQueue
     {
     public:
@@ -31,7 +32,7 @@ namespace RTT
         typedef std::deque<value_t> BufferType;
         typedef typename BufferType::iterator Iterator;
         typedef typename BufferType::const_iterator CIterator;
-        mutable OS::Mutex lock;
+        mutable os::Mutex lock;
         BufferType data;
 
         int cap;
@@ -66,7 +67,7 @@ namespace RTT
 
         size_type size() const
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             return data.size();
         }
 
@@ -76,7 +77,7 @@ namespace RTT
          */
         bool isEmpty() const
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             return data.empty();
         }
 
@@ -86,13 +87,13 @@ namespace RTT
          */
         bool isFull() const
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             return data.size() ==  cap;
         }
 
         void clear()
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             data.clear();
         }
 
@@ -105,7 +106,7 @@ namespace RTT
         {
             write_policy.pop();
             {
-                OS::MutexLock locker(lock);
+                os::MutexLock locker(lock);
                 if (cap == data.size() )
                     return false;
                 data.push_back(value);
@@ -125,7 +126,7 @@ namespace RTT
             int ret;
             write_policy.pop();
             {
-                OS::MutexLock locker(lock);
+                os::MutexLock locker(lock);
                 if (cap == data.size() )
                     return 0;
                 data.push_back(value);
@@ -144,7 +145,7 @@ namespace RTT
         {
             read_policy.pop();
             {
-                OS::MutexLock locker(lock);
+                os::MutexLock locker(lock);
                 if ( data.empty() )
                     return false;
                 result = data.front();
@@ -165,7 +166,7 @@ namespace RTT
             int ret;
             read_policy.pop();
             {
-                OS::MutexLock locker(lock);
+                os::MutexLock locker(lock);
                 if ( data.empty() )
                     return 0;
                 result = data.front();
@@ -181,7 +182,7 @@ namespace RTT
          */
         value_t front() const
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             value_t item = value_t();
             if ( !data.empty() )
                 item = data.front();
@@ -193,7 +194,7 @@ namespace RTT
          */
         value_t back() const
         {
-            OS::MutexLock locker(lock);
+            os::MutexLock locker(lock);
             value_t item = value_t();
             if ( !data.empty() )
                 item = data.back();
@@ -202,6 +203,6 @@ namespace RTT
 
     };
 
-}
+}}
 
 #endif

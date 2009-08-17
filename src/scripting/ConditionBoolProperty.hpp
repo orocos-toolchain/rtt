@@ -45,14 +45,15 @@
 
 
 namespace RTT
-{
+{ namespace scripting {
+
   /**
    * ConditionBoolProperty is a Condition which reads out a
    * Property<bool>.
    * @deprecated Remove this low-level class since it's nowhere used.
    */
   class RTT_API ConditionBoolProperty
-    : public ConditionInterface
+    : public base::ConditionInterface
   {
     const Property<bool>& mprop;
   public:
@@ -64,6 +65,6 @@ namespace RTT
     ConditionBoolProperty* clone() const;
     std::string toString();
   };
-}
+}}
 
 #endif

@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace base
     {
         /**
          * The base class for all method implementations. Both local and remove
@@ -52,7 +52,7 @@ namespace RTT
          */
         template<class F>
         struct MethodBase
-            : public InvokerBase<F>,
+            : public internal::InvokerBase<F>,
               public ActionInterface
         {
             virtual ~MethodBase() {}

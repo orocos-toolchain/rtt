@@ -50,7 +50,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace scripting {
+
     /**
      * This class implements a real-time state machine executor.
      *
@@ -66,7 +67,7 @@ namespace RTT
      * @ingroup Processor
      */
     class RTT_API StateMachineProcessor
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     public:
         /**
@@ -142,11 +143,11 @@ namespace RTT
         void recursiveUnloadStateMachine( StateMachinePtr sc );
         bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
 
-        typedef List<StateMachinePtr> StateMap;
+        typedef internal::List<StateMachinePtr> StateMap;
         StateMap*   states;
 
     };
 
-}
+}}
 
 #endif

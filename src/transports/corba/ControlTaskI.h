@@ -71,7 +71,6 @@
 
 #include "../rtt-config.h"
 #include "corba.h"
-#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"
 #else
@@ -84,6 +83,7 @@
 #include "ServicesC.h"
 #include "DataFlowC.h"
 #include "../../TaskContext.hpp"
+#include "../../interface/OperationInterface.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -94,18 +94,18 @@ class Orocos_MethodInterface_i;
 class Orocos_CommandInterface_i;
 
 class  Orocos_ControlObject_i
-    : public virtual POA_RTT::Corba::ControlObject
+    : public virtual POA_RTT::corba::ControlObject
     , public virtual PortableServer::RefCountServantBase
 {
 protected:
     PortableServer::POA_var mpoa;
 
 private:
-    RTT::OperationInterface* mobj;
+    RTT::interface::OperationInterface* mobj;
 
-    RTT::Corba::AttributeInterface_var mAttrs;
-    RTT::Corba::MethodInterface_var    mMFact;
-    RTT::Corba::CommandInterface_var   mCFact;
+    RTT::corba::AttributeInterface_var mAttrs;
+    RTT::corba::MethodInterface_var    mMFact;
+    RTT::corba::CommandInterface_var   mCFact;
 
     PortableServer::ServantBase_var mAttrs_i;
     PortableServer::ServantBase_var mMFact_i;
@@ -116,7 +116,7 @@ private:
 
 public:
   //Constructor
-  Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa);
+  Orocos_ControlObject_i (RTT::interface::OperationInterface* orig, PortableServer::POA_ptr the_poa);
 
   //Destructor
   virtual ~Orocos_ControlObject_i (void);
@@ -140,7 +140,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::AttributeInterface_ptr attributes (
+  ::RTT::corba::AttributeInterface_ptr attributes (
 
     )
     ACE_THROW_SPEC ((
@@ -148,7 +148,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::MethodInterface_ptr methods (
+  ::RTT::corba::MethodInterface_ptr methods (
 
     )
     ACE_THROW_SPEC ((
@@ -156,7 +156,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::CommandInterface_ptr commands (
+  ::RTT::corba::CommandInterface_ptr commands (
 
     )
     ACE_THROW_SPEC ((
@@ -164,13 +164,13 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::ObjectList* getObjectList()
+  ::RTT::corba::ObjectList* getObjectList()
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
 
   virtual
-  ::RTT::Corba::ControlObject_ptr getObject(const char*)
+  ::RTT::corba::ControlObject_ptr getObject(const char*)
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
@@ -184,15 +184,15 @@ public:
 };
 
 class  Orocos_ControlTask_i
-: public virtual POA_RTT::Corba::ControlTask, public virtual PortableServer::RefCountServantBase,
+: public virtual POA_RTT::corba::ControlTask, public virtual PortableServer::RefCountServantBase,
   public Orocos_ControlObject_i
 {
 protected:
     RTT::TaskContext* mtask;
 
-    RTT::Corba::ScriptingAccess_var mEEFact;
-    RTT::Corba::ServiceInterface_var mService;
-    RTT::Corba::DataFlowInterface_var mDataFlow;
+    RTT::corba::ScriptingAccess_var mEEFact;
+    RTT::corba::ServiceInterface_var mService;
+    RTT::corba::DataFlowInterface_var mDataFlow;
 
     PortableServer::ServantBase_var mEEFact_i;
     PortableServer::ServantBase_var mService_i;
@@ -208,7 +208,7 @@ public:
   void shutdownCORBA();
 
   virtual
-  ::RTT::Corba::TaskState getTaskState (
+  ::RTT::corba::TaskState getTaskState (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -314,7 +314,7 @@ public:
 
 
   virtual
-  ::RTT::Corba::ScriptingAccess_ptr scripting (
+  ::RTT::corba::ScriptingAccess_ptr scripting (
 
     )
     ACE_THROW_SPEC ((
@@ -322,7 +322,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::ServiceInterface_ptr services (
+  ::RTT::corba::ServiceInterface_ptr services (
 
     )
     ACE_THROW_SPEC ((
@@ -330,7 +330,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::DataFlowInterface_ptr ports (
+  ::RTT::corba::DataFlowInterface_ptr ports (
 
     )
     ACE_THROW_SPEC ((
@@ -339,7 +339,7 @@ public:
 
 
   virtual
-  ::RTT::Corba::ControlTask::ControlTaskNames * getPeerList (
+  ::RTT::corba::ControlTask::ControlTaskNames * getPeerList (
 
     )
     ACE_THROW_SPEC ((
@@ -347,7 +347,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::ControlTask_ptr getPeer (
+  ::RTT::corba::ControlTask_ptr getPeer (
       const char * name
     )
     ACE_THROW_SPEC ((
@@ -356,7 +356,7 @@ public:
 
   virtual
   CORBA::Boolean addPeer (
-      ::RTT::Corba::ControlTask_ptr p,
+      ::RTT::corba::ControlTask_ptr p,
       const char * alias
     )
     ACE_THROW_SPEC ((
@@ -381,7 +381,7 @@ public:
 
   virtual
   CORBA::Boolean connectPeers (
-      ::RTT::Corba::ControlTask_ptr p
+      ::RTT::corba::ControlTask_ptr p
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -397,7 +397,7 @@ public:
 
   virtual
   CORBA::Boolean connectPorts (
-      ::RTT::Corba::ControlTask_ptr p
+      ::RTT::corba::ControlTask_ptr p
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException

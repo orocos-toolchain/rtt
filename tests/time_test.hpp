@@ -30,9 +30,9 @@
 class TimeTest
 {
 public:
-	RTT::TimeService* hbg;
+	RTT::os::TimeService* hbg;
     double small_S, normal_S, long_S;
-    RTT::TimeService::ticks small_t, normal_t, long_t;
+    RTT::os::TimeService::ticks small_t, normal_t, long_t;
     RTT::nsecs small_ns, normal_ns, long_ns;
 
 	TimeTest();

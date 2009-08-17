@@ -53,7 +53,8 @@
 #endif
 
 namespace RTT
-{
+{ namespace extras {
+
 
     /**
      * @brief A static allocated Vector.
@@ -468,6 +469,6 @@ namespace RTT
         return os;
     }
 
-}
+}}
 
 #endif

@@ -47,7 +47,7 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * @brief This manager starts and stops all globally registered start/stop
      * functions, without a particular order.

@@ -43,14 +43,15 @@
 #include "rtt-config.h"
 
 namespace RTT
-{
+{ namespace scripting {
+
 
     /**
      * A conditional that evaluates the first time true
      * and afterwards always false (or vice versa).
      */
     class RTT_API ConditionOnce
-        : public ConditionInterface
+        : public base::ConditionInterface
     {
 
     public:
@@ -68,7 +69,7 @@ namespace RTT
 
         virtual void reset();
 
-        ConditionInterface* clone() const;
+        base::ConditionInterface* clone() const;
 
     private:
         /**
@@ -79,6 +80,6 @@ namespace RTT
         bool _what;
     };
 
-}
+}}
 
 #endif

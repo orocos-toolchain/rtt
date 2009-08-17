@@ -44,7 +44,8 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{
+{ namespace internal {
+
 
     /**
      * A memory pool in which allocate() and deallocate() are lock-free.
@@ -391,6 +392,6 @@ namespace RTT
         }
     };
 
-}
+}}
 
 #endif

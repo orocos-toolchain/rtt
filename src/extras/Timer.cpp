@@ -40,8 +40,10 @@
 #include "../os/MutexLock.hpp"
 #include "../Activity.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace base;
+    using namespace extras;
+    using namespace os;
 
     bool Timer::initialize() {
         // only start if non periodic.
@@ -61,10 +63,10 @@ namespace RTT
             TimerId next_timer_id = 0;
 
             // Select next timer.
-            {// This scope is for OS::MutexLock.
+            {// This scope is for MutexLock.
                 // find wake_up_time
                 // check timers queue.
-                OS::MutexLock locker(m);
+                MutexLock locker(m);
                 // We can't use infinite as the OS may internally use time_spec, which can not
                 // represent as much in the future (until 2038) // XXX Year-2038 Bug
                 wake_up_time = (TimeService::InfiniteNSecs/4)-1;
@@ -74,7 +76,7 @@ namespace RTT
                         next_timer_id = it - mtimers.begin();
                     }
                 }
-            }// OS::MutexLock
+            }// MutexLock
 
             // Wait
             int ret = 0;
@@ -88,7 +90,7 @@ namespace RTT
                 // a timer expired
                 // First: reset/reprogram the timer that expired:
                 {
-                    OS::MutexLock locker(m);
+                    MutexLock locker(m);
                     // detect corner case for resize:
                     if ( next_timer_id < int(mtimers.size()) ) {
                         // now clear or reprogram it.
@@ -142,7 +144,7 @@ namespace RTT
 
     void Timer::setMaxTimers(TimerId max)
     {
-        OS::MutexLock locker(m);
+        MutexLock locker(m);
         mtimers.resize(max, std::make_pair(Time(0), Time(0)) );
     }
 
@@ -154,7 +156,7 @@ namespace RTT
         Time due_time = mTimeserv->getNSecs() + Seconds_to_nsecs( period );
 
         {
-            OS::MutexLock locker(m);
+            MutexLock locker(m);
             mtimers[timer_id].first = due_time;
             mtimers[timer_id].second = Seconds_to_nsecs( period );
         }
@@ -171,7 +173,7 @@ namespace RTT
         Time due_time = now + Seconds_to_nsecs( wait_time );
 
         {
-            OS::MutexLock locker(m);
+            MutexLock locker(m);
             mtimers[timer_id].first  = due_time;
             mtimers[timer_id].second = 0;
         }
@@ -181,7 +183,7 @@ namespace RTT
 
     bool Timer::isArmed(TimerId timer_id) const
     {
-        OS::MutexLock locker(m);
+        MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return false;
         return mtimers[timer_id].first != 0;
@@ -189,7 +191,7 @@ namespace RTT
 
     double Timer::timeRemaining(TimerId timer_id) const
     {
-        OS::MutexLock locker(m);
+        MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return 0.0;
         Time now = mTimeserv->getNSecs();
@@ -202,7 +204,7 @@ namespace RTT
 
     bool Timer::killTimer(TimerId timer_id)
     {
-        OS::MutexLock locker(m);
+        MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return false;
         mtimers[timer_id].first = 0;

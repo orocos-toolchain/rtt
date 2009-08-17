@@ -43,25 +43,25 @@
 #include "OperationsC.h"
 
 namespace RTT
-{namespace Corba
+{namespace corba
 {
 
     /**
      * This class manages the access of remote Action Corba Servers.
      */
     class RTT_CORBA_API ActionProxy
-        : public ActionInterface
+        : public base::ActionInterface
     {
     protected:
-        static std::map<Corba::Action_ptr, ActionProxy*> proxies;
+        static std::map<corba::Action_ptr, ActionProxy*> proxies;
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ActionProxy( ::RTT::Corba::Action_ptr t );
+        ActionProxy( ::RTT::corba::Action_ptr t );
 
-        Corba::Action_var mdata;
+        corba::Action_var mdata;
 
     public:
 
@@ -70,14 +70,14 @@ namespace RTT
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static ActionProxy* Create(::RTT::Corba::Action_ptr act);
+        static ActionProxy* Create(::RTT::corba::Action_ptr act);
 
         /**
          * Get the Corba Object reference of the Action.
          * This object universally identifies the remote Action Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        Corba::Action_ptr server() const;
+        corba::Action_ptr server() const;
 
         virtual void readArguments() {}
 
@@ -89,11 +89,11 @@ namespace RTT
             mdata->reset();
         }
 
-        virtual ActionInterface* clone() const {
+        virtual base::ActionInterface* clone() const {
             return new ActionProxy( mdata.in() );
         }
 
-        virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

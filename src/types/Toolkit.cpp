@@ -42,8 +42,8 @@
 #include "../Logger.hpp"
 #include <algorithm>
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
     std::vector<ToolkitPlugin*> Toolkit::Tools;

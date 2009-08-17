@@ -44,7 +44,8 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{
+{ namespace dev {
+
     /**
      * A class representing a Digital Input device from which a
      * maximum of 32 bits can be read at once. When there are N
@@ -124,7 +125,7 @@ namespace RTT
             virtual unsigned int nbOfInputs() const = 0;
 
     };
-};
+}};
 
 
 

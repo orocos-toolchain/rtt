@@ -36,8 +36,9 @@
  ***************************************************************************/
 #include "AsynchCommandDecorator.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace scripting;
+    using namespace base;
 
 	AsynchCommandDecorator::AsynchCommandDecorator(ActionInterface* cmd)
 		: command(cmd),executed(false)

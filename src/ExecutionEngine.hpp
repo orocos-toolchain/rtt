@@ -59,11 +59,6 @@
 
 namespace RTT
 {
-    class TaskCore;
-    class CommandProcessor;
-    class EventProcessor;
-    class ProgramProcessor;
-    class StateMachineProcessor;
 
     /**
      * An execution engine serialises (executes one after the other)
@@ -73,45 +68,45 @@ namespace RTT
      * respect to other functions executing in the same execution
      * engine.
      *
-     * The ExecutionEngine bundles a CommandProcessor, ProgramProcessor,
-     * StateMachineProcessor and EventProcessor.
+     * The ExecutionEngine bundles a internal::CommandProcessor, scripting::ProgramProcessor,
+     * scripting::StateMachineProcessor and EventProcessor.
      *
      * @par Changing the Execution Policy
      * One can subclass this class in order to change the run-time
-     * behaviour. Use TaskCore::setExecutionEngine in order to
+     * behaviour. Use base::TaskCore::setExecutionEngine in order to
      * install a new ExecutionEngine in a component. All Members of
      * this class are protected and thus accessible in a subclass.
      * @ingroup Processor
      */
     class RTT_API ExecutionEngine
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     protected:
         enum EngineState { Stopped, Activating, Active, Running };
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
          */
-        TaskCore*     taskc;
+        base::TaskCore*     taskc;
 
         /**
          * The ExecutionEngine keeps a state of its own which is synchronised
-         * with the parent and child TaskCore states.
+         * with the parent and child base::TaskCore states.
          */
         EngineState     estate;
 
         /**
-         * We store the Processors as RunnableInterface pointers,
+         * We store the Processors as base::RunnableInterface pointers,
          * and dynamic_cast them back to the correct type.
          */
-        RunnableInterface* cproc;
-        RunnableInterface* pproc;
-        RunnableInterface* smproc;
-        RunnableInterface* eproc;
+        base::RunnableInterface* cproc;
+        base::RunnableInterface* pproc;
+        base::RunnableInterface* smproc;
+        base::RunnableInterface* eproc;
 
         /**
          * All tasks which execute in this ExecutionEngine.
          */
-        std::vector<TaskCore*> children;
+        std::vector<base::TaskCore*> children;
 
         /**
          * Install new Processors.
@@ -125,12 +120,12 @@ namespace RTT
         bool startContexts();
     public:
         /**
-         * Create an execution engine with a CommandProcessor, ProgramProcessor
+         * Create an execution engine with a internal::CommandProcessor, scripting::ProgramProcessor
          * and StateMachineProcessor.
-         * @param owner The TaskCore in which this execution engine executes.
-         * It may be null, in that case no TaskCore owns this execution engine.
+         * @param owner The base::TaskCore in which this execution engine executes.
+         * It may be null, in that case no base::TaskCore owns this execution engine.
          */
-        ExecutionEngine( TaskCore* owner = 0);
+        ExecutionEngine( base::TaskCore* owner = 0);
 
         ~ExecutionEngine();
 
@@ -155,7 +150,7 @@ namespace RTT
 
         /**
          * Executes (in that order) programs, state machines, commands,
-         * events and the TaskCore's update() function.
+         * events and the base::TaskCore's update() function.
          */
         virtual void step();
 
@@ -163,73 +158,73 @@ namespace RTT
 
         virtual void finalize();
 
-        virtual void setActivity(ActivityInterface* t);
+        virtual void setActivity(base::ActivityInterface* t);
 
         virtual bool hasWork();
 
         /**
-         * The TaskCore which created this ExecutionEngine.
+         * The base::TaskCore which created this ExecutionEngine.
          */
-        TaskCore* getParent();
+        base::TaskCore* getParent();
 
         /**
-         * Add a TaskCore to execute.
+         * Add a base::TaskCore to execute.
          */
-        virtual void addChild(TaskCore* tc);
+        virtual void addChild(base::TaskCore* tc);
 
         /**
-         * Remove a TaskCore from execution.
+         * Remove a base::TaskCore from execution.
          */
-        virtual void removeChild(TaskCore* tc);
+        virtual void removeChild(base::TaskCore* tc);
 
         /**
          * Returns the owner of this execution engine.
          */
-        TaskCore* getTaskCore() const { return taskc; }
+        base::TaskCore* getTaskCore() const { return taskc; }
 
         /**
-         * Return the CommandProcessor of this engine.
+         * Return the internal::CommandProcessor of this engine.
          */
-        CommandProcessor* commands() const;
+        internal::CommandProcessor* commands() const;
 
         /**
-         * Return the ProgramProcessor of this engine.
+         * Return the scripting::ProgramProcessor of this engine.
          */
-        ProgramProcessor* programs() const;
+        scripting::ProgramProcessor* programs() const;
 
         /**
-         * Return the StateMachineProcessor of this engine.
+         * Return the scripting::StateMachineProcessor of this engine.
          */
-        StateMachineProcessor* states() const;
+        scripting::StateMachineProcessor* states() const;
 
         /**
-         * Return the EventProcessor of this engine.
+         * Return the internal::EventProcessor of this engine.
          */
-        EventProcessor* events() const;
+        internal::EventProcessor* events() const;
 
         /**
          * Install a new CommandProcessor.
          * @param c becomes owned by this object and is returned in commands().
          */
-        virtual void setCommandProcessor(CommandProcessor* c);
+        virtual void setCommandProcessor(internal::CommandProcessor* c);
 
         /**
          * Install a new ProgramProcessor.
          * @param p becomes owned by this object and is returned in programs().
          */
-        virtual void setProgramProcessor(ProgramProcessor* p);
+        virtual void setProgramProcessor(scripting::ProgramProcessor* p);
 
         /**
          * Install a new StateMachineProcessor.
          * @param s becomes owned by this object and is returned in states().
          */
-        virtual void setStateMachineProcessor(StateMachineProcessor* s);
+        virtual void setStateMachineProcessor(scripting::StateMachineProcessor* s);
 
         /**
          * Install a new EventProcessor.
          * @param e becomes owned by this object and is returned in events().
          */
-        virtual void setEventProcessor(EventProcessor* e);
+        virtual void setEventProcessor(internal::EventProcessor* e);
 
     };
 

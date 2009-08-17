@@ -41,8 +41,8 @@
 #include "../ExecutionEngine.hpp"
 #include "ActivityInterface.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
     using namespace std;
 

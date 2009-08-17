@@ -68,6 +68,8 @@ namespace RTT
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
 #endif
+    using namespace marsh;
+    using namespace base;
 
     inline bool XMLChToStdString(const XMLCh* const c, std::string& res)
     {

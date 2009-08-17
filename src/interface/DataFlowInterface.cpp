@@ -44,6 +44,8 @@
 
 namespace RTT
 {
+    using namespace detail;
+
     DataFlowInterface::DataFlowInterface(OperationInterface* parent /* = 0 */)
         : mparent(parent)
     {}

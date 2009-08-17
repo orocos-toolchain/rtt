@@ -49,11 +49,11 @@
 #include "DataSources.hpp"
 
 namespace RTT {
-    namespace detail {
+    namespace internal {
 
         /**
          * Class used by ConnectionC to 'wrap' user functions
-         * to a form usable by the EventService, namely a void(void)
+         * to a form usable by the interface::EventService, namely a void(void)
          * function with a list of AssignableDataSources which store
          * the event arguments.
          */
@@ -61,7 +61,7 @@ namespace RTT {
         {
             virtual ~EventCallBack() {}
             virtual void callback() = 0;
-            virtual std::vector<DataSourceBase::shared_ptr> args() = 0;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() = 0;
         };
 
         template<class Function, int arity>
@@ -82,8 +82,8 @@ namespace RTT {
                     mfoo();
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                return std::vector<DataSourceBase::shared_ptr>();
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                return std::vector<base::DataSourceBase::shared_ptr>();
             }
         };
 
@@ -102,8 +102,8 @@ namespace RTT {
                     mfoo( marg->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg );
                 return a;
             }
@@ -129,8 +129,8 @@ namespace RTT {
                     mfoo( marg1->set(), marg2->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 return a;
@@ -159,8 +159,8 @@ namespace RTT {
                     mfoo( marg1->set(), marg2->set(), marg3->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 a.push_back( marg3 );
@@ -186,8 +186,8 @@ namespace RTT {
                     mfoo();
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                return std::vector<DataSourceBase::shared_ptr>();
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                return std::vector<base::DataSourceBase::shared_ptr>();
             }
         };
 
@@ -210,8 +210,8 @@ namespace RTT {
                     mfoo( marg->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg );
                 return a;
             }
@@ -239,8 +239,8 @@ namespace RTT {
                     mfoo( marg1->set(), marg2->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 return a;
@@ -272,8 +272,8 @@ namespace RTT {
                     mfoo( marg1->set(), marg2->set(), marg3->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<base::DataSourceBase::shared_ptr> args() {
+                std::vector<base::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 a.push_back( marg3 );

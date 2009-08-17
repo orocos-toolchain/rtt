@@ -44,7 +44,8 @@
 #include "BufferBase.hpp"
 
 namespace RTT
-{
+{ namespace base {
+
 
     /**
      * This interface describes a read interface for value types.
@@ -85,7 +86,7 @@ namespace RTT
         {}
 
     };
-}
+}}
 
 #endif // READINTERFACE_HPP
 

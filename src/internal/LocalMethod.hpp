@@ -47,11 +47,11 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace internal
     {
         template<class FunctionT>
         class LocalMethodImpl
-            : public MethodBase<FunctionT>
+            : public base::MethodBase<FunctionT>
         {
         protected:
             boost::function<FunctionT> mmeth;
@@ -148,7 +148,7 @@ namespace RTT
             template<class M, class ObjectType>
             LocalMethod(M meth, ObjectType object)
             {
-                this->mmeth = detail::MethodBinder<Signature>()(meth, object);
+                this->mmeth = MethodBinder<Signature>()(meth, object);
             }
 
             /**
@@ -168,12 +168,12 @@ namespace RTT
                 return this->mmeth;
             }
 
-            ActionInterface* clone() const
+            base::ActionInterface* clone() const
             {
                 return new LocalMethod<Signature>(*this);
             }
 
-            MethodBase<Signature>* cloneI() const
+            base::MethodBase<Signature>* cloneI() const
             {
                 return new LocalMethod<Signature>(*this);
             }

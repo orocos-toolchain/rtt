@@ -40,10 +40,8 @@
 #include "TypeStream-io.hpp"
 #include <sstream>
 
-namespace RTT
-{
-
-
+namespace RTT {
+    namespace types {
     using namespace std;
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
     {
@@ -75,5 +73,5 @@ namespace RTT
             v = t;
         return os;
     }
-}
+}}
 

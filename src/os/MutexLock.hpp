@@ -43,7 +43,7 @@
 #include "Mutex.hpp"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * @brief MutexLock is a scope based Monitor, protecting critical
      * sections with a Mutex object through locking and unlocking it.
@@ -57,7 +57,7 @@ namespace RTT
              *
              * @param mutex The Mutex to be locked.
              */
-            MutexLock( OS::MutexInterface &mutex )
+            MutexLock( MutexInterface &mutex )
             {
                 _mutex = &mutex;
                 _mutex->lock ();
@@ -72,7 +72,7 @@ namespace RTT
             }
 
         protected:
-            OS::MutexInterface *_mutex;
+            MutexInterface *_mutex;
 
             MutexLock()
             {}
@@ -94,7 +94,7 @@ namespace RTT
              *
              * @param mutex The Mutex which should be attempted to be locked
              */
-            MutexTryLock( OS::MutexInterface &mutex )
+            MutexTryLock( MutexInterface &mutex )
                     : _mutex( &mutex), successful( mutex.trylock() )
             {
             }
@@ -122,7 +122,7 @@ namespace RTT
             /**
              * The Mutex to lock and unlock
              */
-            OS::MutexInterface *_mutex;
+            MutexInterface *_mutex;
 
             MutexTryLock()
             {}
@@ -155,7 +155,7 @@ namespace RTT
               * @param mutex The Mutex which should be attempted to be locked
               * @param timeout The maximum time to wait in seconds.
               */
-             MutexTimedLock( OS::MutexInterface &mutex, Seconds timeout )
+             MutexTimedLock( MutexInterface &mutex, Seconds timeout )
                      : _mutex( &mutex), successful( mutex.timedlock(timeout) )
              {
              }
@@ -183,7 +183,7 @@ namespace RTT
              /**
               * The Mutex to lock and unlock
               */
-             OS::MutexInterface *_mutex;
+             MutexInterface *_mutex;
 
              MutexTimedLock()
              {}

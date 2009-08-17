@@ -24,6 +24,9 @@
 #include <Event.hpp>
 #include <extras/SlaveActivity.hpp>
 #include <string>
+#include <rtt-detail-fwd.hpp>
+
+using namespace RTT::detail;
 
 class EventTest
 {
@@ -35,8 +38,8 @@ public:
     bool t_listener_value;
     bool t_completer_value;
     std::string t_listener_what;
-    RTT::EventProcessor* event_proc;
-    RTT::SlaveActivity act;
+    EventProcessor* event_proc;
+    SlaveActivity act;
     float float_sum, float_sub;
 public:
 

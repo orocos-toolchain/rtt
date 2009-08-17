@@ -6,10 +6,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 
-namespace RTT {
-    class ChannelElementBase;
-    void intrusive_ptr_add_ref( ChannelElementBase* e );
-    void intrusive_ptr_release( ChannelElementBase* e );
+namespace RTT { namespace base {
 
     /** In the data flow implementation, a channel is created by chaining
      * ChannelElementBase objects.
@@ -70,7 +67,10 @@ namespace RTT {
         virtual void disconnect(bool forward);
     };
 
-}
+    void intrusive_ptr_add_ref( ChannelElementBase* e );
+    void intrusive_ptr_release( ChannelElementBase* e );
+
+}}
 
 #endif
 

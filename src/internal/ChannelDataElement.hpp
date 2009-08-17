@@ -4,20 +4,21 @@
 #include "../base/ChannelElement.hpp"
 #include "../base/DataObjectInterface.hpp"
 
-namespace RTT {
+namespace RTT { namespace internal {
+
     /** A connection element that stores a single data sample
      */
     template<typename T>
-    class ChannelDataElement : public ChannelElement<T>
+    class ChannelDataElement : public base::ChannelElement<T>
     {
         bool written;
-        typename DataObjectInterface<T>::shared_ptr data;
+        typename base::DataObjectInterface<T>::shared_ptr data;
 
     public:
-        typedef typename ChannelElement<T>::param_t param_t;
-        typedef typename ChannelElement<T>::reference_t reference_t;
+        typedef typename base::ChannelElement<T>::param_t param_t;
+        typedef typename base::ChannelElement<T>::reference_t reference_t;
 
-        ChannelDataElement(typename DataObjectInterface<T>::shared_ptr sample)
+        ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample)
             : written(false), data(sample) {}
 
         /** Update the data sample stored in this element.
@@ -49,10 +50,10 @@ namespace RTT {
         virtual void clear()
         {
             written = false;
-            ChannelElement<T>::clear();
+            base::ChannelElement<T>::clear();
         }
     };
-}
+}}
 
 #endif
 

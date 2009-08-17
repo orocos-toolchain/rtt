@@ -46,7 +46,7 @@
 namespace RTT
 {
 
-    namespace detail {
+    namespace internal {
 
         /**
          * Used to partially specialise the case when returning a void from a functor.
@@ -398,7 +398,7 @@ namespace RTT
         {
             return new FunctorDataSource0( ff.gen );
         }
-        virtual FunctorDataSource0* copy( std::map<const DataSourceBase*, DataSourceBase*>& /*alreadyCloned*/ ) const
+        virtual FunctorDataSource0* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& /*alreadyCloned*/ ) const
         {
           return new FunctorDataSource0<FunctorT>( ff.gen );
         }
@@ -438,7 +438,7 @@ namespace RTT
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1.get() );
       }
-    virtual FunctorDataSource1<FunctorT, Arg1T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource1<FunctorT, Arg1T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1->copy( alreadyCloned ) );
       }
@@ -488,7 +488,7 @@ namespace RTT
         {
             return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
         }
-      virtual FunctorDataSourceDS0<ComponentT,FunctorT>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual FunctorDataSourceDS0<ComponentT,FunctorT>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         {
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
@@ -549,7 +549,7 @@ namespace RTT
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
       }
-    virtual FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
@@ -595,7 +595,7 @@ namespace RTT
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1.get(), arg2.get() );
       }
-    virtual FunctorDataSource2<FunctorT, Arg1T, Arg2T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource2<FunctorT, Arg1T, Arg2T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
       }
@@ -640,7 +640,7 @@ namespace RTT
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1.get(), arg2.get(), arg3.get() );
       }
-    virtual FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
       }
@@ -688,7 +688,7 @@ namespace RTT
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get() );
       }
-    virtual FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
       }
@@ -741,7 +741,7 @@ namespace RTT
         return new FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get(), arg5.get() );
       }
-    virtual FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned), arg5->copy(alreadyCloned) );
       }
@@ -796,7 +796,7 @@ namespace RTT
         return new FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get(), arg5.get(), arg6.get() );
       }
-    virtual FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned), arg5->copy(alreadyCloned), arg6->copy(alreadyCloned) );
       }

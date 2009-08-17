@@ -45,8 +45,7 @@
 #include <vector>
 
 namespace RTT
-{
-    class PropertyIntrospection;
+{ namespace types {
 
     /**
      * A decomposePropertyBag method for decomposing a vector<T>
@@ -57,7 +56,7 @@ namespace RTT
     template<class T>
     void decomposeProperty(const std::vector<T>& vec, PropertyBag& targetbag)
     {
-        std::string tname = detail::DataSourceTypeInfo<T>::getType();
+        std::string tname = internal::DataSourceTypeInfo<T>::getType();
         targetbag.setType(tname+"s");
         int dimension = vec.size();
         std::string str;
@@ -93,7 +92,7 @@ namespace RTT
     template<class T>
     bool composeProperty(const PropertyBag& bag, std::vector<T>& result)
     {
-        std::string tname = detail::DataSourceTypeInfo<T>::getType();
+        std::string tname = internal::DataSourceTypeInfo<T>::getType();
         
         if ( bag.getType() == tname+"s" ) {
             int dimension = bag.size();
@@ -109,7 +108,7 @@ namespace RTT
 
                 if(el_bag==NULL){
                     // Works for properties in vector
-                    PropertyBase* element = bag.getItem( i );
+                    base::PropertyBase* element = bag.getItem( i );
                     log(Debug)<<element->getName()<<", "<< element->getDescription()<<endlog();
                     Property<T> my_property_t (element->getName(),element->getDescription());
                     if(my_property_t.getType()!=element->getType())
@@ -205,7 +204,7 @@ namespace RTT
     };
     
     /**
-     * See NArityDataSource which requires a function object like
+     * See internal::NArityDataSource which requires a function object like
      * this one.
      */
     template<typename T>
@@ -227,16 +226,16 @@ namespace RTT
      struct StdVectorBuilder
          : public TypeBuilder
      {
-         virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+         virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
              if (args.size() == 0 )
-                 return DataSourceBase::shared_ptr();
-             typename NArityDataSource<stdvector_varargs_ctor<T> >::shared_ptr vds = new NArityDataSource<stdvector_varargs_ctor<T> >();
+                 return base::DataSourceBase::shared_ptr();
+             typename internal::NArityDataSource<stdvector_varargs_ctor<T> >::shared_ptr vds = new internal::NArityDataSource<stdvector_varargs_ctor<T> >();
              for(unsigned int i=0; i != args.size(); ++i) {
-                 typename DataSource<T>::shared_ptr dsd = AdaptDataSource<T>()( args[i] );
+                 typename internal::DataSource<T>::shared_ptr dsd = internal::AdaptDataSource<T>()( args[i] );
                  if (dsd)
                      vds->add( dsd );
                  else
-                     return DataSourceBase::shared_ptr();
+                     return base::DataSourceBase::shared_ptr();
              }
              return vds;
          }
@@ -280,6 +279,6 @@ namespace RTT
         }
     };
 
-};
+}};
 #endif
 
