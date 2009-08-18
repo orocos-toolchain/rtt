@@ -2,14 +2,6 @@
 #define ORO_RTT_os_FWD_HPP
 
 namespace RTT {
-    /**
-     * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
-     *
-     * It is meant to group all packages which provide OS abstraction
-     * classes and functions in a realtime system. Examples are Threads,
-     * Mutexes and standard libraries. 
-     *
-     */
     namespace os {
         class AtomicInt;
         class MainThread;
