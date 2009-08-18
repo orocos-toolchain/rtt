@@ -13,6 +13,7 @@ namespace RTT {
         class MutexTryLock;
         class Semaphore;
         class StartStopManager;
+        class Thread;
         class ThreadInterface;
         class TimeService;
         class Timer;

@@ -4,6 +4,7 @@
 namespace RTT {
     namespace scripting {
         class ArgumentsParser;
+        class AsynchCommandDecorator;
         class CommandComposite;
         class CommandCounter;
         class CommandDispatch;

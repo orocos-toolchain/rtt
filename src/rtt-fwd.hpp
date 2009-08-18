@@ -12,6 +12,7 @@
 namespace RTT
 {
 
+    class Activity;
     class CleanupHandle;
     class ExecutionEngine;
     class Handle;

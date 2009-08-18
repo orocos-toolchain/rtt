@@ -22,7 +22,8 @@ namespace RTT
      *
      * @ingroup CoreLibActivities
      */
-    class RTT_API Activity: public base::ActivityInterface, public os::Thread
+    class RTT_API Activity
+        : public base::ActivityInterface, public os::Thread
     {
     public:
         /**
