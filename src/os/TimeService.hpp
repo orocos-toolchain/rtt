@@ -18,10 +18,10 @@
 
 
 
-#ifndef HEART_BEAT_GENERATOR_HPP
-#define HEART_BEAT_GENERATOR_HPP
+#ifndef RTT_TIME_SERVICE_HPP
+#define RTT_TIME_SERVICE_HPP
 
-#include "../Time.hpp"
+#include "Time.hpp"
 #include "../rtt-config.h"
 
 namespace RTT

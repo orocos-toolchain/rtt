@@ -37,12 +37,11 @@
 
 
 #include "Timer.hpp"
-#include "../os/MutexLock.hpp"
+#include "MutexLock.hpp"
 #include "../Activity.hpp"
 
 namespace RTT {
     using namespace base;
-    using namespace extras;
     using namespace os;
 
     bool Timer::initialize() {

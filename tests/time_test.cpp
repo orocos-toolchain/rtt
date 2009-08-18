@@ -19,7 +19,7 @@
 
 #include "time_test.hpp"
 #include <boost/bind.hpp>
-#include <extras/Timer.hpp>
+#include <os/Timer.hpp>
 #include <rtt-detail-fwd.hpp>
 #include <iostream>
 

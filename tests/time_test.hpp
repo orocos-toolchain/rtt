@@ -23,7 +23,7 @@
 
 #include <Time.hpp>
 #include <os/TimeService.hpp>
-#include <extras/Timer.hpp>
+#include <os/Timer.hpp>
 #include <string>
 #include <rtt-config.h>
 

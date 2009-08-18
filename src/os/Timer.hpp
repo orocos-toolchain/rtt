@@ -39,17 +39,17 @@
 #ifndef ORO_RTT_TIMER_HPP
 #define ORO_RTT_TIMER_HPP
 
-#include "../Time.hpp"
-#include "../os/TimeService.hpp"
-#include "../os/Mutex.hpp"
-#include "../os/Semaphore.hpp"
-#include "../os/ThreadInterface.hpp"
+#include "Time.hpp"
+#include "TimeService.hpp"
+#include "Mutex.hpp"
+#include "Semaphore.hpp"
+#include "ThreadInterface.hpp"
 #include "../base/RunnableInterface.hpp"
 #include <vector>
 #include <utility>
 
 namespace RTT
-{ namespace extras {
+{ namespace os {
 
     /**
      * This class allows to define a timer object which can be
@@ -72,11 +72,11 @@ namespace RTT
          */
         typedef int TimerId;
     protected:
-        os::TimeService* mTimeserv;
+        TimeService* mTimeserv;
         base::ActivityInterface* mThread;
-        os::Semaphore msem;
-        mutable os::Mutex m;
-        typedef os::TimeService::nsecs Time;
+        Semaphore msem;
+        mutable Mutex m;
+        typedef TimeService::nsecs Time;
         /**
          * Index in vector is the timer id.
          * 1st Time is the absolute time upon which the timer expires.
@@ -149,7 +149,7 @@ namespace RTT
          * @retval 0.0 if the timer is not armed or has already elapsed.
          * @return the remaining time in seconds.
          */
-        os::TimeService::Seconds timeRemaining(TimerId timer_id) const;
+        TimeService::Seconds timeRemaining(TimerId timer_id) const;
 
         /**
          * Check if a given timer id is armed.
