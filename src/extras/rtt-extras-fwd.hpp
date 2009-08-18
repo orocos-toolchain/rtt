@@ -13,7 +13,6 @@ namespace RTT {
         class SimulationActivity;
         class SimulationThread;
         class SlaveActivity;
-        class Timer;
         class TimerThread;
         struct Provider;
         struct RT_INTR;

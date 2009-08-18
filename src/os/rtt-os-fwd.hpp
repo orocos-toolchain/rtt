@@ -15,6 +15,7 @@ namespace RTT {
         class StartStopManager;
         class ThreadInterface;
         class TimeService;
+        class Timer;
         struct CleanupFunction;
         struct InitFunction;
     }
