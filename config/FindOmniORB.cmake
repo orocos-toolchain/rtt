@@ -143,7 +143,7 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("    omniORB installation...")
 
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( NOT OMNIORB4_FOUND )
+ENDIF( OMNIORB4_FOUND )
 
 # Generate all files required for a corba server app.
 # ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... ) 
