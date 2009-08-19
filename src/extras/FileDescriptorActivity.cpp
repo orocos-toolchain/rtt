@@ -69,11 +69,11 @@ void FileDescriptorActivity::unwatch(int fd)
     m_watched_fds.erase(fd);
     FD_CLR(fd, &m_fd_set);
 }
-bool FileDescriptorActivity::isUpdated(int fd) const
+bool FileDescriptorActivity::isUpdated(int fd)
 { return FD_ISSET(fd, &m_fd_work); }
 bool FileDescriptorActivity::hasError() const
 { return m_error; }
-bool FileDescriptorActivity::isWatched(int fd) const
+bool FileDescriptorActivity::isWatched(int fd)
 { return FD_ISSET(fd, &m_fd_set); }
 
 bool FileDescriptorActivity::start()

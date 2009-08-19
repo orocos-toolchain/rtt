@@ -72,12 +72,12 @@ namespace RTT { namespace extras {
 
         /** True if this specific FD is being watched by the activity
          */
-        bool isWatched(int fd) const;
+        bool isWatched(int fd);
 
         /** True if this specific FD has been updated. This should only be
          * called from the base::RunnableInterface this activity is driving.
          */
-        bool isUpdated(int fd) const;
+        bool isUpdated(int fd);
 
         /** True if one of the file descriptors has a problem (for instance it
          * has been closed)
