@@ -68,14 +68,10 @@ namespace RTT
          */
         NewDataOnPortEvent* getNewDataOnPortEvent();
 
-        /** Connects this port with \a other, using the given policy Unlike
-         * OutputPortInterface::createConnection, \a other can be the write port
-         * and \c this the read port.
-         *
-         * @returns true on success, false on failure
-         */
         virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
-    };
+
+        virtual bool connectTo(PortInterface& other);
+};
 
 }}
 

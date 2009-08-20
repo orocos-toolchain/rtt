@@ -99,8 +99,6 @@ namespace RTT
          */
         bool createConnection( InputPortInterface& sink );
 
-        /** Connects this write port to the given read port, using the given
-         * policy */
         virtual bool createConnection( InputPortInterface& sink, internal::ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */
@@ -111,14 +109,10 @@ namespace RTT
          */
         bool removeConnection(ChannelElementBase::shared_ptr channel);
 
-        /** Connects this port with \a other, using the given policy Unlike
-         * OutputPortInterface::createConnection, \a other can be the write port
-         * and \c this the read port.
-         *
-         * @returns true on success, false on failure
-         */
         virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
-    };
+
+        virtual bool connectTo(PortInterface& other);
+};
 }}
 
 #endif

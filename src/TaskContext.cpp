@@ -251,22 +251,11 @@ namespace RTT
             }
 
             // Try to find a way to connect them
-            OutputPortInterface* this_w = dynamic_cast<OutputPortInterface*>(*it);
-            InputPortInterface* other_r = dynamic_cast<InputPortInterface*>(peerport);
-            if (this_w && other_r)
-                failure = failure || !this_w->createConnection(*other_r);
-            else
-            {
-                OutputPortInterface* other_w = dynamic_cast<OutputPortInterface*>(peerport);
-                InputPortInterface* this_r = dynamic_cast<InputPortInterface*>(*it);
-                if (other_w && this_r)
-                    failure = failure || !other_w->createConnection(*this_r);
-                else
-                {
-                    log(Debug)<< "Data flow direction incompatible between ports "
-                        << getName() << "::" << (*it)->getName() << " and "
-                        << peer->getName() << "::" << (*it)->getName() << endlog();
-                }
+            if ( !this_w->connectTo(*other_r) ) {
+                log(Debug)<< "Data flow direction incompatible between ports "
+                          << getName() << "." << (*it)->getName() << " and "
+                          << peer->getName() << "." << (*it)->getName() << endlog();
+                failure = true;
             }
         }
         return !failure;

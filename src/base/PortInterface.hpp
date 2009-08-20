@@ -93,14 +93,22 @@ namespace RTT
          */
         virtual internal::TaskObject* createPortObject();
 
-        /** Connects this port with \a other, using the given policy Unlike
+        /** Connects this port with \a other, using the given policy. Unlike
          * OutputPortInterface::createConnection, \a other can be the write port
          * and \c this the read port.
          *
          * @returns true on success, false on failure
          */
         virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy) = 0;
-    };
+
+        /** Connects this port with \a other, using the default policy of the input. Unlike
+         * OutputPortInterface::createConnection, \a other can be the write port
+         * and \c this the read port.
+         *
+         * @returns true on success, false on failure
+         */
+        virtual bool connectTo(PortInterface& other) = 0;
+};
 
 }}
 

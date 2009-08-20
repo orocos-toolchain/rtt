@@ -95,6 +95,13 @@ bool InputPortInterface::connectTo(PortInterface& other, ConnPolicy const& polic
     return output->createConnection(*this, policy);
 }
 
+bool InputPortInterface::connectTo(PortInterface& other)
+{
+    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
+    if (! output)
+        return false;
+    return output->createConnection(*this);
+}
 
 void InputPortInterface::setInputChannel(ChannelElementBase* channel_output)
 { this->channel = channel_output; }
@@ -216,3 +223,10 @@ bool OutputPortInterface::connectTo(PortInterface& other, ConnPolicy const& poli
     return createConnection(*input, policy);
 }
 
+bool OutputPortInterface::connectTo(PortInterface& other)
+{
+    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(&other);
+    if (! input)
+        return false;
+    return createConnection(*input);
+}
