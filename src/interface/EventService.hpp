@@ -371,7 +371,7 @@ namespace RTT
          @verbatim
          Handle h = setupConnection("EventName").callback( &my_function ).handle();
          h.connect();
-         // or for adding a class method:
+         // or for adding a method:
          h = setupConnection("EventName").callback( boost::bind( &types::MyClass::function, obj) ).handle();
          h.connect();
          @endverbatim
