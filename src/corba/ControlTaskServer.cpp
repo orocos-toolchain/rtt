@@ -45,13 +45,13 @@
 #include <orbsvcs/CosNamingC.h>
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
+#include "tao/TimeBaseC.h"
+#include "tao/Messaging/Messaging.h"
+#include "tao/Messaging/Messaging_RT_PolicyC.h"
 #else
 #include <omniORB4/Naming.hh>
 #endif
 #include "ControlTaskC.h"
-#include "tao/TimeBaseC.h"
-#include "tao/Messaging/Messaging.h"
-#include "tao/Messaging/Messaging_RT_PolicyC.h"
 #include "ControlTaskI.h"
 #include "POAUtility.h"
 #include <iostream>
