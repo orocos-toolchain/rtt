@@ -50,7 +50,7 @@ find_package(Boost 1.32 COMPONENTS program_options thread REQUIRED)
 if(Boost_FOUND)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
   # We don't link with boost here. It depends on the options set by the user.
-  #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} ) 
+  #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
 endif(Boost_FOUND)
 
 # Look for Xerces 
