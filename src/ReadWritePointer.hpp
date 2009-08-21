@@ -89,6 +89,7 @@ namespace RTT
             return value;
         }
     };
+
 }
 
 #endif
