@@ -180,6 +180,7 @@ bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channe
 {
     removeChannel(channel);
     connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
+    return true;
 }
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
