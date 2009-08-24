@@ -64,7 +64,6 @@ namespace RTT
         assert( targetbag.empty() );
 
         for ( int i=0; i < dimension ; i++){
-            bool result =true;
             std::stringstream out;
             out << i+1;
             str = out.str();
