@@ -9,11 +9,14 @@
 namespace RTT
 { namespace base {
 
+    /**
+     * The base class of each OutputPort. It contains the connection management code, which is
+     * independent of the actual data being transmitted.
+     */
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
         typedef boost::tuple<PortID*, ChannelElementBase::shared_ptr, internal::ConnPolicy> ChannelDescriptor;
-        internal::ListLockFree< ChannelElementBase::shared_ptr > channels;
         internal::ListLockFree< ChannelDescriptor > connections;
 
         /** Helper method for disconnect(PortInterface*)
@@ -46,31 +49,10 @@ namespace RTT
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
 
-        /** Adds a new channel to the output list of this port. This is thread safe.
-         */
-        void addChannel(ChannelElementBase::shared_ptr channel);
-
-        /** Removes the given output channel from the list of output channels of
-         * this port. This is thread safe.
-         */
-        void removeChannel(ChannelElementBase::shared_ptr channel);
-
-        /** If true, the port keeps track of the last value given to write().
-         * The value can be accessed with InputPort<T>::getLastWrittenValue().
-         *
-         * @see keepLastWrittenValue(bool)
-         */
         virtual bool keepsLastWrittenValue() const = 0;
 
-        /** Set this flag to true so that the port keeps track of the last value
-         * given to write(). The value can be accessed with
-         * InputPort<T>::getLastWrittenValue().
-         *
-         * @see keepLastWrittenValue()
-         */
         virtual void keepLastWrittenValue(bool new_flag) = 0;
 
-        /** Removes all channels from the list of outputs */
         virtual void disconnect();
 
         /** Returns true if there is at least one channel registered in this
@@ -78,9 +60,6 @@ namespace RTT
          */
         virtual bool connected() const;
 
-        /** Writes to the port the value contained by the given data source.
-         * This is only valid for local ports.
-         */
         virtual void write(DataSourceBase::shared_ptr source);
 
         /** Connects this write port to the given read port, using a single-data
@@ -112,7 +91,7 @@ namespace RTT
         virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface& other);
-};
+    };
 }}
 
 #endif

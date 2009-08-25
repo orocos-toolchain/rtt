@@ -12,6 +12,15 @@
 namespace RTT
 {
 
+    /**
+     * A component's data input port. An Orocos input port is used to receive
+     * data samples from a distant publisher. The InputPort is read() and returns
+     * true if a sample is available.
+     *
+     * Ideally, your algorithm should not assume a certain connection policy
+     * being used from output to input. So it should work on data connections
+     * and buffer connections.
+     */
     template<typename T>
     class InputPort : public base::InputPortInterface
     {

@@ -12,6 +12,20 @@
 
 namespace RTT
 {
+    /**
+     * A component's data output port. An Orocos OutputPort is a send-and-forget
+     * mechanism. The publisher writes data samples into the OutputPort and the
+     * underlying middleware will communicate it to all subscribers. An
+     * output port without subscribers is not an error on the component level (it may be at the system
+     * level, which can inspect the status with calling connected() ).
+     *
+     * The data written into an OutputPort should be copyable and should provide
+     * a copy constructor in case it's not plain old data. If you want the RTT
+     * to transport your data over the network, or use it in scripting, you need
+     * to register your data class with the RTT type system.
+     *
+     * @see RTT::types::TemplateTypeInfo for adding custom data classes to the RTT.
+     */
     template<typename T>
     class OutputPort : public base::OutputPortInterface
     {

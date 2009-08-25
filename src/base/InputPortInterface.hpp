@@ -9,6 +9,10 @@ namespace RTT
 { namespace base {
 
 
+    /**
+     * The base class of the InputPort. It contains the connection management code, which is
+     * independent of the actual data being transmitted.
+     */
     class RTT_API InputPortInterface : public PortInterface
     {
     public:
