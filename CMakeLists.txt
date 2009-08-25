@@ -54,6 +54,13 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 #                                                 #
 ###################################################
 
+INCLUDE(CTest)
+ENABLE_TESTING()
+IF(BUILD_TESTING)
+  SET(BUILDNAME "${BUILDNAME}" CACHE STRING "Name of build on the dashboard")
+  MARK_AS_ADVANCED(BUILDNAME)
+ENDIF(BUILD_TESTING)
+
 # MESSAGE("Looking for compiler:")
 INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 
