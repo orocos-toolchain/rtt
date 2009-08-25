@@ -1,3 +1,25 @@
+           The Orocos Real-Time Toolkit v1.8.5.
+           ====================================
+
+This bug-fix release fixes several issues with scripting functions
+and a segmentation fault when linking with OpenCV in certain setups.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.5/orocos-rtt-1.8.5-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
+           The Orocos Real-Time Toolkit v1.8.4.
+           ====================================
+
+This release fixes a compile error that sneaked in just before the
+1.8.3 release.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.4/orocos-rtt-1.8.4-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
            The Orocos Real-Time Toolkit v1.8.3.
            ====================================
 
