@@ -251,7 +251,7 @@ namespace RTT
             }
 
             // Try to find a way to connect them
-            if ( !this_w->connectTo(*other_r) ) {
+            if ( !(*it)->connectTo(*peerport) ) {
                 log(Debug)<< "Data flow direction incompatible between ports "
                           << getName() << "." << (*it)->getName() << " and "
                           << peer->getName() << "." << (*it)->getName() << endlog();
