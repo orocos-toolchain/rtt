@@ -43,9 +43,9 @@
  * back to the exect same type the (void*) originated from and NOT to a
  * sub- or super-class. That would have been allowed without virtual inheritance.
  *
- * Hence, this class uses always the same base class (Expression_ptr) to
+ * Hence, this class uses always the same base class (CExpression_ptr) to
  * communicate with the TypeTransport interface. Such that we know that when
- * we receive a (void*) it came from an (Expression_ptr) and vice versa.
+ * we receive a (void*) it came from an (CExpression_ptr) and vice versa.
  *
  * Don't obey this and you'll get immediate hard to dissect crashes !
  * * * * B I G  N O T E * * * *
@@ -93,7 +93,7 @@ namespace RTT
     const char* IllegalServer::what() const throw() { return reason.c_str(); }
 
 
-    std::map<ControlTaskProxy*, corba::ControlTask_ptr> ControlTaskProxy::proxies;
+    std::map<ControlTaskProxy*, corba::CControlTask_ptr> ControlTaskProxy::proxies;
 
     PortableServer::POA_var ControlTaskProxy::proxy_poa;
 
@@ -124,7 +124,7 @@ namespace RTT
                     orb->string_to_object ( name.c_str() );
 
                 // Now downcast the object reference to the appropriate type
-                mtask = corba::ControlTask::_narrow (task_object.in ());
+                mtask = corba::CControlTask::_narrow (task_object.in ());
             } else {
                 // NameService
                 CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
@@ -141,7 +141,7 @@ namespace RTT
 
                 // Get object reference
                 CORBA::Object_var task_object = rootContext->resolve(serverName);
-                mtask = corba::ControlTask::_narrow (task_object.in ());
+                mtask = corba::CControlTask::_narrow (task_object.in ());
             }
             if ( CORBA::is_nil( mtask ) ) {
                 Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
@@ -166,8 +166,8 @@ namespace RTT
         this->synchronizeOnce();
     }
 
-    ControlTaskProxy::ControlTaskProxy( ::RTT::corba::ControlTask_ptr taskc)
-        : TaskContext("CORBAProxy"), mtask( corba::ControlTask::_duplicate(taskc) )
+    ControlTaskProxy::ControlTaskProxy( ::RTT::corba::CControlTask_ptr taskc)
+        : TaskContext("CORBAProxy"), mtask( corba::CControlTask::_duplicate(taskc) )
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
@@ -193,8 +193,8 @@ namespace RTT
         if (CORBA::is_nil(mtask))
             return;
         log(Info) << "Creating Proxy interface for " << mtask_name <<endlog();
-        log(Debug) << "Fetching ScriptingAccess."<<endlog();
-        corba::ScriptingAccess_var saC = mtask->scripting();
+        log(Debug) << "Fetching CScriptingAccess."<<endlog();
+        corba::CScriptingAccess_var saC = mtask->scripting();
         if ( saC ) {
             delete mscriptAcc;
             mscriptAcc = new ScriptingAccessProxy( saC.in() );
@@ -213,9 +213,9 @@ namespace RTT
         // load command and method factories.
         // methods:
         log(Debug) << "Fetching Methods."<<endlog();
-        MethodInterface_var mfact = mtask->methods();
+        CMethodInterface_var mfact = mtask->methods();
         if (mfact) {
-            MethodList_var objs;
+            CMethodList_var objs;
             objs = mfact->getMethods();
             for ( size_t i=0; i < objs->length(); ++i) {
                 if (this->methods()->hasMember( string(objs[i].in() )))
@@ -225,9 +225,9 @@ namespace RTT
         }
         // commands:
         log(Debug) << "Fetching Commands."<<endlog();
-        CommandInterface_var cfact = mtask->commands();
+        CCommandInterface_var cfact = mtask->commands();
         if (cfact) {
-            CommandList_var objs;
+            CCommandList_var objs;
             objs = cfact->getCommands();
             for ( size_t i=0; i < objs->length(); ++i) {
                 if (this->commands()->hasMember( string(objs[i].in() )))
@@ -238,12 +238,12 @@ namespace RTT
 
         // first do properties:
       log(Debug) << "Fetching Properties."<<endlog();
-        AttributeInterface::PropertyNames_var props = mtask->attributes()->getPropertyList();
+        CAttributeInterface::CPropertyNames_var props = mtask->attributes()->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
             if ( this->attributes()->hasProperty( string(props[i].name.in()) ) )
                 continue; // previously added.
-            Expression_var expr = mtask->attributes()->getProperty( props[i].name.in() );
+            CExpression_var expr = mtask->attributes()->getProperty( props[i].name.in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
                 continue;
@@ -259,7 +259,7 @@ namespace RTT
                 continue;
             }
 #endif
-            AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in() );
+            CAssignableExpression_var as_expr = CAssignableExpression::_narrow( expr.in() );
             // addProperty also adds as attribute...
             if ( CORBA::is_nil( as_expr ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " was not writable !"<<endlog();
@@ -283,17 +283,17 @@ namespace RTT
 
       log(Debug) << "Fetching Attributes."<<endlog();
         // add attributes not yet added by properties:
-        AttributeInterface::AttributeNames_var attrs = mtask->attributes()->getAttributeList();
+        CAttributeInterface::CAttributeNames_var attrs = mtask->attributes()->getAttributeList();
 
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( this->attributes()->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
-            Expression_var expr = mtask->attributes()->getAttribute( attrs[i].in() );
+            CExpression_var expr = mtask->attributes()->getAttribute( attrs[i].in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
                 continue;
             }
-            AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
+            CAssignableExpression_var as_expr = CAssignableExpression::_narrow( expr.in()  );
             // If the type is known, immediately build the correct attribute and datasource,
             // otherwise, build a attribute of CORBA::Any.
             CORBA::String_var tn = expr->getTypeName();
@@ -317,12 +317,12 @@ namespace RTT
         }
 
         log(Debug) << "Fetching Ports."<<endlog();
-        DataFlowInterface_var dfact = mtask->ports();
+        CDataFlowInterface_var dfact = mtask->ports();
         TypeInfoRepository::shared_ptr type_repo = TypeInfoRepository::Instance();
         if (dfact) {
-            DataFlowInterface::PortDescriptions_var objs = dfact->getPortDescriptions();
+            CDataFlowInterface::CPortDescriptions_var objs = dfact->getPortDescriptions();
             for ( size_t i=0; i < objs->length(); ++i) {
-                PortDescription port = objs[i];
+                CPortDescription port = objs[i];
                 if (this->ports()->getPort( port.name.in() ))
                     continue; // already added.
 
@@ -336,7 +336,7 @@ namespace RTT
                 else
                 {
                     PortInterface* new_port;
-                    if (port.type == RTT::corba::Input)
+                    if (port.type == RTT::corba::CInput)
                         new_port = new RemoteInputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
                     else
                         new_port = new RemoteOutputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
@@ -353,16 +353,16 @@ namespace RTT
     }
 
     // Recursively fetch remote objects and create local proxies.
-    void ControlTaskProxy::fetchObjects(OperationInterface* parent, ControlObject_ptr mtask)
+    void ControlTaskProxy::fetchObjects(OperationInterface* parent, CControlObject_ptr mtask)
     {
         log(Debug) << "Fetching Objects of "<<parent->getName()<<":"<<endlog();
 
-        corba::ObjectList_var plist = mtask->getObjectList();
+        corba::CObjectList_var plist = mtask->getObjectList();
 
         for( size_t i =0; i != plist->length(); ++i) {
             if ( string( plist[i] ) == "this")
                 continue;
-            ControlObject_var cobj = mtask->getObject(plist[i]);
+            CControlObject_var cobj = mtask->getObject(plist[i]);
             CORBA::String_var descr = cobj->getDescription();
 
             OperationInterface* tobj = this->getObject(std::string(plist[i]));
@@ -371,17 +371,17 @@ namespace RTT
 
             // add attributes:
             log(Debug) << plist[i] << ": fetching Attributes."<<endlog();
-            AttributeInterface::AttributeNames_var attrs = cobj->attributes()->getAttributeList();
+            CAttributeInterface::CAttributeNames_var attrs = cobj->attributes()->getAttributeList();
 
             for (size_t j=0; j != attrs->length(); ++j) {
                 if ( tobj->attributes()->hasAttribute( string(attrs[j].in()) ) )
                     continue; // previously added.
-                Expression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
+                CExpression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
                 if ( CORBA::is_nil( expr ) ) {
                     log(Error) <<"Attribute "<< string(attrs[j].in()) << " present in getAttributeList() but not accessible."<<endlog();
                     continue;
                 }
-                AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
+                CAssignableExpression_var as_expr = CAssignableExpression::_narrow( expr.in()  );
                 // If the type is known, immediately build the correct attribute and datasource,
                 // otherwise, build a attribute of CORBA::Any.
                 CORBA::String_var tn = expr->getTypeName();
@@ -406,9 +406,9 @@ namespace RTT
 
             // methods:
             log(Debug) << plist[i] << ": fetching Methods."<<endlog();
-            MethodInterface_var mfact = cobj->methods();
+            CMethodInterface_var mfact = cobj->methods();
             if (mfact) {
-                MethodList_var objs;
+                CMethodList_var objs;
                 objs = mfact->getMethods();
                 for ( size_t i=0; i < objs->length(); ++i) {
                     if (tobj->methods()->hasMember( string(objs[i].in() )))
@@ -418,9 +418,9 @@ namespace RTT
             }
             // commands:
             log(Debug) << plist[i] << ": fetching Commands."<<endlog();
-            CommandInterface_var cfact = cobj->commands();
+            CCommandInterface_var cfact = cobj->commands();
             if (cfact) {
-                CommandList_var objs;
+                CCommandList_var objs;
                 objs = cfact->getCommands();
                 for ( size_t i=0; i < objs->length(); ++i) {
                     if (tobj->commands()->hasMember( string(objs[i].in() )))
@@ -466,7 +466,7 @@ namespace RTT
         return 0;
     }
 
-    TaskContext* ControlTaskProxy::Create(::RTT::corba::ControlTask_ptr t, bool force_remote) {
+    TaskContext* ControlTaskProxy::Create(::RTT::corba::CControlTask_ptr t, bool force_remote) {
         Logger::In in("ControlTaskProxy::Create");
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
@@ -485,7 +485,7 @@ namespace RTT
                 return it->first;
             }
         
-        // Check if the ControlTask is actually a local TaskContext
+        // Check if the CControlTask is actually a local TaskContext
         if (! force_remote)
         {
             for (ControlTaskServer::ServerMap::iterator it = ControlTaskServer::servers.begin(); it != ControlTaskServer::servers.end(); ++it)
@@ -512,7 +512,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->start();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -524,7 +524,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->stop();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -536,7 +536,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->activate();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -548,7 +548,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->resetError();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -560,7 +560,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->isActive();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -570,7 +570,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->isRunning();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -580,7 +580,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->configure();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -592,7 +592,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->cleanup();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -604,7 +604,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->isConfigured();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -614,7 +614,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->inFatalError();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -624,7 +624,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->inRunTimeWarning();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -634,7 +634,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->inRunTimeError();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -644,7 +644,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->getErrorCount();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return -1;
     }
@@ -654,7 +654,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return mtask->getWarningCount();
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return -1;
     }
@@ -664,7 +664,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 return TaskContext::TaskState( mtask->getTaskState() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return TaskContext::Init;
     }
@@ -696,7 +696,7 @@ namespace RTT
                 return true;
             }
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -710,7 +710,7 @@ namespace RTT
                 return;
             mtask->removePeer( name.c_str() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -723,7 +723,7 @@ namespace RTT
                 return;
             mtask->removePeer( peer->getName().c_str() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -737,7 +737,7 @@ namespace RTT
             ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
             return mtask->connectPeers( newpeer->server() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -750,7 +750,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask) )
                 mtask->disconnectPeers( name.c_str() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -762,12 +762,12 @@ namespace RTT
         TaskContext::PeerList vlist;
         try {
             if (! CORBA::is_nil(mtask) ) {
-                corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
+                corba::CControlTask::CControlTaskNames_var plist = mtask->getPeerList();
                 for( size_t i =0; i != plist->length(); ++i)
                     vlist.push_back( std::string( plist[i] ) );
             }
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return vlist;
     }
@@ -778,7 +778,7 @@ namespace RTT
             if (! CORBA::is_nil(mtask))
                 return mtask->hasPeer( peer_name.c_str() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
@@ -788,12 +788,12 @@ namespace RTT
         try {
             if (CORBA::is_nil(mtask))
                 return 0;
-            corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
+            corba::CControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
             if ( CORBA::is_nil(ct) )
                 return 0;
             return ControlTaskProxy::Create( ct );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return 0;
     }
@@ -806,7 +806,7 @@ namespace RTT
             ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
             return mtask->connectPorts( newpeer->server() );
         } catch(...) {
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -825,15 +825,15 @@ namespace RTT
         } catch(...) {
             // we could also try to re-establish the connection in case of naming...
             this->clear();
-            mtask = ControlTask::_nil();
+            mtask = CControlTask::_nil();
         }
         return false;
     }
 
-    corba::ControlTask_ptr ControlTaskProxy::server() const {
+    corba::CControlTask_ptr ControlTaskProxy::server() const {
         if ( CORBA::is_nil(mtask) )
-            return ControlTask::_nil();
-        return corba::ControlTask::_duplicate(mtask);
+            return CControlTask::_nil();
+        return corba::CControlTask::_duplicate(mtask);
     }
 
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {

@@ -53,8 +53,8 @@ namespace RTT
 {
     using namespace base;
 
-    CommandProxy::CommandProxy( ::RTT::corba::Command_ptr e)
-        : mdata( ::RTT::corba::Command::_duplicate(e) )
+    CommandProxy::CommandProxy( ::RTT::corba::CCommand_ptr e)
+        : mdata( ::RTT::corba::CCommand::_duplicate(e) )
     {
         try {
             mdata->reset(); // force connect to object.
@@ -76,10 +76,10 @@ namespace RTT
         struct ValidCondition
             : public ConditionInterface
         {
-            ::RTT::corba::Command_var mserver;
+            ::RTT::corba::CCommand_var mserver;
 
-            ValidCondition( ::RTT::corba::Command_ptr server )
-                : mserver(::RTT::corba::Command::_duplicate(server) )
+            ValidCondition( ::RTT::corba::CCommand_ptr server )
+                : mserver(::RTT::corba::CCommand::_duplicate(server) )
             {}
             bool evaluate()
             {
@@ -102,7 +102,7 @@ namespace RTT
     }
 
 
-    CommandProxy* CommandProxy::Create(::RTT::corba::Command_ptr t) {
+    CommandProxy* CommandProxy::Create(::RTT::corba::CCommand_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -111,9 +111,9 @@ namespace RTT
         return ctp;
     }
 
-    corba::Command_ptr CommandProxy::server() const
+    corba::CCommand_ptr CommandProxy::server() const
     {
-        return corba::Command::_duplicate( mdata.in() );
+        return corba::CCommand::_duplicate( mdata.in() );
     }
 
 }}

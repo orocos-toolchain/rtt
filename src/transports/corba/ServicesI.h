@@ -53,14 +53,14 @@
 /**
  * Implementation.
  */
-class RTT_Corba_ServiceInterface_i
-    : public virtual POA_RTT::corba::ServiceInterface,
+class RTT_Corba_CServiceInterface_i
+    : public virtual POA_RTT::corba::CServiceInterface,
       public virtual PortableServer::RefCountServantBase
 {
     PortableServer::POA_var mpoa;
 
 public:
-    RTT_Corba_ServiceInterface_i(PortableServer::POA_ptr poa)
+    RTT_Corba_CServiceInterface_i(PortableServer::POA_ptr poa)
 	  : mpoa(PortableServer::POA::_duplicate(poa)) {}
 
     PortableServer::POA_ptr _default_POA()

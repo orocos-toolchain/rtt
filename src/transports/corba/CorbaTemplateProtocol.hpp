@@ -63,9 +63,9 @@ namespace RTT
        * back to the exect same type the (void*) originated from and NOT to a
        * sub- or super-class. That would have been allowed without virtual inheritance.
        * @warning
-       * Hence, this class uses always the same base class (Expression_ptr) to
+       * Hence, this class uses always the same base class (CExpression_ptr) to
        * communicate with the TypeTransport interface. Such that we know that when
-       * we receive a (void*) it came from an (Expression_ptr) and vice versa.
+       * we receive a (void*) it came from an (CExpression_ptr) and vice versa.
        * @warning
        * Don't obey this and you'll get immediate hard to dissect crashes !
        * * * * B I G  N O T E * * * *
@@ -84,7 +84,7 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
+          CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
           { return new RemoteChannelElement<T>(*this, poa); }
 
           base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
@@ -131,7 +131,7 @@ namespace RTT
           virtual base::DataSourceBase* proxy( void* data ) const
           {
             base::DataSourceBase* result = 0;
-            corba::Expression_ptr e = static_cast<corba::Expression_ptr>(data);
+            corba::CExpression_ptr e = static_cast<corba::CExpression_ptr>(data);
 
             // first try as assignable DS, if not possible, try as normal DS.
             result = corba::ExpressionProxy::NarrowAssignableDataSource<PropertyType>( e );
@@ -145,7 +145,7 @@ namespace RTT
           {
               PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
               if (assignable){
-                  return static_cast<Expression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
+                  return static_cast<CExpression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
 
               } else {
                   return corba::ExpressionServer::CreateExpression( source, p );
@@ -165,7 +165,7 @@ namespace RTT
               // Only try if the names match in the first place.
               if ( dsb->serverProtocol() == ORO_CORBA_PROTOCOL_ID && dsb->getTypeName() == internal::DataSource<T>::GetTypeName() ) {
                   Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<Logger::endl;
-                  corba::Expression_var expr = (corba::Expression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID, 0) ;
+                  corba::CExpression_var expr = (corba::CExpression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID, 0) ;
                   assert( !CORBA::is_nil(expr) );
                   return corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
               }
@@ -184,7 +184,7 @@ namespace RTT
               // then try to see if it is a CORBA object.
               //corba::ExpressionProxyInterface* prox = dynamic_cast< corba::ExpressionProxyInterface* >(dsb);
               if ( dsb->serverProtocol() == ( ORO_CORBA_PROTOCOL_ID ) && dsb->getTypeName() == internal::DataSource<T>::GetTypeName() ) {
-                  corba::Expression_var expr = (corba::Expression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID,0) ;
+                  corba::CExpression_var expr = (corba::CExpression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID,0) ;
                   return corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
               }
               return 0;

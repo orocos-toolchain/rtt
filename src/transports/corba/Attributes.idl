@@ -13,26 +13,26 @@ module RTT
   {
     /**
      * Exposes both attributes and properties
-     * of a task as Expression objects.
+     * of a task as CExpression objects.
      * @ingroup CompIDL
      */
-    interface AttributeInterface
+    interface CAttributeInterface
     {
       struct Property {
 	string name;
 	string description;
       };
 
-      typedef sequence<Property> PropertyNames;
-      typedef sequence<string> AttributeNames;
+      typedef sequence<Property> CPropertyNames;
+      typedef sequence<string> CAttributeNames;
 
-      AttributeNames getAttributeList();
+      CAttributeNames getAttributeList();
 
-      PropertyNames  getPropertyList();
+      CPropertyNames  getPropertyList();
 
-      Expression getAttribute( in string name );
+      CExpression getAttribute( in string name );
 
-      Expression getProperty( in string name );
+      CExpression getProperty( in string name );
     };
   };
 };

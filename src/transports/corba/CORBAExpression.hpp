@@ -81,11 +81,11 @@ namespace RTT
     class CORBAExpression
         : public internal::DataSource<T>
     {
-        corba::Expression_var mexpr;
+        corba::CExpression_var mexpr;
         mutable typename internal::DataSource<T>::value_t last_value;
     public:
-        CORBAExpression( corba::Expression_ptr expr )
-            : mexpr( corba::Expression::_duplicate( expr ) ), last_value()
+        CORBAExpression( corba::CExpression_ptr expr )
+            : mexpr( corba::CExpression::_duplicate( expr ) ), last_value()
         {
             assert( !CORBA::is_nil(mexpr) );
         }
@@ -93,14 +93,14 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
@@ -118,7 +118,7 @@ namespace RTT
         }
 
         virtual internal::DataSource<T>* clone() const {
-            return new CORBAExpression<T>( corba::Expression::_duplicate( mexpr.in() ) );
+            return new CORBAExpression<T>( corba::CExpression::_duplicate( mexpr.in() ) );
         }
 
         virtual internal::DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
@@ -145,10 +145,10 @@ namespace RTT
     class CORBAExpression<void>
         : public internal::DataSource<void>
     {
-        corba::Expression_var mexpr;
+        corba::CExpression_var mexpr;
     public:
-        CORBAExpression( corba::Expression_ptr expr )
-            : mexpr( corba::Expression::_duplicate( expr ) )
+        CORBAExpression( corba::CExpression_ptr expr )
+            : mexpr( corba::CExpression::_duplicate( expr ) )
         {
             assert( expr );
         }
@@ -156,14 +156,14 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
@@ -176,7 +176,7 @@ namespace RTT
         }
 
         virtual internal::DataSource<void>* clone() const {
-            return new CORBAExpression<void>( corba::Expression::_duplicate( mexpr.in() ) );
+            return new CORBAExpression<void>( corba::CExpression::_duplicate( mexpr.in() ) );
         }
 
         virtual internal::DataSource<void>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
@@ -198,12 +198,12 @@ namespace RTT
         : public internal::AssignableDataSource<T>
     {
         typedef typename internal::AssignableDataSource<T>::value_t value_t;
-        corba::AssignableExpression_var mexpr;
+        corba::CAssignableExpression_var mexpr;
         typename internal::AssignableDataSource<value_t>::shared_ptr storage;
         //mutable typename internal::DataSource<T>::value_t last_value;
     public:
-        CORBAAssignableExpression( corba::AssignableExpression_ptr expr )
-            : mexpr( corba::AssignableExpression::_duplicate(expr) )//, last_value()
+        CORBAAssignableExpression( corba::CAssignableExpression_ptr expr )
+            : mexpr( corba::CAssignableExpression::_duplicate(expr) )//, last_value()
         {
             storage = types::BuildType<value_t>::Value();
             assert( expr );
@@ -212,14 +212,14 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate( mexpr );
+                return corba::CExpression::_duplicate( mexpr );
             return 0;
         }
 
@@ -289,7 +289,7 @@ namespace RTT
         }
 
         virtual internal::AssignableDataSource<T>* clone() const {
-            return new CORBAAssignableExpression<T>( corba::AssignableExpression::_duplicate( mexpr.in() ) );
+            return new CORBAAssignableExpression<T>( corba::CAssignableExpression::_duplicate( mexpr.in() ) );
         }
 
         virtual internal::AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {

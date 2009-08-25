@@ -56,17 +56,17 @@ namespace RTT
 {
 
     /**
-     * A Corba Proxy for the scripting::ScriptingAccess class.
+     * A Corba Proxy for the scripting::CScriptingAccess class.
      */
     class RTT_CORBA_API ScriptingAccessProxy
         : public scripting::ScriptingAccess
     {
     protected:
-        corba::ScriptingAccess_var msa;
+        corba::CScriptingAccess_var msa;
     public:
-        ScriptingAccessProxy( corba::ScriptingAccess_ptr sa )
+        ScriptingAccessProxy( corba::CScriptingAccess_ptr sa )
             : scripting::ScriptingAccess( 0 ),
-            msa( corba::ScriptingAccess::_duplicate( sa ) )
+            msa( corba::CScriptingAccess::_duplicate( sa ) )
         {}
 
         virtual ~ScriptingAccessProxy();

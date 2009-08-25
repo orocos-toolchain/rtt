@@ -58,7 +58,7 @@ namespace RTT
 {
 
     /**
-     * This class manages the access of local Expression Corba Servants and Servers.
+     * This class manages the access of local CExpression Corba Servants and Servers.
      * Especially, it also takes care of the copy/clone semantics and informs the
      * servants when a internal::DataSource copy() operation changed the location of a internal::DataSource it was using.
      */
@@ -66,9 +66,9 @@ namespace RTT
     {
     protected:
         typedef std::map<base::DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;
-        typedef std::map<base::DataSourceBase::const_ptr, corba::Expression_ptr > EServerMap;
-        typedef std::map<base::DataSourceBase::shared_ptr, corba::AssignableExpression_ptr> AServerMap;
-        typedef std::map<base::DataSourceBase::shared_ptr, corba::Method_ptr> MServerMap;
+        typedef std::map<base::DataSourceBase::const_ptr, corba::CExpression_ptr > EServerMap;
+        typedef std::map<base::DataSourceBase::shared_ptr, corba::CAssignableExpression_ptr> AServerMap;
+        typedef std::map<base::DataSourceBase::shared_ptr, corba::CMethod_ptr> MServerMap;
 
         /**
          * All created servants end up in this map.
@@ -100,7 +100,7 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static corba::Expression_ptr CreateExpression( base::DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p);
+        static corba::CExpression_ptr CreateExpression( base::DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p);
 
 
         /**
@@ -108,14 +108,14 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static corba::Expression_ptr CreateAssignableExpression( base::DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p );
+        static corba::CExpression_ptr CreateAssignableExpression( base::DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p );
 
         /**
          * Factory method: create a CORBA server to a method
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static corba::Method_ptr CreateMethod( base::DataSourceBase::shared_ptr expr, internal::MethodC* orig, PortableServer::POA_ptr p );
+        static corba::CMethod_ptr CreateMethod( base::DataSourceBase::shared_ptr expr, internal::MethodC* orig, PortableServer::POA_ptr p );
 
         /**
          * This method informs the servants that a new internal::DataSource needs to be used

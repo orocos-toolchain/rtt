@@ -83,7 +83,7 @@ namespace RTT
             CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
 
             if (CORBA::is_nil( rootNC.in() ) ) {
-                log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
+                log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
             } else {
                 // Nameserver found...
                 CosNaming::Name name;
@@ -92,14 +92,14 @@ namespace RTT
                 name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
                 try {
                     rootNC->unbind(name);
-                    log(Info) << "Successfully removed ControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
+                    log(Info) << "Successfully removed CControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
                 }
                 catch( ... ) {
-                    log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
+                    log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
                 }
             }
         } catch (...) {
-            log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
+            log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
         }
     }
   }
@@ -132,8 +132,8 @@ namespace RTT
 //                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
-	    Orocos_ControlTask_i* serv;
-            mtask_i = serv = new Orocos_ControlTask_i( taskc, mpoa );
+	    Orocos_CControlTask_i* serv;
+            mtask_i = serv = new Orocos_CControlTask_i( taskc, mpoa );
 	    mtask   = serv->_this();
 
             if ( use_naming ) {
@@ -145,7 +145,7 @@ namespace RTT
                 } catch (...) {}
             
                 if (CORBA::is_nil( rootNC ) ) {
-                    log(Warning) << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
+                    log(Warning) << "CControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
                     log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                     // this part only publishes the IOR to a file.
@@ -160,7 +160,7 @@ namespace RTT
                     }
                     return;
                 }
-                log(Info) << "ControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
+                log(Info) << "CControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(1);
@@ -178,10 +178,10 @@ namespace RTT
                 name[1].id = CORBA::string_dup( taskc->getName().c_str() );
                 try {
                     rootNC->bind(name, mtask );
-                    log(Info) << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
+                    log(Info) << "Successfully added CControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    log(Warning) << "ControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
+                    log(Warning) << "CControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
                     log() <<"Trying to rebind...";
                     try {
                         rootNC->rebind(name, mtask);
@@ -189,11 +189,11 @@ namespace RTT
                         log() << " failed!"<<endlog();
                         return;
                     }
-                    log() << " done. New ControlTask bound to Naming Service."<<endlog();
+                    log() << " done. New CControlTask bound to Naming Service."<<endlog();
                 }
             } // use_naming
             else {
-                log(Info) <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
+                log(Info) <<"CControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
                 log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                 // this part only publishes the IOR to a file.
@@ -359,9 +359,9 @@ namespace RTT
         return cts;
     }
 
-    ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
+    CControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
         if ( CORBA::is_nil(orb) )
-            return ControlTask::_nil();
+            return CControlTask::_nil();
 
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
@@ -371,7 +371,7 @@ namespace RTT
         for (ControlTaskProxy::PMap::iterator it = ControlTaskProxy::proxies.begin(); it != ControlTaskProxy::proxies.end(); ++it)
             if ( (it->first) == tc ) {
                 log(Debug) << "Returning server of Proxy for "<<tc->getName()<<endlog();
-                return ControlTask::_duplicate(it->second);
+                return CControlTask::_duplicate(it->second);
             }
 
         // create new:
@@ -381,9 +381,9 @@ namespace RTT
     }
 
 
-    corba::ControlTask_ptr ControlTaskServer::server() const
+    corba::CControlTask_ptr ControlTaskServer::server() const
     {
-        return corba::ControlTask::_duplicate(mtask.in());
+        return corba::CControlTask::_duplicate(mtask.in());
     }
 
 }}

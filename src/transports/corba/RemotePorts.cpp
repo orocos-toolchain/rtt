@@ -7,24 +7,24 @@ using namespace RTT::base;
 namespace {
     struct RemotePortID : public PortID
     {
-        DataFlowInterface_var dataflow;
+        CDataFlowInterface_var dataflow;
         std::string name;
         
-        RemotePortID(DataFlowInterface_ptr dataflow, std::string const& name);
+        RemotePortID(CDataFlowInterface_ptr dataflow, std::string const& name);
     };
 
-    RemotePortID::RemotePortID(DataFlowInterface_ptr dataflow, std::string const& name)
-        : dataflow(DataFlowInterface::_duplicate(dataflow))
+    RemotePortID::RemotePortID(CDataFlowInterface_ptr dataflow, std::string const& name)
+        : dataflow(CDataFlowInterface::_duplicate(dataflow))
         , name(name) {}
 
 }
 
-static RTT::corba::ConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
+static RTT::corba::CConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
 {
-    RTT::corba::ConnPolicy corba_policy;
-    corba_policy.type        = RTT::corba::ConnectionModel(policy.type);
+    RTT::corba::CConnPolicy corba_policy;
+    corba_policy.type        = RTT::corba::CConnectionModel(policy.type);
     corba_policy.init        = policy.init;
-    corba_policy.lock_policy = RTT::corba::LockPolicy(policy.lock_policy);
+    corba_policy.lock_policy = RTT::corba::CLockPolicy(policy.lock_policy);
     corba_policy.pull        = policy.pull;
     corba_policy.size        = policy.size;
     return corba_policy;
@@ -32,17 +32,17 @@ static RTT::corba::ConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
 
 template<typename BaseClass>
 RemotePort<BaseClass>::RemotePort(RTT::types::TypeInfo const* type_info,
-        DataFlowInterface_ptr dataflow,
+        CDataFlowInterface_ptr dataflow,
         std::string const& name,
         PortableServer::POA_ptr poa)
     : BaseClass(name)
     , type_info(type_info)
-    , dataflow(DataFlowInterface::_duplicate(dataflow))
+    , dataflow(CDataFlowInterface::_duplicate(dataflow))
     , mpoa(PortableServer::POA::_duplicate(poa)) { }
 
 template<typename BaseClass>
-DataFlowInterface_ptr RemotePort<BaseClass>::getDataFlowInterface() const
-{ return DataFlowInterface::_duplicate(dataflow); }
+CDataFlowInterface_ptr RemotePort<BaseClass>::getDataFlowInterface() const
+{ return CDataFlowInterface::_duplicate(dataflow); }
 template<typename BaseClass>
 RTT::types::TypeInfo const* RemotePort<BaseClass>::getTypeInfo() const { return type_info; }
 template<typename BaseClass>
@@ -69,7 +69,7 @@ bool RemotePort<BaseClass>::isSameID(RTT::base::PortID const& id) const
 }
 
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
-        DataFlowInterface_ptr dataflow, std::string const& reader_port,
+        CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
     : RemotePort< RTT::base::InputPortInterface >(type_info, dataflow, reader_port, poa)
 {}
@@ -81,7 +81,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::types::Type
                                                           RTT::base::InputPortInterface& reader_,
                                                           RTT::internal::ConnPolicy const& policy)
 {
-    ChannelElement_var remote;
+    CChannelElement_var remote;
     try {
         remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
     }
@@ -91,7 +91,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::types::Type
         return NULL;
     }
 
-    ChannelElement_i*  local;
+    CChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
                             ->createChannelElement_i(mpoa);
@@ -112,7 +112,7 @@ RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
 RemoteOutputPort::RemoteOutputPort(RTT::types::TypeInfo const* type_info,
-        DataFlowInterface_ptr dataflow, std::string const& reader_port,
+        CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
     : RemotePort< RTT::base::OutputPortInterface >(type_info, dataflow, reader_port, poa)
 {}

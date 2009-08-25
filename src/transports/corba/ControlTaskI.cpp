@@ -82,15 +82,15 @@
 using namespace RTT;
 using namespace RTT::detail;
 
-// ControlObject:
-Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::interface::OperationInterface* orig, PortableServer::POA_ptr the_poa )
+// CControlObject:
+Orocos_CControlObject_i::Orocos_CControlObject_i (RTT::interface::OperationInterface* orig, PortableServer::POA_ptr the_poa )
     : mpoa( PortableServer::POA::_duplicate(the_poa) )
     , mobj( orig ), mAttrs_i(0), mMFact_i(0), mCFact_i(0)
 {
 }
 
 // Implementation skeleton destructor
-Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
+Orocos_CControlObject_i::~Orocos_CControlObject_i (void)
 {
     if (!CORBA::is_nil(mAttrs))
     {
@@ -113,12 +113,12 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 //         delete it->second;
 }
 
-PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
+PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
- char* Orocos_ControlObject_i::getName (
+ char* Orocos_CControlObject_i::getName (
 
     )
     ACE_THROW_SPEC ((
@@ -129,7 +129,7 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
     return ret._retn();
 }
 
- char* Orocos_ControlObject_i::getDescription (
+ char* Orocos_CControlObject_i::getDescription (
 
     )
     ACE_THROW_SPEC ((
@@ -140,7 +140,7 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
     return ret._retn();
 }
 
-::RTT::corba::AttributeInterface_ptr Orocos_ControlObject_i::attributes (
+::RTT::corba::CAttributeInterface_ptr Orocos_CControlObject_i::attributes (
 
   )
   ACE_THROW_SPEC ((
@@ -148,19 +148,19 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
   ))
 {
     if (CORBA::is_nil(mAttrs)) {
-        log(Debug) << "Creating AttributeInterface."<<endlog();
-        Orocos_AttributeInterface_i* mserv;
-        mAttrs_i = mserv = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa );
+        log(Debug) << "Creating CAttributeInterface."<<endlog();
+        Orocos_CAttributeInterface_i* mserv;
+        mAttrs_i = mserv = new Orocos_CAttributeInterface_i( mobj->attributes(), mpoa );
         try {
             mAttrs   = mserv->_this();
         } catch( ... ) {
-            log(Error) << "Failed to create AttributeInterface." <<endlog();
+            log(Error) << "Failed to create CAttributeInterface." <<endlog();
         }
     }
-    return AttributeInterface::_duplicate(mAttrs.in());
+    return CAttributeInterface::_duplicate(mAttrs.in());
 }
 
-::RTT::corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
+::RTT::corba::CMethodInterface_ptr Orocos_CControlObject_i::methods (
 
   )
   ACE_THROW_SPEC ((
@@ -169,18 +169,18 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
 {
     if ( CORBA::is_nil( mMFact ) ) {
         log(Debug) << "Creating MethodInterface."<<endlog();
-        Orocos_MethodInterface_i* mserv;
-        mMFact_i = mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa );
+        Orocos_CMethodInterface_i* mserv;
+        mMFact_i = mserv = new Orocos_CMethodInterface_i( mobj->methods(), mpoa );
         try {
             mMFact = mserv->_this();
         } catch( ... ) {
             log(Error) << "Failed to create MethodInterface." <<endlog();
         }
     }
-    return MethodInterface::_duplicate( mMFact.in() );
+    return CMethodInterface::_duplicate( mMFact.in() );
 }
 
-::RTT::corba::CommandInterface_ptr Orocos_ControlObject_i::commands (
+::RTT::corba::CCommandInterface_ptr Orocos_CControlObject_i::commands (
 
   )
   ACE_THROW_SPEC ((
@@ -188,19 +188,19 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
   ))
 {
     if ( CORBA::is_nil( mCFact ) ) {
-        log(Debug) << "Creating CommandInterface."<<endlog();
-        Orocos_CommandInterface_i* mserv;
-        mCFact_i = mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa );
+        log(Debug) << "Creating CCommandInterface."<<endlog();
+        Orocos_CCommandInterface_i* mserv;
+        mCFact_i = mserv = new Orocos_CCommandInterface_i( mobj->commands(), mpoa );
         try {
             mCFact = mserv->_this();
         } catch( ... ) {
-            log(Error) << "Failed to create CommandInterface." <<endlog();
+            log(Error) << "Failed to create CCommandInterface." <<endlog();
         }
     }
-    return ::RTT::corba::CommandInterface::_duplicate( mCFact.in() );
+    return ::RTT::corba::CCommandInterface::_duplicate( mCFact.in() );
 }
 
-::RTT::corba::ControlObject_ptr Orocos_ControlObject_i::getObject (
+::RTT::corba::CControlObject_ptr Orocos_CControlObject_i::getObject (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -216,23 +216,23 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
     OperationInterface* task = mobj->getObject( pname );
     if ( task ) {
         // do caching....
-        Orocos_ControlObject_i* ret;
+        Orocos_CControlObject_i* ret;
         if ( ctobjmap[pname] == 0 || ctobjmap[pname]->mobj != task) {
             // create or lookup new server for this object.
             // FIXME free up cache ? This is done by refcountservantbase ?
             //delete ctobjmap[pname];
-            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa );
+            ctobjmap[pname] = new Orocos_CControlObject_i(task, mpoa );
         }
         ret = ctobjmap[pname];
         return ret->_this();
     }
     // clear cache if possible.
     ctobjmap.erase( pname );
-    return RTT::corba::ControlObject::_nil();
+    return RTT::corba::CControlObject::_nil();
 }
 
 
-::RTT::corba::ObjectList * Orocos_ControlObject_i::getObjectList (
+::RTT::corba::CObjectList * Orocos_CControlObject_i::getObjectList (
 
   )
   ACE_THROW_SPEC ((
@@ -240,7 +240,7 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
   ))
 {
     TaskContext::ObjectList objects = mobj->getObjectList();
-    ::RTT::corba::ObjectList_var result = new ::RTT::corba::ObjectList();
+    ::RTT::corba::CObjectList_var result = new ::RTT::corba::CObjectList();
     result->length( objects.size() );
     for (unsigned int i=0; i != objects.size(); ++i )
         result[i] = CORBA::string_dup( objects[i].c_str() );
@@ -248,7 +248,7 @@ PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
     return result._retn();
 }
 
-CORBA::Boolean Orocos_ControlObject_i::hasObject (
+CORBA::Boolean Orocos_CControlObject_i::hasObject (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -262,22 +262,22 @@ CORBA::Boolean Orocos_ControlObject_i::hasObject (
 
 
 // Implementation skeleton constructor
-Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::POA_ptr the_poa)
-    : Orocos_ControlObject_i(orig, the_poa), mtask( orig ), mEEFact()
+Orocos_CControlTask_i::Orocos_CControlTask_i (TaskContext* orig, PortableServer::POA_ptr the_poa)
+    : Orocos_CControlObject_i(orig, the_poa), mtask( orig ), mEEFact()
 {
     // Add the corba object to the interface:
-    mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
+    mtask->methods()->addMethod(method("shutdown", &Orocos_CControlTask_i::shutdownCORBA, this),
                                    "Shutdown CORBA ORB. This function makes RunOrb() return.");
 
 }
 
-  void Orocos_ControlTask_i::shutdownCORBA() {
+  void Orocos_CControlTask_i::shutdownCORBA() {
 	  ControlTaskServer::ShutdownOrb(false);
   }
 
 
 // Implementation skeleton destructor
-Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
+Orocos_CControlTask_i::~Orocos_CControlTask_i (void)
 {
     if (!CORBA::is_nil(mEEFact))
     {
@@ -291,22 +291,22 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     }
     if (!CORBA::is_nil(mDataFlow))
     {
-        DataFlowInterface_i::deregisterServant(mtask->ports());
+        CDataFlowInterface_i::deregisterServant(mtask->ports());
         PortableServer::ObjectId_var oid = mpoa->servant_to_id(mDataFlow_i.in());
         mpoa->deactivate_object(oid.in());
     }
 }
 
-::RTT::corba::TaskState Orocos_ControlTask_i::getTaskState (
+::RTT::corba::CTaskState Orocos_CControlTask_i::getTaskState (
     )
   ACE_THROW_SPEC ((
     CORBA::SystemException
   ))
 {
-    return ::RTT::corba::TaskState(mtask->getTaskState());
+    return ::RTT::corba::CTaskState(mtask->getTaskState());
 }
 
-CORBA::Boolean Orocos_ControlTask_i::start (
+CORBA::Boolean Orocos_CControlTask_i::start (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -315,7 +315,7 @@ CORBA::Boolean Orocos_ControlTask_i::start (
     return mtask->start();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::stop (
+CORBA::Boolean Orocos_CControlTask_i::stop (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -324,7 +324,7 @@ CORBA::Boolean Orocos_ControlTask_i::stop (
     return mtask->stop();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::isActive (
+CORBA::Boolean Orocos_CControlTask_i::isActive (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -333,7 +333,7 @@ CORBA::Boolean Orocos_ControlTask_i::isActive (
     return mtask->isActive();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::isRunning (
+CORBA::Boolean Orocos_CControlTask_i::isRunning (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -342,7 +342,7 @@ CORBA::Boolean Orocos_ControlTask_i::isRunning (
     return mtask->isRunning();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::configure (
+CORBA::Boolean Orocos_CControlTask_i::configure (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -351,7 +351,7 @@ CORBA::Boolean Orocos_ControlTask_i::configure (
     return mtask->configure();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::cleanup (
+CORBA::Boolean Orocos_CControlTask_i::cleanup (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -360,7 +360,7 @@ CORBA::Boolean Orocos_ControlTask_i::cleanup (
     return mtask->cleanup();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::isConfigured (
+CORBA::Boolean Orocos_CControlTask_i::isConfigured (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -370,7 +370,7 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
 }
 
 
-CORBA::Boolean Orocos_ControlTask_i::resetError (
+CORBA::Boolean Orocos_CControlTask_i::resetError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -380,7 +380,7 @@ CORBA::Boolean Orocos_ControlTask_i::resetError (
 }
 
 
-CORBA::Boolean Orocos_ControlTask_i::activate (
+CORBA::Boolean Orocos_CControlTask_i::activate (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -389,7 +389,7 @@ CORBA::Boolean Orocos_ControlTask_i::activate (
     return mtask->activate();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::inFatalError (
+CORBA::Boolean Orocos_CControlTask_i::inFatalError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -399,7 +399,7 @@ CORBA::Boolean Orocos_ControlTask_i::inFatalError (
 }
 
 
-CORBA::Boolean Orocos_ControlTask_i::inRunTimeWarning (
+CORBA::Boolean Orocos_CControlTask_i::inRunTimeWarning (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -410,7 +410,7 @@ CORBA::Boolean Orocos_ControlTask_i::inRunTimeWarning (
 
 
 
-CORBA::Boolean Orocos_ControlTask_i::inRunTimeError (
+CORBA::Boolean Orocos_CControlTask_i::inRunTimeError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -420,7 +420,7 @@ CORBA::Boolean Orocos_ControlTask_i::inRunTimeError (
 }
 
 
-CORBA::Long Orocos_ControlTask_i::getWarningCount (
+CORBA::Long Orocos_CControlTask_i::getWarningCount (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -431,7 +431,7 @@ CORBA::Long Orocos_ControlTask_i::getWarningCount (
 
 
 
-CORBA::Long Orocos_ControlTask_i::getErrorCount (
+CORBA::Long Orocos_CControlTask_i::getErrorCount (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -441,7 +441,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 }
 
 
-::RTT::corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
+::RTT::corba::CScriptingAccess_ptr Orocos_CControlTask_i::scripting (
 
   )
   ACE_THROW_SPEC ((
@@ -449,15 +449,15 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
   ))
 {
     if ( CORBA::is_nil( mEEFact ) ) {
-        log(Debug) << "Creating ScriptingAccess."<<endlog();
-        Orocos_ScriptingAccess_i* mserv;
-        mEEFact_i = mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa );
+        log(Debug) << "Creating CScriptingAccess."<<endlog();
+        Orocos_CScriptingAccess_i* mserv;
+        mEEFact_i = mserv = new Orocos_CScriptingAccess_i( mtask->scripting(), mpoa );
         mEEFact = mserv->_this();
     }
-    return ::RTT::corba::ScriptingAccess::_duplicate( mEEFact.in() );
+    return ::RTT::corba::CScriptingAccess::_duplicate( mEEFact.in() );
 }
 
-::RTT::corba::ServiceInterface_ptr Orocos_ControlTask_i::services (
+::RTT::corba::CServiceInterface_ptr Orocos_CControlTask_i::services (
 
     )
     ACE_THROW_SPEC ((
@@ -466,14 +466,14 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating Services."<<endlog();
-        RTT_Corba_ServiceInterface_i* mserv;
-        mService_i = mserv = new RTT_Corba_ServiceInterface_i( mpoa );
+        RTT_Corba_CServiceInterface_i* mserv;
+        mService_i = mserv = new RTT_Corba_CServiceInterface_i( mpoa );
         mService = mserv->_this();
     }
-    return ::RTT::corba::ServiceInterface::_duplicate( mService.in() );
+    return ::RTT::corba::CServiceInterface::_duplicate( mService.in() );
 }
 
-::RTT::corba::DataFlowInterface_ptr Orocos_ControlTask_i::ports (
+::RTT::corba::CDataFlowInterface_ptr Orocos_CControlTask_i::ports (
 
     )
     ACE_THROW_SPEC ((
@@ -481,18 +481,18 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     ))
 {
     if ( CORBA::is_nil( mDataFlow ) ) {
-        log(Debug) << "Creating DataFlowInterface."<<endlog();
-        RTT::corba::DataFlowInterface_i* mserv;
-        mDataFlow_i = mserv = new RTT::corba::DataFlowInterface_i( mtask->ports(), mpoa );
+        log(Debug) << "Creating CDataFlowInterface."<<endlog();
+        RTT::corba::CDataFlowInterface_i* mserv;
+        mDataFlow_i = mserv = new RTT::corba::CDataFlowInterface_i( mtask->ports(), mpoa );
         mDataFlow = mserv->_this();
-        DataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
+        CDataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
     }
-    return ::RTT::corba::DataFlowInterface::_duplicate( mDataFlow.in() );
+    return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
 }
 
 
 
-::RTT::corba::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
+::RTT::corba::CControlTask::CControlTaskNames * Orocos_CControlTask_i::getPeerList (
 
   )
   ACE_THROW_SPEC ((
@@ -500,7 +500,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
   ))
 {
     TaskContext::PeerList peers = mtask->getPeerList();
-    ::RTT::corba::ControlTask::ControlTaskNames_var result = new ::RTT::corba::ControlTask::ControlTaskNames();
+    ::RTT::corba::CControlTask::CControlTaskNames_var result = new ::RTT::corba::CControlTask::CControlTaskNames();
     result->length( peers.size() );
     for (unsigned int i=0; i != peers.size(); ++i )
         result[i] = CORBA::string_dup( peers[i].c_str() );
@@ -509,7 +509,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 }
 
 
-::RTT::corba::ControlTask_ptr Orocos_ControlTask_i::getPeer (
+::RTT::corba::CControlTask_ptr Orocos_CControlTask_i::getPeer (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -523,11 +523,11 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
         // do not export it to the naming service.
         return ControlTaskServer::CreateServer( task, false );
     }
-    return RTT::corba::ControlTask::_nil();
+    return RTT::corba::CControlTask::_nil();
 }
 
-CORBA::Boolean Orocos_ControlTask_i::addPeer (
-    ::RTT::corba::ControlTask_ptr p,
+CORBA::Boolean Orocos_CControlTask_i::addPeer (
+    ::RTT::corba::CControlTask_ptr p,
     const char * alias
   )
   ACE_THROW_SPEC ((
@@ -540,7 +540,7 @@ CORBA::Boolean Orocos_ControlTask_i::addPeer (
     return false;
 }
 
-CORBA::Boolean Orocos_ControlTask_i::hasPeer (
+CORBA::Boolean Orocos_CControlTask_i::hasPeer (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -551,7 +551,7 @@ CORBA::Boolean Orocos_ControlTask_i::hasPeer (
     return mtask->hasPeer(mname);
 }
 
-CORBA::Boolean Orocos_ControlTask_i::removePeer (
+CORBA::Boolean Orocos_CControlTask_i::removePeer (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -563,8 +563,8 @@ CORBA::Boolean Orocos_ControlTask_i::removePeer (
     return true;
 }
 
-CORBA::Boolean Orocos_ControlTask_i::connectPeers (
-    ::RTT::corba::ControlTask_ptr p
+CORBA::Boolean Orocos_CControlTask_i::connectPeers (
+    ::RTT::corba::CControlTask_ptr p
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -574,7 +574,7 @@ CORBA::Boolean Orocos_ControlTask_i::connectPeers (
     return mtask->connectPeers( t );
 }
 
-CORBA::Boolean Orocos_ControlTask_i::disconnectPeers (
+CORBA::Boolean Orocos_CControlTask_i::disconnectPeers (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -586,8 +586,8 @@ CORBA::Boolean Orocos_ControlTask_i::disconnectPeers (
     return true;
 }
 
-CORBA::Boolean Orocos_ControlTask_i::connectPorts (
-    ::RTT::corba::ControlTask_ptr p
+CORBA::Boolean Orocos_CControlTask_i::connectPorts (
+    ::RTT::corba::CControlTask_ptr p
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException

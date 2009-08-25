@@ -49,23 +49,23 @@ namespace RTT
 {
 
     /**
-     * This class mirrors a Corba Command Factory as a plain C++
+     * This class mirrors a Corba CCommand Factory as a plain C++
      * factory.
      */
     class RTT_CORBA_API CorbaCommandFactory
         : public RTT::internal::OperationFactoryPart<base::DispatchInterface*>
     {
         std::string com;
-        corba::CommandInterface_var mfact;
+        corba::CCommandInterface_var mfact;
         PortableServer::POA_var mpoa;
     public:
-        typedef std::vector< internal::ArgumentDescription > Descriptions;
+        typedef std::vector< internal::ArgumentDescription > CDescriptions;
         typedef std::vector<std::string> Commands;
-        typedef std::vector<base::DataSourceBase::shared_ptr> Arguments;
+        typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
 
-        CorbaCommandFactory(const std::string& command, corba::CommandInterface_ptr fact, PortableServer::POA_ptr the_poa)
-            : RTT::internal::OperationFactoryPart<base::DispatchInterface*>("Corba Command"),
-              com(command), mfact( CommandInterface::_duplicate(fact) ),
+        CorbaCommandFactory(const std::string& command, corba::CCommandInterface_ptr fact, PortableServer::POA_ptr the_poa)
+            : RTT::internal::OperationFactoryPart<base::DispatchInterface*>("Corba CCommand"),
+              com(command), mfact( CCommandInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa) )
         {}
 
@@ -85,7 +85,7 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getDescription( com.c_str() );
                 return std::string( result.in() );
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal:: name_not_found_exception( nsn.name.in() );
             }
             return std::string();
@@ -94,37 +94,37 @@ namespace RTT
         /**
          * @brief Return the list of arguments of a certain command.
          */
-        virtual Descriptions getArgumentList() const
+        virtual CDescriptions getArgumentList() const
         {
-            Descriptions ret;
+            CDescriptions ret;
             try {
-                corba::Descriptions_var result = mfact->getArguments( com.c_str() );
+                corba::CDescriptions_var result = mfact->getArguments( com.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
                     ret.push_back( internal::ArgumentDescription(std::string( result[i].name.in() ),
                                                        std::string( result[i].description.in() ),
                                                        std::string( result[i].type.in() ) ));
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal:: name_not_found_exception( nsn.name.in() );
             }
             return ret;
         }
 
-        virtual base::DispatchInterface* produce(const Arguments& args) const
+        virtual base::DispatchInterface* produce(const CArguments& args) const
         {
-            corba::Arguments_var nargs = new corba::Arguments();
+            corba::CArguments_var nargs = new corba::CArguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = (corba::Expression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
+                nargs[i] = (corba::CExpression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
             try {
-                corba::Command_var result = mfact->createCommand( com.c_str(), nargs.in() );
+                corba::CCommand_var result = mfact->createCommand( com.c_str(), nargs.in() );
                 // return a base::DispatchInterface object:
                 return CommandProxy::Create( result.in() );
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal:: name_not_found_exception( nsn.name.in() );
-            } catch ( corba::WrongNumbArgException& wa ) {
+            } catch ( corba::CWrongNumbArgException& wa ) {
                 throw internal:: wrong_number_of_args_exception( wa.wanted, wa.received );
-            } catch ( corba::WrongTypeArgException& wta ) {
+            } catch ( corba::CWrongTypeArgException& wta ) {
                 throw internal:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
             }
             return 0; // not reached.

@@ -12,119 +12,119 @@ module RTT
 {
   module corba
   {
-    typedef sequence<string> MethodList;
-    typedef sequence<string> CommandList;
-    typedef sequence<Expression> Arguments;
+    typedef sequence<string> CMethodList;
+    typedef sequence<string> CCommandList;
+    typedef sequence<CExpression> CArguments;
 
     /**
      * When querying a method or command for
      * the kinds of arguments it takes, this
      * structure is returned for each argument.
      */
-    struct ArgumentDescription
+    struct CArgumentDescription
     {
       string name;
       string description;
       string type;
     };
 
-    typedef sequence<ArgumentDescription> Descriptions;
+    typedef sequence<CArgumentDescription> CDescriptions;
 
-    exception NoSuchNameException
+    exception CNoSuchNameException
     {
       string name;
     };
 
     /**
-     * A Method interface delivers objects which contain expressions.
+     * A CMethod interface delivers objects which contain expressions.
      * @ingroup CompIDL
      */
-    interface MethodInterface
+    interface CMethodInterface
     {
 
       /**
        * Get a list of all methods.
        */
-      MethodList getMethods();
+      CMethodList getMethods();
 
       /**
        * Get a list of all arguments of a given method.
        */
-      Descriptions getArguments(in string method) raises (NoSuchNameException);
+      CDescriptions getArguments(in string method) raises (CNoSuchNameException);
 
       /**
        * Get a result type of a given method.
        */
-      string getResultType(in string method) raises (NoSuchNameException);
+      string getResultType(in string method) raises (CNoSuchNameException);
 
       /**
        * Get a description of a given method.
        */
-      string getDescription(in string method) raises (NoSuchNameException);
+      string getDescription(in string method) raises (CNoSuchNameException);
 
       /**
        * Create a method and fill in the arguments later on.
        */
-      //Method createMethod(in string method) raises (NoSuchNameException);
+      //CMethod createMethod(in string method) raises (CNoSuchNameException);
 
       /**
-       * Create a method with Expression arguments.
+       * Create a method with CExpression arguments.
        */
-      Method createMethod(in string method, in Arguments args) raises (NoSuchNameException,
-								       WrongNumbArgException,
-								       WrongTypeArgException);
+      CMethod createMethod(in string method, in CArguments args) raises (CNoSuchNameException,
+								       CWrongNumbArgException,
+								       CWrongTypeArgException);
       /**
        * Create a method with Any arguments.
        */
-      Method createMethodAny(in string method, in AnyArguments args) raises ( NoSuchNameException,
-									      WrongNumbArgException,
-									      WrongTypeArgException);
+      CMethod createMethodAny(in string method, in CAnyArguments args) raises ( CNoSuchNameException,
+									      CWrongNumbArgException,
+									      CWrongTypeArgException);
     };
 
     /**
-     * A Command interface delivers objects which contain asynchronous commands.
+     * A CCommand interface delivers objects which contain asynchronous commands.
      * @ingroup CompIDL
      */
-    interface CommandInterface
+    interface CCommandInterface
     {
       /**
        * Get a list of all commands.
        */
-      CommandList getCommands();
+      CCommandList getCommands();
 
       /**
        * Get a list of all arguments of a given command.
        */
-      Descriptions getArguments(in string command) raises (NoSuchNameException);
+      CDescriptions getArguments(in string command) raises (CNoSuchNameException);
 
       /**
        * Get a result type of a given command.
        */
-      string getResultType(in string command) raises (NoSuchNameException);
+      string getResultType(in string command) raises (CNoSuchNameException);
 
       /**
        * Get a description of a given command.
        */
-      string getDescription(in string command) raises (NoSuchNameException);
+      string getDescription(in string command) raises (CNoSuchNameException);
 
       /**
        * Create a command and fill in the arguments later.
        */
-      //Command createCommand(in string command) raises (NoSuchNameException);
+      //CCommand createCommand(in string command) raises (CNoSuchNameException);
 
       /**
        * Create a command of an object.
        */
-      Command createCommand(in string command, in Arguments args) raises ( NoSuchNameException,
-									   WrongNumbArgException,
-									   WrongTypeArgException);
+      CCommand createCommand(in string command, in CArguments args) raises ( CNoSuchNameException,
+									   CWrongNumbArgException,
+									   CWrongTypeArgException);
 
       /**
        * Create a command of an object with any arguments.
        */
-      Command createCommandAny(in string command, in AnyArguments args) raises ( NoSuchNameException,
-										 WrongNumbArgException,
-										 WrongTypeArgException);
+      CCommand createCommandAny(in string command, in CAnyArguments args) raises ( CNoSuchNameException,
+										 CWrongNumbArgException,
+										 CWrongTypeArgException);
 
     };
   };

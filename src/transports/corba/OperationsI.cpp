@@ -80,18 +80,18 @@ using namespace RTT::detail;
 
 
 // Implementation skeleton constructor
-Orocos_Action_i::Orocos_Action_i (MethodC* orig, ActionInterface* com, PortableServer::POA_ptr the_poa )
+Orocos_CAction_i::Orocos_CAction_i (MethodC* orig, ActionInterface* com, PortableServer::POA_ptr the_poa )
     : morig(*orig), mcom(com), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
 // Implementation skeleton destructor
-Orocos_Action_i::~Orocos_Action_i (void)
+Orocos_CAction_i::~Orocos_CAction_i (void)
 {
     delete mcom;
 }
 
-CORBA::Boolean Orocos_Action_i::execute (
+CORBA::Boolean Orocos_CAction_i::execute (
 
   )
   ACE_THROW_SPEC ((
@@ -102,13 +102,13 @@ CORBA::Boolean Orocos_Action_i::execute (
     return mcom->execute();
 }
 
-CORBA::Boolean Orocos_Action_i::executeAny (
-      const ::RTT::corba::AnyArguments& args
+CORBA::Boolean Orocos_CAction_i::executeAny (
+      const ::RTT::corba::CAnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::corba::WrongNumbArgException
-    ,::RTT::corba::WrongTypeArgException
+    ,::RTT::corba::CWrongNumbArgException
+    ,::RTT::corba::CWrongTypeArgException
 	  )) {
       MethodC mgen = morig;
     try {
@@ -116,7 +116,7 @@ CORBA::Boolean Orocos_Action_i::executeAny (
             mgen.arg( DataSourceBase::shared_ptr( new RTT::corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
-            throw ::RTT::corba::WrongNumbArgException( args.length()+1, args.length() );
+            throw ::RTT::corba::CWrongNumbArgException( args.length()+1, args.length() );
         delete mcom;
         if ( dynamic_cast< DataSource<bool>* >(mgen.getDataSource().get() ) )
             mcom = new CommandDataSourceBool( dynamic_cast<DataSource<bool>*>(mgen.getDataSource().get() ));
@@ -124,15 +124,15 @@ CORBA::Boolean Orocos_Action_i::executeAny (
             mcom = new CommandDataSource( mgen.getDataSource() );
         return this->execute();
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw ::RTT::corba::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );
     } catch ( wrong_types_of_args_exception& wta ) {
-        throw ::RTT::corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
     return false;
   }
 
 
-void Orocos_Action_i::reset (
+void Orocos_CAction_i::reset (
 
   )
   ACE_THROW_SPEC ((
@@ -144,24 +144,24 @@ void Orocos_Action_i::reset (
 }
 
 // Implementation skeleton constructor
-Orocos_Command_i::Orocos_Command_i ( CommandC& orig, CommandC& comm, PortableServer::POA_ptr the_poa)
+Orocos_CCommand_i::Orocos_CCommand_i ( CommandC& orig, CommandC& comm, PortableServer::POA_ptr the_poa)
     : morig( new CommandC(orig) ), mcomm( new CommandC(comm)), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
-Orocos_Command_i::Orocos_Command_i ( DispatchInterface::shared_ptr di, PortableServer::POA_ptr the_poa)
+Orocos_CCommand_i::Orocos_CCommand_i ( DispatchInterface::shared_ptr di, PortableServer::POA_ptr the_poa)
     : morig( new CommandC( di->clone() ) ), mcomm( new CommandC( di )), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
 // Implementation skeleton destructor
-Orocos_Command_i::~Orocos_Command_i (void)
+Orocos_CCommand_i::~Orocos_CCommand_i (void)
 {
     delete morig;
     delete mcomm;
 }
 
-CORBA::Boolean Orocos_Command_i::execute (
+CORBA::Boolean Orocos_CCommand_i::execute (
 
   )
   ACE_THROW_SPEC ((
@@ -169,23 +169,23 @@ CORBA::Boolean Orocos_Command_i::execute (
   ))
 {
   // Add your implementation here
-    //Logger::In in("Orocos_Command_i");
+    //Logger::In in("Orocos_CCommand_i");
     //Logger::log() <<Logger::Debug << "Executing CommandC."<<Logger::endl;
     return mcomm->execute();
 }
 
-CORBA::Boolean Orocos_Command_i::executeAny (
-      const ::RTT::corba::AnyArguments& args
+CORBA::Boolean Orocos_CCommand_i::executeAny (
+      const ::RTT::corba::CAnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,::RTT::corba::WrongNumbArgException
-    ,::RTT::corba::WrongTypeArgException
+    ,::RTT::corba::CWrongNumbArgException
+    ,::RTT::corba::CWrongTypeArgException
 	  )) {
     // if morig is already set, we can not create a new command.
     if ( morig->ready() ) {
         Logger::In in("executeAny()");
-        log(Error) << "This CORBA Command does not support execution with new arguments." <<endlog();
+        log(Error) << "This CORBA CCommand does not support execution with new arguments." <<endlog();
         return false;
     }
       *mcomm = *morig;
@@ -194,18 +194,18 @@ CORBA::Boolean Orocos_Command_i::executeAny (
             mcomm->arg( DataSourceBase::shared_ptr( new RTT::corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mcomm->ready() )
-            throw ::RTT::corba::WrongNumbArgException( args.length()+1, args.length() );
+            throw ::RTT::corba::CWrongNumbArgException( args.length()+1, args.length() );
         return this->execute();
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw ::RTT::corba::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw ::RTT::corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
     return false;
   }
 
 
-RTT::corba::CommandStatus Orocos_Command_i::status ( 
+RTT::corba::CommandStatus Orocos_CCommand_i::status ( 
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -229,7 +229,7 @@ RTT::corba::CommandStatus Orocos_Command_i::status (
     }
 }
 
-CORBA::Boolean Orocos_Command_i::done (
+CORBA::Boolean Orocos_CCommand_i::done (
 
   )
   ACE_THROW_SPEC ((
@@ -237,12 +237,12 @@ CORBA::Boolean Orocos_Command_i::done (
   ))
 {
   // Add your implementation here
-    //Logger::In in("Orocos_Command_i");
+    //Logger::In in("Orocos_CCommand_i");
     //Logger::log() <<Logger::Debug << "Evaluating CommandC:"<<mcomm->done()<<Logger::endl;
     return mcomm->done();
 }
 
-CORBA::Boolean Orocos_Command_i::executed (
+CORBA::Boolean Orocos_CCommand_i::executed (
 
   )
   ACE_THROW_SPEC ((
@@ -253,7 +253,7 @@ CORBA::Boolean Orocos_Command_i::executed (
     return mcomm->executed();
 }
 
-CORBA::Boolean Orocos_Command_i::sent (
+CORBA::Boolean Orocos_CCommand_i::sent (
 
   )
   ACE_THROW_SPEC ((
@@ -264,7 +264,7 @@ CORBA::Boolean Orocos_Command_i::sent (
     return mcomm->sent();
 }
 
-CORBA::Boolean Orocos_Command_i::accepted (
+CORBA::Boolean Orocos_CCommand_i::accepted (
 
   )
   ACE_THROW_SPEC ((
@@ -275,7 +275,7 @@ CORBA::Boolean Orocos_Command_i::accepted (
     return mcomm->accepted();
 }
 
-CORBA::Boolean Orocos_Command_i::valid (
+CORBA::Boolean Orocos_CCommand_i::valid (
 
   )
   ACE_THROW_SPEC ((
@@ -286,7 +286,7 @@ CORBA::Boolean Orocos_Command_i::valid (
     return mcomm->valid();
 }
 
-void Orocos_Command_i::reset (
+void Orocos_CCommand_i::reset (
 
   )
   ACE_THROW_SPEC ((
@@ -297,7 +297,7 @@ void Orocos_Command_i::reset (
     return mcomm->reset();
 }
 
-void Orocos_Command_i::destroyCommand (
+void Orocos_CCommand_i::destroyCommand (
 
   )
   ACE_THROW_SPEC ((

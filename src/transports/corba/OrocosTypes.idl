@@ -11,7 +11,7 @@ module RTT
   module corba
   {
     // Classical Orocos type
-    typedef sequence<double> DoubleSequence;
+    typedef sequence<double> CDoubleSequence;
   };
 
 };

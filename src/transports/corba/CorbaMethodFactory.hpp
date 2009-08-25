@@ -57,17 +57,17 @@ namespace RTT
     class RTT_CORBA_API CorbaMethodFactory
         : public RTT::internal::OperationFactoryPart<base::DataSourceBase*>
     {
-        corba::MethodInterface_var mfact;
+        corba::CMethodInterface_var mfact;
         PortableServer::POA_var mpoa;
         std::string method;
     public:
-        typedef std::vector<base::DataSourceBase::shared_ptr> Arguments;
+        typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
         typedef std::vector<std::string> Members;
-        typedef std::vector< internal::ArgumentDescription > Descriptions;
+        typedef std::vector< internal::ArgumentDescription > CDescriptions;
 
-        CorbaMethodFactory( const std::string& method_name, corba::MethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
-            : RTT::internal::OperationFactoryPart<base::DataSourceBase*>("Corba Method"),
-              mfact(corba::MethodInterface::_duplicate(fact) ),
+        CorbaMethodFactory( const std::string& method_name, corba::CMethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
+            : RTT::internal::OperationFactoryPart<base::DataSourceBase*>("Corba CMethod"),
+              mfact(corba::CMethodInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa)),
               method(method_name)
         {}
@@ -82,7 +82,7 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getResultType( method.c_str() );
                 return std::string( result.in() );
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal::name_not_found_exception( nsn.name.in() );
             }
             return std::string();
@@ -92,40 +92,40 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getDescription( method.c_str() );
                 return std::string( result.in() );
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal::name_not_found_exception( nsn.name.in() );
             }
             return std::string();
         }
 
         virtual std::vector< internal::ArgumentDescription > getArgumentList() const {
-            Descriptions ret;
+            CDescriptions ret;
             try {
-                corba::Descriptions_var result = mfact->getArguments( method.c_str() );
+                corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
                     ret.push_back( internal::ArgumentDescription(std::string( result[i].name.in() ),
                                                        std::string( result[i].description.in() ),
                                                        std::string( result[i].type.in() ) ));
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal:: name_not_found_exception( nsn.name.in() );
             }
             return ret;
         }
 
-        virtual base::DataSourceBase* produce( const Arguments& args ) const {
-            corba::Arguments_var nargs = new corba::Arguments();
+        virtual base::DataSourceBase* produce( const CArguments& args ) const {
+            corba::CArguments_var nargs = new corba::CArguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = (corba::Expression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
+                nargs[i] = (corba::CExpression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
             try {
-                corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
+                corba::CExpression_var result = mfact->createMethod( method.c_str(), nargs.in() );
                 return ExpressionProxy::CreateDataSource( result._retn() ).get();
-            } catch ( corba::NoSuchNameException& nsn ) {
+            } catch ( corba::CNoSuchNameException& nsn ) {
                 throw internal:: name_not_found_exception( nsn.name.in() );
-            } catch ( corba::WrongNumbArgException& wa ) {
+            } catch ( corba::CWrongNumbArgException& wa ) {
                 throw internal:: wrong_number_of_args_exception( wa.wanted, wa.received );
-            } catch ( corba::WrongTypeArgException& wta ) {
+            } catch ( corba::CWrongTypeArgException& wta ) {
                 throw internal:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
             }
             return 0; // not reached.

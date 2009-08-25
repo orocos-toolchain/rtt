@@ -8,9 +8,9 @@ module RTT
 
     /**
      * An interface to access the dataflow
-     * of a ControlTask object.
+     * of a CControlTask object.
      */
-    interface ServiceInterface
+    interface CServiceInterface
     {
       /**
        * Retrieve a log message.

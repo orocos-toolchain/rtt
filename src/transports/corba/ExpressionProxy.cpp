@@ -57,8 +57,8 @@ namespace RTT
     ExpressionProxy::EMap ExpressionProxy::proxies;
     ExpressionProxy::DMap ExpressionProxy::dproxies;
 
-    ExpressionProxy::ExpressionProxy( ::RTT::corba::Expression_ptr e)
-        : mdata( ::RTT::corba::Expression::_duplicate(e) )
+    ExpressionProxy::ExpressionProxy( ::RTT::corba::CExpression_ptr e)
+        : mdata( ::RTT::corba::CExpression::_duplicate(e) )
     {
         try {
             CORBA::String_var nm = mdata->getType(); // force connect to object.
@@ -72,7 +72,7 @@ namespace RTT
         }
     }
 
-    ExpressionProxy::shared_ptr ExpressionProxy::Create(::RTT::corba::Expression_ptr t) {
+    ExpressionProxy::shared_ptr ExpressionProxy::Create(::RTT::corba::CExpression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -87,7 +87,7 @@ namespace RTT
         return ctp;
     }
 
-    DataSourceBase::shared_ptr ExpressionProxy::CreateDataSource(::RTT::corba::Expression_ptr t) {
+    DataSourceBase::shared_ptr ExpressionProxy::CreateDataSource(::RTT::corba::CExpression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -110,9 +110,9 @@ namespace RTT
     }
 
 
-//     corba::Expression_ptr ExpressionProxy::createExpression() const
+//     corba::CExpression_ptr ExpressionProxy::createExpression() const
 //     {
-//         return corba::Expression::_duplicate( mdata.in() );
+//         return corba::CExpression::_duplicate( mdata.in() );
 //     }
 
 }}

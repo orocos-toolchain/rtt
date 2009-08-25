@@ -11,20 +11,20 @@ module RTT
 {
   module corba
   {
-    enum ConnectionModel { Data, Buffer };
-    enum LockPolicy { Locked, LockFree };
-    struct ConnPolicy
+    enum CConnectionModel { CData, CBuffer };
+    enum CLockPolicy { CLocked, CLockFree };
+    struct CConnPolicy
     {
-        ConnectionModel type;
+        CConnectionModel type;
         boolean init;
-        LockPolicy lock_policy;
+        CLockPolicy lock_policy;
         boolean pull;
         long size;
     };
 
-    interface ChannelElement
+    interface CChannelElement
     {
-        void setRemoteSide(in ChannelElement writer);
+        void setRemoteSide(in CChannelElement writer);
         boolean read(out any sample);
         boolean write(in any sample);
         boolean remoteSignal();
@@ -32,79 +32,79 @@ module RTT
     };
 
     /** Emitted when information is requested on a port that does not exist */
-    exception NoSuchPortException {};
+    exception CNoSuchPortException {};
     /** Emitted during connections, when there is no CORBA transport defined
      * for the data type of the given ports
      */
-    exception NoCorbaTransport {};
+    exception CNoCorbaTransport {};
 
-    enum PortType { Input, Output };
+    enum CPortType { CInput, COutput };
 
-    struct PortDescription
+    struct CPortDescription
     {
-        PortType type;
+        CPortType type;
         string   name;
         string   type_name;
     };
 
     /**
      * An interface to access the dataflow
-     * of a ControlTask object. Data ports are exported as
+     * of a CControlTask object. Data ports are exported as
      * assignable expressions (Set/Get). Buffer ports are
      * exported as buffer channels.
      * @ingroup CompIDL
      */
-    interface DataFlowInterface
+    interface CDataFlowInterface
     {
-      typedef sequence<string> PortNames;
-      typedef sequence<PortDescription> PortDescriptions;
+      typedef sequence<string> CPortNames;
+      typedef sequence<CPortDescription> CPortDescriptions;
 
       /**
        * Returns the names of the ports of this component.
        */
-      PortNames getPorts();
+      CPortNames getPorts();
 
       /**
        * Returns the names of the ports of this component.
        */
-      PortDescriptions getPortDescriptions();
+      CPortDescriptions getPortDescriptions();
 
       /**
        * Returns the type of the given port
        */
-      PortType getPortType(in string port_name)
-            raises(NoSuchPortException);
+      CPortType getPortType(in string port_name)
+            raises(CNoSuchPortException);
 
       /**
        * Returns the data type for the given port
        */
       string getDataType(in string port_name)
-            raises(NoSuchPortException);
+            raises(CNoSuchPortException);
 
       /**
        * Check if the given port is already connected to something
        */
       boolean isConnected(in string port_name)
-            raises(NoSuchPortException);
+            raises(CNoSuchPortException);
 
       /**
        * Disconnects this port from all connections it is part of
        */
       void disconnect(in string port_name)
-            raises(NoSuchPortException);
+            raises(CNoSuchPortException);
 
       /** 
        * Removes the specified connection
        */
       void disconnectPort(in string writer_name,
-            in DataFlowInterface reader_iface, in string reader_name);
+            in CDataFlowInterface reader_iface, in string reader_name);
 
       /**
        * Creates the reader-half of the connection for the given read port and
        * the given policy
        */
-      ChannelElement buildOutputHalf(in string port, in ConnPolicy policy)
-            raises(NoCorbaTransport);
+      CChannelElement buildOutputHalf(in string port, in CConnPolicy policy)
+            raises(CNoCorbaTransport);
 
       /**
        * Connect the given named port to the given remote port
@@ -112,9 +112,9 @@ module RTT
        * The local port needs to be the reader, while the remote port is the
        * writer
        */
-      boolean createConnection(in string local_port, in DataFlowInterface remote_ports,
-            in string remote_port, in ConnPolicy policy)
-            raises(NoSuchPortException);
+      boolean createConnection(in string local_port, in CDataFlowInterface remote_ports,
+            in string remote_port, in CConnPolicy policy)
+            raises(CNoSuchPortException);
     };
   };
 };

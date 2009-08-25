@@ -47,37 +47,37 @@ namespace RTT
 {
 
     /**
-     * This class manages the access of remote Action Corba Servers.
+     * This class manages the access of remote CAction Corba Servers.
      */
     class RTT_CORBA_API ActionProxy
         : public base::ActionInterface
     {
     protected:
-        static std::map<corba::Action_ptr, ActionProxy*> proxies;
+        static std::map<corba::CAction_ptr, ActionProxy*> proxies;
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ActionProxy( ::RTT::corba::Action_ptr t );
+        ActionProxy( ::RTT::corba::CAction_ptr t );
 
-        corba::Action_var mdata;
+        corba::CAction_var mdata;
 
     public:
 
         /**
-         * Factory method: create a CORBA connection to an existing Action Object.
+         * Factory method: create a CORBA connection to an existing CAction Object.
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static ActionProxy* Create(::RTT::corba::Action_ptr act);
+        static ActionProxy* Create(::RTT::corba::CAction_ptr act);
 
         /**
-         * Get the Corba Object reference of the Action.
-         * This object universally identifies the remote Action Object
+         * Get the Corba Object reference of the CAction.
+         * This object universally identifies the remote CAction Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        corba::Action_ptr server() const;
+        corba::CAction_ptr server() const;
 
         virtual void readArguments() {}
 

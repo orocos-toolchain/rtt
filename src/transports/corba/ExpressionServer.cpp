@@ -53,53 +53,53 @@ namespace RTT
     ExpressionServer::AServerMap ExpressionServer::AServers;
     ExpressionServer::MServerMap ExpressionServer::MServers;
 
-    corba::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ) {
+    corba::CExpression_ptr ExpressionServer::CreateExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ) {
         // try to retrieve:
-        corba::Expression_ptr result = EServers[ expr ];
+        corba::CExpression_ptr result = EServers[ expr ];
         if ( !CORBA::is_nil(result) )
-            return corba::Expression::_duplicate(result);
+            return corba::CExpression::_duplicate(result);
         // create new:
         if ( CORBA::is_nil(p) )
             p = ApplicationServer::rootPOA.in();
-        Logger::log() <<Logger::Debug<< "Created 'Any' Expression server for type "<< expr->getType()<<Logger::endl;
+        Logger::log() <<Logger::Debug<< "Created 'Any' CExpression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr, p );
         EServants[expr] = newexpr;
         EServers[expr] = newexpr->_this();
-        return corba::Expression::_duplicate( EServers[expr] );
+        return corba::CExpression::_duplicate( EServers[expr] );
     }
 
 
-    corba::Expression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ){
+    corba::CExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ){
         // try to retrieve:
-        corba::AssignableExpression_ptr result = AServers[ expr ];
+        corba::CAssignableExpression_ptr result = AServers[ expr ];
         if ( !CORBA::is_nil(result) )
-            return corba::Expression::_duplicate(result);
+            return corba::CExpression::_duplicate(result);
         // create new:
         if ( CORBA::is_nil(p) )
             p = ApplicationServer::rootPOA.in();
-        Logger::log() <<Logger::Debug<< "Created 'Any' Assignable Expression server for type "<< expr->getType()<<Logger::endl;
+        Logger::log() <<Logger::Debug<< "Created 'Any' Assignable CExpression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr, p );
         AServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
-        EServers[expr] = corba::Expression::_narrow(AServers[expr]);
-        corba::Expression_var ret = corba::Expression::_duplicate( EServers[expr] );
+        EServers[expr] = corba::CExpression::_narrow(AServers[expr]);
+        corba::CExpression_var ret = corba::CExpression::_duplicate( EServers[expr] );
         return ret._retn();
     }
 
-    corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr, MethodC* orig, PortableServer::POA_ptr p ) {
+    corba::CMethod_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr, MethodC* orig, PortableServer::POA_ptr p ) {
         // try to retrieve:
-        corba::Method_ptr result = MServers[ expr ];
+        corba::CMethod_ptr result = MServers[ expr ];
         if ( !CORBA::is_nil(result) )
-            return corba::Method::_duplicate(result);
+            return corba::CMethod::_duplicate(result);
         // create new:
         if ( CORBA::is_nil(p) )
             p = ApplicationServer::rootPOA.in();
-        Logger::log() <<Logger::Debug<< "Created 'Any' Method server for type "<< expr->getType()<<Logger::endl;
+        Logger::log() <<Logger::Debug<< "Created 'Any' CMethod server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( *orig, expr, p );
         MServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
-        EServers[expr] = corba::Expression::_narrow(MServers[expr]);
-        return corba::Method::_duplicate( MServers[expr] );
+        EServers[expr] = corba::CExpression::_narrow(MServers[expr]);
+        return corba::CMethod::_duplicate( MServers[expr] );
     }
 
     void ExpressionServer::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )

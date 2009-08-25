@@ -10,7 +10,7 @@ namespace RTT {
 	class CorbaTypeTransporter : public RTT::types::TypeTransporter
 	{
 	public:
-	    virtual ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
+	    virtual CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
 	    virtual base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port,
 		    internal::ConnPolicy const& policy) const = 0;
 
@@ -18,14 +18,14 @@ namespace RTT {
 
         template<typename T>
 	class RemoteChannelElement 
-	    : public ChannelElement_i
+	    : public CChannelElement_i
 	    , public base::ChannelElement<T>
 	{
 	    typename internal::ValueDataSource<T>::shared_ptr data_source;
 
 	public:
 	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa)
-		: ChannelElement_i(transport, poa)
+		: CChannelElement_i(transport, poa)
 		, data_source(new internal::ValueDataSource<T>)
             {
                 // CORBA refcount-managed servants must start with a refcount of

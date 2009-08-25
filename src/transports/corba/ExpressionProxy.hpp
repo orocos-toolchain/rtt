@@ -57,7 +57,7 @@ namespace RTT
 {
 
     /**
-     * This class manages the access of remote Expression Corba Servers.
+     * This class manages the access of remote CExpression Corba Servers.
      */
     class RTT_CORBA_API ExpressionProxy
         : public base::DataSourceBase
@@ -66,28 +66,28 @@ namespace RTT
         typedef boost::intrusive_ptr<ExpressionProxy> shared_ptr;
 
         /**
-         * Factory method: create a CORBA connection to an existing Expression Object.
+         * Factory method: create a CORBA connection to an existing CExpression Object.
          * @param expr The Object to connect to.
          * @return A new or previously created CORBA proxy for \a expr.
          */
-        static ExpressionProxy::shared_ptr Create(::RTT::corba::Expression_ptr expr);
+        static ExpressionProxy::shared_ptr Create(::RTT::corba::CExpression_ptr expr);
 
         /**
-         * Factory method: create a internal::DataSource to an existing Expression Object.
+         * Factory method: create a internal::DataSource to an existing CExpression Object.
          * @param expr The Object to connect to.
          * @return A new or previously created internal::DataSource for \a expr.
          */
-        static base::DataSourceBase::shared_ptr CreateDataSource(::RTT::corba::Expression_ptr expr);
+        static base::DataSourceBase::shared_ptr CreateDataSource(::RTT::corba::CExpression_ptr expr);
 
 
         /**
-         * Create a internal::DataSource connection to an existing Expression Object.
-         * @param T the type of data the Expression supposedly has.
+         * Create a internal::DataSource connection to an existing CExpression Object.
+         * @param T the type of data the CExpression supposedly has.
          * @param expr The Object to connect to.
-         * @return 0 if the Expression is not convertible to T.
+         * @return 0 if the CExpression is not convertible to T.
          */
         template<class T>
-        static internal::DataSource<T>* NarrowDataSource(::RTT::corba::Expression_ptr expr) {
+        static internal::DataSource<T>* NarrowDataSource(::RTT::corba::CExpression_ptr expr) {
 
             CORBA::Any_var any = expr->value();
             typename internal::DataSource<T>::value_t target = typename internal::DataSource<T>::value_t();
@@ -116,14 +116,14 @@ namespace RTT
 
         /**
          * Create an Orocos internal::AssignableDataSource<T> proxy.
-         * @param T the type of data the Expression supposedly has.
+         * @param T the type of data the CExpression supposedly has.
          * @param expr The Object to connect to.
-         * @return 0 if the Expression is not convertible to T.
+         * @return 0 if the CExpression is not convertible to T.
          */
         template<class T>
-        static internal::AssignableDataSource<T>* NarrowAssignableDataSource( ::RTT::corba::Expression_ptr expr) {
+        static internal::AssignableDataSource<T>* NarrowAssignableDataSource( ::RTT::corba::CExpression_ptr expr) {
 
-            corba::AssignableExpression_var ret = corba::AssignableExpression::_narrow( expr );
+            corba::CAssignableExpression_var ret = corba::CAssignableExpression::_narrow( expr );
             if ( !CORBA::is_nil(ret) ) {
                 CORBA::Any_var any = ret->value();
                 typename internal::DataSource<T>::value_t target = typename internal::DataSource<T>::value_t();
@@ -140,8 +140,8 @@ namespace RTT
 
         /**
          * Create an Orocos internal::DataSource<T> proxy.
-         * @param T the type of data the Expression supposedly has.
-         * @return 0 if the Expression is not convertible to T.
+         * @param T the type of data the CExpression supposedly has.
+         * @return 0 if the CExpression is not convertible to T.
          */
         template<class T>
         internal::DataSource<T>* narrowDataSource() const {
@@ -158,8 +158,8 @@ namespace RTT
 
         /**
          * Create an Orocos internal::AssignableDataSource<T> proxy.
-         * @param T the type of data the Expression supposedly has.
-         * @return 0 if the Expression is not convertible to T.
+         * @param T the type of data the CExpression supposedly has.
+         * @return 0 if the CExpression is not convertible to T.
          */
         template<class T>
         internal::AssignableDataSource<T>* narrowAssignableDataSource() const {
@@ -167,11 +167,11 @@ namespace RTT
         }
 
         /**
-         * Get the Corba Object reference of the Expression.
-         * This object universally identifies the remote Expression Object
+         * Get the Corba Object reference of the CExpression.
+         * This object universally identifies the remote CExpression Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        //virtual corba::Expression_ptr createExpression() const;
+        //virtual corba::CExpression_ptr createExpression() const;
 
         virtual int serverProtocol() const
         {
@@ -211,19 +211,19 @@ namespace RTT
 
         virtual void* server(int p, void* arg) {
             if (p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate(mdata.in());
+                return corba::CExpression::_duplicate(mdata.in());
             return 0;
         }
 
         virtual void* server(int p, void* arg) const {
             if (p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Expression::_duplicate(mdata.in());
+                return corba::CExpression::_duplicate(mdata.in());
             return 0;
         }
 
         virtual void* method(int p, internal::MethodC* , void* arg) {
             if (p == ORO_CORBA_PROTOCOL_ID)
-                return corba::Method::_narrow( mdata.in() );
+                return corba::CMethod::_narrow( mdata.in() );
             return 0;
         }
 
@@ -271,8 +271,8 @@ namespace RTT
         };
 
     protected:
-        typedef std::map<corba::Expression_ptr, ExpressionProxy::shared_ptr> EMap;
-        typedef std::map<corba::Expression_ptr, base::DataSourceBase::shared_ptr> DMap;
+        typedef std::map<corba::CExpression_ptr, ExpressionProxy::shared_ptr> EMap;
+        typedef std::map<corba::CExpression_ptr, base::DataSourceBase::shared_ptr> DMap;
 
         static EMap proxies;
         static DMap dproxies;
@@ -281,9 +281,9 @@ namespace RTT
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ExpressionProxy( ::RTT::corba::Expression_ptr t );
+        ExpressionProxy( ::RTT::corba::CExpression_ptr t );
 
-        corba::Expression_var mdata;
+        corba::CExpression_var mdata;
 
     };
 

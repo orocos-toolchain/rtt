@@ -58,9 +58,9 @@ using namespace RTT::base;
 using namespace RTT::types;
 using namespace RTT::internal;
 
-DataFlowInterface_i::ServantMap DataFlowInterface_i::s_servant_map;
+CDataFlowInterface_i::ServantMap CDataFlowInterface_i::s_servant_map;
 
-static RTT::internal::ConnPolicy toRTT(RTT::corba::ConnPolicy const& corba_policy)
+static RTT::internal::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
 {
     RTT::internal::ConnPolicy policy;
     policy.type        = corba_policy.type;
@@ -72,24 +72,24 @@ static RTT::internal::ConnPolicy toRTT(RTT::corba::ConnPolicy const& corba_polic
 }
 
 
-DataFlowInterface_i::DataFlowInterface_i (RTT::interface::DataFlowInterface* interface, PortableServer::POA_ptr poa)
+CDataFlowInterface_i::CDataFlowInterface_i (RTT::interface::DataFlowInterface* interface, PortableServer::POA_ptr poa)
     : mdf(interface), mpoa(PortableServer::POA::_duplicate(poa))
 {
 }
 
-DataFlowInterface_i::~DataFlowInterface_i ()
+CDataFlowInterface_i::~CDataFlowInterface_i ()
 {
 }
 
-void DataFlowInterface_i::registerServant(DataFlowInterface_ptr objref, RTT::interface::DataFlowInterface* obj)
+void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::interface::DataFlowInterface* obj)
 {
     s_servant_map.push_back(
             std::make_pair(
-                DataFlowInterface_var(RTT::corba::DataFlowInterface::_duplicate(objref)),
+                CDataFlowInterface_var(RTT::corba::CDataFlowInterface::_duplicate(objref)),
                 obj)
             );
 }
-void DataFlowInterface_i::deregisterServant(RTT::interface::DataFlowInterface* obj)
+void CDataFlowInterface_i::deregisterServant(RTT::interface::DataFlowInterface* obj)
 {
     for (ServantMap::iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
@@ -102,7 +102,7 @@ void DataFlowInterface_i::deregisterServant(RTT::interface::DataFlowInterface* o
     }
 }
 
-RTT::interface::DataFlowInterface* DataFlowInterface_i::getLocalInterface(DataFlowInterface_ptr objref)
+RTT::interface::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
 {
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
@@ -113,16 +113,16 @@ RTT::interface::DataFlowInterface* DataFlowInterface_i::getLocalInterface(DataFl
     return NULL;
 }
 
-PortableServer::POA_ptr DataFlowInterface_i::_default_POA()
+PortableServer::POA_ptr CDataFlowInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
-DataFlowInterface::PortNames * DataFlowInterface_i::getPorts()
+CDataFlowInterface::CPortNames * CDataFlowInterface_i::getPorts()
 {
     ::RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
 
-    RTT::corba::DataFlowInterface::PortNames_var pn = new RTT::corba::DataFlowInterface::PortNames();
+    RTT::corba::CDataFlowInterface::CPortNames_var pn = new RTT::corba::CDataFlowInterface::CPortNames();
     pn->length( ports.size() );
 
     for (unsigned int i=0; i != ports.size(); ++i )
@@ -131,16 +131,16 @@ DataFlowInterface::PortNames * DataFlowInterface_i::getPorts()
     return pn._retn();
 }
 
-DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
+CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions()
 {
     RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
-    RTT::corba::DataFlowInterface::PortDescriptions_var result = new RTT::corba::DataFlowInterface::PortDescriptions();
+    RTT::corba::CDataFlowInterface::CPortDescriptions_var result = new RTT::corba::CDataFlowInterface::CPortDescriptions();
     result->length( ports.size() );
 
     unsigned int j = 0;
     for (unsigned int i = 0; i < ports.size(); ++i)
     {
-        PortDescription port_desc;
+        CPortDescription port_desc;
 
         PortInterface* port = mdf->getPort(ports[i]);
         port_desc.name = CORBA::string_dup(ports[i].c_str());
@@ -154,9 +154,9 @@ DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
 
         port_desc.type_name = CORBA::string_dup(type_info->getTypeName().c_str());
         if (dynamic_cast<InputPortInterface*>(port))
-            port_desc.type = corba::Input;
+            port_desc.type = corba::CInput;
         else
-            port_desc.type = corba::Output;
+            port_desc.type = corba::COutput;
 
         result[j++] = port_desc;
     }
@@ -164,35 +164,35 @@ DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
     return result._retn();
 }
 
-PortType DataFlowInterface_i::getPortType(const char * port_name)
+CPortType CDataFlowInterface_i::getPortType(const char * port_name)
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
-        throw NoSuchPortException();
+        throw CNoSuchPortException();
 
     if (dynamic_cast<InputPortInterface*>(p))
-        return RTT::corba::Input;
-    else return RTT::corba::Output;
+        return RTT::corba::CInput;
+    else return RTT::corba::COutput;
 }
 
-char* DataFlowInterface_i::getDataType(const char * port_name)
+char* CDataFlowInterface_i::getDataType(const char * port_name)
 {
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0)
-        throw NoSuchPortException();
+        throw CNoSuchPortException();
     return CORBA::string_dup( p->getTypeInfo()->getTypeName().c_str() );
 }
 
-CORBA::Boolean DataFlowInterface_i::isConnected(const char * port_name)
+CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name)
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
-        throw corba::NoSuchPortException();
+        throw corba::CNoSuchPortException();
 
     return p->connected();
 }
 
-void DataFlowInterface_i::disconnect(const char * port_name)
+void CDataFlowInterface_i::disconnect(const char * port_name)
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
@@ -201,9 +201,9 @@ void DataFlowInterface_i::disconnect(const char * port_name)
     p->disconnect();
 }
 
-void DataFlowInterface_i::disconnectPort(
+void CDataFlowInterface_i::disconnectPort(
         const char* writer_port,
-        DataFlowInterface_ptr reader_interface, const char* reader_port)
+        CDataFlowInterface_ptr reader_interface, const char* reader_port)
 {
     OutputPortInterface* writer = 
         dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
@@ -215,33 +215,33 @@ void DataFlowInterface_i::disconnectPort(
     writer->disconnect(reader);
 }
 
-ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
-        const char* port_name, ConnPolicy const& corba_policy)
+CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
+        const char* port_name, CConnPolicy const& corba_policy)
 {
     InputPortInterface* port = dynamic_cast<InputPortInterface*>(mdf->getPort(port_name));
     if (port == 0)
-        throw NoSuchPortException();
+        throw CNoSuchPortException();
 
     TypeInfo const* type_info = port->getTypeInfo();
     if (!type_info)
-        throw NoCorbaTransport();
+        throw CNoCorbaTransport();
 
     CorbaTypeTransporter* transporter =
         dynamic_cast<CorbaTypeTransporter*>(type_info->getProtocol(ORO_CORBA_PROTOCOL_ID));
     if (!transporter)
-        throw NoCorbaTransport();
+        throw CNoCorbaTransport();
 
     ChannelElementBase* element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
-    ChannelElement_i* this_element;
+    CChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
     dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
 
-    return RTT::corba::ChannelElement::_duplicate(this_element->_this());
+    return RTT::corba::CChannelElement::_duplicate(this_element->_this());
 }
 
-::CORBA::Boolean DataFlowInterface_i::createConnection(
-        const char* writer_port, DataFlowInterface_ptr reader_interface,
-        const char* reader_port, ConnPolicy const& policy)
+::CORBA::Boolean CDataFlowInterface_i::createConnection(
+        const char* writer_port, CDataFlowInterface_ptr reader_interface,
+        const char* reader_port, CConnPolicy const& policy)
 {
     OutputPortInterface* writer = dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
@@ -249,7 +249,7 @@ ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
 
     // Check if +reader_interface+ is local. If it is, use the non-CORBA
     // connection.
-    RTT::interface::DataFlowInterface* local_interface = DataFlowInterface_i::getLocalInterface(reader_interface);
+    RTT::interface::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(reader_interface);
     if (local_interface)
     {
         InputPortInterface* reader =
@@ -269,7 +269,7 @@ ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
            writer_port << " and " << reader_port << endlog();
 
     try {
-        if (reader_interface->getPortType(reader_port) != corba::Input)
+        if (reader_interface->getPortType(reader_port) != corba::CInput)
             return false;
 
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
@@ -281,13 +281,13 @@ ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
 }
 
 // standard constructor
-ChannelElement_i::ChannelElement_i(RTT::types::TypeTransporter const& transport,
+CChannelElement_i::CChannelElement_i(RTT::types::TypeTransporter const& transport,
 	  PortableServer::POA_ptr poa)
     : transport(transport)
     , mpoa(PortableServer::POA::_duplicate(poa)) {}
-ChannelElement_i::~ChannelElement_i() {}
-PortableServer::POA_ptr ChannelElement_i::_default_POA()
+CChannelElement_i::~CChannelElement_i() {}
+PortableServer::POA_ptr CChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
-void ChannelElement_i::setRemoteSide(ChannelElement_ptr remote)
-{ this->remote_side = RTT::corba::ChannelElement::_duplicate(remote); }
+void CChannelElement_i::setRemoteSide(CChannelElement_ptr remote)
+{ this->remote_side = RTT::corba::CChannelElement::_duplicate(remote); }
 

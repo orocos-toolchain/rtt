@@ -50,10 +50,10 @@ using namespace std;
 namespace RTT
 {namespace corba
 {
-    std::map<corba::Action_ptr, ActionProxy*> ActionProxy::proxies;
+    std::map<corba::CAction_ptr, ActionProxy*> ActionProxy::proxies;
 
-    ActionProxy::ActionProxy( ::RTT::corba::Action_ptr e)
-        : mdata( ::RTT::corba::Action::_duplicate(e) )
+    ActionProxy::ActionProxy( ::RTT::corba::CAction_ptr e)
+        : mdata( ::RTT::corba::CAction::_duplicate(e) )
     {
         try {
             mdata->reset(); // force connect to object.
@@ -67,7 +67,7 @@ namespace RTT
         }
     }
 
-    ActionProxy* ActionProxy::Create(::RTT::corba::Action_ptr t) {
+    ActionProxy* ActionProxy::Create(::RTT::corba::CAction_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -81,9 +81,9 @@ namespace RTT
         return ctp;
     }
 
-    corba::Action_ptr ActionProxy::server() const
+    corba::CAction_ptr ActionProxy::server() const
     {
-        return corba::Action::_duplicate( mdata.in() );
+        return corba::CAction::_duplicate( mdata.in() );
     }
 
 }}

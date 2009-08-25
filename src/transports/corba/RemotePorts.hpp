@@ -14,17 +14,17 @@ namespace RTT {
         {
         protected:
             types::TypeInfo const* type_info;
-            DataFlowInterface_var dataflow;
+            CDataFlowInterface_var dataflow;
             PortableServer::POA_var mpoa;
 
         public:
             RemotePort(types::TypeInfo const* type_info,
-                    DataFlowInterface_ptr dataflow,
+                    CDataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 
             PortableServer::POA_ptr _default_POA();
-            DataFlowInterface_ptr getDataFlowInterface() const;
+            CDataFlowInterface_ptr getDataFlowInterface() const;
 
             base::PortID* getPortID() const;
             bool isSameID(base::PortID const& id) const;
@@ -41,7 +41,7 @@ namespace RTT {
         {
         public:
             RemoteOutputPort(types::TypeInfo const* type_info,
-                    DataFlowInterface_ptr dataflow,
+                    CDataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 
@@ -61,7 +61,7 @@ namespace RTT {
         {
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
-                    DataFlowInterface_ptr dataflow,
+                    CDataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 

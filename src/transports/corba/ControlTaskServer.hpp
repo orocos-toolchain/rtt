@@ -55,7 +55,7 @@
 #include "ApplicationServer.hpp"
 #include "../../base/ActivityInterface.hpp"
 
-class Orocos_ControlTask_i;
+class Orocos_CControlTask_i;
 namespace RTT
 {namespace corba
 {
@@ -87,7 +87,7 @@ namespace RTT
         ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
 	PortableServer::ServantBase_var mtask_i;
-        corba::ControlTask_var mtask;
+        corba::CControlTask_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
 
@@ -152,14 +152,14 @@ namespace RTT
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA server for \a tc.
          */
-        static ControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true);
+        static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true);
 
         /**
-         * Get the Corba Object of this ControlTask.
+         * Get the Corba Object of this CControlTask.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        ControlTask_ptr server() const;
+        CControlTask_ptr server() const;
     };
 }}
 #endif

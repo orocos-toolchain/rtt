@@ -18,14 +18,14 @@ module RTT
   module corba
   {
 
-    typedef sequence<string> ObjectList;
+    typedef sequence<string> CObjectList;
 
     /**
      * An Orocos TaskObject which hosts a method and command
      * interface.
      * @ingroup CompIDL
      */
-    interface ControlObject
+    interface CControlObject
     {
       /**
        * Return the name of this object.
@@ -40,27 +40,27 @@ module RTT
       /**
        * Query the attributes of this interface.
        */
-      AttributeInterface attributes();
+      CAttributeInterface attributes();
 
       /**
-       * Synchronous Method Interface.
+       * Synchronous CMethod Interface.
        */
-      MethodInterface methods();
+      CMethodInterface methods();
 
       /**
-       * Asynchronous Command Interface.
+       * Asynchronous CCommand Interface.
        */
-      CommandInterface commands();
+      CCommandInterface commands();
 
       /**
        * Get a list of all the child objects this object is connected to.
        */
-      ObjectList getObjectList( );
+      CObjectList getObjectList( );
 
       /**
        * Get a child object this object is connected to.
        */
-      ControlObject getObject( in string name );
+      CControlObject getObject( in string name );
 
       /**
        * Has this object a child object with given name ?
@@ -69,20 +69,20 @@ module RTT
 
     };
 
-    enum TaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeWarning, RunTimeError };
+    enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeWarning, RunTimeError };
 
     /**
-     * A ControlTask is the main entry point of a distributed
+     * A CControlTask is the main entry point of a distributed
      * component.
      */
-    interface ControlTask : ControlObject
+    interface CControlTask : CControlObject
     {
-      typedef sequence<string> ControlTaskNames;
+      typedef sequence<string> CControlTaskNames;
 
       /**
        * Returns the current state of the component.
        */
-      TaskState getTaskState();
+      CTaskState getTaskState();
 
       /**
        * Configure this component.
@@ -155,34 +155,34 @@ module RTT
       long getErrorCount();
 
       /**
-       * The ScriptingAccess, for program and state machine
+       * The CScriptingAccess, for program and state machine
        * information of this Task.
        */
-      ScriptingAccess scripting();
+      CScriptingAccess scripting();
 
       /**
        * Access to Process-wide services.
        */
-      ServiceInterface services();
+      CServiceInterface services();
 
       /**
        * Access to the Data Flow ports.
        */
-      DataFlowInterface ports();
+      CDataFlowInterface ports();
 
       /**
-       * ControlTask Browsing functions.
+       * CControlTask Browsing functions.
        */
 
       /**
        * Get a list of all the peers this task is connected to.
        */
-      ControlTaskNames getPeerList( );
+      CControlTaskNames getPeerList( );
 
       /**
        * Get a peer this task is connected to.
        */
-      ControlTask getPeer( in string name );
+      CControlTask getPeer( in string name );
 
       /**
        * Has this task a peer with given name ?
@@ -192,7 +192,7 @@ module RTT
       /**
        * Add a one-way peer connection.
        */
-      boolean addPeer( in ControlTask p, in string alias );
+      boolean addPeer( in CControlTask p, in string alias );
 
       /**
        * Remove a one-way peer connection.
@@ -202,7 +202,7 @@ module RTT
       /**
        * Create a two-way peer connection.
        */
-      boolean connectPeers( in ControlTask p );
+      boolean connectPeers( in CControlTask p );
 
       /**
        * Destroy a two-way peer connection.
@@ -211,10 +211,10 @@ module RTT
 
       /**
        * Connect all compatible and equally named
-       * data ports with another ControlTask's
+       * data ports with another CControlTask's
        * data ports.
        */
-      boolean connectPorts( in ControlTask p );
+      boolean connectPorts( in CControlTask p );
 
     };
   };

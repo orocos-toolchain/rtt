@@ -51,17 +51,17 @@ namespace RTT {
     bool AnyConversion<PropertyBag>::update(const CORBA::Any& any, StdType& _value) {
         Logger::In in("AnyConversion<PropertyBag>");
         //Logger::In in("AnyConversion");
-        corba::AttributeInterface_ptr attrs;
+        corba::CAttributeInterface_ptr attrs;
         // non deep copy:
         if ( any >>= attrs ) {
-            Logger::log() << Logger::Debug << "Populating PropertyBag with AttributeInterface Properties." <<Logger::endl;
-            corba::AttributeInterface::PropertyNames_var props = attrs->getPropertyList();
+            Logger::log() << Logger::Debug << "Populating PropertyBag with CAttributeInterface Properties." <<Logger::endl;
+            corba::CAttributeInterface::CPropertyNames_var props = attrs->getPropertyList();
 
             for (size_t i=0; i != props->length(); ++i) {
                 if ( _value.find( std::string(props[i].name.in()) ) )
                     continue; // previously added.
                 Logger::log() << Logger::Debug << "  Adding "<< string(props[i].name.in() ) <<Logger::endl;
-                corba::Expression_var expr = attrs->getProperty( props[i].name.in() );
+                corba::CExpression_var expr = attrs->getProperty( props[i].name.in() );
                 if ( CORBA::is_nil( expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<Logger::endl;
                     continue;
@@ -77,7 +77,7 @@ namespace RTT {
                     continue;
                 }
 #endif
-                corba::AssignableExpression_var as_expr = corba::AssignableExpression::_narrow( expr.in() );
+                corba::CAssignableExpression_var as_expr = corba::CAssignableExpression::_narrow( expr.in() );
                 if ( CORBA::is_nil( as_expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " was not writable !"<<Logger::endl;
                 } else {
@@ -97,14 +97,14 @@ namespace RTT {
             }
             return true;
         }
-        Logger::log() << Logger::Debug << "Failed to populate PropertyBag with AttributeInterface Properties." <<Logger::endl;
+        Logger::log() << Logger::Debug << "Failed to populate PropertyBag with CAttributeInterface Properties." <<Logger::endl;
         return false;
     }
 
     CORBA::Any_ptr AnyConversion<PropertyBag>::createAny( StdType t ) {
         Logger::log() << Logger::Debug << "Creating PropertyBag Server." <<Logger::endl;
-        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( new PropertyBag(t), corba::ControlTaskProxy::ProxyPOA() );
-        corba::AttributeInterface_ptr server = attrs->_this();
+        Orocos_CAttributeInterface_i* attrs = new Orocos_CAttributeInterface_i( new PropertyBag(t), corba::ControlTaskProxy::ProxyPOA() );
+        corba::CAttributeInterface_ptr server = attrs->_this();
         CORBA::Any_ptr any = new CORBA::Any();
         *any <<= server;
         return any;

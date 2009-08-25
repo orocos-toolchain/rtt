@@ -80,57 +80,57 @@ using namespace RTT::scripting;
 
 
 // Implementation skeleton constructor
-Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (RTT::scripting::ScriptingAccess* ee, PortableServer::POA_ptr the_poa)
+Orocos_CScriptingAccess_i::Orocos_CScriptingAccess_i (RTT::scripting::ScriptingAccess* ee, PortableServer::POA_ptr the_poa)
     :mee(ee), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
 // Implementation skeleton destructor
-Orocos_ScriptingAccess_i::~Orocos_ScriptingAccess_i (void)
+Orocos_CScriptingAccess_i::~Orocos_CScriptingAccess_i (void)
 {
 }
 
-PortableServer::POA_ptr Orocos_ScriptingAccess_i::_default_POA()
+PortableServer::POA_ptr Orocos_CScriptingAccess_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
-void Orocos_ScriptingAccess_i::loadPrograms (
+void Orocos_CScriptingAccess_i::loadPrograms (
     const char * code,
     const char * filename
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::RTT::corba::ScriptingAccess::LoadException
+    ::RTT::corba::CScriptingAccess::CLoadException
   ))
 {
     try {
         mee->loadPrograms( code, filename, true );
     }
     catch (program_load_exception &ple) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( fpe.what().c_str() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( fpe.what().c_str() );
     }
 }
 
-void Orocos_ScriptingAccess_i::unloadProgram (
+void Orocos_CScriptingAccess_i::unloadProgram (
     const char * name
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::RTT::corba::ScriptingAccess::LoadException
+    ::RTT::corba::CScriptingAccess::CLoadException
   ))
 {
     try {
         mee->unloadProgram( name, true );
     }
     catch (program_unload_exception &ple) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( ple.what() );
     }
 }
 
-::RTT::corba::ScriptingAccess::ProgramNames * Orocos_ScriptingAccess_i::getPrograms (
+::RTT::corba::CScriptingAccess::CProgramNames * Orocos_CScriptingAccess_i::getPrograms (
 
   )
   ACE_THROW_SPEC ((
@@ -138,14 +138,14 @@ void Orocos_ScriptingAccess_i::unloadProgram (
   ))
 {
     std::vector<std::string> vlist = mee->getPrograms();
-    ::RTT::corba::ScriptingAccess::ProgramNames_var result = new ::RTT::corba::ScriptingAccess::ProgramNames();
+    ::RTT::corba::CScriptingAccess::CProgramNames_var result = new ::RTT::corba::CScriptingAccess::CProgramNames();
     result->length( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );
     return result._retn();
 }
 
-CORBA::Long Orocos_ScriptingAccess_i::getProgramLine (
+CORBA::Long Orocos_CScriptingAccess_i::getProgramLine (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -155,7 +155,7 @@ CORBA::Long Orocos_ScriptingAccess_i::getProgramLine (
     return mee->getProgramLine( name );
 }
 
-CORBA::Boolean Orocos_ScriptingAccess_i::hasProgram (
+CORBA::Boolean Orocos_CScriptingAccess_i::hasProgram (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -165,7 +165,7 @@ CORBA::Boolean Orocos_ScriptingAccess_i::hasProgram (
     return mee->hasProgram( name );
 }
 
-char * Orocos_ScriptingAccess_i::getProgramText (
+char * Orocos_CScriptingAccess_i::getProgramText (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -175,7 +175,7 @@ char * Orocos_ScriptingAccess_i::getProgramText (
     return CORBA::string_dup( mee->getProgramText(name).c_str() );
 }
 
-char * Orocos_ScriptingAccess_i::getProgramStatus (
+char * Orocos_CScriptingAccess_i::getProgramStatus (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -185,42 +185,42 @@ char * Orocos_ScriptingAccess_i::getProgramStatus (
     return CORBA::string_dup( mee->getProgramStatus(name).c_str() );
 }
 
-void Orocos_ScriptingAccess_i::loadStateMachines (
+void Orocos_CScriptingAccess_i::loadStateMachines (
     const char * code,
     const char * filename
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::RTT::corba::ScriptingAccess::LoadException
+    ::RTT::corba::CScriptingAccess::CLoadException
   ))
 {
     try {
         mee->loadStateMachines( code, filename, true);
     }
     catch (program_load_exception &ple) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( fpe.what().c_str() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( fpe.what().c_str() );
     }
 }
 
-void Orocos_ScriptingAccess_i::unloadStateMachine (
+void Orocos_CScriptingAccess_i::unloadStateMachine (
     const char * name
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::RTT::corba::ScriptingAccess::LoadException
+    ::RTT::corba::CScriptingAccess::CLoadException
   ))
 {
     try {
         mee->unloadStateMachine( name, true );
     }
     catch (program_unload_exception &ple) {
-        throw ::RTT::corba::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::corba::CScriptingAccess::CLoadException( ple.what() );
     }
 }
 
-::RTT::corba::ScriptingAccess::StateMachineNames * Orocos_ScriptingAccess_i::getStateMachines (
+::RTT::corba::CScriptingAccess::CStateMachineNames * Orocos_CScriptingAccess_i::getStateMachines (
 
   )
   ACE_THROW_SPEC ((
@@ -229,14 +229,14 @@ void Orocos_ScriptingAccess_i::unloadStateMachine (
 {
   // Add your implementation here
     std::vector<std::string> vlist = mee->getStateMachines();
-    ::RTT::corba::ScriptingAccess::StateMachineNames_var result = new ::RTT::corba::ScriptingAccess::StateMachineNames();
+    ::RTT::corba::CScriptingAccess::CStateMachineNames_var result = new ::RTT::corba::CScriptingAccess::CStateMachineNames();
     result->length( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );
     return result._retn();
 }
 
-CORBA::Boolean Orocos_ScriptingAccess_i::hasStateMachine (
+CORBA::Boolean Orocos_CScriptingAccess_i::hasStateMachine (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -246,7 +246,7 @@ CORBA::Boolean Orocos_ScriptingAccess_i::hasStateMachine (
     return mee->hasStateMachine( name );
 }
 
-char * Orocos_ScriptingAccess_i::getStateMachineText (
+char * Orocos_CScriptingAccess_i::getStateMachineText (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -256,7 +256,7 @@ char * Orocos_ScriptingAccess_i::getStateMachineText (
     return CORBA::string_dup( mee->getStateMachineText(name).c_str() );
 }
 
-char * Orocos_ScriptingAccess_i::getStateMachineStatus (
+char * Orocos_CScriptingAccess_i::getStateMachineStatus (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -266,7 +266,7 @@ char * Orocos_ScriptingAccess_i::getStateMachineStatus (
     return CORBA::string_dup( mee->getStateMachineStatus(name).c_str() );
 }
 
-CORBA::Long Orocos_ScriptingAccess_i::getStateMachineLine (
+CORBA::Long Orocos_CScriptingAccess_i::getStateMachineLine (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -276,7 +276,7 @@ CORBA::Long Orocos_ScriptingAccess_i::getStateMachineLine (
     return mee->getStateMachineLine( name );
 }
 
-char * Orocos_ScriptingAccess_i::getCurrentState (
+char * Orocos_CScriptingAccess_i::getCurrentState (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -286,7 +286,7 @@ char * Orocos_ScriptingAccess_i::getCurrentState (
     return CORBA::string_dup( mee->getCurrentState(name).c_str() );
 }
 
-CORBA::Long Orocos_ScriptingAccess_i::execute (
+CORBA::Long Orocos_CScriptingAccess_i::execute (
     const char * code
   )
   ACE_THROW_SPEC ((
@@ -296,7 +296,7 @@ CORBA::Long Orocos_ScriptingAccess_i::execute (
     return mee->execute( code );
 }
 
-::RTT::corba::Command_ptr Orocos_ScriptingAccess_i::getCommand (
+::RTT::corba::CCommand_ptr Orocos_CScriptingAccess_i::getCommand (
       CORBA::Long ticket
     )
     ACE_THROW_SPEC ((
@@ -305,8 +305,8 @@ CORBA::Long Orocos_ScriptingAccess_i::execute (
 {
     base::DispatchInterface::shared_ptr ret = mee->getCommand(ticket);
     if ( !ret )
-        return corba::Command::_nil();
-    Orocos_Command_i* com = new Orocos_Command_i( ret, mpoa.in() );
+        return corba::CCommand::_nil();
+    Orocos_CCommand_i* com = new Orocos_CCommand_i( ret, mpoa.in() );
     return com->_this();
 
 }

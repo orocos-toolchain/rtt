@@ -195,7 +195,7 @@ namespace RTT
     template<>
     struct RTT_CORBA_API AnyConversion<PropertyBag>
     {
-        typedef corba::AttributeInterface_ptr CorbaType;
+        typedef corba::CAttributeInterface_ptr CorbaType;
         typedef PropertyBag StdType;
 
         static bool update(const CORBA::Any& any, StdType& _value);
@@ -300,7 +300,7 @@ namespace RTT
     template<>
     struct RTT_CORBA_API AnyConversion< std::vector<double> >
     {
-        typedef corba::DoubleSequence CorbaType;
+        typedef corba::CDoubleSequence CorbaType;
         typedef std::vector<double> StdType;
         static CorbaType* toAny(const std::vector<double>& orig) {
             //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;

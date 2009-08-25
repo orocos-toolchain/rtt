@@ -84,7 +84,7 @@ namespace RTT
           public ApplicationServer
     {
     public:
-        typedef std::map<ControlTaskProxy*, corba::ControlTask_ptr> PMap;
+        typedef std::map<ControlTaskProxy*, corba::CControlTask_ptr> PMap;
         static PMap proxies;
 
     protected:
@@ -98,9 +98,9 @@ namespace RTT
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ControlTaskProxy( ::RTT::corba::ControlTask_ptr t );
+        ControlTaskProxy( ::RTT::corba::CControlTask_ptr t );
 
-        /** interface::DataFlowInterface does not delete ports automatically, because they
+        /** interface::CDataFlowInterface does not delete ports automatically, because they
          * can then be defined as members of the TaskContext classes.
          *
          * We must therefore delete in the proxy destructor the ones we are
@@ -111,14 +111,14 @@ namespace RTT
         void synchronizeOnce();
         void synchronize();
 
-        mutable corba::ControlTask_var mtask;
+        mutable corba::CControlTask_var mtask;
 
         /**
          * For now one POA handles all proxies.
          */
         static PortableServer::POA_var proxy_poa;
 
-        void fetchObjects(interface::OperationInterface* parent, ControlObject_ptr mtask);
+        void fetchObjects(interface::OperationInterface* parent, CControlObject_ptr mtask);
     public:
         ~ControlTaskProxy();
 
@@ -145,14 +145,14 @@ namespace RTT
          * @return A new or previously created CORBA proxy for \a task, or the TaskContext
          * itself.
          */
-        static TaskContext* Create(::RTT::corba::ControlTask_ptr task, bool force_remote = false);
+        static TaskContext* Create(::RTT::corba::CControlTask_ptr task, bool force_remote = false);
 
         /**
-         * Get the Corba Object of the ControlTask.
+         * Get the Corba Object of the CControlTask.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        corba::ControlTask_ptr server() const;
+        corba::CControlTask_ptr server() const;
 
         virtual bool activate();
 

@@ -7,15 +7,15 @@ module RTT
   module corba
   {
 
-    typedef sequence<any> AnyArguments;
+    typedef sequence<any> CAnyArguments;
 
-    exception WrongNumbArgException
+    exception CWrongNumbArgException
     {
       long wanted;
       long received;
     };
 
-    exception WrongTypeArgException
+    exception CWrongTypeArgException
     {
       long whicharg;
       string expected;
@@ -27,7 +27,7 @@ module RTT
      * An expression is an object which returns a value.
      * @ingroup CompIDL
      */
-    interface Expression
+    interface CExpression
     {
       /**
        * Retrieve the latest result of
@@ -78,7 +78,7 @@ module RTT
      * only a variable.
      * @ingroup CompIDL
      */
-    interface AssignableExpression : Expression
+    interface CAssignableExpression : CExpression
     {
 
       /**
@@ -98,9 +98,9 @@ module RTT
     };
 
     /**
-     * An Action is an object which executes a function.
+     * An CAction is an object which executes a function.
      */
-    interface Action
+    interface CAction
     {
       /**
        * Execute this action.
@@ -113,8 +113,8 @@ module RTT
       /**
        * Send and execute the action with new arguments.
        */
-      boolean executeAny(in AnyArguments args) raises (WrongNumbArgException,
-						       WrongTypeArgException);
+      boolean executeAny(in CAnyArguments args) raises (CWrongNumbArgException,
+						       CWrongTypeArgException);
 
       /**
        * Reset this action.
@@ -131,10 +131,10 @@ module RTT
     };
 
     /**
-     * A method is both an Expression and an Action.
+     * A method is both an CExpression and an CAction.
      * @ingroup CompIDL
      */
-    interface Method : Expression, Action
+    interface CMethod : CExpression, CAction
     {
     };
 
@@ -150,7 +150,7 @@ module RTT
      * evaluated remotely.
      * @ingroup CompIDL
      */
-    interface Command
+    interface CCommand
     {
       /**
        * Send and execute the contained command. The
@@ -162,13 +162,13 @@ module RTT
       /**
        * Send and execute the command with new arguments.
        */
-      boolean executeAny(in AnyArguments args) raises (WrongNumbArgException,
-						       WrongTypeArgException);
+      boolean executeAny(in CAnyArguments args) raises (CWrongNumbArgException,
+						       CWrongTypeArgException);
 
       CommandStatus status();
 
       /**
-       * Check if the Command was sent to the receiving task,
+       * Check if the CCommand was sent to the receiving task,
        * thus if execute() was called.
        * @retval true if sent to the command processor.
        * @retval false otherwise.
@@ -176,21 +176,21 @@ module RTT
       boolean sent();
 
       /**
-       * Check if the Command was accepted by the receiving task.
+       * Check if the CCommand was accepted by the receiving task.
        * @retval true if accepted by the command processor.
        * @retval false otherwise.
        */
       boolean accepted();
 
       /**
-       * Check if the Command was executed by the receiving task.
+       * Check if the CCommand was executed by the receiving task.
        * @retval true if executed by the command processor.
        * @retval false otherwise.
        */
       boolean executed();
 
       /**
-       * Check the return value of the Command when it is
+       * Check the return value of the CCommand when it is
        * executed.
        * @retval true if accepted() and the command returned true,
        * indicating that it is valid.

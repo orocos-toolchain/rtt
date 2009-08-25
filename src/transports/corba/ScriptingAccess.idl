@@ -17,21 +17,21 @@ module RTT
      * a task's programs and state machines.
      * @ingroup CompIDL
      */
-    interface ScriptingAccess
+    interface CScriptingAccess
     {
       /**
        * An exception indicating that a
        * Program or StateMachine could not be
        * loaded or unloaded.
        */
-      exception LoadException
+      exception CLoadException
       {
 	string what;
       };
 
 
-      typedef sequence<string> ProgramNames;
-      typedef sequence<string> StateMachineNames;
+      typedef sequence<string> CProgramNames;
+      typedef sequence<string> CStateMachineNames;
 
       /**
        * Parse and execute a statement.
@@ -46,22 +46,22 @@ module RTT
       /**
        * Return the command with a given ticket number.
        */
-      Command getCommand( in long ticket);
+      CCommand getCommand( in long ticket);
 
-      void loadPrograms( in string code, in string filename ) raises (LoadException);
-      void unloadProgram( in string name ) raises (LoadException);
+      void loadPrograms( in string code, in string filename ) raises (CLoadException);
+      void unloadProgram( in string name ) raises (CLoadException);
 
       boolean  hasProgram(in string name);
-      ProgramNames getPrograms();
+      CProgramNames getPrograms();
       long getProgramLine(in string name);
       string getProgramText(in string name );
       string getProgramStatus(in string name );
 
-      void loadStateMachines( in string code, in string filename ) raises (LoadException);
-      void unloadStateMachine( in string name ) raises (LoadException);
+      void loadStateMachines( in string code, in string filename ) raises (CLoadException);
+      void unloadStateMachine( in string name ) raises (CLoadException);
 
       boolean  hasStateMachine(in string name);
-      StateMachineNames getStateMachines();
+      CStateMachineNames getStateMachines();
       string getStateMachineText(in string name );
       string getStateMachineStatus(in string name );
       long getStateMachineLine(in string name );

@@ -48,7 +48,7 @@ namespace RTT
 {
 
     /**
-     * This class manages the access of remote Command Corba Servers.
+     * This class manages the access of remote CCommand Corba Servers.
      */
     class RTT_CORBA_API CommandProxy
         : public base::DispatchInterface
@@ -58,26 +58,26 @@ namespace RTT
          * Private constructor which creates a new connection to
          * a corba object
          */
-        CommandProxy( ::RTT::corba::Command_ptr t );
+        CommandProxy( ::RTT::corba::CCommand_ptr t );
 
-        corba::Command_var mdata;
+        corba::CCommand_var mdata;
 
     public:
         ~CommandProxy();
 
         /**
-         * Factory method: create a CORBA connection to an existing Command Object.
+         * Factory method: create a CORBA connection to an existing CCommand Object.
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static CommandProxy* Create(::RTT::corba::Command_ptr act);
+        static CommandProxy* Create(::RTT::corba::CCommand_ptr act);
 
         /**
-         * Get the Corba Object reference of the Command.
-         * This object universally identifies the remote Command Object
+         * Get the Corba Object reference of the CCommand.
+         * This object universally identifies the remote CCommand Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        corba::Command_ptr server() const;
+        corba::CCommand_ptr server() const;
 
         virtual void readArguments() {}
 

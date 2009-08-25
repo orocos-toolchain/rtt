@@ -92,7 +92,7 @@ namespace RTT {
              */
             virtual DataSourceBase* proxy(void* data ) const {
                 DataSourceBase* result = 0;
-                corba::Expression_ptr e = static_cast<corba::Expression_ptr>(data);
+                corba::CExpression_ptr e = static_cast<corba::CExpression_ptr>(data);
 
                 // return a dumb proxy.
                 result = ExpressionProxy::Create( e ).get();
@@ -108,7 +108,7 @@ namespace RTT {
                 // Return a dumb server, it will return empty any's using the methods above.
                 PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
                 if (assignable){
-                    return static_cast<Expression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
+                    return static_cast<CExpression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
                 } else {
                     return corba::ExpressionServer::CreateExpression( source, p );
               }

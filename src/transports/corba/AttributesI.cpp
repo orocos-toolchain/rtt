@@ -82,37 +82,37 @@ using namespace RTT::detail;
 using namespace std;
 
 // Implementation skeleton constructor
-Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (AttributeRepository* ar, PortableServer::POA_ptr the_poa)
+Orocos_CAttributeInterface_i::Orocos_CAttributeInterface_i (AttributeRepository* ar, PortableServer::POA_ptr the_poa)
     :mar (ar), mbag(0), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (PropertyBag* bag, PortableServer::POA_ptr the_poa)
+Orocos_CAttributeInterface_i::Orocos_CAttributeInterface_i (PropertyBag* bag, PortableServer::POA_ptr the_poa)
     :mar (0), mbag(bag), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-PortableServer::POA_ptr Orocos_AttributeInterface_i::_default_POA()
+PortableServer::POA_ptr Orocos_CAttributeInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
 // Implementation skeleton destructor
-Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
+Orocos_CAttributeInterface_i::~Orocos_CAttributeInterface_i (void)
 {
     // if no AttributeRepository, it must have been a PropertyBag.
     if ( mar == 0 )
         delete mbag;
 }
 
-::RTT::corba::AttributeInterface::AttributeNames * Orocos_AttributeInterface_i::getAttributeList (
+::RTT::corba::CAttributeInterface::CAttributeNames * Orocos_CAttributeInterface_i::getAttributeList (
 
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
   ))
 {
-    ::RTT::corba::AttributeInterface::AttributeNames_var ret = new ::RTT::corba::AttributeInterface::AttributeNames();
+    ::RTT::corba::CAttributeInterface::CAttributeNames_var ret = new ::RTT::corba::CAttributeInterface::CAttributeNames();
     if ( !mar )
         return ret._retn();
     vector<string> names = mar->names();
@@ -122,7 +122,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     return ret._retn();
 }
 
-::RTT::corba::AttributeInterface::PropertyNames * Orocos_AttributeInterface_i::getPropertyList (
+::RTT::corba::CAttributeInterface::CPropertyNames * Orocos_CAttributeInterface_i::getPropertyList (
 
   )
   ACE_THROW_SPEC ((
@@ -130,7 +130,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
   ))
 {
   // Add your implementation here
-    ::RTT::corba::AttributeInterface::PropertyNames_var ret = new ::RTT::corba::AttributeInterface::PropertyNames();
+    ::RTT::corba::CAttributeInterface::CPropertyNames_var ret = new ::RTT::corba::CAttributeInterface::CPropertyNames();
     if (mar)
         mbag = mar->properties(); // leave this here to get latest propertybag.
     if (mbag == 0)
@@ -139,7 +139,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     PropertyBag::const_iterator it = mbag->getProperties().begin();
     size_t index = 0;
     for( ; it != mbag->getProperties().end(); ++it, ++index) {
-        ::RTT::corba::AttributeInterface::Property prop;
+        ::RTT::corba::CAttributeInterface::Property prop;
         prop.name = CORBA::string_dup( (*it)->getName().c_str() );
         prop.description = CORBA::string_dup( (*it)->getDescription().c_str() );
         ret[index] = prop;
@@ -147,7 +147,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     return ret._retn();
 }
 
-::RTT::corba::Expression_ptr Orocos_AttributeInterface_i::getAttribute (
+::RTT::corba::CExpression_ptr Orocos_CAttributeInterface_i::getAttribute (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -155,11 +155,11 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
   ))
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
-        return ::RTT::corba::Expression::_nil();
-    return (::RTT::corba::Expression_ptr)mar->getValue( string(name) )->getDataSource()->server(ORO_CORBA_PROTOCOL_ID, (void*) mpoa.in() );
+        return ::RTT::corba::CExpression::_nil();
+    return (::RTT::corba::CExpression_ptr)mar->getValue( string(name) )->getDataSource()->server(ORO_CORBA_PROTOCOL_ID, (void*) mpoa.in() );
 }
 
-::RTT::corba::Expression_ptr Orocos_AttributeInterface_i::getProperty (
+::RTT::corba::CExpression_ptr Orocos_CAttributeInterface_i::getProperty (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -169,9 +169,9 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     if (mar)
         mbag = mar->properties(); // leave this here to get latest propertybag.
     if ( mbag ==0 || !mbag->find( string(name) ) )
-        return ::RTT::corba::Expression::_nil();
+        return ::RTT::corba::CExpression::_nil();
     DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
-    return static_cast<Expression_ptr>(ds->server(ORO_CORBA_PROTOCOL_ID, (void*)mpoa.in() ));
+    return static_cast<CExpression_ptr>(ds->server(ORO_CORBA_PROTOCOL_ID, (void*)mpoa.in() ));
 }
 
 

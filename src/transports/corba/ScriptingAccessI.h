@@ -83,16 +83,16 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ScriptingAccess_i : public virtual POA_RTT::corba::ScriptingAccess, public virtual PortableServer::RefCountServantBase
+class  Orocos_CScriptingAccess_i : public virtual POA_RTT::corba::CScriptingAccess, public virtual PortableServer::RefCountServantBase
 {
   RTT::scripting::ScriptingAccess* mee;
 	PortableServer::POA_var mpoa;
 public:
   //Constructor
-	Orocos_ScriptingAccess_i (RTT::scripting::ScriptingAccess* ee, PortableServer::POA_ptr p);
+	Orocos_CScriptingAccess_i (RTT::scripting::ScriptingAccess* ee, PortableServer::POA_ptr p);
 
   //Destructor
-  virtual ~Orocos_ScriptingAccess_i (void);
+  virtual ~Orocos_CScriptingAccess_i (void);
 
     PortableServer::POA_ptr _default_POA();
 
@@ -103,7 +103,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::RTT::corba::ScriptingAccess::LoadException
+      ::RTT::corba::CScriptingAccess::CLoadException
     ));
 
   virtual
@@ -112,11 +112,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::RTT::corba::ScriptingAccess::LoadException
+      ::RTT::corba::CScriptingAccess::CLoadException
     ));
 
   virtual
-  ::RTT::corba::ScriptingAccess::ProgramNames * getPrograms (
+  ::RTT::corba::CScriptingAccess::CProgramNames * getPrograms (
 
     )
     ACE_THROW_SPEC ((
@@ -162,7 +162,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::RTT::corba::ScriptingAccess::LoadException
+      ::RTT::corba::CScriptingAccess::CLoadException
     ));
 
   virtual
@@ -171,11 +171,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::RTT::corba::ScriptingAccess::LoadException
+      ::RTT::corba::CScriptingAccess::CLoadException
     ));
 
   virtual
-  ::RTT::corba::ScriptingAccess::StateMachineNames * getStateMachines (
+  ::RTT::corba::CScriptingAccess::CStateMachineNames * getStateMachines (
 
     )
     ACE_THROW_SPEC ((
@@ -231,7 +231,7 @@ public:
     ));
 
   virtual
-  ::RTT::corba::Command_ptr getCommand (
+  ::RTT::corba::CCommand_ptr getCommand (
       CORBA::Long ticket
     )
     ACE_THROW_SPEC ((
