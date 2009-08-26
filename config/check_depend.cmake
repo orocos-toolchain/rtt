@@ -128,6 +128,9 @@ endif()
 if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
+  message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
+  set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
+
   list(APPEND OROCOS-RTT_LIBRARIES pthread dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
