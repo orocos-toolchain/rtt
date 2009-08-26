@@ -162,16 +162,17 @@ namespace RTT
 	    // CALCULATE in nsecs
 	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
+        // next wake-up time :
+        task->periodMark += task->period;
+
 	    if ( timeRemaining > 0 ) {
-		//rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-		TIME_SPEC ts( ticks2timespec( timeRemaining ) );
-		rtos_nanosleep( &ts , NULL );
+	        //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
+	        TIME_SPEC ts( ticks2timespec( timeRemaining ) );
+	        rtos_nanosleep( &ts , NULL );
+	        return 0;
 	    }
 
-	    // next wake-up time :
-	    task->periodMark += task->period;
-
-	    return 0;
+	    return -1;
 	}
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask)
