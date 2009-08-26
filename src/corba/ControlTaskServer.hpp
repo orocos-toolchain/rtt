@@ -58,8 +58,8 @@
 namespace RTT
 {namespace Corba
 {
-    class RTT_CORBA_API OrbRunner;
-    class RTT_CORBA_API ControlTaskProxy;
+    class OrbRunner;
+    class ControlTaskProxy;
 
     /**
      * This class manages the creation of TaskContext Corba Servers
