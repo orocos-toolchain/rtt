@@ -44,7 +44,7 @@ namespace RTT
 {
 
     ConnectionInterface::ConnectionInterface()
-    : mconnected(false), refcount(0)
+        : refcount(0), mconnected(false)
     {}
 
     ConnectionInterface::~ConnectionInterface()
