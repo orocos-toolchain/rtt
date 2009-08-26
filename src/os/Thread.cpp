@@ -84,8 +84,10 @@ namespace RTT
 
             task->configure();
 
+#ifdef OROPKG_OS_THREAD_SCOPE
             // order thread scope toggle bit on thread number
             unsigned int bit = task->threadNumber();
+#endif
             SCOPE_OFF
 
             int overruns = 0;
