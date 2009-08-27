@@ -67,7 +67,6 @@ using namespace RTT;
 using namespace RTT::os;
 static os::StartStopManager* initM;
 
-extern "C"
 int __os_init(int argc, char** argv )
 {
 #ifdef OS_HAVE_MANUAL_CRT
@@ -100,8 +99,7 @@ int __os_init(int argc, char** argv )
         return ret;
 }
 
-extern "C"
-void __os_printFailure()
+void __os_printFailure(const char* prog)
 {
 #ifdef OS_HAVE_IOSTREAM
                         cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
@@ -109,26 +107,35 @@ void __os_printFailure()
                         cerr << " You might have called a function which throws"<<endl;
                         cerr << " without a try {} catch {} block."<< endl << endl;
                         cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
-                        cerr << "   valgrind --num-callers=16 <program> [options] --nocatch" << endl;
+                        cerr << "   valgrind -v --num-callers=16 "<< prog <<" [options...] --nocatch" << endl;
                         cerr << "Which will show where the exception occured."<<endl;
                         cerr << " ( Change num-callers for more/less detail."<<endl;
                         cerr << "   Also, compiling orocos and your program with"<<endl;
                         cerr << "   -g adds more usefull information. )"<<endl<<endl;
 #else
-                        printf("Orocos intercepted uncaught C++ exception\n");
+                        printf("Orocos intercepted an uncaught C++ exception\n");
 #endif
 
 }
 
-const char* oro_catchflag = "--nocatch";
+void __os_printException(const char* prog, std::exception& arg)
+{
+#ifdef OS_HAVE_IOSTREAM
+                        cerr << endl<<" Caught std::exception." << endl << "  what(): " << arg.what() <<endl;
+#endif
+                        __os_printFailure(prog);
+}
 
-extern "C"
+const char* oro_catchflag = "--nocatch";
+const char* oro_catchflag2 = "--no-catch";
+
 int __os_checkException(int& argc, char** argv)
 {
     bool dotry = true;
-    // look for --nocatch flag :
+    // look for --nocatch/--no-catch flag :
     for( int i=1; i < argc; ++i)
-        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0 ) {
+        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0
+                || strncmp(oro_catchflag2, argv[i], strlen(oro_catchflag2) ) == 0 ) {
             // if --no-catch was given last, remove it from the argc.
             if ( i == argc-1)
                 --argc;
@@ -138,7 +145,6 @@ int __os_checkException(int& argc, char** argv)
     return dotry;
 }
 
-extern "C"
 void __os_exit(void)
 {
 #ifdef OROPKG_OS_THREAD_SCOPE
