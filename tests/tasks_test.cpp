@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testThread )
   boost::scoped_ptr<ActivityInterface> t( new Activity(ORO_SCHED_RT, os::HighestPriority, 0.1, 0, "PThread") );
   t->run( run.get() );
 
-  if ( t->getScheduler() == os::HighestPriority) {
+  if ( t->thread()->getScheduler() == os::HighestPriority) {
       r = t->start();
       BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
       r = t->stop();
