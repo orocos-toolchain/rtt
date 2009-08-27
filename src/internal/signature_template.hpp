@@ -49,8 +49,8 @@
 #  define OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS ,
 #endif // OROCOS_NUM_ARGS > 0
 
-// Include user specified template.
-#include OROCOS_SIGNATURE_TEMPLATE_HEADER
+// Include template.
+#include "signal_template.hpp"
 
 #undef OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
 #undef OROCOS_SIGNATURE_FUNCTION_N_HEADER
