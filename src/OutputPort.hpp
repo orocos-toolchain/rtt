@@ -141,6 +141,11 @@ namespace RTT
          * policy */
         virtual bool createConnection(base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
         {
+            if ( input_port.connected() ) {
+                log(Error) << "Can not connect to connected InputPort." <<endlog();
+                return false;
+            }
+
             // This is the input channel element of the output half
             base::ChannelElementBase* output_half = 0;
             if (input_port.isLocal())
