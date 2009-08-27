@@ -187,6 +187,16 @@ endif()
 INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
 #
+# Disable line wrapping for gcc/g++ such that eclipse can parse the errors.
+#
+IF(CMAKE_COMPILER_IS_GNUCC)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+#
 # If we're using gcc, make sure the version is OK.
 #
 IF (CMAKE_COMPILER_IS_GNUCXX)
