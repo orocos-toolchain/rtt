@@ -54,7 +54,7 @@ namespace RTT { namespace internal {
         }
 
         explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE)
-            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0) {}
+            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0) {}
 
         /** This is the type for the data holding element in the connection */
         int    type;
@@ -73,6 +73,11 @@ namespace RTT { namespace internal {
         bool   pull;
         /** If the connection is a buffered connection, the size of the buffer */
         int    size;
+        /**
+         * The prefered transport used. 0 is local (in process), a higher number
+         * is used for inter-process or networked communication transports.
+         */
+        int    transport;
     };
 }}
 
