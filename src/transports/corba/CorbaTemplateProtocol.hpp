@@ -40,6 +40,7 @@
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
 #include "CorbaTypeTransporter.hpp"
+#include "RemoteChannelElement.hpp"
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
