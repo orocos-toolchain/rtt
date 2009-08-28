@@ -60,6 +60,11 @@ namespace RTT {
 
     namespace corba {
 
+        /**
+         * Base class for CORBA channel servers.
+         * Derive from this class to implement a channel
+         * which transports data over a CORBA connection.
+         */
         class CChannelElement_i
             : public POA_RTT::corba::CChannelElement
             , public virtual PortableServer::RefCountServantBase
@@ -80,6 +85,11 @@ namespace RTT {
             void setRemoteSide(CChannelElement_ptr remote);
         };
 
+        /**
+         * Represents a remote data flow interface.
+         * Allows to build connections from a local port
+         * to a remote port.
+         */
         class CDataFlowInterface_i
             : public POA_RTT::corba::CDataFlowInterface
             , public virtual PortableServer::RefCountServantBase
@@ -112,16 +122,15 @@ namespace RTT {
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
             void disconnect(const char* port_name);
-            void disconnectPort(
-                    const char* writer_port,
-		    CDataFlowInterface_ptr reader_interface, const char* reader_port);
+            void disconnectPort( const char* writer_port,
+                                 CDataFlowInterface_ptr reader_interface, const char* reader_port);
 
             CChannelElement_ptr buildOutputHalf(const char* reader_port, const RTT::corba::CConnPolicy& policy);
 
-            ::CORBA::Boolean createConnection(
-                    const char* writer_port,
-		    CDataFlowInterface_ptr reader_interface, const char* reader_port,
-		    RTT::corba::CConnPolicy const& policy);
+            ::CORBA::Boolean createConnection( const char* writer_port,
+                                               CDataFlowInterface_ptr reader_interface,
+                                               const char* reader_port,
+                                               RTT::corba::CConnPolicy const& policy);
         };
     }
 };
