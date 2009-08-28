@@ -28,6 +28,7 @@ static RTT::corba::CConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
     corba_policy.lock_policy = RTT::corba::CLockPolicy(policy.lock_policy);
     corba_policy.pull        = policy.pull;
     corba_policy.size        = policy.size;
+    corba_policy.transport   = policy.transport;
     return corba_policy;
 }
 
