@@ -23,7 +23,7 @@ namespace RTT
     class RTT_API PortInterface
     {
         std::string name;
-
+        interface::DataFlowInterface* iface;
     protected:
         PortInterface(const std::string& name);
 
@@ -108,6 +108,9 @@ namespace RTT
          * @returns true on success, false on failure
          */
         virtual bool connectTo(PortInterface& other) = 0;
+
+        void setInterface(interface::DataFlowInterface* iface);
+        interface::DataFlowInterface* getInterface() const;
 };
 
 }}

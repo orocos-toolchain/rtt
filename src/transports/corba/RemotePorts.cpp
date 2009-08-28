@@ -1,5 +1,6 @@
 #include "RemotePorts.hpp"
 #include "CorbaTypeTransporter.hpp"
+#include "DataFlowI.h"
 
 using namespace RTT::corba;
 using namespace RTT::base;
@@ -68,6 +69,7 @@ bool RemotePort<BaseClass>::isSameID(RTT::base::PortID const& id) const
     return real_id->dataflow->_is_equivalent(dataflow) && real_id->name == this->getName();
 }
 
+
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
@@ -111,6 +113,9 @@ RTT::base::PortInterface* RemoteInputPort::clone() const
 RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
+
+
+
 RemoteOutputPort::RemoteOutputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
@@ -124,7 +129,12 @@ void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 { throw std::runtime_error("OutputPort::keepLastWrittenValue() is not supported in CORBA port proxies"); }
 
 bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::internal::ConnPolicy const& policy )
-{ throw std::runtime_error("OutputPort::createConnection() is not supported in CORBA port proxies"); }
+{
+
+    return dataflow->createConnection( this->getName().c_str(), CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() ), sink.getName().c_str(), toCORBA(policy) );
+
+    //throw std::runtime_error("OutputPort::createConnection() is not supported in CORBA port proxies");
+}
 
 RTT::base::PortInterface* RemoteOutputPort::clone() const
 { return type_info->outputPort(getName()); }

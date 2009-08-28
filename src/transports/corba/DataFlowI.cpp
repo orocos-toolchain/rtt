@@ -113,6 +113,20 @@ RTT::interface::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CData
     return NULL;
 }
 
+CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa)
+{
+    for (ServantMap::const_iterator it = s_servant_map.begin();
+            it != s_servant_map.end(); ++it)
+    {
+        if (it->second == dfi)
+            return it->first;
+    }
+    CDataFlowInterface_i* servant = new CDataFlowInterface_i(dfi, poa );
+    CDataFlowInterface_ptr server = servant->_this();
+    registerServant( server, dfi);
+    return server;
+}
+
 PortableServer::POA_ptr CDataFlowInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);

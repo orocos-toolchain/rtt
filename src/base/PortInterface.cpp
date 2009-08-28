@@ -62,3 +62,12 @@ TaskObject* PortInterface::createPortObject()
 #endif
 }
 
+void PortInterface::setInterface(DataFlowInterface* dfi) {
+    iface = dfi;
+}
+
+interface::DataFlowInterface* PortInterface::getInterface() const
+{
+    return iface;
+}
+

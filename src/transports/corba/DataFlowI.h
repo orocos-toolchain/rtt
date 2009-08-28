@@ -78,14 +78,14 @@ namespace RTT {
             PortableServer::POA_ptr _default_POA();
 
             void setRemoteSide(CChannelElement_ptr remote);
-	};
+        };
 
         class CDataFlowInterface_i
             : public POA_RTT::corba::CDataFlowInterface
             , public virtual PortableServer::RefCountServantBase
         {
             interface::DataFlowInterface* mdf;
-	    PortableServer::POA_var mpoa;
+            PortableServer::POA_var mpoa;
 
             typedef std::list<
                 std::pair<RTT::corba::CDataFlowInterface_var, interface::DataFlowInterface*>
@@ -100,13 +100,15 @@ namespace RTT {
             static void registerServant(CDataFlowInterface_ptr objref, interface::DataFlowInterface* obj);
             static void deregisterServant(interface::DataFlowInterface* obj);
             static interface::DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
+            static CDataFlowInterface_ptr getRemoteInterface(interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa);
+
 
             PortableServer::POA_ptr _default_POA();
 
             // methods corresponding to defined IDL attributes and operations
             RTT::corba::CDataFlowInterface::CPortNames* getPorts();
             RTT::corba::CDataFlowInterface::CPortDescriptions* getPortDescriptions();
-	    RTT::corba::CPortType getPortType(const char* port_name);
+            RTT::corba::CPortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
             void disconnect(const char* port_name);

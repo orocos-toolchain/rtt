@@ -53,21 +53,21 @@ namespace RTT {
 
             void remoteDisconnect(bool writer_to_reader)
             {
-		base::ChannelElement<T>::disconnect(writer_to_reader);
+                base::ChannelElement<T>::disconnect(writer_to_reader);
                 remote_side = 0;
-		PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
-		mpoa->deactivate_object(oid.in());
-	    }
+                PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
+                mpoa->deactivate_object(oid.in());
+            }
 
             void disconnect(bool writer_to_reader)
             {
                 try { remote_side->remoteDisconnect(writer_to_reader); }
                 catch(CORBA::Exception&) {}
 
-		remote_side = 0;
-		PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
-		mpoa->deactivate_object(oid.in());
-	    }
+                remote_side = 0;
+                PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
+                mpoa->deactivate_object(oid.in());
+            }
 
             bool read(typename base::ChannelElement<T>::reference_t sample)
             {

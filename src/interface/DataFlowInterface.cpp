@@ -70,6 +70,7 @@ namespace RTT
         }
 
         mports.push_back( std::make_pair(port,std::string()) );
+        port->setInterface( this );
         // NOTE: the API says this is not done, but for backwards compatibility
         // we leave it anyway inhere. :-(
         OperationInterface* ms = this->createPortObject( port->getName());
