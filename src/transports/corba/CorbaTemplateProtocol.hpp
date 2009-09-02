@@ -51,8 +51,6 @@
 namespace RTT
 { namespace corba
   {
-      using namespace RTT::corba;
-
       /**
        * For each transportable type T, specify the conversion functions.
        *
@@ -90,9 +88,15 @@ namespace RTT
 
           base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
           {
+              internal::ConnPolicy policy2 = policy;
+              if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
+                  // out of band requires a hack (maybe in-band too in a later stage):
+                  // we force the creation of a buffer on input side
+                  policy2.pull = false;
+              }
               return internal::ConnFactory::buildOutputHalf(
                       static_cast<RTT::InputPort<T>&>(port),
-                      policy);
+                      policy2);
           }
 
           /**

@@ -1,7 +1,11 @@
 #include "RemotePorts.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include "DataFlowI.h"
+#include "../../interface/DataFlowInterface.hpp"
+#include <cassert>
+#include "CorbaConnPolicy.hpp"
 
+using namespace std;
 using namespace RTT::corba;
 using namespace RTT::base;
 
@@ -20,17 +24,6 @@ namespace {
 
 }
 
-static RTT::corba::CConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
-{
-    RTT::corba::CConnPolicy corba_policy;
-    corba_policy.type        = RTT::corba::CConnectionModel(policy.type);
-    corba_policy.init        = policy.init;
-    corba_policy.lock_policy = RTT::corba::CLockPolicy(policy.lock_policy);
-    corba_policy.pull        = policy.pull;
-    corba_policy.size        = policy.size;
-    corba_policy.transport   = policy.transport;
-    return corba_policy;
-}
 
 template<typename BaseClass>
 RemotePort<BaseClass>::RemotePort(RTT::types::TypeInfo const* type_info,
@@ -80,13 +73,16 @@ RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
 RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 { throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
-RTT::base::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::types::TypeInfo const* type,
+RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types::TypeInfo const* type,
                                                           RTT::base::InputPortInterface& reader_,
-                                                          RTT::internal::ConnPolicy const& policy)
+                                                          RTT::internal::ConnPolicy & policy)
 {
+    Logger::In in("RemoteInputPort::buildRemoteOutputHalf");
     CChannelElement_var remote;
     try {
-        remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
+        CConnPolicy cpolicy = toCORBA(policy);
+        remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), cpolicy);
+        policy = toRTT(cpolicy);
     }
     catch(CORBA::Exception&)
     {
@@ -102,8 +98,28 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::types::Type
     local->setRemoteSide(remote);
     remote->setRemoteSide(local->_this());
 
+    RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
+
+    // try to forward to the prefered transport.
+    if ( policy.transport != 0 && policy.transport != ORO_CORBA_PROTOCOL_ID ) {
+        // create alternative path / out of band transport.
+        string name =  policy.name_id ;//getInterface()->getParent()->getName() + '.' + this->getName();
+        if ( type->getProtocol(policy.transport) == 0 ) {
+            log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
+            log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+        }
+        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createRemoteChannel(name, 0, true);
+        if (ceb) {
+            ceb->setOutput( corba_ceb );
+            corba_ceb = ceb;
+            log(Info) <<"Redirecting data for port "<<name << " to out-of-band protocol "<< policy.transport << endlog();
+        } else {
+            log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a dual channel for port " << name<<endlog();
+        }
+    }
+
     // The ChannelElementBase object that represents reader_half on this side
-    return dynamic_cast<RTT::base::ChannelElementBase*>(local);
+    return corba_ceb;
 }
 
 RTT::internal::ConnFactory* RemoteInputPort::getConnFactory() { return this; }

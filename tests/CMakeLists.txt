@@ -18,9 +18,17 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
       LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/corba/ ${CORBA_LINK_DIRECTORIES})
       # Work around unresolved symbols in tests when using CORBA *and* STATIC
       IF(BUILD_STATIC)
-	LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
+	    LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
       ENDIF(BUILD_STATIC)
     ENDIF(ENABLE_CORBA)
+    IF(ENABLE_MQ)
+      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/mqueue/)
+      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/mqueue/)
+      # Work around unresolved symbols in tests when using MQUEUE *and* STATIC
+      IF(BUILD_STATIC)
+        LINK_LIBRARIES( orocos-rtt-mqueue-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-mqueue-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
+      ENDIF(BUILD_STATIC)
+    ENDIF(ENABLE_MQ)
 
     # Copy over CPF files.
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf 
@@ -105,9 +113,9 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     ADD_EXECUTABLE( dev-test test-runner.cpp dev_test.cpp )
     TARGET_LINK_LIBRARIES( dev-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( dev-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( dev-test ${CMAKE_CURRENT_BINARY_DIR}/dev-test )
 	
     ADD_EXECUTABLE( specactivities-test test-runner.cpp
@@ -120,15 +128,41 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner.cpp corba_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-dynamic_${OROCOS_TARGET} 
+        orocos-rtt-corba-${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
-	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
-	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+	   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
       ADD_TEST( corba-test corba-test )
       SET(ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
+
+    IF(ENABLE_MQ)
+      ADD_EXECUTABLE( mqueue-test test-runner.cpp mqueue_test.cpp )
+      TARGET_LINK_LIBRARIES( mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET} 
+        orocos-rtt-mqueue-${OROCOS_TARGET} ${TEST_LIBRARIES})
+      SET_TARGET_PROPERTIES( mqueue-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+      ADD_TEST( mqueue-test mqueue-test )
+      SET(ORO_EXTRA_TESTS "mqueue-test")
+    ENDIF(ENABLE_MQ)
 	
+    IF(ENABLE_MQ AND ENABLE_CORBA)
+      ADD_EXECUTABLE( corba-mqueue-test test-runner.cpp corba_mqueue_test.cpp )
+      TARGET_LINK_LIBRARIES( corba-mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET} 
+        orocos-rtt-mqueue-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} 
+        ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+      SET_TARGET_PROPERTIES( corba-mqueue-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+      ADD_TEST( corba-mqueue-test corba-mqueue-test )
+      SET(ORO_EXTRA_TESTS "corba-mqueue-test")
+    ENDIF(ENABLE_MQ AND ENABLE_CORBA)
+    
     ADD_CUSTOM_TARGET(check ctest -V 
       DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")

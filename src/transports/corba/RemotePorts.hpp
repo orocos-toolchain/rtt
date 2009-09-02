@@ -6,14 +6,15 @@
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
 #include "DataFlowI.h"
+#include <cassert>
 
 namespace RTT {
     namespace corba {
-        template<typename PortClass>
         /**
          * Contains the common CORBA management code for
          * proxy port objects representing ports available through CORBA.
          */
+        template<typename PortClass>
         class RemotePort : public PortClass
         {
         protected:
@@ -59,6 +60,10 @@ namespace RTT {
 
             using base::OutputPortInterface::createConnection;
             bool createConnection( base::InputPortInterface& sink, internal::ConnPolicy const& policy );
+            virtual void connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
+                assert(false && "Can not add connection to remote port object !");
+            }
+
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;
@@ -93,9 +98,9 @@ namespace RTT {
              * @param policy The policy for the ConnFactory.
              * @return The local endpoint for the output.
              */
-            base::ChannelElementBase* buildOutputHalf(types::TypeInfo const* type,
+            base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
-                    internal::ConnPolicy const& policy);
+                    internal::ConnPolicy& policy);
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;

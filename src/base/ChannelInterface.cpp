@@ -55,7 +55,7 @@ void ChannelElementBase::clear()
     if (input_) input_->clear();
 }
 
-bool ChannelElementBase::signal() const
+bool ChannelElementBase::signal()
 {
     shared_ptr output = this->output;
     if (output) return output->signal();

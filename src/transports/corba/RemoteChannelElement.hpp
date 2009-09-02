@@ -47,7 +47,7 @@ namespace RTT {
 
             CORBA::Boolean remoteSignal()
             { return base::ChannelElement<T>::signal(); }
-            bool signal() const
+            bool signal()
             {
                 try
                 { return remote_side->remoteSignal(); }
@@ -58,6 +58,11 @@ namespace RTT {
             void remoteDisconnect(bool writer_to_reader)
             {
                 base::ChannelElement<T>::disconnect(writer_to_reader);
+
+                // Because we support out-of-band transports, we must cleanup more thoroughly.
+                // an oob channel may be sitting at our other end. If not, this is a nop.
+                base::ChannelElement<T>::disconnect(!writer_to_reader);
+
                 remote_side = 0;
                 PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
                 mpoa->deactivate_object(oid.in());
@@ -67,7 +72,7 @@ namespace RTT {
             {
                 try { remote_side->remoteDisconnect(writer_to_reader); }
                 catch(CORBA::Exception&) {}
-
+                base::ChannelElement<T>::disconnect(writer_to_reader);
                 remote_side = 0;
                 PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
                 mpoa->deactivate_object(oid.in());
@@ -75,6 +80,10 @@ namespace RTT {
 
             bool read(typename base::ChannelElement<T>::reference_t sample)
             {
+                // try to read locally first
+                if (base::ChannelElement<T>::read(sample))
+                    return true;
+                // go through corba
                 CORBA::Any_var remote_value;
                 try
                 {
@@ -102,6 +111,10 @@ namespace RTT {
             bool write(typename base::ChannelElement<T>::param_t sample)
             {
                 data_source->set(sample);
+                // try to write locally first
+                if (base::ChannelElement<T>::write(sample))
+                    return true;
+                // go through corba
                 CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source));
                 try
                 {

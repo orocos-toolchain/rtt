@@ -78,6 +78,14 @@ namespace RTT { namespace internal {
          * is used for inter-process or networked communication transports.
          */
         int    transport;
+
+        /**
+         * The name of this connection. May be used by transports to define a 'topic' or
+         * lookup name to connect two data streams. If you leave this empty (recommended),
+         * the protocol will choose an appropriate name itself. Only specify a name to
+         * work around name clashes or if the transport protocol documents to do so.
+         */
+        mutable std::string name_id;
     };
 }}
 

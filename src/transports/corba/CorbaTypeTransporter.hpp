@@ -20,6 +20,11 @@ namespace RTT {
 	     * @return the created CChannelElement_i.
 	     */
 	    virtual CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
+
+        virtual base::ChannelElementBase* createRemoteChannel( std::string /*name_id*/, void* arg, bool /*is_sender*/) const {
+            return dynamic_cast<base::ChannelElementBase*>( this->createChannelElement_i( (PortableServer::POA_ptr)arg ) );
+        }
+
 	    /**
 	     * Builds an connection output endpoint for the given input port.
 	     * This is not CORBA specific !

@@ -41,6 +41,7 @@
 
 #include "../base/DataSourceBase.hpp"
 #include "../base/BufferBase.hpp"
+#include "../base/ChannelElementBase.hpp"
 
 namespace RTT
 {
@@ -90,6 +91,13 @@ namespace RTT
              * Used to export local methods to a network.
              */
             virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const = 0;
+
+            /**
+             * Creates a channel element for reading or writing over this transport.
+             * The transport receives a channel id which consists of 'component_name.port_name' (or a user supplied id)
+             * and a transport specific argument.
+             */
+            virtual base::ChannelElementBase* createRemoteChannel(std::string channel_id, void* arg, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.

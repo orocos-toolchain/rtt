@@ -21,6 +21,7 @@ module RTT
         boolean pull;
         long size;
         long transport;
+        string name_id;
     };
 
     interface CChannelElement
@@ -102,9 +103,11 @@ module RTT
 
       /**
        * Creates the reader-half of the connection for the given read port and
-       * the given policy
+       * the given policy.
+       * Some protocols may adjust the policy, or pass additional information
+       * into the policy, such as the name of the newly created connection.
        */
-      CChannelElement buildOutputHalf(in string port, in CConnPolicy policy)
+      CChannelElement buildOutputHalf(in string port, inout CConnPolicy policy)
             raises(CNoCorbaTransport);
 
       /**

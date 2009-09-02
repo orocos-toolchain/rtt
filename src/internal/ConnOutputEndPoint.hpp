@@ -41,7 +41,7 @@ namespace RTT
                 base::ChannelElement<T>::disconnect(false);
         }
 
-        virtual bool signal() const
+        virtual bool signal()
         {
             InputPort<T>* port = this->port;
             if (port && port->new_data_on_port_event)

@@ -89,6 +89,8 @@ namespace RTT {
          * Represents a remote data flow interface.
          * Allows to build connections from a local port
          * to a remote port.
+         * If the ConnPolicy says so, this interface can also build
+         * connections using other transports.
          */
         class CDataFlowInterface_i
             : public POA_RTT::corba::CDataFlowInterface
@@ -125,7 +127,7 @@ namespace RTT {
             void disconnectPort( const char* writer_port,
                                  CDataFlowInterface_ptr reader_interface, const char* reader_port);
 
-            CChannelElement_ptr buildOutputHalf(const char* reader_port, const RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildOutputHalf(const char* reader_port, RTT::corba::CConnPolicy& policy);
 
             ::CORBA::Boolean createConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,

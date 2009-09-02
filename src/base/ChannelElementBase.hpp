@@ -80,7 +80,7 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual bool signal() const;
+        virtual bool signal();
 
         /** Clears any data stored by the channel. It means that
          * ChannelElement::read() will return false afterwards (provided that no

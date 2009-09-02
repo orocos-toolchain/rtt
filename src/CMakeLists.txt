@@ -75,6 +75,10 @@ OPTION(ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML."
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
 
+### POSIX Message queues for IPC dataflow
+OPTION(ENABLE_MQ "Enable real-time posix message queues for data-flow." ON)
+
+
 
 ###
 #   Collect Sources:
@@ -102,6 +106,7 @@ ADD_SUBDIRECTORY( base )
 ADD_SUBDIRECTORY( internal )
 ADD_SUBDIRECTORY( types )
 ADD_SUBDIRECTORY( transports/corba )
+ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( plugin )

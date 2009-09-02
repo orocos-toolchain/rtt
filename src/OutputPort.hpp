@@ -47,6 +47,27 @@ namespace RTT
             }
         }
 
+        virtual void connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
+            // Initialize the new channel with last written data if requested
+            // (and available)
+
+            // This this the input channel element of the whole connection
+            typename base::ChannelElement<T>::shared_ptr channel_el_input =
+                static_cast< base::ChannelElement<T>* >(channel_input.get());
+
+
+            if (policy.init && written)
+            {
+                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+                if (last_written_value)
+                {
+                    T sample;
+                    last_written_value->Get(sample);
+                    channel_el_input->write(sample);
+                }
+            }
+        }
+
     public:
         OutputPort(std::string const& name, bool keep_last_written_value = false)
             : base::OutputPortInterface(name)
@@ -141,69 +162,7 @@ namespace RTT
          * policy */
         virtual bool createConnection(base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
         {
-            if ( input_port.connected() ) {
-                log(Error) << "Can not connect to connected InputPort." <<endlog();
-                return false;
-            }
-
-            // This is the input channel element of the output half
-            base::ChannelElementBase* output_half = 0;
-            if (input_port.isLocal())
-            {
-                InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
-                if (!input_p)
-                {
-                    log(Error) << "port " << input_port.getName() << " is not compatible with " << getName() << endlog();
-                    return false;
-                }
-
-                output_half = internal::ConnFactory::buildOutputHalf(*input_p, policy);
-            }
-            else
-            {
-                types::TypeInfo const* type_info = getTypeInfo();
-                if (!type_info || input_port.getTypeInfo() != type_info)
-                {
-                    log(Error) << "type of port " << getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
-                    // There is no type info registered for this type
-                    return false;
-                }
-                else if (!type_info->getProtocol(input_port.serverProtocol()))
-                {
-                    log(Error) << "type " << type_info->getTypeName() << " cannot be marshalled into the right transporter" << endlog();
-                    // This type cannot be marshalled into the right transporter
-                    return false;
-                }
-                else
-                {
-                    output_half = input_port.
-                        getConnFactory()->buildOutputHalf(type_info, input_port, policy);
-                }
-            }
-
-            if (!output_half)
-                return false;
-
-            // This this the input channel element of the whole connection
-            typename base::ChannelElement<T>::shared_ptr channel_input =
-                static_cast< base::ChannelElement<T>* >(internal::ConnFactory::buildInputHalf(*this, policy, output_half));
-
-            // Register the channel's input 
-            addConnection( input_port.getPortID(), channel_input, policy );
-
-            // Initialize the new channel with last written data if requested
-            // (and available)
-            if (policy.init && written)
-            {
-                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
-                if (last_written_value)
-                {
-                    T sample;
-                    last_written_value->Get(sample);
-                    channel_input->write(sample);
-                }
-            }
-            return true;
+            return internal::ConnFactory::createConnection(*this, input_port, policy);
         }
 
         /**

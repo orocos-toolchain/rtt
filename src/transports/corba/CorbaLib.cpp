@@ -50,14 +50,15 @@
 #include "../../types/Toolkit.hpp"
 #include "../../os/StartStopManager.hpp"
 
-namespace RTT {
-    using namespace detail;
-    namespace corba {
+using namespace std;
+using namespace RTT::detail;
 
-        using namespace RTT::detail;
+namespace RTT {
+    namespace corba {
 
         /**
          * This protocol is used for all types which did not get a protocol.
+         * Specifically, if the type is UnknownType.
          */
         class CorbaFallBackProtocol
             : public TypeTransporter
@@ -84,6 +85,12 @@ namespace RTT {
                     log(Error) << "Could not update type '"<<target->getTypeName()<<"' with received data : data type not known to CORBA Transport." <<Logger::endl;
                 }
                 return false;
+            }
+
+            virtual ChannelElementBase* createRemoteChannel( string name_id, void* arg, bool is_sender) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create Channel for port '"<<name_id<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
             }
 
             /**
@@ -197,7 +204,7 @@ namespace RTT {
          */
         int loadCorbaLib()
         {
-            RTT::Toolkit::Import(CorbaLibPlugin);
+            Toolkit::Import(CorbaLibPlugin);
             // register fallback also.
             DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
             return 0;

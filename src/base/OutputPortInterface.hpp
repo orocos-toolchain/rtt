@@ -16,6 +16,8 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
+        friend class internal::ConnFactory;
+
         typedef boost::tuple<PortID*, ChannelElementBase::shared_ptr, internal::ConnPolicy> ChannelDescriptor;
         internal::ListLockFree< ChannelDescriptor > connections;
 
@@ -41,6 +43,8 @@ namespace RTT
         /** Helper method for port-to-port connection establishment */
         void addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
 
+        /** Helper method called by addConnection to set the channel's initial value, depending on the policy. */
+        virtual void connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
 
         /** os::Mutex for when it is needed to resize the connections list */
         os::Mutex connection_resize_mtx;

@@ -48,30 +48,19 @@
 #include "CorbaTypeTransporter.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
+#include "CorbaConnPolicy.hpp"
 
 #include "RemotePorts.hpp"
 
 #include <iostream>
 
+using namespace std;
 using namespace RTT::corba;
 using namespace RTT::base;
 using namespace RTT::types;
 using namespace RTT::internal;
 
 CDataFlowInterface_i::ServantMap CDataFlowInterface_i::s_servant_map;
-
-static RTT::internal::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
-{
-    RTT::internal::ConnPolicy policy;
-    policy.type        = corba_policy.type;
-    policy.init        = corba_policy.init;
-    policy.lock_policy = corba_policy.lock_policy;
-    policy.pull        = corba_policy.pull;
-    policy.size        = corba_policy.size;
-    policy.transport   = corba_policy.transport;
-    return policy;
-}
-
 
 CDataFlowInterface_i::CDataFlowInterface_i (RTT::interface::DataFlowInterface* interface, PortableServer::POA_ptr poa)
     : mdf(interface), mpoa(PortableServer::POA::_duplicate(poa))
@@ -231,8 +220,9 @@ void CDataFlowInterface_i::disconnectPort(
 }
 
 CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
-        const char* port_name, CConnPolicy const& corba_policy)
+        const char* port_name, CConnPolicy & corba_policy)
 {
+    Logger::In in("CDataFlowInterface_i::createConnection");
     InputPortInterface* port = dynamic_cast<InputPortInterface*>(mdf->getPort(port_name));
     if (port == 0)
         throw CNoSuchPortException();
@@ -251,6 +241,26 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
     dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
 
+    if ( corba_policy.transport !=0 && corba_policy.transport != ORO_CORBA_PROTOCOL_ID) {
+        // prepare out-of-band transport for this port.
+        string name = mdf->getParent()->getName() + '.' + port->getName();
+        if ( strlen( corba_policy.name_id.in()) == 0 )
+            corba_policy.name_id = CORBA::string_dup( name.c_str() );
+        else
+            name = corba_policy.name_id.in();
+        if ( type_info->getProtocol(corba_policy.transport) == 0 ) {
+            log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << corba_policy.transport <<endlog();
+            log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
+        }
+        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createRemoteChannel(name, 0, false);
+        if (ceb) {
+            ceb->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );;
+            log(Info) <<"Receiving data for port "<<name << " from out-of-band protocol "<< corba_policy.transport <<endlog();
+        } else {
+            log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << name<<endlog();
+        }
+    }
+
     return RTT::corba::CChannelElement::_duplicate(this_element->_this());
 }
 
@@ -258,6 +268,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
         const char* writer_port, CDataFlowInterface_ptr reader_interface,
         const char* reader_port, CConnPolicy const& policy)
 {
+    Logger::In in("CDataFlowInterface_i::createConnection");
     OutputPortInterface* writer = dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
         return false;
@@ -287,7 +298,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
         if (reader_interface->getPortType(reader_port) != corba::CInput)
             return false;
 
+        // Creates a proxy to the remote input port
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
+        port.setInterface( mdf ); // cheating !
+        // Connect to proxy.
         return writer->createConnection(port, toRTT(policy));
     }
     catch(CORBA::COMM_FAILURE&) { throw; }

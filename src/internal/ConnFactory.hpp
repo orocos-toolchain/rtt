@@ -1,10 +1,14 @@
 #ifndef ORO_CONN_FACTORY_HPP
 #define ORO_CONN_FACTORY_HPP
 
+#include <string>
 #include "Channels.hpp"
 #include "ConnInputEndPoint.hpp"
 #include "ConnOutputEndPoint.hpp"
 #include "../base/PortInterface.hpp"
+#include "../base/InputPortInterface.hpp"
+#include "../base/OutputPortInterface.hpp"
+#include "../interface/DataFlowInterface.hpp"
 
 #include "../base/DataObject.hpp"
 #include "../base/Buffer.hpp"
@@ -15,7 +19,7 @@ namespace RTT
     /** This class provides the basic tools to create channels that represent
      * connections between two ports
      */
-    class ConnFactory
+    class RTT_API ConnFactory
     {
     public:
 
@@ -24,8 +28,8 @@ namespace RTT
          * no template can be used and therefore the connection setup should be
          * done based on the types::TypeInfo object
          */
-        virtual base::ChannelElementBase* buildOutputHalf(types::TypeInfo const* type_info,
-                base::InputPortInterface& output, ConnPolicy const& policy) = 0;
+        virtual base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type_info,
+                base::InputPortInterface& output, ConnPolicy& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -104,6 +108,118 @@ namespace RTT
             }
             else return endpoint;
         }
+
+        /**
+         * Creates a connection from a local output_port to a local or remote input_port.
+         * This function contains all logic to decide on how connections must be created to
+         * local or remote input ports.
+         *
+         * In order to set up out-of-band communication between input_port and output_port,
+         * use a different transport number in the policy parameter than the transport of the input port.
+         *
+         */
+        template<typename T>
+        static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
+        {
+            if ( input_port.connected() ) {
+                log(Error) << "Can not connect to connected InputPort." <<endlog();
+                return false;
+            }
+
+            if ( !output_port.isLocal() ) {
+                log(Error) << "Need a local OutputPort to create connections." <<endlog();
+                return false;
+            }
+
+            InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
+
+            // This is the input channel element of the output half
+            base::ChannelElementBase* output_half = 0;
+            if (input_port.isLocal() && policy.transport == 0)
+            {
+                // Local connection
+                if (!input_p)
+                {
+                    log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
+                    return false;
+                }
+
+                output_half = ConnFactory::buildOutputHalf<T>(*input_p, policy);
+            }
+            else
+            {
+                if ( !input_port.isLocal() ) {
+                    ConnPolicy tmp_policy = policy;
+                    output_half = ConnFactory::createRemoteConnection( output_port, input_port, tmp_policy);
+                } else
+                    output_half = ConnFactory::createOutOfBandConnection<T>( output_port, *input_p, policy);
+            }
+
+            if (!output_half)
+                return false;
+
+            // Since output is local, buildInputHalf is local as well.
+            // This this the input channel element of the whole connection
+            base::ChannelElementBase::shared_ptr channel_input =
+                ConnFactory::buildInputHalf<T>(output_port, policy, output_half);
+
+            // Register the channel's input to the output port.
+            output_port.addConnection( input_port.getPortID(), channel_input, policy );
+
+            return true;
+        }
+
+    protected:
+
+        static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy& policy);
+
+        template<class T>
+        static base::ChannelElementBase* createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, internal::ConnPolicy const& policy) {
+            // create input half using a transport.
+            std::string name = output_port.getInterface()->getParent()->getName()+ '.' + output_port.getName();
+            const types::TypeInfo* type = output_port.getTypeInfo();
+            if ( type->getProtocol(policy.transport) == 0 ) {
+                log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
+                log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+            }
+
+            if (policy.name_id.empty())
+                policy.name_id = name;
+
+            // we force the creation of a buffer on input side
+            ConnPolicy policy2 = policy;
+            policy2.pull = false;
+
+            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, policy2);
+
+            if ( input_port.isLocal() ) {
+                name = input_port.getInterface()->getParent()->getName() +'.'+ input_port.getName();
+                RTT::base::ChannelElementBase* ceb_input = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, false);
+                if (ceb_input) {
+                    log(Info) <<"Receiving data for port "<<name << " from out-of-band protocol "<< policy.transport <<endlog();
+                } else {
+                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << name<<endlog();
+                }
+                ceb_input->setOutput(output_half);
+                output_half = ceb_input;
+            }
+
+            if ( output_port.isLocal() ) {
+                name = output_port.getInterface()->getParent()->getName() + '.' + output_port.getName();
+                RTT::base::ChannelElementBase* ceb_output = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, true);
+                if (ceb_output) {
+                    log(Info) <<"Redirecting data for port "<<name << " to out-of-band protocol "<< policy.transport <<endlog();
+                } else {
+                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << name<<endlog();
+                }
+                ceb_output->setOutput(output_half);
+                output_half = ceb_output;
+            }
+
+            return output_half;
+
+        }
+
     };
 
 }}

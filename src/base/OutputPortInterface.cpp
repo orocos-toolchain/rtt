@@ -57,6 +57,7 @@ void OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::sha
         connections.grow(1);
         connections.append(descriptor);
     }
+    this->connectionAdded(channel_input, policy);
 }
 
 bool OutputPortInterface::matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
