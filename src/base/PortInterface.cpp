@@ -1,6 +1,7 @@
 #include "PortInterface.hpp"
 #include "../internal/TaskObject.hpp"
 #include "../Method.hpp"
+#include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
 using namespace detail;
@@ -19,7 +20,7 @@ namespace {
  
 
 PortInterface::PortInterface(const std::string& name)
-    : name(name) {}
+    : name(name), iface(0) {}
 
 bool PortInterface::setName(const std::string& name)
 {
