@@ -109,7 +109,17 @@ namespace RTT
          */
         virtual bool connectTo(PortInterface& other) = 0;
 
+        /**
+         * Once a port is added to a DataFlowInterface, it gets
+         * a pointer to that interface.
+         * This allows advanced ports to track back to which component
+         * they belong.
+         */
         void setInterface(interface::DataFlowInterface* iface);
+        /**
+         * Returns the DataFlowInterface this port belongs to or null if it was not added
+         * to such an interface.
+         */
         interface::DataFlowInterface* getInterface() const;
 };
 
