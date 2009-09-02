@@ -13,8 +13,12 @@ ChannelElementBase::ChannelElementBase()
 
 void ChannelElementBase::setOutput(shared_ptr output)
 {
+    if (this->output) {
+        this->output->input = 0;
+    }
     this->output = output;
-    output->input = this;
+    if (output)
+        output->input = this;
 }
 
 void ChannelElementBase::removeInput()
@@ -27,12 +31,14 @@ void ChannelElementBase::disconnect(bool forward)
     if (forward)
     {
         shared_ptr output = this->output;
+        this->output = 0;
         if (output)
             output->disconnect(true);
     }
     else
     {
         shared_ptr input = this->input;
+        this->input = 0;
         if (input)
             input->disconnect(false);
     }
