@@ -53,6 +53,10 @@ namespace RTT
     DataFlowInterface::~DataFlowInterface() {
     }
 
+    OperationInterface* DataFlowInterface::getParent() {
+        return mparent;
+    }
+
     bool DataFlowInterface::addPort(PortInterface* port) {
         for ( PortStore::iterator it(mports.begin());
               it != mports.end();
