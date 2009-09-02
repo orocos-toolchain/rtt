@@ -57,6 +57,8 @@ namespace RTT
     void Activity::loop() {
         if ( runner )
             runner->loop();
+        else
+            this->step();
     }
 
     bool Activity::breakLoop() {
