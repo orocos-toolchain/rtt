@@ -3,7 +3,7 @@
 
 #include <string>
 #include "PortInterface.hpp"
-#include "../extras/Events.hpp"
+#include "../Event.hpp"
 
 namespace RTT
 { namespace base {
