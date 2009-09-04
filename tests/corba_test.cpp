@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.init = false;
     policy.lock_policy = RTT::corba::CLockFree;
     policy.size = 0;
-    policy.transport = 0;
+    policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
     // Set up an event handler to check if signalling works properly as well
     Handle hl( mr2->getNewDataOnPortEvent()->setup(
