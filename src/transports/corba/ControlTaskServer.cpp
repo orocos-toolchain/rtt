@@ -71,7 +71,7 @@ namespace RTT
 
   ControlTaskServer::~ControlTaskServer()
   {
-
+    Logger::In in("~ControlTaskServer()");
     servers.erase(mtaskcontext);
 
     PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
@@ -110,6 +110,7 @@ namespace RTT
     ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming)
 	: mtaskcontext(taskc), muse_naming(use_naming)
     {
+        Logger::In in("ControlTaskServer()");
         servers[taskc] = this;
         try {
             // Each server has its own POA.
