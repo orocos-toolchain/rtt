@@ -238,12 +238,13 @@ namespace RTT
 
         // first do properties:
       log(Debug) << "Fetching Properties."<<endlog();
-        CAttributeInterface::CPropertyNames_var props = mtask->attributes()->getPropertyList();
+      CAttributeInterface_var attrint = mtask->attributes();
+        CAttributeInterface::CPropertyNames_var props = attrint->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
             if ( this->attributes()->hasProperty( string(props[i].name.in()) ) )
                 continue; // previously added.
-            CExpression_var expr = mtask->attributes()->getProperty( props[i].name.in() );
+            CExpression_var expr = attrint->getProperty( props[i].name.in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
                 continue;
@@ -283,12 +284,12 @@ namespace RTT
 
       log(Debug) << "Fetching Attributes."<<endlog();
         // add attributes not yet added by properties:
-        CAttributeInterface::CAttributeNames_var attrs = mtask->attributes()->getAttributeList();
+        CAttributeInterface::CAttributeNames_var attrs = attrint->getAttributeList();
 
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( this->attributes()->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
-            CExpression_var expr = mtask->attributes()->getAttribute( attrs[i].in() );
+            CExpression_var expr = attrint->getAttribute( attrs[i].in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
                 continue;
@@ -371,12 +372,13 @@ namespace RTT
 
             // add attributes:
             log(Debug) << plist[i] << ": fetching Attributes."<<endlog();
-            CAttributeInterface::CAttributeNames_var attrs = cobj->attributes()->getAttributeList();
+            CAttributeInterface_var objattrs = cobj->attributes();
+            CAttributeInterface::CAttributeNames_var attrs =objattrs->getAttributeList();
 
             for (size_t j=0; j != attrs->length(); ++j) {
                 if ( tobj->attributes()->hasAttribute( string(attrs[j].in()) ) )
                     continue; // previously added.
-                CExpression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
+                CExpression_var expr = objattrs->getAttribute( attrs[j].in() );
                 if ( CORBA::is_nil( expr ) ) {
                     log(Error) <<"Attribute "<< string(attrs[j].in()) << " present in getAttributeList() but not accessible."<<endlog();
                     continue;

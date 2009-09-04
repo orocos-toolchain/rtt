@@ -112,11 +112,18 @@ public:
   Orocos_AnyExpression_i (RTT::base::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), last_value( (CORBA::Any_ptr)morig->createBlob(ORO_CORBA_PROTOCOL_ID) ) // create default Any.
         , mpoa( PortableServer::POA::_duplicate(the_poa) )
-    {}
+    {
+    }
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
+    }
+
+    virtual RTT::corba::CExpression * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
     }
 
   // Destructor
@@ -218,6 +225,12 @@ public:
   // Destructor
     virtual ~Orocos_AnyAssignableExpression_i (void) {}
 
+    virtual RTT::corba::CAssignableExpression * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
+
   virtual
   CORBA::Boolean set (
       const ::CORBA::Any & value
@@ -266,7 +279,13 @@ public:
   //Destructor
     virtual ~Orocos_CAction_i (void);
 
-  virtual
+    virtual RTT::corba::CAction * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
+
+    virtual
   CORBA::Boolean execute (
 
     )
@@ -321,7 +340,12 @@ public:
   //Destructor
     virtual ~Orocos_AnyMethod_i (void) {}
 
-  virtual
+    virtual RTT::corba::CMethod * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
+    virtual
   CORBA::Boolean execute (
 
     )
@@ -406,6 +430,12 @@ public:
 
   //Destructor
   virtual ~Orocos_CCommand_i (void);
+
+  virtual RTT::corba::CCommand * activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      _remove_ref(); // ref count=1
+      return _this();
+  }
 
   virtual
   CORBA::Boolean execute (

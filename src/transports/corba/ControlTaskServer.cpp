@@ -132,9 +132,9 @@ namespace RTT
 //                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
-	    Orocos_CControlTask_i* serv;
+            Orocos_CControlTask_i* serv;
             mtask_i = serv = new Orocos_CControlTask_i( taskc, mpoa );
-	    mtask   = serv->_this();
+            mtask   = serv->activate_this();
 
             if ( use_naming ) {
                 CORBA::Object_var rootObj;
@@ -377,13 +377,14 @@ namespace RTT
         // create new:
         log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
         ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
-        return cts->server();
+        return CControlTask::_duplicate(cts->server());
     }
 
 
     corba::CControlTask_ptr ControlTaskServer::server() const
     {
-        return corba::CControlTask::_duplicate(mtask.in());
+        // we're not a factory function, so we don't _duplicate.
+        return mtask.in();
     }
 
 }}

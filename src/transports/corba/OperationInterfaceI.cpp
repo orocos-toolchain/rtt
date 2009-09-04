@@ -322,7 +322,7 @@ PortableServer::POA_ptr Orocos_CCommandInterface_i::_default_POA()
             comc.arg( DataSourceBase::shared_ptr(ExpressionProxy::Create( CExpression::_duplicate(args[i]) )) );
         // servant uses that object:
         Orocos_CCommand_i* com = new Orocos_CCommand_i( orig, comc, mpoa.in() );
-        return com->_this();
+        return com->activate_this();
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::corba::CNoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -356,7 +356,7 @@ PortableServer::POA_ptr Orocos_CCommandInterface_i::_default_POA()
             comc.arg( DataSourceBase::shared_ptr( new AnyDataSource( new CORBA::Any( args[i] ) )));
         // servant uses that object:
         Orocos_CCommand_i* com = new Orocos_CCommand_i( orig, comc, mpoa.in() );
-        return com->_this();
+        return com->activate_this();
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::corba::CNoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {

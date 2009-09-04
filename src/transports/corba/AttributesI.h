@@ -99,6 +99,12 @@ public:
   //Destructor
   virtual ~Orocos_CAttributeInterface_i (void);
 
+  virtual RTT::corba::CAttributeInterface * activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      _remove_ref(); // ref count=1
+      return _this();
+  }
+
   PortableServer::POA_ptr _default_POA();
 
   virtual

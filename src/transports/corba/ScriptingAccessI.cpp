@@ -307,6 +307,6 @@ CORBA::Long Orocos_CScriptingAccess_i::execute (
     if ( !ret )
         return corba::CCommand::_nil();
     Orocos_CCommand_i* com = new Orocos_CCommand_i( ret, mpoa.in() );
-    return com->_this();
+    return com->activate_this();
 
 }

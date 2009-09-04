@@ -94,8 +94,11 @@ namespace RTT
             internal::ReferenceDataSource<T> rds( target );
             rds.ref();
             if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
-                Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
+#if 0
+                CORBA::String_var stype = expr->getType();
+                Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< stype.in()
                               <<" to local "<< internal::DataSource<T>::GetType()<<Logger::endl;
+#endif
                 return new CORBAExpression<T>( expr );
             }
             return 0; // not convertible.
@@ -130,8 +133,11 @@ namespace RTT
                 internal::ReferenceDataSource<T> rds( target );
                 rds.ref();
                 if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
-                    Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
+#if 0
+                    CORBA::String_var stype = ret->getType();
+                    Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< stype.in()
                                   <<" to local "<< internal::DataSource<T>::GetType()<<Logger::endl;
+#endif
                     return new CORBAAssignableExpression<T>( ret._retn() );
                 }
             }
@@ -191,7 +197,7 @@ namespace RTT
             return alreadyCloned[this];
         }
 
-        virtual std::string getType() const { return std::string( mdata->getType() ); }
+        virtual std::string getType() const { CORBA::String_var stype = mdata->getType() ; return std::string( stype.in() ); }
 
         virtual const types::TypeInfo* getTypeInfo() const { return internal::DataSourceTypeInfo<internal::UnknownType>::getTypeInfo(); }
 

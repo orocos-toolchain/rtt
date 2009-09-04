@@ -79,14 +79,14 @@ namespace RTT
         static ServerMap servers;
         static base::ActivityInterface* orbrunner;
 
-	PortableServer::POA_var mpoa;
+        PortableServer::POA_var mpoa;
 
         /**
          * Private constructor which creates a new servant.
          */
         ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
-	PortableServer::ServantBase_var mtask_i;
+        PortableServer::ServantBase_var mtask_i;
         corba::CControlTask_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
@@ -98,11 +98,11 @@ namespace RTT
         static void DoShutdownOrb(bool wait_for_completion = true);
     public:
 
-	/**
-	 * When a ControlTaskServer is destroyed, the object reference
-	 * is removed from the Naming Service and the servant is deleted.
-	 */
-	~ControlTaskServer();
+        /**
+        * When a ControlTaskServer is destroyed, the object reference
+        * is removed from the Naming Service and the servant is deleted.
+        */
+        ~ControlTaskServer();
 
         /**
          * Invoke this method once to shutdown the Orb which is
@@ -150,12 +150,15 @@ namespace RTT
          * @param tc The TaskContext to serve.
          * @param use_naming Set to \a false in order not to use the Corba Naming Service.
          * @retval 0 if the ORB is not initialised
-         * @return A new or previously created CORBA server for \a tc.
+         * @return A new or previously created CORBA server for \a tc. Since this
+         * is a factory function, you need to store the object in a _var and don't
+         * need to _duplicate it.
          */
         static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true);
 
         /**
          * Get the Corba Object of this CControlTask.
+         * If you want to store this reference, you must \b _duplicate it.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
