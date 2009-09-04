@@ -89,6 +89,11 @@ namespace RTT
             return data_source;
         }
 
+        virtual bool createStream(internal::ConnPolicy const& policy)
+        {
+            return internal::ConnFactory::createStream(*this, policy);
+        }
+
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.

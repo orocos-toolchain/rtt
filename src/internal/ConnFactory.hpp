@@ -169,6 +169,55 @@ namespace RTT
             return true;
         }
 
+        template<class T>
+        static bool createStream(OutputPort<T>& output_port, internal::ConnPolicy const& policy)
+        {
+            if (policy.transport == 0 ) {
+                log(Error) << "Need a transport for creating streams." <<endlog();
+                return false;
+            }
+            const types::TypeInfo* type = output_port.getTypeInfo();
+            if ( type->getProtocol(policy.transport) == 0 ) {
+                log(Error) << "Could not create transport stream for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
+                log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+                return false;
+            }
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, true);
+            
+            chan = buildInputHalf( output_port, policy, chan);
+
+            output_port.addConnection( 0, chan, policy);
+            return true;
+        }
+
+        template<class T>
+        static bool createStream(InputPort<T>& input_port, internal::ConnPolicy const& policy)
+        {
+            if (policy.transport == 0 ) {
+                log(Error) << "Need a transport for creating streams." <<endlog();
+                return false;
+            }
+            const types::TypeInfo* type = input_port.getTypeInfo();
+            if ( type->getProtocol(policy.transport) == 0 ) {
+                log(Error) << "Could not create transport stream for port "<< input_port.getName() << " with transport id " << policy.transport <<endlog();
+                log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+                return false;
+            }
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, false);
+
+            if ( !chan ) {
+                log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
+                return false;
+            }
+            
+            // In stream mode, a buffer is always installed at input side.
+            ConnPolicy policy2 = policy;
+            policy2.pull = false;
+            RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, policy2);
+
+            chan->setOutput( outhalf );
+            return true;
+        }
     protected:
 
         static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy& policy);

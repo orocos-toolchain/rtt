@@ -110,6 +110,16 @@ namespace RTT
         virtual bool connectTo(PortInterface& other) = 0;
 
         /**
+         * Creates a data stream from or to this port using connection-less transports.
+         * Typically, policy.transport and policy.name_id must be properly filled in
+         * such that the data stream can be set up and input and output port can find each other.
+         * You need to call this method on two ports (input and output) using the same transport
+         * and (probably) same name_id.
+         * @param policy The connection policy describing how the stream must be set up.
+         */
+        virtual bool createStream(internal::ConnPolicy const& policy) = 0;
+
+        /**
          * Once a port is added to a DataFlowInterface, it gets
          * a pointer to that interface.
          * This allows advanced ports to track back to which component

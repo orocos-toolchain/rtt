@@ -165,6 +165,11 @@ namespace RTT
             return internal::ConnFactory::createConnection(*this, input_port, policy);
         }
 
+        virtual bool createStream(internal::ConnPolicy const& policy)
+        {
+            return internal::ConnFactory::createStream(*this, policy);
+        }
+
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
@@ -174,8 +179,9 @@ namespace RTT
             internal::TaskObject* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
             typedef void (OutputPort<T>::*WriteSample)(typename base::ChannelElement<T>::param_t);
+            WriteSample write_m = &OutputPort::write;
             object->methods()->addMethod(
-                    method("write", static_cast<WriteSample>(&OutputPort::write), this),
+                    method("write", write_m, this),
                     "Writes a sample on the port.",
                     "sample", "");
             return object;

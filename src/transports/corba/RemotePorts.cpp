@@ -63,6 +63,13 @@ bool RemotePort<BaseClass>::isSameID(RTT::base::PortID const& id) const
     return real_id->dataflow->_is_equivalent(dataflow) && real_id->name == this->getName();
 }
 
+template<typename BaseClass>
+bool RemotePort<BaseClass>::createStream( const internal::ConnPolicy& policy )
+{
+    log(Error) << "Can't create a data stream on a remote port !" <<endlog();
+    return false;
+}
+
 
 RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,

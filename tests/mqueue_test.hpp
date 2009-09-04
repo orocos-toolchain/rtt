@@ -30,10 +30,8 @@ public:
     void setUp();
     void tearDown();
 
-    void testDataFlowInterface();
-
     void testPortConnections();
-    void testPortProxying();
+    void testPortStreams();
 
     // helper test functions
     void testPortDataConnection();

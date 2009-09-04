@@ -37,6 +37,7 @@ namespace RTT {
             types::TypeInfo const* getTypeInfo() const;
             int serverProtocol() const;
             bool connected() const;
+            bool createStream( const internal::ConnPolicy& policy );
 
             void disconnect();
         };
