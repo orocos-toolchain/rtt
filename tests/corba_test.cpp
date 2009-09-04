@@ -306,8 +306,8 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 	ports->getPorts();
 
     BOOST_CHECK_EQUAL(CORBA::ULong(2), names->length());
-    BOOST_CHECK_EQUAL(string("mr"), string(names[0]));
-    BOOST_CHECK_EQUAL(string("mw"), string(names[1]));
+    BOOST_CHECK_EQUAL(string("mr"), string(names[CORBA::ULong(0)]));
+    BOOST_CHECK_EQUAL(string("mw"), string(names[CORBA::ULong(1)]));
 
     // Now check directions
     BOOST_CHECK_EQUAL(RTT::corba::COutput,

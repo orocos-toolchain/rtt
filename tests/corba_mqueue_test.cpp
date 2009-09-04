@@ -194,7 +194,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( cleanupCorba )
 {
-    corba::ControlTaskProxy::DestroyOrb();
+    corba::ControlTaskServer::ShutdownOrb(true);
+    corba::ControlTaskServer::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

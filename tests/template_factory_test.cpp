@@ -28,6 +28,7 @@
 #include <internal/DataSourceGenerator.hpp>
 #include <scripting/ProgramProcessor.hpp>
 #include <internal/TaskObject.hpp>
+#include <internal/CompletionProcessor.hpp>
 
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
