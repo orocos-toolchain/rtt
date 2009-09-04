@@ -211,11 +211,13 @@ void CDataFlowInterface_i::disconnectPort(
 {
     OutputPortInterface* writer = 
         dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
-    if (writer == 0)
+    if (writer == 0) {
+        log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
         return;
+    }
 
     PortableServer::POA_var poa = _default_POA();
-    RemoteInputPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa);
+    RemoteInputPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa.in() );
     writer->disconnect(reader);
 }
 
@@ -276,7 +278,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
     // Check if +reader_interface+ is local. If it is, use the non-CORBA
     // connection.
     RTT::interface::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(reader_interface);
-    if (local_interface)
+    if (local_interface && policy.transport == 0)
     {
         InputPortInterface* reader =
             dynamic_cast<InputPortInterface*>(local_interface->getPort(reader_port));
