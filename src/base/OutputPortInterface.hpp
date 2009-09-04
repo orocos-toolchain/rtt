@@ -38,7 +38,7 @@ namespace RTT
         bool eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor);
 
         /** Helper method for removeConnection(channel) */
-        bool matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
+        bool matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
 
         /** Helper method for port-to-port connection establishment */
         void addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);

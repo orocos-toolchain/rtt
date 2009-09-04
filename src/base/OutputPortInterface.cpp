@@ -23,7 +23,7 @@ bool OutputPortInterface::connected() const
 
 bool OutputPortInterface::eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor)
 {
-    if (port->isSameID(*descriptor.get<0>()))
+    if ( descriptor.get<0>() && port->isSameID(*descriptor.get<0>()))
     {
         descriptor.get<1>()->disconnect(true);
         delete descriptor.get<0>();
@@ -58,13 +58,21 @@ void OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::sha
         connections.append(descriptor);
     }
     this->connectionAdded(channel_input, policy);
+    assert(!connections.empty());
 }
 
-bool OutputPortInterface::matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
-{ return (channel == descriptor.get<1>()); }
+bool OutputPortInterface::matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
+{
+    if(channel == descriptor.get<1>()) {
+        delete descriptor.get<0>();
+        return true;
+    }
+    return false;
+}
+
 bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
 {
-    return connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
+    return connections.delete_if( bind(&OutputPortInterface::matchAndRemoveConnectionChannel, this, channel, _1) );
 }
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
