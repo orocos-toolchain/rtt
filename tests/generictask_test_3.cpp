@@ -655,12 +655,13 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
     OutputPort<int> wp("WriterName", true);
     InputPort<int> rp("ReaderName", ConnPolicy::data(true));
 
-    wp.createConnection(rp);
+    BOOST_CHECK( wp.createConnection(rp) );
     int value = 0;
     BOOST_CHECK( !rp.read(value) );
     BOOST_CHECK( !wp.getLastWrittenValue(value) );
     wp.write(10);
     BOOST_CHECK( rp.read(value) );
+    BOOST_CHECK_EQUAL( 10, value );
 
     wp.disconnect(rp);
     BOOST_CHECK( !wp.connected() );
@@ -672,9 +673,10 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
     BOOST_CHECK_EQUAL( 10, wp.getLastWrittenValue() );
 
     value = 0;
-    wp.createConnection(rp);
+    BOOST_CHECK( wp.createConnection(rp) );
     BOOST_CHECK( rp.read(value) );
     BOOST_CHECK_EQUAL( 10, value );
+    //wp.disconnect();
 }
 
 BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
@@ -853,7 +855,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
 
     mset( 3.991 );
 
-    double get_value;
+    double get_value = 0;
     BOOST_CHECK( mget(get_value) );
     BOOST_CHECK_EQUAL( 3.991, get_value );
 
