@@ -82,6 +82,11 @@ namespace RTT {
 
             task->configure();
 
+            // signal to setup() that we're created.
+            rtos_sem_signal(&(task->sem));
+
+            // This lock forces setup(), which holds the lock, to continue.
+            { MutexLock lock(task->breaker); }
 #ifdef OROPKG_OS_THREAD_SCOPE
             // order thread scope toggle bit on thread number
             unsigned int bit = task->threadNumber();
@@ -228,6 +233,9 @@ namespace RTT {
             Logger::In in("Thread");
             int ret;
 
+            // we do this under lock in order to force the thread to wait until we're done.
+            MutexLock lock(breaker);
+
             log(Info) << "Creating Thread for scheduler: " << msched_type << endlog();
             ret = rtos_sem_init(&sem, 0);
             if (ret != 0)
@@ -272,6 +280,9 @@ namespace RTT {
                 return;
 #endif
             }
+
+            // Wait for creation of thread.
+            rtos_sem_wait( &sem );
 
             const char* modname = getName();
             Logger::In in2(modname);
