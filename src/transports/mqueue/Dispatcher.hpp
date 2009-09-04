@@ -3,6 +3,7 @@
 #include "../../Activity.hpp"
 #include "../../base/ChannelElementBase.hpp"
 #include "../../Logger.hpp"
+#include <map>
 #include <sys/select.h>
 #include <mqueue.h>
 

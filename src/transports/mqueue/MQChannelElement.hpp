@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <cassert>
-#include <exception>
+#include <stdexcept>
 
 #include "../../Activity.hpp"
 #include "../../base/RunnableInterface.hpp"
@@ -67,6 +67,7 @@ namespace RTT
 
                 mqdes = mq_open(namestr.str().c_str(), O_CREAT | O_RDWR | O_NONBLOCK, S_IREAD | S_IWRITE, &mattr);
                 log(Debug) << "Opening '"<< namestr.str() <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
+
                 if (mqdes < 0)
                     throw std::runtime_error("Could not open message queue");
 
