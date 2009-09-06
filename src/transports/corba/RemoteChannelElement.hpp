@@ -32,6 +32,9 @@ namespace RTT {
 		: CChannelElement_i(transport, poa)
 		, data_source(new internal::ValueDataSource<T>)
             {
+                // Big note about cleanup: The RTT will dispose this object through
+	            // the ChannelElement<T> refcounting. So we only need to inform the
+                // POA that our object is dead in disconnect().
                 // CORBA refcount-managed servants must start with a refcount of
                 // 1
                 this->ref();
@@ -116,6 +119,7 @@ namespace RTT {
                     return true;
                 // go through corba
                 CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source));
+                assert( remote_side.in() != 0 );
                 try
                 {
                     remote_side->write(ret.in()); 
