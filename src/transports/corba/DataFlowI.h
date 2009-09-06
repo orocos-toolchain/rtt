@@ -80,6 +80,13 @@ namespace RTT {
 			  PortableServer::POA_ptr poa);
             virtual ~CChannelElement_i();
 
+            virtual RTT::corba::CChannelElement * activate_this() {
+                PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+                _remove_ref(); // ref count=1
+                return _this();
+            }
+
+
             PortableServer::POA_ptr _default_POA();
 
             void setRemoteSide(CChannelElement_ptr remote);
@@ -114,6 +121,11 @@ namespace RTT {
             static interface::DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
             static CDataFlowInterface_ptr getRemoteInterface(interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa);
 
+            virtual RTT::corba::CDataFlowInterface* activate_this() {
+                 PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+                 //_remove_ref(); // ref count=1
+                 return _this();
+             }
 
             PortableServer::POA_ptr _default_POA();
 
