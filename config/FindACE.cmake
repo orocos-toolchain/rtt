@@ -19,14 +19,15 @@ include(FindPackageHandleStandardArgs)
 # See if ACE_ROOT is not already set in CMake
 IF (NOT ACE_ROOT)
     # See if ACE_ROOT is set in process environment
-    IF (DEFINED ENV{ACE_ROOT})
+    IF ( NOT $ENV{ACE_ROOT} STREQUAL "" )
         SET (ACE_ROOT "$ENV{ACE_ROOT}")
+	MESSAGE(STATUS "Detected ACE_ROOT set to '${ACE_ROOT}'")
     ENDIF ()
 ENDIF ()
 
 # If ACE_ROOT is available, set up our hints
 IF (ACE_ROOT)
-    SET (ACE_INCLUDE_HINTS HINTS "${ACE_ROOT}/include")
+    SET (ACE_INCLUDE_HINTS HINTS "${ACE_ROOT}/include ${ACE_ROOT}")
     SET (ACE_LIBRARY_HINTS HINTS "${ACE_ROOT}/lib")
 ENDIF ()
 
