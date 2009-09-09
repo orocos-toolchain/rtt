@@ -27,17 +27,19 @@ ENDIF ()
 # See if TAO_ROOT is not already set in CMake
 IF (NOT TAO_ROOT)
     # See if TAO_ROOT is set in process environment
-    IF (DEFINED ENV{TAO_ROOT})
+    IF ( NOT $ENV{TAO_ROOT} STREQUAL "" )
         SET (TAO_ROOT "$ENV{TAO_ROOT}")
+	MESSAGE(STATUS "Detected TAO_ROOT set to '${TAO_ROOT}'")
     # If ACE_ROOT is set, maybe TAO is there too
     ELSEIF (ACE_ROOT)
         SET (TAO_ROOT "${ACE_ROOT}")
+	MESSAGE(STATUS "Set TAO_ROOT to '${TAO_ROOT}'")
     ENDIF ()
 ENDIF ()
 
 # If TAO_ROOT is available, set up our hints
 IF (TAO_ROOT)
-    SET (TAO_INCLUDE_HINTS HINTS "${TAO_ROOT}/include")
+    SET (TAO_INCLUDE_HINTS HINTS "${TAO_ROOT}/include ${TAO_ROOT}/TAO ${TAO_ROOT}")
     SET (TAO_LIBRARY_HINTS HINTS "${TAO_ROOT}/lib")
     SET (TAO_RUNTIME_HINTS HINTS "${TAO_ROOT}/bin")
 ENDIF ()
