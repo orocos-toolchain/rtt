@@ -246,7 +246,7 @@ if (ENABLE_CORBA)
     IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         # Look for TAO and ACE
 	if(OROCOS_TARGET STREQUAL "win32")
-	  set(XTRA_TAO_LIBS AnyTypeCode)
+	  set(XTRA_TAO_LIBS AnyTypeCode ValueType)
 	endif()
         find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
         IF(NOT TAO_FOUND)
