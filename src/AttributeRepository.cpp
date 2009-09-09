@@ -140,7 +140,7 @@ namespace RTT
     std::vector<std::string> AttributeRepository::getAttributes() const
     {
         std::vector<std::string> ret;
-        std::transform( values.begin(), values.end(), ret.begin(),back_inserter(ret), bind(&AttributeBase::getName, _1) );
+        std::transform( values.begin(), values.end(), back_inserter(ret), bind(&AttributeBase::getName, _1) );
         return ret;
     }
 
