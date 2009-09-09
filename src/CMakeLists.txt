@@ -9,7 +9,6 @@ include (CreatePCFlags)
 ###
 
 ### OS Abstraction
-OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as much as possible. This will exclude lock-free and atomic algorithms." OFF)
 OPTION(OS_AGNOSTIC "Do not use asm/system.h and asm/atomic.h global system heades, but use RTT implementations." ON)
 OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)
 OPTION(OS_HAVE_STREAMS "Use C++ streams library." ON)

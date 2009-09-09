@@ -11,11 +11,6 @@ MESSAGE(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 #                                                         #
 ###########################################################
 #
-# An option for tests, to make it easy to turn off all tests
-#
-OPTION( ENABLE_TESTS "DEPRECATED Turn me off to disable compilation of all tests" OFF )
-MARK_AS_ADVANCED( ENABLE_TESTS )
-#
 # STATIC or SHARED
 #
 OPTION( BUILD_STATIC "Build Orocos RTT as a static library." ${FORCE_BUILD_STATIC})
@@ -36,6 +31,8 @@ IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
   SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
 ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
 
+# Is modified by target selection below
+OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as much as possible. This will exclude lock-free and atomic algorithms." OFF )
 
 ###########################################################
 #                                                         #
@@ -79,9 +76,8 @@ else(XERCES_FOUND)
 endif(XERCES_FOUND)
 
 # Check for OS/Target specific dependencies:
-set( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx]")
-string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 message("Orocos target is ${OROCOS_TARGET}")
+string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
 # Setup flags for RTAI/LXRT
 if(OROCOS_TARGET STREQUAL "lxrt")
@@ -172,6 +168,9 @@ if(OROCOS_TARGET STREQUAL "win32")
   if (MSVC)
     set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
+    # We force to ON
+    message("Forcing OS_NO_ASM to ON for MSVC.")
+    set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
