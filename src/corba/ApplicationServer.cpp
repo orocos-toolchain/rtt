@@ -61,7 +61,7 @@ namespace RTT
             orb =
                 CORBA::ORB_init (argc, const_cast<char**>(argv),
                                  "omniORB4");
-            if(orb_timeout >= 0.1e-7)
+            if(timeout >= 0.1e-7)
             {
 #if defined( CORBA_IS_TAO ) && defined( CORBA_TAO_HAS_MESSAGING )
                 // Set the timeout value as a TimeBase::TimeT (100 nanosecond units)
