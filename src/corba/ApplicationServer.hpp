@@ -48,6 +48,7 @@
 #include <omniORB4/CORBA.h>
 #include <omniORB4/poa.h>
 #endif
+#include "../Time.hpp"
 
 namespace RTT
 {namespace Corba
