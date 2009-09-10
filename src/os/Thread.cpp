@@ -543,7 +543,7 @@ namespace RTT
             nsecs nsperiod = ns + 1000* 1000* 1000* s ;
             if (nsperiod < 0)
                 return false;
-            if (nsperiod == 0 && period != 0 || nsperiod != 0 && period == 0) {
+            if ( (nsperiod == 0 && period != 0) || (nsperiod != 0 && period == 0)) {
                 // switch between periodic/non-periodic
                 // note for RTAI: the fosi_internal layer must detect if this is called from
                 // within rtos_task or outside the thread.
