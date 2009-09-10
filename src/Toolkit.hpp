@@ -42,12 +42,11 @@
 #include <string>
 #include <vector>
 #include "rtt-config.h"
+#include "ToolkitPlugin.hpp"
+#include "TransportPlugin.hpp"
 
 namespace RTT
 {
-
-    class ToolkitPlugin;
-    class TransportPlugin;
 
     /**
      * This class allows the Orocos Real-Time Toolkit to be extended
