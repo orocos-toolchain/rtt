@@ -414,12 +414,6 @@ namespace RTT
         Handle setupAsyn(const std::string& ename,
                          boost::function<void(void)> afunc,
                          const std::vector<DataSourceBase::shared_ptr>& args,
-                         ActivityInterface* t,
-                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
-
-        Handle setupAsyn(const std::string& ename,
-                         boost::function<void(void)> afunc,
-                         const std::vector<DataSourceBase::shared_ptr>& args,
                          EventProcessor* ep = CompletionProcessor::Instance(),
                          EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //!@}
