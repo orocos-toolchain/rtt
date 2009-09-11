@@ -292,7 +292,7 @@ namespace RTT
 
     bool ExecutionEngine::hasWork()
     {
-        return cproc->hasWork() && eproc->hasWork();
+        return cproc->hasWork() || eproc->hasWork();
     }
 
     void ExecutionEngine::step() {
