@@ -11,7 +11,7 @@ namespace RTT { namespace extras {
      * is called when data is available or when an error is encountered on the
      * file descriptor.
      */
-    class FileDescriptorActivity : public Activity
+    class RTT_API FileDescriptorActivity : public Activity
     {
         std::set<int> m_watched_fds;
         bool m_running;

@@ -26,7 +26,7 @@ namespace RTT { namespace extras {
      *   that task context is called to get the descriptor
      * </ul>
      */
-    class IRQActivity : public Activity
+    class RTT_API IRQActivity : public Activity
     {
         int      m_irq;
         RT_INTR  m_handle;
