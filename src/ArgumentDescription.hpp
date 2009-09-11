@@ -39,7 +39,7 @@
 #define ARGUMENTDESCRIPTION_HPP
 
 #include <string>
-#include "rtt-config.hpp"
+#include "rtt-config.h"
 
 namespace RTT
 {

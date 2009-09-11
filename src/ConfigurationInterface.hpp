@@ -38,7 +38,7 @@
 #ifndef CONFIGURATIONINTERFACE_HPP
 #define CONFIGURATIONINTERFACE_HPP
 
-#include "rtt-config.hpp"
+#include "rtt-config.h"
 
 namespace RTT
 {
