@@ -122,7 +122,7 @@
       <itemizedlist>
 	<listitem><para>Install the Ace and Tao libraries and header
 	files on your system. Tao version 1.3, 1.4 or
-	1.5.</para></listitem>
+	1.5, OR install OmniORB 4 or later.</para></listitem>
 	<listitem><para>Configure Orocos with Corba support. See the
 	Getting Started Manual.</para></listitem>
 	<listitem><para>Start a Corba Naming Service once with
@@ -148,7 +148,7 @@
 	<para>With <emphasis>&lt;the-ns-ip-address&gt;</emphasis> the same as above.</para>
 	</listitem>
 	<listitem><para>Compile your applications with the appropriate
-	include and linker flags. See the Getting Started
+	include and linker flags. See the Getting Started/Installation
 	Manual.</para></listitem>
       </itemizedlist> 
       </para>
@@ -256,6 +256,28 @@
       package on Orocos.org. You may use 'connectPeers' and the related methods
       to form component networks. Any Orocos component can be 'transformed' in
       this way.
+    </para>
+  </section>
+  <section>
+    <title>Timing and time-outs</title>
+    <para>
+      By default, a remote method invocation waits until the remote
+      end completes and returns the call, or an exception is
+      thrown. In case the caller only wishes to spend a limited amount
+      of time for waiting, the TAO Messaging service can be
+      used. OmniORB to date does not support this service. TAO allows timeouts
+      to be specified on ORB level, object (POA) level and method level. Orocos
+      currently only supports ORB level, but if necessary, you can apply
+      the configuration yourself to methods or objects by accessing the 'server()'
+      method and casting to the correct CORBA object type.
+    </para>
+    <para>
+      In order to provide the ORB-wide timeout value in seconds, use:
+      <programlisting>
+	// Wait no more than 0.1 seconds for a response.
+	ApplicationSetup::InitORB(argc, argv, 0.1);</programlisting>
+      ControlTaskProxy and ControlTaskServer inherit from ApplicationSetup,
+      so you might as well use these classes to scope InitORB.
     </para>
   </section>
   <section>
