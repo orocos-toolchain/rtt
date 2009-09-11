@@ -144,8 +144,10 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     // We need to manually disconnect both sides since mqueue are connection-less.
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
-    //policy.name_id = "data1";
+    // test user supplied connection.
+    policy.name_id = "/data1";
     BOOST_CHECK( mw1->createConnection(*mr2, policy) );
+    BOOST_CHECK( policy.name_id == "/data1" );
     testPortDataConnection();
     mw1->disconnect();
     mr2->disconnect();
@@ -153,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
     policy.type = ConnPolicy::DATA;
     policy.pull = true;
-    //policy.name_id = "data2";
+    policy.name_id = "";
     BOOST_CHECK( mw1->createConnection(*mr2, policy) );
     testPortDataConnection();
     mw1->disconnect();
@@ -164,6 +166,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = ConnPolicy::BUFFER;
     policy.pull = false;
     policy.size = 3;
+    policy.name_id = "";
     //policy.name_id = "buffer1";
     BOOST_CHECK( mw1->createConnection(*mr2, policy) );
     testPortBufferConnection();
@@ -175,6 +178,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.type = ConnPolicy::BUFFER;
     policy.pull = true;
     policy.size = 3;
+    policy.name_id = "";
     //policy.name_id = "buffer2";
     BOOST_CHECK( mw1->createConnection(*mr2, policy) );
     testPortBufferConnection();
@@ -207,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
     // Test all four configurations of Data/Buffer & push/pull
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
-    policy.name_id = "data1";
+    policy.name_id = "/data1";
     BOOST_CHECK( mw1->createStream( policy ) );
     BOOST_CHECK( mr2->createStream( policy ) );
     testPortDataConnection();
@@ -217,7 +221,7 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
 
     policy.type = ConnPolicy::DATA;
     policy.pull = true;
-    policy.name_id = "data2";
+    policy.name_id = "";
     BOOST_CHECK( mw1->createStream( policy ) );
     BOOST_CHECK( mr2->createStream( policy ) );
     testPortDataConnection();
@@ -228,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
     policy.type = ConnPolicy::BUFFER;
     policy.pull = false;
     policy.size = 3;
-    policy.name_id = "buffer1";
+    policy.name_id = "/buffer1";
     BOOST_CHECK( mw1->createStream( policy ) );
     BOOST_CHECK( mr2->createStream( policy ) );
     testPortBufferConnection();
@@ -239,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
     policy.type = ConnPolicy::BUFFER;
     policy.pull = true;
     policy.size = 3;
-    policy.name_id = "buffer2";
+    policy.name_id = "";
     BOOST_CHECK( mw1->createStream( policy ) );
     BOOST_CHECK( mr2->createStream( policy ) );
     testPortBufferConnection();

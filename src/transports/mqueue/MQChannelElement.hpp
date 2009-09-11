@@ -16,6 +16,8 @@
 #include "../../Logger.hpp"
 #include "Dispatcher.hpp"
 #include "../../base/ChannelElement.hpp"
+#include "../../base/PortInterface.hpp"
+#include "../../interface/DataFlowInterface.hpp"
 #include "MQTypeTransporter.hpp"
 
 namespace RTT
@@ -50,7 +52,7 @@ namespace RTT
              * Create a channel element for remote data exchange.
              * @param transport The type specific object that will be used to marshal the data.
              */
-            MQChannelElement(MQTypeTransporter const& transport, std::string name_id, bool is_sender) :
+            MQChannelElement(base::PortInterface* port, MQTypeTransporter const& transport, std::string& name_id, bool is_sender) :
                 mtransport(transport),
                 data_source(new internal::ValueDataSource<T>),
                 mis_sender(is_sender)
@@ -59,14 +61,18 @@ namespace RTT
                 const MQTypeTransporter* mqtransport = dynamic_cast<const MQTypeTransporter*>( &transport );
                 assert(mqtransport);
                 std::stringstream namestr;
-                namestr << '/' <<name_id << '.'<<getpid();
+                namestr << '/' << port->getInterface()->getParent()->getName()
+                        << '.' << port->getName() << '.'<<this << '@' << getpid();
+
+                if ( name_id.empty() )
+                    name_id = namestr.str();
 
                 struct mq_attr mattr;
                 mattr.mq_maxmsg = 10;
                 mattr.mq_msgsize = mqtransport->blobSize();
 
-                mqdes = mq_open(namestr.str().c_str(), O_CREAT | O_RDWR | O_NONBLOCK, S_IREAD | S_IWRITE, &mattr);
-                log(Debug) << "Opening '"<< namestr.str() <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
+                mqdes = mq_open(name_id.c_str(), O_CREAT | O_RDWR | O_NONBLOCK, S_IREAD | S_IWRITE, &mattr);
+                log(Debug) << "Opening '"<< name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
 
                 if (mqdes < 0)
                     throw std::runtime_error("Could not open message queue");

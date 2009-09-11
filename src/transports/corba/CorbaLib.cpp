@@ -87,9 +87,9 @@ namespace RTT {
                 return false;
             }
 
-            virtual ChannelElementBase* createRemoteChannel( string name_id, void* arg, bool is_sender) const {
+            virtual ChannelElementBase* createChannel(base::PortInterface* port, string& name_id, void* arg, bool is_sender) const {
                 Logger::In in("CorbaFallBackProtocol");
-                log(Error) << "Could create Channel for port '"<<name_id<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                log(Error) << "Could create Channel for port '"<<port->getName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
             }
 

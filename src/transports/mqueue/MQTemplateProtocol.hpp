@@ -69,8 +69,8 @@ namespace RTT
               return sizeof(T);
           }
 
-          virtual base::ChannelElementBase* createRemoteChannel( std::string name_id, void* arg, bool is_sender) const {
-              return new MQChannelElement<T>( *this, name_id, is_sender);
+          virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& name_id, void* arg, bool is_sender) const {
+              return new MQChannelElement<T>(port, *this, name_id, is_sender);
           }
 
           /**

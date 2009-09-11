@@ -82,14 +82,14 @@ RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 
 RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types::TypeInfo const* type,
                                                           RTT::base::InputPortInterface& reader_,
-                                                          RTT::internal::ConnPolicy & policy)
+                                                          RTT::internal::ConnPolicy const& policy)
 {
     Logger::In in("RemoteInputPort::buildRemoteOutputHalf");
     CChannelElement_var remote;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
         remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), cpolicy);
-        policy = toRTT(cpolicy);
+        policy.name_id = toRTT(cpolicy).name_id;
     }
     catch(CORBA::Exception&)
     {
@@ -110,12 +110,12 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types
     // try to forward to the prefered transport.
     if ( policy.transport != 0 && policy.transport != ORO_CORBA_PROTOCOL_ID ) {
         // create alternative path / out of band transport.
-        string name =  policy.name_id ;//getInterface()->getParent()->getName() + '.' + this->getName();
+        string name =  policy.name_id ;
         if ( type->getProtocol(policy.transport) == 0 ) {
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createRemoteChannel(name, 0, true);
+        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createChannel(this, name, 0, true);
         if (ceb) {
             ceb->setOutput( corba_ceb );
             corba_ceb = ceb;

@@ -21,7 +21,7 @@ namespace RTT {
 	     */
 	    virtual CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
 
-        virtual base::ChannelElementBase* createRemoteChannel( std::string /*name_id*/, void* arg, bool /*is_sender*/) const {
+        virtual base::ChannelElementBase* createChannel( base::PortInterface* /*port*/, std::string& /*name_id*/, void* arg, bool /*is_sender*/) const {
             return dynamic_cast<base::ChannelElementBase*>( this->createChannelElement_i( (PortableServer::POA_ptr)arg ) );
         }
 

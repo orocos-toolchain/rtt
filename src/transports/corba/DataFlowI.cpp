@@ -245,16 +245,19 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
 
     if ( corba_policy.transport !=0 && corba_policy.transport != ORO_CORBA_PROTOCOL_ID) {
         // prepare out-of-band transport for this port.
-        string name = mdf->getParent()->getName() + '.' + port->getName();
-        if ( strlen( corba_policy.name_id.in()) == 0 )
-            corba_policy.name_id = CORBA::string_dup( name.c_str() );
-        else
+        // if user supplied name, use that one.
+        std::string name;
+        if ( strlen( corba_policy.name_id.in()) != 0 )
             name = corba_policy.name_id.in();
         if ( type_info->getProtocol(corba_policy.transport) == 0 ) {
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << corba_policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createRemoteChannel(name, 0, false);
+        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createChannel(port, name, 0, false);
+        // if no user supplied name, pass on the new name.
+        if ( strlen( corba_policy.name_id.in()) == 0 )
+            corba_policy.name_id = CORBA::string_dup( name.c_str() );
+
         if (ceb) {
             ceb->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );;
             log(Info) <<"Receiving data for port "<<name << " from out-of-band protocol "<< corba_policy.transport <<endlog();

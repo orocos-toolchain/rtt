@@ -29,7 +29,7 @@ namespace RTT
          * done based on the types::TypeInfo object
          */
         virtual base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type_info,
-                base::InputPortInterface& output, ConnPolicy& policy) = 0;
+                base::InputPortInterface& output, const ConnPolicy& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -149,8 +149,7 @@ namespace RTT
             else
             {
                 if ( !input_port.isLocal() ) {
-                    ConnPolicy tmp_policy = policy;
-                    output_half = ConnFactory::createRemoteConnection( output_port, input_port, tmp_policy);
+                    output_half = ConnFactory::createRemoteConnection( output_port, input_port, policy);
                 } else
                     output_half = ConnFactory::createOutOfBandConnection<T>( output_port, *input_p, policy);
             }
@@ -182,7 +181,7 @@ namespace RTT
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
                 return false;
             }
-            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, true);
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&output_port, policy.name_id, 0, true);
             
             chan = buildInputHalf( output_port, policy, chan);
 
@@ -203,7 +202,7 @@ namespace RTT
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
                 return false;
             }
-            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, false);
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&input_port,policy.name_id, 0, false);
 
             if ( !chan ) {
                 log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
@@ -211,6 +210,7 @@ namespace RTT
             }
             
             // In stream mode, a buffer is always installed at input side.
+            //
             ConnPolicy policy2 = policy;
             policy2.pull = false;
             RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, policy2);
@@ -220,20 +220,16 @@ namespace RTT
         }
     protected:
 
-        static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy& policy);
+        static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy const& policy);
 
         template<class T>
         static base::ChannelElementBase* createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, internal::ConnPolicy const& policy) {
             // create input half using a transport.
-            std::string name = output_port.getInterface()->getParent()->getName()+ '.' + output_port.getName();
             const types::TypeInfo* type = output_port.getTypeInfo();
             if ( type->getProtocol(policy.transport) == 0 ) {
-                log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
+                log(Error) << "Could not create out-of-band transport for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
             }
-
-            if (policy.name_id.empty())
-                policy.name_id = name;
 
             // we force the creation of a buffer on input side
             ConnPolicy policy2 = policy;
@@ -242,28 +238,29 @@ namespace RTT
             RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, policy2);
 
             if ( input_port.isLocal() ) {
-                name = input_port.getInterface()->getParent()->getName() +'.'+ input_port.getName();
-                RTT::base::ChannelElementBase* ceb_input = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, false);
+                RTT::base::ChannelElementBase* ceb_input = type->getProtocol(policy.transport)->createChannel(&input_port,policy2.name_id, 0, false);
                 if (ceb_input) {
-                    log(Info) <<"Receiving data for port "<<name << " from out-of-band protocol "<< policy.transport <<endlog();
+                    log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id<<endlog();
                 } else {
-                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << name<<endlog();
+                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
                 }
                 ceb_input->setOutput(output_half);
                 output_half = ceb_input;
             }
 
             if ( output_port.isLocal() ) {
-                name = output_port.getInterface()->getParent()->getName() + '.' + output_port.getName();
-                RTT::base::ChannelElementBase* ceb_output = type->getProtocol(policy.transport)->createRemoteChannel(policy.name_id, 0, true);
+
+                RTT::base::ChannelElementBase* ceb_output = type->getProtocol(policy.transport)->createChannel(&output_port,policy2.name_id, 0, true);
                 if (ceb_output) {
-                    log(Info) <<"Redirecting data for port "<<name << " to out-of-band protocol "<< policy.transport <<endlog();
+                    log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id <<endlog();
                 } else {
-                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << name<<endlog();
+                    log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << output_port.getName()<<endlog();
                 }
                 ceb_output->setOutput(output_half);
                 output_half = ceb_output;
             }
+            // Important ! since we made a copy above, we need to set the original to the changed name_id.
+            policy.name_id = policy2.name_id;
 
             return output_half;
 

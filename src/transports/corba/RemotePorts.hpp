@@ -101,7 +101,7 @@ namespace RTT {
              */
             base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
-                    internal::ConnPolicy& policy);
+                    internal::ConnPolicy const& policy);
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;

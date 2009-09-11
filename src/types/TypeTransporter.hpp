@@ -94,10 +94,21 @@ namespace RTT
 
             /**
              * Creates a channel element for reading or writing over this transport.
-             * The transport receives a channel id which consists of 'component_name.port_name' (or a user supplied id)
-             * and a transport specific argument.
+             * It returns a ChannelElementBase that provides the implementation of sending or receiving
+             * data through the transport.
+             *
+             * @param port The port for which this channel is setup.
+             * @param channel_id If the transport receives a non-empty channel_id, it will create a channel that connects to this id.
+             * If channel id is empty, it will be filled in with a unique identifier that identifies this channel.
+             * This allows the local caller to connect to the
+             * remote channel in a second invocation of createRemoteChannel.
+             * @param arg A transport specific argument which can be used in case the transport itself is calling
+             * this method. May be 0.
+             * @param is_sender Set to true in case you will write() to this channel element, set it to false
+             * in case you will read() from this channel element.
+             *
              */
-            virtual base::ChannelElementBase* createRemoteChannel(std::string channel_id, void* arg, bool is_sender) const = 0;
+            virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& channel_id, void* arg, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.
