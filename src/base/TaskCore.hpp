@@ -421,6 +421,16 @@ namespace RTT
         virtual void updateHook();
 
         /**
+         * Implement this function if your code might block for long times inside
+         * the updateHook() function. Insert in this hook the code to wake up
+         * that code or signal it otherwise that updateHook() is requested to return
+         * (for example by setting a flag).
+         * The method returns \a false by default.
+         * @return true if well received and updateHook() will soon return. False otherwise.
+         */
+        virtual bool breakUpdateHook();
+
+        /**
          * Implement this method to contain code that must be executed
          * in the RunTimeError state, instead of updateHook(). This allows
          * you to specify the behaviour in an erroneous component.

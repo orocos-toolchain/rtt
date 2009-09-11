@@ -351,7 +351,13 @@ namespace RTT
     }
 
     bool ExecutionEngine::breakLoop() {
-        return true;
+        bool ok = true;
+        if (taskc)
+            ok = taskc->breakUpdateHook();
+        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
+            ok = (*it)->breakUpdateHook() && ok;
+            }
+        return ok;
     }
 
     void ExecutionEngine::finalize() {
