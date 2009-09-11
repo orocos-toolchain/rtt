@@ -246,6 +246,11 @@ namespace RTT
         update();
     }
 
+    bool TaskCore::breakUpdateHook()
+    {
+        return false;
+    }
+
     void TaskCore::stopHook()
     {
         shutdown();
