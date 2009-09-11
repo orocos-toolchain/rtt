@@ -131,9 +131,9 @@ namespace RTT
          * @param initial_value The initial value of this DataObject.
          */
         DataObjectLockFree( const T& initial_value = T(), unsigned int max_threads = 2 )
-            : read_ptr(0),
-              write_ptr(0),
-              MAX_THREADS(max_threads), BUF_LEN( max_threads + 2)
+            : MAX_THREADS(max_threads), BUF_LEN( max_threads + 2),
+              read_ptr(0),
+              write_ptr(0)
         {
         	data = new DataBuf[BUF_LEN];
         	read_ptr = &data[0];
