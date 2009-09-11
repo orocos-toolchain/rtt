@@ -114,6 +114,8 @@ endif()
 if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
+  list(APPEND OROCOS-RTT_USER_LINK_LIBS pthread rt) # For libraries used in inline (fosi/template) code.
+
   list(APPEND OROCOS-RTT_LIBRARIES pthread dl rt) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
@@ -246,6 +248,8 @@ if (ENABLE_CORBA)
         # Look for TAO and ACE
 	if(OROCOS_TARGET STREQUAL "win32")
 	  set(XTRA_TAO_LIBS AnyTypeCode ValueType)
+	else()
+	  set(XTRA_TAO_LIBS AnyTypeCode Valuetype)
 	endif()
         find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
         IF(NOT TAO_FOUND)
