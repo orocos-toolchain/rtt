@@ -237,7 +237,6 @@ usr/include/rtt/os/oro_x86_64
 usr/include/rtt/os/oro_x86_64/oro_atomic.h
 usr/include/rtt/os/oro_x86_64/oro_system.h
 usr/include/rtt/os/rtconversions.hpp
-usr/include/rtt/os/rtctype.hpp
 usr/include/rtt/os/rtstreambufs.hpp
 usr/include/rtt/os/rtstreams.hpp
 usr/include/rtt/os/startstop.h
