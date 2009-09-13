@@ -138,12 +138,8 @@ namespace RTT
         	data = new DataBuf[BUF_LEN];
         	read_ptr = &data[0];
         	write_ptr = &data[1];
-            // prepare the buffer.
-            for (unsigned int i = 0; i < BUF_LEN-1; ++i) {
-                data[i].data = initial_value;
-                data[i].next = &data[i+1];
-            }
             data[BUF_LEN-1].next = &data[0];
+            data_sample(initial_value);
         }
 
         ~DataObjectLockFree() {
@@ -157,7 +153,7 @@ namespace RTT
          *
          * @return A copy of the data.
          */
-        DataType Get() const {DataType cache; Get(cache); return cache; }
+        virtual DataType Get() const {DataType cache; Get(cache); return cache; }
 
         /**
          * Get a copy of the Data (non allocating).
@@ -166,7 +162,7 @@ namespace RTT
          *
          * @param pull A copy of the data.
          */
-        void Get( DataType& pull ) const
+        virtual void Get( DataType& pull ) const
         {
             PtrType reading;
             // loop to combine Read/Modify of counter
@@ -191,7 +187,7 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push )
+        virtual void Set( const DataType& push )
         {
             /**
              * This method can not be called concurrently (only one
@@ -218,11 +214,20 @@ namespace RTT
             write_ptr = write_ptr->next; // we checked this in the while loop
         }
 
-        DataObjectLockFree<DataType>* clone() const {
+        virtual void data_sample( const DataType& sample ) {
+            // prepare the buffer.
+            for (unsigned int i = 0; i < BUF_LEN-1; ++i) {
+                data[i].data = sample;
+                data[i].next = &data[i+1];
+            }
+
+        }
+
+        virtual DataObjectLockFree<DataType>* clone() const {
             return new DataObjectLockFree<DataType>();
         }
 
-        DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+        virtual DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
             return const_cast<DataObjectLockFree<DataType>*>(this);
         }
 

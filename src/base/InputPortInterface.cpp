@@ -49,9 +49,22 @@ bool InputPortInterface::connectTo(PortInterface& other)
 }
 
 void InputPortInterface::setInputChannel(ChannelElementBase* channel_output)
-{ this->channel = channel_output; }
+{
+    this->channel = channel_output;
+}
+
+bool InputPortInterface::channelsReady()
+{
+    if ( this->channel && this->channel->inputReady() )
+        return true;
+    this->disconnect();
+    return false;
+}
+
 void InputPortInterface::clearInputChannel()
-{ this->channel = 0; }
+{
+    this->channel = 0;
+}
 
 bool InputPortInterface::read(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }

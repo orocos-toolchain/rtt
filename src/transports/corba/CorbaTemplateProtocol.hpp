@@ -102,12 +102,12 @@ namespace RTT
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
            */
-          virtual void* createBlob( base::DataSourceBase::shared_ptr source) const
+          virtual std::pair<void*,int> createBlob( base::DataSourceBase::shared_ptr source) const
           {
               internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
               if ( d )
-                  return AnyConversion<PropertyType>::createAny( d->value() );
-              return 0;
+                  return std::make_pair((void*)AnyConversion<PropertyType>::createAny( d->value() ), 0);
+              return std::make_pair((void*)(0),int(0));
           }
 
           /**

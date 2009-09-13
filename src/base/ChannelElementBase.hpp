@@ -82,6 +82,15 @@ namespace RTT { namespace base {
          */
         virtual bool signal();
 
+        /**
+         * This is called by an input port when it is ready to receive data.
+         * Each channel element has the responsibility to pass this notification
+         * on to the next, in the direction of the output.
+         * @return false if a fatal connection failure was encountered and
+         * the channel needs to be destroyed.
+         */
+        virtual bool inputReady();
+
         /** Clears any data stored by the channel. It means that
          * ChannelElement::read() will return false afterwards (provided that no
          * new data has been written on the meantime of course)

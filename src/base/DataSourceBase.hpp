@@ -261,6 +261,8 @@ namespace RTT
        * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new server object reference otherwise.
        * @see Operations.idl
+       * @deprecated This function is nowhere used or can be replaced by
+       * a call to a type transporter.
        */
       virtual void* server( int protocol, void* arg );
 
@@ -269,6 +271,8 @@ namespace RTT
        * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new method object reference otherwise.
        * @see Operations.idl
+       * @deprecated This function is nowhere used or can be replaced by
+       * a call to a type transporter.
        */
       virtual void* method( int protocol, internal::MethodC* orig, void* arg );
   };

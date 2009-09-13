@@ -21,6 +21,7 @@ module RTT
         boolean pull;
         long size;
         long transport;
+        long data_size;
         string name_id;
     };
 
@@ -30,6 +31,18 @@ module RTT
         boolean read(out any sample);
         boolean write(in any sample);
         boolean remoteSignal();
+        /**
+         * Used during connection setup to pass on
+         * an example of the data.
+         * This is done behind the scenes by the connection logic.
+         */
+        //boolean setDataSample(in any sample);
+        /**
+         * Called by the input port to indicate that
+         * it's ready to be used.
+         * This is done behind the scenes by the connection logic.
+         */
+        //boolean inputReady();
         void remoteDisconnect(in boolean writer_to_reader);
     };
 
@@ -119,6 +132,15 @@ module RTT
       boolean createConnection(in string local_port, in CDataFlowInterface remote_ports,
             in string remote_port, in CConnPolicy policy)
             raises(CNoSuchPortException);
+            
+      /**
+       * Checks if the connection channel elements are ready for a given
+       * input port.
+       * This is typically called by the connection setup logic to see
+       * if the input side agrees with the connection and can use it.
+       * @return false if the connection could not be used.
+       */
+      boolean channelsReady(in string input_port);
     };
   };
 };

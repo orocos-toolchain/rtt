@@ -135,6 +135,7 @@ namespace RTT {
             RTT::corba::CPortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
+            ::CORBA::Boolean channelsReady(const char* port_name);
             void disconnect(const char* port_name);
             void disconnectPort( const char* writer_port,
                                  CDataFlowInterface_ptr reader_interface, const char* reader_port);

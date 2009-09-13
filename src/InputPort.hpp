@@ -103,7 +103,8 @@ namespace RTT
             internal::TaskObject* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
             typedef bool (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
-            object->methods()->addMethod( method("read", static_cast<ReadSample>(&InputPort<T>::read), this),
+            ReadSample read_m = &InputPort<T>::read;
+            object->methods()->addMethod( method("read", read_m, this),
                     "Reads a sample from the port.",
                     "sample", "");
             return object;

@@ -18,22 +18,11 @@
 #include "../../base/ChannelElement.hpp"
 #include "../../base/PortInterface.hpp"
 #include "../../interface/DataFlowInterface.hpp"
-#include "MQTypeTransporter.hpp"
 
 namespace RTT
 {
     namespace mqueue
     {
-
-        /**
-         * Processes incomming messages and forwards them
-         * to the next element in chain.
-         */
-        class MQChannelProcessing
-        {
-        public:
-            virtual void processIncomming() = 0;
-        };
         /**
          * Implements the a ChannelElement using message queues.
          * It converts the C++ calls into MQ messages and vice versa.
@@ -41,25 +30,28 @@ namespace RTT
         template<typename T>
         class MQChannelElement: public base::ChannelElement<T>
         {
-            MQTypeTransporter const& mtransport;
+            types::TypeMarshaller<T> const& mtransport;
             typename internal::ValueDataSource<T>::shared_ptr data_source;
             mqd_t mqdes;
             char* buf;
             bool mis_sender;
+            bool minit_done;
+            const int max_size;
 
         public:
             /**
              * Create a channel element for remote data exchange.
              * @param transport The type specific object that will be used to marshal the data.
              */
-            MQChannelElement(base::PortInterface* port, MQTypeTransporter const& transport, std::string& name_id, bool is_sender) :
+            MQChannelElement(base::PortInterface* port, types::TypeMarshaller<T> const& transport,
+                             std::string& name_id,
+                             int size_hint, bool is_sender) :
                 mtransport(transport),
                 data_source(new internal::ValueDataSource<T>),
-                mis_sender(is_sender)
+                mis_sender(is_sender), minit_done(false),
+                max_size(size_hint ? size_hint : sizeof(T) )
             {
                 Logger::In in("MQChannelElement");
-                const MQTypeTransporter* mqtransport = dynamic_cast<const MQTypeTransporter*>( &transport );
-                assert(mqtransport);
                 std::stringstream namestr;
                 namestr << '/' << port->getInterface()->getParent()->getName()
                         << '.' << port->getName() << '.'<<this << '@' << getpid();
@@ -68,8 +60,8 @@ namespace RTT
                     name_id = namestr.str();
 
                 struct mq_attr mattr;
-                mattr.mq_maxmsg = 10;
-                mattr.mq_msgsize = mqtransport->blobSize();
+                mattr.mq_maxmsg = 10; // XXX arbitrary hard-coded. This is/should be a policy.
+                mattr.mq_msgsize = max_size;
 
                 mqdes = mq_open(name_id.c_str(), O_CREAT | O_RDWR | O_NONBLOCK, S_IREAD | S_IWRITE, &mattr);
                 log(Debug) << "Opening '"<< name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
@@ -77,19 +69,63 @@ namespace RTT
                 if (mqdes < 0)
                     throw std::runtime_error("Could not open message queue");
 
-                buf = new char[mtransport.blobSize()];
-                memset(buf,0,mtransport.blobSize()); // necessary to trick valgrind
-                if ( !mis_sender) {
-                    Dispatcher::Instance()->addQueue( mqdes, this);
-                }
+                buf = new char[ max_size];
+                memset(buf,0,max_size); // necessary to trick valgrind
             }
 
             ~MQChannelElement() {
                 if ( !mis_sender) {
-                    Dispatcher::Instance()->removeQueue( mqdes );
+                    if (minit_done)
+                        Dispatcher::Instance()->removeQueue( mqdes );
                     mq_close( mqdes );
                 }
                 delete[] buf;
+            }
+
+            virtual bool inputReady() {
+                if (minit_done)
+                    return true;
+
+                if ( ! mis_sender ) {
+                    // Try to get the initial sample
+                    struct timespec abs_timeout;
+                    abs_timeout.tv_sec = 0;
+                    abs_timeout.tv_nsec = Seconds_to_nsecs(0.5);
+                    ssize_t ret = mq_timedreceive(mqdes, buf,
+                            max_size, 0,
+                            &abs_timeout);
+                    if ( ret != -1 ) {
+                        if ( mtransport.updateBlob((void*)buf, data_source) ) {
+                            T sample = data_source->get();
+                            typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
+                            assert(output);
+                            output->data_sample(sample);
+                            minit_done = true;
+                        } else {
+                            log(Error) << "Failed to initialize MQ Channel Element with initial data sample."<<endlog();
+                            return false;
+                        }
+                    } else {
+                        log(Error) << "Failed to receive initial data sample for MQ Channel Element."<<endlog();
+                        return false;
+                    }
+                    // ok, now we can add the dispatcher.
+                    Dispatcher::Instance()->addQueue( mqdes, this);
+                } else {
+                    assert( !mis_sender ); // we must be receiver. we can only receive inputReady when we're on the input port side of the MQ.
+                    return false;
+                }
+                return true;
+            }
+
+            virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+            {
+                // send initial data sample to the other side using a plain write.
+                typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
+                if (mis_sender) {
+                    return write(sample);
+                }
+                return false;
             }
 
             /**
@@ -139,10 +175,10 @@ namespace RTT
             bool read(typename base::ChannelElement<T>::reference_t sample)
             {
                 int bytes = 0;
-                if ( (bytes = mq_receive(mqdes, buf, mtransport.blobSize(), 0)) == -1 ) {
+                if ( (bytes = mq_receive(mqdes, buf, max_size, 0)) == -1 ) {
                     return false;
                 }
-                assert( bytes == mtransport.blobSize() );
+                //assert( bytes == mtransport.blobSize() ); //size may differ in complex types.
                 if ( mtransport.updateBlob((void*)buf, data_source) ) {
                     sample = data_source->get();
                     return true;
@@ -158,8 +194,9 @@ namespace RTT
             bool write(typename base::ChannelElement<T>::param_t sample)
             {
                 data_source->set(sample);
-                char* lbuf = (char*)mtransport.createBlob(data_source);
-                if (mq_send(mqdes, lbuf, mtransport.blobSize(), 0) ) {
+                std::pair<void*,int> blob = mtransport.createBlob(data_source);
+                char* lbuf = (char*)blob.first;
+                if (mq_send(mqdes, lbuf, blob.second, 0) ) {
                     //log(Error) << "Failed to write into MQChannel !" <<endlog();
                     return false;
                 }

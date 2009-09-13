@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
 BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
 {
     OutputPort<int> wp("WriterName");
-    InputPort<int> rp("ReaderName", ConnPolicy::data());
+    InputPort<int> rp("ReaderName", ConnPolicy::data(ConnPolicy::LOCK_FREE, false));
 
     BOOST_CHECK( !wp.connected() );
     BOOST_CHECK( !rp.connected() );
@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
         wp.write(value); // just checking if is works or if it crashes
     }
 
-    wp.createConnection(rp);
+    BOOST_REQUIRE( wp.createConnection(rp) );
     BOOST_CHECK( wp.connected() );
     BOOST_CHECK( rp.connected() );
 
@@ -844,10 +844,10 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     wp1.createConnection( rp1 );
 
     // Test Methods set/get
-    Method<void(double)> mset;
+    Method<void(double const&)> mset;
     Method<bool(double&)> mget;
 
-    mset = tc->getObject("Write")->methods()->getMethod<void(double)>("write");
+    mset = tc->getObject("Write")->methods()->getMethod<void(double const&)>("write");
     BOOST_CHECK( mset.ready() );
 
     mget = tc->getObject("Read")->methods()->getMethod<bool(double&)>("read");
@@ -857,7 +857,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
 
     double get_value = 0;
     BOOST_CHECK( mget(get_value) );
-    BOOST_CHECK_EQUAL( 3.991, get_value );
+    BOOST_CHECK_CLOSE( 3.991, get_value, 0.001 );
 
     //// Finally, check cleanup. Ports and port objects must be gone:
     tc->ports()->removePort("Reader");

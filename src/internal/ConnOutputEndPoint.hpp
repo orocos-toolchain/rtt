@@ -48,6 +48,12 @@ namespace RTT
                 (*port->new_data_on_port_event)(port);
             return true;
         }
+
+        virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+        {
+            return true;
+        }
+
     };
 
 }}

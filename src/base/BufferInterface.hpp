@@ -63,6 +63,8 @@ namespace RTT
 
         virtual ~BufferInterface()
         {}
+
+        virtual void data_sample( const T& sample ) = 0;
     };
 }}
 

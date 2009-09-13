@@ -40,11 +40,15 @@ namespace RTT
         /** Helper method for removeConnection(channel) */
         bool matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
 
-        /** Helper method for port-to-port connection establishment */
-        void addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
+        /** Helper method for port-to-port connection establishment.
+         * This is the last step in adding a connection to an output port and
+         * also validates if the connection is sound.
+         * @return false if the connection failed to work, true otherwise.
+         */
+        bool addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
 
         /** Helper method called by addConnection to set the channel's initial value, depending on the policy. */
-        virtual void connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
+        virtual bool connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
 
         /** os::Mutex for when it is needed to resize the connections list */
         os::Mutex connection_resize_mtx;
@@ -53,8 +57,19 @@ namespace RTT
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
 
+        /**
+         * Returns true if this port records the last written value.
+         */
         virtual bool keepsLastWrittenValue() const = 0;
 
+        /**
+         * Change the setting for keeping the last written value.
+         * Setting this to false will clear up any unneeded storage.
+         * If set, this port can initialize new connections with a data sample and
+         * allows real-time data transport of dynamically sized objects
+         * over its newly created connections.
+         * @see OutputPort::OutputPort.
+         */
         virtual void keepLastWrittenValue(bool new_flag) = 0;
 
         virtual void disconnect();

@@ -20,6 +20,22 @@ namespace RTT { namespace base {
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
+        /**
+         * Provides a data sample to initialize this connection.
+         * This is used before the first write() in order to inform this
+         * connection of the size of the data. As such enough storage
+         * space can be allocated before the actual writing begins.
+         *
+         * @returns false if an error occured that requires the channel to be invalidated.
+         */
+        virtual bool data_sample(param_t sample)
+        {
+            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(this->output);
+            if (output)
+                return output->data_sample(sample);
+            return false;
+        }
+
         /** Writes a new sample on this connection. \a sample is the sample to
          * write. 
          *

@@ -120,7 +120,7 @@ namespace RTT {
 #ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
-            return tt->createBlob( DataSourceBase::shared_ptr(this) );
+            return tt->createBlob( DataSourceBase::shared_ptr(this) ).first;
 #endif
         return 0;
     }
@@ -131,7 +131,7 @@ namespace RTT {
 #ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
-            return tt->createBlob( DataSourceBase::shared_ptr(this) );
+            return tt->createBlob( DataSourceBase::shared_ptr(this) ).first;
 #endif
         return 0;
     }

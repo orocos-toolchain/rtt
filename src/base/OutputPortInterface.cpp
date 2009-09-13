@@ -49,7 +49,7 @@ void OutputPortInterface::disconnect()
     connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
 }
 
-void OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+bool OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
     ChannelDescriptor descriptor = boost::make_tuple(port_id, channel_input, policy);
     if (!connections.append(descriptor))
@@ -57,8 +57,11 @@ void OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::sha
         connections.grow(1);
         connections.append(descriptor);
     }
-    this->connectionAdded(channel_input, policy);
-    assert(!connections.empty());
+    if ( this->connectionAdded(channel_input, policy) )
+        return true;
+    // cleanup.
+    removeConnection( channel_input );
+    return false;
 }
 
 bool OutputPortInterface::matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const

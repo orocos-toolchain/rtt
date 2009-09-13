@@ -107,6 +107,15 @@ namespace RTT
         virtual void Set( const DataType& push ) = 0;
 
         /**
+         * Provides a data sample to initialize this data object.
+         * As such enough storage
+         * space can be allocated before the actual writing begins.
+         *
+         * @param sample
+         */
+        virtual void data_sample( const DataType& sample ) = 0;
+
+        /**
          * Normally, value() does not trigger a get(), but for
          * DataObjects, this is actually the sanest thing to
          * do.

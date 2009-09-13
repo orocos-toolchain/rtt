@@ -16,10 +16,10 @@ namespace RTT
         {
         public:
             /**
-             * Returns the maximum blobsize of a returned blob.
+             * Returns the size in bytes of a blob.
              * @return the size.
              */
-            virtual unsigned int blobSize() const = 0;
+            virtual unsigned int blobSize(void* blob) const = 0;
 
         };
     }

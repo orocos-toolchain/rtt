@@ -18,11 +18,15 @@ namespace RTT
         ConnInputEndpoint(OutputPort<T>* port)
             : port(port) { }
 
-        /** Writes a new sample on this connection
+        /** Reads a new sample from this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
         virtual bool read(typename base::ChannelElement<T>::reference_t sample)
         { return false; }
+
+        virtual bool inputReady() {
+            return true;
+        }
 
         virtual void disconnect(bool forward)
         {

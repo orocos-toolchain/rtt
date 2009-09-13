@@ -1,7 +1,7 @@
 #ifndef ORO_MQ_TEMPATE_PROTOCOL_HPP
 #define ORO_MQ_TEMPATE_PROTOCOL_HPP
 
-#include "MQTypeTransporter.hpp"
+#include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
@@ -19,7 +19,7 @@ namespace RTT
        */
       template<class T>
       class MQTemplateProtocol
-          : public MQTypeTransporter
+          : public RTT::types::TypeMarshaller<T>
       {
       public:
           /**
@@ -40,14 +40,14 @@ namespace RTT
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
            * This is a real-time function which does not allocate memory and which requires source
-           * to be an AssignalbeDataSource.
+           * to be an AssignableDataSource.
            */
-          virtual void* createBlob( base::DataSourceBase::shared_ptr source) const
+          virtual std::pair<void*,int> createBlob( base::DataSourceBase::shared_ptr source) const
           {
               internal::AssignableDataSource<T>* d = internal::AdaptAssignableDataSource<T>()( source );
               if ( d )
-                  return (void*) &(d->set());
-              return 0;
+                  return std::make_pair((void*) &(d->set()), int(sizeof(T)));
+              return std::make_pair((void*)0,int(0));
           }
 
           /**
@@ -63,14 +63,14 @@ namespace RTT
             return false;
           }
 
-          virtual unsigned int blobSize() const
+          virtual unsigned int getSampleSize(const T& ignored) const
           {
               // re-implement this in case of complex types, like std::vector<T>.
               return sizeof(T);
           }
 
-          virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& name_id, void* arg, bool is_sender) const {
-              return new MQChannelElement<T>(port, *this, name_id, is_sender);
+          virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& name_id, int size_hint, bool is_sender) const {
+              return new MQChannelElement<T>(port, *this, name_id, size_hint, is_sender);
           }
 
           /**

@@ -105,7 +105,7 @@ namespace RTT {
             {
                 if (base::ChannelElement<T>::read(data_source->set()))
                 {
-                    sample = static_cast<CORBA::Any*>(transport.createBlob(data_source));
+                    sample = static_cast<CORBA::Any*>(transport.createBlob(data_source).first);
                     return true;
                 }
                 else return false;
@@ -118,7 +118,7 @@ namespace RTT {
                 if (base::ChannelElement<T>::write(sample))
                     return true;
                 // go through corba
-                CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source));
+                CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source).first);
                 assert( remote_side.in() != 0 );
                 try
                 {
@@ -135,6 +135,22 @@ namespace RTT {
             {
                 transport.updateBlob(&sample, data_source);
                 return base::ChannelElement<T>::write(data_source->rvalue());
+            }
+
+            virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
+            {
+                // we don't pass it on through CORBA (yet).
+                // If an oob transport is used, that one will send it through.
+                if (this->output)
+                    return base::ChannelElement<T>::data_sample(sample);
+                return true;
+            }
+
+            virtual bool inputReady() {
+                // signal to oob transport if any.
+                if (this->input)
+                    return base::ChannelElement<T>::inputReady();
+                return true;
             }
 
         };

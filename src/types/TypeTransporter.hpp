@@ -67,7 +67,7 @@ namespace RTT
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
              */
-            virtual void* createBlob(base::DataSourceBase::shared_ptr source) const = 0;
+            virtual std::pair<void*,int> createBlob(base::DataSourceBase::shared_ptr source) const = 0;
 
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
@@ -102,13 +102,11 @@ namespace RTT
              * If channel id is empty, it will be filled in with a unique identifier that identifies this channel.
              * This allows the local caller to connect to the
              * remote channel in a second invocation of createRemoteChannel.
-             * @param arg A transport specific argument which can be used in case the transport itself is calling
-             * this method. May be 0.
              * @param is_sender Set to true in case you will write() to this channel element, set it to false
              * in case you will read() from this channel element.
              *
              */
-            virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& channel_id, void* arg, bool is_sender) const = 0;
+            virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& channel_id, int size_hint, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.

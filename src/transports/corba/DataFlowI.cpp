@@ -196,6 +196,18 @@ CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name)
     return p->connected();
 }
 
+CORBA::Boolean CDataFlowInterface_i::channelsReady(const char * port_name)
+{
+    PortInterface* p = mdf->getPort(port_name);
+    if (p == 0)
+        throw corba::CNoSuchPortException();
+
+    InputPortInterface* ip = dynamic_cast<InputPortInterface*>(p);
+    if (ip == 0)
+        throw corba::CNoSuchPortException();
+    return ip->channelsReady();
+}
+
 void CDataFlowInterface_i::disconnect(const char * port_name)
 {
     PortInterface* p = mdf->getPort(port_name);
@@ -265,7 +277,6 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << name<<endlog();
         }
     }
-
     return RTT::corba::CChannelElement::_duplicate(this_element->_this());
 }
 
@@ -300,8 +311,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
            writer_port << " and " << reader_port << endlog();
 
     try {
-        if (reader_interface->getPortType(reader_port) != corba::CInput)
+        if (reader_interface->getPortType(reader_port) != corba::CInput) {
+            log(Error) << "Could not create connection: " << reader_port <<" is not an input port."<<endlog();
             return false;
+        }
 
         // Creates a proxy to the remote input port
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);

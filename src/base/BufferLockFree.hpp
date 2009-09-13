@@ -97,6 +97,12 @@ namespace RTT
         {
         }
 
+        virtual void data_sample( const T& sample )
+        {
+            mpool.data_sample(sample);
+        }
+
+
         size_type capacity() const
         {
             return bufs.capacity();

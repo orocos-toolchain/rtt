@@ -78,33 +78,21 @@ namespace RTT
          */
         typedef T DataType;
 
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const { os::MutexLock locker(lock); pull = data; }
+        virtual void Get( DataType& pull ) const { os::MutexLock locker(lock); pull = data; }
 
-        /**
-         * Get a copy of the data of the module.
-         * This method is thread-safe.
-         *
-         * @return The result of the module.
-         */
-        DataType Get() const { DataType cache;  Get(cache); return cache; }
+        virtual DataType Get() const { DataType cache;  Get(cache); return cache; }
 
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push ) { os::MutexLock locker(lock); data = push; }
+        virtual void Set( const DataType& push ) { os::MutexLock locker(lock); data = push; }
 
-        DataObjectLocked<DataType>* clone() const {
+        virtual void data_sample( const DataType& sample ) {
+            Set(sample);
+        }
+
+        virtual DataObjectLocked<DataType>* clone() const {
             return new DataObjectLocked<DataType>();
         }
 
-        DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+        virtual DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
             return const_cast<DataObjectLocked<DataType>*>(this);
         }
     };

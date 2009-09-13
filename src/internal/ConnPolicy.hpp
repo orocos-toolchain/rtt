@@ -54,7 +54,7 @@ namespace RTT { namespace internal {
         }
 
         explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE)
-            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0) {}
+            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
 
         /** This is the type for the data holding element in the connection */
         int    type;
@@ -78,6 +78,16 @@ namespace RTT { namespace internal {
          * is used for inter-process or networked communication transports.
          */
         int    transport;
+
+        /**
+         * Suggest the payload size of the data sent over this channel. Connections
+         * can use this value to optimize transmission or prepare the communication
+         * channel for real-time communication. This value might be overruled by
+         * the transport protocol if it can make a better guess. The interpretation
+         * of data_size is transport specific. It may be bytes, it may be something else.
+         * Leave this value set to zero, unless the transport documents otherwise.
+         */
+        mutable int    data_size;
 
         /**
          * The name of this connection. May be used by transports to define a 'topic' or

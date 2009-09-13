@@ -52,6 +52,13 @@ namespace RTT { namespace internal {
             written = false;
             base::ChannelElement<T>::clear();
         }
+
+        virtual bool data_sample(param_t sample)
+        {
+            data->data_sample(sample);
+            return base::ChannelElement<T>::data_sample(sample);
+        }
+
     };
 }}
 

@@ -9,6 +9,7 @@
 #include "../base/InputPortInterface.hpp"
 #include "../base/OutputPortInterface.hpp"
 #include "../interface/DataFlowInterface.hpp"
+#include "../types/TypeMarshaller.hpp"
 
 #include "../base/DataObject.hpp"
 #include "../base/Buffer.hpp"
@@ -35,15 +36,15 @@ namespace RTT
          * inside the connection, based on the given policy
          */
         template<typename T>
-        static base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy)
+        static base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy, const T& initial_value = T())
         {
             if (policy.type == ConnPolicy::DATA)
             {
                 base::DataObjectInterface<T>* data_object = 0;
                 if (policy.lock_policy == ConnPolicy::LOCKED)
-                    data_object = new base::DataObjectLocked<T>();
+                    data_object = new base::DataObjectLocked<T>(initial_value);
                 else
-                    data_object = new base::DataObjectLockFree<T>();
+                    data_object = new base::DataObjectLockFree<T>(initial_value);
 
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 data_object->deref(); // data objects are initialized with a refcount of 1
@@ -53,9 +54,9 @@ namespace RTT
             {
                 base::BufferInterface<T>* buffer_object = 0;
                 if (policy.lock_policy == ConnPolicy::LOCKED)
-                    buffer_object = new base::BufferLocked<T>(policy.size);
+                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value);
                 else
-                    buffer_object = new base::BufferLockFree<T>(policy.size);
+                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value);
 
                 return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object));
             }
@@ -79,7 +80,7 @@ namespace RTT
             base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port);
             if (policy.pull)
             {
-                base::ChannelElementBase* data_object = buildDataStorage<T>(policy);
+                base::ChannelElementBase* data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
                 endpoint->setOutput(data_object);
                 data_object->setOutput(output_channel);
             }
@@ -97,16 +98,17 @@ namespace RTT
          * @see buildInputHalf
          */
         template<typename T>
-        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy)
+        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy, T const& initial_value = T() )
         {
             base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port);
             if (!policy.pull)
             {
-                base::ChannelElementBase* data_object = buildDataStorage<T>(policy);
+                base::ChannelElementBase* data_object = buildDataStorage<T>(policy, initial_value);
                 data_object->setOutput(endpoint);
                 return data_object;
             }
-            else return endpoint;
+            else
+                return endpoint;
         }
 
         /**
@@ -144,7 +146,7 @@ namespace RTT
                     return false;
                 }
 
-                output_half = ConnFactory::buildOutputHalf<T>(*input_p, policy);
+                output_half = ConnFactory::buildOutputHalf<T>(*input_p, policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -163,9 +165,22 @@ namespace RTT
                 ConnFactory::buildInputHalf<T>(output_port, policy, output_half);
 
             // Register the channel's input to the output port.
-            output_port.addConnection( input_port.getPortID(), channel_input, policy );
+            if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
+                if ( input_port.channelsReady() == false ) {
+                    output_port.disconnect();
+                    log(Error) << "The input port "<< input_port.getName()
+                               << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
 
-            return true;
+                    return false;
+                }
+                log(Info) << "Connected output port "<< output_port.getName()
+                        << " successfully to " << input_port.getName() <<endlog();
+                return true;
+            }
+            // setup failed.
+            log(Error) << "The output port "<< output_port.getName()
+                       << " could not successfully use the connection to input port " << input_port.getName() <<endlog();
+            return false;
         }
 
         template<class T>
@@ -181,12 +196,20 @@ namespace RTT
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
                 return false;
             }
-            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&output_port, policy.name_id, 0, true);
+            types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
+            int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
+            policy.data_size = size_hint;
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&output_port, policy.name_id, size_hint, true);
             
             chan = buildInputHalf( output_port, policy, chan);
 
-            output_port.addConnection( 0, chan, policy);
-            return true;
+            if ( output_port.addConnection( 0, chan, policy) ) {
+                log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
+                return true;
+            }
+            // setup failed.
+            log(Error) << "Failed to create output stream for output port "<< output_port.getName() <<endlog();
+            return false;
         }
 
         template<class T>
@@ -202,7 +225,8 @@ namespace RTT
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
                 return false;
             }
-            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&input_port,policy.name_id, 0, false);
+
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&input_port,policy.name_id, policy.data_size, false);
 
             if ( !chan ) {
                 log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
@@ -214,14 +238,28 @@ namespace RTT
             ConnPolicy policy2 = policy;
             policy2.pull = false;
             RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, policy2);
+            // pass new name upwards.
+            policy.name_id = policy2.name_id;
 
             chan->setOutput( outhalf );
-            return true;
+            if ( input_port.channelsReady()) {
+                log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
+                return true;
+            }
+            // setup failed.
+            log(Error) << "Failed to create input stream for input port "<< input_port.getName() <<endlog();
+            return false;
         }
     protected:
 
         static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy const& policy);
 
+        /**
+         * This code is for setting up an in-process out-of-band connection.
+         * This means that both input and output port are present in the same process.
+         * This function is used when the policy dictates a transport protocol, but both
+         * ports are local.
+         */
         template<class T>
         static base::ChannelElementBase* createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, internal::ConnPolicy const& policy) {
             // create input half using a transport.
@@ -235,10 +273,12 @@ namespace RTT
             ConnPolicy policy2 = policy;
             policy2.pull = false;
 
-            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, policy2);
+            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, policy2, output_port.getLastWrittenValue());
 
+            types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
+            int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
             if ( input_port.isLocal() ) {
-                RTT::base::ChannelElementBase* ceb_input = type->getProtocol(policy.transport)->createChannel(&input_port,policy2.name_id, 0, false);
+                RTT::base::ChannelElementBase* ceb_input = type->getProtocol(policy.transport)->createChannel(&input_port,policy2.name_id, size_hint, false);
                 if (ceb_input) {
                     log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id<<endlog();
                 } else {
@@ -250,7 +290,7 @@ namespace RTT
 
             if ( output_port.isLocal() ) {
 
-                RTT::base::ChannelElementBase* ceb_output = type->getProtocol(policy.transport)->createChannel(&output_port,policy2.name_id, 0, true);
+                RTT::base::ChannelElementBase* ceb_output = type->getProtocol(policy.transport)->createChannel(&output_port,policy2.name_id, size_hint, true);
                 if (ceb_output) {
                     log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id <<endlog();
                 } else {

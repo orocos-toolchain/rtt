@@ -47,6 +47,13 @@ namespace RTT { namespace internal {
             buffer->clear();
             base::ChannelElement<T>::clear();
         }
+
+        virtual bool data_sample(param_t sample)
+        {
+            buffer->data_sample(sample);
+            return base::ChannelElement<T>::data_sample(sample);
+        }
+
     };
 }}
 

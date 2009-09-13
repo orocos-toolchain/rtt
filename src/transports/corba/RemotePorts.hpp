@@ -61,8 +61,9 @@ namespace RTT {
 
             using base::OutputPortInterface::createConnection;
             bool createConnection( base::InputPortInterface& sink, internal::ConnPolicy const& policy );
-            virtual void connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
+            virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
                 assert(false && "Can not add connection to remote port object !");
+                return false;
             }
 
 
@@ -107,6 +108,14 @@ namespace RTT {
             base::PortInterface* antiClone() const;
 
             base::DataSourceBase* getDataSource();
+
+            /**
+             * For remote input port objects, this method always returns true.
+             * The remote connection factory will do this test on the real
+             * input port, so we don't have to check this.
+             * @return
+             */
+            virtual bool channelsReady();
         };
     }
 }
