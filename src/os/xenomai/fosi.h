@@ -291,8 +291,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
         return rt_mutex_unlock(m);
     }
 
-
-    int rtos_printf(const char *fmt, ...);
+#define rtos_printf printf
 
 #ifdef __cplusplus
 }
