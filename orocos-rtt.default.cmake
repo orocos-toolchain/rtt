@@ -13,9 +13,10 @@
 #
 # Uncomment to set additional include and library paths for: 
 # Boost, Xerces, TAO, Omniorb etc.
+# The example below is for win32 targets.
 #
-# set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:\orocos\Boost-1_36_0/include")
-# set(CMAKE_LIBRARY_PATH ${CMAKE_INCLUDE_PATH} "C:\orocos\Boost-1_36_0/lib")
+# set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:\orocos\Boost-1_36_0\include")
+# set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:\orocos\Boost-1_36_0\lib")
 
 #
 # An option to make it easy to turn off all tests (defaults to ON)
