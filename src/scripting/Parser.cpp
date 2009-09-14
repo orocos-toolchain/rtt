@@ -197,7 +197,7 @@ namespace RTT
     CommandParser parser( tc, !dodispatch );
     try
     {
-      boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+      boost_spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
       if ( ! ret.hit )
         throw parse_exception_parser_fail();
     }
