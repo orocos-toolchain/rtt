@@ -64,7 +64,7 @@ namespace RTT
      * when the Timer is destroyed.
      */
     class RTT_API Timer
-        : protected base::RunnableInterface
+        : public base::RunnableInterface
     {
     public:
         /**
