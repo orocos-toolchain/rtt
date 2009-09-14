@@ -642,6 +642,8 @@ namespace RTT
 
         int checkConditions( StateInterface* state, bool stepping = false );
 
+        void enableGlobalEvents();
+        void disableGlobalEvents();
         void enableEvents( StateInterface* s );
         void disableEvents( StateInterface* s );
     private:

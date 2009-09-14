@@ -340,6 +340,14 @@ namespace RTT {
         runState( newState );
     }
 
+    void StateMachine::enableGlobalEvents( )
+    {
+        enableEvents(0);
+    }
+    void StateMachine::disableGlobalEvents( )
+    {
+        disableEvents(0);
+    }
     void StateMachine::enableEvents( StateInterface* s )
     {
         EventMap::mapped_type& hlist = eventMap[s];
@@ -677,7 +685,8 @@ namespace RTT {
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
-        Logger::log() << Logger::Debug << "Creating Asynchronous handler for '"<< ename <<"'."<<Logger::endl;
+        log(Debug) << "Creating Asynchronous handler for '"<< ename <<"'."<< endlog();
+        log(Debug) << "From '"<< (from ? from->getName() : "(0)") <<"' to '"<< (to ? to->getName() : "(0)") <<"' else: "<< (elseto ? elseto->getName() : "(0)") << endlog();
         handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args,
                                     eproc );
 
@@ -712,16 +721,16 @@ namespace RTT {
             from  = current;
         if (to == 0)
             to = current;
-        if (elseto == 0)
+        if (elseto == 0 && elsep != 0) // user gave else program but no destination.
             elseto = current;
         if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
-//                 log(Debug) <<"Valid transition from "<<from->getName()
+//                 log(Debug) <<"Valid 'select' transition from "<<from->getName()
 //                            <<" to "<<to->getName()<<"."<<Logger::endl;
                 changeState( to, p );              //  valid transition to 'to'.
             }
             else if ( elseto && checkConditions(elseto, false) == 1 ) {
-//                 log(Debug) <<"Valid transition from "<<from->getName()
+//                 log(Debug) <<"Valid 'else' transition from "<<from->getName()
 //                            <<" to "<<elseto->getName()<<"."<<Logger::endl;
                 changeState( elseto, elsep );      //  valid transition to 'elseto'.
             }
@@ -767,6 +776,7 @@ namespace RTT {
     void StateMachine::leaveState( StateInterface* s )
     {
         assert(s);
+        disableEvents(s);
         currentExit = s->getExitProgram();
         if ( currentExit ) {
             currentExit->reset();
@@ -811,6 +821,8 @@ namespace RTT {
         TransList::iterator it;
         for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
             get<0>(*it)->reset();
+
+        enableEvents(s);
 
         next = s;
         currentEntry = s->getEntryProgram();
@@ -995,8 +1007,7 @@ namespace RTT {
         reqend = stateMap.find( next )->second.end();
 
         // Enable all event handlers
-        for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
-            enableEvents( it->first );
+        enableGlobalEvents();
 
         // execute the entry program of the initial state.
         if ( this->executePending() ) {
@@ -1016,8 +1027,7 @@ namespace RTT {
         }
 
         // disable all event handlers
-        for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
-            disableEvents( it->first );
+        disableGlobalEvents();
 
         // whatever state we are in, leave it.
         // but if current exit is in error, skip it alltogether.
