@@ -112,12 +112,12 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     int margin = 1;
     int small_margin = 10; // 10% of 10ns : allow a one-off.
 
-    BOOST_REQUIRE_CLOSE( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
-    BOOST_REQUIRE_CLOSE( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
-    BOOST_REQUIRE_CLOSE( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), small_margin );
-    BOOST_REQUIRE_CLOSE( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin );
-    BOOST_REQUIRE_CLOSE( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin );
-    BOOST_REQUIRE_CLOSE( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), small_margin );
+    BOOST_REQUIRE_CLOSE( (double)long_ns  , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
+    BOOST_REQUIRE_CLOSE( (double)normal_ns, (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
+    BOOST_REQUIRE_CLOSE( (double)small_ns , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), small_margin );
+    BOOST_REQUIRE_CLOSE( (double)long_t  , (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin );
+    BOOST_REQUIRE_CLOSE( (double)normal_t, (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin );
+    BOOST_REQUIRE_CLOSE( (double)small_t , (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), small_margin );
 }
 
 BOOST_AUTO_TEST_CASE( testTimeProgress )
