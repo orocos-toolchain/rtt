@@ -39,6 +39,7 @@
 #include "Timer.hpp"
 #include "os/MutexLock.hpp"
 #include "os/SingleThread.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 {
@@ -149,7 +150,10 @@ namespace RTT
     bool Timer::startTimer(TimerId timer_id, double period)
     {
         if ( timer_id < 0 || timer_id > int(mtimers.size()) || period < 0.0)
+        {
+            log(Error) << "Invalid timer id or period" << endlog();
             return false;
+        }
 
         Time due_time = mTimeserv->getNSecs() + Seconds_to_nsecs( period );
 
@@ -165,7 +169,10 @@ namespace RTT
     bool Timer::arm(TimerId timer_id, double wait_time)
     {
         if ( timer_id < 0 || timer_id > int(mtimers.size()) || wait_time < 0.0)
+        {
+            log(Error) << "Invalid timer id or wait time" << endlog();
             return false;
+        }
 
         Time now = mTimeserv->getNSecs();
         Time due_time = now + Seconds_to_nsecs( wait_time );
@@ -183,7 +190,10 @@ namespace RTT
     {
         OS::MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        {
+            log(Error) << "Invalid timer id" << endlog();
             return false;
+        }
         return mtimers[timer_id].first != 0;
     }
 
@@ -191,7 +201,10 @@ namespace RTT
     {
         OS::MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        {
+            log(Error) << "Invalid timer id" << endlog();
             return 0.0;
+        }
         Time now = mTimeserv->getNSecs();
         Time result = mtimers[timer_id].first - now;
         // detect corner cases.
@@ -204,7 +217,10 @@ namespace RTT
     {
         OS::MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )
+        {
+            log(Error) << "Invalid timer id" << endlog();
             return false;
+        }
         mtimers[timer_id].first = 0;
         mtimers[timer_id].second = 0;
         return true;
