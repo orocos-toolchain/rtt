@@ -34,7 +34,7 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( main-test ${CMAKE_CURRENT_BINARY_DIR}/main-test )
 
-    if (Boost_VERSION VERSION_GREATER 1.36.0 OR Boost_VERSION VERSION_EQUAL 1.36.0)
+    if ( ${Boost_VERSION} GREATER 103599 )
       ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
       TARGET_LINK_LIBRARIES( list-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( list-test PROPERTIES
