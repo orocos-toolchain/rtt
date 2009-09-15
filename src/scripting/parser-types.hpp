@@ -43,8 +43,8 @@
 #include <boost/spirit/include/classic.hpp>
 namespace boost_spirit = boost::spirit::classic;
 #else
-namespace boost_spirit = boost::spirit;
 #include <boost/spirit.hpp>
+namespace boost_spirit = boost::spirit;
 #endif
 #include "../base/ActionInterface.hpp"
 #include "rtt-scripting-fwd.hpp"
