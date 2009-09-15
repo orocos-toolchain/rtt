@@ -34,13 +34,16 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( main-test ${CMAKE_CURRENT_BINARY_DIR}/main-test )
 
-    ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
-    TARGET_LINK_LIBRARIES( list-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( list-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( list-test ${CMAKE_CURRENT_BINARY_DIR}/list-test )
+    if (Boost_VERSION VERSION_GREATER 1.36.0 OR Boost_VERSION VERSION_EQUAL 1.36.0)
+      ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
+      TARGET_LINK_LIBRARIES( list-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+      SET_TARGET_PROPERTIES( list-test PROPERTIES
+	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+      ADD_TEST( list-test ${CMAKE_CURRENT_BINARY_DIR}/list-test )
+      list(APPEND ORO_EXTRA_TESTS "corba-test")
+    endif()
 
     # repeat for each test 
     if( TESTS_OS_NO_ASM )
@@ -118,11 +121,11 @@ IF (BUILD_TESTING)
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
 	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
       ADD_TEST( corba-test corba-test )
-      SET(ORO_EXTRA_TESTS "corba-test")
+      list(APPEND ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
 	
     ADD_CUSTOM_TARGET(check ctest -V 
-      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
+      DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
     
     #ADD_DEPENDENCIES(check prep-cpf)
