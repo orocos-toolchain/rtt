@@ -1,7 +1,7 @@
 Source: orocos-rtt
 Priority: optional
 Maintainer: Peter Soetens <peter.soetens@fmtc.be>
-Build-Depends: debhelper (>= 5), cmake (>=2.6.0), libboost-dev | libboost1.35-dev | libboost1.36-dev | libboost1.37-dev, libboost-graph-dev |  libboost-graph1.35-dev | libboost-graph1.36-dev | libboost-graph1.37-dev, libboost-program-options-dev |  libboost-program-options1.35-dev | libboost-program-options1.36-dev | libboost-program-options1.37-dev, libtao-dev, libtao-orbsvcs-dev, tao-idl @BUILD_DEPS@
+Build-Depends: debhelper (>= 5), cmake (>=2.6.0), libboost-dev | libboost1.35-dev | libboost1.36-dev | libboost1.37-dev, libboost-graph-dev |  libboost-graph1.35-dev | libboost-graph1.36-dev | libboost-graph1.37-dev, libboost-program-options-dev |  libboost-program-options1.35-dev | libboost-program-options1.36-dev | libboost-program-options1.37-dev,  libboost-thread-dev | libboost-thread1.35-dev | libboost-thread1.36-dev | libboost-thread1.37-dev,  libboost-test-dev | libboost-test1.35-dev | libboost-test1.36-dev | libboost-test1.37-dev,libtao-dev, libtao-orbsvcs-dev, tao-idl @BUILD_DEPS@
 Standards-Version: 3.7.2
 Section: libs
 
