@@ -268,6 +268,9 @@ if (ENABLE_CORBA)
               SET(CORBA_TAO_HAS_MESSAGING 1)
             endif()
 
+	    # Including a TAO header is sufficient to depend on this library.
+	    set(CORBA_USER_LINK_LIBS TAO_PortableServer)
+
         ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
         INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
