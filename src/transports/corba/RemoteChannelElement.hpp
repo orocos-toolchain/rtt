@@ -81,34 +81,39 @@ namespace RTT {
                 mpoa->deactivate_object(oid.in());
             }
 
-            bool read(typename base::ChannelElement<T>::reference_t sample)
+            FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
             {
                 // try to read locally first
-                if (base::ChannelElement<T>::read(sample))
-                    return true;
+                FlowStatus fs;
+                CFlowStatus cfs;
+                if ( (fs = base::ChannelElement<T>::read(sample)) )
+                    return fs;
                 // go through corba
                 CORBA::Any_var remote_value;
                 try
                 {
-                    if (remote_side->read(remote_value))
+                    if ( (cfs = remote_side->read(remote_value) ) )
                     {
                         transport.updateBlob(&remote_value.in(), data_source);
                         sample = data_source->rvalue();
-                        return true;
+                        return (FlowStatus)cfs;
                     }
-                    else return false;
+                    else
+                        return NoData;
                 }
-                catch(CORBA::Exception&) { return false; }
+                catch(CORBA::Exception&) { return NoData; }
             }
 
-            CORBA::Boolean read(::CORBA::Any_out sample)
+            CFlowStatus read(::CORBA::Any_out sample)
             {
-                if (base::ChannelElement<T>::read(data_source->set()))
+                FlowStatus fs;
+                if ( (fs = base::ChannelElement<T>::read(data_source->set())) )
                 {
                     sample = static_cast<CORBA::Any*>(transport.createBlob(data_source).first);
-                    return true;
+                    return (CFlowStatus)fs;
                 }
-                else return false;
+                else
+                    return CNoData;
             }
 
             bool write(typename base::ChannelElement<T>::param_t sample)

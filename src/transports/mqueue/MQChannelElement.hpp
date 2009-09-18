@@ -172,18 +172,18 @@ namespace RTT
              * @param sample stores the resulting data sample.
              * @return true if an item could be read.
              */
-            bool read(typename base::ChannelElement<T>::reference_t sample)
+            FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
             {
                 int bytes = 0;
                 if ( (bytes = mq_receive(mqdes, buf, max_size, 0)) == -1 ) {
-                    return false;
+                    return NoData;
                 }
                 //assert( bytes == mtransport.blobSize() ); //size may differ in complex types.
                 if ( mtransport.updateBlob((void*)buf, data_source) ) {
                     sample = data_source->get();
-                    return true;
+                    return NewData;
                 }
-                return false;
+                return NoData;
             }
 
             /**

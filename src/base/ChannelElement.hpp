@@ -5,6 +5,16 @@
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
 
+namespace RTT {
+    /**
+     * Returns the status of a data flow read.
+     * NoData means that the channel is disconnected or never written to.
+     * NewData means that the returned data is new data.
+     * OldData means that the returned data was already read.
+     */
+    enum FlowStatus { NoData = 0, NewData = 1, OldData = 2};
+}
+
 namespace RTT { namespace base {
 
 
@@ -54,12 +64,13 @@ namespace RTT { namespace base {
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        virtual bool read(reference_t sample)
+        virtual FlowStatus read(reference_t sample)
         {
             typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->input);
             if (input)
                 return input->read(sample);
-            else return false;
+            else
+                return NoData;
         }
     };
 }}

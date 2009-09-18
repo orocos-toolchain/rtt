@@ -11,6 +11,7 @@ module RTT
 {
   module corba
   {
+    enum CFlowStatus { CNoData, CNewData, COldData };
     enum CConnectionModel { CData, CBuffer };
     enum CLockPolicy { CLocked, CLockFree };
     struct CConnPolicy
@@ -28,7 +29,7 @@ module RTT
     interface CChannelElement
     {
         void setRemoteSide(in CChannelElement writer);
-        boolean read(out any sample);
+        CFlowStatus read(out any sample);
         boolean write(in any sample);
         boolean remoteSignal();
         /**

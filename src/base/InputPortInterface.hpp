@@ -54,7 +54,7 @@ namespace RTT
          *
          * \a source has to be an assignable data source
          */
-        virtual bool read(DataSourceBase::shared_ptr source);
+        virtual FlowStatus read(DataSourceBase::shared_ptr source);
 
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect();

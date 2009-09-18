@@ -3,6 +3,7 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/BufferInterface.hpp"
+#include "../internal/DataSources.hpp"
 
 namespace RTT { namespace internal {
 
@@ -12,13 +13,14 @@ namespace RTT { namespace internal {
     class ChannelBufferElement : public base::ChannelElement<T>
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
-
+        typename internal::AssignableDataSource<T>::shared_ptr last;
+        bool written;
     public:
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
         ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
-            : buffer(buffer) {}
+            : buffer(buffer), last ( new internal::ValueDataSource<T>() ), written(false) {}
  
         /** Appends a sample at the end of the FIFO
          *
@@ -26,6 +28,7 @@ namespace RTT { namespace internal {
          */
         virtual bool write(param_t sample)
         {
+            written = true;
             if (buffer->Push(sample))
                 return this->signal();
             return true;
@@ -35,8 +38,18 @@ namespace RTT { namespace internal {
          *
          * @return false if the FIFO was empty, and true otherwise
          */
-        virtual bool read(reference_t sample)
-        { return buffer->Pop(sample); }
+        virtual FlowStatus read(reference_t sample)
+        {
+            if ( buffer->Pop(sample) ) {
+                last->set(sample);
+                return NewData;
+            }
+            if (written) {
+                sample = last->get();
+                return OldData;
+            }
+            return NoData;
+        }
 
         /** Removes all elements in the FIFO. After a call to clear(), read()
          * will always return false (provided write() has not been called in the

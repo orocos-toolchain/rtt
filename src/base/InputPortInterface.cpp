@@ -66,7 +66,7 @@ void InputPortInterface::clearInputChannel()
     this->channel = 0;
 }
 
-bool InputPortInterface::read(DataSourceBase::shared_ptr source)
+FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const

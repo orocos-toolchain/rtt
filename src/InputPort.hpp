@@ -11,7 +11,6 @@
 
 namespace RTT
 {
-
     /**
      * A component's data input port. An Orocos input port is used to receive
      * data samples from a distant publisher. The InputPort is read() and returns
@@ -34,14 +33,14 @@ namespace RTT
 
         ~InputPort() { delete data_source; }
 
-        bool read(base::DataSourceBase::shared_ptr source)
+        FlowStatus read(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (! ds)
             {
                 log(Error) << "trying to read to an incompatible data source" << endlog();
-                return false;
+                return NoData;
             }
             return read(ds->set());
         }
@@ -51,12 +50,13 @@ namespace RTT
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        bool read(typename base::ChannelElement<T>::reference_t sample)
+        FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
         {
             typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >(this->channel);
             if (input)
                 return input->read(sample);
-            else return false;
+            else
+                return NoData;
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -102,7 +102,7 @@ namespace RTT
         {
             internal::TaskObject* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef bool (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
+            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             ReadSample read_m = &InputPort<T>::read;
             object->methods()->addMethod( method("read", read_m, this),
                     "Reads a sample from the port.",

@@ -70,7 +70,7 @@ void MQueueTest::testPortDataConnection()
     double value = 0;
 
     // Check if no-data works
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK( NoData == mr2->read(value) );
 
     // Check if writing works (including signalling)
     ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
@@ -79,6 +79,7 @@ void MQueueTest::testPortDataConnection()
     ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 2.0, value );
+    BOOST_CHECK( OldData == mr2->read(value) );
 }
 
 void MQueueTest::testPortBufferConnection()
@@ -91,7 +92,7 @@ void MQueueTest::testPortBufferConnection()
     double value = 0;
 
     // Check if no-data works
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK( NoData == mr2->read(value) );
 
     // Check if writing works
     ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
@@ -104,7 +105,7 @@ void MQueueTest::testPortBufferConnection()
     BOOST_CHECK_EQUAL( 2.0, value );
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 3.0, value );
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK( OldData == mr2->read(value) );
 }
 
 void MQueueTest::testPortDisconnected()
@@ -250,6 +251,61 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
     mw1->disconnect();
     mr2->disconnect();
     testPortDisconnected();
+}
+
+BOOST_AUTO_TEST_CASE( testPortStreamsTimeout )
+{
+    // Create a default policy specification
+    ConnPolicy policy;
+    policy.type = ConnPolicy::DATA;
+    policy.init = false;
+    policy.lock_policy = ConnPolicy::LOCK_FREE;
+    policy.size = 0;
+    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
+
+    // Test creating an input stream without an output stream available.
+    policy.type = ConnPolicy::DATA;
+    policy.pull = false;
+    policy.name_id = "/data1";
+    BOOST_CHECK( mr2->createStream( policy ) == false );
+    BOOST_CHECK( mr2->connected() == false );
+    mr2->disconnect();
+
+    policy.type = ConnPolicy::BUFFER;
+    policy.pull = false;
+    policy.size = 10;
+    policy.name_id = "/buffer1";
+    BOOST_CHECK( mr2->createStream( policy ) == false );
+    BOOST_CHECK( mr2->connected() == false );
+    mr2->disconnect();
+}
+
+
+BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
+{
+    // Create a default policy specification
+    ConnPolicy policy;
+    policy.type = ConnPolicy::DATA;
+    policy.init = false;
+    policy.lock_policy = ConnPolicy::LOCK_FREE;
+    policy.size = 0;
+    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
+
+    // Test creating an input stream without an output stream available.
+    policy.type = ConnPolicy::DATA;
+    policy.pull = false;
+    policy.name_id = "data1"; // name must start with '/'
+    BOOST_CHECK( mr2->createStream( policy ) == false );
+    BOOST_CHECK( mr2->connected() == false );
+    mr2->disconnect();
+
+    policy.type = ConnPolicy::BUFFER;
+    policy.pull = false;
+    policy.size = 10;
+    policy.name_id = "buffer1";
+    BOOST_CHECK( mr2->createStream( policy ) == false );
+    BOOST_CHECK( mr2->connected() == false );
+    mr2->disconnect();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
