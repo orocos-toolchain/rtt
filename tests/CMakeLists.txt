@@ -1,3 +1,6 @@
+
+Include(AddUnitTest.cmake)
+
 IF (BUILD_TESTING OR ENABLE_TESTS)
 
    find_package(Boost 1.32 COMPONENTS unit_test_framework REQUIRED)
@@ -6,8 +9,8 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   find_package(Boost 1.32 COMPONENTS thread REQUIRED)
-   SET(TEST_LIBRARIES ${Boost_THREAD_LIBRARY})
+   find_package(Boost 1.32 COMPONENTS thread serialization REQUIRED)
+   SET(TEST_LIBRARIES ${Boost_THREAD_LIBRARY}  ${Boost_SERIALIZATION_LIBRARY})
 
     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
     INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
@@ -163,9 +166,11 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
       SET(ORO_EXTRA_TESTS "corba-mqueue-test")
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
     
-    ADD_CUSTOM_TARGET(check ctest -V 
-      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+    ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
+    
+    #ADD_CUSTOM_TARGET(check ctest -V 
+    #  DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
+    #    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
     
     #ADD_DEPENDENCIES(check prep-cpf)
 ENDIF()
