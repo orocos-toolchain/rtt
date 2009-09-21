@@ -1,7 +1,7 @@
 
 
-#ifndef BINARY_OBJECT_ARCHIVE_HPP_
-#define BINARY_OBJECT_ARCHIVE_HPP_
+#ifndef BINARY_DATA_ARCHIVE_HPP_
+#define BINARY_DATA_ARCHIVE_HPP_
 
 // (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // (C) Copyright 2009 Peter Soetens - http://www.thesourceworks.com .
@@ -13,7 +13,7 @@
 
 
 /**
- * @file binary_object_archive.hpp
+ * @file binary_data_archive.hpp
  *
  * This file implements a 'level 2' binary archiver of serializable objects.
  *
@@ -47,12 +47,13 @@ namespace boost
         /**
          * This archive is capable of loading objects of
          * serialization level 1 and 2 from a binary, non-portable format.
-         * @see binary_object_oarchive
+         * @see binary_data_oarchive
          * @see
          */
-        class binary_object_iarchive
+        class binary_data_iarchive
         {
             std::streambuf& m_sb;
+            int data_read;
         public:
             typedef char Elem;
 
@@ -69,8 +70,8 @@ namespace boost
              * Constructor from a standard output stream.
              * @param os The stream to serialize from.
              */
-            binary_object_iarchive(std::streambuf& bsb) :
-                m_sb(bsb)
+            binary_data_iarchive(std::streambuf& bsb) :
+                m_sb(bsb), data_read(0)
             {
             }
 
@@ -78,8 +79,8 @@ namespace boost
              * Constructor from a standard stream buffer.
              * @param os The buffer to serialize from.
              */
-            binary_object_iarchive(std::istream& is) :
-                m_sb(*is.rdbuf())
+            binary_data_iarchive(std::istream& is) :
+                m_sb(*is.rdbuf()), data_read(0)
             {
             }
 
@@ -88,7 +89,6 @@ namespace boost
              * @return This library's version.
              */
             unsigned int get_library_version() { return 0; }
-
 
             /**
              * Loading Archive Concept::reset_object_address(v,u)
@@ -127,7 +127,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_iarchive &operator>>(T &t){
+            binary_data_iarchive &operator>>(T &t){
                     return load_a_type(t, boost::mpl::bool_<serialization::implementation_level<T>::value == serialization::primitive_type>() );
             }
 
@@ -137,7 +137,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_iarchive &operator&(T &t){
+            binary_data_iarchive &operator&(T &t){
                     return this->operator>>(t);
             }
 
@@ -173,6 +173,7 @@ namespace boost
                     std::memcpy(static_cast<char*> (address) + (count - s), &t,
                             s);
                 }
+                data_read += count;
             }
 
             /**
@@ -181,7 +182,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_iarchive &load_a_type(T &t,boost::mpl::true_){
+            binary_data_iarchive &load_a_type(T &t,boost::mpl::true_){
                   load_binary(&t, sizeof(T));
                   return *this;
             }
@@ -192,7 +193,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_iarchive &load_a_type(T &t,boost::mpl::false_){
+            binary_data_iarchive &load_a_type(T &t,boost::mpl::false_){
                 archive::load(*this, t);
                 return *this;
             }
@@ -223,16 +224,21 @@ namespace boost
                         * sizeof(ValueType));
             }
 
+            /**
+             * Helper method to say how much we read.
+             */
+            int getArchiveSize() { return data_read; }
         };
 
         /**
          * This archive is capable of saving objects of serialization level 1 and 2
          * in a binary, non-portable format.
-         * @see binary_object_iarchive  
+         * @see binary_data_iarchive  
          */
-        class binary_object_oarchive
+        class binary_data_oarchive
         {
             std::streambuf & m_sb;
+            int data_written;
         public:
             typedef char Elem;
             /**
@@ -248,8 +254,8 @@ namespace boost
              * Constructor from a standard output stream.
              * @param os The stream to serialize to
              */
-            binary_object_oarchive(std::ostream& os) :
-                m_sb(*os.rdbuf())
+            binary_data_oarchive(std::ostream& os) :
+                m_sb(*os.rdbuf()), data_written(0)
             {
             }
 
@@ -257,8 +263,8 @@ namespace boost
              * Constructor from a standard stream buffer.
              * @param os The buffer to serialize to.
              */
-            binary_object_oarchive(std::streambuf& sb) :
-                m_sb(sb)
+            binary_data_oarchive(std::streambuf& sb) :
+                m_sb(sb), data_written(0)
             {
             }
 
@@ -293,7 +299,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_oarchive &operator<<(T const &t){
+            binary_data_oarchive &operator<<(T const &t){
                     return save_a_type(t,boost::mpl::bool_< serialization::implementation_level<T>::value == serialization::primitive_type>() );
             }
 
@@ -303,7 +309,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_oarchive &operator&(T const &t){
+            binary_data_oarchive &operator&(T const &t){
                     return this->operator<<(t);
             }
 
@@ -322,6 +328,7 @@ namespace boost
                     boost::serialization::throw_exception(
                             boost::archive::archive_exception(
                                     boost::archive::archive_exception::stream_error));
+                data_written += count;
             }
 
             /**
@@ -330,7 +337,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_oarchive &save_a_type(T const &t,boost::mpl::true_){
+            binary_data_oarchive &save_a_type(T const &t,boost::mpl::true_){
                   save_binary(&t, sizeof(T));
                   return *this;
             }
@@ -341,7 +348,7 @@ namespace boost
              * @return *this
              */
             template<class T>
-            binary_object_oarchive &save_a_type(T const &t,boost::mpl::false_){
+            binary_data_oarchive &save_a_type(T const &t,boost::mpl::false_){
                   archive::save(*this, t);
                   return *this;
             }
@@ -372,8 +379,12 @@ namespace boost
                         * sizeof(ValueType));
             }
 
+            /**
+             * Helper method to say how much we wrote.
+             */
+            int getArchiveSize() { return data_written; }
         };
     }
 }
 
-#endif /* BINARY_OBJECT_ARCHIVE_HPP_ */
+#endif /* BINARY_DATA_ARCHIVE_HPP_ */
