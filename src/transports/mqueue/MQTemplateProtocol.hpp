@@ -15,6 +15,9 @@ namespace RTT
   {
       /**
        * For each transportable type T, specify the conversion functions.
+       * @warning This can only be used if T is a trivial type without
+       * meaningful (copy) constructor. For all other cases, or in doubt,
+       * use the MQSerializationProtocol class.
        *
        */
       template<class T>
@@ -47,6 +50,16 @@ namespace RTT
               internal::AssignableDataSource<T>* d = internal::AdaptAssignableDataSource<T>()( source );
               if ( d )
                   return std::make_pair((void*) &(d->set()), int(sizeof(T)));
+              return std::make_pair((void*)0,int(0));
+          }
+
+          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
+          {
+              internal::AssignableDataSource<T>* d = internal::AdaptAssignableDataSource<T>()( source );
+              if ( d ) {
+                  memcpy(blob, (void*) &(d->set()),  int(sizeof(T)) );
+                  return std::make_pair( blob, int(sizeof(T)) );
+              }
               return std::make_pair((void*)0,int(0));
           }
 

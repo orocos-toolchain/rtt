@@ -328,7 +328,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
 }
 
 // standard constructor
-CChannelElement_i::CChannelElement_i(RTT::types::TypeTransporter const& transport,
+CChannelElement_i::CChannelElement_i(RTT::corba::CorbaTypeTransporter const& transport,
 	  PortableServer::POA_ptr poa)
     : transport(transport)
     , mpoa(PortableServer::POA::_duplicate(poa)) {}

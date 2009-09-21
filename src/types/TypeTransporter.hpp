@@ -65,16 +65,6 @@ namespace RTT
             virtual ~TypeTransporter() {}
 
             /**
-             * Create an transportable object for a \a protocol which contains the value of \a source.
-             */
-            virtual std::pair<void*,int> createBlob(base::DataSourceBase::shared_ptr source) const = 0;
-
-            /**
-             * Update \a target with the contents of \a blob which is an object of a \a protocol.
-             */
-            virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const = 0;
-
-            /**
              * Create a internal::DataSource which is a proxy for a remote server object.
              * Used to read/write remote attributes, properties and general data over a network.
              */

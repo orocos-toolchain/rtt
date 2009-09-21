@@ -45,6 +45,7 @@
 #include "../../base/ActionInterface.hpp"
 #include "../../scripting/CommandBinary.hpp"
 #include "CorbaConversion.hpp"
+#include "CorbaTypeTransporter.hpp"
 #include <cassert>
 
 namespace RTT
@@ -83,11 +84,16 @@ namespace RTT
     {
         corba::CExpression_var mexpr;
         mutable typename internal::DataSource<T>::value_t last_value;
+        CorbaTypeTransporter* ctp;
+
     public:
         CORBAExpression( corba::CExpression_ptr expr )
             : mexpr( corba::CExpression::_duplicate( expr ) ), last_value()
         {
             assert( !CORBA::is_nil(mexpr) );
+            types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+            ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+            assert(ctp);
         }
 
         void* server(int p, void* arg)
@@ -112,7 +118,7 @@ namespace RTT
             CORBA::Any_var res = mexpr->get();
             internal::ReferenceDataSource<T> rds(last_value);
             rds.ref();
-            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
+            if ( ctp->updateFromAny(&res.in(),&rds ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAExpression to remote value!"<<Logger::endl;
             return last_value;
         }
@@ -200,6 +206,7 @@ namespace RTT
         typedef typename internal::AssignableDataSource<T>::value_t value_t;
         corba::CAssignableExpression_var mexpr;
         typename internal::AssignableDataSource<value_t>::shared_ptr storage;
+        CorbaTypeTransporter* ctp;
         //mutable typename internal::DataSource<T>::value_t last_value;
     public:
         CORBAAssignableExpression( corba::CAssignableExpression_ptr expr )
@@ -207,6 +214,9 @@ namespace RTT
         {
             storage = types::BuildType<value_t>::Value();
             assert( expr );
+            types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+            ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+            assert(ctp);
         }
 
         void* server(int p, void* arg)
@@ -236,7 +246,7 @@ namespace RTT
             CORBA::Any_var res = mexpr->get();
             internal::ReferenceDataSource<T> rds( storage->set() );
             rds.ref();
-            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
+            if ( ctp->updateFromAny(&res.in(), &rds ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAAssignableExpression to remote value!"<<Logger::endl;
             return storage->rvalue();
         }
@@ -244,7 +254,7 @@ namespace RTT
         virtual void set( typename internal::AssignableDataSource<T>::param_t t ) {
             internal::ValueDataSource<T> vds(t);
             vds.ref();
-            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
+            CORBA::Any_var toset = ctp->createAny(&vds);
             mexpr->set( toset.in() );
             storage->set( t );
         }
@@ -257,7 +267,7 @@ namespace RTT
         {
             internal::ValueDataSource<T> vds( storage->value() );
             vds.ref();
-            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
+            CORBA::Any_var toset = ctp->createAny(&vds);
             mexpr->set( toset.in() );
         }
 

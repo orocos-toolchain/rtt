@@ -39,9 +39,9 @@
 #include <boost/config.hpp>
 #include <boost/mpl/bool.hpp>
 
-namespace boost
+namespace RTT
 {
-    namespace archive
+    namespace marsh
     {
 
         /**
@@ -60,11 +60,11 @@ namespace boost
             /**
              * Loading Archive Concept::is_loading
              */
-            typedef mpl::bool_<true> is_loading;
+            typedef boost::mpl::bool_<true> is_loading;
             /**
              * Loading Archive Concept::is_saving
              */
-            typedef mpl::bool_<false> is_saving;
+            typedef boost::mpl::bool_<false> is_saving;
 
             /**
              * Constructor from a standard output stream.
@@ -108,7 +108,7 @@ namespace boost
              * @return
              */
             template<class T>
-            const detail::basic_pointer_iserializer *
+            const boost::archive::detail::basic_pointer_iserializer *
             register_type(T * = NULL) {return 0;}
 
             /**
@@ -118,7 +118,7 @@ namespace boost
              */
             void load_object(
                 void *t,
-                const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ detail::basic_iserializer & bis
+                const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ boost::archive::detail::basic_iserializer & bis
             ) {}
 
             /**
@@ -128,7 +128,7 @@ namespace boost
              */
             template<class T>
             binary_data_iarchive &operator>>(T &t){
-                    return load_a_type(t, boost::mpl::bool_<serialization::implementation_level<T>::value == serialization::primitive_type>() );
+                    return load_a_type(t, boost::mpl::bool_<boost::serialization::implementation_level<T>::value == boost::serialization::primitive_type>() );
             }
 
             /**
@@ -194,7 +194,7 @@ namespace boost
              */
             template<class T>
             binary_data_iarchive &load_a_type(T &t,boost::mpl::false_){
-                archive::load(*this, t);
+                boost::archive::load(*this, t);
                 return *this;
             }
 
@@ -239,32 +239,41 @@ namespace boost
         {
             std::streambuf & m_sb;
             int data_written;
+            bool mdo_save;
         public:
             typedef char Elem;
             /**
              * Saving Archive Concept::is_loading
              */
-            typedef mpl::bool_<false> is_loading;
+            typedef boost::mpl::bool_<false> is_loading;
             /**
              * Saving Archive Concept::is_saving
              */
-            typedef mpl::bool_<true> is_saving;
+            typedef boost::mpl::bool_<true> is_saving;
 
             /**
              * Constructor from a standard output stream.
              * @param os The stream to serialize to
+             * @param do_save Set to false to not actually write nor use
+             * the given ostream. After a save operation, only the counter
+             * for getArchiveSize() will have increased. Use this to know
+             * in advance how much space you will need.
              */
-            binary_data_oarchive(std::ostream& os) :
-                m_sb(*os.rdbuf()), data_written(0)
+            binary_data_oarchive(std::ostream& os,bool do_save = true) :
+                m_sb(*os.rdbuf()), data_written(0), mdo_save(do_save)
             {
             }
 
             /**
              * Constructor from a standard stream buffer.
              * @param os The buffer to serialize to.
+             * @param do_save Set to false to not actually write nor use
+             * the given ostream. After a save operation, only the counter
+             * for getArchiveSize() will have increased. Use this to know
+             * in advance how much space you will need.
              */
-            binary_data_oarchive(std::streambuf& sb) :
-                m_sb(sb), data_written(0)
+            binary_data_oarchive(std::streambuf& sb,bool do_save = true) :
+                m_sb(sb), data_written(0), mdo_save(do_save)
             {
             }
 
@@ -280,7 +289,7 @@ namespace boost
              * @return
              */
             template<class T>
-            const detail::basic_pointer_iserializer *
+            const boost::archive::detail::basic_pointer_iserializer *
             register_type(T * = NULL) {return 0;}
 
             /**
@@ -290,7 +299,7 @@ namespace boost
              */
             void save_object(
                 const void *x,
-                const detail::basic_oserializer & bos
+                const boost::archive::detail::basic_oserializer & bos
             ) {}
 
             /**
@@ -300,7 +309,7 @@ namespace boost
              */
             template<class T>
             binary_data_oarchive &operator<<(T const &t){
-                    return save_a_type(t,boost::mpl::bool_< serialization::implementation_level<T>::value == serialization::primitive_type>() );
+                    return save_a_type(t,boost::mpl::bool_< boost::serialization::implementation_level<T>::value == boost::serialization::primitive_type>() );
             }
 
             /**
@@ -322,12 +331,14 @@ namespace boost
             {
                 // figure number of elements to output - round up
                 count = (count + sizeof(Elem) - 1) / sizeof(Elem);
-                std::streamsize scount = m_sb.sputn(
-                        static_cast<const Elem *> (address), count);
-                if (count != static_cast<std::size_t> (scount))
-                    boost::serialization::throw_exception(
-                            boost::archive::archive_exception(
-                                    boost::archive::archive_exception::stream_error));
+                if (mdo_save) {
+                    std::streamsize scount = m_sb.sputn(
+                            static_cast<const Elem *> (address), count);
+                    if (count != static_cast<std::size_t> (scount))
+                        boost::serialization::throw_exception(
+                                boost::archive::archive_exception(
+                                        boost::archive::archive_exception::stream_error));
+                }
                 data_written += count;
             }
 
@@ -349,7 +360,7 @@ namespace boost
              */
             template<class T>
             binary_data_oarchive &save_a_type(T const &t,boost::mpl::false_){
-                  archive::save(*this, t);
+                  boost::archive::save(*this, t);
                   return *this;
             }
 

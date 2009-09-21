@@ -48,7 +48,7 @@
 #include "CorbaConversion.hpp"
 #include "../../base/ChannelElement.hpp"
 #include "../../internal/DataSources.hpp"
-#include "../../types/TypeTransporter.hpp"
+#include "CorbaTypeTransporter.hpp"
 #include <list>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -71,12 +71,12 @@ namespace RTT {
         {
         protected:
             CChannelElement_var remote_side;
-            RTT::types::TypeTransporter const& transport;
+            RTT::corba::CorbaTypeTransporter const& transport;
             PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
-            CChannelElement_i(types::TypeTransporter const& transport,
+            CChannelElement_i(corba::CorbaTypeTransporter const& transport,
 			  PortableServer::POA_ptr poa);
             virtual ~CChannelElement_i();
 

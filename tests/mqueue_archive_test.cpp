@@ -3,11 +3,14 @@
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
-#include <marsh/binary_data_archive.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include <rtt-fwd.hpp>
+#include <marsh/binary_data_archive.hpp>
 
 using namespace std;
 using namespace boost::archive;
+using namespace RTT::detail;
 namespace io = boost::iostreams;
 
 class MQueueArchiveTest
@@ -48,6 +51,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     out << d; // +0 alloc
     out << c; // +0 alloc
 
+    int stored = out.getArchiveSize();
     d = 0.0;
     c.resize(10,0.0);
 
@@ -60,6 +64,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     BOOST_CHECK_EQUAL( c.size(), 10);
     for(int i=0; i != 10; ++i)
         BOOST_CHECK_CLOSE( c[i], 9.99, 0.01);
+    BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

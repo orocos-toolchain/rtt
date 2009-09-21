@@ -61,24 +61,24 @@ namespace RTT {
          * Specifically, if the type is UnknownType.
          */
         class CorbaFallBackProtocol
-            : public TypeTransporter
+            : public CorbaTypeTransporter
         {
             bool warn;
         public:
             CorbaFallBackProtocol(bool do_warn = true) : warn(do_warn) {}
-            virtual std::pair<void*,int> createBlob(DataSourceBase::shared_ptr source) const
+            virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const
             {
                 if (warn) {
                     Logger::In in("CorbaFallBackProtocol");
                     log(Error) << "Could not send data of type '"<< source->getTypeName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
                 }
-                return std::pair<void*,int>( (void*)new CORBA::Any(),0);
+                return new CORBA::Any();
             }
 
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const
+            virtual bool updateFromAny(const CORBA::Any* blob, DataSourceBase::shared_ptr target) const
             {
                 if (warn) {
                     Logger::In in("CorbaFallBackProtocol");
@@ -90,6 +90,20 @@ namespace RTT {
             virtual ChannelElementBase* createChannel(base::PortInterface* port, string& name_id, int size_hint, bool is_sender) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Channel for port '"<<port->getName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+            }
+
+            virtual CChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create Channel : data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+
+            }
+
+            virtual base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port,
+                internal::ConnPolicy const& policy) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
             }
 

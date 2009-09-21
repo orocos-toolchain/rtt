@@ -94,7 +94,7 @@ namespace RTT {
                 {
                     if ( (cfs = remote_side->read(remote_value) ) )
                     {
-                        transport.updateBlob(&remote_value.in(), data_source);
+                        transport.updateFromAny(&remote_value.in(), data_source);
                         sample = data_source->rvalue();
                         return (FlowStatus)cfs;
                     }
@@ -109,7 +109,7 @@ namespace RTT {
                 FlowStatus fs;
                 if ( (fs = base::ChannelElement<T>::read(data_source->set())) )
                 {
-                    sample = static_cast<CORBA::Any*>(transport.createBlob(data_source).first);
+                    sample = transport.createAny(data_source);
                     return (CFlowStatus)fs;
                 }
                 else
@@ -123,7 +123,7 @@ namespace RTT {
                 if (base::ChannelElement<T>::write(sample))
                     return true;
                 // go through corba
-                CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source).first);
+                CORBA::Any_var ret = transport.createAny(data_source);
                 assert( remote_side.in() != 0 );
                 try
                 {
@@ -138,7 +138,7 @@ namespace RTT {
 
             bool write(const ::CORBA::Any& sample)
             {
-                transport.updateBlob(&sample, data_source);
+                transport.updateFromAny(&sample, data_source);
                 return base::ChannelElement<T>::write(data_source->rvalue());
             }
 

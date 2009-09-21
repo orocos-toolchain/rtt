@@ -102,24 +102,23 @@ namespace RTT
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
            */
-          virtual std::pair<void*,int> createBlob( base::DataSourceBase::shared_ptr source) const
+          virtual CORBA::Any* createAny( base::DataSourceBase::shared_ptr source) const
           {
               internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
               if ( d )
-                  return std::make_pair((void*)AnyConversion<PropertyType>::createAny( d->value() ), 0);
-              return std::make_pair((void*)(0),int(0));
+                  return AnyConversion<PropertyType>::createAny( d->value());
+              return 0;
           }
 
           /**
-           * Update \a target with the contents of \a blob which is an object of a \a protocol.
+           * Update \a target with the contents of \a any which is an object of a \a protocol.
            */
-          virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const
+          virtual bool updateFromAny(const CORBA::Any* any, base::DataSourceBase::shared_ptr target) const
           {
             //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
             //Only narrow.
 //             internal::AssignableDataSource<T>* ad = internal::AdaptAssignableDataSource<T>()( target );
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
-            const CORBA::Any* any = static_cast<const CORBA::Any*>(blob);
             if ( ad ) {
                 PropertyType value;
                 if (AnyConversion<PropertyType>::update(*any, value ) ) {
