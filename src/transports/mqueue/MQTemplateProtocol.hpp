@@ -70,7 +70,12 @@ namespace RTT
           }
 
           virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& name_id, int size_hint, bool is_sender) const {
-              return new MQChannelElement<T>(port, *this, name_id, size_hint, is_sender);
+              try {
+                  return new MQChannelElement<T>(port, *this, name_id, size_hint, is_sender);
+              } catch(std::exception& e) {
+                  log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
+              }
+              return 0;
           }
 
           /**

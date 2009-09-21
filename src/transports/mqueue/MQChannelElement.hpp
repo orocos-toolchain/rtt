@@ -64,10 +64,11 @@ namespace RTT
                 mattr.mq_msgsize = max_size;
 
                 mqdes = mq_open(name_id.c_str(), O_CREAT | O_RDWR | O_NONBLOCK, S_IREAD | S_IWRITE, &mattr);
-                log(Debug) << "Opening '"<< name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
 
                 if (mqdes < 0)
                     throw std::runtime_error("Could not open message queue");
+
+                log(Debug) << "Opened '"<< name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
 
                 buf = new char[ max_size];
                 memset(buf,0,max_size); // necessary to trick valgrind
