@@ -24,26 +24,26 @@ namespace RTT
     class InputPortSource : public DataSource<T>
     {
         InputPort<T>& port;
+        mutable T mvalue;
 
     public:
         InputPortSource(InputPort<T>& port)
-            : port(port) { }
+            : port(port), mvalue() { }
 
         void reset() { port.clear(); }
         bool evaluate() const
         {
-            T result;
-            return port.read(result);
+            return port.read(mvalue) == NewData;
         }
 
         typename DataSource<T>::result_t value() const
-        { return get(); }
+        { return mvalue; }
         typename DataSource<T>::result_t get() const
         {
-            T result;
-            if (port.read(result))
-                return result;
-            else return T();
+            if ( evaluate() )
+                return value();
+            else
+                return T();
         }
         DataSource<T>* clone() const
         { return new InputPortSource<T>(port); }
