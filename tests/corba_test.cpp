@@ -116,7 +116,7 @@ void CorbaTest::testPortDataConnection()
     double value = 0;
 
     // Check if no-data works
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK_EQUAL( mr2->read(value), NoData );
 
     // Check if writing works (including signalling)
     ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
@@ -137,7 +137,7 @@ void CorbaTest::testPortBufferConnection()
     double value = 0;
 
     // Check if no-data works
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK_EQUAL( mr2->read(value), NoData );
 
     // Check if writing works
     ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
@@ -150,7 +150,7 @@ void CorbaTest::testPortBufferConnection()
     BOOST_CHECK_EQUAL( 2.0, value );
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 3.0, value );
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK_EQUAL( mr2->read(value), OldData );
 }
 
 void CorbaTest::testPortDisconnected()

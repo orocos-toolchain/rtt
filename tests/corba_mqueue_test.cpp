@@ -108,7 +108,7 @@ void CorbaMQueueTest::testPortBufferConnection()
     BOOST_CHECK_EQUAL( 2.0, value );
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 3.0, value );
-    BOOST_CHECK( !mr2->read(value) );
+    BOOST_CHECK_EQUAL( mr2->read(value), OldData );
 }
 
 void CorbaMQueueTest::testPortDisconnected()

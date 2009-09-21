@@ -2,6 +2,9 @@
 Include(AddUnitTest.cmake)
 
 IF (BUILD_TESTING OR ENABLE_TESTS)
+   if (NOT RUNTIME_OUTPUT_DIRECTORY)
+        set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+   endif()
 
    find_package(Boost 1.32 COMPONENTS unit_test_framework REQUIRED)
    IF (OROCOS_TARGET STREQUAL win32)
@@ -35,7 +38,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
 
     # Copy over CPF files.
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf 
-                   ${CMAKE_CURRENT_BINARY_DIR}/property_test_vect.cpf COPYONLY)
+                   ${RUNTIME_OUTPUT_DIRECTORY}/property_test_vect.cpf COPYONLY)
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-dynamic_${OROCOS_TARGET})
@@ -43,7 +46,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( main-test ${CMAKE_CURRENT_BINARY_DIR}/main-test )
+    ADD_TEST( main-test ${RUNTIME_OUTPUT_DIRECTORY}/main-test )
 
     ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
     TARGET_LINK_LIBRARIES( list-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -51,7 +54,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( list-test ${CMAKE_CURRENT_BINARY_DIR}/list-test )
+    ADD_TEST( list-test ${RUNTIME_OUTPUT_DIRECTORY}/list-test )
 
     # repeat for each test 
     if( TESTS_OS_NO_ASM )
@@ -64,7 +67,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( core-test ${CMAKE_CURRENT_BINARY_DIR}/core-test )
+    ADD_TEST( core-test ${RUNTIME_OUTPUT_DIRECTORY}/core-test )
 
     ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -72,7 +75,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( task-test ${CMAKE_CURRENT_BINARY_DIR}/task-test )
+    ADD_TEST( task-test ${RUNTIME_OUTPUT_DIRECTORY}/task-test )
 
     ADD_EXECUTABLE( event-test test-runner.cpp event_test.cpp eventservice_test.cpp )
     TARGET_LINK_LIBRARIES( event-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -80,7 +83,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( event-test ${CMAKE_CURRENT_BINARY_DIR}/event-test )
+    ADD_TEST( event-test ${RUNTIME_OUTPUT_DIRECTORY}/event-test )
 
     ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_2.cpp generictask_test_3.cpp)
     TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -88,7 +91,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( taskcontext-test ${CMAKE_CURRENT_BINARY_DIR}/taskcontext-test )
+    ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
 
     ADD_EXECUTABLE( parser-test test-runner.cpp types_test.cpp template_factory_test.cpp dispatch_test.cpp )
     TARGET_LINK_LIBRARIES( parser-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -96,7 +99,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( parser-test ${CMAKE_CURRENT_BINARY_DIR}/parser-test )
+    ADD_TEST( parser-test ${RUNTIME_OUTPUT_DIRECTORY}/parser-test )
 
     ADD_EXECUTABLE( program-test test-runner.cpp program_test.cpp function_test.cpp )
     TARGET_LINK_LIBRARIES( program-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -104,14 +107,14 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( program-test ${CMAKE_CURRENT_BINARY_DIR}/program-test )
+    ADD_TEST( program-test ${RUNTIME_OUTPUT_DIRECTORY}/program-test )
 
     ADD_EXECUTABLE( state-test test-runner.cpp state_test.cpp )
     TARGET_LINK_LIBRARIES( state-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( state-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( state-test ${CMAKE_CURRENT_BINARY_DIR}/state-test )
+    ADD_TEST( state-test ${RUNTIME_OUTPUT_DIRECTORY}/state-test )
 
     ADD_EXECUTABLE( dev-test test-runner.cpp dev_test.cpp )
     TARGET_LINK_LIBRARIES( dev-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -119,7 +122,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( dev-test ${CMAKE_CURRENT_BINARY_DIR}/dev-test )
+    ADD_TEST( dev-test ${RUNTIME_OUTPUT_DIRECTORY}/dev-test )
 	
     ADD_EXECUTABLE( specactivities-test test-runner.cpp
         specialized_activities.cpp)
@@ -127,7 +130,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
         COMPILE_DEFINITIONS ${OROCOS-RTT_DEFINITIONS} )
-    ADD_TEST( specactivities-test ${CMAKE_CURRENT_BINARY_DIR}/specactivities-test )
+    ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner.cpp corba_test.cpp )
@@ -137,7 +140,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
 	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
 	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
 	   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-      ADD_TEST( corba-test corba-test )
+      ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
       SET(ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
 
@@ -149,7 +152,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-      ADD_TEST( mqueue-test mqueue-test )
+      ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       SET(ORO_EXTRA_TESTS "mqueue-test")
     ENDIF(ENABLE_MQ)
 	
@@ -162,15 +165,15 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-      ADD_TEST( corba-mqueue-test corba-mqueue-test )
+      ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       SET(ORO_EXTRA_TESTS "corba-mqueue-test")
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
     
     ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
     
-    #ADD_CUSTOM_TARGET(check ctest -V 
-    #  DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
-    #    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+    ADD_CUSTOM_TARGET(check ctest -V 
+      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
+        WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
     
     #ADD_DEPENDENCIES(check prep-cpf)
 ENDIF()

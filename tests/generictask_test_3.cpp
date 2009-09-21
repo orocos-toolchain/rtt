@@ -742,14 +742,14 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
         BOOST_CHECK_EQUAL(2, value);
 
         rp.clear();
-        BOOST_CHECK( !rp.read(value) );
+        BOOST_CHECK_EQUAL( rp.read(value), NoData );
         wp.write(10);
         wp.write(20);
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(10, value);
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(20, value);
-        BOOST_CHECK( !rp.read(value) );
+        BOOST_CHECK_EQUAL( rp.read(value), OldData );
     }
 
     // Try disconnecting from the reader this time
@@ -806,7 +806,7 @@ BOOST_AUTO_TEST_CASE(testPortForkedConnections)
     BOOST_CHECK_EQUAL(20, value);
     BOOST_CHECK( rp2.read(value));
     BOOST_CHECK_EQUAL(25, value);
-    BOOST_CHECK( !rp2.read(value));
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData);
 
     // Now removes only the buffer port
     wp.disconnect(rp2);
@@ -845,12 +845,12 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
 
     // Test Methods set/get
     Method<void(double const&)> mset;
-    Method<bool(double&)> mget;
+    Method<FlowStatus(double&)> mget;
 
     mset = tc->getObject("Write")->methods()->getMethod<void(double const&)>("write");
     BOOST_CHECK( mset.ready() );
 
-    mget = tc->getObject("Read")->methods()->getMethod<bool(double&)>("read");
+    mget = tc->getObject("Read")->methods()->getMethod<FlowStatus(double&)>("read");
     BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );
@@ -908,10 +908,21 @@ BOOST_AUTO_TEST_CASE(testPortDataSource)
     BOOST_CHECK(!source->evaluate());
     wp1.write(10);
     wp1.write(20);
+    // value is still null when not get()/evaluate()
+    BOOST_CHECK_EQUAL(0, source->value());
+
+    // read a sample:
+    BOOST_CHECK(source->evaluate());
     BOOST_CHECK_EQUAL(10, source->value());
-    BOOST_CHECK_EQUAL(20, source->value());
-    BOOST_CHECK_EQUAL(0, source->get());
+    BOOST_CHECK_EQUAL(10, source->value());
+
+    // get a sample (=evaluate+value):
+    BOOST_CHECK_EQUAL(20, source->get());
+
+    // buffer empty, but value remains same as old:
     BOOST_CHECK(!source->evaluate());
+    BOOST_CHECK_EQUAL(0, source->get());
+    BOOST_CHECK_EQUAL(20, source->value());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
