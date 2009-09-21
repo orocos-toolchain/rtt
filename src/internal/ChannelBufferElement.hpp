@@ -57,6 +57,7 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         { 
+            written = false;
             buffer->clear();
             base::ChannelElement<T>::clear();
         }
