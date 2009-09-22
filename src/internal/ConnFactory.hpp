@@ -267,6 +267,7 @@ namespace RTT
             if ( type->getProtocol(policy.transport) == 0 ) {
                 log(Error) << "Could not create out-of-band transport for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+                return 0;
             }
 
             // we force the creation of a buffer on input side
@@ -283,6 +284,7 @@ namespace RTT
                     log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id<<endlog();
                 } else {
                     log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
+                    return 0;
                 }
                 ceb_input->setOutput(output_half);
                 output_half = ceb_input;
@@ -295,6 +297,7 @@ namespace RTT
                     log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id <<endlog();
                 } else {
                     log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << output_port.getName()<<endlog();
+                    return 0;
                 }
                 ceb_output->setOutput(output_half);
                 output_half = ceb_output;
