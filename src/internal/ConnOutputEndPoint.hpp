@@ -21,6 +21,11 @@ namespace RTT
             port->setInputChannel(this);
         }
 
+        ~ConnOutputEndpoint()
+        {
+            if (port)
+                port->clearInputChannel();
+        }
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
