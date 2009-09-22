@@ -56,6 +56,7 @@ namespace RTT
             int data_read;
         public:
             typedef char Elem;
+            typedef binary_data_iarchive Archive;
 
             /**
              * Loading Archive Concept::is_loading
@@ -113,13 +114,45 @@ namespace RTT
 
             /**
              * Note: not in LoadArchive concept but required when we use archive::load !
+             * This function is only used when we call archive::load( *this, t);
              * @param x
              * @param bos
              */
             void load_object(
                 void *t,
                 const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ boost::archive::detail::basic_iserializer & bis
-            ) {}
+            ) {
+                assert(false);
+            }
+
+            /**
+             * The standard type loading function. It forwards any type T
+             * to the correct internal load_a_type function.
+             */
+            template<class T>
+            void load_override(T & t, BOOST_PFTO int){
+                load_a_type(t, boost::mpl::bool_<boost::serialization::implementation_level<T>::value == boost::serialization::primitive_type>() );
+                //archive::load(* this->This(), t);
+            }
+
+            /**
+             * These load_override functions are required to handle the nvt<T> cases in the
+             * serialization code. GCC won't compile that code without these overloads.
+             * Others may be required as well and may need to be added later on.
+             */
+#if 0
+            void load_override(const boost::serialization::nvp<boost::serialization::collection_size_type> & t, int){
+                 size_t x=0;
+                 * this >> x;
+                 t.value() = boost::serialization::collection_size_type(x);
+             }
+#endif
+            template<class T>
+            void load_override(const boost::serialization::nvp<T> & t, int){
+                 T x;
+                 * this >> x;
+                 t.value() = x;
+             }
 
             /**
              * Loading Archive Concept::operator>>
@@ -128,7 +161,8 @@ namespace RTT
              */
             template<class T>
             binary_data_iarchive &operator>>(T &t){
-                    return load_a_type(t, boost::mpl::bool_<boost::serialization::implementation_level<T>::value == boost::serialization::primitive_type>() );
+                this->load_override(t, 0);
+                return * this;
             }
 
             /**
@@ -138,7 +172,7 @@ namespace RTT
              */
             template<class T>
             binary_data_iarchive &operator&(T &t){
-                    return this->operator>>(t);
+                return this->operator>>(t);
             }
 
             /**
@@ -194,7 +228,7 @@ namespace RTT
              */
             template<class T>
             binary_data_iarchive &load_a_type(T &t,boost::mpl::false_){
-                boost::archive::load(*this, t);
+                boost::archive::detail::load_non_pointer_type<binary_data_iarchive,T>::load_only::invoke(*this,t);
                 return *this;
             }
 
@@ -300,7 +334,10 @@ namespace RTT
             void save_object(
                 const void *x,
                 const boost::archive::detail::basic_oserializer & bos
-            ) {}
+            ) {
+                assert(false);
+                //(bos.save_object_data)(*this, x);
+            }
 
             /**
              * Saving Archive Concept::operator<<
@@ -360,7 +397,7 @@ namespace RTT
              */
             template<class T>
             binary_data_oarchive &save_a_type(T const &t,boost::mpl::false_){
-                  boost::archive::save(*this, t);
+                  boost::archive::detail::save_non_pointer_type<binary_data_oarchive,T>::save_only::invoke(*this,t);
                   return *this;
             }
 

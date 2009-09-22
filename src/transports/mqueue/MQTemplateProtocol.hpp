@@ -40,12 +40,7 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          /**
-           * Create an transportable object for a \a protocol which contains the value of \a source.
-           * This is a real-time function which does not allocate memory and which requires source
-           * to be an AssignableDataSource.
-           */
-          virtual std::pair<void*,int> createBlob( base::DataSourceBase::shared_ptr source) const
+          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
           {
               internal::AssignableDataSource<T>* d = internal::AdaptAssignableDataSource<T>()( source );
               if ( d )
@@ -53,22 +48,10 @@ namespace RTT
               return std::make_pair((void*)0,int(0));
           }
 
-          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
-          {
-              internal::AssignableDataSource<T>* d = internal::AdaptAssignableDataSource<T>()( source );
-              if ( d ) {
-                  memcpy(blob, (void*) &(d->set()),  int(sizeof(T)) );
-                  return std::make_pair( blob, int(sizeof(T)) );
-              }
-              return std::make_pair((void*)0,int(0));
-          }
-
-          /**
-           * Update \a target with the contents of \a blob which is an object of a \a protocol.
-           */
-          virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const
+          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const
           {
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
+            assert( size == sizeof(T) );
             if ( ad ) {
                 ad->set( *(T*)(blob) );
                 return true;

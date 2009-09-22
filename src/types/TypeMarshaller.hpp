@@ -17,28 +17,31 @@ namespace RTT
     {
 
         /**
-         * Returns the size in bytes of a data sample if it would be transported
-         * using this object. This allows other objects to allocate enough memory
-         * to hold the resulting object.
+         * Objects implementing this interface have the capability to convert data sources
+         * to and from a binary representation.
          */
         template<class T>
         class TypeMarshaller: public RTT::types::TypeTransporter
         {
         public:
-
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
-             * This is a real-time function which does not allocate memory and which requires source
+             * This must be a real-time function which does not allocate memory and which requires source
              * to be an AssignableDataSource.
+             *
+             * @param source The data to be read
+             * @param blob Suggested target memory area to write to. In case the type marshaller does not need
+             * this, it will return an alternative as a first element in the returned std::pair.
+             * @param size The size of the memory area pointed by blob
+             * @return Returns (0,0) if the filling failed, otherwise, points to the filled memory area and the effectively
+             * written size. The returned pointer may differ from \a blob, in case \a blob was not used.
              */
-            virtual std::pair<void*,int> createBlob( base::DataSourceBase::shared_ptr source) const = 0;
-
             virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const = 0;
 
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const = 0;
+            virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const = 0;
 
             /**
              * Returns the size in bytes of a marshalled data element.

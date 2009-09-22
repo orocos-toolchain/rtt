@@ -308,5 +308,67 @@ BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
     mr2->disconnect();
 }
 
+// copied from testPortStreams
+BOOST_AUTO_TEST_CASE( testVectorTransport )
+{
+    // Create a default policy specification
+    ConnPolicy policy;
+    policy.type = ConnPolicy::DATA;
+    policy.init = false;
+    policy.lock_policy = ConnPolicy::LOCK_FREE;
+    policy.size = 0;
+    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
+
+    // Set up an event handler to check if signalling works properly as well
+    Handle hl( mr2->getNewDataOnPortEvent()->setup(
+            boost::bind(&MQueueTest::new_data_listener, this, _1) ) );
+    hl.connect();
+
+    DataFlowInterface* ports  = tc->ports();
+    DataFlowInterface* ports2 = t2->ports();
+
+    std::vector<double> data(20, 3.33);
+    InputPort< std::vector<double> > vin("VIn");
+    OutputPort< std::vector<double> > vout("Vout");
+    ports->addPort(&vin, "input port");
+    ports2->addPort(&vout, "output port");
+
+    // init the output port with a vector of size 20, values 3.33
+    vout.setDataSample( data );
+    data = vout.getLastWrittenValue();
+    for(int i=0; i != 20; ++i)
+        BOOST_CHECK_CLOSE( data[i], 3.33, 0.01);
+
+    policy.type = ConnPolicy::DATA;
+    policy.pull = false;
+    policy.name_id = "/vdata1";
+    BOOST_CHECK( vout.createStream( policy ) );
+    BOOST_CHECK( vin.createStream( policy ) );
+
+    // check that the receiver did not get any data
+    BOOST_CHECK_EQUAL( vin.read(data), NoData);
+
+    // prepare a new data sample, size 10, values 6.66
+    data.clear();
+    data.resize(10, 6.66);
+    for(int i=0; i != data.size(); ++i)
+        BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
+    vout.write( data );
+
+    // prepare data buffer for reception:
+    data.clear();
+    data.resize(20, 0.0);
+    usleep(200000);
+    BOOST_CHECK_EQUAL( vin.read(data), NewData);
+
+    // check if both size and capacity and values are as expected.
+    BOOST_CHECK_EQUAL( data.size(), 10);
+    BOOST_CHECK_EQUAL( data.capacity(), 20);
+    for(int i=0; i != data.size(); ++i)
+        BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
+
+    BOOST_CHECK_EQUAL( vin.read(data), OldData);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
