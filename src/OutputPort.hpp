@@ -51,7 +51,7 @@ namespace RTT
         {
             typename base::ChannelElement<T>::shared_ptr output
                 = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
-            if (output->set_data_sample(sample))
+            if (output->data_sample(sample))
                 return false;
             else
             {
