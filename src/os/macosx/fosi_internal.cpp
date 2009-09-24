@@ -198,7 +198,7 @@ namespace RTT
             // check scheduler first.
             ret = rtos_task_check_scheduler(scheduler);
 
-            if (*priority <= 0){
+            if (*priority < 0){
                 log(Warning) << "Forcing priority ("<<*priority<<") of thread to 0." <<endlog();
                 *priority = 0;
                 ret = -1;
