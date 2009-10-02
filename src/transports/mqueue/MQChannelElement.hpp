@@ -210,7 +210,7 @@ namespace RTT
                     assert(this->output);
                     typename base::ChannelElement<T>::value_t sample;
                     typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
-                    if( this->read(sample) )
+                    if( this->read(sample) && output )
                         return output->write(sample);
                 }
                 return false;
@@ -225,8 +225,10 @@ namespace RTT
             {
                 int bytes = 0;
                 if ( (bytes = mq_receive(mqdes, buf, max_size, 0)) == -1 ) {
+                    //log(Debug) << "Tried read on empty mq!" <<endlog();
                     return NoData;
                 }
+                //log(Debug) << "Got read on mq. bytes:"<< bytes <<endlog();
                 //assert( bytes == mtransport.blobSize() ); //size may differ in complex types.
                 if ( mtransport.updateFromBlob((void*)buf, max_size, data_source) ) {
                     sample = data_source->get();

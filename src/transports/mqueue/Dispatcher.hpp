@@ -71,6 +71,7 @@ namespace RTT {
                 os::MutexLock lock(maplock);
                 for (MQMap::iterator it = mqmap.begin(); it != mqmap.end(); ++it) {
                     if ( FD_ISSET( it->first, &socks) ) {
+                        //log(Debug) << "New data on " << it->first <<endlog();
                         it->second->signal();
                     }
                 }
