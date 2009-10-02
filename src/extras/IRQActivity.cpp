@@ -67,7 +67,7 @@ bool IRQActivity::start()
         return false;
     }
 
-    if (! NonPeriodicActivity::start())
+    if (! Activity::start())
     {
         rt_intr_delete(&m_handle);
         return false;
