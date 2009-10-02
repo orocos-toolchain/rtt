@@ -34,7 +34,9 @@ extern "C"
 {
 #endif
 
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600   // use all Posix features.
+#endif
 
 #include <stdio.h>
 #include <semaphore.h>
