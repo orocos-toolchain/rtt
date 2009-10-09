@@ -34,7 +34,7 @@ namespace RTT
         bool written;
         typename base::DataObjectInterface<T>::shared_ptr last_written_value;
 
-        bool do_write(typename base::ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
+        bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
             typename base::ChannelElement<T>::shared_ptr output
                 = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
@@ -42,12 +42,12 @@ namespace RTT
                 return false;
             else
             {
-                log(Error) << "a channel of " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
                 return true;
             }
         }
 
-        bool do_init(typename base::ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
+        bool do_init(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
             typename base::ChannelElement<T>::shared_ptr output
                 = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
@@ -55,7 +55,7 @@ namespace RTT
                 return false;
             else
             {
-                log(Error) << "a channel of " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
                 return true;
             }
         }
@@ -162,7 +162,7 @@ namespace RTT
                 last_written_value->Set(sample);
             written = true;
 
-            connections.delete_if( boost::bind(
+            cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_init, this, boost::ref(sample), _1)
                     );
         }
@@ -178,7 +178,7 @@ namespace RTT
                 last_written_value->Set(sample);
             written = true;
 
-            connections.delete_if( boost::bind(
+            cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_write, this, boost::ref(sample), _1)
                     );
         }

@@ -8,7 +8,7 @@ namespace RTT {
 
     namespace corba {
 
-        class CChannelElement_i;
+        class CRemoteChannelElement_i;
 
     /**
      * Extends the TypeTransporter in order to allow the creation of
@@ -33,7 +33,7 @@ namespace RTT {
 	     * @param poa The POA to manage the server code.
 	     * @return the created CChannelElement_i.
 	     */
-	    virtual CChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const = 0;
+	    virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const = 0;
 
         virtual base::ChannelElementBase* createChannel( base::PortInterface* /*port*/, std::string& /*name_id*/, int /*size_hint*/, bool /*is_sender*/) const;
 
@@ -49,6 +49,8 @@ namespace RTT {
 	    virtual base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port,
 		    internal::ConnPolicy const& policy) const = 0;
 
+        virtual base::ChannelElementBase* buildInputHalf(base::OutputPortInterface& port,
+            internal::ConnPolicy const& policy) const = 0;
 	};
     }
 }

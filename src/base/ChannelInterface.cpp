@@ -49,6 +49,12 @@ ChannelElementBase::shared_ptr ChannelElementBase::getInput()
 ChannelElementBase::shared_ptr ChannelElementBase::getOutput()
 { return output; }
 
+ChannelElementBase::shared_ptr ChannelElementBase::getInputEndPoint()
+{ return input ? input->getInputEndPoint() : this; }
+
+ChannelElementBase::shared_ptr ChannelElementBase::getOutputEndPoint()
+{ return output ? output->getOutputEndPoint() : this; }
+
 bool ChannelElementBase::inputReady()
 {
     // we go against the data stream

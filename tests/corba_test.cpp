@@ -343,12 +343,12 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     corba::CDataFlowInterface_var ports2 = ts2->server()->ports();
 
     // Test cases that should not connect
-    BOOST_CHECK( !ports->createConnection("mw", ports2, "does_not_exist", policy) );
-    BOOST_CHECK( !ports->createConnection("does_not_exist", ports2, "mr", policy) );
-    BOOST_CHECK( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy) );
-    BOOST_CHECK( !ports->createConnection("mw", ports2, "mw", policy) );
-    BOOST_CHECK( !ports->createConnection("mr", ports2, "mr", policy) );
-    BOOST_CHECK( !ports->createConnection("mr", ports2, "mw", policy) );
+    BOOST_CHECK_THROW( !ports->createConnection("mw", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "mr", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( !ports->createConnection("mw", ports2, "mw", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( !ports->createConnection("mr", ports2, "mr", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( !ports->createConnection("mr", ports2, "mw", policy), CNoSuchPortException );
 
     // WARNING: in the following, there is four configuration tested. There is
     // also three different ways to disconnect. We need to test those three
@@ -358,14 +358,14 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.pull = false;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortDataConnection();
-    ports->disconnect("mw");
+    ports->disconnectPort("mw");
     testPortDisconnected();
 
     policy.type = RTT::corba::CData;
     policy.pull = true;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortDataConnection();
-    ports2->disconnect("mr");
+    ports2->disconnectPort("mr");
     testPortDisconnected();
 
     policy.type = RTT::corba::CBuffer;
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.size = 3;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortBufferConnection();
-    ports->disconnect("mw");
+    ports->disconnectPort("mw");
     testPortDisconnected();
 
     policy.type = RTT::corba::CBuffer;
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     // connection ...
     mw1->createConnection(*mr1);
     // Remove the remote connection
-    ports->disconnectPort("mw", ports2, "mr");
+    ports->removeConnection("mw", ports2, "mr");
     // Check it is removed
     BOOST_CHECK(mw1->connected());
     BOOST_CHECK(mr1->connected());

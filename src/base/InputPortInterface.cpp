@@ -3,6 +3,7 @@
 #include "OutputPortInterface.hpp"
 #include "../internal/TaskObject.hpp"
 #include "../Method.hpp"
+#include "../Logger.hpp"
 
 using namespace RTT;
 using namespace detail;
@@ -10,14 +11,14 @@ using namespace std;
 
 
 InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
-    : PortInterface(name)
-    , channel(NULL) 
-    , default_policy(default_policy)
-    , new_data_on_port_event(0) {}
+: PortInterface(name)
+  , cmanager(this)
+  , default_policy( default_policy )
+  , new_data_on_port_event(0) {}
 
 InputPortInterface::~InputPortInterface()
 {
-    disconnect();
+    cmanager.disconnect();
     if (new_data_on_port_event)
         delete new_data_on_port_event;
 }
@@ -35,55 +36,72 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
 bool InputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
 {
     OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
-    if (! output)
+    if (! output) {
+        log(Error) << "InputPort "<< getName() <<" could not connect to "<< other.getName() << ": not an Output port." <<endlog();
         return false;
+    }
     return output->createConnection(*this, policy);
 }
 
 bool InputPortInterface::connectTo(PortInterface& other)
 {
-    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
-    if (! output)
-        return false;
-    return output->createConnection(*this);
+    return connectTo(other, default_policy);
 }
 
-void InputPortInterface::setInputChannel(ChannelElementBase* channel_output)
+void InputPortInterface::startConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_output)
 {
-    this->channel = channel_output;
+    // this will call us back on connectionAdded.
+    cmanager.addConnection( port_id, channel_output, default_policy);
 }
 
-bool InputPortInterface::channelsReady()
+bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
 {
-    if ( this->channel && this->channel->inputReady() )
+    if ( channel && channel->inputReady() )
         return true;
-    this->disconnect();
+    if (channel)
+        channel->disconnect(false);
+
     return false;
 }
 
-void InputPortInterface::clearInputChannel()
+#if 0
+bool InputPortInterface::channelReady(PortInterface const& port)
 {
-    this->channel = 0;
+    // NOTE: we can't get hold of the ChannelElement of port, and even
+    // if we could, we wouldn't know which one of the many to use (output goes to many inputs).
+    // furthermore, CORBA tricks the C++ layer with 'empty' ports that
+    // just serve to be passed on for PortID comparison.
+    // So don't touch this line unless you know what you're doing.
+
+    // Ask connection manager to iterate over all connections and find
+    // out which one points to port:
+    return channelReady( cmanager.getConnection(port) );
+}
+#endif
+
+void InputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
+{
+    cmanager.removeConnection(channel);
 }
 
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
-{ return channel; }
+{ return cmanager.connected(); }
 
 void InputPortInterface::clear()
 {
-    ChannelElementBase::shared_ptr channel = this->channel;
-    if (channel)
-        channel->clear();
+    cmanager.clear();
 }
 
 void InputPortInterface::disconnect()
 {
-    ChannelElementBase::shared_ptr channel = this->channel;
-    this->channel = 0;
-    if (channel)
-        channel->disconnect(false);
+    cmanager.disconnect();
+}
+
+void InputPortInterface::disconnect(PortInterface& port)
+{
+    cmanager.disconnect(port);
 }
 

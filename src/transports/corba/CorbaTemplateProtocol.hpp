@@ -83,7 +83,7 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
+          CRemoteChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
           { return new RemoteChannelElement<T>(*this, poa); }
 
           base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
@@ -95,8 +95,21 @@ namespace RTT
                   policy2.pull = false;
               }
               return internal::ConnFactory::buildOutputHalf(
-                      static_cast<RTT::InputPort<T>&>(port),
+                      static_cast<RTT::InputPort<T>&>(port), 0,
                       policy2);
+          }
+
+          base::ChannelElementBase* buildInputHalf(base::OutputPortInterface& port, internal::ConnPolicy const& policy) const
+          {
+              internal::ConnPolicy policy2 = policy;
+              if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
+                  // out of band requires a hack (maybe in-band too in a later stage):
+                  // we force the creation of a buffer on input side
+                  policy2.pull = true;
+              }
+              return internal::ConnFactory::buildInputHalf(
+                      static_cast<RTT::OutputPort<T>&>(port),
+                      policy2, 0);
           }
 
           /**

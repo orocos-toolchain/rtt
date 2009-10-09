@@ -2,9 +2,7 @@
 #define ORO_OUTPUT_PORT_INTERFACE_HPP
 
 #include "PortInterface.hpp"
-#include "../internal/ListLockFree.hpp"
-#include <boost/tuple/tuple.hpp>
-#include "../os/Mutex.hpp"
+#include "../internal/ConnectionManager.hpp"
 
 namespace RTT
 { namespace base {
@@ -16,44 +14,16 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        friend class internal::ConnFactory;
+        internal::ConnectionManager cmanager;
 
-        typedef boost::tuple<PortID*, ChannelElementBase::shared_ptr, internal::ConnPolicy> ChannelDescriptor;
-        internal::ListLockFree< ChannelDescriptor > connections;
-
-        /** Helper method for disconnect(PortInterface*)
-         *
-         * This method removes the channel listed in \c descriptor from the list
-         * of output channels if \c port has the same id that the one listed in
-         * \c descriptor.
-         *
-         * @returns true if the descriptor matches, false otherwise
-         */
-        bool eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor);
-
-        /** Helper method for disconnect()
-         *
-         * Unconditionally removes the given connection and return true
-         */
-        bool eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor);
-
-        /** Helper method for removeConnection(channel) */
-        bool matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
-
-        /** Helper method for port-to-port connection establishment.
-         * This is the last step in adding a connection to an output port and
-         * also validates if the connection is sound.
-         * @return false if the connection failed to work, true otherwise.
+    public:
+        /**
+         * Adds a new connection to this output port and initializes the connection if required by \a policy.
+         * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
+         * to do any further bookkeeping, such as informing the input that a new output has been added.
          */
         bool addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
 
-        /** Helper method called by addConnection to set the channel's initial value, depending on the policy. */
-        virtual bool connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
-
-        /** os::Mutex for when it is needed to resize the connections list */
-        os::Mutex connection_resize_mtx;
-
-    public:
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
 

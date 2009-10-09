@@ -26,12 +26,25 @@ namespace RTT
         friend class internal::ConnOutputEndpoint<T>;
         internal::InputPortSource<T>* data_source;
 
+        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) { return true; }
+
+        bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, const internal::ConnectionManager::ChannelDescriptor& descriptor)
+        {
+            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
+            assert( result != NewData );
+            if ( input ) {
+                result = input->read(sample);
+                if (result == NewData)
+                    return true;
+            }
+            return false;
+        }
     public:
         InputPort(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy())
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
-        ~InputPort() { delete data_source; }
+        ~InputPort() { disconnect(); delete data_source;}
 
         FlowStatus read(base::DataSourceBase::shared_ptr source)
         {
@@ -52,11 +65,10 @@ namespace RTT
          */
         FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
         {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >(this->channel);
-            if (input)
-                return input->read(sample);
-            else
-                return NoData;
+            FlowStatus result = NoData;
+            // read and iterate if necessary.
+            cmanager.select_if( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), _1) );
+            return result;
         }
 
         /** Returns the types::TypeInfo object for the port's type */

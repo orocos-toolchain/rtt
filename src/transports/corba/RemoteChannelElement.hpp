@@ -9,7 +9,7 @@ namespace RTT {
     namespace corba {
 
 	/**
-	 * Implements the CChannelElement of the CORBA IDL interface.
+	 * Implements the CRemoteChannelElement of the CORBA IDL interface.
 	 * It converts the C++ calls into CORBA calls and vice versa.
 	 * A read will cause a call to the remote channel (which is of the
 	 * same type of this RemoteChannelElement) which returns an Any
@@ -17,7 +17,7 @@ namespace RTT {
 	 */
 	template<typename T>
 	class RemoteChannelElement 
-	    : public CChannelElement_i
+	    : public CRemoteChannelElement_i
 	    , public base::ChannelElement<T>
 	{
 	    typename internal::ValueDataSource<T>::shared_ptr data_source;
@@ -26,10 +26,10 @@ namespace RTT {
 	    /**
 	     * Create a channel element for remote data exchange.
 	     * @param transport The type specific object that will be used to marshal the data.
-	     * @param poa The POA that manages the underlying CChannelElement_i.
+	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
 	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa)
-		: CChannelElement_i(transport, poa)
+		: CRemoteChannelElement_i(transport, poa)
 		, data_source(new internal::ValueDataSource<T>)
             {
                 // Big note about cleanup: The RTT will dispose this object through
@@ -56,6 +56,16 @@ namespace RTT {
                 { return remote_side->remoteSignal(); }
                 catch(CORBA::Exception&)
                 { return false; }
+            }
+
+            void disconnect() {
+                // disconnect both local and remote side.
+                // !!!THIS RELIES ON BEHAVIOR OF REMOTEDISCONNECT BELOW doing both writer_to_reader and !writer_to_reader !!!
+                try { remote_side->remoteDisconnect(true); }
+                catch(CORBA::Exception&) {}
+
+                try { this->remoteDisconnect(true); }
+                catch(CORBA::Exception&) {}
             }
 
             void remoteDisconnect(bool writer_to_reader)

@@ -64,10 +64,7 @@ namespace RTT
         }
 
         /** During the process of building a connection between two ports, this
-         * method builds the input half (starting from the OutputPort). In the
-         * returned pair, the first element is the connection element that
-         * should be connected to the port, and the second element is the one
-         * that will be connected to the output-half of the connection
+         * method builds the input half (starting from the OutputPort).
          *
          * The \c output_channel argument is the connection element that has been returned
          * by buildOutputHalf.
@@ -82,10 +79,12 @@ namespace RTT
             {
                 base::ChannelElementBase* data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
                 endpoint->setOutput(data_object);
-                data_object->setOutput(output_channel);
+                if (output_channel)
+                    data_object->setOutput(output_channel);
             }
             else
-                endpoint->setOutput(output_channel);
+                if (output_channel)
+                    endpoint->setOutput(output_channel);
 
             return endpoint;
         }
@@ -98,9 +97,9 @@ namespace RTT
          * @see buildInputHalf
          */
         template<typename T>
-        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy, T const& initial_value = T() )
+        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, base::PortID* output_port_id, ConnPolicy const& policy, T const& initial_value = T() )
         {
-            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port);
+            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, output_port_id);
             if (!policy.pull)
             {
                 base::ChannelElementBase* data_object = buildDataStorage<T>(policy, initial_value);
@@ -146,7 +145,7 @@ namespace RTT
                     return false;
                 }
 
-                output_half = ConnFactory::buildOutputHalf<T>(*input_p, policy, output_port.getLastWrittenValue());
+                output_half = ConnFactory::buildOutputHalf<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -166,7 +165,8 @@ namespace RTT
 
             // Register the channel's input to the output port.
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
-                if ( input_port.channelsReady() == false ) {
+                // notify input that the connection is now complete.
+                if ( input_port.channelReady( channel_input->getOutputEndPoint() ) == false ) {
                     output_port.disconnect();
                     log(Error) << "The input port "<< input_port.getName()
                                << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
@@ -237,16 +237,18 @@ namespace RTT
             //
             ConnPolicy policy2 = policy;
             policy2.pull = false;
-            RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, policy2);
+            base::PortID* output_id = 0;
+            RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, output_id, policy2);
             // pass new name upwards.
             policy.name_id = policy2.name_id;
 
             chan->setOutput( outhalf );
-            if ( input_port.channelsReady()) {
+            if ( input_port.channelReady( chan->getOutputEndPoint() ) == true ) {
                 log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
                 return true;
             }
             // setup failed.
+            chan->disconnect(true);
             log(Error) << "Failed to create input stream for input port "<< input_port.getName() <<endlog();
             return false;
         }
@@ -273,8 +275,9 @@ namespace RTT
             // we force the creation of a buffer on input side
             ConnPolicy policy2 = policy;
             policy2.pull = false;
+            base::PortID* output_port_id = 0;
 
-            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, policy2, output_port.getLastWrittenValue());
+            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, output_port_id, policy2, output_port.getLastWrittenValue());
 
             types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
             int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );

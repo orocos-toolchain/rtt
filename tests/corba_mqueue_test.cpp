@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     usleep(100000); // gives dispatcher time to catch up.
     testPortDataConnection();
-    ports->disconnect("mw");
+    ports->disconnectPort("mw");
     testPortDisconnected();
 
     policy.type = RTT::corba::CData;
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     usleep(100000);
     testPortDataConnection();
-    ports2->disconnect("mr");
+    ports2->disconnectPort("mr");
     testPortDisconnected();
 
 #if 1
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.transport = ORO_MQUEUE_PROTOCOL_ID;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortBufferConnection();
-    ports->disconnect("mw");
+    ports->disconnectPort("mw");
     testPortDisconnected();
 
     policy.type = RTT::corba::CBuffer;
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.transport = ORO_MQUEUE_PROTOCOL_ID;
     BOOST_CHECK( ports->createConnection("mw", ports2, "mr", policy) );
     testPortBufferConnection();
-    ports->disconnect("mw");
+    ports->disconnectPort("mw");
     testPortDisconnected();
 #endif
 }

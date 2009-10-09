@@ -1,6 +1,8 @@
 #ifndef ORO_CONN_POLICY_HPP
 #define ORO_CONN_POLICY_HPP
 
+#include <string>
+
 namespace RTT { namespace internal {
 
     /** A connection policy object describes how a given connection should

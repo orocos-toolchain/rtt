@@ -13,6 +13,7 @@ namespace RTT {
         class ConnPolicy;
         class ConnectionBase;
         class ConnectionC;
+        class ConnectionManager;
         class DispatchAction;
         class EventC;
         class EventProcessor;

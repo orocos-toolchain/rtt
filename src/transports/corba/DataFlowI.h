@@ -65,22 +65,22 @@ namespace RTT {
          * Derive from this class to implement a channel
          * which transports data over a CORBA connection.
          */
-        class CChannelElement_i
-            : public POA_RTT::corba::CChannelElement
+        class CRemoteChannelElement_i
+            : public POA_RTT::corba::CRemoteChannelElement
             , public virtual PortableServer::RefCountServantBase
         {
         protected:
-            CChannelElement_var remote_side;
+            CRemoteChannelElement_var remote_side;
             RTT::corba::CorbaTypeTransporter const& transport;
             PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
-            CChannelElement_i(corba::CorbaTypeTransporter const& transport,
+            CRemoteChannelElement_i(corba::CorbaTypeTransporter const& transport,
 			  PortableServer::POA_ptr poa);
-            virtual ~CChannelElement_i();
+            virtual ~CRemoteChannelElement_i();
 
-            virtual RTT::corba::CChannelElement * activate_this() {
+            virtual RTT::corba::CRemoteChannelElement * activate_this() {
                 PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
                 _remove_ref(); // ref count=1
                 return _this();
@@ -89,7 +89,7 @@ namespace RTT {
 
             PortableServer::POA_ptr _default_POA();
 
-            void setRemoteSide(CChannelElement_ptr remote);
+            void setRemoteSide(CRemoteChannelElement_ptr remote);
         };
 
         /**
@@ -111,6 +111,10 @@ namespace RTT {
                 > ServantMap;
             static ServantMap s_servant_map;
 
+            typedef std::list<
+                std::pair<RTT::corba::CChannelElement_var, base::ChannelElementBase::shared_ptr>
+                > ChannelList;
+            ChannelList channel_list;
         public:
             // standard constructor
             CDataFlowInterface_i(interface::DataFlowInterface* interface, PortableServer::POA_ptr poa);
@@ -135,17 +139,19 @@ namespace RTT {
             RTT::corba::CPortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
-            ::CORBA::Boolean channelsReady(const char* port_name);
-            void disconnect(const char* port_name);
-            void disconnectPort( const char* writer_port,
-                                 CDataFlowInterface_ptr reader_interface, const char* reader_port);
+            ::CORBA::Boolean channelReady(const char* port_name, RTT::corba::CChannelElement_ptr channel);
+            void disconnectPort(const char* port_name);
 
             CChannelElement_ptr buildOutputHalf(const char* reader_port, RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildInputHalf(const char* writer_port, RTT::corba::CConnPolicy& policy);
 
             ::CORBA::Boolean createConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
                                                const char* reader_port,
                                                RTT::corba::CConnPolicy const& policy);
+            void removeConnection( const char* writer_port,
+                                               CDataFlowInterface_ptr reader_interface,
+                                               const char* reader_port);
         };
     }
 };

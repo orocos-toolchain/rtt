@@ -2,6 +2,7 @@
 #define ORO_EXECUTION_PORT_INTERFACE_HPP
 
 #include <string>
+#include "../internal/rtt-internal-fwd.hpp"
 #include "../internal/Channels.hpp"
 #include "../internal/ConnPolicy.hpp"
 
@@ -26,6 +27,11 @@ namespace RTT
         interface::DataFlowInterface* iface;
     protected:
         PortInterface(const std::string& name);
+
+        friend class RTT::internal::ConnectionManager;
+
+        /** Helper method called by addConnection to set the channel's initial value, depending on the policy. */
+        virtual bool connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
 
     public:
         virtual ~PortInterface() {}

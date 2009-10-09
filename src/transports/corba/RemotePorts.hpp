@@ -13,6 +13,12 @@ namespace RTT {
         /**
          * Contains the common CORBA management code for
          * proxy port objects representing ports available through CORBA.
+         *
+         * A Remote port object is just a view (ie proxy) on a real port.
+         * This means that many remote port objects can point to the same
+         * real port and that destroying a remote port object does not lead
+         * to disconnection of the real port. All important functions are to be
+         * forwarded to the real port.
          */
         template<typename PortClass>
         class RemotePort : public PortClass
@@ -21,6 +27,8 @@ namespace RTT {
             types::TypeInfo const* type_info;
             CDataFlowInterface_var dataflow;
             PortableServer::POA_var mpoa;
+
+            bool connectionAdded( base::ChannelElementBase::shared_ptr channel, internal::ConnPolicy const& policy ) { assert(false && "Can/Should not add connection to remote port object !");return false; }
 
         public:
             RemotePort(types::TypeInfo const* type_info,
@@ -61,11 +69,6 @@ namespace RTT {
 
             using base::OutputPortInterface::createConnection;
             bool createConnection( base::InputPortInterface& sink, internal::ConnPolicy const& policy );
-            virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
-                assert(false && "Can not add connection to remote port object !");
-                return false;
-            }
-
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;
@@ -78,9 +81,20 @@ namespace RTT {
          * You can not access its datasource.
          */
         class RemoteInputPort
-            : public RemotePort<base::InputPortInterface>
-            , public internal::ConnFactory
+            : public RemotePort<base::InputPortInterface>,
+              public internal::ConnFactory
         {
+            typedef std::map<base::ChannelElementBase*,RTT::corba::CChannelElement_var> ChannelMap;
+            ChannelMap channel_map;
+        protected:
+            /**
+             * The ConnectionFactory calls this. Overload to do nothing when dealing with remote ports.
+             * @param port_id
+             * @param channel_input
+             * @param policy
+             * @return
+             */
+            virtual bool addConnection(base::PortID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) { return true; }
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,
@@ -110,12 +124,13 @@ namespace RTT {
             base::DataSourceBase* getDataSource();
 
             /**
-             * For remote input port objects, this method always returns true.
-             * The remote connection factory will do this test on the real
-             * input port, so we don't have to check this.
+             * For remote input port objects, this is forwarded to the other end
+             * over the Data Flow Interface. The given channel must be the
+             * output endpoint of a connection, which was built using buildRemoteOutputHalf.
+             * So channel->getOutputEndpoint() == channel
              * @return
              */
-            virtual bool channelsReady();
+            virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
         };
     }
 }

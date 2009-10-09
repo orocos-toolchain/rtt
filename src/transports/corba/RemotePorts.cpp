@@ -47,7 +47,7 @@ bool RemotePort<BaseClass>::connected() const
 { return dataflow->isConnected(this->getName().c_str()); }
 template<typename BaseClass>
 void RemotePort<BaseClass>::disconnect()
-{ return dataflow->disconnect(this->getName().c_str()); }
+{ return dataflow->disconnectPort(this->getName().c_str()); }
 template<typename BaseClass>
 PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
@@ -85,10 +85,11 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types
                                                           RTT::internal::ConnPolicy const& policy)
 {
     Logger::In in("RemoteInputPort::buildRemoteOutputHalf");
-    CChannelElement_var remote;
+    CRemoteChannelElement_var remote;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
-        remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), cpolicy);
+        CChannelElement_var ret = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), cpolicy);
+        remote = CRemoteChannelElement::_narrow( ret.in() );
         policy.name_id = toRTT(cpolicy).name_id;
     }
     catch(CORBA::Exception&)
@@ -97,7 +98,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types
         return NULL;
     }
 
-    CChannelElement_i*  local;
+    CRemoteChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
                             ->createChannelElement_i(mpoa);
@@ -124,7 +125,8 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteOutputHalf(RTT::types
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a dual channel for port " << name<<endlog();
         }
     }
-
+    // store the object reference in a map, for future lookup in channelReady().
+    channel_map[ corba_ceb->getOutputEndPoint().get() ] = CChannelElement::_duplicate( remote );
     // The ChannelElementBase object that represents reader_half on this side
     return corba_ceb;
 }
@@ -138,12 +140,20 @@ RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
 
-bool RemoteInputPort::channelsReady() {
+bool RemoteInputPort::channelReady(base::ChannelElementBase::shared_ptr channel) {
+    if (! channel_map.count( channel.get() ) ) {
+        log(Error) <<"No such channel found in "<< getName() <<".channelReady( channel ): aborting connection."<<endlog();
+        return false;
+    }
     try {
-        return dataflow->channelsReady( this->getName().c_str() );
-    } catch(...) { return false; }
+        CChannelElement_ptr cce = channel_map[ channel.get() ];
+        assert( cce );
+        return dataflow->channelReady( this->getName().c_str(),  cce );
+    } catch(...) {
+        log(Error) <<"Remote call to "<< getName() <<".channelReady( channel ) failed with a CORBA exception: aborting connection."<<endlog();
+        return false;
+    }
 }
-
 
 RemoteOutputPort::RemoteOutputPort(RTT::types::TypeInfo const* type_info,
         CDataFlowInterface_ptr dataflow, std::string const& reader_port,
@@ -160,6 +170,7 @@ void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::internal::ConnPolicy const& policy )
 {
     try {
+        // this dynamic CDataFlowInterface lookup is tricky, we re/ab-use the DataFlowInterface pointer of sink !
         return dataflow->createConnection( this->getName().c_str(), CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() ), sink.getName().c_str(), toCORBA(policy) );
     } catch(...) { return false; }
 

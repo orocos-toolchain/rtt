@@ -10,76 +10,42 @@ using namespace std;
 
 
 OutputPortInterface::OutputPortInterface(std::string const& name)
-    : PortInterface(name), connections(10) { }
+    : PortInterface(name), cmanager(this) { }
 
 OutputPortInterface::~OutputPortInterface()
 {
-    disconnect();
+    cmanager.disconnect();
 }
 
 /** Returns true if this port is connected */
 bool OutputPortInterface::connected() const
-{ return !connections.empty(); }
-
-bool OutputPortInterface::eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor)
-{
-    if ( descriptor.get<0>() && port->isSameID(*descriptor.get<0>()))
-    {
-        descriptor.get<1>()->disconnect(true);
-        delete descriptor.get<0>();
-        return true;
-    }
-    else return false;
-}
+{ return cmanager.connected(); }
 
 void OutputPortInterface::disconnect(PortInterface& port)
 {
-    connections.delete_if( boost::bind(&OutputPortInterface::eraseIfMatchingPort, this, &port, _1) );
-}
-
-bool OutputPortInterface::eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor)
-{
-    descriptor.get<1>()->disconnect(true);
-    delete descriptor.get<0>();
-    return true;
+    cmanager.disconnect(port);
 }
 
 void OutputPortInterface::disconnect()
 {
-    connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
+    cmanager.disconnect();
 }
 
 bool OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
-    ChannelDescriptor descriptor = boost::make_tuple(port_id, channel_input, policy);
-    if (!connections.append(descriptor))
-    { os::MutexLock locker(connection_resize_mtx);
-        connections.grow(1);
-        connections.append(descriptor);
-    }
-    if ( this->connectionAdded(channel_input, policy) )
-        return true;
-    // cleanup.
-    removeConnection( channel_input );
-    return false;
-}
-
-bool OutputPortInterface::matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
-{
-    if(channel == descriptor.get<1>()) {
-        delete descriptor.get<0>();
-        return true;
-    }
-    return false;
+    // this will call us back using connectionAdded().
+    return cmanager.addConnection(port_id, channel_input, policy);
 }
 
 bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
 {
-    return connections.delete_if( bind(&OutputPortInterface::matchAndRemoveConnectionChannel, this, channel, _1) );
+    return cmanager.removeConnection(channel);
 }
+
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
+
 bool OutputPortInterface::createDataConnection( InputPortInterface& input, int lock_policy )
 { return createConnection( input, ConnPolicy::data(lock_policy) ); }
 

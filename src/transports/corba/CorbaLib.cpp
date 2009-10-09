@@ -93,7 +93,7 @@ namespace RTT {
                 return 0;
             }
 
-            virtual CChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const {
+            virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Channel : data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
@@ -107,6 +107,12 @@ namespace RTT {
                 return 0;
             }
 
+            virtual base::ChannelElementBase* buildInputHalf(base::OutputPortInterface& port,
+                internal::ConnPolicy const& policy) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+            }
             /**
              * Create a DataSource which is a proxy for a remote server object.
              * Used to read/write remote attributes, properties and general data over a network.

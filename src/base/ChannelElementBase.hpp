@@ -59,12 +59,29 @@ namespace RTT { namespace base {
         ChannelElementBase::shared_ptr getInput();
 
         /**
+         * Returns the first input channel element of this connection.
+         * Will return the channel element the furthest away from the input port,
+         * or \a this if none.
+         * @return getInput() ? getInput()->getInputEndPoint() : this
+         */
+        ChannelElementBase::shared_ptr getInputEndPoint();
+
+
+        /**
          * Removes the output channel (if any).
          * This call may delete channels from memory.
          */
         void removeOutput();
 
         ChannelElementBase::shared_ptr getOutput();
+
+        /**
+         * Returns the last output channel element of this connection.
+         * Will return the channel element the furthest away from the output port,
+         * or \a this if none.
+         * @return getOutput() ? getOutput()->getInputEndPoint() : this
+         */
+        ChannelElementBase::shared_ptr getOutputEndPoint();
 
         /**
          * Sets the output of this channel element to \a output and sets the input of \a output to this.

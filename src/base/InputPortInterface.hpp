@@ -3,6 +3,8 @@
 
 #include <string>
 #include "PortInterface.hpp"
+#include "../internal/rtt-internal-fwd.hpp"
+#include "../internal/ConnectionManager.hpp"
 #include "../Event.hpp"
 
 namespace RTT
@@ -19,29 +21,32 @@ namespace RTT
         typedef Event<void(PortInterface*)> NewDataOnPortEvent;
 
     protected:
-        ChannelElementBase* channel;
-        internal::ConnPolicy          default_policy;
+        internal::ConnectionManager cmanager;
+        internal::ConnPolicy        default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
+
+        template<class T>
+        friend class internal::ConnOutputEndpoint;
+        // only to be used by ConnOutputEndpoint
+        virtual void startConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input);
 
     public:
         InputPortInterface(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy());
         ~InputPortInterface();
 
-        /** Sets the channel from which this port should get samples
-         *
-         * You should usually not use this directly. Use createConnection
-         * instead.
+        /** Clears the connection. After call to read() will return false after
+         * clear() has been called
          */
-        virtual void setInputChannel(ChannelElementBase* channel_output);
-
-        /** Clears the input channel
-         *
-         * You should usually not use this directly. Use createConnection
-         * instead.
-         */
-        virtual void clearInputChannel();
+        void clear();
 
         internal::ConnPolicy getDefaultPolicy() const;
+
+        /** Removes the input channel
+         *
+         * You should usually not use this directly. Use disconnect()
+         * instead.
+         */
+        virtual void removeConnection(ChannelElementBase::shared_ptr channel_output);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
@@ -59,13 +64,12 @@ namespace RTT
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect();
 
+        /** Removes the channel that connects this port to \c port */
+        virtual void disconnect(PortInterface& port);
+
+
         /** Returns true if this port is connected */
         virtual bool connected() const;
-
-        /** Clears the connection. After call to read() will return false after
-         * clear() has been called
-         */
-        void clear();
 
         /**
          * Call this to indicate that the connection leading to this port
@@ -75,7 +79,7 @@ namespace RTT
          * If sending inputReady() returns failure, this method returns
          * false and the connection is aborted (this->connected() == false).
          */
-        virtual bool channelsReady();
+        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
 
         /** Returns the event object that gets emitted when new data is
          * available for this port. It gets deleted when the port is deleted.
