@@ -33,7 +33,7 @@
     <revhistory>
       <revision>
 	<revnumber>1.0.0</revnumber>
-	<date>27 Okt 2006</date>
+	<date>27 Oct 2006</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Simplified build system.</revremark>
       </revision>
@@ -85,6 +85,12 @@
 	<date>14 Sept 2009</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Added pointers to win32 install instructions</revremark>
+      </revision>
+    <revision>
+    <revnumber>1.10.1</revnumber>
+	<date>14 Oct 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Clarified instructions for non-standard environments, cleanups.</revremark>
       </revision>
     </revhistory>
 
@@ -232,93 +238,126 @@
 	</para>
       </section>
     </section>
-    <section id="basic-install">
+    <section id="basic-install-win32">
       <title>Basic Real-Time Toolkit Installation on Windows-like systems</title>
       <para>
 	We documented this on the on-line wiki for the various flavours/options 
-	on has on the MS Windows platform: 
+	one has on the MS Windows platform: 
 	<ulink url="http://www.orocos.org/wiki/rtt/rtt-ms-windows">RTT on MS Windows</ulink>
       </para>
     </section>
-    <section id="basic-install">
+    <section id="basic-install-unix">
       <title>Basic Real-Time Toolkit Installation on Unix-like systems</title>
       <para>
 	The RTT uses the <ulink url="http://www.cmake.org">CMake</ulink>
 	build system for configuring and building the library.
       </para>
-      <section>
-	<title>Orocos Build and Configuration Tools </title>
-	<para>
-	  The tool you will need is <command>cmake</command>
-	  Most linux distros have a cmake package, and so do fink/macports in OS X.
-	  In Debian, you can use the official Debian version using
-	  <screen>  apt-get install cmake</screen>
-	  If this does not work for you, you can download cmake from
-	  the CMake homepage.
-	</para>
-      </section>
-      <section>
-	<title>Download and extract the RTT packages</title>
-	<para>
-	  Download the <filename>orocos-rtt-&oversion;-src.tar.bz2</filename> package from the
-	  Orocos webpage.
-	</para>
-	<para>
-	  Extract it using :
+      <para>
+	The tool you will need is <command>cmake</command>
+	Most linux distros have a cmake package, and so do fink/macports in OS X.
+	In Debian, you can use the official Debian version using
+	<screen>  apt-get install cmake</screen>
+	If this does not work for you, you can download cmake from
+	the <ulink url="http://www.cmake.org">CMake homepage</ulink>.
+      </para>
+      <para>
+	Next, download the <filename>orocos-rtt-&oversion;-src.tar.bz2</filename> package from the
+	Orocos webpage and extract it using :
 	  <screen><command>  tar -xvjf orocos-rtt-&oversion;-src.tar.bz2</command></screen>
-        </para>
+      </para>
 	<para>
-	  The next section provides quick installation instructions if you
-	  want to install the RTT on GNU/Linux.  Please check out
-	  section FIXME for installation on other OSes and/or if you
+	  This section provides quick installation instructions if you
+	  want to install the RTT on a <emphasis>standard</emphasis> GNU/Linux system.  Please check out
+	  <xref linkend="install-configure" />  for installation on other OSes and/or if you
 	  want to change the default configuration settings.
 	</para>
-      </section>
-      <section>
-	<title>Quick Installation Instructions for GNU/Linux</title> 
 	<para>
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
-  ../configure --with-&lt;target&gt; [--prefix=/usr/local][--with-linux=/usr/src/linux]
+  cmake .. -DOROCOS_TARGET=&lt;target&gt; [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DLINUX_SOURCE_DIR=/usr/src/linux]
   make
   make install</command> </screen>
         </para>
 	<para>
 	  Where
 	  <itemizedlist>
-	    <listitem><para>
-	      &lt;target&gt; is one of listed in <command>../configure --help</command>.
-	      ( currently 'gnulinux', 'lxrt' or 'xenomai' ). When none is specified,
+	    <listitem><para><option>OROCOS_TARGET</option>:
+	      &lt;target&gt; is one of 'gnulinux', 'lxrt', 'xenomai', 'macosx', 'win32'. When none is specified,
 	      'gnulinux' is used.</para></listitem>
-	    <listitem><para><option>--prefix</option> specifies where
+	    <listitem><para><option>CMAKE_INSTALL_PREFIX</option>: specifies where
 	    to install the RTT.</para></listitem>
-	    <listitem><para><option>--with-linux</option> is required for RTAI/LXRT
+	    <listitem><para><option>LINUX_SOURCE_DIR</option>: is required for RTAI/LXRT
 	    and older Xenomai version (&lt;2.2.0). It points to
 	    the source location of the RTAI/Xenomai patched Linux kernel.</para></listitem>
 	  </itemizedlist>
-	  See <command>configure --help</command> for a full list of options.
 	</para>
 	<note>
 	  <para>
-	    The <command>configure</command> script is a wrapper
-	    around the 'cmake' command and must be rerun after you
-	    installed missing libraries (like Boost, ...) before you
-	    can build the RTT.
+	    See <xref linkend="install-configure" /> for specifying non standard include and library paths
+	    to search for dependencies.
 	  </para>
 	</note>
-      </section>
+	<para>
+	  The <command>make</command> command will have created a
+	  <filename>liborocos-rtt-&lt;target&gt;.so</filename> library, and if
+	  CORBA is enabled a <filename>liborocos-rtt-corba-&lt;target&gt;.so</filename>
+	  library. 
+	</para>
+	<para>
+	  The <command>make docapi</command> and
+	  <command>make docpdf dochtml</command> (both in 'build') commands build 
+	  API documentation and PDF/HTML documentation in the build/doc directory.
+	</para>
+	<para>
+	Orocos can optionally (<emphasis> but recommended</emphasis>)
+	be installed on your system with <screen> make install</screen> 
+	The default directory is
+	<filename>/usr/local</filename>, but can be changed
+	with the <option>CMAKE_INSTALL_PREFIX</option> option : <screen>
+	cmake .. -DCMAKE_INSTALL_PREFIX=/opt/other/</screen></para>
+	<para>
+	If you choose not to install Orocos, you can find the build's result
+	in the <filename>build/src</filename> directory.
+	</para>
+    </section>
+  </section>
+  <section id="install-configure">
+    <title>Detailed Configuration using 'CMake'</title>
+      <para>
+	If you have some of the Orocos dependencies installed in
+	non-standard locations, you have to specify
+	this using cmake variables <emphasis>before</emphasis> running
+	the cmake configuration.  Specify header locations using
+	the <option>CMAKE_INCLUDE_PATH</option> variable (e.g. using
+	bash and fink in Mac OS X, the boost library headers are
+	installed in /sw/include, so you would specify 
+        <screen>export CMAKE_INCLUDE_PATH=/sw/include;/boost/include</screen>
+	For libraries in not default locations, use
+	the <screen>export CMAKE_LIBRARY_PATH=/sw/libs;/boost/libs</screen> variable.  For more
+	information,
+	see <ulink url="http://www.cmake.org/Wiki/CMake_Useful_Variables#Environment_Variables">cmake
+	useful variables</ulink> link.
+      </para>
+      <important>
+      <para>
+	In order to avoid setting these global exports repeatedly, the RTT
+	build system reads a file in which you can specify your
+	build environment. This file is the <filename>orocos-rtt.cmake</filename> file,
+	which you obtain by making a copy from <filename>orocos-rtt-&oversion;/orocos-rtt.default.cmake</filename>
+	into the same directory. The advantage is that this file lives in the
+	rtt top source directory, such that it can be re-used across builds.
+	<emphasis>Using this file is recommended!</emphasis>
+      </para>
+      </important>
       <section>
-	<title>Real-Time Toolkit Configuration</title>
+	<title>Real-Time Toolkit Build Configuration</title>
 	<para>
 	  The RTT can be configured depending on your target. 
 	  For embedded targets, the large scripting infrastructure and
 	  use of exceptions can be left out. When CORBA is available,
 	  an additional library is built which allows components to
 	  communicate over a network.
-	  
-	  Also, when building for another OS than GNU/Linux, you will have to 
-	  build the RTT using cmake.
 	</para>
 	<para>
 	  In order to configure the RTT in detail, you
@@ -326,7 +365,7 @@
 	</para>
 	  <screen><command> 
   cd orocos-rtt-&oversion;/build
-  cmake ..</command> </screen>
+  ccmake ..</command> </screen>
         <para>
 	  from your build directory. It will offer a configuration
 	  screen.  The keys to use are 'arrows'/'enter' to modify a
@@ -338,16 +377,20 @@
 	<section>
 	  <title>RTT with CORBA plugin</title>
 	  <para>
-	    In order to enable CORBA a valid installation of TAO must be
+	    In order to enable CORBA, a valid installation of TAO or OMNIORB must be
 	    detected on your system and you must turn the <option>ENABLE_CORBA</option>
 	    option on (using ccmake).
-	    Enabling CORBA does not modify the RTT library, but
+	    Enabling CORBA does not modify the RTT library and
 	    builds and installs an additional library and headers.
 	  </para>
 	  <para>
 	    Alternatively, you can re-run cmake:
 	  </para>
 	  <screen>  cmake .. -DENABLE_CORBA=ON</screen>
+	  <para>
+	    See <xref linkend="install-config-corba"/> for full configuration details
+	    when using the CORBA transport.
+	  </para>
 	</section>
 	<section>
 	  <title>Embedded RTT flavour</title>
@@ -374,62 +417,6 @@
 	  <screen>  cmake .. -DOS_EMBEDDED=ON</screen>
 	</section>
       </section>
-      <section>
-	<title>Build results</title>
-	<para>
-	  The <command>make</command> command will have created a
-	  <filename>liborocos-rtt-&lt;target&gt;.so</filename> library, and if
-	  CORBA is enabled a <filename>liborocos-rtt-corba-&lt;target&gt;.so</filename>
-	  library. 
-	</para>
-	<para>
-	  The <command>make docapi</command> and
-	  <command>make docpdf dochtml</command> (both in 'build') commands build 
-	  API documentation and PDF/HTML documentation in the build/doc directory.
-	</para>
-      </section>
-    </section>
-    <section>
-      <title>Installing an Orocos Build</title>
-      <para>
-	Orocos can optionally (<emphasis> but recommended</emphasis>)
-	be installed on your system with <screen> make install</screen> 
-	The default directory is
-	<filename>/usr/local</filename>, but can be changed
-	with the <option>CMAKE_INSTALL_PREFIX</option> option : <screen>
-	cmake .. -DCMAKE_INSTALL_PREFIX=/opt/other/</screen></para>
-      <para>
-	If you choose not to install Orocos, you can find the build's result
-	in the <filename>build/src</filename> directory.
-      </para>
-    </section>
-  </section>
-  <section id="install-configure">
-    <title>Detailed Configuration using 'CMake'</title>
-      <para>
-	If you have some of the orocos dependencies installed in
-	non-standard locations, you have to specify
-	this using cmake variables <emphasis>before</emphasis> running
-	the cmake configuration.  Specify header locations using
-	the <option>CMAKE_INCLUDE_PATH</option> variable (e.g. using
-	bash and fink in Mac OS X, the boost library headers are
-	installed in /sw/include, so you would specify <screen>export
-	CMAKE_INCLUDE_PATH=/sw/include</screen>. 
-	For libraries in none default locations, use
-	the <option>CMAKE_LIBRARY_PATH</option> variable.  For more
-	information,
-	see <ulink url="http://www.cmake.org/Wiki/CMake_Useful_Variables#Environment_Variables">cmake
-	useful variables</ulink> link.
-      </para>
-      <para>
-	In order to start cmake configuration, in your build
-	directory, run <command>ccmake ..</command> .  Press 'c' (from
-	'c'onfigure), watch the output, press 'e' (from 'e'xit) and
-	modify the new options. Repeat these steps until no errors
-	are reported and the 'g' (from 'g'enerate) key can be pressed.
-	This causes the makefiles to be generated which allow the 
-	library to be built.
-      </para>
     <section>
       <title>Configuring the target Operating System</title>
       <para>
@@ -458,11 +445,14 @@
 	You can set the compiler flags using the <option>CMAKE_BUILD_TYPE</option>
 	option. You may edit this field to contain:
 	<itemizedlist>
-	  <listitem><para>RTT (default)</para></listitem>
 	  <listitem><para>Release</para></listitem>
 	  <listitem><para>Debug</para></listitem>
 	  <listitem><para>RelWithDebInfo</para></listitem>
+	  <listitem><para>MinSizeRel</para></listitem>
+	  <listitem><para>None</para></listitem>
 	</itemizedlist>
+	In case you choose None, you must set the CMAKE_C_FLAGS, CMAKE_CXX_FLAGS
+	manually. Consult the CMake manuals for all details.
       </para>
     </section>
     <section id="general_setup_rtai">
