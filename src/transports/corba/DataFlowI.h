@@ -148,10 +148,14 @@ namespace RTT {
             ::CORBA::Boolean createConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
                                                const char* reader_port,
-                                               RTT::corba::CConnPolicy const& policy);
+                                               RTT::corba::CConnPolicy & policy);
             void removeConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
                                                const char* reader_port);
+
+            ::CORBA::Boolean createStream( const char* port,
+                                           RTT::corba::CConnPolicy & policy);
+            void removeStream( const char* port, const char* stream_name);
         };
     }
 };

@@ -48,10 +48,11 @@ bool InputPortInterface::connectTo(PortInterface& other)
     return connectTo(other, default_policy);
 }
 
-void InputPortInterface::startConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_output)
+bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy)
 {
-    // this will call us back on connectionAdded.
-    cmanager.addConnection( port_id, channel_output, default_policy);
+    // input ports don't check the connection policy.
+    cmanager.addConnection( port_id, channel_output);
+    return true;
 }
 
 bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
@@ -70,7 +71,7 @@ bool InputPortInterface::channelReady(PortInterface const& port)
     // NOTE: we can't get hold of the ChannelElement of port, and even
     // if we could, we wouldn't know which one of the many to use (output goes to many inputs).
     // furthermore, CORBA tricks the C++ layer with 'empty' ports that
-    // just serve to be passed on for PortID comparison.
+    // just serve to be passed on for ConnID comparison.
     // So don't touch this line unless you know what you're doing.
 
     // Ask connection manager to iterate over all connections and find
@@ -79,9 +80,9 @@ bool InputPortInterface::channelReady(PortInterface const& port)
 }
 #endif
 
-void InputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
+void InputPortInterface::removeConnection(ConnID* conn)
 {
-    cmanager.removeConnection(channel);
+    cmanager.removeConnection(conn);
 }
 
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source)

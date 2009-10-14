@@ -3,6 +3,7 @@
 
 #include "PortInterface.hpp"
 #include "../internal/ConnectionManager.hpp"
+#include "DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {
@@ -16,13 +17,17 @@ namespace RTT
     protected:
         internal::ConnectionManager cmanager;
 
+        /**
+         * Upcall to OutputPort.
+         */
+        virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) = 0;
     public:
         /**
          * Adds a new connection to this output port and initializes the connection if required by \a policy.
          * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
          * to do any further bookkeeping, such as informing the input that a new output has been added.
          */
-        bool addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
 
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
@@ -75,7 +80,7 @@ namespace RTT
         /** Removes the connection associated with this channel, and the channel
          * as well
          */
-        bool removeConnection(ChannelElementBase::shared_ptr channel);
+        virtual void removeConnection(internal::ConnID* cid);
 
         virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
 

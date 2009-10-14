@@ -13,10 +13,16 @@ namespace RTT
     class ConnInputEndpoint : public base::ChannelElement<T>
     {
         OutputPort<T>* port;
+        ConnID* cid;
 
     public:
-        ConnInputEndpoint(OutputPort<T>* port)
-            : port(port) { }
+        ConnInputEndpoint(OutputPort<T>* port, ConnID* id)
+            : port(port), cid(id) { }
+
+        ~ConnInputEndpoint()
+        {
+            delete cid;
+        }
 
         /** Reads a new sample from this connection
          * This should never be called, as all connections are supposed to have
@@ -41,7 +47,7 @@ namespace RTT
                 if (!port)
                     return;
 
-                port->removeConnection(this);
+                port->removeConnection( cid );
             }
         }
     };

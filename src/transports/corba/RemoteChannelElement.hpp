@@ -52,6 +52,9 @@ namespace RTT {
             { return base::ChannelElement<T>::signal(); }
             bool signal()
             {
+                // intercept signal if no remote side set.
+                if ( CORBA::is_nil(remote_side.in()) )
+                    return true;
                 try
                 { return remote_side->remoteSignal(); }
                 catch(CORBA::Exception&)
@@ -61,7 +64,10 @@ namespace RTT {
             void disconnect() {
                 // disconnect both local and remote side.
                 // !!!THIS RELIES ON BEHAVIOR OF REMOTEDISCONNECT BELOW doing both writer_to_reader and !writer_to_reader !!!
-                try { remote_side->remoteDisconnect(true); }
+                try {
+                    if ( ! CORBA::is_nil(remote_side.in()) )
+                        remote_side->remoteDisconnect(true);
+                }
                 catch(CORBA::Exception&) {}
 
                 try { this->remoteDisconnect(true); }
@@ -83,7 +89,10 @@ namespace RTT {
 
             void disconnect(bool writer_to_reader)
             {
-                try { remote_side->remoteDisconnect(writer_to_reader); }
+                try {
+                    if ( ! CORBA::is_nil(remote_side.in()) )
+                        remote_side->remoteDisconnect(writer_to_reader);
+                }
                 catch(CORBA::Exception&) {}
                 base::ChannelElement<T>::disconnect(writer_to_reader);
                 remote_side = 0;

@@ -7,9 +7,11 @@
 
 #include "ConnectionManager.hpp"
 #include <boost/bind.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "../base/PortInterface.hpp"
 #include "../os/MutexLock.hpp"
 #include "../base/InputPortInterface.hpp"
+#include <cassert>
 
 namespace RTT
 {
@@ -49,9 +51,9 @@ namespace RTT
             }
         }
 
-        bool ConnectionManager::eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor)
+        bool ConnectionManager::eraseIfMatchingPort(ConnID const* conn_id, ChannelDescriptor& descriptor)
         {
-            if ( descriptor.get<0>() && port->isSameID(*descriptor.get<0>()))
+            if ( descriptor.get<0>() && conn_id->isSameID(*descriptor.get<0>()))
             {
                 // disconnect needs to know if we're from Out->In (forward) or from In->Out
                 bool is_forward = true;
@@ -89,16 +91,8 @@ namespace RTT
 
         void ConnectionManager::disconnect(PortInterface& port)
         {
-            if (connections) {
-                connections->delete_if( boost::bind(&ConnectionManager::eraseIfMatchingPort, this, &port, _1) );
-                // reset current if it was deleted.
-                checkDeletedConnections( cur_channel.get<1>() == 0 );
-                return;
-            } else {
-                // single channel case
-                if ( cur_channel.get<1>() )
-                    eraseIfMatchingPort(&port, cur_channel);
-            }
+            boost::scoped_ptr<ConnID> conn_id( port.getPortID() );
+            this->removeConnection(conn_id.get());
         }
 
         bool ConnectionManager::eraseConnection(ConnectionManager::ChannelDescriptor& descriptor)
@@ -133,9 +127,10 @@ namespace RTT
         { return cur_channel.get<1>(); }
 
 
-        bool ConnectionManager::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel, ConnPolicy const& policy)
+        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel)
         {
-            ChannelDescriptor descriptor = boost::make_tuple(port_id, channel);
+            assert(conn_id);
+            ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel);
             if ( cur_channel.get<1>() ) {
                 // cur_channel, already in use, check if connections needs to be created.
                 if (!connections) {
@@ -152,50 +147,34 @@ namespace RTT
             } else {
                 cur_channel = descriptor;
             }
-
-            if ( mport->connectionAdded(channel, policy) )
-                return true;
-            // cleanup.
-            removeConnection( channel );
-            return false;
         }
 
-        bool is_same_id(PortInterface const& port, ConnectionManager::ChannelDescriptor const& channel)
+        void ConnectionManager::removeConnection(ConnID* conn_id)
         {
-            return port.isSameID( *channel.get<0>() );
+            if (connections) {
+
+                connections->delete_if( boost::bind(&ConnectionManager::eraseIfMatchingPort, this, conn_id, _1) );
+                // reset current if it was deleted.
+                checkDeletedConnections( cur_channel.get<1>() == 0 );
+                return;
+            } else {
+                // single channel case
+                if ( cur_channel.get<1>() )
+                    eraseIfMatchingPort(conn_id, cur_channel);
+            }
+
+        }
+
+        bool is_same_id(ConnID* conn_id, ConnectionManager::ChannelDescriptor const& channel)
+        {
+            return conn_id->isSameID( *channel.get<0>() );
         }
 
         ChannelElementBase::shared_ptr ConnectionManager::getConnection(const PortInterface& port)
         {
-            return connections->find_if( boost::bind(&is_same_id, boost::ref(port),_1) ).get<1>();
+            boost::scoped_ptr<ConnID> conn_id( port.getPortID() );
+            return connections->find_if( boost::bind(&is_same_id, conn_id.get(),_1) ).get<1>();
         }
-
-        bool ConnectionManager::matchAndRemoveConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor& descriptor) const
-        {
-            if(channel == descriptor.get<1>()) {
-                return true;
-            }
-            return false;
-        }
-
-        bool ConnectionManager::removeConnection(ChannelElementBase::shared_ptr channel)
-        {
-            // this code removes the channel from the connections list, re-sets cur_channel if necessary
-            // and deletes the connections list if it is empty.
-            bool removed = false;
-            bool reset = false;
-            if (cur_channel.get<1>() == channel )
-                reset = true;
-            if (connections) {
-                if ( connections->delete_if( bind(&ConnectionManager::matchAndRemoveConnectionChannel, this, channel, _1) ) ) {
-                    removed = true;
-                }
-            }
-            checkDeletedConnections(reset);
-            return removed;
-
-        }
-
 
     }
 

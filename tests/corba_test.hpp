@@ -30,10 +30,10 @@ public:
     void new_data_listener(PortInterface* port);
 
     // Ports
-    InputPort<double>*  mr1;
-    OutputPort<double>* mw1;
-    InputPort<double>*  mr2;
-    OutputPort<double>* mw2;
+    InputPort<double>*  mi1;
+    OutputPort<double>* mo1;
+    InputPort<double>*  mi2;
+    OutputPort<double>* mo2;
 
     // ref/const-ref tests:
     double ret;
@@ -72,6 +72,8 @@ public:
 
     void testPortConnections();
     void testPortProxying();
+
+    void testHalfs();
 
     // helper test functions
     void testPortDataConnection();

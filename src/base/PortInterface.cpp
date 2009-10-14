@@ -7,18 +7,6 @@ using namespace RTT;
 using namespace detail;
 using namespace std;
 
-namespace {
-
-    struct LocalPortID : public PortID
-    {
-        PortInterface const* ptr;
-        LocalPortID(PortInterface const* obj)
-            : ptr(obj) {}
-    };
-}
-
- 
-
 PortInterface::PortInterface(const std::string& name)
     : name(name), iface(0) {}
 
@@ -37,15 +25,8 @@ bool PortInterface::isLocal() const
 int PortInterface::serverProtocol() const
 { return 0; }
 
-bool PortInterface::isSameID(PortID const& id) const
-{ 
-    LocalPortID const* real_id = dynamic_cast<LocalPortID const*>(&id);
-    if (!real_id)
-        return false;
-    else return real_id->ptr == this;
-}
-PortID* PortInterface::getPortID() const
-{ return new LocalPortID(this); }
+ConnID* PortInterface::getPortID() const
+{ return new LocalConnID(this); }
 
 TaskObject* PortInterface::createPortObject()
 {

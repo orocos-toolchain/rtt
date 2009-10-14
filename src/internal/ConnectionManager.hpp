@@ -9,14 +9,15 @@
 #define CONNECTIONMANAGER_HPP_
 
 
+#include "ConnPolicy.hpp"
+#include "ConnID.hpp"
+#include "List.hpp"
+#include "../os/Mutex.hpp"
 #include "../base/rtt-base-fwd.hpp"
-#include "../internal/ConnPolicy.hpp"
 #include "../base/ChannelElementBase.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include "../internal/List.hpp"
-#include "../os/Mutex.hpp"
 
 
 namespace RTT
@@ -46,11 +47,13 @@ namespace RTT
              * also validates if the connection is sound.
              * @return false if the connection failed to work, true otherwise.
              */
-            bool addConnection(base::PortID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
+            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input);
+
+            void removeConnection(ConnID* port_id);
 
             /**
              * Returns the connection to a given port.
-             * The lookup is done by PortID.
+             * The lookup is done by ConnID.
              * @param port The port to use for lookup.
              * @return A connection to \a port or nill if no such connection exists.
              */
@@ -68,11 +71,6 @@ namespace RTT
 
             /** Removes the channel that connects this port to \c port */
             void disconnect(base::PortInterface& port);
-
-            /** Removes the connection associated with this channel, and the channel
-             * as well
-             */
-            bool removeConnection(base::ChannelElementBase::shared_ptr channel);
 
             template<typename Pred>
             bool delete_if(Pred pred) {
@@ -127,7 +125,7 @@ namespace RTT
              */
             void clear();
 
-            typedef boost::tuple<boost::shared_ptr<base::PortID>, base::ChannelElementBase::shared_ptr> ChannelDescriptor;
+            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr> ChannelDescriptor;
         protected:
 
             /**
@@ -155,7 +153,7 @@ namespace RTT
              *
              * @returns true if the descriptor matches, false otherwise
              */
-            bool eraseIfMatchingPort(base::PortInterface const* port, ChannelDescriptor& descriptor);
+            bool eraseIfMatchingPort(ConnID const* port_id, ChannelDescriptor& descriptor);
 
             /** Helper method for disconnect()
              *
@@ -163,14 +161,18 @@ namespace RTT
              */
             bool eraseConnection(ChannelDescriptor& descriptor);
 
-            /** Helper method for removeConnection(channel) */
-            bool matchAndRemoveConnectionChannel(base::ChannelElementBase::shared_ptr channel, ChannelDescriptor& descriptor) const;
-
             /** os::Mutex for when it is needed to resize the connections list */
             os::Mutex connection_resize_mtx;
 
+            /**
+             * The port for which we manage connections.
+             */
             base::PortInterface* mport;
 
+            /**
+             * A list of all our connections. Only non-null if two or more connections
+             * were added.
+             */
             List< ChannelDescriptor >* connections;
 
             /**

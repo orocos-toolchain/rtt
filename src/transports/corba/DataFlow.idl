@@ -187,7 +187,7 @@ module RTT
        * @see removeConnection() to remove this connection again.
        */
       boolean createConnection(in string local_port, in CDataFlowInterface remote_ports,
-            in string remote_port, in CConnPolicy policy)
+            in string remote_port, inout CConnPolicy policy)
             raises(CNoSuchPortException);
             
       /** 
@@ -195,6 +195,23 @@ module RTT
        */
       void removeConnection(in string writer_name,
             in CDataFlowInterface reader_iface, in string reader_name)
+            raises(CNoSuchPortException);
+
+      /**
+       * Create an out-of-band data stream with a given policy.
+       * You may specify a name_id in the policy object, or if left empty,
+       * a name will be chosen for you.
+       */
+      boolean createStream(in string local_port, inout CConnPolicy policy)
+            raises(CNoSuchPortException);
+
+      /**
+       * Removes a stream added with createStream.
+       * @param local_port The port to remove the stream from.
+       * @param stream_name The name_id returned in the CConnPolicy object
+       * after the call to createStream.
+       */
+      void removeStream(in string local_port, in string stream_name)
             raises(CNoSuchPortException);
 
       /**

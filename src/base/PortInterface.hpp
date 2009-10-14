@@ -3,24 +3,18 @@
 
 #include <string>
 #include "../internal/rtt-internal-fwd.hpp"
-#include "../internal/Channels.hpp"
 #include "../internal/ConnPolicy.hpp"
+#include "../internal/ConnID.hpp"
+#include "ChannelElementBase.hpp"
+#include "../types/rtt-types-fwd.hpp"
+#include "../interface/rtt-interface-fwd.hpp"
 
 namespace RTT
 { namespace base {
 
-    /** This class is used in places where a permanent representation of a
-     * reference to a port is needed, like in OutputPortInterface.
-     *
-     * It is usually returned by PortInterface::getPortID, and used by
-     * PortInterface::isSameID(PortID const&)
+    /**
+     * The base class of every data flow port.
      */
-    class RTT_API PortID
-    {
-    public:
-        virtual ~PortID() {}
-    };
-
     class RTT_API PortInterface
     {
         std::string name;
@@ -28,16 +22,13 @@ namespace RTT
     protected:
         PortInterface(const std::string& name);
 
-        friend class RTT::internal::ConnectionManager;
-
-        /** Helper method called by addConnection to set the channel's initial value, depending on the policy. */
-        virtual bool connectionAdded( ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) = 0;
-
     public:
         virtual ~PortInterface() {}
 
-        virtual PortID* getPortID() const;
-        virtual bool isSameID(PortID const& id) const;
+        /**
+         * Returns the identity of this port in a ConnID object.
+         */
+        virtual internal::ConnID* getPortID() const;
 
         /**
          * Get the name of this Port.
@@ -124,6 +115,19 @@ namespace RTT
          * @param policy The connection policy describing how the stream must be set up.
          */
         virtual bool createStream(internal::ConnPolicy const& policy) = 0;
+
+        /**
+         * Adds a user created connection to this port.
+         * This is an advanced method, prefer to use connectTo and createStream.
+         */
+        virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy = internal::ConnPolicy() ) = 0;
+
+        /**
+         * Removes a user created connection from this port.
+         * This is an advanced method, prefer to use disconnect()
+         * or a method from a subclass of PortInterface.
+         */
+        virtual void removeConnection(internal::ConnID* cid) = 0;
 
         /**
          * Once a port is added to a DataFlowInterface, it gets

@@ -7,6 +7,30 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::internal;
 
+bool LocalConnID::isSameID(ConnID const& id) const
+{
+    LocalConnID const* real_id = dynamic_cast<LocalConnID const*>(&id);
+    if (!real_id)
+        return false;
+    else return real_id->ptr == this->ptr;
+}
+
+ConnID* LocalConnID::clone() const {
+    return new LocalConnID(this->ptr);
+}
+
+bool StreamConnID::isSameID(ConnID const& id) const
+{
+    StreamConnID const* real_id = dynamic_cast<StreamConnID const*>(&id);
+    if (!real_id)
+        return false;
+    else return real_id->name_id == this->name_id;
+}
+
+ConnID* StreamConnID::clone() const {
+    return new StreamConnID(this->name_id);
+}
+
 base::ChannelElementBase* RTT::internal::ConnFactory::createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, const internal::ConnPolicy& policy)
 {
     // Remote connection

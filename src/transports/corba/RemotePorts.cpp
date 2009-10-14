@@ -4,26 +4,13 @@
 #include "../../interface/DataFlowInterface.hpp"
 #include <cassert>
 #include "CorbaConnPolicy.hpp"
+#include "RemoteConnID.hpp"
+#include "../../internal/ConnID.hpp"
+#include "../../rtt-detail-fwd.hpp"
+
 
 using namespace std;
-using namespace RTT::corba;
-using namespace RTT::base;
-
-namespace {
-    struct RemotePortID : public PortID
-    {
-        CDataFlowInterface_var dataflow;
-        std::string name;
-        
-        RemotePortID(CDataFlowInterface_ptr dataflow, std::string const& name);
-    };
-
-    RemotePortID::RemotePortID(CDataFlowInterface_ptr dataflow, std::string const& name)
-        : dataflow(CDataFlowInterface::_duplicate(dataflow))
-        , name(name) {}
-
-}
-
+using namespace RTT::detail;
 
 template<typename BaseClass>
 RemotePort<BaseClass>::RemotePort(RTT::types::TypeInfo const* type_info,
@@ -53,20 +40,20 @@ PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
 
 template<typename BaseClass>
-RTT::base::PortID* RemotePort<BaseClass>::getPortID() const
-{ return new RemotePortID(dataflow, this->getName()); }
-template<typename BaseClass>
-bool RemotePort<BaseClass>::isSameID(RTT::base::PortID const& id) const
-{
-    RemotePortID const* real_id = dynamic_cast<RemotePortID const*>(&id);
-    if (!real_id) return false;
-    return real_id->dataflow->_is_equivalent(dataflow) && real_id->name == this->getName();
-}
+RTT::internal::ConnID* RemotePort<BaseClass>::getPortID() const
+{ return new RemoteConnID(dataflow, this->getName()); }
 
 template<typename BaseClass>
 bool RemotePort<BaseClass>::createStream( const internal::ConnPolicy& policy )
 {
     log(Error) << "Can't create a data stream on a remote port !" <<endlog();
+    return false;
+}
+
+template<typename BaseClass>
+bool RemotePort<BaseClass>::addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy)
+{
+    assert(false && "Can/Should not add connection to remote port object !");
     return false;
 }
 
@@ -170,11 +157,13 @@ void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::internal::ConnPolicy const& policy )
 {
     try {
+        CConnPolicy cpolicy = toCORBA(policy);
         // this dynamic CDataFlowInterface lookup is tricky, we re/ab-use the DataFlowInterface pointer of sink !
-        return dataflow->createConnection( this->getName().c_str(), CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() ), sink.getName().c_str(), toCORBA(policy) );
-    } catch(...) { return false; }
-
-    //throw std::runtime_error("OutputPort::createConnection() is not supported in CORBA port proxies");
+        if ( dataflow->createConnection( this->getName().c_str(), CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() ), sink.getName().c_str(), cpolicy ) ) {
+            policy.name_id = cpolicy.name_id;
+            return true;
+        }
+    } catch(...) { log(Error) << "Unknown exception in RemoteOutputPort::createConnection"<<endlog(); return false; }
 }
 
 RTT::base::PortInterface* RemoteOutputPort::clone() const

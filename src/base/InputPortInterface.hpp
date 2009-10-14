@@ -3,6 +3,7 @@
 
 #include <string>
 #include "PortInterface.hpp"
+#include "ChannelElement.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../internal/ConnectionManager.hpp"
 #include "../Event.hpp"
@@ -25,11 +26,6 @@ namespace RTT
         internal::ConnPolicy        default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
-        template<class T>
-        friend class internal::ConnOutputEndpoint;
-        // only to be used by ConnOutputEndpoint
-        virtual void startConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input);
-
     public:
         InputPortInterface(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy());
         ~InputPortInterface();
@@ -41,12 +37,14 @@ namespace RTT
 
         internal::ConnPolicy getDefaultPolicy() const;
 
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy = internal::ConnPolicy() );
+
         /** Removes the input channel
          *
          * You should usually not use this directly. Use disconnect()
          * instead.
          */
-        virtual void removeConnection(ChannelElementBase::shared_ptr channel_output);
+        virtual void removeConnection(internal::ConnID* cid);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the

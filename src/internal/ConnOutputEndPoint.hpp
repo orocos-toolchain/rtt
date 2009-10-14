@@ -18,7 +18,7 @@ namespace RTT
     class ConnOutputEndpoint : public base::ChannelElement<T>
     {
         InputPort<T>* port;
-
+        ConnID* cid;
     public:
         /**
          * Creates the connection end that represents the output and attach
@@ -28,14 +28,15 @@ namespace RTT
          * represents the other end. This id is passed to the input port \a port.
          * @return
          */
-        ConnOutputEndpoint(InputPort<T>* port, base::PortID* output_id = 0)
-            : port(port)
+        ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
+            : port(port), cid(output_id->clone())
         {
-            port->startConnection(output_id, this );
+            port->addConnection(output_id, this );
         }
 
         ~ConnOutputEndpoint()
         {
+            delete cid;
         }
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
@@ -51,7 +52,7 @@ namespace RTT
             if (forward)
             {
                 if (port)
-                    port->removeConnection(this);
+                    port->removeConnection(cid);
             }
             else
                 base::ChannelElement<T>::disconnect(false);

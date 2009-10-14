@@ -39,14 +39,13 @@ namespace RTT {
             PortableServer::POA_ptr _default_POA();
             CDataFlowInterface_ptr getDataFlowInterface() const;
 
-            base::PortID* getPortID() const;
-            bool isSameID(base::PortID const& id) const;
+            internal::ConnID* getPortID() const;
 
             types::TypeInfo const* getTypeInfo() const;
             int serverProtocol() const;
             bool connected() const;
             bool createStream( const internal::ConnPolicy& policy );
-
+            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
             void disconnect();
         };
 
@@ -94,7 +93,7 @@ namespace RTT {
              * @param policy
              * @return
              */
-            virtual bool addConnection(base::PortID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) { return true; }
+            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) { return true; }
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,

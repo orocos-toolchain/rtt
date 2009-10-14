@@ -47,6 +47,7 @@
 #include "ExpressionProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"
+#include "../../internal/ConnID.hpp"
 
 namespace RTT
 { namespace corba
@@ -95,7 +96,7 @@ namespace RTT
                   policy2.pull = false;
               }
               return internal::ConnFactory::buildOutputHalf(
-                      static_cast<RTT::InputPort<T>&>(port), 0,
+                      static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID(),
                       policy2);
           }
 
@@ -108,8 +109,8 @@ namespace RTT
                   policy2.pull = true;
               }
               return internal::ConnFactory::buildInputHalf(
-                      static_cast<RTT::OutputPort<T>&>(port),
-                      policy2, 0);
+                      static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(),
+                      policy2, 0 );
           }
 
           /**

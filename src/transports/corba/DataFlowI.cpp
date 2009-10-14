@@ -51,6 +51,7 @@
 #include "CorbaConnPolicy.hpp"
 
 #include "RemotePorts.hpp"
+#include "RemoteConnID.hpp"
 
 #include <iostream>
 
@@ -238,11 +239,38 @@ void CDataFlowInterface_i::removeConnection(
         log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
         throw corba::CNoSuchPortException();
     }
-    // TODO: XXX make disconnectPort work like channelReady.
-    PortableServer::POA_var poa = _default_POA();
-    RemoteInputPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa.in() );
-    writer->disconnect(reader);
+    RemoteConnID rcid(reader_interface, reader_port);
+    writer->removeConnection( &rcid );
 }
+
+::CORBA::Boolean CDataFlowInterface_i::createStream( const char* port,
+                               RTT::corba::CConnPolicy & policy)
+{
+    PortInterface* p = mdf->getPort(port);
+    if (p == 0) {
+        log(Error) << "createStream: No such port: "<< p->getName() <<endlog();
+        throw corba::CNoSuchPortException();
+    }
+
+    RTT::internal::ConnPolicy p2 = toRTT(policy);
+    if ( p->createStream( p2 ) ) {
+        policy = toCORBA(p2);
+        return true;
+    }
+    return false;
+}
+
+void CDataFlowInterface_i::removeStream( const char* port, const char* stream_name)
+{
+    PortInterface* p = mdf->getPort(port);
+    if (p == 0) {
+        log(Error) << "createStream: No such port: "<< p->getName() <<endlog();
+        throw corba::CNoSuchPortException();
+    }
+    StreamConnID rcid(stream_name);
+    p->removeConnection( &rcid );
+}
+
 
 CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
         const char* port_name, CConnPolicy & corba_policy)
@@ -261,7 +289,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
     if (!transporter)
         throw CNoCorbaTransport();
 
-    ChannelElementBase* element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
+    ChannelElementBase::shared_ptr element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
     CRemoteChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
     dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
@@ -318,8 +346,12 @@ CChannelElement_ptr CDataFlowInterface_i::buildInputHalf(
     if (!transporter)
         throw CNoCorbaTransport();
 
+    // force the creation of a buffer !
+    ConnPolicy policy2 = toRTT(corba_policy);
+    policy2.pull = true;
+
     // Now create the output-side channel elements.
-    ChannelElementBase* element = transporter->buildInputHalf(*port, toRTT(corba_policy));
+    ChannelElementBase::shared_ptr element = transporter->buildInputHalf(*port, policy2);
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
@@ -359,7 +391,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildInputHalf(
     }
 
     // Attach to our output port:
-    port->addConnection(0, element->getInputEndPoint(), toRTT(corba_policy));
+    port->addConnection( new SimpleConnID(), element->getInputEndPoint(), policy2);
 
     // Finally, store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
     channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), element->getInputEndPoint()));
@@ -370,7 +402,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildInputHalf(
 
 ::CORBA::Boolean CDataFlowInterface_i::createConnection(
         const char* writer_port, CDataFlowInterface_ptr reader_interface,
-        const char* reader_port, CConnPolicy const& policy)
+        const char* reader_port, CConnPolicy & policy)
 {
     Logger::In in("CDataFlowInterface_i::createConnection");
     OutputPortInterface* writer = dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));

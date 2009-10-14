@@ -31,15 +31,19 @@ void OutputPortInterface::disconnect()
     cmanager.disconnect();
 }
 
-bool OutputPortInterface::addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
-    // this will call us back using connectionAdded().
-    return cmanager.addConnection(port_id, channel_input, policy);
+    if ( this->connectionAdded(channel_input, policy) ) {
+        cmanager.addConnection(port_id, channel_input);
+        return true;
+    }
+    return false;
 }
 
-bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
+// This is called by our input endpoint.
+void OutputPortInterface::removeConnection(ConnID* conn)
 {
-    return cmanager.removeConnection(channel);
+    cmanager.removeConnection(conn);
 }
 
 
