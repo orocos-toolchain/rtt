@@ -226,7 +226,10 @@ ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
     CorbaTypeTransporter* transporter =
         dynamic_cast<CorbaTypeTransporter*>(type_info->getProtocol(ORO_CORBA_PROTOCOL_ID));
     if (!transporter)
+    {
+        log(Error) << "no CORBA transport registered for type " << type_info->getTypeName() << endlog();
         throw NoCorbaTransport();
+    }
 
     RTT::ChannelElementBase* element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
     ChannelElement_i* this_element;

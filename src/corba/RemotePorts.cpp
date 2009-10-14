@@ -74,9 +74,10 @@ RTT::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::TypeInfo const* t
     try {
         remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
     }
-    catch(CORBA::Exception&)
+    catch(CORBA::Exception& e)
     {
         log(Error) << "caught CORBA exception while creating port's input half" << endlog();
+        log(Error) << "the CORBA exception is of type " << typeid(e).name() << endlog();
         return NULL;
     }
 
