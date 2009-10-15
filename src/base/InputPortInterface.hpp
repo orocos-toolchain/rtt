@@ -23,11 +23,11 @@ namespace RTT
 
     protected:
         internal::ConnectionManager cmanager;
-        internal::ConnPolicy        default_policy;
+        ConnPolicy        default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
-        InputPortInterface(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy());
+        InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
         ~InputPortInterface();
 
         /** Clears the connection. After call to read() will return false after
@@ -35,9 +35,9 @@ namespace RTT
          */
         void clear();
 
-        internal::ConnPolicy getDefaultPolicy() const;
+        ConnPolicy getDefaultPolicy() const;
 
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy = internal::ConnPolicy() );
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy = ConnPolicy() );
 
         /** Removes the input channel
          *
@@ -84,7 +84,7 @@ namespace RTT
          */
         NewDataOnPortEvent* getNewDataOnPortEvent();
 
-        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface& other);
 };

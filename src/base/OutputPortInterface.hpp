@@ -20,14 +20,14 @@ namespace RTT
         /**
          * Upcall to OutputPort.
          */
-        virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) = 0;
+        virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) = 0;
     public:
         /**
          * Adds a new connection to this output port and initializes the connection if required by \a policy.
          * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
          * to do any further bookkeeping, such as informing the input that a new output has been added.
          */
-        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
@@ -59,20 +59,20 @@ namespace RTT
         /** Connects this write port to the given read port, using a single-data
          * policy with the given locking mechanism
          */
-        bool createDataConnection( InputPortInterface& sink, int lock_policy = internal::ConnPolicy::LOCK_FREE );
+        bool createDataConnection( InputPortInterface& sink, int lock_policy = ConnPolicy::LOCK_FREE );
 
         /** Connects this write port to the given read port, using a buffered
          * policy, with the buffer of the given size and the given locking
          * mechanism
          */
-        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = internal::ConnPolicy::LOCK_FREE );
+        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
         /** Connects this write port to the given read port, using the as policy
          * the default policy of the sink port
          */
         bool createConnection( InputPortInterface& sink );
 
-        virtual bool createConnection( InputPortInterface& sink, internal::ConnPolicy const& policy ) = 0;
+        virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */
         void disconnect(PortInterface& port);
@@ -82,7 +82,7 @@ namespace RTT
          */
         virtual void removeConnection(internal::ConnID* cid);
 
-        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface& other);
     };

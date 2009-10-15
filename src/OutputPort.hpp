@@ -60,7 +60,7 @@ namespace RTT
             }
         }
 
-        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) {
+        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
             // Initialize the new channel with last written data if requested
             // (and available)
 
@@ -222,12 +222,12 @@ namespace RTT
 
         /** Connects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection(base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
+        virtual bool createConnection(base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
             return internal::ConnFactory::createConnection(*this, input_port, policy);
         }
 
-        virtual bool createStream(internal::ConnPolicy const& policy)
+        virtual bool createStream(ConnPolicy const& policy)
         {
             return internal::ConnFactory::createStream(*this, policy);
         }

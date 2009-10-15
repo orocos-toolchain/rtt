@@ -252,7 +252,7 @@ void CDataFlowInterface_i::removeConnection(
         throw corba::CNoSuchPortException();
     }
 
-    RTT::internal::ConnPolicy p2 = toRTT(policy);
+    RTT::ConnPolicy p2 = toRTT(policy);
     if ( p->createStream( p2 ) ) {
         policy = toCORBA(p2);
         return true;

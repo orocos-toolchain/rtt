@@ -150,7 +150,7 @@ namespace RTT
          *
          */
         template<typename T>
-        static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
+        static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
             if ( input_port.connected() ) {
                 log(Error) << "Can not connect to connected InputPort." <<endlog();
@@ -214,7 +214,7 @@ namespace RTT
         }
 
         template<class T>
-        static bool createStream(OutputPort<T>& output_port, internal::ConnPolicy const& policy)
+        static bool createStream(OutputPort<T>& output_port, ConnPolicy const& policy)
         {
             if (policy.transport == 0 ) {
                 log(Error) << "Need a transport for creating streams." <<endlog();
@@ -243,7 +243,7 @@ namespace RTT
         }
 
         template<class T>
-        static bool createStream(InputPort<T>& input_port, internal::ConnPolicy const& policy)
+        static bool createStream(InputPort<T>& input_port, ConnPolicy const& policy)
         {
             if (policy.transport == 0 ) {
                 log(Error) << "Need a transport for creating streams." <<endlog();
@@ -285,7 +285,7 @@ namespace RTT
         }
     protected:
 
-        static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, internal::ConnPolicy const& policy);
+        static base::ChannelElementBase* createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy);
 
         /**
          * This code is for setting up an in-process out-of-band connection.
@@ -294,7 +294,7 @@ namespace RTT
          * ports are local.
          */
         template<class T>
-        static base::ChannelElementBase* createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, internal::ConnPolicy const& policy) {
+        static base::ChannelElementBase* createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, ConnPolicy const& policy) {
             // create input half using a transport.
             const types::TypeInfo* type = output_port.getTypeInfo();
             if ( type->getProtocol(policy.transport) == 0 ) {

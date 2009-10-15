@@ -44,14 +44,14 @@ RTT::internal::ConnID* RemotePort<BaseClass>::getPortID() const
 { return new RemoteConnID(dataflow, this->getName()); }
 
 template<typename BaseClass>
-bool RemotePort<BaseClass>::createStream( const internal::ConnPolicy& policy )
+bool RemotePort<BaseClass>::createStream( const ConnPolicy& policy )
 {
     log(Error) << "Can't create a data stream on a remote port !" <<endlog();
     return false;
 }
 
 template<typename BaseClass>
-bool RemotePort<BaseClass>::addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy)
+bool RemotePort<BaseClass>::addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
     assert(false && "Can/Should not add connection to remote port object !");
     return false;
@@ -69,7 +69,7 @@ RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 
 RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::types::TypeInfo const* type,
                                                           RTT::base::InputPortInterface& reader_,
-                                                          RTT::internal::ConnPolicy const& policy)
+                                                          RTT::ConnPolicy const& policy)
 {
     Logger::In in("RemoteInputPort::buildRemoteChannelOutput");
     CRemoteChannelElement_var remote;
@@ -154,7 +154,7 @@ bool RemoteOutputPort::keepsLastWrittenValue() const
 void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 { throw std::runtime_error("OutputPort::keepLastWrittenValue() is not supported in CORBA port proxies"); }
 
-bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::internal::ConnPolicy const& policy )
+bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::ConnPolicy const& policy )
 {
     try {
         CConnPolicy cpolicy = toCORBA(policy);

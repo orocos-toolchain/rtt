@@ -1,7 +1,7 @@
-#include "../../internal/ConnPolicy.hpp"
+#include "../../ConnPolicy.hpp"
 #include "DataFlowC.h"
 
-static RTT::corba::CConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
+static RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy)
 {
     RTT::corba::CConnPolicy corba_policy;
     corba_policy.type        = RTT::corba::CConnectionModel(policy.type);
@@ -15,9 +15,9 @@ static RTT::corba::CConnPolicy toCORBA(RTT::internal::ConnPolicy const& policy)
     return corba_policy;
 }
 
-static RTT::internal::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
+static RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy)
 {
-    RTT::internal::ConnPolicy policy;
+    RTT::ConnPolicy policy;
     policy.type        = corba_policy.type;
     policy.init        = corba_policy.init;
     policy.lock_policy = corba_policy.lock_policy;

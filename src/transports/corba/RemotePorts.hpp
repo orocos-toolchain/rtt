@@ -28,7 +28,7 @@ namespace RTT {
             CDataFlowInterface_var dataflow;
             PortableServer::POA_var mpoa;
 
-            bool connectionAdded( base::ChannelElementBase::shared_ptr channel, internal::ConnPolicy const& policy ) { assert(false && "Can/Should not add connection to remote port object !");return false; }
+            bool connectionAdded( base::ChannelElementBase::shared_ptr channel, ConnPolicy const& policy ) { assert(false && "Can/Should not add connection to remote port object !");return false; }
 
         public:
             RemotePort(types::TypeInfo const* type_info,
@@ -44,8 +44,8 @@ namespace RTT {
             types::TypeInfo const* getTypeInfo() const;
             int serverProtocol() const;
             bool connected() const;
-            bool createStream( const internal::ConnPolicy& policy );
-            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
+            bool createStream( const ConnPolicy& policy );
+            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
         };
 
@@ -67,7 +67,7 @@ namespace RTT {
             void keepLastWrittenValue(bool new_flag);
 
             using base::OutputPortInterface::createConnection;
-            bool createConnection( base::InputPortInterface& sink, internal::ConnPolicy const& policy );
+            bool createConnection( base::InputPortInterface& sink, ConnPolicy const& policy );
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;
@@ -93,7 +93,7 @@ namespace RTT {
              * @param policy
              * @return
              */
-            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy) { return true; }
+            virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) { return true; }
         public:
             RemoteInputPort(types::TypeInfo const* type_info,
                     CDataFlowInterface_ptr dataflow,
@@ -115,7 +115,7 @@ namespace RTT {
              */
             base::ChannelElementBase* buildRemoteChannelOutput(types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
-                    internal::ConnPolicy const& policy);
+                    ConnPolicy const& policy);
 
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;

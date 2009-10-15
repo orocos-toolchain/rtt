@@ -26,7 +26,7 @@ namespace RTT
         friend class internal::ConnOutputEndpoint<T>;
         internal::InputPortSource<T>* data_source;
 
-        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy ) { return true; }
+        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
 
         bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
@@ -40,7 +40,7 @@ namespace RTT
             return false;
         }
     public:
-        InputPort(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy())
+        InputPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
@@ -101,7 +101,7 @@ namespace RTT
             return data_source;
         }
 
-        virtual bool createStream(internal::ConnPolicy const& policy)
+        virtual bool createStream(ConnPolicy const& policy)
         {
             return internal::ConnFactory::createStream(*this, policy);
         }

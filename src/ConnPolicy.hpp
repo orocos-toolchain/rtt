@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace RTT { namespace internal {
+namespace RTT {
 
     /** A connection policy object describes how a given connection should
      * behave. Various parameters are available:
@@ -99,7 +99,7 @@ namespace RTT { namespace internal {
          */
         mutable std::string name_id;
     };
-}}
+}
 
 #endif
 

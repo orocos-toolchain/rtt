@@ -3,7 +3,7 @@
 
 #include <string>
 #include "../internal/rtt-internal-fwd.hpp"
-#include "../internal/ConnPolicy.hpp"
+#include "../ConnPolicy.hpp"
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
@@ -96,7 +96,7 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy) = 0;
+        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy) = 0;
 
         /** Connects this port with \a other, using the default policy of the input. Unlike
          * OutputPortInterface::createConnection, \a other can be the write port
@@ -114,13 +114,13 @@ namespace RTT
          * and (probably) same name_id.
          * @param policy The connection policy describing how the stream must be set up.
          */
-        virtual bool createStream(internal::ConnPolicy const& policy) = 0;
+        virtual bool createStream(ConnPolicy const& policy) = 0;
 
         /**
          * Adds a user created connection to this port.
          * This is an advanced method, prefer to use connectTo and createStream.
          */
-        virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy = internal::ConnPolicy() ) = 0;
+        virtual bool addConnection(internal::ConnID* cid, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy = ConnPolicy() ) = 0;
 
         /**
          * Removes a user created connection from this port.

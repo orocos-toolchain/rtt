@@ -87,9 +87,9 @@ namespace RTT
           CRemoteChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
           { return new RemoteChannelElement<T>(*this, poa); }
 
-          base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
+          base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const
           {
-              internal::ConnPolicy policy2 = policy;
+              ConnPolicy policy2 = policy;
               if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
                   // out of band requires a hack (maybe in-band too in a later stage):
                   // we force the creation of a buffer on input side
@@ -100,9 +100,9 @@ namespace RTT
                       policy2);
           }
 
-          base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port, internal::ConnPolicy const& policy) const
+          base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const
           {
-              internal::ConnPolicy policy2 = policy;
+              ConnPolicy policy2 = policy;
               if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
                   // out of band requires a hack (maybe in-band too in a later stage):
                   // we force the creation of a buffer on input side

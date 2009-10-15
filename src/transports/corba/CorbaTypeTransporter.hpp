@@ -47,10 +47,10 @@ namespace RTT {
 	     * @return a ChannelElement which must be added to the input port.
 	     */
 	    virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port,
-		    internal::ConnPolicy const& policy) const = 0;
+		    ConnPolicy const& policy) const = 0;
 
         virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port,
-            internal::ConnPolicy const& policy) const = 0;
+            ConnPolicy const& policy) const = 0;
 	};
     }
 }
