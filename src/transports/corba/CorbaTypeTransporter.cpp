@@ -11,6 +11,6 @@
 using namespace RTT;
 using namespace RTT::corba;
 
-base::ChannelElementBase* CorbaTypeTransporter::createStream( base::PortInterface* /*port*/, std::string& /*name_id*/, int /*size_hint*/, bool /*is_sender*/) const {
+base::ChannelElementBase* CorbaTypeTransporter::createStream( base::PortInterface* /*port*/, const ConnPolicy& p, bool /*is_sender*/) const {
     return 0;
 }

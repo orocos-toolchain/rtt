@@ -65,9 +65,15 @@ namespace RTT
               return sizeof(T);
           }
 
-          virtual base::ChannelElementBase* createStream(base::PortInterface* port, std::string& name_id, int size_hint, bool is_sender) const {
+          virtual base::ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
               try {
-                  return new MQChannelElement<T>(port, *this, name_id, size_hint, is_sender);
+                  base::ChannelElementBase* mq = new MQChannelElement<T>(port, *this, policy, is_sender);
+                  if ( !is_sender ) {
+                      // the receiver needs a buffer to store his messages in.
+                      base::ChannelElementBase* buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
+                      mq->setOutput(buf);
+                  }
+                  return mq;
               } catch(std::exception& e) {
                   log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
               }

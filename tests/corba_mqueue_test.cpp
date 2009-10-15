@@ -140,6 +140,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.init = false;
     policy.lock_policy = RTT::corba::CLockFree;
     policy.size = 0;
+    policy.data_size = 0;
 
     // Set up an event handler to check if signalling works properly as well
     Handle hl( mr2->getNewDataOnPortEvent()->setup(

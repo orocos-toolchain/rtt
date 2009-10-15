@@ -98,7 +98,7 @@ namespace RTT
              * @return null in case streaming is not supported by this transport or a valid channel element otherwise.
              *
              */
-            virtual base::ChannelElementBase* createStream(base::PortInterface* port, std::string& channel_id, int size_hint, bool is_sender) const = 0;
+            virtual base::ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.

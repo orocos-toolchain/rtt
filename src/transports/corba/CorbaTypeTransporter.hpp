@@ -27,34 +27,18 @@ namespace RTT {
          */
         virtual bool updateFromAny(const CORBA::Any* blob, base::DataSourceBase::shared_ptr target) const = 0;
 
-
 	    /**
 	     * Builds a channel element for remote transport in both directions.
 	     * @param poa The POA to manage the server code.
 	     * @return the created CChannelElement_i.
 	     */
-	    virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const = 0;
+	    virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa, bool is_pull) const = 0;
 
 	    /**
 	     * The CORBA transport does not support creating 'CORBA' streams.
 	     * @return null
 	     */
-        virtual base::ChannelElementBase* createStream( base::PortInterface* /*port*/, std::string& /*name_id*/, int /*size_hint*/, bool /*is_sender*/) const;
-
-	    /**
-	     * Builds an connection output endpoint for the given input port.
-	     * This is not CORBA specific !
-	     *
-	     * The standard ConnectionFactory is used for this.
-	     * @param port The port needing an output endpoint
-	     * @param policy The policy for the connection factory.
-	     * @return a ChannelElement which must be added to the input port.
-	     */
-	    virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port,
-		    ConnPolicy const& policy) const = 0;
-
-        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port,
-            ConnPolicy const& policy) const = 0;
+        virtual base::ChannelElementBase* createStream( base::PortInterface* /*port*/, const ConnPolicy& /*policy*/, bool /*is_sender*/) const;
 	};
     }
 }

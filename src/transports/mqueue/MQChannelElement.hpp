@@ -45,26 +45,25 @@ namespace RTT
              * @param transport The type specific object that will be used to marshal the data.
              */
             MQChannelElement(base::PortInterface* port, types::TypeMarshaller<T> const& transport,
-                             std::string& name_id,
-                             int size_hint, bool is_sender) :
+                             const ConnPolicy& policy, bool is_sender) :
                 mtransport(transport),
                 data_source(new internal::ValueDataSource<T>),
                 mis_sender(is_sender), minit_done(false),
-                max_size(size_hint ? size_hint : transport.getSampleSize( data_source->set() ) )
+                max_size(policy.data_size ? policy.data_size : transport.getSampleSize( data_source->set() ) )
             {
                 Logger::In in("MQChannelElement");
                 std::stringstream namestr;
                 namestr << '/' << port->getInterface()->getParent()->getName()
                         << '.' << port->getName() << '.'<<this << '@' << getpid();
 
-                if ( name_id.empty() )
-                    name_id = namestr.str();
+                if ( policy.name_id.empty() )
+                    policy.name_id = namestr.str();
 
                 struct mq_attr mattr;
-                mattr.mq_maxmsg = 10; // XXX arbitrary hard-coded. This is/should be a policy.
+                mattr.mq_maxmsg = policy.size ? policy.size : 10;
                 mattr.mq_msgsize = max_size;
                 assert( max_size );
-                if ( name_id[0] != '/')
+                if ( policy.name_id[0] != '/')
                     throw std::runtime_error("Could not open message queue with wrong name. Names must start with '/' and contain no more '/' after the first one.");
                 if ( max_size <= 0)
                     throw std::runtime_error("Could not open message queue with zero message size.");
@@ -73,11 +72,11 @@ namespace RTT
                     oflag |= O_WRONLY;
                 else
                     oflag |= O_RDONLY;
-                mqdes = mq_open(name_id.c_str(), oflag, S_IREAD | S_IWRITE, &mattr);
+                mqdes = mq_open(policy.name_id.c_str(), oflag, S_IREAD | S_IWRITE, &mattr);
 
                 if (mqdes < 0) {
                     int the_error = errno;
-                    log(Error) << "FAILED opening '"<< name_id <<"' with size "<< max_size<< " for " << (is_sender ? "writing :" : "reading :") <<endlog();
+                    log(Error) << "FAILED opening '"<< policy.name_id <<"' with message size "<< mattr.mq_msgsize<< ", buffer size "<<mattr.mq_maxmsg<<" for " << (is_sender ? "writing :" : "reading :") <<endlog();
                     // these are copied from the man page. They are more informative than the plain perrno() text.
                     switch (the_error) {
                     case EACCES:
@@ -110,11 +109,11 @@ namespace RTT
                     throw std::runtime_error("Could not open message queue: mq_open returned -1.");
                 }
 
-                log(Debug) << "Opened '"<< name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
+                log(Debug) << "Opened '"<< policy.name_id <<"' with mqdes='"<<mqdes<<"' for " << (is_sender ? "writing." : "reading.") <<endlog();
 
                 buf = new char[ max_size];
                 memset(buf,0,max_size); // necessary to trick valgrind
-                mqname = name_id;
+                mqname = policy.name_id;
             }
 
             ~MQChannelElement() {
@@ -203,14 +202,14 @@ namespace RTT
                     typename base::ChannelElement<T>::value_t sample; // XXX: real-time !
                     // this read should always succeed since signal() means 'data available in a data element'.
                     base::ChannelElement<T>* input = dynamic_cast< base::ChannelElement<T>* >(this->input);
-                    if( input->read(sample) )
+                    if( input->read(sample) == NewData )
                         return this->write(sample);
                 } else {
                     // should not get signal when beeing a receiver.
                     assert(this->output);
                     typename base::ChannelElement<T>::value_t sample;
                     typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
-                    if( this->read(sample) && output )
+                    if( this->read(sample) == NewData && output )
                         return output->write(sample);
                 }
                 return false;

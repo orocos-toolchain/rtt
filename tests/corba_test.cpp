@@ -104,6 +104,7 @@ void CorbaTest::new_data_listener(PortInterface* port)
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
     signalled_port = 0; \
     code; \
+    usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
 
 void CorbaTest::testPortDataConnection()
@@ -167,6 +168,7 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 BOOST_AUTO_TEST_CASE( setupCorba )
 {
     corba::ControlTaskProxy::InitOrb(0,0);
+    corba::ControlTaskServer::ThreadOrb();
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )

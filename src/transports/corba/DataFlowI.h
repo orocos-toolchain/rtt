@@ -86,6 +86,7 @@ namespace RTT {
                 return _this();
             }
 
+            virtual void transferSamples() = 0;
 
             PortableServer::POA_ptr _default_POA();
 

@@ -3,6 +3,7 @@
 
 #include "DataFlowI.h"
 #include "CorbaTypeTransporter.hpp"
+#include "CorbaDispatcher.hpp"
 
 namespace RTT {
 
@@ -22,15 +23,23 @@ namespace RTT {
 	{
 	    typename internal::ValueDataSource<T>::shared_ptr data_source;
 
+	    /**
+	     * Becomes false if we couldn't transfer data to remote
+	     */
+	    bool valid;
+	    /**
+	     * In pull mode, we don't send data, just signal it and remote must read it back.
+	     */
+	    bool pull;
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
 	     * @param transport The type specific object that will be used to marshal the data.
 	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
-	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa)
+	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa, bool is_pull)
 		: CRemoteChannelElement_i(transport, poa)
-		, data_source(new internal::ValueDataSource<T>)
+		, data_source(new internal::ValueDataSource<T>), valid(true), pull(is_pull)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -38,6 +47,8 @@ namespace RTT {
                 // CORBA refcount-managed servants must start with a refcount of
                 // 1
                 this->ref();
+                // Force creation of dispatcher.
+                CorbaDispatcher::Instance();
             }
 
             /** Increase the reference count, called from the CORBA side */
@@ -61,10 +72,36 @@ namespace RTT {
                 // intercept signal if no remote side set.
                 if ( CORBA::is_nil(remote_side.in()) )
                     return true;
-                try
-                { return remote_side->remoteSignal(); }
-                catch(CORBA::Exception&)
-                { return false; }
+                // Remember that signal() is called in the context of the one
+                // that wrote the data, so we must decouple here to keep hard-RT happy.
+                // the dispatch thread must read the data and send it over by calling transferSample().
+                CorbaDispatcher::Instance()->dispatchChannel( this );
+
+                return valid;
+            }
+
+            virtual void transferSamples() {
+                if (!valid)
+                    return;
+                //log(Debug) <<"transfering..." <<endlog();
+                // in push mode, transfer all data, in pull mode, only signal once for each sample.
+                if ( pull ) {
+                    try
+                    { valid = remote_side->remoteSignal(); }
+                    catch(CORBA::Exception&)
+                    { valid = false; }
+                } else {
+                    typename base::ChannelElement<T>::value_t sample; // Not RT.
+                    //log(Debug) <<"...read..."<<endlog();
+                    while ( this->read(sample) == NewData && valid) {
+                        //log(Debug) <<"...write..."<<endlog();
+                        if ( this->write(sample) == false )
+                            valid = false;
+                        //log(Debug) <<"...next read?..."<<endlog();
+                    }
+                }
+                //log(Debug) <<"... done." <<endlog();
+
             }
 
             /**
@@ -123,7 +160,7 @@ namespace RTT {
                 CORBA::Any_var remote_value;
                 try
                 {
-                    if ( (cfs = remote_side->read(remote_value) ) )
+                    if ( remote_side && (cfs = remote_side->read(remote_value) ) )
                     {
                         transport.updateFromAny(&remote_value.in(), data_source);
                         sample = data_source->rvalue();
@@ -158,7 +195,7 @@ namespace RTT {
                     return true;
                 // go through corba
                 CORBA::Any_var ret = transport.createAny(data_source);
-                assert( remote_side.in() != 0 );
+                assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
                     remote_side->write(ret.in()); 

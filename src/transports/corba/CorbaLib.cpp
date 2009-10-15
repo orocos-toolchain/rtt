@@ -87,13 +87,15 @@ namespace RTT {
                 return false;
             }
 
-            virtual ChannelElementBase* createStream(base::PortInterface* port, string& name_id, int size_hint, bool is_sender) const {
+            virtual ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Stream for port '"<<port->getName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
             }
 
-            virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const {
+            virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const { return 0; }
+
+            virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa, bool) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Channel : data type not known to CORBA Transport." <<Logger::endl;
                 return 0;

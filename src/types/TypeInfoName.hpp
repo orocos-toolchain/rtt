@@ -151,6 +151,13 @@ namespace RTT
         { return 0; }
         virtual base::OutputPortInterface* outputPort(std::string const& name) const
         { return 0; }
+        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const
+        { return 0; }
+        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const
+        { return 0; }
+        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const
+        { return 0; }
+
     };
 
     /**

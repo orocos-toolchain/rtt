@@ -333,6 +333,23 @@ namespace RTT
         base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }  
         base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }  
 
+        base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const {
+            return internal::ConnFactory::buildDataStorage<T>(policy);
+        }
+
+        base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const
+        {
+            return internal::ConnFactory::buildChannelOutput(
+                    static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
+        }
+
+        base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const
+        {
+            return internal::ConnFactory::buildChannelInput(
+                    static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
+        }
+
+
     };
 
     template< class T>

@@ -101,19 +101,24 @@ namespace RTT
          * @see buildChannelOutput
          */
         template<typename T>
-        static base::ChannelElementBase* buildChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr output_channel)
+        static base::ChannelElementBase* buildChannelInput(OutputPort<T>& port, ConnID* conn_id, base::ChannelElementBase::shared_ptr output_channel)
         {
             assert(conn_id);
             base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port, conn_id);
-            if ( policy.pull ) {
-                base::ChannelElementBase* data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
-                endpoint->setOutput(data_object);
-                if (output_channel)
-                    data_object->setOutput(output_channel);
-            } else {
-                if (output_channel)
-                    endpoint->setOutput(output_channel);
-            }
+            if (output_channel)
+                endpoint->setOutput(output_channel);
+            return endpoint;
+        }
+
+        template<typename T>
+        static base::ChannelElementBase* buildBufferedChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr output_channel)
+        {
+            assert(conn_id);
+            base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase* data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
+            endpoint->setOutput(data_object);
+            if (output_channel)
+                data_object->setOutput(output_channel);
             return endpoint;
         }
 
@@ -125,18 +130,21 @@ namespace RTT
          * @see buildChannelInput
          */
         template<typename T>
-        static base::ChannelElementBase* buildChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
+        static base::ChannelElementBase* buildChannelOutput(InputPort<T>& port, ConnID* conn_id)
         {
             assert(conn_id);
             base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
-            if (!policy.pull)
-            {
-                base::ChannelElementBase* data_object = buildDataStorage<T>(policy, initial_value);
-                data_object->setOutput(endpoint);
-                return data_object;
-            }
-            else
-                return endpoint;
+            return endpoint;
+        }
+
+        template<typename T>
+        static base::ChannelElementBase* buildBufferedChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
+        {
+            assert(conn_id);
+            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase* data_object = buildDataStorage<T>(policy, initial_value);
+            data_object->setOutput(endpoint);
+            return data_object;
         }
 
         /**
@@ -174,7 +182,10 @@ namespace RTT
                     return false;
                 }
 
-                output_half = ConnFactory::buildChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                //output_half = ConnFactory::buildChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                //output_half = new ConnOutputEndpoint<T>( input_p, output_port.getPortID());
+                // local ports, create buffer here.
+                output_half = ConnFactory::buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -194,7 +205,7 @@ namespace RTT
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
             base::ChannelElementBase::shared_ptr channel_input =
-                ConnFactory::buildChannelInput<T>(output_port, input_port.getPortID(), policy, output_half);
+                ConnFactory::buildChannelInput<T>(output_port, input_port.getPortID(), output_half);
 
             // Register the channel's input to the output port.
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
@@ -230,11 +241,15 @@ namespace RTT
                 return false;
             }
             types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
-            int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
-            policy.data_size = size_hint;
-            RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&output_port, policy.name_id, size_hint, true);
+            if (ttt) {
+                int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
+                policy.data_size = size_hint;
+            } else {
+                log(Warning) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
+            }
+            RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
             
-            chan = buildChannelInput( output_port, new StreamConnID(policy.name_id), policy, chan);
+            chan = buildChannelInput( output_port, new StreamConnID(policy.name_id), chan);
 
             if ( !chan ) {
                 log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
@@ -266,7 +281,7 @@ namespace RTT
 
             // note: don't refcount this final input chan, because no one will
             // take a reference to it. It would be destroyed upon return of this function.
-            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createStream(&input_port,policy.name_id, policy.data_size, false);
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createStream(&input_port,policy, false);
 
             if ( !chan ) {
                 log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
@@ -278,12 +293,12 @@ namespace RTT
             ConnPolicy policy2 = policy;
             policy2.pull = false;
             StreamConnID* conn_id = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, conn_id, policy2);
+            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, conn_id);
             // pass new name upwards.
             policy.name_id = policy2.name_id;
             conn_id->name_id = policy2.name_id;
 
-            chan->setOutput( outhalf );
+            chan->getOutputEndPoint()->setOutput( outhalf );
             if ( input_port.channelReady( chan->getOutputEndPoint() ) == true ) {
                 log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
                 return true;
@@ -319,33 +334,38 @@ namespace RTT
             policy2.pull = false;
             StreamConnID* conn_id = new StreamConnID(policy.name_id);
 
-            RTT::base::ChannelElementBase::shared_ptr output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id, policy2, output_port.getLastWrittenValue());
+            RTT::base::ChannelElementBase::shared_ptr output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id);
             conn_id->name_id = policy2.name_id;
 
             types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
             int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
+            policy2.data_size = size_hint;
+            // XXX: this seems to be always true
             if ( input_port.isLocal() ) {
-                RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port,policy2.name_id, size_hint, false);
+                RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port, policy2, false);
                 if (ceb_input) {
                     log(Info) <<"Receiving data for port "<<input_port.getName() << " from out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id<<endlog();
                 } else {
                     log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << input_port.getName()<<endlog();
                     return 0;
                 }
-                ceb_input->setOutput(output_half);
+                ceb_input->getOutputEndPoint()->setOutput(output_half);
                 output_half = ceb_input;
             }
 
+            // XXX: this seems to be always true
             if ( output_port.isLocal() ) {
 
-                RTT::base::ChannelElementBase::shared_ptr ceb_output = type->getProtocol(policy.transport)->createStream(&output_port,policy2.name_id, size_hint, true);
+                RTT::base::ChannelElementBase::shared_ptr ceb_output = type->getProtocol(policy.transport)->createStream(&output_port, policy2, true);
                 if (ceb_output) {
                     log(Info) <<"Redirecting data for port "<< output_port.getName() << " to out-of-band protocol "<< policy.transport << " with id "<< policy2.name_id <<endlog();
                 } else {
                     log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a remote channel for port " << output_port.getName()<<endlog();
                     return 0;
                 }
-                ceb_output->setOutput(output_half);
+                // this mediates the 'channel ready leads to initial data sample'.
+                // it is probably not necessary, since streams don't assume this relation.
+                ceb_output->getOutputEndPoint()->setOutput(output_half);
                 output_half = ceb_output;
             }
             // Important ! since we made a copy above, we need to set the original to the changed name_id.

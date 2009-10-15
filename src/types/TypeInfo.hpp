@@ -212,7 +212,17 @@ namespace RTT
          * this TypeInfo object.
          */
         virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
-    };
+
+        /**
+         * Creates single data or buffered storage for this type.
+         *
+         * @param policy Describes the kind of storage requested by the user
+         * @return a storage element.
+         */
+        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const = 0;
+        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const = 0;
+        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const = 0;
+};
 
 }}
 

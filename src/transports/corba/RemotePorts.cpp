@@ -77,9 +77,13 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
     // First we delegate this call to the remote side, which will create a corba channel element,
     // buffers and channel output and attach this to the real input port.
     CRemoteChannelElement_var remote;
+    RTT::base::ChannelElementBase* buf = 0;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
         CChannelElement_var ret = dataflow->buildChannelOutput(CORBA::string_dup(getName().c_str()), cpolicy);
+        if ( CORBA::is_nil(ret) ) {
+            return 0;
+        }
         remote = CRemoteChannelElement::_narrow( ret.in() );
         policy.name_id = toRTT(cpolicy).name_id;
     }
@@ -95,13 +99,14 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
     CRemoteChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createChannelElement_i(mpoa);
+                            ->createChannelElement_i(mpoa, policy.pull);
 
     local->setRemoteSide(remote);
     remote->setRemoteSide(local->_this());
 
     RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
 
+    // Note: this probably needs to factored out, see also DataFlowI.cpp:buildChannelOutput() for the counterpart of this code.
     // If the user specified OOB, we prepend the prefered transport.
     // This inserts a channel element before our corba channel element.
     // The remote input side will have done this too in the above step.
@@ -112,7 +117,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createStream(this, name, 0, true);
+        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createStream(this, policy, true);
         if (ceb) {
             // insertion before corba.
             ceb->setOutput( corba_ceb );
@@ -121,6 +126,12 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
         } else {
             log(Error) << "The type transporter for type "<<type->getTypeName()<< " failed to create a dual channel for port " << name<<endlog();
         }
+    } else {
+        // if no oob present, create a buffer at output port to guarantee RT delivery of data. (is always present in push&pull).
+        buf = type->buildDataStorage(policy);
+        assert(buf);
+        buf->setOutput( corba_ceb );
+        corba_ceb = buf;
     }
     // store the object reference in a map, for future lookup in channelReady().
     // this is coupled with the use of channelReady(). We assume the caller will always pass

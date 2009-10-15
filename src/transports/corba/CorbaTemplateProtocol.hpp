@@ -84,34 +84,8 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          CRemoteChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
-          { return new RemoteChannelElement<T>(*this, poa); }
-
-          base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port, ConnPolicy const& policy) const
-          {
-              ConnPolicy policy2 = policy;
-              if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
-                  // out of band requires a hack (maybe in-band too in a later stage):
-                  // we force the creation of a buffer on input side
-                  policy2.pull = false;
-              }
-              return internal::ConnFactory::buildChannelOutput(
-                      static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID(),
-                      policy2);
-          }
-
-          base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port, ConnPolicy const& policy) const
-          {
-              ConnPolicy policy2 = policy;
-              if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
-                  // out of band requires a hack (maybe in-band too in a later stage):
-                  // we force the creation of a buffer on input side
-                  policy2.pull = true;
-              }
-              return internal::ConnFactory::buildChannelInput(
-                      static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(),
-                      policy2, 0 );
-          }
+          CRemoteChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa, bool is_pull) const
+          { return new RemoteChannelElement<T>(*this, poa, is_pull); }
 
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
