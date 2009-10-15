@@ -264,7 +264,9 @@ namespace RTT
                 return false;
             }
 
-            RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port,policy.name_id, policy.data_size, false);
+            // note: don't refcount this final input chan, because no one will
+            // take a reference to it. It would be destroyed upon return of this function.
+            RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createStream(&input_port,policy.name_id, policy.data_size, false);
 
             if ( !chan ) {
                 log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
@@ -286,8 +288,9 @@ namespace RTT
                 log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
                 return true;
             }
-            // setup failed.
+            // setup failed: manual cleanup.
             chan->disconnect(true);
+            delete chan;
             log(Error) << "Failed to create input stream for input port "<< input_port.getName() <<endlog();
             return false;
         }
