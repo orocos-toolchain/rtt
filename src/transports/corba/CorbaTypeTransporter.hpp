@@ -35,7 +35,11 @@ namespace RTT {
 	     */
 	    virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa) const = 0;
 
-        virtual base::ChannelElementBase* createChannel( base::PortInterface* /*port*/, std::string& /*name_id*/, int /*size_hint*/, bool /*is_sender*/) const;
+	    /**
+	     * The CORBA transport does not support creating 'CORBA' streams.
+	     * @return null
+	     */
+        virtual base::ChannelElementBase* createStream( base::PortInterface* /*port*/, std::string& /*name_id*/, int /*size_hint*/, bool /*is_sender*/) const;
 
 	    /**
 	     * Builds an connection output endpoint for the given input port.

@@ -65,7 +65,7 @@ namespace RTT
               return sizeof(T);
           }
 
-          virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& name_id, int size_hint, bool is_sender) const {
+          virtual base::ChannelElementBase* createStream(base::PortInterface* port, std::string& name_id, int size_hint, bool is_sender) const {
               try {
                   return new MQChannelElement<T>(port, *this, name_id, size_hint, is_sender);
               } catch(std::exception& e) {

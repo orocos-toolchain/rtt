@@ -71,7 +71,11 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
                                                           RTT::base::InputPortInterface& reader_,
                                                           RTT::ConnPolicy const& policy)
 {
+    // This is called by the createConnection()->createRemoteConnection() code of the ConnFactory.
     Logger::In in("RemoteInputPort::buildRemoteChannelOutput");
+
+    // First we delegate this call to the remote side, which will create a corba channel element,
+    // buffers and channel output and attach this to the real input port.
     CRemoteChannelElement_var remote;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
@@ -79,12 +83,15 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
         remote = CRemoteChannelElement::_narrow( ret.in() );
         policy.name_id = toRTT(cpolicy).name_id;
     }
-    catch(CORBA::Exception&)
+    catch(CORBA::Exception& e)
     {
-        log(Error) << "caught CORBA exception while creating port's input half" << endlog();
+        log(Error) << "Caught CORBA exception while creating port's input half:" << endlog();
+        log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
         return NULL;
     }
 
+    // Input side is now ok and waiting for us to complete. We build our corba channel element too
+    // and connect it to the remote side and vice versa.
     CRemoteChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
@@ -95,7 +102,9 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
 
     RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
 
-    // try to forward to the prefered transport.
+    // If the user specified OOB, try to forward to the prefered transport.
+    // This attaches another channel element to our corba channel element.
+    // The remote input side will have done this already in the above step.
     if ( policy.transport != 0 && policy.transport != ORO_CORBA_PROTOCOL_ID ) {
         // create alternative path / out of band transport.
         string name =  policy.name_id ;
@@ -103,7 +112,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createChannel(this, name, 0, true);
+        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createStream(this, name, 0, true);
         if (ceb) {
             ceb->setOutput( corba_ceb );
             corba_ceb = ceb;
@@ -136,8 +145,11 @@ bool RemoteInputPort::channelReady(base::ChannelElementBase::shared_ptr channel)
         CChannelElement_ptr cce = channel_map[ channel.get() ];
         assert( cce );
         return dataflow->channelReady( this->getName().c_str(),  cce );
-    } catch(...) {
+    }
+    catch(CORBA::Exception& e)
+    {
         log(Error) <<"Remote call to "<< getName() <<".channelReady( channel ) failed with a CORBA exception: aborting connection."<<endlog();
+        log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
         return false;
     }
 }
@@ -163,7 +175,13 @@ bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::Co
             policy.name_id = cpolicy.name_id;
             return true;
         }
-    } catch(...) { log(Error) << "Unknown exception in RemoteOutputPort::createConnection"<<endlog(); return false; }
+    }
+    catch(CORBA::Exception& e)
+    {
+        log(Error) <<"Remote call to "<< getName() <<".createConnection() failed with a CORBA exception: aborting connection."<<endlog();
+        log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
+        return false;
+    }
 }
 
 RTT::base::PortInterface* RemoteOutputPort::clone() const

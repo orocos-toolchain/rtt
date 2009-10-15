@@ -307,7 +307,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << corba_policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createChannel(port, name, 0, false);
+        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, name, 0, false);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
             corba_policy.name_id = CORBA::string_dup( name.c_str() );
@@ -375,7 +375,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
             return RTT::corba::CChannelElement::_nil();
         }
-        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createChannel(port, name, 0, true);
+        RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, name, 0, true);
         // if no user supplied name, pass on the new name.
         if ( strlen( corba_policy.name_id.in()) == 0 )
             corba_policy.name_id = CORBA::string_dup( name.c_str() );

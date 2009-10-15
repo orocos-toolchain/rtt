@@ -83,9 +83,10 @@ namespace RTT
             virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const = 0;
 
             /**
-             * Creates a channel element for reading or writing over this transport.
+             * Creates a streaming channel element for reading or writing over this transport.
              * It returns a ChannelElementBase that provides the implementation of sending or receiving
-             * data through the transport.
+             * data through the transport. Both sender and receiver find each other using the channel_id
+             * argument. Transports that do not support streaming may return null
              *
              * @param port The port for which this channel is setup.
              * @param channel_id If the transport receives a non-empty channel_id, it will create a channel that connects to this id.
@@ -94,9 +95,10 @@ namespace RTT
              * remote channel in a second invocation of createRemoteChannel.
              * @param is_sender Set to true in case you will write() to this channel element, set it to false
              * in case you will read() from this channel element.
+             * @return null in case streaming is not supported by this transport or a valid channel element otherwise.
              *
              */
-            virtual base::ChannelElementBase* createChannel(base::PortInterface* port, std::string& channel_id, int size_hint, bool is_sender) const = 0;
+            virtual base::ChannelElementBase* createStream(base::PortInterface* port, std::string& channel_id, int size_hint, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.

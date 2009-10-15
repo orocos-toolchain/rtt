@@ -31,10 +31,9 @@ ConnID* StreamConnID::clone() const {
     return new StreamConnID(this->name_id);
 }
 
-base::ChannelElementBase* RTT::internal::ConnFactory::createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, const ConnPolicy& policy)
+base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, const ConnPolicy& policy)
 {
     // Remote connection
-    base::ChannelElementBase* output_half = 0;
     // if the policy's transport is set to zero, use the input ports server protocol,
     // otherwise, use the policy's protocol
     int transport = policy.transport == 0 ? input_port.serverProtocol() : policy.transport;
@@ -47,15 +46,15 @@ base::ChannelElementBase* RTT::internal::ConnFactory::createRemoteConnection(bas
     }
     else if ( !type_info->getProtocol( transport ) )
     {
-        log(Error) << "type " << type_info->getTypeName() << " cannot be marshalled into the right transporter" << endlog();
+        log(Error) << "Type " << type_info->getTypeName() << " cannot be marshalled into the requested transporter (id:"<< transport<<")." << endlog();
         // This type cannot be marshalled into the right transporter
         return false;
     }
     else
     {
         assert( input_port.getConnFactory() );
-        output_half = input_port.
+        return input_port.
                 getConnFactory()->buildRemoteChannelOutput(type_info, input_port, policy);
     }
-    return output_half;
+    return 0;
 }
