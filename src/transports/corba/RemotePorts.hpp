@@ -113,7 +113,7 @@ namespace RTT {
              * @param policy The policy for the ConnFactory.
              * @return The local endpoint for the output.
              */
-            base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type,
+            base::ChannelElementBase* buildRemoteChannelOutput(types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
                     internal::ConnPolicy const& policy);
 
@@ -125,7 +125,7 @@ namespace RTT {
             /**
              * For remote input port objects, this is forwarded to the other end
              * over the Data Flow Interface. The given channel must be the
-             * output endpoint of a connection, which was built using buildRemoteOutputHalf.
+             * output endpoint of a connection, which was built using buildRemoteChannelOutput.
              * So channel->getOutputEndpoint() == channel
              * @return
              */

@@ -49,16 +49,20 @@ namespace RTT
     {
     public:
 
-        /** This method is analoguous to the static ConnFactory::buildOutputHalf.
+        /** This method is analoguous to the static ConnFactory::buildChannelOutput.
          * It is provided for remote connection building: for these connections,
          * no template can be used and therefore the connection setup should be
          * done based on the types::TypeInfo object
          */
-        virtual base::ChannelElementBase* buildRemoteOutputHalf(types::TypeInfo const* type_info,
+        virtual base::ChannelElementBase* buildRemoteChannelOutput(types::TypeInfo const* type_info,
                 base::InputPortInterface& output, const ConnPolicy& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
+         * @todo: shouldn't this belong in the template type info ? This allows the type lib to
+         * choose which locked/lockfree algorithms are implemented and leaves out 4x code generation
+         * for each alternative in each compilation unit. Contra: needs T in typelib.
+         * @todo: since setDataSample, initial_value is no longer needed.
          */
         template<typename T>
         static base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy, const T& initial_value = T())
@@ -92,12 +96,12 @@ namespace RTT
          * method builds the input half (starting from the OutputPort).
          *
          * The \c output_channel argument is the connection element that has been returned
-         * by buildOutputHalf.
+         * by buildChannelOutput.
          *
-         * @see buildOutputHalf
+         * @see buildChannelOutput
          */
         template<typename T>
-        static base::ChannelElementBase* buildInputHalf(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase* output_channel)
+        static base::ChannelElementBase* buildChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase* output_channel)
         {
             base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port, conn_id);
             if (policy.pull)
@@ -119,10 +123,10 @@ namespace RTT
          * is connected to the input port. The returned value is the connection
          * element that should be connected to the end of the input-half.
          *
-         * @see buildInputHalf
+         * @see buildChannelInput
          */
         template<typename T>
-        static base::ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
+        static base::ChannelElementBase* buildChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
         {
             assert(conn_id);
             base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
@@ -171,7 +175,7 @@ namespace RTT
                     return false;
                 }
 
-                output_half = ConnFactory::buildOutputHalf<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                output_half = ConnFactory::buildChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -184,10 +188,10 @@ namespace RTT
             if (!output_half)
                 return false;
 
-            // Since output is local, buildInputHalf is local as well.
+            // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
             base::ChannelElementBase::shared_ptr channel_input =
-                ConnFactory::buildInputHalf<T>(output_port, input_port.getPortID(), policy, output_half);
+                ConnFactory::buildChannelInput<T>(output_port, input_port.getPortID(), policy, output_half);
 
             // Register the channel's input to the output port.
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
@@ -227,7 +231,7 @@ namespace RTT
             policy.data_size = size_hint;
             RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createChannel(&output_port, policy.name_id, size_hint, true);
             
-            chan = buildInputHalf( output_port, new StreamConnID(policy.name_id), policy, chan);
+            chan = buildChannelInput( output_port, new StreamConnID(policy.name_id), policy, chan);
 
             if ( output_port.addConnection( new StreamConnID(policy.name_id), chan, policy) ) {
                 log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
@@ -264,7 +268,7 @@ namespace RTT
             ConnPolicy policy2 = policy;
             policy2.pull = false;
             StreamConnID* conn_id = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase* outhalf = buildOutputHalf( input_port, conn_id, policy2);
+            RTT::base::ChannelElementBase* outhalf = buildChannelOutput( input_port, conn_id, policy2);
             // pass new name upwards.
             policy.name_id = policy2.name_id;
             conn_id->name_id = policy2.name_id;
@@ -304,7 +308,7 @@ namespace RTT
             policy2.pull = false;
             StreamConnID* conn_id = new StreamConnID(policy.name_id);
 
-            RTT::base::ChannelElementBase* output_half = ConnFactory::buildOutputHalf<T>(input_port, conn_id, policy2, output_port.getLastWrittenValue());
+            RTT::base::ChannelElementBase* output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id, policy2, output_port.getLastWrittenValue());
             conn_id->name_id = policy2.name_id;
 
             types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );

@@ -142,8 +142,8 @@ namespace RTT {
             ::CORBA::Boolean channelReady(const char* port_name, RTT::corba::CChannelElement_ptr channel);
             void disconnectPort(const char* port_name);
 
-            CChannelElement_ptr buildOutputHalf(const char* reader_port, RTT::corba::CConnPolicy& policy);
-            CChannelElement_ptr buildInputHalf(const char* writer_port, RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildChannelInput(const char* writer_port, RTT::corba::CConnPolicy& policy);
 
             ::CORBA::Boolean createConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,

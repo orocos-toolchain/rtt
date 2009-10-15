@@ -272,10 +272,10 @@ void CDataFlowInterface_i::removeStream( const char* port, const char* stream_na
 }
 
 
-CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
+CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         const char* port_name, CConnPolicy & corba_policy)
 {
-    Logger::In in("CDataFlowInterface_i::buildOutputHalf");
+    Logger::In in("CDataFlowInterface_i::buildChannelOutput");
     InputPortInterface* port = dynamic_cast<InputPortInterface*>(mdf->getPort(port_name));
     if (port == 0)
         throw CNoSuchPortException();
@@ -289,7 +289,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
     if (!transporter)
         throw CNoCorbaTransport();
 
-    ChannelElementBase::shared_ptr element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
+    ChannelElementBase::shared_ptr element = transporter->buildChannelOutput(*port, toRTT(corba_policy));
     CRemoteChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
     dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
@@ -328,10 +328,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildOutputHalf(
 /**
  * This code is a major copy-past of the above. Amazing how much boiler plate we need.
  */
-CChannelElement_ptr CDataFlowInterface_i::buildInputHalf(
+CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         const char* port_name, CConnPolicy & corba_policy)
 {
-    Logger::In in("CDataFlowInterface_i::buildInputHalf");
+    Logger::In in("CDataFlowInterface_i::buildChannelInput");
     // First check validity of user input...
     OutputPortInterface* port = dynamic_cast<OutputPortInterface*>(mdf->getPort(port_name));
     if (port == 0)
@@ -351,7 +351,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildInputHalf(
     policy2.pull = true;
 
     // Now create the output-side channel elements.
-    ChannelElementBase::shared_ptr element = transporter->buildInputHalf(*port, policy2);
+    ChannelElementBase::shared_ptr element = transporter->buildChannelInput(*port, policy2);
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;

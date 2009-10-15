@@ -46,10 +46,10 @@ namespace RTT {
 	     * @param policy The policy for the connection factory.
 	     * @return a ChannelElement which must be added to the input port.
 	     */
-	    virtual base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port,
+	    virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port,
 		    internal::ConnPolicy const& policy) const = 0;
 
-        virtual base::ChannelElementBase* buildInputHalf(base::OutputPortInterface& port,
+        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port,
             internal::ConnPolicy const& policy) const = 0;
 	};
     }

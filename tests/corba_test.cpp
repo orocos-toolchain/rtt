@@ -466,8 +466,8 @@ BOOST_AUTO_TEST_CASE( testHalfs )
 
     // test unbuffered C++ write --> Corba read
     policy.type = RTT::corba::CData;
-    policy.pull = false; // note: buildInputHalf must correct policy to pull = true (adds a buffer).
-    CChannelElement_var cce = ports->buildInputHalf("mo", policy);
+    policy.pull = false; // note: buildChannelInput must correct policy to pull = true (adds a buffer).
+    CChannelElement_var cce = ports->buildChannelInput("mo", policy);
     CORBA::Any_var sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
@@ -488,7 +488,7 @@ BOOST_AUTO_TEST_CASE( testHalfs )
     // test unbuffered Corba write --> C++ read
     policy.type = RTT::corba::CData;
     policy.pull = false;
-    cce = ports->buildOutputHalf("mi", policy);
+    cce = ports->buildChannelOutput("mi", policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 

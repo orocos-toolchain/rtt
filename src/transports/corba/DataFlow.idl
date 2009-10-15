@@ -157,7 +157,7 @@ module RTT
        * Some protocols may adjust the policy, or pass additional information
        * into the policy, such as the name of the newly created connection.
        */
-      CChannelElement buildOutputHalf(in string input_port, inout CConnPolicy policy)
+      CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
             raises(CNoCorbaTransport);
 
       /**
@@ -166,7 +166,7 @@ module RTT
        * Some protocols may adjust the policy, or pass additional information
        * into the policy, such as the name of the newly created connection.
        */
-      CChannelElement buildInputHalf(in string output_port, inout CConnPolicy policy)
+      CChannelElement buildChannelInput(in string output_port, inout CConnPolicy policy)
             raises(CNoCorbaTransport);
 
       /**
@@ -175,9 +175,9 @@ module RTT
        *
        * The local port needs to be the output, while the remote port is the
        * input. In case you only want to write a port without using this function,
-       * use buildOutputHalf. For only reading a port, use buildInputHalf.
+       * use buildChannelOutput. For only reading a port, use buildChannelInput.
        *
-       * This method combines both buildOutputHalf() and buildInputHalf() and is
+       * This method combines both buildChannelOutput() and buildChannelInput() and is
        * generally better in setting up and checking a data flow connection between
        * two ports than the separate methods. 
        *
@@ -220,11 +220,6 @@ module RTT
        * This is typically called by the createConnection setup logic to see
        * if the input side agrees with the connection and can use it.
        * For example, the input port can use this opportunity to check the
-       * real-time, out-of-band communication channel.
-       *
-       * You should call this only once after a buildOutputHalf() and dispose the channel if this
-       * method returns false. Since this works only on input ports, there's
-       * no use in calling this after buildInputHalf().
        *
        * @throw CNoSuchPortException if input_port is not an input port
        * or not present in this interface.

@@ -55,7 +55,7 @@ base::ChannelElementBase* RTT::internal::ConnFactory::createRemoteConnection(bas
     {
         assert( input_port.getConnFactory() );
         output_half = input_port.
-                getConnFactory()->buildRemoteOutputHalf(type_info, input_port, policy);
+                getConnFactory()->buildRemoteChannelOutput(type_info, input_port, policy);
     }
     return output_half;
 }

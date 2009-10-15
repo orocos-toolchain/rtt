@@ -87,7 +87,7 @@ namespace RTT
           CRemoteChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
           { return new RemoteChannelElement<T>(*this, poa); }
 
-          base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
+          base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
           {
               internal::ConnPolicy policy2 = policy;
               if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
@@ -95,12 +95,12 @@ namespace RTT
                   // we force the creation of a buffer on input side
                   policy2.pull = false;
               }
-              return internal::ConnFactory::buildOutputHalf(
+              return internal::ConnFactory::buildChannelOutput(
                       static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID(),
                       policy2);
           }
 
-          base::ChannelElementBase* buildInputHalf(base::OutputPortInterface& port, internal::ConnPolicy const& policy) const
+          base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port, internal::ConnPolicy const& policy) const
           {
               internal::ConnPolicy policy2 = policy;
               if ( policy2.transport != 0 && policy2.transport != ORO_CORBA_PROTOCOL_ID) {
@@ -108,7 +108,7 @@ namespace RTT
                   // we force the creation of a buffer on input side
                   policy2.pull = true;
               }
-              return internal::ConnFactory::buildInputHalf(
+              return internal::ConnFactory::buildChannelInput(
                       static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(),
                       policy2, 0 );
           }
