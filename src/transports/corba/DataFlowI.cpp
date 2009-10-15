@@ -289,10 +289,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     if (!transporter)
         throw CNoCorbaTransport();
 
-    ChannelElementBase::shared_ptr element = transporter->buildChannelOutput(*port, toRTT(corba_policy));
+    ChannelElementBase::shared_ptr end = transporter->buildChannelOutput(*port, toRTT(corba_policy));
     CRemoteChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
-    dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
+    dynamic_cast<ChannelElementBase*>(this_element)->setOutput(end);
 
     /**
      * This part if for out-of band.
@@ -313,14 +313,16 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
             corba_policy.name_id = CORBA::string_dup( name.c_str() );
 
         if (ceb) {
-            ceb->setOutput( dynamic_cast<ChannelElementBase*>(this_element) );;
+            // override, insert oob element between corba and endpoint:
+            dynamic_cast<ChannelElementBase*>(this_element)->setOutput(ceb);
+            ceb->setOutput( end );
             log(Info) <<"Receiving data for port "<<name << " from out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << name<<endlog();
         }
     }
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
-    channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), element->getOutputEndPoint()));
+    channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), end->getOutputEndPoint()));
 
     return RTT::corba::CChannelElement::_duplicate(this_element->_this());
 }

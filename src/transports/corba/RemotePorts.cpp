@@ -102,9 +102,9 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
 
     RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
 
-    // If the user specified OOB, try to forward to the prefered transport.
-    // This attaches another channel element to our corba channel element.
-    // The remote input side will have done this already in the above step.
+    // If the user specified OOB, we prepend the prefered transport.
+    // This inserts a channel element before our corba channel element.
+    // The remote input side will have done this too in the above step.
     if ( policy.transport != 0 && policy.transport != ORO_CORBA_PROTOCOL_ID ) {
         // create alternative path / out of band transport.
         string name =  policy.name_id ;
@@ -114,6 +114,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
         }
         RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createStream(this, name, 0, true);
         if (ceb) {
+            // insertion before corba.
             ceb->setOutput( corba_ceb );
             corba_ceb = ceb;
             log(Info) <<"Redirecting data for port "<<name << " to out-of-band protocol "<< policy.transport << endlog();
@@ -122,6 +123,8 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
         }
     }
     // store the object reference in a map, for future lookup in channelReady().
+    // this is coupled with the use of channelReady(). We assume the caller will always pass
+    // chan->getOutputEndPoint() in that function.
     channel_map[ corba_ceb->getOutputEndPoint().get() ] = CChannelElement::_duplicate( remote );
     // The ChannelElementBase object that represents reader_half on this side
     return corba_ceb;

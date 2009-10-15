@@ -48,10 +48,16 @@ namespace RTT {
             { this->deref(); }
 
 
+            /**
+             * CORBA IDL function.
+             */
             CORBA::Boolean remoteSignal()
             { return base::ChannelElement<T>::signal(); }
+
             bool signal()
             {
+                // forward too.
+                base::ChannelElementBase::signal();
                 // intercept signal if no remote side set.
                 if ( CORBA::is_nil(remote_side.in()) )
                     return true;
@@ -61,6 +67,9 @@ namespace RTT {
                 { return false; }
             }
 
+            /**
+             * CORBA IDL function.
+             */
             void disconnect() {
                 // disconnect both local and remote side.
                 // !!!THIS RELIES ON BEHAVIOR OF REMOTEDISCONNECT BELOW doing both writer_to_reader and !writer_to_reader !!!
@@ -87,6 +96,9 @@ namespace RTT {
                 mpoa->deactivate_object(oid.in());
             }
 
+            /**
+             * CORBA IDL function.
+             */
             void disconnect(bool writer_to_reader)
             {
                 try {
@@ -123,6 +135,9 @@ namespace RTT {
                 catch(CORBA::Exception&) { return NoData; }
             }
 
+            /**
+             * CORBA IDL function.
+             */
             CFlowStatus read(::CORBA::Any_out sample)
             {
                 FlowStatus fs;
@@ -155,6 +170,9 @@ namespace RTT {
                 }
             }
 
+            /**
+             * CORBA IDL function.
+             */
             bool write(const ::CORBA::Any& sample)
             {
                 transport.updateFromAny(&sample, data_source);
@@ -170,6 +188,9 @@ namespace RTT {
                 return true;
             }
 
+            /**
+             * CORBA IDL function.
+             */
             virtual bool inputReady() {
                 // signal to oob transport if any.
                 if (this->input)
