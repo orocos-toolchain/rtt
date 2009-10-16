@@ -12,7 +12,9 @@
 #include "../types/TypeMarshaller.hpp"
 
 #include "../base/DataObject.hpp"
+#include "../base/DataObjectUnSync.hpp"
 #include "../base/Buffer.hpp"
+#include "../base/BufferUnSync.hpp"
 
 namespace RTT
 { namespace internal {
@@ -70,10 +72,18 @@ namespace RTT
             if (policy.type == ConnPolicy::DATA)
             {
                 base::DataObjectInterface<T>* data_object = 0;
-                if (policy.lock_policy == ConnPolicy::LOCKED)
+                switch (policy.lock_policy)
+                {
+                case ConnPolicy::LOCKED:
                     data_object = new base::DataObjectLocked<T>(initial_value);
-                else
+                    break;
+                case ConnPolicy::LOCK_FREE:
                     data_object = new base::DataObjectLockFree<T>(initial_value);
+                    break;
+                case ConnPolicy::UNSYNC:
+                    data_object = new base::DataObjectUnSync<T>(initial_value);
+                    break;
+                }
 
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 data_object->deref(); // data objects are initialized with a refcount of 1
@@ -82,11 +92,18 @@ namespace RTT
             else if (policy.type == ConnPolicy::BUFFER)
             {
                 base::BufferInterface<T>* buffer_object = 0;
-                if (policy.lock_policy == ConnPolicy::LOCKED)
+                switch (policy.lock_policy)
+                {
+                case ConnPolicy::LOCKED:
                     buffer_object = new base::BufferLocked<T>(policy.size, initial_value);
-                else
+                    break;
+                case ConnPolicy::LOCK_FREE:
                     buffer_object = new base::BufferLockFree<T>(policy.size, initial_value);
-
+                    break;
+                case ConnPolicy::UNSYNC:
+                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value);
+                    break;
+                }
                 return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object));
             }
             return NULL;
