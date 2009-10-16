@@ -54,7 +54,7 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
     {
         assert( input_port.getConnFactory() );
         return input_port.
-                getConnFactory()->buildRemoteChannelOutput(type_info, input_port, policy);
+                getConnFactory()->buildRemoteChannelOutput(output_port, type_info, input_port, policy);
     }
     return 0;
 }

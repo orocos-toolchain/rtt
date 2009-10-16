@@ -294,7 +294,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
     CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa, corba_policy.pull);
+    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
 
     /*
      * This part is for out-of band (needs to be factored out).
@@ -369,7 +369,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa, corba_policy.pull);
+    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
 
     // Attach the corba channel element first (so OOB is after corba).
     assert( dynamic_cast<ChannelElementBase*>(this_element) );

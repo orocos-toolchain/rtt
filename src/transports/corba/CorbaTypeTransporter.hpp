@@ -29,10 +29,11 @@ namespace RTT {
 
 	    /**
 	     * Builds a channel element for remote transport in both directions.
+	     * @param sender The data flow interface which will be sending or receiving this channel.
 	     * @param poa The POA to manage the server code.
 	     * @return the created CChannelElement_i.
 	     */
-	    virtual CRemoteChannelElement_i* createChannelElement_i(::PortableServer::POA* poa, bool is_pull) const = 0;
+	    virtual CRemoteChannelElement_i* createChannelElement_i(interface::DataFlowInterface* sender, ::PortableServer::POA* poa, bool is_pull) const = 0;
 
 	    /**
 	     * The CORBA transport does not support creating 'CORBA' streams.

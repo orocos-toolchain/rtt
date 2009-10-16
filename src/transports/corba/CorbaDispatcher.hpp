@@ -7,25 +7,25 @@
 #include "../../Logger.hpp"
 #include "../../internal/List.hpp"
 #include "DataFlowI.h"
+#include "../../interface/DataFlowInterface.hpp"
 
 namespace RTT {
     namespace corba {
         /**
          * This object sends over data flow messages
          * from local buffers to a remote channel element.
-         * @todo: how many threads will use this dispatcher ? -> preferably only 2.
-         * @todo: how to determine size of channel list ? can not grow in append...
          */
         class CorbaDispatcher : public Activity
         {
-            static CorbaDispatcher* DispatchI;
+            typedef std::map<interface::DataFlowInterface*,CorbaDispatcher*> DispatchMap;
+            static DispatchMap DispatchI;
 
             typedef internal::List<base::ChannelElementBase::shared_ptr> RCList;
             RCList RClist;
 
             bool do_exit;
 
-            os::Mutex listlock;
+            static os::Mutex mlock;
 
             CorbaDispatcher( const std::string& name)
             : Activity(ORO_SCHED_RT, os::LowestPriority, 0.0, 0, name),
@@ -34,12 +34,34 @@ namespace RTT {
               {}
 
         public:
-            static CorbaDispatcher* Instance() {
-                if (DispatchI == 0) {
-                    DispatchI = new CorbaDispatcher("CorbaDispatch");
-                    DispatchI->start();
+            /**
+             * Create a new dispatcher for a given data flow interface.
+             * This method will only lock and allocate when a new dispatcher must be created,
+             * otherwise, the access is lock-free and real-time.
+             * One dispatcher per \a iface is created.
+             * @param iface The interface to dispatch data flow messages for.
+             * @return
+             */
+            static CorbaDispatcher* Instance(interface::DataFlowInterface* iface) {
+                DispatchMap::iterator result = DispatchI.find(iface);
+                if ( result == DispatchI.end() ) {
+                    os::MutexLock lock(mlock);
+                    // re-try to find (avoid race):
+                    result = DispatchI.find(iface);
+                    if ( result != DispatchI.end() )
+                        return result->second;
+                    // *really* not found, let's create it.
+                    std::string name;
+                    if ( iface == 0 || iface->getParent() == 0)
+                        name = "Global";
+                    else
+                        name = iface->getParent()->getName();
+                    name += ".CorbaDispatch";
+                    DispatchI[iface] = new CorbaDispatcher( name );
+                    DispatchI[iface]->start();
+                    return DispatchI[iface];
                 }
-                return DispatchI;
+                return result->second;
             }
 
             void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {
@@ -52,7 +74,7 @@ namespace RTT {
             }
 
             bool initialize() {
-                log(Info) <<"Started CorbaDispatcher." <<endlog();
+                log(Info) <<"Started " << this->getName() << "." <<endlog();
                 do_exit = false;
                 return true;
             }

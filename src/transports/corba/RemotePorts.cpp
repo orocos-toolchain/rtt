@@ -67,9 +67,11 @@ RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
 RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 { throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
-RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::types::TypeInfo const* type,
-                                                          RTT::base::InputPortInterface& reader_,
-                                                          RTT::ConnPolicy const& policy)
+RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
+        base::OutputPortInterface& output_port,
+        RTT::types::TypeInfo const* type,
+        RTT::base::InputPortInterface& reader_,
+        RTT::ConnPolicy const& policy)
 {
     // This is called by the createConnection()->createRemoteConnection() code of the ConnFactory.
     Logger::In in("RemoteInputPort::buildRemoteChannelOutput");
@@ -99,7 +101,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(RTT::ty
     CRemoteChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createChannelElement_i(mpoa, policy.pull);
+                            ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull);
 
     local->setRemoteSide(remote);
     remote->setRemoteSide(local->_this());

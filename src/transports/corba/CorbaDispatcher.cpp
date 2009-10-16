@@ -2,5 +2,6 @@
 
 namespace RTT {
     using namespace corba;
-    CorbaDispatcher* CorbaDispatcher::DispatchI = 0;
+    CorbaDispatcher::DispatchMap CorbaDispatcher::DispatchI;
+    os::Mutex CorbaDispatcher::mlock;
 }

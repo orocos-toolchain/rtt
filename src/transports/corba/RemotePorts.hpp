@@ -108,12 +108,15 @@ namespace RTT {
              * CORBA connection to marshal/demarshal the channel data. The
              * policy is used to determine if storage must be allocated remotely
              * or (has been allocated) locally. reader_ is ignored and must be this.
+             * @param output_port The local port that will be sending data to the remote channel.
              * @param type The type of data to transport
              * @param reader_ Ignored. Must be this.
              * @param policy The policy for the ConnFactory.
              * @return The local endpoint for the output.
              */
-            base::ChannelElementBase* buildRemoteChannelOutput(types::TypeInfo const* type,
+            base::ChannelElementBase* buildRemoteChannelOutput(
+                    base::OutputPortInterface& output_port,
+                    types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
                     ConnPolicy const& policy);
 

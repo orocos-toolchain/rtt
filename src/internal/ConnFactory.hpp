@@ -56,8 +56,10 @@ namespace RTT
          * no template can be used and therefore the connection setup should be
          * done based on the types::TypeInfo object
          */
-        virtual base::ChannelElementBase* buildRemoteChannelOutput(types::TypeInfo const* type_info,
-                base::InputPortInterface& output, const ConnPolicy& policy) = 0;
+        virtual base::ChannelElementBase* buildRemoteChannelOutput(
+                base::OutputPortInterface& output_port,
+                types::TypeInfo const* type_info,
+                base::InputPortInterface& input, const ConnPolicy& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy

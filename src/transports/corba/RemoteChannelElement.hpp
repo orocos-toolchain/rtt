@@ -31,15 +31,17 @@ namespace RTT {
 	     * In pull mode, we don't send data, just signal it and remote must read it back.
 	     */
 	    bool pull;
+	    interface::DataFlowInterface* msender;
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
 	     * @param transport The type specific object that will be used to marshal the data.
 	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
-	    RemoteChannelElement(CorbaTypeTransporter const& transport, PortableServer::POA_ptr poa, bool is_pull)
-		: CRemoteChannelElement_i(transport, poa)
-		, data_source(new internal::ValueDataSource<T>), valid(true), pull(is_pull)
+	    RemoteChannelElement(CorbaTypeTransporter const& transport, interface::DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
+	    : CRemoteChannelElement_i(transport, poa),
+	      data_source(new internal::ValueDataSource<T>), valid(true), pull(is_pull),
+	      msender(sender)
             {
                 // Big note about cleanup: The RTT will dispose this object through
 	            // the ChannelElement<T> refcounting. So we only need to inform the
@@ -48,7 +50,7 @@ namespace RTT {
                 // 1
                 this->ref();
                 // Force creation of dispatcher.
-                CorbaDispatcher::Instance();
+                CorbaDispatcher::Instance(msender);
             }
 
             /** Increase the reference count, called from the CORBA side */
@@ -75,7 +77,7 @@ namespace RTT {
                 // Remember that signal() is called in the context of the one
                 // that wrote the data, so we must decouple here to keep hard-RT happy.
                 // the dispatch thread must read the data and send it over by calling transferSample().
-                CorbaDispatcher::Instance()->dispatchChannel( this );
+                CorbaDispatcher::Instance(msender)->dispatchChannel( this );
 
                 return valid;
             }
