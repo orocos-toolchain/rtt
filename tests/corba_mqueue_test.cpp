@@ -9,6 +9,7 @@
 #include <transports/corba/DataFlowI.h>
 #include <transports/corba/RemotePorts.hpp>
 #include <transports/mqueue/MQLib.hpp>
+#include <transports/corba/CorbaConnPolicy.hpp>
 
 using namespace std;
 using corba::ControlTaskProxy;
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ts2 = corba::ControlTaskServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
-    RTT::corba::CConnPolicy policy;
+    RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );
     policy.type = RTT::corba::CData;
     policy.init = false;
     policy.lock_policy = RTT::corba::CLockFree;

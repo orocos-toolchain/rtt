@@ -9,24 +9,41 @@ namespace RTT {
      * behave. Various parameters are available:
      *
      * <ul>
-     *  <li> the connection type. On a data connection, the reader will have
+     *  <li> the connection type: DATA or BUFFER. On a data connection, the reader will have
      *       only access to the last written value. On a buffered connection, a
-     *       specified number of elements can be stored until the reader reads
+     *       \a size number of elements can be stored until the reader reads
      *       them.
-     *  <li> the locking policy. This defines how locking is done in the
-     *       connection. For now, only two policies are available. LOCKED uses
-     *       mutexes, while LOCK_FREE uses a lock free method. The latter should
-     *       be used only when the probability of contention (simultaneous write-read)
-     *       is low.
+     *  <li> the locking policy: LOCKED, LOCK_FREE or UNSYNC. This defines how locking is done in the
+     *       connection. For now, only three policies are available. LOCKED uses
+     *       mutexes, LOCK_FREE uses a lock free method and UNSYNC means there's no
+     *       synchronisation at all (not thread safe). The latter should
+     *       be used only when there is no contention (simultaneous write-read).
+     *
      *  <li> if, upon connection, the last value that has been written on the
      *       writer end should be written on the connection as well to
      *       initialize it. This flag has an effect only if the writer has
      *       keepsLastWrittenValue() set to true (see
-     *       WritePortInterface::keepLastWrittenValue()).
+     *       OutputPortInterface::keepLastWrittenValue()).
+     *
      *  <li> if the data is pushed or pulled on the connection. This has an
      *       effect only on multi-process communication. In the pushed case (the
      *       default), new data is actively pushed to the reader's process. In
      *       the pulled case, data must be requested by the reader.
+     *
+     *  <li> the transport type. Can be used to force a certain kind of transports.
+     *       The number is a RTT transport id. When the transport type is zero,
+     *       local in-process communication is used, unless one of the ports is
+     *       remote. If the transport type deviates from the default remote transport
+     *       of one of the ports, an out-of-band transport is setup using that type.
+     *  <li> the data size. Some protocols require a hint on big the data will be,
+     *       especially if the data is dynamically sized (like std::vector<double>).
+     *       If you leave this empty (recommended), the protocol will try to guess it.
+     *       The unit of data size is protocol dependent.
+     *  <li> the name of the connection. Can be used to coordinate out of band
+     *       transport such that they can find each other by name. In practice,
+     *       the name contains a port number or file descriptor to be opened.
+     *       You only need to provide a name_id if you're using out-of-band transports
+     *       without supervisor, for example, when using MQueues without Corba.
      * </ul>
      */
     class ConnPolicy
@@ -39,6 +56,14 @@ namespace RTT {
         static const int LOCK_FREE = 1;
         static const int UNSYNC    = 2;
 
+        /**
+         * Create a policy for a (lock-free) buffer connection of a given size.
+         * @param size The size of the buffer in this connection
+         * @param lock_policy The locking policy
+         * @param init_connection If an initial sample should be pushed into the buffer upon creation.
+         * @param pull In inter-process cases, should the consumer pull itself ?
+         * @return the specified policy.
+         */
         static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false)
         {
             ConnPolicy result(BUFFER, lock_policy);
@@ -47,6 +72,13 @@ namespace RTT {
             result.size = size;
             return result;
         }
+        /**
+         * Create a policy for a (lock-free) shared data connection of a given size.
+         * @param lock_policy The locking policy
+         * @param init_connection If the data object should be initialised with the last value of the OutputPort upon creation.
+         * @param pull In inter-process cases, should the consumer pull data itself ?
+         * @return the specified policy.
+         */
         static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false)
         {
             ConnPolicy result(DATA, lock_policy);
@@ -55,6 +87,14 @@ namespace RTT {
             return result;
         }
 
+        /**
+         * The default policy is data driven, lock-free and local.
+         * It is unsafe to rely on these defaults. It is prefered
+         * to use the above buffer() and data() functions.
+         * @param type
+         * @param lock_policy
+         * @return
+         */
         explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE)
             : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
 
