@@ -534,7 +534,7 @@ Printing Interface of 'Hello' :
       </para>
     </section>
     <section>
-      <title>Reading and Writing Data Ports</title>
+      <title>Reading and Writing Ports</title>
       <para>
 	The Data Ports can be accessed through the
 	<emphasis>the_data_port</emphasis> and
@@ -1008,7 +1008,9 @@ the_data_port.     cd            ls
 	*/
        void updateHook() {
           // Your algorithm for periodic execution goes inhere
-	  outPort.Set( inPort.Get() * 2.0 );
+	  double result;
+	  if ( inPort.read(result) == NewData )
+	      outPort.write( result * 2.0 ); // only write if new data arrived.
        }
 
   };</programlisting></para>
@@ -1358,7 +1360,7 @@ the_data_port.     cd            ls
 	<para>
 	  Reading and writing data ports is always real-time and
 	  thread-safe, on the condition that copying your data
-	  (i.e. your copy constructor) is as well.
+	  (i.e. your operator=() ) is as well.
 	</para>
       </note>
       <mediaobject>
@@ -1375,16 +1377,17 @@ the_data_port.     cd            ls
 	task defines its data exchange ports and inter-task connectors
 	transmit data from one port to another. A Port is defined by a
 	name, unique within that task, the data type it wants to
-	exchange and the buffered or un-buffered method of exchanging.
-	Buffered exchange is done by "Buffer" Ports and un-buffered
-	exchange is done by "Data" Ports.
+	exchange and if its for reading (Input) or writing (Output) data samples.
+	Finally,
+	you can opt that new data on selected Input ports wake up your task.
+	The example below shows all these possibilities.
       </para>
       <para>
-	A Data Port can offer read-only, write-only or read-write access
-	to the unbuffered data. A Buffer Port can offer read-only,
-	write-only and read-write access to the buffered data. Finally,
-	you can opt that new data on selected ports wakes up your task.
-	The example below shows all these possibilities.
+	Each connection between an Output port and an Input port can
+	be tuned for your setup: buffering of data, thread-safety
+	and initialisation of the connection are parameters provided
+	by the user when the connection is created. We call these
+	<emphasis>Connection Policies</emphasis>.
       </para>
       <section>
 	<title>Setting up the Data Flow Interface</title>
@@ -1397,7 +1400,7 @@ the_data_port.     cd            ls
 	  </para>
 	</important>
 	<para>
-	  Any kind of data can be exchanged (also user defined types)
+	  Any kind of data can be exchanged (also user defined C/C++ types)
 	  but for readability, only the 'double' C type is used here.
 	  <programlisting>  #include &lt;rtt/Ports.hpp&gt;
   using namespace RTT;
@@ -1405,41 +1408,26 @@ the_data_port.     cd            ls
   class MyTask
     : public <classname>RTT::TaskContext</classname>
   {
-    // Read-only data port:
-    <classname>RTT::ReadDataPort</classname>&lt;double&gt; indatPort;
-    // Write-only data port:
-    <classname>RTT::WriteDataPort</classname>&lt;double&gt; outdatPort;
-    // Read-Write data port:
-    <classname>RTT::DataPort</classname>&lt;double&gt; rwdatPort;
-
-    // Read-only buffer port:
-    <classname>RTT::ReadBufferPort</classname>&lt;double&gt; inbufPort;
-    // Write-only buffer port:
-    <classname>RTT::WriteBufferPort</classname>&lt;double&gt; outbufPort;
-    // Read-Write buffer port:
-    <classname>RTT::BufferPort</classname>&lt;double&gt; rwbufPort;
+    // Input port:
+    <classname>RTT::InputPort</classname>&lt;double&gt; evPort;
+    // Input port:
+    <classname>RTT::InputPort</classname>&lt;double&gt; inPort;
+    // Output ports are 'send and forget'
+    <classname>RTT::OuputPort</classname>&lt;double&gt; outPort;
   public:
     // ...
     MyTask(std::string name)
       : <classname>RTT::TaskContext</classname>(name),
-        indatPort("Data_R"),
-	outdatPort("Data_W", 1.0),  // note: initial value
-	rwdatPort("Data_RW", 1.0),
-
-	inbufPort("SetPoint_X"),
-	outbufPort("Packet_1", 15), // note: buffer size
-	rwbufPort("Packet_2", 30)
+        evPort("my_input_1"),
+        inPort("my_input_2"),
+	outdatPort("my_output")
     {
-       // an 'EventPort' wakes our task up when data arrives.
-       this->ports()->addEventPort( &amp;indatPort, "Event driven Input Data Port" );
+       // an 'EventPort' is an InputPort which wakes our task up when data arrives.
+       this->ports()->addEventPort( &amp;evPort, "Input Port that raises an event." );
 
        // These ports do not wake up our task
-       this->ports()->addPort( &amp;outdatPort, "Output Data Port" );
-       this->ports()->addPort( &amp;rwdatPort, "Read-Write Data Port" );
-
-       this->ports()->addPort( &amp;inbufPort, "Read-Only Buffer Port" );
-       this->ports()->addPort( &amp;outbufPort, "Write-Only Buffer Port" );
-       this->ports()->addPort( &amp;rwbufPort, "Read-Write Buffer Port" );
+       this->ports()->addPort( &amp;evPort, "Input Port that raises an event." );
+       this->ports()->addPort( &amp;outPort, "Output Port" );
 
        // more additions to follow, see below
      }
@@ -1451,11 +1439,12 @@ the_data_port.     cd            ls
 	The example starts with declaring all the ports of MyTask. A
 	template parameter '&lt;double&gt;' specifies the type of data
 	the task wants to exchange through that port. Logically, if
-	two ore more tasks are connected, they must agree on this type.  The
+	input and output are connected, they must agree on this type.  The
 	constructor of MyTask initialises each port with a name.  This
 	name can be used to 'match' ports between connected tasks
 	( using 'connectPorts', see <xref linkend="connect-tasks" /> ),
-	but it is possible to connect Ports with different names as well.
+	but it is possible to connect Ports with different names as well
+	using the Orocos deployer.
       </para>
       <para>
 	There are two ways to add a port to the TaskContext interface:
@@ -1466,52 +1455,25 @@ the_data_port.     cd            ls
 	If you want to know which port caused the wake-up, do not implement
 	<function>updateHook()</function> (ie remove this function from your component) and use 
 	<function>updateHook(const std::vector&lt;PortInterface*&gt;&amp; updatedPorts)</function>
-	which provides you a list of all ports having received new data.
+	which provides you a list of all ports having received new data. If your task woke up
+	for another reason, updatedPorts will be empty.
       </para>
       <note>
 	<para>
-	  Only <classname>RTT::ReadDataPort</classname>, <classname>RTT::DataPort</classname>,
-	  <classname>RTT::ReadBufferPort</classname> and <classname>RTT::BufferPort</classname>
-	  added with <function>addEventPort()</function>  will cause your component to be triggered
-	  (ie wake up and call updateHook).
+	  Only <classname>RTT::InputPort</classname> can be added and
+	  will cause your component to be triggered (ie wake up and
+	  call updateHook).
 	</para>
 	<para>
-	  Adding a <classname>RTT::WriteDataPort</classname> or <classname>RTT::WriteBufferPort</classname>
-	  with <function>addEventPort()</function> is allowed but has no influence on the event
-	  being emitted or not. The rule of thumb is to only use <function>addEventPort()</function> for
-	  ports which are for reading data, and use <function>addPort()</function> for ports
-	  which are for writing data.
-	</para>
-	<para>
-		In the current implementation, addEventPort() must happen before you start() the TaskContext
-		the first time.
-		Any ports added after your component has been started the first time will not cause
-		them to wake up your component. So even stopping and starting wil not solve this. Therefor,
-		it is recommended to only use addEventPort in your component's contructor (as shown in the
-		example above). This issue is being looked at.
+	  In the current implementation, addEventPort() must happen
+	  before you start() the TaskContext the first time.  Any
+	  ports added after your component has been started the first
+	  time will not cause them to wake up your component. So even
+	  stopping and starting wil not solve this. Therefor, it is
+	  recommended to only use addEventPort in your component's
+	  contructor or configureHook().
 	</para>
 	</note>
-      <para>
-	Write and read-write Buffers take besides a name, the prefered
-	buffer size as a parameter. In the example, these are the
-	values 15 and 30. Before the task is connected to its peers,
-	you can still change this value with the
-	<function>setBufferSize()</function> function of the Port, for
-	example in the <function>configureHook()</function> function
-	of your TaskContext.
-      </para>
-      <para>
-	Finally, a 'write' port can take an initial value in the
-	constructor as well. This value will be used when the connection
-	between two ports is created in order to initialise the connection
-	( using 'connectPorts', see <xref linkend="connect-tasks" /> for a full
-	example).
-	If a 'write' port is connected to an existing connection, the
-	initial value (and buffer size) are ignored and the settings of
-	the existing connection are not touched. You can modify the
-	initial value with the 'Set( value )' function in both Buffer
-	and Data write ports.
-      </para>
       </section>
       <section>
 	<title>Using the Data Flow Interface in C++</title>
@@ -1531,12 +1493,13 @@ the_data_port.     cd            ls
 
      bool startHook() {
        // Check validity of (all) Ports:
-       if ( !indatPort.connected() ) {
-          // No connection was made !
+       if ( !inPort.connected() ) {
+          // No connection was made, can't do my job !
 	  return false;
        }
-       if ( !outdatPort.connected() ) {
-          // ...
+       if ( !outPort.connected() ) {
+          // ... not necessarily an error, a connection may be
+	  // made while we are running.
        }
        return true;
      }
@@ -1547,23 +1510,13 @@ the_data_port.     cd            ls
       * driven ports.
       */
      void updateHook() {
-       // Read and write the Data Flow:
-       // Unbuffered:
-       double val = indatPort.Get();
-       // <emphasis>calculate...</emphasis>
-       outdatPort.Set( val );
 
-       // Buffered:
-       if ( inbufPort.Pop( val ) ) {
-          // <emphasis>calculate...</emphasis>
-       } else {
-          // buffer empty.
-       }
+       double val = 0.0; 
 
-       if ( outbufPort.Push( val ) ) {
-          // ok.
-       } else {
-          // buffer full.
+       // Possible return values are: NoData, OldData and NewData.
+       if ( inPort.read(val) == RTT::NewData ) {
+         // <emphasis>update val...</emphasis>
+         outPort.write( val );
        }
      }
      // ...
@@ -1571,44 +1524,17 @@ the_data_port.     cd            ls
 	<para>
 	  It is wise to check in the <function>startHook()</function>
 	  ( or earlier: in <function>configureHook()</function> )
-	  function if all necessary ports are <function>connected()</function>
-	  ( or <function>ready()</function> ). 
-	  At this point, the task start up can still be aborted by
-	  returning false. Otherwise, a write to a port
-	  will be discarded, while a read returns the initial value
-	  or the default value. A Pop of a disconnected port will
-	  always return false.
+	  function if all necessary ports are
+	  <function>connected()</function>.  At this point, the task
+	  start up can still be aborted by returning false. Otherwise,
+	  a write to an unconnected output port will be discarded,
+	  while a read from an unconnected input port returns NoData.
 	</para>
-<!-- 	<section> TO COMPLEX FOR USERS -->
-<!-- 	  <title>Connection Container Interface</title> -->
-<!-- 	  <para> -->
-<!-- 	    A port's connection can be accessed through the -->
-<!-- 	    connection() method. To access the data within the connection -->
-<!-- 	    (i.e. the container), a special method is provided by each port. -->
-<!-- 	  </para> -->
-<!-- 	  <para> -->
-<!-- 	    A DataPort's data container can be accessed by the -->
-<!-- 	    <function>data()</function> function, while a BufferPort's -->
-<!-- 	    buffer container can be accessed by the -->
-<!-- 	    <function>read()</function>,<function>write()</function> -->
-<!-- 	    and <function>buffer()</function> functions for read-only, -->
-<!-- 	    write-only and read-write buffers respectively.  More -->
-<!-- 	    specifically, <function>data()</function> returns a -->
-<!-- 	    (const) -->
-<!-- 	    <classname>RTT::DataObjectInterface</classname>, -->
-<!-- 	    <function>read</function> returns a -->
-<!-- 	    <classname>RTT::ReadInterface</classname>, -->
-<!-- 	    <function>write</function> returns a -->
-<!-- 	    <classname>RTT::WriteInterface</classname> and -->
-<!-- 	    <function>buffer</function> returns a -->
-<!-- 	    <classname>RTT::BufferInterface</classname>. -->
-<!-- 	  </para> -->
-<!-- 	</section> -->
       </section>
       <section>
 	<title>Using Data Flow in Scripts</title>
 	<para>
-	  When a Port is connected, it becomes available to the
+	  When a Port is added, it becomes available to the
 	  Orocos scripting system such that (part of) the calculation
 	  can happen in a script. Also, the TaskBrowser can then
 	  be used to inspect the contents of the DataFlow on-line.
@@ -1619,33 +1545,34 @@ the_data_port.     cd            ls
 	  A small program script could be loaded into MyTask with
 	  the following contents:
 	  <programlisting>  program MyControlProgram {
-    double the_K  = K        // read task property, see later.
-    double setp_d
+    var double the_K  = K        // read task property, see later.
+    var double setp_d
 
     while ( true ) {
-      if ( SetPoint_X.Pop( setp_d ) ) { // read Buffer Port
-        double in_d = Data_R.Get()      // read Data Port
-        double out_d = (setp_d - in_d) * K  // Calculate
-        do Data_W.Set( out_d )          // write Data Port
+      if ( SetPoint_X.read( setp_d ) != NoData ) {   // read Input Port
+        var double in_d = 0.0;
+        do Data_R.read( in_d )             // read Input Port
+        var double out_d = (setp_d - in_d) * the_K  // Calculate
+        do Data_W.write( out_d )          // write Data Port
       }
-      do nothing       // this is a 'wait' point.
+      do nothing       // this is a 'yield' point to avoid inifinite spinning.
     }
   } </programlisting>
          The program "MyControlProgram" starts with declaring
 	 two variables and reading the task's Property 'K'.
 	 Then it goes into an endless loop, trying to Pop
-	 a set point value from the "SetPoint_X" Buffer Port. If that succeeds (buffer not empty)
-	 the  "Data_R" Data Port is read and a simple 
+	 a set point value from the "SetPoint_X" Port. If that succeeds (new or old data present)
+	 the  "Data_R" Port is read and a simple 
 	 calculation is done. The result is written to the
-	 "Data_W" Data Port and can now be read by the other
-	 end. Alternatively, the result may be directly
+	 "Data_W" OutputPort and can now be read by the other
+	 end(s). Alternatively, the result may be directly
 	 used by the Task in order to write it to a device
 	 or any non-task object. You can use methods (below)
 	 to send data from scripts back to the C++ implementation.
 	</para>
 	<para>
-	  Remark that the program is executed within the Execution
-	  Engine. In order to avoid the endless loop, a 'wait' point
+	  Remark that the program is executed within the thread of the component.
+	  In order to avoid the endless loop, a 'wait' point
 	  must be present. The "do nothing" command inserts such a
 	  wait point and is part of the Scripting syntax.  If you plan
 	  to use Scripting state machines, such a
@@ -2615,161 +2542,56 @@ the_data_port.     cd            ls
     </section>
     <section>
       <title>Setting up the Data Flow</title>
+      <note>
+	<para>
+	  In typical applications, the DeploymentComponent
+	  ('deployer') will form connections between ports using a
+	  program script or XML file. The manual method described
+	  below is not needed in that case.
+	</para>
+      </note>
       <para>
-	Data Flow between TaskContexts is setup by using <function>connectPorts</function>.
-	The direction of the data flow is imposed by the read/write direction of
+	Data Flow between TaskContexts can be setup by using <function>connectPorts</function>.
+	The direction of the data flow is imposed by the input/output direction of
 	the ports.  The <function>connectPorts(TaskContext* A, TaskContext* B)</function> function
 	creates a connection between TaskContext ports when both ports 
 	have the same name and type. It will never disconnect existing connections
 	and only tries to add ports to existing connections or create new
-	connections.
+	connections. The disadvantage of this approach is that you can not specify
+	connection policies.
       </para>
       <para>
-	Before calling <function>connectPorts</function>, one may connect individual ports,
-	e.g., when the portnames do not match or when complexer data
-	flow networks need to be formed. Suppose that Task A has a
-	port a_port, Task B a b_port and Task C a c_port (all are of type PortInterface*). Then
-	(shared) connections are made as follows:
-	<programlisting>  b_port->connectTo( a_port );
-  c_port->connectTo( a_port );</programlisting>
-	Note that the order of ports matters; the following would NOT work:
-	<programlisting>  a_port->connectTo( b_port ); // ok...
-  a_port->connectTo( c_port ); // returns false !</programlisting>
-         It would leave c_port unconnected, because a_port already has a connection
-	 and refuses to connect in that case.
+	Instead of calling <function>connectPorts</function>, one may connect individual ports,
+	such that different named ports can be connected and a connection policy can be set.
+	Suppose that Task A has a
+	port a_port, Task B a b_port and Task C a c_port (all are of type PortInterface&amp;). Then
+	 connections are made as follows:
+	<programlisting>  // Create a connection with a buffer of size 10:
+  <classname>RTT::ConnPolicy</classname> policy = RTT::ConnPolicy::buffer(10);
+  a_port.connectTo( b_port, policy );
+  // Create an unbuffered 'shared data' connection:
+  policy = RTT::ConnPolicy::data();
+  a_port.connectTo( b_port, policy );</programlisting>
+	The order of connections does not matter; the following would also work:
+	<programlisting>  b_port.connectTo( a_port, policy ); // ok...
+  c_port.connectTo( a_port, policy ); // fine too.</programlisting>
+        Note that you can not see from this example which port is input and which
+	is output. For readability, it is recommended to write it as:
+	<programlisting>output_port.connectTo( input_port );</programlisting>
       </para>
-      <note>
-	<para>
-	  Only use this note if you're an advanced user:
-	</para>
-	<para>
-	  In case you want to override buffer/port parameters when
-	  you connect ports, you can connect ports in your
-	  main() program by writing:
-	  <programlisting>  #include &lt;rtt/ConnectionFactory.hpp&gt;
-  // ...
-  int buf_size = 100;
-  <classname>RTT::ConnectionFactory</classname>&lt;double&gt; cf;
-
-  // creates an 'unconnected' connection object:
-  <classname>RTT::ConnectionInterface</classname>::shared_ptr con =
-    cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
-                    b_task->ports()->getPort("SetPoint_X"), 
-                    buf_size); // use createDataObject() for data ports.
-
-  // if all went well, 'connect' the connection object:
-  if (con)
-     con->connect(); // this is mandatory ! </programlisting>
-	 Do this <emphasis>before</emphasis> the ports are connected. 
-	 Then connect all other necessary ports to that connection, using
-	 <programlisting>c_port.connectTo( con );</programlisting>.
-	</para>
-      </note>
-
-    <example><title>TaskContext Data Flow Topology Example</title>
-    <para>This diagram shows some possible topologies. Four tasks,
-    "A", "B", "C" and "D" have each a port "MyData" and a port "MyData2".
-    The example demonstrates that connections are always made from
-    writer (sender) to reader (receiver).
-    </para>
-    <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/DataFlowTopology" />
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="images/hires/DataFlowTopology"  width="100%" scalefit="1"/>
-	</imageobject>
-	<caption>
-	  <para>
-	    Example data flow networks.
-	  </para>
-	</caption>
-    </mediaobject>
-    <para>
-      The first network has two writers and two readers for "MyData".
-      It can be formed starting from "A" and adding "B","C"
-      and "D" as peers of "A" respectively. Since the network started from
-      "A" all peers share the same connection. The same network could have
-      been formed starting from "B". The second diagram connects
-      "A" to "C" and then "B" to "D". Two connections are now made and if
-      the application tries to connect "B" to "C", this will fail since
-      the "MyData" Port of "C" already participates in a connection.
-    </para>
-    <para>
-      The third network has one writer and three readers for "MyData2".
-      It can now only be formed starting from "D" and adding "A","B" and "C"
-      as peers to "D". Combining both network one and three is possible
-      by merely invoking all the 'addPeer' methods in the correct order.
-    </para>
-    </example>
-    <para>
-      <function>connectPorts</function> tries to create connections in
-      both directions. If a task's Port already has a connection, any
-      task with compatible, unconnected ports will be added to that
-      connection.  For example, if "a_task" and "b_task" exchange a
-      Data type "Data_X", and "c_task" reads "Data_X", the
-      <function>connectPorts</function> will forward "Data_X" to "c_task"
-      as well.
-    </para>
+      <para>
+	<classname>RTT::ConnPolicy</classname> are powerful objects that allow you to
+	connect component ports just like you want them. You can use them to create
+	connections over networks or to setup fast real-time inter-process communication.
+      </para>
     </section>
     <section><title>Disconnecting Tasks</title>
     <para>
       Tasks can be disconnected from a network by invoking
       <function>disconnect()</function> on that task. It will
       inform all its peers that it has left the network and
-      disconnect all its ports. This does not mean that
-      all data flow connections are deleted. As long as one task's
-      port still participates in a connection, the connections
-      exist. When the last port disconnects, the data flow connection
-      is cleaned up as well.
+      disconnect all its ports.
     </para>
-    <example><title>TaskContext Peer Disconnection Example</title>
-    <para>(1) shows what would happen if tasks "A" and "B"
-    are disconnected from the network. (2) shows what would happen if
-    the connection itself is disconnected.
-    </para>
-    <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/DataFlowDisconnect" />
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="images/hires/DataFlowDisconnect"  width="100%" scalefit="1"/>
-	</imageobject>
-	<caption>
-	  <para>
-	    Disconnecting tasks: one can disconnect a whole task or
-	    disconnect only a port or connection of a task.
-	  </para>
-	</caption>
-    </mediaobject>
-    <para> When <function>A.disconnect()</function> is called (1),
-    it removes its participation from the "MyData" connection.
-    The same happens for <function>B.disconnect()</function>.
-    "C" and "D" read then from a connection which has no more
-    writers. Adding "A" again to the network would make "A"
-    again a writer of "MyData". If both "C" and "D" call disconnect
-    as well, the "MyData" connection is cleaned up.
-      <programlisting>  a_task.disconnect();
-  assert( !a_task.hasPeer( &amp;b_task.getName() ) 
-          &amp;&amp; !b_task.hasPeer( &amp;a_task.getName() );
-
-  b_task.disconnect();
-  assert( !c_task.hasPeer( &amp;b_task.getName() ) 
-          &amp;&amp; ! d_task.hasPeer( &amp;b_task.getName() );</programlisting>
-    </para>
-    <para>
-      Data Flow connections can be disconnected (2) as
-      well, in which case all ports are disconnected.
-      <programlisting>  ConnectionInterface::shared_ptr con = a_task.ports()->getPort("MyData")->connection();
-  if (con)
-    con->disconnect();
-
-  assert( !a_task.ports()->getPort("MyData").connected() );
-  assert( !b_task.ports()->getPort("MyData").connected() );
-  assert( !c_task.ports()->getPort("MyData").connected() );
-  assert( !d_task.ports()->getPort("MyData").connected() ); </programlisting>
-    </para>
-    </example>
     </section>
   </section>
   <section id="run-tasks">
