@@ -45,7 +45,7 @@
 
         // these two are used as policy parameters for the
         // boost::copy_graph function.
-        class RTT_API GraphVertexCopier {
+        class GraphVertexCopier {
             typedef FunctionGraph::Graph Graph;
             typedef graph_traits<Graph>::vertex_descriptor VertexDesc;
             std::map<const DataSourceBase*, DataSourceBase*>& rdss;
@@ -70,7 +70,7 @@
                 }
         };
 
-        class RTT_API GraphEdgeCopier {
+        class GraphEdgeCopier {
             typedef FunctionGraph::Graph Graph;
             typedef graph_traits<Graph>::edge_descriptor EdgeDesc;
             std::map<const DataSourceBase*, DataSourceBase*>& rdss;
