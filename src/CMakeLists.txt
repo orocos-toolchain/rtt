@@ -16,6 +16,9 @@ OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the O
 OPTION(ORO_OS_USE_BOOST_THREAD "Use the Boost.Thread library. Currently only the mutex implementation is used." OFF)
 
 if (ORO_OS_USE_BOOST_THREAD)
+  if (NOT Boost_THREAD_FOUND)
+    message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
+  endif()
   list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} )
 endif()
 
@@ -28,7 +31,7 @@ OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
 # Notify unit tests that no assembly must be tested.
 SET(TESTS_OS_NO_ASM ${OS_NO_ASM} PARENT_SCOPE)
-
+  
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 CMAKE_DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
@@ -147,7 +150,6 @@ ENDIF ( BUILD_STATIC )
   CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(orocos-rtt-dynamic_${OROCOS_TARGET} ${OROCOS-RTT_LIBRARIES})
 
-MESSAGE("Sending includes: ${OROCOS-RTT_INCLUDE_DIRS} libs: ${OROCOS-RTT_LIBRARIES} rinc: ${RTT_CFLAGS} rlib: ${RTT_LINKFLAGS}")
 create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDE_DIRS}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
 create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RTT_DUMMY RTT_DUMMY RTT_USER_LINK_LIBS)
 

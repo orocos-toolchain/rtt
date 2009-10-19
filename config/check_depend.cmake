@@ -33,6 +33,9 @@ ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
 
 # Is modified by target selection below
 OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as much as possible. This will exclude lock-free and atomic algorithms." OFF )
+if (OS_NO_ASM AND Boost_VERSION LESS 103600)
+  message(SEND_ERROR "OS_NO_ASM was turned on, but this requires Boost v1.36.0 or newer.")
+endif()
 
 ###########################################################
 #                                                         #
@@ -42,7 +45,9 @@ OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as 
 
 
 # Look for boost
-find_package(Boost 1.32 COMPONENTS program_options thread REQUIRED)
+find_package(Boost 1.33)
+find_package(Boost 1.33 COMPONENTS program_options)
+find_package(Boost 1.33 COMPONENTS thread)
 
 if(Boost_FOUND)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
@@ -85,10 +90,12 @@ if(OROCOS_TARGET STREQUAL "lxrt")
   set(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "Path to Linux source dir (required for lxrt target)" FORCE)
 
   find_package(RTAI REQUIRED)
+  find_package(Pthread REQUIRED)
+
 
   if(RTAI_FOUND)
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} )
-    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
+    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
   endif()
 else()
@@ -100,11 +107,12 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   set(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
   find_package(Xenomai REQUIRED)
+  find_package(Pthread REQUIRED)
 
   if(XENOMAI_FOUND)
     list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} )
-    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
+    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
   endif()
 else()
@@ -115,9 +123,12 @@ endif()
 if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
-  list(APPEND OROCOS-RTT_USER_LINK_LIBS pthread rt) # For libraries used in inline (fosi/template) code.
+  find_package(Pthread REQUIRED)
 
-  list(APPEND OROCOS-RTT_LIBRARIES pthread dl rt) 
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.
+
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
@@ -127,10 +138,13 @@ endif()
 if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
+  find_package(Boost 1.33 COMPONENTS thread REQUIRED)
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_thread_INCLUDE_DIRS} )
+
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
 
-  list(APPEND OROCOS-RTT_LIBRARIES pthread dl) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES}) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
@@ -150,7 +164,7 @@ if(OROCOS_TARGET STREQUAL "ecos")
     set(ECOS_SUPPORT TRUE CACHE INTERNAL "" FORCE)
 
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${ECOS_INCLUDE_DIRS} )
-    list(APPEND OROCOS-RTT_LIBRARIES ${ECOS_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_LIBRARIES ${ECOS_LIBRARIES} pthread) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 
     message( "Turning BUILD_STATIC ON for ecos.")
@@ -173,6 +187,8 @@ if(OROCOS_TARGET STREQUAL "win32")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
     # We force to ON
     message("Forcing OS_NO_ASM to ON for MSVC.")
+    # For boost::intrusive !
+    find_package(Boost 1.36 REQUIRED)
     set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
