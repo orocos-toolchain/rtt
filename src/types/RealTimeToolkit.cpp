@@ -42,11 +42,13 @@
 #include "Types.hpp"
 #include "Operators.hpp"
 #include "OperatorTypes.hpp"
+#include "GlobalsRepository.hpp"
 #include "TemplateTypeInfo.hpp"
 #include "TypeInfoName.hpp"
 #include "../extras/MultiVector.hpp"
 #include "../internal/mystd.hpp"
 #include "../rtt-fwd.hpp"
+#include "../FlowStatus.hpp"
 
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
@@ -134,6 +136,7 @@ namespace RTT
         ti->addType( new TemplateTypeInfo<double, true>("double") );
         ti->addType( new BoolTypeInfo() );
         ti->addType( new TypeInfoName<void>("void"));
+        ti->addType( new TemplateTypeInfo<FlowStatus, true>("FlowStatus"));
 
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
@@ -236,6 +239,7 @@ namespace RTT
             unsigned int int_to_uint(int i) { return i; }
             int uint_to_int(unsigned int ui) { return ui; }
 #endif
+        bool flow_to_bool(FlowStatus fs) { return fs; }
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>
@@ -315,6 +319,7 @@ namespace RTT
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
 #endif
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
+        ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         return true;
     }
 
@@ -428,6 +433,26 @@ namespace RTT
         oreg->add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
         oreg->add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
 #endif
+
+        // FlowStatus
+        oreg->add( newBinaryOperator( "==", std::equal_to<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<FlowStatus>() ) );
+
+        return true;
+    }
+
+    bool RealTimeToolkitPlugin::loadGlobals() {
+        GlobalsRepository::shared_ptr globals = GlobalsRepository::Instance();
+
+        // Data Flow enums:
+        globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
+        globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
+        globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
+
         return true;
     }
 }

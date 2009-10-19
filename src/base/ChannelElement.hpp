@@ -4,16 +4,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
-
-namespace RTT {
-    /**
-     * Returns the status of a data flow read.
-     * NoData means that the channel is disconnected or never written to.
-     * NewData means that the returned data is new data.
-     * OldData means that the returned data was already read.
-     */
-    enum FlowStatus { NoData = 0, NewData = 1, OldData = 2};
-}
+#include "../FlowStatus.hpp"
 
 namespace RTT { namespace base {
 

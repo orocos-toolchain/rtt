@@ -92,6 +92,13 @@ namespace RTT
         virtual bool loadConstructors() = 0;
 
         /**
+         * Implement this function to add global variables to the type system.
+         * This is necessary to have something like enumeration values, without
+         * being force to look these up in a component.
+         */
+        virtual bool loadGlobals() {}
+
+        /**
          * Each plugin must have a unique name.
          */
         virtual std::string getName() = 0;

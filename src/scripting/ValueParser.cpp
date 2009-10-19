@@ -32,6 +32,7 @@
 
 #include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
+#include "../types/GlobalsRepository.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -153,6 +154,12 @@ namespace RTT
     }
     if ( peer==task && peer->attributes()->hasProperty( name ) ) {
         ret = peer->properties()->find(name)->getDataSource();
+        return;
+    }
+
+    // Global variable case:
+    if ( GlobalsRepository::Instance()->hasAttribute( name ) ) {
+        ret = GlobalsRepository::Instance()->getValue(name)->getDataSource();
         return;
     }
 
