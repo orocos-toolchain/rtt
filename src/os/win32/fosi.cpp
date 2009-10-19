@@ -52,9 +52,11 @@ void sleep(long s){
 	Sleep(s*1000);
 }
 
+#if __GNUC__ != 4
 void usleep(long us){
     Sleep( us / 1000 );
 }
+#endif
 
 #ifdef __cplusplus
 }
