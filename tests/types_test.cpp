@@ -199,7 +199,6 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 
 }
-#if 0
 
 BOOST_AUTO_TEST_CASE( testOperators )
 {
@@ -297,7 +296,22 @@ BOOST_AUTO_TEST_CASE( testProperties )
     BOOST_CHECK_EQUAL( 2.321, pv.value()[2] );
     BOOST_CHECK_EQUAL( 3.321, pv.value()[3] );
 }
-#endif
+
+BOOST_AUTO_TEST_CASE( testOperatorOrder )
+{
+    string prog = string("program x {\n") +
+        "do test.assert( 6/2*4 == 12 )\n" + // not: 0
+        "do test.assert( 6*2/4 == 3 )\n" +  // not: 0
+        "do test.assert( 3+2*5 == 13)\n" +  // not: 30
+        "do test.assert( 3 < 2 != 5 > 1)\n" +
+        "do test.assert( 3*2 <= 12/2 )\n" +
+        "do test.assert( 3*2 < 6+1 )\n" +
+        "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
+        "do test.assert( 3*(2+1) == 9 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);    
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

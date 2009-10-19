@@ -106,8 +106,8 @@ namespace RTT { namespace detail
    */
   class ExpressionParser
   {
-    rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, multexp,
-      divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
+    rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, div_or_mul,
+      modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
       time_expression, time_spec, indexexp, comma, open_brace, close_brace;
