@@ -181,13 +181,30 @@
 		does not support this version</entry>
 	      </row>
 	      <row>
-		<entry>Boost C++ Libraries</entry>
-		<entry>0.33.0 (0.36.0 or newer on Windows)</entry>
+		<entry>Boost C++ Main Library</entry>
+		<entry>1.33.0 (1.36.0 or newer with MS Visual Studio)</entry>
 		<entry><ulink
 		url="http://www.boost.org">Boost.org</ulink> Version
-		0.33.0 has a very efficient (time/space) lock-free
+		1.33.0 has a very efficient (time/space) lock-free
 		smart pointer implementation which is used by
-		Orocos. 0.36.0 has features we require on Windows.</entry>
+		Orocos. 1.36.0 has boost::intrusive which we require on Windows with MSVS.</entry>
+	      </row>
+	      <row>
+		<entry>Boost C++ Test Library</entry>
+		<entry>1.33.0 (During build only)</entry>
+		<entry><ulink
+		url="http://www.boost.org">Boost.org</ulink> test
+		library ('unit_test_framework') is required if you build the RTT
+		from source and BUILD_TESTING=ON (default). The RTT libraries
+		don't depend on this library, it is only used for building
+		our unit tests.</entry>
+	      </row>
+	      <row>
+		<entry>Boost C++ Thread Library</entry>
+		<entry>1.33.0 (Mac OS-X only)</entry>
+		<entry><ulink
+		url="http://www.boost.org">Boost.org</ulink> thread
+		library is required on Mac OS-X.</entry>
 	      </row>
 	      <row>
 		<entry>GNU gcc / g++ Compilers</entry>
