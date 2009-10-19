@@ -302,15 +302,13 @@ namespace RTT
       modexp >> *( '+' >> modexp[
                      bind( &ExpressionParser::seen_binary, this, "+" ) ] );
     modexp =
-      divexp >> *( '%' >> divexp[
+      div_or_mul >> *( '%' >> div_or_mul[
                      bind( &ExpressionParser::seen_binary, this, "%" ) ] );
-    divexp =
-      multexp >> *( '/' >> multexp[
-                      bind( &ExpressionParser::seen_binary, this, "/" ) ] );
-    multexp =
-         unaryplusexp
-      >> *( '*' >> unaryplusexp[
-              bind( &ExpressionParser::seen_binary, this, "*" ) ] );
+    div_or_mul =
+      unaryplusexp >> *( ('/' >> unaryplusexp[
+            bind( &ExpressionParser::seen_binary, this, "/" ) ] )
+       | ('*' >> unaryplusexp[
+            bind( &ExpressionParser::seen_binary, this, "*" ) ] ) );
 
     unaryplusexp =
         '+' >> unaryminusexp[
