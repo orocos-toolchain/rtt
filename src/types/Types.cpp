@@ -131,6 +131,8 @@ namespace RTT
     {
         DataSourceBase::shared_ptr ds;
         Constructors::const_iterator i= constructors.begin();
+        if ( arg->getTypeInfo() == this )
+            return arg;
         //log(Info) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
         while (i != constructors.end() ) {
             ds = (*i)->convert( arg );
