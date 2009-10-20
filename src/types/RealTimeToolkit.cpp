@@ -49,6 +49,7 @@
 #include "../internal/mystd.hpp"
 #include "../rtt-fwd.hpp"
 #include "../FlowStatus.hpp"
+#include "../ConnPolicy.hpp"
 
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
@@ -92,6 +93,28 @@ namespace RTT
             return composeProperty( bag, result );
         }
     };
+
+        /**
+         * This class tells Orocos how to handle ConnPolicy
+         */
+        struct ConnPolicyTypeInfo
+            : public TemplateTypeInfo<ConnPolicy>
+        {
+            ConnPolicyTypeInfo(const std::string& name )
+                : TemplateTypeInfo<ConnPolicy>(name)
+            {}
+
+            bool decomposeTypeImpl(const ConnPolicy& cp, PropertyBag& targetbag) const
+            {
+                decomposeProperty( cp, targetbag );
+                return true;
+            }
+
+            bool composeTypeImpl(const PropertyBag& bag, ConnPolicy& result) const
+            {
+                return composeProperty( bag, result );
+            }
+        };
 
 #endif
     /**
@@ -143,6 +166,7 @@ namespace RTT
         ti->addType( new TemplateTypeInfo<float, true>("float") );
         ti->addType( new TemplateTypeInfo<char, true>("char") );
         ti->addType( new StdVectorTypeInfo("array") );
+        ti->addType( new ConnPolicyTypeInfo("ConnPolicy") );
 #endif
 
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
@@ -452,7 +476,13 @@ namespace RTT
         globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
         globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
         globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
-
+#ifndef ORO_EMBEDDED
+        globals->setValue( new Constant<int>("DATA",ConnPolicy::DATA) );
+        globals->setValue( new Constant<int>("BUFFER",ConnPolicy::BUFFER) );
+        globals->setValue( new Constant<int>("LOCKED",ConnPolicy::LOCKED) );
+        globals->setValue( new Constant<int>("LOCK_FREE",ConnPolicy::LOCK_FREE) );
+        globals->setValue( new Constant<int>("UNSYNC",ConnPolicy::UNSYNC) );
+#endif
         return true;
     }
 }

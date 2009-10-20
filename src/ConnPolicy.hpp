@@ -2,6 +2,7 @@
 #define ORO_CONN_POLICY_HPP
 
 #include <string>
+#include "rtt-fwd.hpp"
 
 namespace RTT {
 
@@ -52,9 +53,9 @@ namespace RTT {
         static const int DATA   = 0;
         static const int BUFFER = 1;
 
-        static const int LOCKED    = 0;
-        static const int LOCK_FREE = 1;
-        static const int UNSYNC    = 2;
+        static const int UNSYNC    = 0;
+        static const int LOCKED    = 1;
+        static const int LOCK_FREE = 2;
 
         /**
          * Create a policy for a (lock-free) buffer connection of a given size.
@@ -139,6 +140,9 @@ namespace RTT {
          */
         mutable std::string name_id;
     };
+
+    bool composeProperty(const PropertyBag& bag, ConnPolicy& result);
+    void decomposeProperty(const ConnPolicy& cp, PropertyBag& targetbag);
 }
 
 #endif

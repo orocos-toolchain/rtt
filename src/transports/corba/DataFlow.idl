@@ -13,7 +13,7 @@ module RTT
   {
     enum CFlowStatus { CNoData, CNewData, COldData };
     enum CConnectionModel { CData, CBuffer };
-    enum CLockPolicy { CLocked, CLockFree };
+    enum CLockPolicy { CUnsync, CLocked, CLockFree };
     struct CConnPolicy
     {
         CConnectionModel type;
@@ -85,7 +85,7 @@ module RTT
          * that the connection is been cleaned up.
          */
         void remoteDisconnect(in boolean writer_to_reader);
-        
+
     };
 
     /** Emitted when information is requested on a port that does not exist */
@@ -179,7 +179,7 @@ module RTT
        *
        * This method combines both buildChannelOutput() and buildChannelInput() and is
        * generally better in setting up and checking a data flow connection between
-       * two ports than the separate methods. 
+       * two ports than the separate methods.
        *
        * This method will call the \a remote_ports interface back to orchestrate
        * the connection building.
@@ -189,8 +189,8 @@ module RTT
       boolean createConnection(in string local_port, in CDataFlowInterface remote_ports,
             in string remote_port, inout CConnPolicy policy)
             raises(CNoSuchPortException);
-            
-      /** 
+
+      /**
        * Removes the specified connection created with createConnection.
        */
       void removeConnection(in string writer_name,
