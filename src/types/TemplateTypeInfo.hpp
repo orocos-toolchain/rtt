@@ -294,6 +294,7 @@ namespace RTT
          * User, implement this function. Add the structural elements of source to targetbag.
          */
         virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
+            log(Info) << "Decomposition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
             return false;
         }
 
@@ -324,14 +325,15 @@ namespace RTT
          * User, implement this function. Extract the structural elements in source to result.
          */
         virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
+            log(Info) << "Composition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
             return false;
         }
-		
+
 		std::string getTypeIdName() const { return typeid(T).name(); }
 
-      
-        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }  
-        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }  
+
+        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
+        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
 
         base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const {
             return internal::ConnFactory::buildDataStorage<T>(policy);
