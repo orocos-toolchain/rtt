@@ -39,6 +39,8 @@
 #pragma implementation
 #endif
 #include "PropertyBase.hpp"
+#include "internal/DataSources.hpp"
+#include "PropertyBag.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -69,5 +71,12 @@ namespace RTT {
             os << p->getDataSource();
             return os;
         }
+    }
+
+    bool PropertyBase::compose( const PropertyBag& source)
+    {
+        ConstReferenceDataSource<PropertyBag> rds(source);
+        rds.ref();
+        return this->getDataSource()->composeType( &rds );
     }
 }

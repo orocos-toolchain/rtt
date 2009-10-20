@@ -124,7 +124,10 @@ namespace RTT
          * Update does a full update of the value, adding extra
          * information if necessary, or in case of a Property<PropertyBag> adding missing
          * Properties.
-         * @return false if the Properties are of different type.
+         *
+         * Update only works on properties that are ready() and both have the same data type T.
+         *
+         * @return false if the Properties are of different type or if this->ready() == false.
          */
         virtual bool update( const PropertyBase* other ) = 0;
 
@@ -141,6 +144,9 @@ namespace RTT
          * Refresh does only the minimal update of the value, not adding extra
          * information, or in case of a Property<PropertyBag> not adding extra
          * Properties.
+         *
+         * Refresh only works on properties that are ready() and both have the same data type T.
+         *
          * @return false if the Properties are of different type.
          */
         virtual bool refresh( const PropertyBase* other ) = 0;
@@ -155,9 +161,12 @@ namespace RTT
 
         /**
          * Copy an \a other Property onto this property.
-         * Update does a full update of the name, description and value, adding extra
+         * Copy does a full update of the name, description and value, adding extra
          * information if necessary, or in case of a Property<PropertyBag> adding all
          * Properties.
+         *
+         * Copy only works on properties that are ready() and both have the same data type T.
+         *
          * @return false if the Properties are of different type.
          */
         virtual bool copy( const PropertyBase* other ) = 0;
@@ -168,6 +177,14 @@ namespace RTT
          * @return zero if the Property types do not match
          */
         virtual ActionInterface* copyCommand( const PropertyBase* other) = 0;
+
+        /**
+         * Composes the data of this property with information found in a
+         * PropertyBag.
+         * This only works for data types that defined a compose/decompose
+         * function in their type info structure.
+         */
+        virtual bool compose( const PropertyBag& source);
 
         /**
          * Deliver an identical clone of this PropertyBase. The
