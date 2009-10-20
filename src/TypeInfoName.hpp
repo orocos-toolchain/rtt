@@ -144,6 +144,8 @@ namespace RTT
             return false;
         }
 
+        virtual ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port, RTT::ConnPolicy const& policy) const
+        { return 0; }
         virtual InputPortInterface* inputPort(std::string const& name) const
         { return 0; }
         virtual OutputPortInterface* outputPort(std::string const& name) const

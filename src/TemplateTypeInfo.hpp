@@ -258,6 +258,11 @@ namespace RTT
         virtual DataSourceBase::shared_ptr buildReference(void* ptr) const {
             return new ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
         }
+        virtual ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port, RTT::ConnPolicy const& policy) const {
+            return ConnFactory::buildOutputHalf(
+                    static_cast<RTT::InputPort<T>&>(port),
+                    policy);
+        }
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             typename DataSource<T>::shared_ptr d = AdaptDataSource<T>()( in );

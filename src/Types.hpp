@@ -63,6 +63,8 @@ namespace RTT
     class TransportPlugin;
     class InputPortInterface;
     class OutputPortInterface;
+    class ChannelElementBase;
+    class ConnPolicy;
 
     namespace detail {
         class TypeTransporter;
@@ -171,6 +173,11 @@ namespace RTT
          * pointer
          */
         virtual DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
+
+        /** Builds the output half of a connection where the input port is of
+         * this type
+         */
+        virtual ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port, RTT::ConnPolicy const& policy) const = 0;
 
         /** @} */
 

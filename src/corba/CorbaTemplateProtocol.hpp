@@ -90,9 +90,8 @@ namespace RTT
 
           ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port, RTT::ConnPolicy const& policy) const
           {
-              return ConnFactory::buildOutputHalf(
-                      static_cast<RTT::InputPort<T>&>(port),
-                      policy);
+              TypeInfo const* ti = DataSourceTypeInfo< UserType >::getTypeInfo();
+              return ti->buildOutputHalf(port, policy);
           }
 
           /**
