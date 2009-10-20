@@ -182,6 +182,11 @@ bool RemoteOutputPort::keepsLastWrittenValue() const
 void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 { throw std::runtime_error("OutputPort::keepLastWrittenValue() is not supported in CORBA port proxies"); }
 
+DataSourceBase::shared_ptr RemoteOutputPort::getDataSource() const
+{
+    return DataSourceBase::shared_ptr();
+}
+
 bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::ConnPolicy const& policy )
 {
     try {

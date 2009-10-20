@@ -69,6 +69,8 @@ namespace RTT {
             using base::OutputPortInterface::createConnection;
             bool createConnection( base::InputPortInterface& sink, ConnPolicy const& policy );
 
+            virtual base::DataSourceBase::shared_ptr getDataSource() const;
+
             base::PortInterface* clone() const;
             base::PortInterface* antiClone() const;
         };

@@ -61,6 +61,7 @@
 #include "../../internal/DataSourceTypeInfo.hpp"
 #include "AttributesC.h"
 #include "CorbaLib.hpp"
+#include "CorbaConnPolicy.hpp"
 
 namespace RTT
 { namespace corba {
@@ -107,6 +108,10 @@ namespace RTT
         }
     };
 
+    /**
+     * Used for the conversion of types that are binary
+     * compatible between CORBA type and std C++ type.
+     */
     template<class Type, class _CorbaType = Type>
     struct AnyConversionHelper
     {
@@ -126,7 +131,7 @@ namespace RTT
         static bool update(const CORBA::Any& any, StdType& _value) {
 	    CorbaType temp;
             if ( any >>= temp ) {
-		_value = temp;
+                _value = temp;
                 return true;
             }
             return false;
@@ -290,6 +295,42 @@ namespace RTT
         }
 
         static CORBA::Any_ptr createAny( const std::string& t ) {
+            CORBA::Any_ptr ret = new CORBA::Any();
+            *ret <<= toAny( t );
+            return ret;
+        }
+
+    };
+
+    /**
+     * This specialisation uses the toRTT() and toCORBA functions
+     * for converting between RTT::ConnPolicy and RTT::corba::CConPolicy.
+     */
+    template<>
+    struct RTT_CORBA_API AnyConversion<ConnPolicy>
+    {
+        typedef RTT::corba::CConnPolicy CorbaType;
+        typedef RTT::ConnPolicy StdType;
+        static CorbaType toAny(const StdType& orig) {
+            //Logger::log() << Logger::Debug << "Converting type 'string' to const char*." <<Logger::endl;
+            return toCORBA(orig);
+        }
+
+        static StdType get(const CorbaType t) {
+            return toRTT( t );
+        }
+
+        static bool update(const CORBA::Any& any, StdType& _value) {
+            CorbaType* result;
+            //Logger::log() << Logger::Debug << "Updating std::string with Any." <<Logger::endl;
+            if ( any >>= result ) {
+                _value = toRTT(*result);
+                return true;
+            }
+            return false;
+        }
+
+        static CORBA::Any_ptr createAny( const StdType& t ) {
             CORBA::Any_ptr ret = new CORBA::Any();
             *ret <<= toAny( t );
             return ret;
