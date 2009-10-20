@@ -47,6 +47,12 @@ namespace RTT
          */
         virtual void keepLastWrittenValue(bool new_flag) = 0;
 
+        /**
+         * Returns a Data source that stores the last written value, or
+         * a null pointer if this port does not keep its last written value.
+         */
+        virtual DataSourceBase::shared_ptr getDataSource() const = 0;
+
         virtual void disconnect();
 
         /** Returns true if there is at least one channel registered in this
@@ -54,6 +60,9 @@ namespace RTT
          */
         virtual bool connected() const;
 
+        /**
+         * Write this port using the value stored in source.
+         */
         virtual void write(DataSourceBase::shared_ptr source);
 
         /** Connects this write port to the given read port, using a single-data
@@ -67,11 +76,14 @@ namespace RTT
          */
         bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
-        /** Connects this write port to the given read port, using the as policy
+        /** Connects this write port to the given read port, using as policy
          * the default policy of the sink port
          */
         bool createConnection( InputPortInterface& sink );
 
+        /** Connects this write port to the given read port, using the
+         * given connection policy.
+         */
         virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */

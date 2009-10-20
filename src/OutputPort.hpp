@@ -127,6 +127,12 @@ namespace RTT
             else
                 last_written_value = 0;
         }
+
+        /**
+         * Returns the last written value written to this port, in case it is
+         * kept by this port, otherwise, returns a default T().
+         * @return The last written value or T().
+         */
         T getLastWrittenValue() const
         {
             typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
@@ -134,6 +140,13 @@ namespace RTT
                 return last_written_value->Get();
             else return T();
         }
+
+        /**
+         * Reads the last written value written to this port, in case it is
+         * kept by this port, otherwise, returns false.
+         * @param sample The data sample to store the value into.
+         * @return true if it could be retrieved, false otherwise.
+         */
         bool getLastWrittenValue(T& sample) const
         {
             typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
@@ -143,6 +156,11 @@ namespace RTT
                 return true;
             }
             return false;
+        }
+
+        virtual base::DataSourceBase::shared_ptr getDataSource() const
+        {
+            return this->last_written_value;
         }
 
         /**
