@@ -47,9 +47,9 @@
 #define CONNECTIONMANAGER_HPP_
 
 
-#include "ConnPolicy.hpp"
 #include "ConnID.hpp"
 #include "List.hpp"
+#include "../ConnPolicy.hpp"
 #include "../os/Mutex.hpp"
 #include "../base/rtt-base-fwd.hpp"
 #include "../base/ChannelElementBase.hpp"
