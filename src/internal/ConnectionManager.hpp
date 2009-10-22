@@ -90,14 +90,6 @@ namespace RTT
             void removeConnection(ConnID* port_id);
 
             /**
-             * Returns the connection to a given port.
-             * The lookup is done by ConnID.
-             * @param port The port to use for lookup.
-             * @return A connection to \a port or nill if no such connection exists.
-             */
-            base::ChannelElementBase::shared_ptr getConnection(const base::PortInterface& port);
-
-            /**
              * Disconnect all connections.
              */
             void disconnect();

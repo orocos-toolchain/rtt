@@ -103,21 +103,6 @@ bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
     return false;
 }
 
-#if 0
-bool InputPortInterface::channelReady(PortInterface const& port)
-{
-    // NOTE: we can't get hold of the ChannelElement of port, and even
-    // if we could, we wouldn't know which one of the many to use (output goes to many inputs).
-    // furthermore, CORBA tricks the C++ layer with 'empty' ports that
-    // just serve to be passed on for ConnID comparison.
-    // So don't touch this line unless you know what you're doing.
-
-    // Ask connection manager to iterate over all connections and find
-    // out which one points to port:
-    return channelReady( cmanager.getConnection(port) );
-}
-#endif
-
 void InputPortInterface::removeConnection(ConnID* conn)
 {
     cmanager.removeConnection(conn);

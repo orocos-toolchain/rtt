@@ -208,12 +208,6 @@ namespace RTT
             return conn_id->isSameID( *channel.get<0>() );
         }
 
-        ChannelElementBase::shared_ptr ConnectionManager::getConnection(const PortInterface& port)
-        {
-            boost::scoped_ptr<ConnID> conn_id( port.getPortID() );
-            return connections->find_if( boost::bind(&is_same_id, conn_id.get(),_1) ).get<1>();
-        }
-
     }
 
 }
