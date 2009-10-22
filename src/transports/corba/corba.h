@@ -48,8 +48,8 @@
 #define CORBA_EXCEPTION_INFO(x) x._info().c_str()
 #else
 #include <omniORB4/CORBA.h>
-#include <omniORB4/POA.h>
-namespace corba {
+#include <omniORB4/poa.h>
+namespace CORBA {
     typedef Any* Any_ptr;
 }
 #define ACE_THROW_SPEC(x) throw x

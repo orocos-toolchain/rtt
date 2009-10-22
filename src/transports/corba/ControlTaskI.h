@@ -121,7 +121,7 @@ public:
   //Destructor
   virtual ~Orocos_CControlObject_i (void);
 
-  virtual RTT::corba::CControlObject * activate_this() {
+  virtual RTT::corba::CControlObject_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
       return _this();
@@ -211,7 +211,7 @@ public:
   //Destructor
   virtual ~Orocos_CControlTask_i (void);
 
-  virtual RTT::corba::CControlTask * activate_this() {
+  virtual RTT::corba::CControlTask_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
       return _this();

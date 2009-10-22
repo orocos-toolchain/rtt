@@ -128,7 +128,7 @@ public:
         return PortableServer::POA::_duplicate(mpoa);
     }
 
-    virtual RTT::corba::CExpression * activate_this() {
+    virtual RTT::corba::CExpression_ptr activate_this() {
         PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
         _remove_ref(); // ref count=1
         return _this();
@@ -240,7 +240,7 @@ public:
   // Destructor
     virtual ~Orocos_AnyAssignableExpression_i (void) {}
 
-    virtual RTT::corba::CAssignableExpression * activate_this() {
+    virtual RTT::corba::CAssignableExpression_ptr activate_this() {
         PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
         _remove_ref(); // ref count=1
         return _this();
@@ -294,7 +294,7 @@ public:
   //Destructor
     virtual ~Orocos_CAction_i (void);
 
-    virtual RTT::corba::CAction * activate_this() {
+    virtual RTT::corba::CAction_ptr activate_this() {
         PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
         _remove_ref(); // ref count=1
         return _this();
@@ -355,7 +355,7 @@ public:
   //Destructor
     virtual ~Orocos_AnyMethod_i (void) {}
 
-    virtual RTT::corba::CMethod * activate_this() {
+    virtual RTT::corba::CMethod_ptr activate_this() {
         PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
         _remove_ref(); // ref count=1
         return _this();
@@ -446,7 +446,7 @@ public:
   //Destructor
   virtual ~Orocos_CCommand_i (void);
 
-  virtual RTT::corba::CCommand * activate_this() {
+  virtual RTT::corba::CCommand_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       _remove_ref(); // ref count=1
       return _this();
