@@ -110,7 +110,11 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     // Test ticks conversion invariance :
     // margin is in % rounding error.
     int margin = 1;
+#ifdef OROCOS_TARGET_LXRT
+    int small_margin = 20; // 20% of 10ns : allow a two-off.
+#else
     int small_margin = 10; // 10% of 10ns : allow a one-off.
+#endif
 
     BOOST_REQUIRE_CLOSE( (double)long_ns  , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
     BOOST_REQUIRE_CLOSE( (double)normal_ns, (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
