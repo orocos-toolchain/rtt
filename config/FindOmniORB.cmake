@@ -173,7 +173,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
          # the current CMakeLists.txt file, the ADD_CUSTOM_COMMAND is plainly
          # ignored and left out of the make files.
          ADD_CUSTOM_COMMAND(OUTPUT ${_out} ${_outh}
-          COMMAND ${OMNIORB4_IDL_COMPILER} -bcxx -Wba -Wbh=C.h -Wbs=C.cc -I${CMAKE_CURRENT_SOURCE_DIR} ${_current_FILE}
+          COMMAND ${OMNIORB4_IDL_COMPILER} -bcxx -Wbuse_quotes -Wba -Wbh=C.h -Wbs=C.cc -I${CMAKE_CURRENT_SOURCE_DIR} ${_current_FILE}
           DEPENDS ${_tmp_FILE}
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)
