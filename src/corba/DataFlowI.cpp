@@ -232,6 +232,12 @@ ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
     }
 
     RTT::ChannelElementBase* element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
+    if (!element)
+    {
+        log(Error) << "INTERNAL: buildOutputHalf returned NULL" << endlog();
+        throw NoCorbaTransport();
+    }
+
     ChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
     dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
