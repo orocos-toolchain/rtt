@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( testFailInit )
 
 }
 
-#if !defined( OROCOS_TARGET_WIN32 )
+#if !defined( OROCOS_TARGET_WIN32 )  && !defined(OROCOS_TARGET_LXRT)
 BOOST_AUTO_TEST_CASE( testOverrun )
 {
   bool r = false;
