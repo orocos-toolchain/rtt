@@ -41,4 +41,13 @@
 namespace RTT {
     using namespace mqueue;
     Dispatcher* Dispatcher::DispatchI = 0;
+
+
+}
+
+void intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p ) {
+    p->refcount.inc();
+}
+void intrusive_ptr_release(const RTT::mqueue::Dispatcher* p ) {
+    if ( p->refcount.dec_and_test() ) delete p;
 }

@@ -45,7 +45,10 @@
 #include <sys/select.h>
 #include <mqueue.h>
 
+namespace RTT { namespace mqueue { class Dispatcher; } }
 
+RTT_API void intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
+RTT_API void intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
 
 namespace RTT {
     namespace mqueue {
@@ -58,6 +61,9 @@ namespace RTT {
          */
         class Dispatcher : public Activity
         {
+            friend void ::intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
+            friend void ::intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
+            mutable os::AtomicInt refcount;
             static Dispatcher* DispatchI;
 
             typedef std::map<mqd_t,base::ChannelElementBase*> MQMap;
@@ -75,6 +81,13 @@ namespace RTT {
             : Activity(ORO_SCHED_RT, os::HighestPriority, 0.0, 0, name),
               highsock(0), do_exit(false)
               {}
+
+            ~Dispatcher() {
+                Logger::In in("Dispatcher");
+                log(Info) << "Dispacher cleans up: no more work."<<endlog();
+                stop();
+                DispatchI = 0;
+            }
 
             void build_select_list() {
 
@@ -116,8 +129,10 @@ namespace RTT {
             }
 
         public:
-            static Dispatcher* Instance() {
-                if (DispatchI == 0) {
+            typedef boost::intrusive_ptr<Dispatcher> shared_ptr;
+
+            static Dispatcher::shared_ptr Instance() {
+                if ( DispatchI == 0) {
                     DispatchI = new Dispatcher("MQueueDispatch");
                     DispatchI->start();
                 }
@@ -125,20 +140,27 @@ namespace RTT {
             }
 
             void addQueue( mqd_t mqdes, base::ChannelElementBase* chan ) {
+                Logger::In in("Dispatcher");
                 if (mqdes < 0) {
                     log(Error) <<"Invalid mqd_t given to MQueue Dispatcher." <<endlog();
                     return;
                 }
                 log(Debug) <<"Dispatcher is monitoring mqdes "<< mqdes <<endlog();
                 os::MutexLock lock(maplock);
+                // we add a refcount per channel we monitor.
+                if (mqmap.count(mqdes) == 0)
+                    refcount.inc();
                 mqmap[mqdes] = chan;
             }
 
             void removeQueue(mqd_t mqdes) {
+                Logger::In in("Dispatcher");
                 log(Debug) <<"Dispatcher drops mqdes "<< mqdes <<endlog();
                 os::MutexLock lock(maplock);
-                if (mqmap.count(mqdes))
+                if (mqmap.count(mqdes)) {
                     mqmap.erase( mqmap.find(mqdes) );
+                    refcount.dec();
+                }
             }
 
             bool initialize() {
@@ -190,3 +212,4 @@ namespace RTT {
         };
     }
 }
+
