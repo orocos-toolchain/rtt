@@ -86,7 +86,7 @@ namespace RTT
         /**
          * Checks if this is still in a task and if so, issues a critical warning.
          */
-        ~RunnableInterface();
+        virtual ~RunnableInterface();
 
         /**
          * The method that will be called before the first periodical

@@ -13,7 +13,6 @@ namespace RTT {
         class DispatchInterface;
         class InputPortInterface;
         class OutputPortInterface;
-        class PortID;
         class PortInterface;
         class ProgramInterface;
         class PropertyBagVisitor;

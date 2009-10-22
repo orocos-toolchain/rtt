@@ -109,8 +109,10 @@ Orocos_CControlObject_i::~Orocos_CControlObject_i (void)
     }
 
     // FIXME free up cache ? This is done by refcountservantbase ?
-//     for( CTObjMap::iterator it = ctobjmap.begin(); it != ctobjmap.end; ++it)
-//         delete it->second;
+    for( CTObjMap::iterator it = ctobjmap.begin(); it != ctobjmap.end(); ++it) {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id( it->second );
+        mpoa->deactivate_object(oid.in());
+    }
 }
 
 PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
@@ -152,7 +154,7 @@ PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
         Orocos_CAttributeInterface_i* mserv;
         mAttrs_i = mserv = new Orocos_CAttributeInterface_i( mobj->attributes(), mpoa );
         try {
-            mAttrs   = mserv->_this();
+            mAttrs   = mserv->activate_this();
         } catch( ... ) {
             log(Error) << "Failed to create CAttributeInterface." <<endlog();
         }
@@ -219,7 +221,7 @@ PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
         Orocos_CControlObject_i* ret;
         if ( ctobjmap[pname] == 0 || ctobjmap[pname]->mobj != task) {
             // create or lookup new server for this object.
-            // FIXME free up cache ? This is done by refcountservantbase ?
+            // FIXME free up cache ? This is done by refcountservantbase !
             //delete ctobjmap[pname];
             ctobjmap[pname] = new Orocos_CControlObject_i(task, mpoa );
         }
@@ -227,7 +229,11 @@ PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
         return ret->_this();
     }
     // clear cache if possible.
-    ctobjmap.erase( pname );
+    if ( ctobjmap.count(pname) ) {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id( ctobjmap[pname] );
+        mpoa->deactivate_object(oid.in());
+        ctobjmap.erase( pname );
+    }
     return RTT::corba::CControlObject::_nil();
 }
 
@@ -453,6 +459,7 @@ CORBA::Long Orocos_CControlTask_i::getErrorCount (
         Orocos_CScriptingAccess_i* mserv;
         mEEFact_i = mserv = new Orocos_CScriptingAccess_i( mtask->scripting(), mpoa );
         mEEFact = mserv->_this();
+        //mserv->_remove_ref();
     }
     return ::RTT::corba::CScriptingAccess::_duplicate( mEEFact.in() );
 }
@@ -469,6 +476,7 @@ CORBA::Long Orocos_CControlTask_i::getErrorCount (
         RTT_Corba_CServiceInterface_i* mserv;
         mService_i = mserv = new RTT_Corba_CServiceInterface_i( mpoa );
         mService = mserv->_this();
+        //mService->_remove_ref();
     }
     return ::RTT::corba::CServiceInterface::_duplicate( mService.in() );
 }
@@ -484,7 +492,7 @@ CORBA::Long Orocos_CControlTask_i::getErrorCount (
         log(Debug) << "Creating CDataFlowInterface."<<endlog();
         RTT::corba::CDataFlowInterface_i* mserv;
         mDataFlow_i = mserv = new RTT::corba::CDataFlowInterface_i( mtask->ports(), mpoa );
-        mDataFlow = mserv->_this();
+        mDataFlow = mserv->activate_this();
         CDataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
     }
     return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );

@@ -2,9 +2,8 @@
 #define ORO_OUTPUT_PORT_INTERFACE_HPP
 
 #include "PortInterface.hpp"
-#include "../internal/ListLockFree.hpp"
-#include <boost/tuple/tuple.hpp>
-#include "../os/Mutex.hpp"
+#include "../internal/ConnectionManager.hpp"
+#include "DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {
@@ -16,42 +15,43 @@ namespace RTT
     class RTT_API OutputPortInterface : public PortInterface
     {
     protected:
-        typedef boost::tuple<PortID*, ChannelElementBase::shared_ptr, internal::ConnPolicy> ChannelDescriptor;
-        internal::ListLockFree< ChannelDescriptor > connections;
+        internal::ConnectionManager cmanager;
 
-        /** Helper method for disconnect(PortInterface*)
-         *
-         * This method removes the channel listed in \c descriptor from the list
-         * of output channels if \c port has the same id that the one listed in
-         * \c descriptor.
-         *
-         * @returns true if the descriptor matches, false otherwise
+        /**
+         * Upcall to OutputPort.
          */
-        bool eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor);
-
-        /** Helper method for disconnect()
-         *
-         * Unconditionally removes the given connection and return true
-         */
-        bool eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor);
-
-        /** Helper method for removeConnection(channel) */
-        bool matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const;
-
-        /** Helper method for port-to-port connection establishment */
-        void addConnection(PortID* port_id, ChannelElementBase::shared_ptr channel_input, internal::ConnPolicy const& policy);
-
-
-        /** os::Mutex for when it is needed to resize the connections list */
-        os::Mutex connection_resize_mtx;
-
+        virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) = 0;
     public:
+        /**
+         * Adds a new connection to this output port and initializes the connection if required by \a policy.
+         * Use with care. Allows you to add any arbitrary connection to this output port. It is your responsibility
+         * to do any further bookkeeping, such as informing the input that a new output has been added.
+         */
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
+
         OutputPortInterface(std::string const& name);
         ~OutputPortInterface();
 
+        /**
+         * Returns true if this port records the last written value.
+         */
         virtual bool keepsLastWrittenValue() const = 0;
 
+        /**
+         * Change the setting for keeping the last written value.
+         * Setting this to false will clear up any unneeded storage.
+         * If set, this port can initialize new connections with a data sample and
+         * allows real-time data transport of dynamically sized objects
+         * over its newly created connections.
+         * @see OutputPort::OutputPort.
+         */
         virtual void keepLastWrittenValue(bool new_flag) = 0;
+
+        /**
+         * Returns a Data source that stores the last written value, or
+         * a null pointer if this port does not keep its last written value.
+         */
+        virtual DataSourceBase::shared_ptr getDataSource() const = 0;
 
         virtual void disconnect();
 
@@ -60,25 +60,31 @@ namespace RTT
          */
         virtual bool connected() const;
 
+        /**
+         * Write this port using the value stored in source.
+         */
         virtual void write(DataSourceBase::shared_ptr source);
 
         /** Connects this write port to the given read port, using a single-data
          * policy with the given locking mechanism
          */
-        bool createDataConnection( InputPortInterface& sink, int lock_policy = internal::ConnPolicy::LOCK_FREE );
+        bool createDataConnection( InputPortInterface& sink, int lock_policy = ConnPolicy::LOCK_FREE );
 
         /** Connects this write port to the given read port, using a buffered
          * policy, with the buffer of the given size and the given locking
          * mechanism
          */
-        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = internal::ConnPolicy::LOCK_FREE );
+        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
-        /** Connects this write port to the given read port, using the as policy
+        /** Connects this write port to the given read port, using as policy
          * the default policy of the sink port
          */
         bool createConnection( InputPortInterface& sink );
 
-        virtual bool createConnection( InputPortInterface& sink, internal::ConnPolicy const& policy ) = 0;
+        /** Connects this write port to the given read port, using the
+         * given connection policy.
+         */
+        virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */
         void disconnect(PortInterface& port);
@@ -86,9 +92,9 @@ namespace RTT
         /** Removes the connection associated with this channel, and the channel
          * as well
          */
-        bool removeConnection(ChannelElementBase::shared_ptr channel);
+        virtual void removeConnection(internal::ConnID* cid);
 
-        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface& other);
     };

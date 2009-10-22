@@ -65,18 +65,6 @@ namespace RTT
     {}
 
     template<typename T>
-    bool AssignableDataSource<T>::updateBlob(int protocol, const void* data)
-    {
-#ifndef ORO_EMBEDDED
-        types::TypeTransporter* tt = this->getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->updateBlob( data, base::DataSourceBase::shared_ptr(this) );
-#endif
-        return false;
-    }
-
-
-    template<typename T>
     void* AssignableDataSource<T>::server( int protocol, void* arg )
     {
 #ifndef ORO_EMBEDDED

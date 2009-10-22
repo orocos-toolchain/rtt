@@ -62,6 +62,7 @@ namespace RTT
     class RTT_CORBA_API ExpressionProxy
         : public base::DataSourceBase
     {
+        CorbaTypeTransporter* ctp;
     public:
         typedef boost::intrusive_ptr<ExpressionProxy> shared_ptr;
 
@@ -93,9 +94,16 @@ namespace RTT
             typename internal::DataSource<T>::value_t target = typename internal::DataSource<T>::value_t();
             internal::ReferenceDataSource<T> rds( target );
             rds.ref();
-            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
-                Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
+            types::TypeTransporter* tp = rds.getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+            CorbaTypeTransporter* ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+            assert(ctp);
+
+            if ( ctp->updateFromAny( &any.in(), &rds ) ) {
+#if 0
+                CORBA::String_var stype = expr->getType();
+                Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< stype.in()
                               <<" to local "<< internal::DataSource<T>::GetType()<<Logger::endl;
+#endif
                 return new CORBAExpression<T>( expr );
             }
             return 0; // not convertible.
@@ -129,9 +137,16 @@ namespace RTT
                 typename internal::DataSource<T>::value_t target = typename internal::DataSource<T>::value_t();
                 internal::ReferenceDataSource<T> rds( target );
                 rds.ref();
-                if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
-                    Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
+                types::TypeTransporter* tp = rds.getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+                CorbaTypeTransporter* ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+                assert(ctp);
+
+                if ( ctp->updateFromAny( &any.in(), &rds ) ) {
+#if 0
+                    CORBA::String_var stype = ret->getType();
+                    Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< stype.in()
                                   <<" to local "<< internal::DataSource<T>::GetType()<<Logger::endl;
+#endif
                     return new CORBAAssignableExpression<T>( ret._retn() );
                 }
             }
@@ -191,23 +206,11 @@ namespace RTT
             return alreadyCloned[this];
         }
 
-        virtual std::string getType() const { return std::string( mdata->getType() ); }
+        virtual std::string getType() const { CORBA::String_var stype = mdata->getType() ; return std::string( stype.in() ); }
 
         virtual const types::TypeInfo* getTypeInfo() const { return internal::DataSourceTypeInfo<internal::UnknownType>::getTypeInfo(); }
 
         virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
-
-        virtual void* createBlob(int p) {
-            if (p == ORO_CORBA_PROTOCOL_ID)
-                return mdata->value();
-            return 0;
-        }
-
-        virtual void* getBlob(int p) {
-            if (p == ORO_CORBA_PROTOCOL_ID)
-                return mdata->get();
-            return 0;
-        }
 
         virtual void* server(int p, void* arg) {
             if (p == ORO_CORBA_PROTOCOL_ID)
@@ -236,7 +239,11 @@ namespace RTT
                 typename internal::DataSource<T>::value_t target = typename internal::DataSource<T>::value_t();
                 internal::ReferenceDataSource<T> rds( target );
                 rds.ref();
-                if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any ) ) {
+                types::TypeTransporter* tp = rds.getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+                CorbaTypeTransporter* ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+                assert(ctp);
+
+                if ( ctp->updateFromAny( &any, &rds ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< internal::DataSource<T>::GetType()<<Logger::endl;
                     return new internal::ConstantDataSource<T>( target );

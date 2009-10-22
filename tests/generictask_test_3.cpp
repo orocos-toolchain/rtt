@@ -655,12 +655,13 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
     OutputPort<int> wp("WriterName", true);
     InputPort<int> rp("ReaderName", ConnPolicy::data(true));
 
-    wp.createConnection(rp);
+    BOOST_CHECK( wp.createConnection(rp) );
     int value = 0;
     BOOST_CHECK( !rp.read(value) );
     BOOST_CHECK( !wp.getLastWrittenValue(value) );
     wp.write(10);
     BOOST_CHECK( rp.read(value) );
+    BOOST_CHECK_EQUAL( 10, value );
 
     wp.disconnect(rp);
     BOOST_CHECK( !wp.connected() );
@@ -672,15 +673,16 @@ BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
     BOOST_CHECK_EQUAL( 10, wp.getLastWrittenValue() );
 
     value = 0;
-    wp.createConnection(rp);
+    BOOST_CHECK( wp.createConnection(rp) );
     BOOST_CHECK( rp.read(value) );
     BOOST_CHECK_EQUAL( 10, value );
+    //wp.disconnect();
 }
 
 BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
 {
     OutputPort<int> wp("WriterName");
-    InputPort<int> rp("ReaderName", ConnPolicy::data());
+    InputPort<int> rp("ReaderName", ConnPolicy::data(ConnPolicy::LOCK_FREE, false));
 
     BOOST_CHECK( !wp.connected() );
     BOOST_CHECK( !rp.connected() );
@@ -690,7 +692,7 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
         wp.write(value); // just checking if is works or if it crashes
     }
 
-    wp.createConnection(rp);
+    BOOST_REQUIRE( wp.createConnection(rp) );
     BOOST_CHECK( wp.connected() );
     BOOST_CHECK( rp.connected() );
 
@@ -740,14 +742,14 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
         BOOST_CHECK_EQUAL(2, value);
 
         rp.clear();
-        BOOST_CHECK( !rp.read(value) );
+        BOOST_CHECK_EQUAL( rp.read(value), NoData );
         wp.write(10);
         wp.write(20);
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(10, value);
         BOOST_CHECK( rp.read(value) );
         BOOST_CHECK_EQUAL(20, value);
-        BOOST_CHECK( !rp.read(value) );
+        BOOST_CHECK_EQUAL( rp.read(value), OldData );
     }
 
     // Try disconnecting from the reader this time
@@ -804,7 +806,7 @@ BOOST_AUTO_TEST_CASE(testPortForkedConnections)
     BOOST_CHECK_EQUAL(20, value);
     BOOST_CHECK( rp2.read(value));
     BOOST_CHECK_EQUAL(25, value);
-    BOOST_CHECK( !rp2.read(value));
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData);
 
     // Now removes only the buffer port
     wp.disconnect(rp2);
@@ -842,20 +844,20 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     wp1.createConnection( rp1 );
 
     // Test Methods set/get
-    Method<void(double)> mset;
-    Method<bool(double&)> mget;
+    Method<void(double const&)> mset;
+    Method<FlowStatus(double&)> mget;
 
-    mset = tc->getObject("Write")->methods()->getMethod<void(double)>("write");
+    mset = tc->getObject("Write")->methods()->getMethod<void(double const&)>("write");
     BOOST_CHECK( mset.ready() );
 
-    mget = tc->getObject("Read")->methods()->getMethod<bool(double&)>("read");
+    mget = tc->getObject("Read")->methods()->getMethod<FlowStatus(double&)>("read");
     BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );
 
-    double get_value;
+    double get_value = 0;
     BOOST_CHECK( mget(get_value) );
-    BOOST_CHECK_EQUAL( 3.991, get_value );
+    BOOST_CHECK_CLOSE( 3.991, get_value, 0.001 );
 
     //// Finally, check cleanup. Ports and port objects must be gone:
     tc->ports()->removePort("Reader");
@@ -906,10 +908,21 @@ BOOST_AUTO_TEST_CASE(testPortDataSource)
     BOOST_CHECK(!source->evaluate());
     wp1.write(10);
     wp1.write(20);
+    // value is still null when not get()/evaluate()
+    BOOST_CHECK_EQUAL(0, source->value());
+
+    // read a sample:
+    BOOST_CHECK(source->evaluate());
     BOOST_CHECK_EQUAL(10, source->value());
-    BOOST_CHECK_EQUAL(20, source->value());
-    BOOST_CHECK_EQUAL(0, source->get());
+    BOOST_CHECK_EQUAL(10, source->value());
+
+    // get a sample (=evaluate+value):
+    BOOST_CHECK_EQUAL(20, source->get());
+
+    // buffer empty, but value remains same as old:
     BOOST_CHECK(!source->evaluate());
+    BOOST_CHECK_EQUAL(0, source->get());
+    BOOST_CHECK_EQUAL(20, source->value());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

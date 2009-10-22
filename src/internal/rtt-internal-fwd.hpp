@@ -10,9 +10,9 @@ namespace RTT {
         class CompletionProcessor;
         class ConditionFunction;
         class ConnFactory;
-        class ConnPolicy;
         class ConnectionBase;
         class ConnectionC;
+        class ConnectionManager;
         class DispatchAction;
         class EventC;
         class EventProcessor;

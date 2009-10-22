@@ -13,16 +13,26 @@ namespace RTT
     class ConnInputEndpoint : public base::ChannelElement<T>
     {
         OutputPort<T>* port;
+        ConnID* cid;
 
     public:
-        ConnInputEndpoint(OutputPort<T>* port)
-            : port(port) { }
+        ConnInputEndpoint(OutputPort<T>* port, ConnID* id)
+            : port(port), cid(id) { }
 
-        /** Writes a new sample on this connection
+        ~ConnInputEndpoint()
+        {
+            delete cid;
+        }
+
+        /** Reads a new sample from this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
-        virtual bool read(typename base::ChannelElement<T>::reference_t sample)
-        { return false; }
+        virtual FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+        { return NoData; }
+
+        virtual bool inputReady() {
+            return true;
+        }
 
         virtual void disconnect(bool forward)
         {
@@ -37,7 +47,7 @@ namespace RTT
                 if (!port)
                     return;
 
-                port->removeConnection(this);
+                port->removeConnection( cid );
             }
         }
     };

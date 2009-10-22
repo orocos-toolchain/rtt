@@ -104,7 +104,7 @@ namespace RTT {
     CORBA::Any_ptr AnyConversion<PropertyBag>::createAny( StdType t ) {
         Logger::log() << Logger::Debug << "Creating PropertyBag Server." <<Logger::endl;
         Orocos_CAttributeInterface_i* attrs = new Orocos_CAttributeInterface_i( new PropertyBag(t), corba::ControlTaskProxy::ProxyPOA() );
-        corba::CAttributeInterface_ptr server = attrs->_this();
+        corba::CAttributeInterface_ptr server = attrs->activate_this();
         CORBA::Any_ptr any = new CORBA::Any();
         *any <<= server;
         return any;

@@ -172,7 +172,7 @@ namespace RTT
         virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
 
         /**
-         * Compose a structure from a base::PropertyBase containing its basic components.
+         * Compose a structure from a base::DataSourceBase containing its basic components.
          * The default behavior tries to assign \a source to \a target. If this does
          * not work, because source and target have different type, this function returns false.
          */
@@ -194,11 +194,11 @@ namespace RTT
 
         TypeTransporter* getProtocol(int protocol_id) const;
 
-        /** 
+        /**
          * Return a list of protocols that have transporters
          */
         std::vector<int> getTransportNames() const;
-        
+
         virtual std::string getTypeIdName() const = 0;
 
         /**
@@ -206,13 +206,23 @@ namespace RTT
          * this TypeInfo object.
          */
         virtual base::InputPortInterface* inputPort(std::string const& name) const = 0;
-        
+
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
         virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
-    };
+
+        /**
+         * Creates single data or buffered storage for this type.
+         *
+         * @param policy Describes the kind of storage requested by the user
+         * @return a storage element.
+         */
+        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const = 0;
+        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const = 0;
+        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const = 0;
+};
 
 }}
 

@@ -14,6 +14,7 @@ namespace RTT
 
     class Activity;
     class CleanupHandle;
+    class ConnPolicy;
     class ExecutionEngine;
     class Handle;
     class Logger;

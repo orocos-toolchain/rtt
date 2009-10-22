@@ -271,12 +271,6 @@ namespace RTT
             rt_sem_t sem;
 
             /**
-             * The semaphore used for communicating between
-             * the thread and the constructor/destructor.
-             */
-            rt_sem_t confDone;
-
-            /**
              * Used to implement synchronising breakLoop().
              */
             MutexRecursive breaker;

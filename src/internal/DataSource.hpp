@@ -195,8 +195,6 @@ namespace RTT
 
       virtual AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const = 0;
 
-      virtual bool updateBlob(int protocol, const void* data);
-
       virtual void* server(int protocol, void* data );
 
       /**

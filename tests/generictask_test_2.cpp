@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <Command.hpp>
+#include <Activity.hpp>
 #include <scripting/CommandDS.hpp>
 #include <interface/OperationInterface.hpp>
 #include <internal/RemoteCommand.hpp>

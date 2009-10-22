@@ -134,10 +134,10 @@ struct TestRunner
 void
 ActivitiesThreadTest::setUp()
 {
-    t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );
-    t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.01, true, true );
-    t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );
-    t_task_a = new TestActivity<Activity>(3, 0.01, true, true );
+    t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );           // will be stopped if np_bad throws
+    t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.01, true, true ); // throws
+    t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );           // does not throw
+    t_task_a = new TestActivity<Activity>(3, 0.01, true, true );              // throws
 }
 
 
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     BOOST_CHECK( m2task.start() == true );
     BOOST_CHECK( m2task.isRunning() == true );
 
-    sleep(1);
+    usleep(100000);
 
     // stopping...
     BOOST_CHECK( mtask.stop() == true );
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     // Test periodic task sequencing...
 
     Activity mtask( 15 );
-
+    usleep(100000);
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
     os::CheckPriority( rtsched, bprio );
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     BOOST_CHECK( m2task.start() == true );
     BOOST_CHECK( m2task.isActive() == true );
 
-    sleep(1);
+    usleep(100000);
 
     // stopping...
     BOOST_CHECK( mtask.stop() == true );
@@ -417,6 +417,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
         TimerThreadPtr tt2 = TimerThread::Instance(rtsched, bprio, 0.0123);
         BOOST_CHECK( tt2 != 0 );
         BOOST_CHECK( tt2 != tt );
+        usleep(100000);
         BOOST_CHECK_EQUAL( rtsched, tt2->getScheduler());
 
         tt = TimerThread::Instance(bprio, 0.0123); // ORO_SCHED_RT is the default.
@@ -431,7 +432,7 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     int rtsched = ORO_SCHED_RT;
     int bprio = 15;
     TimerThreadPtr tt = TimerThread::Instance(bprio, 0.0123);
-
+    usleep(100000);
     BOOST_CHECK( tt->isRunning() == false );
 
     BOOST_CHECK_EQUAL( 0.0123, tt->getPeriod());
@@ -506,15 +507,19 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel( Logger::Never );
     BOOST_CHECK(t_task_np->start());
-    BOOST_CHECK(t_task_np_bad->start());
+    BOOST_CHECK(t_task_np_bad->start()); // must stop t_task_np too.
     BOOST_CHECK(t_task_p->start());
     BOOST_CHECK(t_task_a->start());
 
-    sleep(1);
+    usleep(100000);
+
     // thread should stop :
     Logger::log().setLogLevel( ll );
     BOOST_CHECK( !t_task_np_bad->thread()->isRunning() );
 
+    // This sometimes fails because of a bug in gnulinux Thread/fosi:
+    // two TimerThreads are created because the first one is not yet
+    // running, hence np_bad runs in a different thread than np...
     BOOST_CHECK( !t_task_np->isRunning() );
     BOOST_CHECK( !t_task_np_bad->isRunning() );
     BOOST_CHECK( t_task_p->isRunning() );
@@ -539,11 +544,11 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 
     // see if we recovered ok :
     Logger::log().setLogLevel( Logger::Never );
-    BOOST_CHECK( t_task_np_bad->thread()->start() );
+    // do not start np_bad
     BOOST_CHECK(t_task_np->start());
     BOOST_CHECK(t_task_a->start());
 
-    sleep(1);
+    usleep(100000);
     Logger::log().setLogLevel( ll );
     t_task_p->reset(true);
     BOOST_CHECK( t_task_np->isRunning() );

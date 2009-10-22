@@ -84,10 +84,13 @@
 #include "../../Logger.hpp"
 #include "../../internal/MethodC.hpp"
 #include "../../internal/DataSources.hpp"
+#include "CorbaTypeTransporter.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
+using namespace RTT;
 
 /**
  * A servant which serves a RTT::internal::DataSource through the 'Any' methods.
@@ -100,6 +103,7 @@ protected:
     RTT::base::DataSourceBase::shared_ptr morig;
     CORBA::Any_var last_value;
     PortableServer::POA_var mpoa;
+    corba::CorbaTypeTransporter* ctp;
 public:
     typedef RTT::base::DataSourceBase::const_ptr SourceType;
     typedef CORBA::Any                             ResultType;
@@ -110,13 +114,24 @@ public:
 
   // Constructor
   Orocos_AnyExpression_i (RTT::base::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
-      : morig( orig ), last_value( (CORBA::Any_ptr)morig->createBlob(ORO_CORBA_PROTOCOL_ID) ) // create default Any.
+      : morig( orig ), last_value( 0 )
         , mpoa( PortableServer::POA::_duplicate(the_poa) )
-    {}
+    {
+      types::TypeTransporter* tp = morig->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+      ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+      assert(ctp);
+      last_value = ctp->createAny( morig );
+    }
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
+    }
+
+    virtual RTT::corba::CExpression * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
     }
 
   // Destructor
@@ -139,7 +154,8 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      last_value = (CORBA::Any_ptr)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
+      morig->evaluate();
+      last_value = ctp->createAny(morig);
       bool result = true;
       // if it is a bool, update result and return it, otherwise, just return true:
       RTT::corba::AnyConversion<bool>::update( last_value.in(), result );
@@ -153,7 +169,8 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return (CORBA::Any*)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
+      morig->evaluate();
+      return ctp->createAny(morig);
   }
 
   virtual
@@ -203,6 +220,7 @@ class  Orocos_AnyAssignableExpression_i
       public virtual POA_RTT::corba::CAssignableExpression
 {
     RTT::base::DataSourceBase::shared_ptr mset;
+    corba::CorbaTypeTransporter* ctp;
 public:
 
     virtual void copy( RTT::base::DataSourceBase::shared_ptr new_ds ) {
@@ -213,10 +231,20 @@ public:
   // Constructor
   Orocos_AnyAssignableExpression_i (RTT::base::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : Orocos_AnyExpression_i(orig, the_poa), mset( orig )
-   {}
+   {
+      types::TypeTransporter* tp = mset->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+      ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
+      assert(ctp);
+   }
 
   // Destructor
     virtual ~Orocos_AnyAssignableExpression_i (void) {}
+
+    virtual RTT::corba::CAssignableExpression * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
 
   virtual
   CORBA::Boolean set (
@@ -225,7 +253,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return mset->updateBlob(ORO_CORBA_PROTOCOL_ID, &value );
+      return ctp->updateFromAny(&value, mset );
   }
 
   virtual
@@ -266,7 +294,13 @@ public:
   //Destructor
     virtual ~Orocos_CAction_i (void);
 
-  virtual
+    virtual RTT::corba::CAction * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
+
+    virtual
   CORBA::Boolean execute (
 
     )
@@ -321,7 +355,12 @@ public:
   //Destructor
     virtual ~Orocos_AnyMethod_i (void) {}
 
-  virtual
+    virtual RTT::corba::CMethod * activate_this() {
+        PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+        _remove_ref(); // ref count=1
+        return _this();
+    }
+    virtual
   CORBA::Boolean execute (
 
     )
@@ -406,6 +445,12 @@ public:
 
   //Destructor
   virtual ~Orocos_CCommand_i (void);
+
+  virtual RTT::corba::CCommand * activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      _remove_ref(); // ref count=1
+      return _this();
+  }
 
   virtual
   CORBA::Boolean execute (

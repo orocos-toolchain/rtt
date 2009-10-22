@@ -75,7 +75,12 @@ namespace RTT
         BufferLocked( size_type size, const T& initial_value = T() )
             : cap(size), buf(), write_policy(size), read_policy(0)
         {
-            buf.resize(size, initial_value);
+            data_sample(initial_value);
+        }
+
+        virtual void data_sample( const T& sample )
+        {
+            buf.resize(cap, sample);
             buf.resize(0);
         }
 

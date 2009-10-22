@@ -149,6 +149,43 @@ namespace RTT
         virtual ConstantDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
+        /**
+         * A DataSource which is used to read a const reference to an
+         * external value.
+         * @param T The result data type of get().
+         */
+        template<typename T>
+        class ConstReferenceDataSource
+            : public DataSource<T>
+        {
+            // a reference to a value_t
+            typename AssignableDataSource<T>::const_reference_t mref;
+        public:
+            /**
+             * Use shared_ptr.
+             */
+            ~ConstReferenceDataSource();
+
+            typedef boost::intrusive_ptr<ConstReferenceDataSource<T> > shared_ptr;
+
+            ConstReferenceDataSource( typename AssignableDataSource<T>::const_reference_t ref );
+
+            typename DataSource<T>::result_t get() const
+            {
+                return mref;
+            }
+
+            typename DataSource<T>::result_t value() const
+            {
+                return mref;
+            }
+
+            virtual ConstReferenceDataSource<T>* clone() const;
+
+            virtual ConstReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
+        };
+
+
     /**
      * A DataSource which is used to manipulate a reference to an
      * external value.

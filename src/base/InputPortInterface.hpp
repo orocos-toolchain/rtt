@@ -3,7 +3,10 @@
 
 #include <string>
 #include "PortInterface.hpp"
-#include "../extras/Events.hpp"
+#include "ChannelElement.hpp"
+#include "../internal/rtt-internal-fwd.hpp"
+#include "../internal/ConnectionManager.hpp"
+#include "../Event.hpp"
 
 namespace RTT
 { namespace base {
@@ -19,29 +22,29 @@ namespace RTT
         typedef Event<void(PortInterface*)> NewDataOnPortEvent;
 
     protected:
-        ChannelElementBase* channel;
-        internal::ConnPolicy          default_policy;
+        internal::ConnectionManager cmanager;
+        ConnPolicy        default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
-        InputPortInterface(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy());
+        InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
         ~InputPortInterface();
 
-        /** Sets the channel from which this port should get samples
+        /** Clears the connection. After call to read() will return false after
+         * clear() has been called
+         */
+        void clear();
+
+        ConnPolicy getDefaultPolicy() const;
+
+        virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy = ConnPolicy() );
+
+        /** Removes the input channel
          *
-         * You should usually not use this directly. Use createConnection
+         * You should usually not use this directly. Use disconnect()
          * instead.
          */
-        virtual void setInputChannel(ChannelElementBase* channel_output);
-
-        /** Clears the input channel
-         *
-         * You should usually not use this directly. Use createConnection
-         * instead.
-         */
-        virtual void clearInputChannel();
-
-        internal::ConnPolicy getDefaultPolicy() const;
+        virtual void removeConnection(internal::ConnID* cid);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
@@ -54,25 +57,34 @@ namespace RTT
          *
          * \a source has to be an assignable data source
          */
-        virtual bool read(DataSourceBase::shared_ptr source);
+        virtual FlowStatus read(DataSourceBase::shared_ptr source);
 
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect();
 
+        /** Removes the channel that connects this port to \c port */
+        virtual void disconnect(PortInterface& port);
+
+
         /** Returns true if this port is connected */
         virtual bool connected() const;
 
-        /** Clears the connection. After call to read() will return false after
-         * clear() has been called
+        /**
+         * Call this to indicate that the connection leading to this port
+         * is ready to use. The input port will check its channel elements
+         * by sending an inputReady() message. If this succeeds, this
+         * function returns true and the input port is ready to use (this->connected() == true).
+         * If sending inputReady() returns failure, this method returns
+         * false and the connection is aborted (this->connected() == false).
          */
-        void clear();
+        virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
 
         /** Returns the event object that gets emitted when new data is
          * available for this port. It gets deleted when the port is deleted.
          */
         NewDataOnPortEvent* getNewDataOnPortEvent();
 
-        virtual bool connectTo(PortInterface& other, internal::ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface& other);
 };

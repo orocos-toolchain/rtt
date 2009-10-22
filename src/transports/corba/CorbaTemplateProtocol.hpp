@@ -40,18 +40,18 @@
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
 #include "CorbaTypeTransporter.hpp"
+#include "RemoteChannelElement.hpp"
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
 #include "ExpressionProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"
+#include "../../internal/ConnID.hpp"
 
 namespace RTT
 { namespace corba
   {
-      using namespace RTT::corba;
-
       /**
        * For each transportable type T, specify the conversion functions.
        *
@@ -84,37 +84,29 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          CChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
-          { return new RemoteChannelElement<T>(*this, poa); }
-
-          base::ChannelElementBase* buildOutputHalf(base::InputPortInterface& port, internal::ConnPolicy const& policy) const
-          {
-              return internal::ConnFactory::buildOutputHalf(
-                      static_cast<RTT::InputPort<T>&>(port),
-                      policy);
-          }
+          CRemoteChannelElement_i* createChannelElement_i(interface::DataFlowInterface* sender,PortableServer::POA_ptr poa, bool is_pull) const
+          { return new RemoteChannelElement<T>(*this, sender, poa, is_pull); }
 
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
            */
-          virtual void* createBlob( base::DataSourceBase::shared_ptr source) const
+          virtual CORBA::Any* createAny( base::DataSourceBase::shared_ptr source) const
           {
               internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
               if ( d )
-                  return AnyConversion<PropertyType>::createAny( d->value() );
+                  return AnyConversion<PropertyType>::createAny( d->value());
               return 0;
           }
 
           /**
-           * Update \a target with the contents of \a blob which is an object of a \a protocol.
+           * Update \a target with the contents of \a any which is an object of a \a protocol.
            */
-          virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const
+          virtual bool updateFromAny(const CORBA::Any* any, base::DataSourceBase::shared_ptr target) const
           {
             //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
             //Only narrow.
 //             internal::AssignableDataSource<T>* ad = internal::AdaptAssignableDataSource<T>()( target );
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
-            const CORBA::Any* any = static_cast<const CORBA::Any*>(blob);
             if ( ad ) {
                 PropertyType value;
                 if (AnyConversion<PropertyType>::update(*any, value ) ) {

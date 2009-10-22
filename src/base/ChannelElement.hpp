@@ -4,6 +4,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 #include "ChannelElementBase.hpp"
+#include "../FlowStatus.hpp"
 
 namespace RTT { namespace base {
 
@@ -19,6 +20,22 @@ namespace RTT { namespace base {
         typedef boost::intrusive_ptr< ChannelElement<T> > shared_ptr;
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
+
+        /**
+         * Provides a data sample to initialize this connection.
+         * This is used before the first write() in order to inform this
+         * connection of the size of the data. As such enough storage
+         * space can be allocated before the actual writing begins.
+         *
+         * @returns false if an error occured that requires the channel to be invalidated.
+         */
+        virtual bool data_sample(param_t sample)
+        {
+            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(this->output);
+            if (output)
+                return output->data_sample(sample);
+            return false;
+        }
 
         /** Writes a new sample on this connection. \a sample is the sample to
          * write. 
@@ -38,12 +55,13 @@ namespace RTT { namespace base {
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        virtual bool read(reference_t sample)
+        virtual FlowStatus read(reference_t sample)
         {
             typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->input);
             if (input)
                 return input->read(sample);
-            else return false;
+            else
+                return NoData;
         }
     };
 }}

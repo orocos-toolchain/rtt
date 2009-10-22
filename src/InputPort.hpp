@@ -11,7 +11,6 @@
 
 namespace RTT
 {
-
     /**
      * A component's data input port. An Orocos input port is used to receive
      * data samples from a distant publisher. The InputPort is read() and returns
@@ -27,21 +26,34 @@ namespace RTT
         friend class internal::ConnOutputEndpoint<T>;
         internal::InputPortSource<T>* data_source;
 
+        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
+
+        bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, const internal::ConnectionManager::ChannelDescriptor& descriptor)
+        {
+            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
+            assert( result != NewData );
+            if ( input ) {
+                result = input->read(sample);
+                if (result == NewData)
+                    return true;
+            }
+            return false;
+        }
     public:
-        InputPort(std::string const& name, internal::ConnPolicy const& default_policy = internal::ConnPolicy())
+        InputPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
-        ~InputPort() { delete data_source; }
+        ~InputPort() { disconnect(); delete data_source;}
 
-        bool read(base::DataSourceBase::shared_ptr source)
+        FlowStatus read(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
             if (! ds)
             {
                 log(Error) << "trying to read to an incompatible data source" << endlog();
-                return false;
+                return NoData;
             }
             return read(ds->set());
         }
@@ -51,12 +63,12 @@ namespace RTT
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        bool read(typename base::ChannelElement<T>::reference_t sample)
+        FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
         {
-            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >(this->channel);
-            if (input)
-                return input->read(sample);
-            else return false;
+            FlowStatus result = NoData;
+            // read and iterate if necessary.
+            cmanager.select_if( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), _1) );
+            return result;
         }
 
         /** Returns the types::TypeInfo object for the port's type */
@@ -89,6 +101,11 @@ namespace RTT
             return data_source;
         }
 
+        virtual bool createStream(ConnPolicy const& policy)
+        {
+            return internal::ConnFactory::createStream(*this, policy);
+        }
+
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
@@ -97,8 +114,9 @@ namespace RTT
         {
             internal::TaskObject* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef bool (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
-            object->methods()->addMethod( method("read", static_cast<ReadSample>(&InputPort<T>::read), this),
+            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
+            ReadSample read_m = &InputPort<T>::read;
+            object->methods()->addMethod( method("read", read_m, this),
                     "Reads a sample from the port.",
                     "sample", "");
             return object;

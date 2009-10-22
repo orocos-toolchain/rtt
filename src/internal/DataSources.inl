@@ -69,6 +69,26 @@ namespace RTT
     }
 
     template<typename T>
+    ConstReferenceDataSource<T>::~ConstReferenceDataSource() {}
+
+    template<typename T>
+    ConstReferenceDataSource<T>::ConstReferenceDataSource( typename AssignableDataSource<T>::const_reference_t ref )
+        : mref( ref )
+    {
+    }
+
+    template<typename T>
+    ConstReferenceDataSource<T>* ConstReferenceDataSource<T>::clone() const
+    {
+        return new ConstReferenceDataSource<T>(mref);
+    }
+
+    template<typename T>
+    ConstReferenceDataSource<T>* ConstReferenceDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+        return const_cast<ConstReferenceDataSource<T>*>(this); // no copy needed, data is outside.
+    }
+
+    template<typename T>
     ReferenceDataSource<T>::~ReferenceDataSource() {}
 
     template<typename T>

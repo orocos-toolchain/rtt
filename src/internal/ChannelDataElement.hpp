@@ -11,7 +11,7 @@ namespace RTT { namespace internal {
     template<typename T>
     class ChannelDataElement : public base::ChannelElement<T>
     {
-        bool written;
+        bool written, mread;
         typename base::DataObjectInterface<T>::shared_ptr data;
 
     public:
@@ -19,7 +19,7 @@ namespace RTT { namespace internal {
         typedef typename base::ChannelElement<T>::reference_t reference_t;
 
         ChannelDataElement(typename base::DataObjectInterface<T>::shared_ptr sample)
-            : written(false), data(sample) {}
+            : written(false), mread(false), data(sample) {}
 
         /** Update the data sample stored in this element.
          * It always returns true. */
@@ -27,6 +27,7 @@ namespace RTT { namespace internal {
         {
             data->Set(sample);
             written = true;
+            mread = false;
             return this->signal();
         }
 
@@ -34,14 +35,18 @@ namespace RTT { namespace internal {
          *
          * @return false if no sample has ever been written, true otherwise
          */
-        virtual bool read(reference_t sample)
+        virtual FlowStatus read(reference_t sample)
         {
             if (written)
             {
                 data->Get(sample);
-                return true;
+                if ( !mread ) {
+                    mread = true;
+                    return NewData;
+                }
+                return OldData;
             }
-            return false;
+            return NoData;
         }
 
         /** Resets the stored sample. After clear() has been called, read()
@@ -50,8 +55,16 @@ namespace RTT { namespace internal {
         virtual void clear()
         {
             written = false;
+            mread = false;
             base::ChannelElement<T>::clear();
         }
+
+        virtual bool data_sample(param_t sample)
+        {
+            data->data_sample(sample);
+            return base::ChannelElement<T>::data_sample(sample);
+        }
+
     };
 }}
 

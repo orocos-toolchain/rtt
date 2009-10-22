@@ -294,6 +294,7 @@ namespace RTT
          */
         void make_pool( size_type growsize )
         {
+            assert( growsize == mpool.capacity() );
             mpit = new Item[growsize];
             for( unsigned int i = 0; i < growsize; ++i ) {
                 mpit[i].content = minit;
@@ -326,6 +327,17 @@ namespace RTT
         {
             delete[] mpit;
         }
+
+        void data_sample( const T& sample )
+        {
+            minit = sample;
+            // read each item from the queue
+            // and re-init it with sample
+            for( unsigned int i = 0; i < mpool.capacity(); ++i ) {
+                mpit[i].content = minit;
+            }
+        }
+
 
         /**
          * Returns the number of elements currently available.

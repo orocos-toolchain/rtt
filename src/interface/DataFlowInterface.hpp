@@ -76,6 +76,11 @@ namespace RTT
         ~DataFlowInterface();
 
         /**
+         * Returns the component this interface belongs to.
+         */
+        OperationInterface* getParent();
+
+        /**
          * Add a Port to this task. It is only added to the C++
          * interface and can not be used in scripting.
          * @param port The port to add.

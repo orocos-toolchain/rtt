@@ -30,6 +30,7 @@
 #include <scripting/ProgramProcessor.hpp>
 #include <scripting/StateMachineProcessor.hpp>
 #include <internal/TaskObject.hpp>
+#include <types/GlobalsRepository.hpp>
 
 using namespace std;
 
@@ -200,7 +201,6 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 
 }
-#if 0
 
 BOOST_AUTO_TEST_CASE( testOperators )
 {
@@ -298,7 +298,66 @@ BOOST_AUTO_TEST_CASE( testProperties )
     BOOST_CHECK_EQUAL( 2.321, pv.value()[2] );
     BOOST_CHECK_EQUAL( 3.321, pv.value()[3] );
 }
-#endif
+
+BOOST_AUTO_TEST_CASE( testOperatorOrder )
+{
+    string prog = string("program x {\n") +
+        "do test.assert( 6/2*4 == 12 )\n" + // not: 0
+        "do test.assert( 6*2/4 == 3 )\n" +  // not: 0
+        "do test.assert( 3+2*5 == 13)\n" +  // not: 30
+        "do test.assert( 3 < 2 != 5 > 1)\n" +
+        "do test.assert( 3*2 <= 12/2 )\n" +
+        "do test.assert( 3*2 < 6+1 )\n" +
+        "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
+        "do test.assert( 3*(2+1) == 9 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);    
+}
+
+BOOST_AUTO_TEST_CASE( testGlobals )
+{
+    GlobalsRepository::Instance()->setValue( new Constant<double>("cd_num", 3.33));
+    GlobalsRepository::Instance()->setValue( new Constant<string>("c_string", "Hello World!"));
+    GlobalsRepository::Instance()->setValue( new Attribute<double>("d_num", 3.33));
+    string prog = string("program x {\n") +
+        "do test.assert( cd_num == 3.33 )\n" +
+        "do test.assert( cd_num == d_num )\n" +  
+        "do test.assert( c_string == \"Hello World!\")\n" + 
+        "set d_num = 6.66\n" +
+        "do test.assert( d_num == 6.66 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);    
+}
+
+BOOST_AUTO_TEST_CASE( testFlowStatus )
+{
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("NewData") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("OldData") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("NoData") );
+    string prog = string("program x {\n") +
+        "do test.assert( NewData )\n" +
+        "do test.assert( OldData )\n" +  
+        "do test.assert( !bool(NoData) )\n" +  
+        "do test.assert( NewData > NoData )\n" + 
+        "do test.assert( NewData > OldData )\n" + 
+        "do test.assert( OldData > NoData )\n" + 
+        "do test.assert( OldData == OldData )\n" + 
+        "if ( bool(NewData) && OldData ) then {\n" +
+        "} else {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" +
+        "if ( bool(NoData) ) then {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" + 
+        "if ( !bool(NoData) ) then {} else {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" + 
+        "}";
+    // execute
+    executePrograms(prog);    
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -313,11 +372,11 @@ void TypesTest::executePrograms(const std::string& prog )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE( false && "Got empty test program." );
         }
 
     BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );

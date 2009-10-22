@@ -42,11 +42,14 @@
 #include "Types.hpp"
 #include "Operators.hpp"
 #include "OperatorTypes.hpp"
+#include "GlobalsRepository.hpp"
 #include "TemplateTypeInfo.hpp"
 #include "TypeInfoName.hpp"
 #include "../extras/MultiVector.hpp"
 #include "../internal/mystd.hpp"
 #include "../rtt-fwd.hpp"
+#include "../FlowStatus.hpp"
+#include "../ConnPolicy.hpp"
 
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
@@ -91,6 +94,28 @@ namespace RTT
         }
     };
 
+        /**
+         * This class tells Orocos how to handle ConnPolicy
+         */
+        struct ConnPolicyTypeInfo
+            : public TemplateTypeInfo<ConnPolicy>
+        {
+            ConnPolicyTypeInfo(const std::string& name )
+                : TemplateTypeInfo<ConnPolicy>(name)
+            {}
+
+            bool decomposeTypeImpl(const ConnPolicy& cp, PropertyBag& targetbag) const
+            {
+                decomposeProperty( cp, targetbag );
+                return true;
+            }
+
+            bool composeTypeImpl(const PropertyBag& bag, ConnPolicy& result) const
+            {
+                return composeProperty( bag, result );
+            }
+        };
+
 #endif
     /**
      * Write boolean as 'true' or 'false'.
@@ -134,12 +159,14 @@ namespace RTT
         ti->addType( new TemplateTypeInfo<double, true>("double") );
         ti->addType( new BoolTypeInfo() );
         ti->addType( new TypeInfoName<void>("void"));
+        ti->addType( new TemplateTypeInfo<FlowStatus, true>("FlowStatus"));
 
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
         ti->addType( new TemplateTypeInfo<float, true>("float") );
         ti->addType( new TemplateTypeInfo<char, true>("char") );
         ti->addType( new StdVectorTypeInfo("array") );
+        ti->addType( new ConnPolicyTypeInfo("ConnPolicy") );
 #endif
 
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
@@ -236,6 +263,7 @@ namespace RTT
             unsigned int int_to_uint(int i) { return i; }
             int uint_to_int(unsigned int ui) { return ui; }
 #endif
+        bool flow_to_bool(FlowStatus fs) { return fs; }
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>
@@ -315,6 +343,7 @@ namespace RTT
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
 #endif
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
+        ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         return true;
     }
 
@@ -427,6 +456,32 @@ namespace RTT
 #endif
         oreg->add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
         oreg->add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
+#endif
+
+        // FlowStatus
+        oreg->add( newBinaryOperator( "==", std::equal_to<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<FlowStatus>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<FlowStatus>() ) );
+
+        return true;
+    }
+
+    bool RealTimeToolkitPlugin::loadGlobals() {
+        GlobalsRepository::shared_ptr globals = GlobalsRepository::Instance();
+
+        // Data Flow enums:
+        globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
+        globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
+        globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
+#ifndef ORO_EMBEDDED
+        globals->setValue( new Constant<int>("DATA",ConnPolicy::DATA) );
+        globals->setValue( new Constant<int>("BUFFER",ConnPolicy::BUFFER) );
+        globals->setValue( new Constant<int>("LOCKED",ConnPolicy::LOCKED) );
+        globals->setValue( new Constant<int>("LOCK_FREE",ConnPolicy::LOCK_FREE) );
+        globals->setValue( new Constant<int>("UNSYNC",ConnPolicy::UNSYNC) );
 #endif
         return true;
     }

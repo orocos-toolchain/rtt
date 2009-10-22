@@ -64,7 +64,7 @@ namespace RTT
         Logger::log() <<Logger::Debug<< "Created 'Any' CExpression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr, p );
         EServants[expr] = newexpr;
-        EServers[expr] = newexpr->_this();
+        EServers[expr] = newexpr->activate_this();
         return corba::CExpression::_duplicate( EServers[expr] );
     }
 
@@ -79,7 +79,7 @@ namespace RTT
             p = ApplicationServer::rootPOA.in();
         Logger::log() <<Logger::Debug<< "Created 'Any' Assignable CExpression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr, p );
-        AServers[expr] = newexpr->_this();
+        AServers[expr] = newexpr->activate_this();
         EServants[expr] = newexpr;
         EServers[expr] = corba::CExpression::_narrow(AServers[expr]);
         corba::CExpression_var ret = corba::CExpression::_duplicate( EServers[expr] );
@@ -96,7 +96,7 @@ namespace RTT
             p = ApplicationServer::rootPOA.in();
         Logger::log() <<Logger::Debug<< "Created 'Any' CMethod server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( *orig, expr, p );
-        MServers[expr] = newexpr->_this();
+        MServers[expr] = newexpr->activate_this();
         EServants[expr] = newexpr;
         EServers[expr] = corba::CExpression::_narrow(MServers[expr]);
         return corba::CMethod::_duplicate( MServers[expr] );

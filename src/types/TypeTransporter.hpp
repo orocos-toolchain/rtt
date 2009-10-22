@@ -41,6 +41,7 @@
 
 #include "../base/DataSourceBase.hpp"
 #include "../base/BufferBase.hpp"
+#include "../base/ChannelElementBase.hpp"
 
 namespace RTT
 {
@@ -64,16 +65,6 @@ namespace RTT
             virtual ~TypeTransporter() {}
 
             /**
-             * Create an transportable object for a \a protocol which contains the value of \a source.
-             */
-            virtual void* createBlob(base::DataSourceBase::shared_ptr source) const = 0;
-
-            /**
-             * Update \a target with the contents of \a blob which is an object of a \a protocol.
-             */
-            virtual bool updateBlob(const void* blob, base::DataSourceBase::shared_ptr target) const = 0;
-
-            /**
              * Create a internal::DataSource which is a proxy for a remote server object.
              * Used to read/write remote attributes, properties and general data over a network.
              */
@@ -90,6 +81,24 @@ namespace RTT
              * Used to export local methods to a network.
              */
             virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const = 0;
+
+            /**
+             * Creates a streaming channel element for reading or writing over this transport.
+             * It returns a ChannelElementBase that provides the implementation of sending or receiving
+             * data through the transport. Both sender and receiver find each other using the channel_id
+             * argument. Transports that do not support streaming may return null
+             *
+             * @param port The port for which this channel is setup.
+             * @param channel_id If the transport receives a non-empty channel_id, it will create a channel that connects to this id.
+             * If channel id is empty, it will be filled in with a unique identifier that identifies this channel.
+             * This allows the local caller to connect to the
+             * remote channel in a second invocation of createRemoteChannel.
+             * @param is_sender Set to true in case you will write() to this channel element, set it to false
+             * in case you will read() from this channel element.
+             * @return null in case streaming is not supported by this transport or a valid channel element otherwise.
+             *
+             */
+            virtual base::ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const = 0;
 
             /**
              * Narrows a remote data source object or proxy to this type.

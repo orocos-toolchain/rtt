@@ -224,32 +224,6 @@ namespace RTT
       bool composeType( DataSourceBase::shared_ptr source);
 
       /**
-       * Creates a transportable data object with the \b current value of this
-       * DataSource. This does \b not trigger the evaluation() of this
-       * data source.
-       * @return a valid object or nill if this type is
-       * not supported.
-       */
-      virtual void* createBlob(int protocol);
-
-      /**
-       * Creates a transportable data object with the \b current value of this
-       * DataSource. This \b does trigger the evaluation() of this
-       * data source. Equivalent to this->evaluate(); this->createBlob();
-       * @return a valid object or nill if this type is
-       * not supported.
-       */
-      virtual void* getBlob(int protocol);
-
-      /**
-       * Updates the value of this internal::DataSource with the
-       * value of a transportable data object.
-       * @param any The value to update to.
-       * @return true if \a any had the correct type.
-       */
-      virtual bool updateBlob(int protocol, const void* data);
-
-      /**
        * Inspect if this internal::DataSource is a proxy for a remote server object.
        * @return 0 if it is a local internal::DataSource, or the protocol id if it
        * is a proxy for a remove server.
@@ -261,6 +235,8 @@ namespace RTT
        * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new server object reference otherwise.
        * @see Operations.idl
+       * @deprecated This function is nowhere used or can be replaced by
+       * a call to a type transporter.
        */
       virtual void* server( int protocol, void* arg );
 
@@ -269,6 +245,8 @@ namespace RTT
        * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new method object reference otherwise.
        * @see Operations.idl
+       * @deprecated This function is nowhere used or can be replaced by
+       * a call to a type transporter.
        */
       virtual void* method( int protocol, internal::MethodC* orig, void* arg );
   };

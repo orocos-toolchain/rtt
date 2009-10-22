@@ -34,7 +34,7 @@ namespace RTT
         bool written;
         typename base::DataObjectInterface<T>::shared_ptr last_written_value;
 
-        bool do_write(typename base::ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
+        bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
             typename base::ChannelElement<T>::shared_ptr output
                 = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
@@ -42,13 +42,70 @@ namespace RTT
                 return false;
             else
             {
-                log(Error) << "a channel of " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                log(Error) << "A channel of port " << getName() << " has been invalidated during write(), it will be removed" << endlog();
                 return true;
             }
         }
 
+        bool do_init(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
+        {
+            typename base::ChannelElement<T>::shared_ptr output
+                = boost::static_pointer_cast< base::ChannelElement<T> >(descriptor.get<1>());
+            if (output->data_sample(sample))
+                return false;
+            else
+            {
+                log(Error) << "A channel of port " << getName() << " has been invalidated during setDataSample(), it will be removed" << endlog();
+                return true;
+            }
+        }
+
+        virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
+            // Initialize the new channel with last written data if requested
+            // (and available)
+
+            // This this the input channel element of the whole connection
+            typename base::ChannelElement<T>::shared_ptr channel_el_input =
+                static_cast< base::ChannelElement<T>* >(channel_input.get());
+
+
+            if (written)
+            {
+                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+                if (last_written_value)
+                {
+                    T sample;
+                    last_written_value->Get(sample);
+                    if ( channel_el_input->data_sample(sample) ) {
+                        if ( policy.init )
+                            return channel_el_input->write(sample);
+                        return true;
+                    } else
+                        return false;
+                }
+            }
+            // even if we're not written, test the connection with a default sample.
+            return channel_el_input->data_sample( T() );
+        }
+
     public:
-        OutputPort(std::string const& name, bool keep_last_written_value = false)
+        /**
+         * Creates a named Output port.
+         * @param name The name of this port, unique among the ports of a TaskContext.
+         * @param keep_last_written_value Defaults to \a true. You need keep_last_written_value == true
+         * in two cases:
+         * * You're sending dynamically sized objects through this port in real-time. In that case,
+         * you need to write() to this port such an object before a connection is created. That object
+         * will be used to allocate enough data storage in each there-after created connection. If you would
+         * set keep_last_written_value == false in this use case, several memory allocations will happen
+         * during the initial writes, after which non will happen anymore.
+         * * You want to have an input to have the last written data available from before its connection
+         * was created, such that it is immediately initialized.
+         * The keep_last_written_value incurs a space overhead of one thread-safe data storage container.
+         * This is about the same as an extra connection.
+         *
+         */
+        OutputPort(std::string const& name, bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
             , written(false)
         {
@@ -70,6 +127,12 @@ namespace RTT
             else
                 last_written_value = 0;
         }
+
+        /**
+         * Returns the last written value written to this port, in case it is
+         * kept by this port, otherwise, returns a default T().
+         * @return The last written value or T().
+         */
         T getLastWrittenValue() const
         {
             typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
@@ -77,6 +140,13 @@ namespace RTT
                 return last_written_value->Get();
             else return T();
         }
+
+        /**
+         * Reads the last written value written to this port, in case it is
+         * kept by this port, otherwise, returns false.
+         * @param sample The data sample to store the value into.
+         * @return true if it could be retrieved, false otherwise.
+         */
         bool getLastWrittenValue(T& sample) const
         {
             typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
@@ -88,14 +158,45 @@ namespace RTT
             return false;
         }
 
-        void write(typename base::ChannelElement<T>::param_t sample)
+        virtual base::DataSourceBase::shared_ptr getDataSource() const
+        {
+            return this->last_written_value;
+        }
+
+        /**
+         * Provides this port a data sample that is representative for the
+         * samples being used in write(). The sample will not be delivered
+         * to receivers, and only passed on to the underlying communication channel
+         * to allow it to allocate enough memory to hold the sample. You
+         * only need to call this in case you want to transfer dynamically
+         * sized objects in real-time over this OutputPort.
+         * @param sample
+         */
+        void setDataSample(const T& sample)
+        {
+            keepLastWrittenValue(true);
+            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            if (last_written_value)
+                last_written_value->Set(sample);
+            written = true;
+
+            cmanager.delete_if( boost::bind(
+                        &OutputPort<T>::do_init, this, boost::ref(sample), _1)
+                    );
+        }
+
+        /**
+         * Writes a new sample to all receivers (if any).
+         * @param sample The new sample to send out.
+         */
+        void write(const T& sample)
         {
             typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
                 last_written_value->Set(sample);
             written = true;
 
-            connections.delete_if( boost::bind(
+            cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_write, this, boost::ref(sample), _1)
                     );
         }
@@ -139,71 +240,14 @@ namespace RTT
 
         /** Connects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection(base::InputPortInterface& input_port, internal::ConnPolicy const& policy)
+        virtual bool createConnection(base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
-            if ( input_port.connected() ) {
-                log(Error) << "Can not connect to connected InputPort." <<endlog();
-                return false;
-            }
+            return internal::ConnFactory::createConnection(*this, input_port, policy);
+        }
 
-            // This is the input channel element of the output half
-            base::ChannelElementBase* output_half = 0;
-            if (input_port.isLocal())
-            {
-                InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
-                if (!input_p)
-                {
-                    log(Error) << "port " << input_port.getName() << " is not compatible with " << getName() << endlog();
-                    return false;
-                }
-
-                output_half = internal::ConnFactory::buildOutputHalf(*input_p, policy);
-            }
-            else
-            {
-                types::TypeInfo const* type_info = getTypeInfo();
-                if (!type_info || input_port.getTypeInfo() != type_info)
-                {
-                    log(Error) << "type of port " << getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
-                    // There is no type info registered for this type
-                    return false;
-                }
-                else if (!type_info->getProtocol(input_port.serverProtocol()))
-                {
-                    log(Error) << "type " << type_info->getTypeName() << " cannot be marshalled into the right transporter" << endlog();
-                    // This type cannot be marshalled into the right transporter
-                    return false;
-                }
-                else
-                {
-                    output_half = input_port.
-                        getConnFactory()->buildOutputHalf(type_info, input_port, policy);
-                }
-            }
-
-            if (!output_half)
-                return false;
-
-            // This this the input channel element of the whole connection
-            typename base::ChannelElement<T>::shared_ptr channel_input =
-                static_cast< base::ChannelElement<T>* >(internal::ConnFactory::buildInputHalf(*this, policy, output_half));
-
-            // Register the channel's input 
-            addConnection( input_port.getPortID(), channel_input, policy );
-
-            // Initialize the new channel with last written data if requested
-            // (and available)
-            if (policy.init && written)
-            {
-                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
-                if (last_written_value)
-                {
-                    T sample;
-                    last_written_value->Get(sample);
-                    channel_input->write(sample);
-                }
-            }
-            return true;
+        virtual bool createStream(ConnPolicy const& policy)
+        {
+            return internal::ConnFactory::createStream(*this, policy);
         }
 
         /**
@@ -214,9 +258,10 @@ namespace RTT
         {
             internal::TaskObject* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef void (OutputPort<T>::*WriteSample)(typename base::ChannelElement<T>::param_t);
+            typedef void (OutputPort<T>::*WriteSample)(T const&);
+            WriteSample write_m = &OutputPort::write;
             object->methods()->addMethod(
-                    method("write", static_cast<WriteSample>(&OutputPort::write), this),
+                    method("write", write_m, this),
                     "Writes a sample on the port.",
                     "sample", "");
             return object;

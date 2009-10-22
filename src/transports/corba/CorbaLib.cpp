@@ -50,22 +50,23 @@
 #include "../../types/Toolkit.hpp"
 #include "../../os/StartStopManager.hpp"
 
-namespace RTT {
-    using namespace detail;
-    namespace corba {
+using namespace std;
+using namespace RTT::detail;
 
-        using namespace RTT::detail;
+namespace RTT {
+    namespace corba {
 
         /**
          * This protocol is used for all types which did not get a protocol.
+         * Specifically, if the type is UnknownType.
          */
         class CorbaFallBackProtocol
-            : public TypeTransporter
+            : public CorbaTypeTransporter
         {
             bool warn;
         public:
             CorbaFallBackProtocol(bool do_warn = true) : warn(do_warn) {}
-            virtual void* createBlob(DataSourceBase::shared_ptr source) const
+            virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const
             {
                 if (warn) {
                     Logger::In in("CorbaFallBackProtocol");
@@ -77,7 +78,7 @@ namespace RTT {
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const
+            virtual bool updateFromAny(const CORBA::Any* blob, DataSourceBase::shared_ptr target) const
             {
                 if (warn) {
                     Logger::In in("CorbaFallBackProtocol");
@@ -86,6 +87,34 @@ namespace RTT {
                 return false;
             }
 
+            virtual ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create Stream for port '"<<port->getName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+            }
+
+            virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const { return 0; }
+
+            virtual CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface*, ::PortableServer::POA* poa, bool) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create Channel : data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+
+            }
+
+            virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port,
+                ConnPolicy const& policy) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+            }
+
+            virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port,
+                ConnPolicy const& policy) const {
+                Logger::In in("CorbaFallBackProtocol");
+                log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
+                return 0;
+            }
             /**
              * Create a DataSource which is a proxy for a remote server object.
              * Used to read/write remote attributes, properties and general data over a network.
@@ -178,6 +207,8 @@ namespace RTT {
                     return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
                 if ( name == "void" )
                     return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
+                if ( name == "ConnPolicy")
+                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<ConnPolicy>() );
                 return false;
             }
 
@@ -197,7 +228,7 @@ namespace RTT {
          */
         int loadCorbaLib()
         {
-            RTT::Toolkit::Import(CorbaLibPlugin);
+            Toolkit::Import(CorbaLibPlugin);
             // register fallback also.
             DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
             return 0;

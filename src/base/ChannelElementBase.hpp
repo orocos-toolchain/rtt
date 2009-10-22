@@ -36,13 +36,60 @@ namespace RTT { namespace base {
         void deref();
 
     public:
+        /**
+         * A default constructed ChannelElementBase has no input nor output
+         * configured. The only way to set an input or output is to use
+         * setOutput().
+         */
         ChannelElementBase();
         virtual ~ChannelElementBase() {}
 
+        /**
+         * Removes the input channel (if any).
+         * This call may delete channels from memory.
+         */
         void removeInput();
-        ChannelElementBase::shared_ptr getInput();
+        /**
+         * Returns the current input channel element.
+         * This will only return a valid channel element if
+         * another element has received this object as an argument
+         * to setOutput().
+         * @return
+         */
+        ChannelElementBase* getInput();
+
+        /**
+         * Returns the first input channel element of this connection.
+         * Will return the channel element the furthest away from the input port,
+         * or \a this if none.
+         * @return getInput() ? getInput()->getInputEndPoint() : this
+         */
+        ChannelElementBase* getInputEndPoint();
+
+
+        /**
+         * Removes the output channel (if any).
+         * This call may delete channels from memory.
+         */
         void removeOutput();
+
         ChannelElementBase::shared_ptr getOutput();
+
+        /**
+         * Returns the last output channel element of this connection.
+         * Will return the channel element the furthest away from the output port,
+         * or \a this if none.
+         * @return getOutput() ? getOutput()->getInputEndPoint() : this
+         */
+        ChannelElementBase::shared_ptr getOutputEndPoint();
+
+        /**
+         * Sets the output of this channel element to \a output and sets the input of \a output to this.
+         * This implies that this channel element becomes the input of \a output.
+         * There is no setInput function since this function does both setting input and output of
+         * \a this and \a output.
+         * @param output the next element in chain.
+         */
         void setOutput(shared_ptr output);
 
         /** Signals that there is new data available on this channel
@@ -50,7 +97,16 @@ namespace RTT { namespace base {
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual bool signal() const;
+        virtual bool signal();
+
+        /**
+         * This is called by an input port when it is ready to receive data.
+         * Each channel element has the responsibility to pass this notification
+         * on to the next, in the direction of the output.
+         * @return false if a fatal connection failure was encountered and
+         * the channel needs to be destroyed.
+         */
+        virtual bool inputReady();
 
         /** Clears any data stored by the channel. It means that
          * ChannelElement::read() will return false afterwards (provided that no

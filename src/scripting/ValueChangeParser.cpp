@@ -33,6 +33,7 @@
 #include "../types/Types.hpp"
 #include "../Attribute.hpp"
 #include "../TaskContext.hpp"
+#include "../types/GlobalsRepository.hpp"
 //#include "DumpObject.hpp"
 
 #include <boost/bind.hpp>
@@ -356,8 +357,11 @@ namespace RTT
                 // takes care of this by definition, but the variable of a loaded StateMachine or program
                 // must first get an instantiation-copy() before they become uncopyable.
                 if ( !var ) {
-                    //DumpObject( context );
-                    throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+                    var = GlobalsRepository::Instance()->getValue( valuename );
+                    if (!var) {
+                        //DumpObject( context );
+                        throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+                    }
                 }
             }
         }

@@ -115,32 +115,6 @@ namespace RTT {
         return true;
     }
 
-    void* DataSourceBase::createBlob(int protocol)
-    {
-#ifndef ORO_EMBEDDED
-        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->createBlob( DataSourceBase::shared_ptr(this) );
-#endif
-        return 0;
-    }
-
-    void* DataSourceBase::getBlob(int protocol)
-    {
-        this->evaluate();
-#ifndef ORO_EMBEDDED
-        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->createBlob( DataSourceBase::shared_ptr(this) );
-#endif
-        return 0;
-    }
-
-    bool DataSourceBase::updateBlob(int protocol, const void* data)
-    {
-        return false; // overridden in AssignableDataSource<T>
-    }
-
     int DataSourceBase::serverProtocol() const
     {
         return 0; // default to local DataSource.

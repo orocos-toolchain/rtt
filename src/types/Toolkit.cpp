@@ -71,6 +71,9 @@ namespace RTT {
         if ( tkp->loadOperators() == false ) {
             Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load type operators."<<Logger::endl;
         }
+        if ( tkp->loadGlobals() == false ) {
+            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load global variables."<<Logger::endl;
+        }
     }
 
     void Toolkit::Import( TransportPlugin& trpr )

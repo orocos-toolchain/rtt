@@ -48,7 +48,7 @@
 #include "CorbaConversion.hpp"
 #include "../../base/ChannelElement.hpp"
 #include "../../internal/DataSources.hpp"
-#include "../../types/TypeTransporter.hpp"
+#include "CorbaTypeTransporter.hpp"
 #include <list>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -60,26 +60,46 @@ namespace RTT {
 
     namespace corba {
 
-        class CChannelElement_i
-            : public POA_RTT::corba::CChannelElement
+        /**
+         * Base class for CORBA channel servers.
+         * Derive from this class to implement a channel
+         * which transports data over a CORBA connection.
+         */
+        class CRemoteChannelElement_i
+            : public POA_RTT::corba::CRemoteChannelElement
             , public virtual PortableServer::RefCountServantBase
         {
         protected:
-            CChannelElement_var remote_side;
-            RTT::types::TypeTransporter const& transport;
+            CRemoteChannelElement_var remote_side;
+            RTT::corba::CorbaTypeTransporter const& transport;
             PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
-            CChannelElement_i(types::TypeTransporter const& transport,
+            CRemoteChannelElement_i(corba::CorbaTypeTransporter const& transport,
 			  PortableServer::POA_ptr poa);
-            virtual ~CChannelElement_i();
+            virtual ~CRemoteChannelElement_i();
+
+            virtual RTT::corba::CRemoteChannelElement * activate_this() {
+                PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+                _remove_ref(); // ref count=1
+                return _this();
+            }
+
+            virtual void transferSamples() = 0;
 
             PortableServer::POA_ptr _default_POA();
 
-            void setRemoteSide(CChannelElement_ptr remote);
+            void setRemoteSide(CRemoteChannelElement_ptr remote);
         };
 
+        /**
+         * Represents a remote data flow interface.
+         * Allows to build connections from a local port
+         * to a remote port.
+         * If the ConnPolicy says so, this interface can also build
+         * connections using other transports.
+         */
         class CDataFlowInterface_i
             : public POA_RTT::corba::CDataFlowInterface
             , public virtual PortableServer::RefCountServantBase
@@ -92,6 +112,10 @@ namespace RTT {
                 > ServantMap;
             static ServantMap s_servant_map;
 
+            typedef std::list<
+                std::pair<RTT::corba::CChannelElement_var, base::ChannelElementBase::shared_ptr>
+                > ChannelList;
+            ChannelList channel_list;
         public:
             // standard constructor
             CDataFlowInterface_i(interface::DataFlowInterface* interface, PortableServer::POA_ptr poa);
@@ -102,6 +126,11 @@ namespace RTT {
             static interface::DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
             static CDataFlowInterface_ptr getRemoteInterface(interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa);
 
+            virtual RTT::corba::CDataFlowInterface* activate_this() {
+                 PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+                 //_remove_ref(); // ref count=1
+                 return _this();
+             }
 
             PortableServer::POA_ptr _default_POA();
 
@@ -111,17 +140,23 @@ namespace RTT {
             RTT::corba::CPortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
-            void disconnect(const char* port_name);
-            void disconnectPort(
-                    const char* writer_port,
-		    CDataFlowInterface_ptr reader_interface, const char* reader_port);
+            ::CORBA::Boolean channelReady(const char* port_name, RTT::corba::CChannelElement_ptr channel);
+            void disconnectPort(const char* port_name);
 
-            CChannelElement_ptr buildOutputHalf(const char* reader_port, const RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy);
+            CChannelElement_ptr buildChannelInput(const char* writer_port, RTT::corba::CConnPolicy& policy);
 
-            ::CORBA::Boolean createConnection(
-                    const char* writer_port,
-		    CDataFlowInterface_ptr reader_interface, const char* reader_port,
-		    RTT::corba::CConnPolicy const& policy);
+            ::CORBA::Boolean createConnection( const char* writer_port,
+                                               CDataFlowInterface_ptr reader_interface,
+                                               const char* reader_port,
+                                               RTT::corba::CConnPolicy & policy);
+            void removeConnection( const char* writer_port,
+                                               CDataFlowInterface_ptr reader_interface,
+                                               const char* reader_port);
+
+            ::CORBA::Boolean createStream( const char* port,
+                                           RTT::corba::CConnPolicy & policy);
+            void removeStream( const char* port, const char* stream_name);
         };
     }
 };

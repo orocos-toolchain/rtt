@@ -108,12 +108,18 @@ if(OROCOS_TARGET STREQUAL "xenomai")
 
   find_package(Xenomai REQUIRED)
   find_package(Pthread REQUIRED)
+  find_package(XenomaiPosix)
 
   if(XENOMAI_FOUND)
     list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
     list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+    if (XENOMAI_POSIX_FOUND)
+      set(MQ_LDFLAGS "-Wl,@/usr/lib/posix.wrappers")
+      set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
+      set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
+    endif()
   endif()
 else()
   set(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)
