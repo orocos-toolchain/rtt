@@ -1,9 +1,9 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  rtt-types-fwd.hpp
+  tag: Peter Soetens  Fri Oct 23 11:02:38 CEST 2009  rtt-types-fwd.hpp
 
                         rtt-types-fwd.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
+    begin                : Fri October 23 2009
     copyright            : (C) 2009 Peter Soetens
     email                : peter@thesourcworks.com
 
@@ -44,6 +44,7 @@ namespace RTT {
         class BinaryOp;
         class DotOp;
         class EmptyTypeInfo;
+        class GlobalsRepository;
         class OperatorRepository;
         class RealTimeToolkitPlugin;
         class Toolkit;
@@ -66,6 +67,8 @@ namespace RTT {
         struct MultiVectorIndexChecker;
         template< class T>
         struct SizeAssignChecker;
+        template<class T>
+        class TypeMarshaller;
         template<class T>
         struct BuildType;
         template<typename T, bool use_ostream>
