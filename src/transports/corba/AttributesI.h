@@ -69,9 +69,7 @@
 #ifndef ATTRIBUTESI_H_
 #define ATTRIBUTESI_H_
 
-#include "../rtt-config.h"
 #include "corba.h"
-
 #ifdef CORBA_IS_TAO
 #include "AttributesS.h"
 #else

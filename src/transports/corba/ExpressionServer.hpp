@@ -39,7 +39,6 @@
 #ifndef ORO_CORBA_EXPRESSIONSERVER_HPP
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
-#include "../../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>

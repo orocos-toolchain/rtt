@@ -39,16 +39,13 @@
 #define ORO_CORBA_CONTROLTASK_SERVER_HPP
 
 #include <map>
-#include "../../rtt-config.h"
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "corba.h"
 #include "ControlTaskS.h"
 #else
-#include <omniORB4/CORBA.h>
 #include "ControlTaskC.h"
 #endif
 #include "../../TaskContext.hpp"

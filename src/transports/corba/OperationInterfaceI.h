@@ -69,8 +69,6 @@
 #ifndef FACTORIESI_H_
 #define FACTORIESI_H_
 
-#include "../rtt-config.h"
-#include "corba.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "OperationInterfaceS.h"

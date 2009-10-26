@@ -39,15 +39,13 @@
 #ifndef ORO_APPLICATION_SERVER_HPP
 #define ORO_APPLICATION_SERVER_HPP
 
-#include "../../rtt-config.h"
-#include "../../Time.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #else
-#include <omniORB4/CORBA.h>
 #include <omniORB4/poa.h>
 #endif
+#include "../../Time.hpp"
 
 namespace RTT
 {namespace corba

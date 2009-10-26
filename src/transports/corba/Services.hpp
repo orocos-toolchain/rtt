@@ -39,7 +39,6 @@
 #ifndef ORO_CORBA_SERVICES_HPP
 #define ORO_CORBA_SERVICES_HPP
 
-#include "../../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "orbsvcs/CosNamingC.h"
