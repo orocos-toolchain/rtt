@@ -77,7 +77,7 @@ namespace RTT
         typedef boost::call_traits<T> traits;
 
     public:
-        ReadOnlyPointer(T* ptr)
+        ReadOnlyPointer(T* ptr = 0)
             : internal(new Internal(ptr)) {}
 
         typename traits::const_reference operator *() const { return *(internal->value); }
@@ -85,6 +85,11 @@ namespace RTT
 
         bool valid() const
         { return internal; }
+
+        void reset(T* ptr)
+        {
+            internal = new Internal(ptr);
+        }
 
         T* write_access()
         {
