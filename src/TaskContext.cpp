@@ -86,7 +86,7 @@ namespace RTT
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-           ,our_act( new Activity( this->engine() ) )
+           ,our_act( new Activity( this->engine(), name ) )
 #endif
     {
         this->setup();
@@ -109,7 +109,7 @@ namespace RTT
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-           ,our_act( parent ? 0 : new Activity( this->engine() ) )
+           ,our_act( parent ? 0 : new Activity( this->engine(), name ) )
 #endif
     {
         this->setup();
