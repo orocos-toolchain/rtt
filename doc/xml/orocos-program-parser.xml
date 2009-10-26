@@ -1808,102 +1808,95 @@
     </para>
     <example>
       <title>StateMachine Example (state.osd)</title>
-      <para>Below is a state machine script example.</para>
+      <para>The Example below shows a state machine for controlling 6 axes.</para>
     </example>
       <programlisting>
-  StateMachine MachineMachine
-  {
-      var bool error = false
+    StateMachine Simple_nAxes_Test
+    {
 
-      /**
-       * This state is entered when the StateMachine is loaded.
-       * The kernel is not running yet...
-       */
-      initial state init_state {
-          transition select startup_state
+      var bool calibrate_offsets     = true
+      var bool move_to               = true
+      var bool stop                  = true
+    
+      const double pi = 3.14159265358979
+      var array pos = array(6,0.0)
+    
+    
+      initial state StartRobotState {
+        entry {
+          do Robot.prepareForUse()
+        }
+        exit {
+          do Robot.unlockAllAxes()
+          do Robot.startAllAxes()
+        }
+        transitions {
+          select CalibrateOffsetsState
+        }
       }
-  
-      /**
-       * Kernel is running, select the components.
-       */
-      state startup_state {
-          entry {
-              do Kernel.startComponent("HWSensor")
-              do Kernel.startComponent("MoveToGenerator")
-              }
-          transition select stop_state
+    
+    
+      state CalibrateOffsetsState {
+        preconditions {
+          if (calibrate_offsets == false) then
+            select MoveToState
+        }
+        entry {
+          do nAxesGeneratorPos.start()
+          do nAxesControllerPos.start()
+          //do Reporter.start()
+          do CalibrateOffsetsProg.start()
+        }
+        exit {
+          do nAxesGeneratorPos.stop()
+          do nAxesControllerPos.stop()
+        }
+        transitions {
+           if !CalibrateOffsetsProg.isRunning then
+           select MoveToState
+        }
+      }      
+    
+    
+      state MoveToState {
+        preconditions {
+          if (move_to == false) then
+            select StopRobotState
+        }
+        entry {
+          do nAxesGeneratorPos.start()
+          do nAxesControllerPosVel.start() 
+          set pos = array(6,0.0)
+          do nAxesGeneratorPos.moveTo(pos,0.0)
+          set pos[0]=-pi/2.0
+          set pos[1]=-pi/2.0
+          set pos[2]=pi/2.0
+          set pos[4]=-pi/2.0
+          do nAxesGeneratorPos.moveTo(pos,0.0)
+        }
+        exit {
+           do nAxesControllerPosVel.stop()
+           do nAxesGeneratorPos.stop()
+           //do Reporter.stop()
+        }
+        transitions {
+          if(stop == true) then    
+          select StopRobotState
+        }
       }
-  
-      /**
-       * This state is only reached when the StateMachine
-       * is stopped.
-       */
-      final state fini_state {
-          entry {
-              do Kernel.stopComponent("HWSensor")
-              do Kernel.stopComponent("MoveToGenerator")
-              }
+    
+    
+      final state StopRobotState {
+        entry {
+          do Robot.stopAllAxes()
+          do Robot.lockAllAxes()
+        }
+        exit {
+          do Robot.prepareForShutdown()
+        }
       }
-  
-      /**
-       * This state is the 'turn off' state of the
-       * machine.
-       */
-      state stop_state {
-          entry {
-              // stop some components
-              do Kernel.stopComponent("HWEffector")
-              do Kernel.stopComponent("PIDController")
-              do PIDController.reset()
-          }
-          transition if HMI.start_pushed() &amp;&amp; error == 0 then
-            select run_state
-      }
-  
-      /**
-       * This state puts the machine under 'control'
-       * effectively accepting commands and driving
-       * the machine.
-       */
-      state run_state {
-          entry {
-              // make sure we are not moving
-              do MoveToGenerator.safeStop()
-              // Select components controlling the machine
-              do Kernel.startComponent("PIDController")
-              do Kernel.startComponent("HWEffector")
-              }
-  
-          transition if HMI.stop_pushed() then
-            select stop_state
-          transition if HMI.start_program() then
-            select exec_state
-      }
-  
-      /**
-       * This state starts a previously loaded
-       * program.
-       */
-      state exec_state {
-          entry {
-              do MyProgram.start()
-              }
-  
-          exit {
-            set error = MyPorgram.inError()
-              do MyProgram.stop()
-              }
-  
-          transition if HMI.stop_program() then
-              select run_state
-        // Detect Program Failure :
-        transition if MyProgram.inError() then
-            select stop_state
-      }
-  }
-  
-  RootMachine MainMachine mainMachine
-      </programlisting>
+    }
+    RootMachine Simple_nAxes_Test SimpleMoveTo</programlisting>  
     <example>
       <title>Program example (program.ops)</title>
       <para>
@@ -1933,12 +1926,12 @@
    * without a program.
    */
   export function ResetAxes() {
-  	do Kernel.selectComponent("HomingGenerator")
+  	do HomingGenerator.start()
   	do HomingGenerator.homeAll()
   }
   
   export function ResetAxis(int nr) {
-  	do Kernel.selectComponent("HomingGenerator")
+  	do HomingGenerator.start()
   	do HomingGenerator.homeAxis( nr )
   }
   
@@ -1959,10 +1952,10 @@
   	// We actually wait here until a 
   	// Trajectory is present in the HMI.
   	do nothing until {
-  	   if HMI.trajectoryPresent then continue
+  	   if HMI.trajectoryPresent() then continue
   	}
   
-  	while HMI.cycle {
+  	while HMI.cycle() {
   	    do HMI.display("Cycle nr: %d.\n", cycle )
   	    do ResetAxes()
   	    do HMIRequestTrajectory()
