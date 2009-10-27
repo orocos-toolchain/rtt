@@ -142,6 +142,11 @@ IF( NOT OMNIORB4_FOUND )
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( NOT OMNIORB4_FOUND )
 
+# Bail if we were required to find all components and missed at least one
+IF (OMNIORB4_FIND_REQUIRED AND NOT OMNIORB4_FOUND)
+    MESSAGE (FATAL_ERROR "Could not find OMNIORB4")
+ENDIF ()
+
 # Generate all files required for a corba server app.
 # ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... ) 
 MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
