@@ -5,7 +5,7 @@ if (ENABLE_CORBA)
   SET(CORBA_FOUND)
     IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         # Look for TAO and ACE
-	if(${OROCOS_TARGET} MATCHES "win32|macosx")
+	if(${OROCOS_TARGET} MATCHES "win32|macosx|gnulinux")
 	  set(XTRA_TAO_LIBS AnyTypeCode ValueType)
 	endif()
         find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
@@ -27,7 +27,10 @@ if (ENABLE_CORBA)
 	      SET(CORBA_TAO_HAS_MESSAGING 1)
 	    endif()
 
-        ENDIF(NOT TAO_FOUND)
+ 	    # Including a TAO header is sufficient to depend on this library.
+	    set(CORBA_USER_LINK_LIBS TAO_PortableServer)
+
+       ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
         find_package(OmniORB REQUIRED)
 	    SET(CORBA_FOUND ${OMNIORB4_FOUND})
