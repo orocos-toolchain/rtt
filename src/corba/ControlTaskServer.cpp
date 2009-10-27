@@ -104,7 +104,7 @@ namespace RTT
 
 
 
-    ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming)
+    ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming, bool require_name_service)
       :mtaskcontext(taskc), muse_naming(use_naming)
     {
         servers[taskc] = this;
@@ -148,20 +148,28 @@ namespace RTT
                 } catch (...) {}
             
                 if (CORBA::is_nil( rootNC ) ) {
-                    log(Warning) << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
-                    log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
-
-                    // this part only publishes the IOR to a file.
-                    CORBA::String_var ior = orb->object_to_string( mtask.in() );
-                    std::cerr << ior.in() <<std::endl;
-                    {
-                        // write to a file as well.
-                        std::string iorname( taskc->getName());
-                        iorname += ".ior";
-                        std::ofstream file_ior( iorname.c_str() );
-                        file_ior << ior.in() <<std::endl;
+                    std::string  err("ControlTask '" + taskc->getName() + "' could not find CORBA Naming Service.");
+                    if (require_name_service) {
+                        log(Error) << err << endlog();
+                        throw IllegalServer(err);
                     }
-                    return;
+                    else
+                    {
+                        log(Warning) << err << endlog();
+                        log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
+
+                        // this part only publishes the IOR to a file.
+                        CORBA::String_var ior = orb->object_to_string( mtask.in() );
+                        std::cerr << ior.in() <<std::endl;
+                        {
+                            // write to a file as well.
+                            std::string iorname( taskc->getName());
+                            iorname += ".ior";
+                            std::ofstream file_ior( iorname.c_str() );
+                            file_ior << ior.in() <<std::endl;
+                        }
+                        return;
+                    }
                 }
                 log(Info) << "ControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
                 // Nameserver found...
@@ -347,7 +355,7 @@ namespace RTT
 
     }
 
-    ControlTaskServer* ControlTaskServer::Create(TaskContext* tc, bool use_naming) {
+    ControlTaskServer* ControlTaskServer::Create(TaskContext* tc, bool use_naming, bool require_name_service) {
         if ( CORBA::is_nil(orb) )
             return 0;
 
@@ -358,11 +366,17 @@ namespace RTT
 
         // create new:
         log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
-        ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
-        return cts;
+        try {
+            ControlTaskServer* cts = new ControlTaskServer(tc, use_naming, require_name_service);
+            return cts;
+        }
+        catch( IllegalServer& is ) {
+            cerr << is.what() << endl;
+        }
+        return 0;
     }
 
-    ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
+    ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming, bool require_name_service) {
         if ( CORBA::is_nil(orb) )
             return ControlTask::_nil();
 
@@ -379,8 +393,14 @@ namespace RTT
 
         // create new:
         log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
-        ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
-        return cts->server();
+        try {
+            ControlTaskServer* cts = new ControlTaskServer(tc, use_naming, require_name_service);
+            return cts->server();
+        }
+        catch( IllegalServer& is ) {
+            cerr << is.what() << endl;
+        }
+        return ControlTask::_nil();
     }
 
 

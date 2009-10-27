@@ -68,6 +68,7 @@ namespace RTT
     {
         std::string reason;
         IllegalServer();
+        IllegalServer(const std::string& reason);
         ~IllegalServer() throw();
         const char* what() const throw();
     };
