@@ -73,10 +73,12 @@ namespace RTT
     /**
      * A \a simple lock-free list implementation to \a append or \a erase
      * data of type \a T.
-     * No memory allocation is done during read or write, but the maximum number
-     * of threads which can access this object is defined by
+     * If T is a value type, no memory allocation is done during appending or erasing.
+     * The maximum number of threads which can access this object is defined by
      * MAX_THREADS.
-     * @param T The value type to be stored in the list.
+     * @param T The value type to be stored in the list. If T is a type that does
+     * memory allocation or deallocation in copy-constructor or destructor,
+     * certain functions of this list will not be real-time.
      * Example : ListLockFree<A> is a list which holds values of type A.
      * @ingroup CoreLibBuffers
      */
@@ -170,6 +172,10 @@ namespace RTT
         ~ListLockFree() {
         }
 
+        /**
+         * Returns the maximum number of elements this list can hold.
+         * @note Always real-time.
+         */
         size_t capacity() const
         {
             size_t res;
@@ -180,6 +186,10 @@ namespace RTT
             return res;
         }
 
+        /**
+         * Returns the current number of elements in this list.
+         * @note Always real-time.
+         */
         size_t size() const
         {
             size_t res;
@@ -190,6 +200,10 @@ namespace RTT
             return res;
         }
 
+        /**
+         * Returns true if this list is empty.
+         * @note Always real-time.
+         */
         bool empty() const
         {
             bool res;
@@ -206,6 +220,7 @@ namespace RTT
          * growing a bit more than required every N invocations and
          * growing nothing in between.
          * @param items The number of items to at least additionally reserve.
+         * @note Almost never real-time.
          */
         void grow(size_t items = 1) {
             required += items;
@@ -219,6 +234,7 @@ namespace RTT
          * a (number of) subsequent grow() invocations to allocate more
          * memory.
          * @param items The number of items to at most remove from the capacity.
+         * @note Always real-time.
          */
         void shrink(size_t items = 1) {
             required -= items;
@@ -232,6 +248,7 @@ namespace RTT
          * @param lsize the \a minimal number of items this list will be
          * able to hold. Will not drop below the current capacity()
          * and this method will do nothing if \a lsize < this->capacity().
+         * @ Not real-time if lsize <= this->capacity().
          */
         void reserve(size_t lsize)
         {
@@ -291,6 +308,12 @@ namespace RTT
             oro_atomic_dec( &orig->count ); // ref count
         }
 
+        /**
+         * Clears all elements in the list.
+         * @post this->empty() == true
+         * @note This function is not real-time if the destructor of
+         * of \a T is not real-time.
+         */
         void clear()
         {
             Storage bufptr;
@@ -313,8 +336,12 @@ namespace RTT
 
         /**
          * Append a single value to the list.
-         * @param d the value to write
+         * This function calls the copy-constructor of \a item and may call
+         * the destructor of \a item
+         * @param item the value to write
          * @return false if the list is full.
+         * @note This function is only real-time if the destructor or copy-constructor of
+         * of \a T is real-time.
          */
         bool append( value_t item )
         {
@@ -342,6 +369,8 @@ namespace RTT
 
         /**
          * Returns the first element of the list.
+         * @note This function is only real-time if the copy-constructor of
+         * of \a T is real-time.
          */
         value_t front() const
         {
@@ -368,6 +397,8 @@ namespace RTT
          * Append a sequence of values to the list.
          * @param items the values to append.
          * @return the number of values written (may be less than d.size())
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
          */
         size_t append(const std::vector<T>& items)
         {
@@ -403,6 +434,8 @@ namespace RTT
          * Erase a value from the list.
          * @param item is to be erased from the list.
          * @return true if found and erased.
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
          */
         bool erase( value_t item )
         {
@@ -442,6 +475,8 @@ namespace RTT
          * Erase a value from the list.
          * @param function each elements for which pred returns true are removed
          * @return true if at least one element has been removed
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
          */
         template<typename Pred>
         bool delete_if(Pred pred)
@@ -485,6 +520,7 @@ namespace RTT
         /**
          * Apply a function to the elements of the whole list.
          * @param func The function to apply.
+         * @note Always real-time.
          */
         template<class Function>
         void apply(Function func )
@@ -511,6 +547,8 @@ namespace RTT
          * it is considered blank, and func is \b not applied.
          * @see erase_and_blank
          * @deprecated This complicated function is nowhere used.
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
          */
         template<class Function>
         void apply_and_blank(Function func, value_t blank )
@@ -555,6 +593,8 @@ namespace RTT
          * from the list.
          * @see apply_and_blank
          * @deprecated This complicated function is nowhere used.
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
          */
         bool erase_and_blank(value_t item, value_t blank )
         {
@@ -581,6 +621,8 @@ namespace RTT
          * Find an item in the list such that func( item ) == true.
          * @param blank The value to return if not found.
          * @return The item that matches func(item) or blank if none matches.
+         * @note This function is only real-time if the copy-constructor of
+         * of \a T is real-time.
          */
         template<class Function>
         value_t find_if( Function func, value_t blank = value_t() )
@@ -601,6 +643,10 @@ namespace RTT
     private:
         /**
          * Item returned is guaranteed to point into bufptr.
+         * This function calls all destructors of all old elements in the empty buf,
+         * by using the std::vector::clear() function. This means that if a destructor
+         * of \a T is not real-time, all functions calling this function are not real-time
+         * as well. For example, append() and erase().
          */
         Item* findEmptyBuf(Storage& bufptr) {
             // These two functions are copy/pasted from BufferLockFree.
@@ -615,12 +661,13 @@ namespace RTT
                     start = &(*bufptr)[0]; // in case of races, rewind
             }
             assert( pointsTo(start, bufptr) );
-            start->data.clear();
+            start->data.clear(); // this calls the destructors of T.
             return start; // unique pointer across all threads
         }
 
         /**
          * Item returned is guaranteed to point into bufptr.
+         * @note Always real-time.
          */
         Item* lockAndGetActive(Storage& bufptr) const {
             // This is a kind-of smart-pointer implementation
@@ -648,6 +695,7 @@ namespace RTT
         /**
          * Only to be used by reserve() !
          * Caller must guarantee that active points to valid memory.
+         * @note Always real-time
          */
         Item* lockAndGetActive() const {
             // only operates on active's refcount.
