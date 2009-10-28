@@ -50,7 +50,7 @@ find_package(Boost 1.33 COMPONENTS program_options)
 find_package(Boost 1.33 COMPONENTS thread)
 
 if(Boost_FOUND)
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
 endif(Boost_FOUND)
