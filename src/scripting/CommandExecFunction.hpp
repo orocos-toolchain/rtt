@@ -50,6 +50,7 @@
 
 namespace RTT
 { namespace scripting {
+	using namespace detail;
 
     /**
      * A condition which checks if a CommandExecFunction is done or not.
@@ -105,19 +106,9 @@ namespace RTT
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 )
-            : minit(init_com),
-              _proc(p),
-              _v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<base::ProgramInterface*> >(foo.get()) : v ),
-              _foo( foo ), isqueued(false), maccept( a ? a : new internal::UnboundDataSource<internal::ValueDataSource<bool> >(false) )
-        {
-        }
+        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
 
-        ~CommandExecFunction() {
-            if ( _foo->isRunning() )
-                log(Critical) << "Destroying Function running in ProgramProcessor !" << endlog();
-            this->reset();
-        }
+        ~CommandExecFunction();
 
         void readArguments()
         {
