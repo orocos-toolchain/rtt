@@ -63,6 +63,7 @@
 
 #include "../../base/CommandInterface.hpp"
 #include "../../types/Types.hpp"
+#include "../../extras/SequentialActivity.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "tao/TimeBaseC.h"
@@ -117,6 +118,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             if (is_ior) {
                 // Use the first argument to create the task object reference,
@@ -184,6 +186,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
