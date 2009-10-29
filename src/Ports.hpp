@@ -476,6 +476,12 @@ namespace RTT
 
             // Register the channel's input 
             addConnection( input_port.getPortID(), channel_input, policy );
+            return true;
+        }
+
+        void addConnection(RTT::PortID* port_id, typename ChannelElement<T>::shared_ptr channel_input, ConnPolicy const& policy)
+        {
+            OutputPortInterface::addConnection(port_id, channel_input, policy);
 
             // Initialize the new channel with last written data if requested
             // (and available)
@@ -489,7 +495,6 @@ namespace RTT
                     channel_input->write(sample);
                 }
             }
-            return true;
         }
 
         /**
