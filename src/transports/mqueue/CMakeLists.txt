@@ -1,8 +1,8 @@
 # this option was set in global_rules.cmake
 IF(ENABLE_MQ)
-  MESSAGE( "Building MQueue Transport library (Requires Boost > 1.37.0).")
+  MESSAGE( "Building MQueue Transport library (Requires Boost >= 1.37.0).")
 
-  find_package(Boost 1.37 COMPONENTS serialization)
+  find_package(Boost 1.37 REQUIRED serialization)
 
 
   FILE( GLOB CPPS [^.]*.cpp )
