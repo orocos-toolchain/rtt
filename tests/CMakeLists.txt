@@ -156,6 +156,9 @@ IF (BUILD_TESTING)
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
+
+      ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
+    
     ENDIF(ENABLE_MQ)
 	
     IF(ENABLE_MQ AND ENABLE_CORBA)
@@ -170,8 +173,6 @@ IF (BUILD_TESTING)
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
-    
-    ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
     
     ADD_CUSTOM_TARGET(check ctest -V 
       DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}

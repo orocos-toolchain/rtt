@@ -207,6 +207,13 @@
 		library is required on Mac OS-X.</entry>
 	      </row>
 	      <row>
+		<entry>Boost C++ Serialization Library</entry>
+		<entry>1.37.0 (MQueue transport only)</entry>
+		<entry><ulink
+		url="http://www.boost.org">Boost.org</ulink> serialization
+		library is required on gnulinux and Xenomai for implementing the MQueue transport.</entry>
+	      </row>
+	      <row>
 		<entry>GNU gcc / g++ Compilers</entry>
 		<entry>3.3.0  (Linux/Cygwin/Mac OS X)</entry>
 		<entry><ulink url="http://gcc.gnu.org">gcc.gnu.org</ulink>
