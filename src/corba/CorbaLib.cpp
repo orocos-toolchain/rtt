@@ -55,14 +55,14 @@ namespace RTT {
             virtual void* createBlob(DataSourceBase::shared_ptr source) const
             {
                 Logger::In in("CorbaFallBackProtocol");
-                log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
+                //log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
                 return new CORBA::Any();
             }
 
             virtual void* reuseBlob(void* blob, DataSourceBase::shared_ptr source) const
             {
                 Logger::In in("CorbaFallBackProtocol");
-                log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
+                //log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
                 if (blob)
                     delete static_cast<CORBA::Any*>(blob);
                 return new CORBA::Any();
