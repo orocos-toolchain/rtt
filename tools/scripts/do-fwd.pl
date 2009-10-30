@@ -18,7 +18,7 @@ my @files= @ARGV;
 # We first create a hash of old => new
 # headers.txt is the output of:
 #  find src/ -name "*.hpp" |grep -v boost | grep -v oro_ | grep -v fosi  > headers.txt; echo -e "src/rtt-config.h\nsrc/transports/corba/rtt-corba-config.h\n">> headers.txt
-open(INFILE, "<headers.txt") or die "I need the headers.txt file to do my work\n Use ' find src/ -name \"*.hpp\" -o -name \"rtt*-config.h\" |grep -v boost | grep -v oro_ | grep -v fosi  > headers.txt\">> headers.txt '\n to generate it in the orocos-rtt main directory.\n";
+open(INFILE, "<headers.txt") or die "I need the headers.txt file to do my work\n Use ' find src/ -name \"*.hpp\" -o -name \"*.h.in\" |grep -v boost | grep -v oro_ | sed -e 's/.h.in/.h/g' | grep -v fosi  > headers.txt '\n to generate it in the orocos-rtt main directory.\n";
 open(OUTFILE, ">class-dump.txt");
 
 my @rlines = <INFILE>;
