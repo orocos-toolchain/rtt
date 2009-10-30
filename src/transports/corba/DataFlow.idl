@@ -11,7 +11,7 @@ module RTT
 {
   module corba
   {
-    enum CFlowStatus { CNoData, CNewData, COldData };
+    enum CFlowStatus { CNoData, COldData, CNewData };
     enum CConnectionModel { CData, CBuffer };
     enum CLockPolicy { CUnsync, CLocked, CLockFree };
     struct CConnPolicy
