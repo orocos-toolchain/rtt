@@ -39,6 +39,7 @@
 #ifndef ORO_MQ_TEMPATE_PROTOCOL_HPP
 #define ORO_MQ_TEMPATE_PROTOCOL_HPP
 
+#include "MQLib.hpp"
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
 #include "../../types/Types.hpp"
