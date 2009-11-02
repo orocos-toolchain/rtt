@@ -187,9 +187,17 @@
 
   <chapter id="orocos-corba">
     <title>Distributing Orocos Components with CORBA</title>
-    <xi:include  href="orocos-corba.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="orocos-transports-corba.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-corba.xml#xpointer(/article/section[*])"  
+    <xi:include  href="orocos-transports-corba.xml#xpointer(/article/section[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter id="orocos-mqueue">
+    <title>Real-time Inter-Process Data Flow using MQueue</title>
+    <xi:include  href="orocos-transports-mqueue.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-transports-mqueue.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

@@ -10,6 +10,7 @@
 <article>
   <articleinfo>
     <title>Distributing Orocos Components with CORBA</title>
+    <subtitle>The CORBA Transport Library</subtitle>
     <copyright>
       <year>2006, 2007, 2008, 2009</year>
       <holder>FMTC, Peter Soetens</holder>
@@ -18,9 +19,9 @@
     <abstract>
       <para>
 	This document explains the principles of the
-	<emphasis>Corba Library</emphasis> of &orocos;, the <emphasis>Open
+	<emphasis>Corba Transport</emphasis> of &orocos;, the <emphasis>Open
 	RObot COntrol Software</emphasis> project. It enables transparant
-	deployment of plain Orocos C++ components.
+	deployment accross networked nodes of plain Orocos C++ components.
       </para>
     </abstract>
 
@@ -55,6 +56,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Put proxy server as mandatory.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.06</revnumber>
+	<date>2 November 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Renamed to orocos-transports-corba.xml and minor additions.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -72,15 +79,15 @@
   </articleinfo>
 
   <section>
-    <title>Overview</title>
+    <title>The CORBA Transport</title>
     <para>
-      This package allows Orocos components to live in separate processes,
+      This transport allows Orocos components to live in separate processes,
       distributed over an ethernet network and still communicate with each other.
       The underlying framework (middleware) is CORBA, but no CORBA knowledge is
       required to distribute Orocos components.
     </para>
     <para>
-      The Corba package provides:
+      The Corba transport provides:
       <itemizedlist>
 	<listitem><para>Connection and Communication of Orocos components over a network</para></listitem>
 	<listitem><para>Clients (like visualisation) making a connection to any running Orocos component using the IDL interface.</para></listitem>
@@ -91,7 +98,7 @@
     <section>
       <title>Status</title>
       <para>
-	The Corba package is work in progress and aims to make the whole
+	The Corba transport is work in progress and aims to make the whole
 	Orocos Component interface available over the network. Consult the
 	<emphasis>Component Builder's Manual</emphasis> for an overview of a Component's
 	interface.

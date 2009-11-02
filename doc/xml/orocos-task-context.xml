@@ -1390,6 +1390,34 @@ the_data_port.     cd            ls
 	<emphasis>Connection Policies</emphasis>.
       </para>
       <section>
+	<title>Which data can be transfered ?</title>
+	<para>
+	  The data flow implementation can pass on any data type 'X', given
+	  that its class provides:
+	  <itemizedlist>
+	    <listitem><para>A default constructor: X::X()</para></listitem>
+	    <listitem><para>An assignment operator: const X&amp; X::operator=(const X&amp; )</para></listitem>
+	  </itemizedlist>
+	  For real-time data transfer (see also <xref
+	  linkend="guarantee-rt-data-flow" />) the operator= must be
+	  real-time when assigning equal sized objects. When assigning not
+	  equal sized objects, your operator= should free the memory and
+	  allocate enough room for the new size.
+	</para>
+	<para>
+	  In addition, if you want to tranfer your data out of your
+	  process to another process or host, it will additionally
+	  need:
+	  <itemizedlist>
+	    <listitem><para>Registration of 'X' with the type system (see the manual about Writing Plugins)</para></listitem>
+	    <listitem><para>A transport for the data type registered with the type system (see the transport (CORBA,MQueue,...) documentation)</para></listitem>
+	  </itemizedlist>
+	  The standard C++ and std::vector&lt;double> data types are
+	  already included in the RTT library for real-time transfer
+	  and out of process transport.
+	</para>
+      </section>
+      <section>
 	<title>Setting up the Data Flow Interface</title>
 	<important>
 	  <para>
@@ -1474,6 +1502,50 @@ the_data_port.     cd            ls
 	  contructor or configureHook().
 	</para>
 	</note>
+      </section>
+      <section id="guarantee-rt-data-flow">
+	<title>Guaranteeing Real-Time data flow</title>
+	<para>
+	  The data flow implementation is written towards hard real-time data
+	  transfer, if the data type allows it. Simple data types, like
+	  a double or struct with only data which can be copied without
+	  causing memory allocations work out of the box. No special measures
+	  must be taken and the port is immediately ready to use.
+	</para>
+	<para>
+	  If however, your type is more complex, like a std::vector
+	  or other dynamically sized object, additional setup steps
+	  must be done. First, the type must guarantee that its
+	  operator=() is real-time in case two equal-sized objects
+	  are used. Second, before sending the first data
+	  to the port, a properly sized data sample must be given
+	  to the output port. An example:
+	  <programlisting>  OutputPort&lt;std::vector&lt;double> > myport("name");
+
+  // create an example data sample of size 10:
+  std::vector&lt;double> example(10, 0.0);
+
+  // show it to the port (this is a not real-time operation):
+  myport.setDataSample( example );
+	    
+  // Now we are fine ! All items sent into the port of size 10 or less will
+  // be passed on in hard real-time.  
+  myport.write( example ); // hard real-time.
+</programlisting>
+          setDataSample does not actually send the data to all receivers,
+	  it just uses this sample to initiate the connection, such that
+	  any subsequent writes to the port with a similar sample will
+	  be hard real-time. If you omit this call, data transfer will
+	  proceed, but the RTT makes no guarantees about real-timeness
+	  of the transfer.
+	</para>
+	<para>
+	  The same procedure holds if you use transports to send data
+	  to other processes or hosts. However, it will be the transport
+	  protocol that determines if the transfer is real-time or not.
+	  For example, CORBA transports are not hard real-time, while
+	  MQueue transports are.
+	</para>
       </section>
       <section>
 	<title>Using the Data Flow Interface in C++</title>
