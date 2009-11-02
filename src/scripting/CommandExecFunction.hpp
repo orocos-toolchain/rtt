@@ -93,7 +93,14 @@ namespace RTT
     {
         base::ActionInterface* minit;
         ProgramProcessor* _proc;
+        /**
+         * _v is only necessary for the copy/clone semantics.
+         */
         internal::AssignableDataSource<base::ProgramInterface*>::shared_ptr _v;
+        /**
+         * _foo contains the exact same pointer as _v->get(), but also serves
+         * as a shared_ptr handle for cleanup after clone().
+         */
         boost::shared_ptr<base::ProgramInterface> _foo;
         bool isqueued;
         internal::AssignableDataSource<bool>::shared_ptr maccept;
@@ -164,7 +171,7 @@ namespace RTT
         }
 
         virtual bool done() const {
-            return maccept->get() && _v->get()->isStopped();
+            return maccept->get() && _foo->isStopped();
         }
 
         virtual base::DispatchInterface::Status status() const {
@@ -172,7 +179,7 @@ namespace RTT
                 return base::DispatchInterface::Ready;
             else if (!maccept->get())
                 return base::DispatchInterface::NotAccepted;
-            else if (!_v->get()->isStopped())
+            else if (!_foo->isStopped())
                 return base::DispatchInterface::Valid;
             else
                 return base::DispatchInterface::Done;
