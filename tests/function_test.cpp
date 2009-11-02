@@ -143,9 +143,25 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "}";
 
     this->doFunction( prog, &gtc );
+    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
     this->finishFunction( &gtc, "x");
 }
 
+// Test removing exported function in infinite loop.
+BOOST_AUTO_TEST_CASE( testRemoveFunction)
+{
+    string prog = string("export function foo { \n")
+        + " while (true) { do nothing }\n"
+        + "}\n"
+        + "program x { \n"
+        + "   do this.foo()\n"
+        + "}";
+
+    this->doFunction( prog, &gtc, false );
+    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    // removing the program should lead to removal of the function from the PP.
+    this->finishFunction( &gtc, "x");
+}
 BOOST_AUTO_TEST_CASE( testRecFunction)
 {
     string prog = string("export function foo { \n")
@@ -312,22 +328,22 @@ BOOST_AUTO_TEST_SUITE_END()
 
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
-    BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->programs());
+    BOOST_REQUIRE( tc->engine() );
+    BOOST_REQUIRE( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what() );
+            BOOST_REQUIRE_MESSAGE( false , exc.what() );
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK_MESSAGE(false , "No program parsed in test.");
+            BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
         }
     ProgramProcessor* pp = tc->engine()->programs();
-    BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );
+    BOOST_REQUIRE( pp->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
