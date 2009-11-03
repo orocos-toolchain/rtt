@@ -34,8 +34,13 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#ifndef ORO_TRANSPORTS_CORBA_CORBALIB_HH
+#define ORO_TRANSPORTS_CORBA_CORBALIB_HH
+#include "rtt-corba-config.h"
 namespace RTT {
 	namespace corba {
 	RTT_CORBA_API int loadCorbaLib();
 }}
 #define ORO_CORBA_PROTOCOL_ID 1
+#endif
