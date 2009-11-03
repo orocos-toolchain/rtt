@@ -499,5 +499,10 @@ namespace RTT
     void TaskContext::updateHook(std::vector<PortInterface*> const& updated_ports)
     {
     }
+
+    bool TaskContext::isPortUpdated(base::PortInterface const& port) const
+    {
+        return find(updated_ports.begin(), updated_ports.end(), &port) != updated_ports.end();
+    }
 }
 

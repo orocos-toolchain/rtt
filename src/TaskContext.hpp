@@ -285,6 +285,18 @@ namespace RTT
          */
         virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
 
+    protected:
+        /**
+         * This method allows to test in updateHook() if a specific port has
+         * triggered this particular update.
+         *
+         * This works only in updateHook(), and allows only to test ports that
+         * have been added to the data flow interface using
+         * DataFlowInterface::addEventPort.
+         */
+        bool isPortUpdated(base::PortInterface const& port) const;
+
+    public:
         /**
          * Get access to high level controls for
          * programs, state machines and scripting
