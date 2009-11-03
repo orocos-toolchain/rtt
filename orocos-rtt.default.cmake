@@ -19,6 +19,13 @@
 # set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:\orocos\Boost-1_36_0\lib")
 
 #
+# Sets the CMAKE_BUILD_TYPE to Release by default. This is not a normal
+# CMake flag which is not readable during configuration time.
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+endif()
+
+#
 # An option to make it easy to turn off all tests (defaults to ON)
 #
 # option( BUILD_TESTING "Turn me off to disable compilation of all tests" OFF )
