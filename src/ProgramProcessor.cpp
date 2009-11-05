@@ -242,9 +242,9 @@ namespace RTT
         	{
         		MutexLock ml(syncer);
         		f->stop();
+                f->setProgramProcessor( 0 );
         		*f_it = 0;
         	}
-            this->getActivity()->trigger();
             return true;
         }
         return false;
