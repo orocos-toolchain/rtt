@@ -165,5 +165,4 @@ namespace RTT
 		~CleanupHandle();
     };
 }
-
 #endif
