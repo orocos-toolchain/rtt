@@ -23,6 +23,9 @@ IF (BUILD_TESTING)
       IF(BUILD_STATIC)
 	LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
       ENDIF(BUILD_STATIC)
+      if (NOT OROCOS_TARGET STREQUAL win32)
+	add_definitions(-D_REENTRANT)
+      endif()
     ENDIF(ENABLE_CORBA)
 
     # Copy over CPF files.
