@@ -45,15 +45,15 @@ endif()
 
 
 # Look for boost
-find_package(Boost 1.33)
-find_package(Boost 1.33 COMPONENTS program_options)
-find_package(Boost 1.33 COMPONENTS thread)
+find_package(Boost 1.33 REQUIRED)
+find_package(Boost 1.33 COMPONENTS program_options thread)
 
 if(Boost_FOUND)
+  message("Boost found in ${Boost_INCLUDE_DIR}")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
-endif(Boost_FOUND)
+endif()
 
 # Look for Xerces 
 
