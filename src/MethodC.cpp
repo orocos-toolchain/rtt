@@ -133,6 +133,8 @@ namespace RTT
 
     MethodC& MethodC::operator=(const MethodC& other)
     {
+        if ( &other == this )
+            return *this;
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
         m = other.m;

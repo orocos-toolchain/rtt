@@ -182,6 +182,8 @@ namespace RTT
              */
             PropertySequence<T>& operator=(const PropertySequence<T>& orig)
             {
+                if ( &orig == this )
+                    return *this;
                 _properties.clear();
 
                 const_iterator i = orig.getProperties().begin();

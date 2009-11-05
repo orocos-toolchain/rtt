@@ -142,6 +142,9 @@ namespace RTT
          */
         Attribute<T>& operator=(AttributeBase* ab)
         {
+            if ( ab == this )
+                return *this;
+
             if (!ab) {
                 data = 0;
                 return *this;

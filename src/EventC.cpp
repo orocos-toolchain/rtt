@@ -116,6 +116,8 @@ namespace RTT
 
     EventC& EventC::operator=(const EventC& other)
     {
+        if ( &other == this )
+            return *this;
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
         m = other.m;

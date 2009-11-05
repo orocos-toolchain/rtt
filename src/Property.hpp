@@ -163,6 +163,9 @@ namespace RTT
          */
         Property<T>& operator=( PropertyBase* source )
         {
+            if ( this == source )
+                return *this;
+
             if ( source ) {
                 this->setName( source->getName() );
                 this->setDescription( source->getDescription() );
