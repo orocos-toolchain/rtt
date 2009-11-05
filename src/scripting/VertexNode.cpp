@@ -118,6 +118,8 @@ namespace RTT {
 
     VertexNode& VertexNode::operator=( const VertexNode& orig )
     {
+        if ( &orig == this)
+            return *this;
         delete command;
         command = orig.getCommand()->clone();
         lineNumber = orig.getLineNumber();
