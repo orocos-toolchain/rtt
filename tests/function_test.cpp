@@ -134,8 +134,12 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
     string prog = string("export function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
+        + "export function foo_args() { \n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
         + "program x { \n"
         + "   do this.foo()\n"
+        + "   do this.foo_args()\n"
         + "}";
 
     this->doFunction( prog, &gtc );
