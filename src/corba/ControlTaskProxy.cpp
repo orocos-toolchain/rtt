@@ -61,6 +61,7 @@
 #include "ScriptingAccessProxy.hpp"
 #include "CorbaPort.hpp"
 #include "TaskObject.hpp"
+#include "SequentialActivity.hpp"
 
 #include "CommandInterface.hpp"
 #include "Types.hpp"
@@ -113,6 +114,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             if (is_ior) {
                 // Use the first argument to create the task object reference,
@@ -180,6 +182,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
