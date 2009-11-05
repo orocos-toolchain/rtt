@@ -403,6 +403,9 @@ namespace RTT {
         // if we got here, at least one evaluation to check
         do {
             if ( get<0>(*reqstep)->evaluate() ) {
+                // evaluate() might call stop() or other sm functions:
+                if (reqstep == reqend ) 
+                    return current;
                 // check preconds of target state :
                 int cres = checkConditions( get<1>(*reqstep), stepping );
                 if (cres == 0) {

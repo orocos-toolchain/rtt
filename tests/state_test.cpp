@@ -481,6 +481,29 @@ BOOST_AUTO_TEST_CASE( testStateTransitions)
      this->finishState( &gtc, "x");
 }
 
+BOOST_AUTO_TEST_CASE( testStateTransitionStop )
+{
+    // test processing of transition statements.
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "  if stop() == true then select NEXT\n" // calls stop on the component !
+        + " }\n"
+        + " }\n"
+        + " state NEXT {\n" // Failure state.
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " final state FINI {\n" // Success state.
+        + " entry { do test.assert(true); }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState( prog, &gtc );
+     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( &gtc, "x");
+}
+
 BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
 {
     // test processing of transition statements.
