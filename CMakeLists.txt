@@ -54,8 +54,10 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 #                                                 #
 ###################################################
 
-INCLUDE(CTest)
-ENABLE_TESTING()
+IF(ENABLE_TESTS)
+  INCLUDE(CTest)
+  ENABLE_TESTING()
+ENDIF()
 IF(BUILD_TESTING)
   SET(BUILDNAME "${BUILDNAME}" CACHE STRING "Name of build on the dashboard")
   MARK_AS_ADVANCED(BUILDNAME)
