@@ -47,6 +47,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "os/Mutex.hpp"
 
 namespace RTT
 {
@@ -144,6 +145,8 @@ namespace RTT
          * Remove a running function added with runFunction.
          * This method is only required if the function is to be destroyed
          * and is still present in the ProgramProcessor.
+         * This also stops the given function and \a f becomes in the
+         * ProgramInterface::Status::Unloaded state.
          */
         virtual bool removeFunction(ProgramInterface* f);
 
@@ -166,6 +169,8 @@ namespace RTT
         std::vector<ProgramInterface*> funcs;
 
         Queue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
+
+        OS::Mutex syncer;
     };
 
 }
