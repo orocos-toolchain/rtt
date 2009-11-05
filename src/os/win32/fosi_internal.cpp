@@ -244,6 +244,8 @@ void ErrorHandler(LPTSTR lpszFunction)
       //printf(" rtos_task_delete ");
       //DWORD exitCode;
       //TerminateThread(mytask->handle, exitCode);
+      
+	  WaitForSingleObject(mytask->handle,INFINITE);
       CloseHandle(mytask->handle);
       free(mytask->name);
       mytask->name = NULL;
