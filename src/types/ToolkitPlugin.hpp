@@ -96,7 +96,7 @@ namespace RTT
          * This is necessary to have something like enumeration values, without
          * being force to look these up in a component.
          */
-        virtual bool loadGlobals() {}
+        virtual bool loadGlobals() { return true; }
 
         /**
          * Each plugin must have a unique name.
