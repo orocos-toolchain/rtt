@@ -1,9 +1,9 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  rtt-base-fwd.hpp
+  tag: Peter Soetens  Fri Oct 23 11:02:37 CEST 2009  rtt-base-fwd.hpp
 
                         rtt-base-fwd.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
+    begin                : Fri October 23 2009
     copyright            : (C) 2009 Peter Soetens
     email                : peter@thesourcworks.com
 
@@ -82,9 +82,13 @@ namespace RTT {
         template<class T>
         class BufferInterface;
         template<class T>
+        class BufferUnSync;
+        template<class T>
         class DataObjectLockFree;
         template<class T>
         class DataObjectLocked;
+        template<class T>
+        class DataObjectUnSync;
         template<class T>
         class ReadInterface;
         template<class T>

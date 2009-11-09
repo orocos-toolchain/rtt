@@ -63,6 +63,7 @@
 
 #include "../../base/CommandInterface.hpp"
 #include "../../types/Types.hpp"
+#include "../../extras/SequentialActivity.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "tao/TimeBaseC.h"
@@ -87,6 +88,8 @@ namespace RTT
 {namespace corba
 {
     IllegalServer::IllegalServer() : reason("This server does not exist or has the wrong type.") {}
+
+    IllegalServer::IllegalServer(const std::string& r) : reason(r) {}
 
     IllegalServer::~IllegalServer() throw() {}
 
@@ -115,6 +118,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             if (is_ior) {
                 // Use the first argument to create the task object reference,
@@ -127,11 +131,17 @@ namespace RTT
                 mtask = corba::CControlTask::_narrow (task_object.in ());
             } else {
                 // NameService
-                CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
-                CosNaming::NamingContext_var rootContext = CosNaming::NamingContext::_narrow(rootObj);
+                CORBA::Object_var rootObj;
+                CosNaming::NamingContext_var rootContext;
+                try {
+                    rootObj = orb->resolve_initial_references("NameService");
+                    rootContext = CosNaming::NamingContext::_narrow(rootObj);
+                } catch (...) {}
+
                 if (CORBA::is_nil(rootContext)) {
-                    log(Error) << "ControlTaskProxy could not acquire NameService."<<endlog();
-                    throw IllegalServer();
+                    std::string err("ControlTaskProxy could not acquire NameService.");
+                    log(Error) << err <<endlog();
+                    throw IllegalServer(err);
                 }
                 Logger::log() <<Logger::Debug << "ControlTaskProxy found CORBA NameService."<<endlog();
                 CosNaming::Name serverName;
@@ -144,8 +154,9 @@ namespace RTT
                 mtask = corba::CControlTask::_narrow (task_object.in ());
             }
             if ( CORBA::is_nil( mtask ) ) {
-                Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
-                throw IllegalServer();
+                std::string err("Failed to acquire ControlTaskServer '"+name+"'.");
+                Logger::log() << Logger::Error << err <<endlog();
+                throw IllegalServer(err);
             }
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
@@ -157,6 +168,10 @@ namespace RTT
             log(Error)<< "CORBA exception raised when resolving Object !" << endlog();
             Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
             throw;
+        }
+        catch (IllegalServer& e) {
+            // rethrow
+            throw e;
         }
         catch (...) {
             log(Error) <<"Unknown Exception in ControlTaskProxy construction!"<<endlog();
@@ -171,6 +186,7 @@ namespace RTT
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
+        this->setActivity( new SequentialActivity() );
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );

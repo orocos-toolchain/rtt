@@ -67,7 +67,6 @@
 // be/be_codegen.cpp:859
 
 // must be outside of #ifdef macro.
-#include "../rtt-config.h"
 #include "corba.h"
 #include "../../internal/DataSource.hpp"
 

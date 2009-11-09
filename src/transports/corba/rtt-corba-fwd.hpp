@@ -1,9 +1,9 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  rtt-corba-fwd.hpp
+  tag: Peter Soetens  Fri Oct 23 11:02:37 CEST 2009  rtt-corba-fwd.hpp
 
                         rtt-corba-fwd.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
+    begin                : Fri October 23 2009
     copyright            : (C) 2009 Peter Soetens
     email                : peter@thesourcworks.com
 
@@ -41,11 +41,13 @@
 
 namespace RTT {
     namespace corba {
+        class CorbaDispatcher;
         class CorbaTypeTransporter;
         class RemoteInputPort;
         class RemoteOutputPort;
         struct ApplicationServer;
         struct IllegalServer;
+        struct RemoteConnID;
         struct UpdatedCommand;
         template<class T>
         class CORBAAssignableExpression;

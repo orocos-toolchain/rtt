@@ -93,6 +93,8 @@ namespace RTT {
 
     EdgeCondition& EdgeCondition::operator=( const EdgeCondition& orig )
     {
+        if ( &orig == this )
+            return *this;
         delete condition;
         condition = orig.getCondition()->clone();
         rank = orig.getRank();

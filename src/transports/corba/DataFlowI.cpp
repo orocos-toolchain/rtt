@@ -123,7 +123,9 @@ PortableServer::POA_ptr CDataFlowInterface_i::_default_POA()
     return PortableServer::POA::_duplicate(mpoa);
 }
 
-CDataFlowInterface::CPortNames * CDataFlowInterface_i::getPorts()
+CDataFlowInterface::CPortNames * CDataFlowInterface_i::getPorts() ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	    ))
 {
     ::RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
 
@@ -136,7 +138,9 @@ CDataFlowInterface::CPortNames * CDataFlowInterface_i::getPorts()
     return pn._retn();
 }
 
-CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions()
+CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions() ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	    ))
 {
     RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
     RTT::corba::CDataFlowInterface::CPortDescriptions_var result = new RTT::corba::CDataFlowInterface::CPortDescriptions();
@@ -169,7 +173,10 @@ CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions
     return result._retn();
 }
 
-CPortType CDataFlowInterface_i::getPortType(const char * port_name)
+CPortType CDataFlowInterface_i::getPortType(const char * port_name) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
@@ -180,7 +187,10 @@ CPortType CDataFlowInterface_i::getPortType(const char * port_name)
     else return RTT::corba::COutput;
 }
 
-char* CDataFlowInterface_i::getDataType(const char * port_name)
+char* CDataFlowInterface_i::getDataType(const char * port_name) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0)
@@ -188,7 +198,10 @@ char* CDataFlowInterface_i::getDataType(const char * port_name)
     return CORBA::string_dup( p->getTypeInfo()->getTypeName().c_str() );
 }
 
-CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name)
+CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
@@ -197,7 +210,10 @@ CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name)
     return p->connected();
 }
 
-CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel)
+CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(reader_port_name);
     if (p == 0)
@@ -219,7 +235,10 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
     return false;
 }
 
-void CDataFlowInterface_i::disconnectPort(const char * port_name)
+void CDataFlowInterface_i::disconnectPort(const char * port_name) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(port_name);
     if (p == 0) {
@@ -231,7 +250,10 @@ void CDataFlowInterface_i::disconnectPort(const char * port_name)
 
 void CDataFlowInterface_i::removeConnection(
         const char* writer_port,
-        CDataFlowInterface_ptr reader_interface, const char* reader_port)
+        CDataFlowInterface_ptr reader_interface, const char* reader_port) ACE_THROW_SPEC ((
+        	      CORBA::SystemException
+        	      ,::RTT::corba::CNoSuchPortException
+        	    ))
 {
     OutputPortInterface* writer = 
         dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
@@ -244,7 +266,10 @@ void CDataFlowInterface_i::removeConnection(
 }
 
 ::CORBA::Boolean CDataFlowInterface_i::createStream( const char* port,
-                               RTT::corba::CConnPolicy & policy)
+                               RTT::corba::CConnPolicy & policy) ACE_THROW_SPEC ((
+                               	      CORBA::SystemException
+                               	      ,::RTT::corba::CNoSuchPortException
+                               	    ))
 {
     PortInterface* p = mdf->getPort(port);
     if (p == 0) {
@@ -260,7 +285,10 @@ void CDataFlowInterface_i::removeConnection(
     return false;
 }
 
-void CDataFlowInterface_i::removeStream( const char* port, const char* stream_name)
+void CDataFlowInterface_i::removeStream( const char* port, const char* stream_name) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	      ,::RTT::corba::CNoSuchPortException
+	    ))
 {
     PortInterface* p = mdf->getPort(port);
     if (p == 0) {
@@ -273,7 +301,10 @@ void CDataFlowInterface_i::removeStream( const char* port, const char* stream_na
 
 
 CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
-        const char* port_name, CConnPolicy & corba_policy)
+        const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
+         	      CORBA::SystemException
+         	      ,::RTT::corba::CNoCorbaTransport
+         	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelOutput");
     InputPortInterface* port = dynamic_cast<InputPortInterface*>(mdf->getPort(port_name));
@@ -344,7 +375,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
  * This code is a major copy-past of the above. Amazing how much boiler plate we need.
  */
 CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
-        const char* port_name, CConnPolicy & corba_policy)
+        const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
+        	      CORBA::SystemException
+        	      ,::RTT::corba::CNoCorbaTransport
+        	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelInput");
     // First check validity of user input...
@@ -419,7 +453,10 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 
 ::CORBA::Boolean CDataFlowInterface_i::createConnection(
         const char* writer_port, CDataFlowInterface_ptr reader_interface,
-        const char* reader_port, CConnPolicy & policy)
+        const char* reader_port, CConnPolicy & policy) ACE_THROW_SPEC ((
+        	      CORBA::SystemException
+        	      ,::RTT::corba::CNoSuchPortException
+        	    ))
 {
     Logger::In in("CDataFlowInterface_i::createConnection");
     OutputPortInterface* writer = dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
@@ -475,6 +512,8 @@ CRemoteChannelElement_i::CRemoteChannelElement_i(RTT::corba::CorbaTypeTransporte
 CRemoteChannelElement_i::~CRemoteChannelElement_i() {}
 PortableServer::POA_ptr CRemoteChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
-void CRemoteChannelElement_i::setRemoteSide(CRemoteChannelElement_ptr remote)
+void CRemoteChannelElement_i::setRemoteSide(CRemoteChannelElement_ptr remote) ACE_THROW_SPEC ((
+	      CORBA::SystemException
+	    ))
 { this->remote_side = RTT::corba::CRemoteChannelElement::_duplicate(remote); }
 

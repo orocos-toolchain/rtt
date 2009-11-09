@@ -18,8 +18,8 @@ my @files= @ARGV;
 # We first create a hash of old => new
 # headers.txt is the output of:
 #  find src/ -name "*.hpp" |grep -v boost | grep -v oro_ | grep -v fosi  > headers.txt; echo -e "src/rtt-config.h\nsrc/transports/corba/rtt-corba-config.h\n">> headers.txt
-open(INFILE, "<headers.txt") or die "I need the headers.txt file to do my work\n Use 'find src/ -name \"*.hpp\" |grep -v boost | grep -v oro_ | grep -v fosi  > headers.txt; echo -e \"src/rtt-config.h\\nsrc/transports/corba/rtt-corba-config.h\\n\">> headers.txt'\n to generate it in the orocos-rtt main directory.\n";
-open(OUTFILE, ">class-fwd.txt");
+open(INFILE, "<headers.txt") or die "I need the headers.txt file to do my work\n Use ' find src/ -name \"*.hpp\" -o -name \"*.h.in\" |grep -v boost | grep -v oro_ | sed -e 's/.h.in/.h/g' | grep -v fosi  > headers.txt '\n to generate it in the orocos-rtt main directory.\n";
+open(OUTFILE, ">class-dump.txt");
 
 my @rlines = <INFILE>;
 my %spaces = ();
@@ -43,7 +43,7 @@ foreach(@rlines) {
 	$line .= $_;
     }
     @classes = ();
-    while ( $line =~ m/(template\s*\<[^{;]+?>\s*)?(class|struct)\s+(RTT_API\s+)?(\w+)\s+(\{|\:|\#)/gs ) {
+    while ( $line =~ m/(template\s*\<[^{;]+?>\s*)?(class|struct)\s+(RTT_API\s+)?(\w+)\s*(\{|\:|\#)/gs ) {
 	#print ">>$1$2$4\n";
 	if (grep $_ eq $4, @exceptions) {
 	    next; # skip exceptions

@@ -6,13 +6,12 @@ IF (BUILD_TESTING)
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
    endif()
 
-   find_package(Boost 1.32 COMPONENTS unit_test_framework REQUIRED)
+   find_package(Boost 1.33 REQUIRED unit_test_framework)
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   find_package(Boost 1.32 COMPONENTS thread serialization REQUIRED)
    SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY})
 
     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
@@ -26,6 +25,9 @@ IF (BUILD_TESTING)
       IF(BUILD_STATIC)
 	    LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
       ENDIF(BUILD_STATIC)
+      if (NOT OROCOS_TARGET STREQUAL win32)
+	add_definitions(-D_REENTRANT)
+      endif()
     ENDIF(ENABLE_CORBA)
     IF(ENABLE_MQ)
       INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/mqueue/)
@@ -116,6 +118,7 @@ IF (BUILD_TESTING)
     TARGET_LINK_LIBRARIES( state-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( state-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( state-test ${RUNTIME_OUTPUT_DIRECTORY}/state-test )
 
@@ -132,6 +135,7 @@ IF (BUILD_TESTING)
     TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-dynamic_${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS ${OROCOS-RTT_DEFINITIONS} )
     ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
 
@@ -156,6 +160,9 @@ IF (BUILD_TESTING)
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
+
+      ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
+    
     ENDIF(ENABLE_MQ)
 	
     IF(ENABLE_MQ AND ENABLE_CORBA)
@@ -170,8 +177,6 @@ IF (BUILD_TESTING)
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
-    
-    ADD_UNIT_TEST(mqueue_archive_test ${TEST_LIBRARIES})
     
     ADD_CUSTOM_TARGET(check ctest -V 
       DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}

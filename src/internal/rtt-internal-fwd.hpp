@@ -1,9 +1,9 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  rtt-internal-fwd.hpp
+  tag: Peter Soetens  Fri Oct 23 11:02:38 CEST 2009  rtt-internal-fwd.hpp
 
                         rtt-internal-fwd.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
+    begin                : Fri October 23 2009
     copyright            : (C) 2009 Peter Soetens
     email                : peter@thesourcworks.com
 
@@ -48,6 +48,7 @@ namespace RTT {
         class CompletionProcessor;
         class ConditionFunction;
         class ConnFactory;
+        class ConnID;
         class ConnectionBase;
         class ConnectionC;
         class ConnectionManager;
@@ -56,6 +57,7 @@ namespace RTT {
         class EventProcessor;
         class MethodC;
         class SignalBase;
+        class SimpleConnID;
         class TaskObject;
         struct ArgumentDescription;
         struct EventCallBack;
@@ -63,8 +65,10 @@ namespace RTT {
         struct EventHookBase;
         struct GenerateDataSource;
         struct IntrusiveStorage;
+        struct LocalConnID;
         struct OnlyFirstCont;
         struct OnlyLastCont;
+        struct StreamConnID;
         struct UnknownType;
         template <typename function>
         class UnaryDataSource;
@@ -255,6 +259,8 @@ namespace RTT {
         class ConnInputEndpoint;
         template<typename T>
         class ConnOutputEndpoint;
+        template<typename T>
+        class ConstReferenceDataSource;
         template<typename T>
         class ConstantDataSource;
         template<typename T>

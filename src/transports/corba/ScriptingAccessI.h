@@ -69,7 +69,6 @@
 #ifndef SCRIPTINGACCESSI_H_
 #define SCRIPTINGACCESSI_H_
 
-#include "../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ScriptingAccessS.h"

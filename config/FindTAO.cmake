@@ -76,6 +76,7 @@ ENDIF ()
 
 IF (NOT TAO_15 )
     MESSAGE( STATUS "Assuming TAO < 1.5 (based on location of Any.h)")
+    list(REMOVE_ITEM TAO_FIND_COMPONENTS AnyTypeCode )
 ELSE (NOT TAO_15 )
     MESSAGE( STATUS "Assuming TAO >= 1.5 (based on location of Any.h)")
 ENDIF (NOT TAO_15 )
@@ -132,9 +133,7 @@ IF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
             # definitions that ACE/TAO needs. Personally, I think this is a bug in
             # ACE/TAO, but ....
             LIST(APPEND TAO_DEFINITIONS "_DARWIN_C_SOURCE")
-            # and needs additional libraries 
-            LIST(APPEND TAO_LIBRARIES TAO_AnyTypeCode)
-        ENDIF(APPLE)
+          ENDIF(APPLE)
 
         IF( NOT TAO_15 )
             LIST(APPEND TAO_LIBRARIES TAO_IDL_BE)
@@ -164,10 +163,12 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
       SET(_server  ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.cpp)
       SET(_serverh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.h ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S.inl)
 
+      set(DEFINE_TAO "-DCORBA_IS_TAO")
       # From TAO 1.5 onwards, the _T files are no longer generated
       IF( NOT TAO_15 )
           SET(_tserver )
           SET(_tserverh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S_T.h ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S_T.inl ${CMAKE_CURRENT_BINARY_DIR}/${_basename}S_T.cpp)
+	  set(DEFINE_TAO "")
       ENDIF( NOT TAO_15 )
 
       SET(_client  ${CMAKE_CURRENT_BINARY_DIR}/${_basename}C.cpp)
@@ -178,7 +179,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
 	 # CMake atrocity: if none of these OUTPUT files is used in a target in the current CMakeLists.txt file,
 	 # the ADD_CUSTOM_COMMAND is plainly ignored and left out of the make files.
          ADD_CUSTOM_COMMAND(OUTPUT ${_tserver} ${_server} ${_client} ${_tserverh} ${_serverh} ${_clienth}
-          COMMAND ${TAO_IDL_EXECUTABLE} -Wb,export_macro=RTT_CORBA_API -Wb,export_include=rtt-corba-config.h ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR} -DCORBA_IS_TAO
+          COMMAND ${TAO_IDL_EXECUTABLE} -Wb,export_macro=RTT_CORBA_API -Wb,export_include=rtt-corba-config.h ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR} ${DEFINE_TAO}
           DEPENDS ${_tmp_FILE}
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)

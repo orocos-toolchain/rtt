@@ -150,6 +150,8 @@ namespace RTT
 
     ConnectionC& ConnectionC::operator=(const ConnectionC& other)
     {
+        if ( &other == this )
+            return *this;
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
         return *this;

@@ -42,8 +42,10 @@
 #include "../internal/Queue.hpp"
 #include "../Logger.hpp"
 #include "../internal/Exceptions.hpp"
+#include "../os/MutexLock.hpp"
 
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <functional>
 
 namespace RTT {
@@ -71,6 +73,21 @@ namespace RTT {
             Logger::log() << Logger::Info << "ProgramProcessor deletes Program "<< programs->front()->getName() << "..."<<Logger::endl;
             programs->front()->stop();
             this->unloadProgram( programs->front()->getName() );
+        }
+        ProgramInterface* foo = 0;
+    	for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
+    			it != funcs.end(); ++it ) {
+			foo = *it;
+    		if ( foo ) {
+    			foo->stop();
+    			foo->setProgramProcessor(0);
+    			(*it) = 0;
+    		}
+    	}
+        while ( !f_queue->isEmpty() ) {
+            f_queue->dequeue( foo );
+            foo->stop();
+   			foo->setProgramProcessor(0);
         }
     }
 
@@ -167,30 +184,36 @@ namespace RTT {
         //Execute all normal programs->
         programs->apply( boost::bind(&ProgramInterface::execute, _1 ) );
 
-        // Execute any Function :
         {
-            // 0. find an empty spot to store :
             ProgramInterface* foo = 0;
-            std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), foo );
+            // Execute any Function :
             // 1. Fetch new ones from queue.
-            while ( !f_queue->isEmpty() && f_it != funcs.end() ) {
+            while ( !f_queue->isEmpty() ) {
+                // 0. find an empty spot to store :
+                std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), foo );
+                if ( f_it == funcs.end() )
+                	break; // no spot found, leave in queue.
                 f_queue->dequeue( foo );
                 *f_it = foo;
                 // stored successfully, now reset for next item from queue.
                 foo = 0;
-                f_it = find(f_it, funcs.end(), foo );
             }
-            // 2. execute all present: DO NOT REMOVE/NULLIFY an element of funcs in other functions !
-            // use it->stop() to remove an item from this list.
-            for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
-                it != funcs.end(); ++it )
-                if ( *it ) {
-                    if ( (*it)->isStopped() || (*it)->inError() ){
-                        (*it)->setProgramProcessor(0);
-                        (*it) = 0;
-                    } else
-                        (*it)->execute();
-                }
+            assert(foo == 0);
+            // 2. execute all present (if any):
+            if ( find_if( funcs.begin(), funcs.end(), lambda::_1 != foo) != funcs.end() ) {
+    			MutexLock ml( syncer ); // we block until removeFunction finished.
+            	for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
+            			it != funcs.end(); ++it ) {
+        			foo = *it;
+            		if ( foo ) {
+            			if ( foo->isStopped() || foo->inError() ){
+            				foo->setProgramProcessor(0);
+            				(*it) = 0;
+            			} else
+            				foo->execute();
+            		}
+            	}
+            }
         }
     }
 
@@ -212,11 +235,15 @@ namespace RTT {
 
     bool ProgramProcessor::removeFunction( ProgramInterface* f )
     {
-        // we can not remove it from the queue, as step() may be accessing this pointer.
+        // Remove from the queue.
         std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), f );
         if ( f_it != funcs.end() ) {
-            f->stop();
-            this->getActivity()->trigger();
+        	{
+        		MutexLock ml(syncer);
+        		f->stop();
+                f->setProgramProcessor( 0 );
+        		*f_it = 0;
+        	}
             return true;
         }
         return false;

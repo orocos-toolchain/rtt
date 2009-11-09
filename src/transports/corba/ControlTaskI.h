@@ -69,7 +69,6 @@
 #ifndef CONTROLTASKI_H_
 #define CONTROLTASKI_H_
 
-#include "../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"

@@ -432,7 +432,8 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     int rtsched = ORO_SCHED_RT;
     int bprio = 15;
     TimerThreadPtr tt = TimerThread::Instance(bprio, 0.0123);
-    usleep(100000);
+
+    // Test creation of new thread, check functions when not running.
     BOOST_CHECK( tt->isRunning() == false );
 
     BOOST_CHECK_EQUAL( 0.0123, tt->getPeriod());
@@ -478,17 +479,22 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
 
     BOOST_CHECK( tt->start() );
 
-    sleep(1);
+    // Check functions when running:
+    BOOST_CHECK( tt->isRunning() == true );
 
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    BOOST_CHECK( tt->setScheduler(ORO_SCHED_RT) == true );
-    BOOST_CHECK( tt->setScheduler(ORO_SCHED_OTHER) == true );
+    if ( tt->setScheduler(ORO_SCHED_RT) )
+        BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
+    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+        BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
     Logger::log().setLogLevel( ll );
-    BOOST_CHECK( tt->setPeriod(0.3) == true );
 
-    // reconfigure periodicity
+    // reconfigure periodicity when running.
+    BOOST_CHECK( tt->setPeriod(0.5) == true );
+
+    // reconfigure periodicity when stopped.
     BOOST_CHECK( tt->stop() );
     BOOST_CHECK( tt->setPeriod(0.3) );
     BOOST_CHECK_EQUAL( Seconds_to_nsecs(0.3), tt->getPeriodNS() );

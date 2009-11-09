@@ -50,6 +50,7 @@
 
 namespace RTT
 { namespace scripting {
+	using namespace detail;
 
     /**
      * A condition which checks if a CommandExecFunction is done or not.
@@ -92,7 +93,14 @@ namespace RTT
     {
         base::ActionInterface* minit;
         ProgramProcessor* _proc;
+        /**
+         * _v is only necessary for the copy/clone semantics.
+         */
         internal::AssignableDataSource<base::ProgramInterface*>::shared_ptr _v;
+        /**
+         * _foo contains the exact same pointer as _v->get(), but also serves
+         * as a shared_ptr handle for cleanup after clone().
+         */
         boost::shared_ptr<base::ProgramInterface> _foo;
         bool isqueued;
         internal::AssignableDataSource<bool>::shared_ptr maccept;
@@ -105,19 +113,9 @@ namespace RTT
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 )
-            : minit(init_com),
-              _proc(p),
-              _v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<base::ProgramInterface*> >(foo.get()) : v ),
-              _foo( foo ), isqueued(false), maccept( a ? a : new internal::UnboundDataSource<internal::ValueDataSource<bool> >(false) )
-        {
-        }
+        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
 
-        ~CommandExecFunction() {
-            if ( _foo->isRunning() )
-                log(Critical) << "Destroying Function running in ProgramProcessor !" << endlog();
-            this->reset();
-        }
+        ~CommandExecFunction();
 
         void readArguments()
         {
@@ -173,7 +171,7 @@ namespace RTT
         }
 
         virtual bool done() const {
-            return maccept->get() && _v->get()->isStopped();
+            return maccept->get() && _foo->isStopped();
         }
 
         virtual base::DispatchInterface::Status status() const {
@@ -181,7 +179,7 @@ namespace RTT
                 return base::DispatchInterface::Ready;
             else if (!maccept->get())
                 return base::DispatchInterface::NotAccepted;
-            else if (!_v->get()->isStopped())
+            else if (!_foo->isStopped())
                 return base::DispatchInterface::Valid;
             else
                 return base::DispatchInterface::Done;

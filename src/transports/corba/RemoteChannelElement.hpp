@@ -102,7 +102,9 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CORBA::Boolean remoteSignal()
+            CORBA::Boolean remoteSignal() ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
             { return base::ChannelElement<T>::signal(); }
 
             bool signal()
@@ -147,7 +149,9 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            void disconnect() {
+            void disconnect() ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    )) {
                 // disconnect both local and remote side.
                 // !!!THIS RELIES ON BEHAVIOR OF REMOTEDISCONNECT BELOW doing both writer_to_reader and !writer_to_reader !!!
                 try {
@@ -160,7 +164,9 @@ namespace RTT {
                 catch(CORBA::Exception&) {}
             }
 
-            void remoteDisconnect(bool writer_to_reader)
+            void remoteDisconnect(bool writer_to_reader) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
             {
                 base::ChannelElement<T>::disconnect(writer_to_reader);
 
@@ -176,7 +182,9 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            void disconnect(bool writer_to_reader)
+            void disconnect(bool writer_to_reader) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
             {
                 try {
                     if ( ! CORBA::is_nil(remote_side.in()) )
@@ -215,7 +223,9 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CFlowStatus read(::CORBA::Any_out sample)
+            CFlowStatus read(::CORBA::Any_out sample) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
             {
                 FlowStatus fs;
                 if ( (fs = base::ChannelElement<T>::read(data_source->set())) )
@@ -250,7 +260,9 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            bool write(const ::CORBA::Any& sample)
+            bool write(const ::CORBA::Any& sample) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
             {
                 transport.updateFromAny(&sample, data_source);
                 return base::ChannelElement<T>::write(data_source->rvalue());

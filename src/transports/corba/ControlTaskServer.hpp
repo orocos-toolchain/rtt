@@ -39,16 +39,13 @@
 #define ORO_CORBA_CONTROLTASK_SERVER_HPP
 
 #include <map>
-#include "../../rtt-config.h"
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "corba.h"
 #include "ControlTaskS.h"
 #else
-#include <omniORB4/CORBA.h>
 #include "ControlTaskC.h"
 #endif
 #include "../../TaskContext.hpp"
@@ -84,7 +81,7 @@ namespace RTT
         /**
          * Private constructor which creates a new servant.
          */
-        ControlTaskServer(TaskContext* taskcontext, bool use_naming);
+        ControlTaskServer(TaskContext* taskcontext, bool use_naming, bool require_name_service);
 
         PortableServer::ServantBase_var mtask_i;
         corba::CControlTask_var mtask;
@@ -138,10 +135,12 @@ namespace RTT
          * Factory method: create a CORBA server for an existing TaskContext.
          * @param tc The TaskContext to serve.
          * @param use_naming Set to \a false in order not to use the Corba Naming Service.
-         * @retval 0 if the ORB is not initialised
+         * @param require_naming Set to \a true to require that the Corba Naming Service be found.
+         * @retval 0 if the ORB is not initialised, or if require_name_service==true and the
+         * name service was not found
          * @return A new or previously created CORBA server for \a tc.
          */
-        static ControlTaskServer* Create(TaskContext* tc, bool use_naming = true);
+        static ControlTaskServer* Create(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
          * Factory method: create a CORBA server for an existing TaskContext.
@@ -149,12 +148,14 @@ namespace RTT
          * \a tc is ControlTaskProxy and returns the server of the proxy if so.
          * @param tc The TaskContext to serve.
          * @param use_naming Set to \a false in order not to use the Corba Naming Service.
-         * @retval 0 if the ORB is not initialised
+         * @param require_naming Set to \a true to require that the Corba Naming Service be found.
+         * @retval 0 if the ORB is not initialised, or if require_name_service==true and the
+         * name service was not found
          * @return A new or previously created CORBA server for \a tc. Since this
          * is a factory function, you need to store the object in a _var and don't
          * need to _duplicate it.
          */
-        static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true);
+        static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
          * Get the Corba Object of this CControlTask.

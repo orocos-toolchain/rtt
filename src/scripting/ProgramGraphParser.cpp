@@ -156,8 +156,8 @@ namespace RTT
        );
 
     // the function's definition args :
-    funcargs = ch_p('(') >> ( ch_p(')') || (
-        !( valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
+    funcargs = ch_p('(') >> ( ch_p(')') | ((
+         valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
              >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
 

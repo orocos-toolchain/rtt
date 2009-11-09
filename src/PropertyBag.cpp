@@ -203,6 +203,9 @@ namespace RTT
 
     PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
     {
+        if(this == &orig)
+            return *this;
+
         this->clear();
 
         const_iterator i = orig.getProperties().begin();

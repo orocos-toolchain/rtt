@@ -43,17 +43,22 @@ endif()
 #                                                         #
 ###########################################################
 
+#Hack: remove our own FindBoost.cmake if cmake < 2.6.2
+if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
+  execute_process( COMMAND cmake -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
+  execute_process( COMMAND cmake -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
+endif()
 
 # Look for boost
-find_package(Boost 1.33)
-find_package(Boost 1.33 COMPONENTS program_options)
-find_package(Boost 1.33 COMPONENTS thread)
+find_package(Boost 1.33 REQUIRED)
+find_package(Boost 1.33 COMPONENTS program_options thread)
 
 if(Boost_FOUND)
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
+  message("Boost found in ${Boost_INCLUDE_DIR}")
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
-endif(Boost_FOUND)
+endif()
 
 # Look for Xerces 
 
@@ -186,7 +191,7 @@ if(OROCOS_TARGET STREQUAL "win32")
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
-    set(CMAKE_LD_FLAGS_ADD "--enable-auto-import" CACHE INTERNAL "")
+    set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
   endif()
   if (MSVC)
     set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
@@ -266,53 +271,5 @@ ENDIF ( DOXYGEN_EXECUTABLE )
 #
 # Detect CORBA using user's CORBA_IMPLEMENTATION
 #
-if (ENABLE_CORBA)
-    IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-        # Look for TAO and ACE
-	if(OROCOS_TARGET STREQUAL "win32")
-	  set(XTRA_TAO_LIBS AnyTypeCode ValueType)
-	else()
-	  set(XTRA_TAO_LIBS AnyTypeCode Valuetype)
-	endif()
-        find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
-        IF(NOT TAO_FOUND)
-            MESSAGE(FATAL_ERROR "Cannot find TAO")
-        ELSE(NOT TAO_FOUND)
-            MESSAGE(STATUS "CORBA enabled: ${TAO_FOUND_COMPONENTS}")
-
-	    # Copy flags:
-            SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
-            SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
-	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
-	    # Flag used in rtt-corba-config.h
-	    SET(CORBA_IS_TAO 1)
-
-            if( TAO_Messaging_FOUND )
-              SET(CORBA_TAO_HAS_MESSAGING 1)
-            endif()
-
-	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS TAO_PortableServer)
-
-        ENDIF(NOT TAO_FOUND)
-    ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
-        INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
-        IF(NOT OMNIORB4_FOUND)
-            MESSAGE(FATAL_ERROR "cannot find OmniORB4")
-        ELSE(NOT OMNIORB4_FOUND)
-            MESSAGE(STATUS "CORBA enabled: OMNIORB")
-
-	    # Copy flags:
-	    SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
-	    SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
-	    SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
-	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
-	    # Flag used in rtt-corba-config.h
-	    SET(CORBA_IS_OMNIORB 1)
-
-        ENDIF(NOT OMNIORB4_FOUND)
-    ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-        MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")
-    ENDIF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
-endif (ENABLE_CORBA)
+find_package(Corba REQUIRED)
 

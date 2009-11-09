@@ -109,7 +109,7 @@ namespace RTT
                 if ( cur_channel.get<1>() )
                     if ( pred( cur_channel ) ) {
                         // delete
-                        cur_channel.get<1>().reset();
+                        cur_channel.get<1>() = 0; //.reset() only available in later boost versions.
                         return true;
                     }
                 return false;

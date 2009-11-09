@@ -39,7 +39,6 @@
 #define ORO_CORBA_CONTROLTASK_PROXY_HPP
 
 
-#include "../../rtt-config.h"
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
@@ -69,6 +68,7 @@ namespace RTT
     {
         std::string reason;
         IllegalServer();
+        IllegalServer(const std::string& reason);
         ~IllegalServer() throw();
         const char* what() const throw();
     };

@@ -111,7 +111,7 @@ namespace RTT
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
         bool loadRTTPlugin(RTT::TaskContext* ) {    \
-        Toolkit::Import( TOOLKIT ); \
+            RTT::types::Toolkit::Import( TOOLKIT ); \
         return true; \
     } \
     std::string getRTTPluginName() { \

@@ -144,6 +144,8 @@ namespace RTT {
 
     CommandC& CommandC::operator=( const CommandC& other )
     {
+        if ( &other == this)
+            return *this;
         delete d;
 
         if ( other.d )

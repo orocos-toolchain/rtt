@@ -10,6 +10,7 @@
 <article>
   <articleinfo>
     <title>Distributing Orocos Components with CORBA</title>
+    <subtitle>The CORBA Transport Library</subtitle>
     <copyright>
       <year>2006, 2007, 2008, 2009</year>
       <holder>FMTC, Peter Soetens</holder>
@@ -18,9 +19,9 @@
     <abstract>
       <para>
 	This document explains the principles of the
-	<emphasis>Corba Library</emphasis> of &orocos;, the <emphasis>Open
+	<emphasis>Corba Transport</emphasis> of &orocos;, the <emphasis>Open
 	RObot COntrol Software</emphasis> project. It enables transparant
-	deployment of plain Orocos C++ components.
+	deployment accross networked nodes of plain Orocos C++ components.
       </para>
     </abstract>
 
@@ -55,6 +56,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Put proxy server as mandatory.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.06</revnumber>
+	<date>2 November 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Renamed to orocos-transports-corba.xml and minor additions.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -72,15 +79,15 @@
   </articleinfo>
 
   <section>
-    <title>Overview</title>
+    <title>The CORBA Transport</title>
     <para>
-      This package allows Orocos components to live in separate processes,
+      This transport allows Orocos components to live in separate processes,
       distributed over an ethernet network and still communicate with each other.
       The underlying framework (middleware) is CORBA, but no CORBA knowledge is
       required to distribute Orocos components.
     </para>
     <para>
-      The Corba package provides:
+      The Corba transport provides:
       <itemizedlist>
 	<listitem><para>Connection and Communication of Orocos components over a network</para></listitem>
 	<listitem><para>Clients (like visualisation) making a connection to any running Orocos component using the IDL interface.</para></listitem>
@@ -91,7 +98,7 @@
     <section>
       <title>Status</title>
       <para>
-	The Corba package is work in progress and aims to make the whole
+	The Corba transport is work in progress and aims to make the whole
 	Orocos Component interface available over the network. Consult the
 	<emphasis>Component Builder's Manual</emphasis> for an overview of a Component's
 	interface.
@@ -187,25 +194,25 @@
       In order to setup your component to be available to other components
       <emphasis>transparantly</emphasis>, proceed as:
       <programlisting>  // server.cpp
-  #include &lt;rtt/corba/ControlTaskServer.hpp>
+  #include &lt;rtt/transports/corba/ControlTaskServer.hpp>
 
-  #include &lt;rtt/PeriodicActivity.hpp>
+  #include &lt;rtt/Activity.hpp>
   #include &lt;rtt/TaskContext.hpp>
   #include &lt;rtt/os/main.h>
 
   using namespace RTT;
-  using namespace RTT::Corba;
+  using namespace RTT::corba;
 
   int ORO_main(int argc, char** argv)
   {
      // Setup a component
      <classname>RTT::TaskContext</classname> mycomponent("HelloWorld");
      // Execute a component
-     <classname>RTT::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
+     mycomponent.setActivity( new <classname>RTT::Activity</classname>(1, 0.01 );
      mycomponent.start();
 
      // Setup Corba and Export:
-     <classname>RTT::Corba::ControlTaskServer</classname>::InitOrb(argc, argv);
+     <classname>RTT::corba::ControlTaskServer</classname>::InitOrb(argc, argv);
      ControlTaskServer::Create( &amp;mycomponent );
 
      // Wait for requests:
@@ -220,22 +227,22 @@
       Next, in order to connect to your component, you need to create
       a 'proxy' in another file:
       <programlisting>  // client.cpp
-  #include &lt;rtt/corba/ControlTaskServer.hpp>
-  #include &lt;rtt/corba/ControlTaskProxy.hpp>
+  #include &lt;rtt/transports/corba/ControlTaskServer.hpp>
+  #include &lt;rtt/transports/corba/ControlTaskProxy.hpp>
 
-  #include &lt;rtt/TaskBrowser.hpp>
+  #include &lt;ocl/TaskBrowser.hpp>
   #include &lt;rtt/os/main.h>
 
-  using namespace RTT::Corba;
+  using namespace RTT::corba;
   using namespace RTT;
 
   int ORO_main(int argc, char** argv)
   {
      // Setup Corba:
-     <classname>RTT::Corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
+     <classname>RTT::corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
 
      // Setup a thread to handle call-backs to our components.
-     <classname>RTT::Corba::ControlTaskProxy</classname>::ThreadOrb();
+     <classname>RTT::corba::ControlTaskProxy</classname>::ThreadOrb();
 
      // Get a pointer to the component above
      <classname>RTT::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
@@ -245,7 +252,7 @@
      browse.loop();
 
      // Stop ORB thread:
-     <classname>RTT::Corba::ControlTaskServer</classname>::ShutdownOrb();
+     <classname>RTT::corba::ControlTaskServer</classname>::ShutdownOrb();
      // Cleanup Corba:
      ControlTaskProxy::DestroyOrb();
      return 0;
@@ -356,7 +363,7 @@
       (<emphasis>id</emphasis> fields). The <emphasis>kind</emphasis>
       fields are left empty. Only the components which were explicitly
       exported in your code, using
-      <classname>RTT::Corba::ControlTaskServer</classname>, are added
+      <classname>RTT::corba::ControlTaskServer</classname>, are added
       to the Naming Service. Others write their address as an IOR to
       a file "<emphasis>ComponentName</emphasis>.ior", but you can 'browse'
       to other components using the exported name and then using 'getPeer()'
