@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  rtconversions.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  rtconversions.cxx
 
                         rtconversions.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -45,7 +45,7 @@ using namespace std;
 
 /**
  * converts a string to an int
- * 
+ *
  * @param s
  *    string to be converted
  * @return the integer value of \a s
