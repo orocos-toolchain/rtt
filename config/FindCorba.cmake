@@ -50,6 +50,9 @@ if (ENABLE_CORBA)
 	    # Flag used in rtt-corba-config.h
 	    SET(CORBA_IS_OMNIORB 1)
 
+        # Including an Omniorb header is sufficient to depend on this library.
+        set(CORBA_USER_LINK_LIBS omniORB4 omnithread )
+
         ENDIF(NOT OMNIORB4_FOUND)
     ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")
