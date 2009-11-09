@@ -54,6 +54,7 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 #                                                 #
 ###################################################
 
+OPTION(ENABLE_TESTS "Turn on to enable the testing framework." ON)
 IF(ENABLE_TESTS)
   INCLUDE(CTest)
   ENABLE_TESTING()
