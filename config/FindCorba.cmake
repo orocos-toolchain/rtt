@@ -31,7 +31,7 @@ if (ENABLE_CORBA)
 	    endif()
 
  	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS TAO_PortableServer)
+	    set(CORBA_USER_LINK_LIBS TAO_PortableServer TAO)
 
        ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
