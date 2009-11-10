@@ -133,8 +133,10 @@
 	<title>Displaying and Reading</title>
 	<para>
 	  In order to tell Orocos how to display your type, you
-	  may overload the <function>TemplateTypeInfo::write</function> fuction
-	  or define <function>operator&lt;&lt;()</function> for your type:
+	  may overload the <function>TemplateTypeInfo::write</function> and
+	  <function>TemplateTypeInfo::write</function> functions
+	  or define <function>operator&lt;&lt;()</function> and 
+	  <function>operator&gt;&gt;()</function>  for your type. 
 	</para>
 	<programlisting>  #include &lt;rtt/TemplateTypeInfo.hpp>
   #include &lt;ostream>
@@ -148,11 +150,10 @@
   // Reading (not sufficient for scripting):
   std::istream&amp; operator&gt;&gt;(std::istream&amp; is, ControlData&amp; cd) {
      char c;
-     double x,y,z,n;
-     return is >> c >> x >> c >> y >> c >> z >> c >> c >> n; // 'c' reads '(' ',' ',' ')' and ':'
+     return is >> c >> cd.x >> c >> cd.y >> c >> cd.z >> c >> c >> cd.sample_nbr; // 'c' reads '(' ',' ',' ')' and ':'
   }
   // ...
-  // 'true' argument: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
+  // The 'true' argument means: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
   struct ControlDataTypeInfo
     : public RTT::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
   {
