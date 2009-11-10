@@ -231,6 +231,9 @@ namespace RTT
                     }
                     // estate remains Active or Stopped.
                     return false;
+                } else {
+                    // success:
+                    (*it)->mTaskState = TaskCore::Running;
                 }
             }
             estate = Running; // got to running
@@ -265,6 +268,9 @@ namespace RTT
                     // estate falls back to Stopped.
                     estate = Stopped;
                     return false;
+                } else {
+                    // success:
+                    (*it)->mTaskState = TaskCore::Active;
                 }
             }
             estate = Active; // got to active
