@@ -338,7 +338,7 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
         BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
         BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
-    BOOST_CHECK( gtask.stop() );
+    tc->stop();
 }
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
