@@ -158,7 +158,7 @@
 
 #define DEFAULT_AREA_SIZE (1024*10)
 
-#ifdef USE_MMAP
+#if USE_MMAP
 #define PAGE_SIZE (getpagesize())
 #endif
 

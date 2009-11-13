@@ -28,6 +28,10 @@
 #define tlsf_realloc oro_rt_realloc
 #define tlsf_calloc oro_rt_calloc
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #ifdef ORO_MEMORY_POOL
 extern size_t init_memory_pool(size_t, void *);
 extern size_t get_used_size(void *);
@@ -44,5 +48,9 @@ extern void *tlsf_malloc(size_t size);
 extern void tlsf_free(void *ptr);
 extern void *tlsf_realloc(void *ptr, size_t size);
 extern void *tlsf_calloc(size_t nelem, size_t elem_size);
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
