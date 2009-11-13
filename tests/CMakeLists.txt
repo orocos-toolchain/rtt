@@ -14,13 +14,13 @@ IF (BUILD_TESTING)
 
    SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY})
 
-    INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+    INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/rtt ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET})
     INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
-    LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src )
+    LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt )
     IF(ENABLE_CORBA)
-      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/corba/ ${CORBA_INCLUDE_DIRS})
-      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/corba/ ${CORBA_LINK_DIRECTORIES})
+      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_INCLUDE_DIRS})
+      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_LINK_DIRECTORIES})
       # Work around unresolved symbols in tests when using CORBA *and* STATIC
       IF(BUILD_STATIC)
 	    LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
@@ -30,8 +30,8 @@ IF (BUILD_TESTING)
       endif()
     ENDIF(ENABLE_CORBA)
     IF(ENABLE_MQ)
-      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/mqueue/)
-      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/transports/mqueue/)
+      INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/mqueue/)
+      LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/mqueue/)
       # Work around unresolved symbols in tests when using MQUEUE *and* STATIC
       IF(BUILD_STATIC)
         LINK_LIBRARIES( orocos-rtt-mqueue-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-mqueue-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})

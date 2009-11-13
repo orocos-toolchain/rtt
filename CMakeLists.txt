@@ -93,7 +93,7 @@ INCLUDE(config/rtt_macros.cmake)
 #                                                         #
 ###########################################################
 
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(rtt)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 

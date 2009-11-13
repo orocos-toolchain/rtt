@@ -122,7 +122,7 @@ ENDIF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "
 # Settings for building a static library (.a)
 #
 
-INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/rtt ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET})
 
 #SET(COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
 
@@ -154,10 +154,10 @@ create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDE_DIRS}" "${ORO
 create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RTT_DUMMY RTT_DUMMY RTT_USER_LINK_LIBS)
 
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/src/os/targets/rtt-target.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/target.in ${PROJ_BINARY_DIR}/src/os/targets/${OROCOS_TARGET} @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/rtt-config.h.in ${PROJ_BINARY_DIR}/rtt/rtt-config.h @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/os/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/rtt/os/targets/rtt-target.h @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/os/targets/target.in ${PROJ_BINARY_DIR}/rtt/os/targets/${OROCOS_TARGET} @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/rtt/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
 INSTALL(TARGETS orocos-rtt-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
