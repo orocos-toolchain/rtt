@@ -44,10 +44,59 @@
 
 namespace RTT { namespace extras {
 
-    /** An activity which is triggered by the availability of data on a given
-     * file descriptor. step() (and hence the base::RunnableInterface's step() method)
-     * is called when data is available or when an error is encountered on the
-     * file descriptor.
+    /** An activity which is triggered by the availability of data on a set of
+     * file descriptors. step() (and hence the base::RunnableInterface's step()
+     * method) is called when data is available or when an error is encountered
+     * on the file descriptor.
+     *
+     * To use it, one must add the file descriptors to watch in the task's
+     * configureHook()
+     *
+     * <code>
+     *   FileDescriptorActivity* fd_activity =
+     *      dynamic_cast<FileDescriptorActivity*>(getActivity().get());
+     *   if (fd_activity)
+     *   {
+     *      fd_activity->watch(device_fd);
+     *      // optional, set a timeout in milliseconds
+     *      fd_activity->setTimeout(1000);
+     *   }
+     * </code>
+     *
+     * Then, updateHook() and -- when in ERROR state -- errorHook() will be
+     * called when one of these three events happen:
+     * <ul>
+     *      <li>new data is available on one of the watched FDs
+     *      <li>an error happens on one of the watched FDs
+     *      <li>the timeout is reached
+     * </ul>
+     *
+     * The different cases can be tested in updateHook() as follows:
+     *
+     * <code>
+     * FileDescriptorActivity* fd_activity =
+     *    dynamic_cast<FileDescriptorActivity*>(getActivity().get());
+     * if (fd_activity)
+     * {
+     *   if (fd_activity->hasError())
+     *   {
+     *   }
+     *   else if (fd_activity->hasTimeout())
+     *   {
+     *   }
+     *   else
+     *   {
+     *     // If there is more than one FD, discriminate. Otherwise,
+     *     // we don't need to use isUpdated
+     *     if (fd_activity->isUpdated(device_fd))
+     *     {
+     *     }
+     *     else if (fd_activity->isUpdated(another_fd))
+     *     {
+     *     }
+     *   }
+     * }
+     * </code>
      */
     class RTT_API FileDescriptorActivity : public Activity
     {
@@ -57,7 +106,8 @@ namespace RTT { namespace extras {
         int  m_timeout;
         fd_set m_fd_set;
         fd_set m_fd_work;
-        bool m_error;
+        bool m_has_error;
+        bool m_has_timeout;
         base::RunnableInterface* runner;
 
         static const int CMD_BREAK_LOOP = 0;
@@ -110,28 +160,41 @@ namespace RTT { namespace extras {
 
         /** True if this specific FD is being watched by the activity
          */
-        bool isWatched(int fd);
+        bool isWatched(int fd) const;
 
-        /** True if this specific FD has been updated. This should only be
-         * called from the base::RunnableInterface this activity is driving.
+        /** True if this specific FD has new data.
+         *
+         * This should only be used from within the base::RunnableInterface this
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
          */
-        bool isUpdated(int fd);
+        bool isUpdated(int fd) const;
+
+        /** True if the base::RunnableInterface has been triggered because of a
+         * timeout, instead of because of new data is available.
+         *
+         * This should only be used from within the base::RunnableInterface this
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
+         */
+        bool hasTimeout() const;
 
         /** True if one of the file descriptors has a problem (for instance it
          * has been closed)
          *
          * This should only be used from within the base::RunnableInterface this
-         * activity is driving.
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
          */
         bool hasError() const;
 
         /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
-         * for infinity.
+         * for blocking behaviour (no timeout).
          */
         void setTimeout(int timeout);
 
         /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
-         * for infinity.
+         * for blocking behaviour (no timeout).
          */
         int getTimeout() const;
 

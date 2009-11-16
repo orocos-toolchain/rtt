@@ -55,7 +55,7 @@ namespace RTT
      * look at the DispatchInterface, which exposes
      * an interface for asynchronous execution of functions.
      */
-    typedef ActionInterface ActionInterface;
+    typedef ActionInterface CommandInterface;
 }}
 
 #endif // COMMANDINTERFACE_HPP

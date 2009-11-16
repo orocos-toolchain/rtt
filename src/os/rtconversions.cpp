@@ -40,6 +40,7 @@
 #include <string>
 #include <cstdio>
 #include <cstdlib>
+#include <stdio.h>
 
 using namespace std;
 

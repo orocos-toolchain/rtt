@@ -99,6 +99,12 @@ void FileDescriptorActivity::setTimeout(int timeout)
 { m_timeout = timeout; }
 void FileDescriptorActivity::watch(int fd)
 {
+    if (fd < 0)
+    {
+        log(Error) << "negative file descriptor given to FileDescriptorActivity::watch" << endlog();
+        return;
+    }
+
     m_watched_fds.insert(fd);
     FD_SET(fd, &m_fd_set);
 }
@@ -107,21 +113,29 @@ void FileDescriptorActivity::unwatch(int fd)
     m_watched_fds.erase(fd);
     FD_CLR(fd, &m_fd_set);
 }
-bool FileDescriptorActivity::isUpdated(int fd)
+bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
 bool FileDescriptorActivity::hasError() const
-{ return m_error; }
-bool FileDescriptorActivity::isWatched(int fd)
+{ return m_has_error; }
+bool FileDescriptorActivity::hasTimeout() const
+{ return m_has_timeout; }
+bool FileDescriptorActivity::isWatched(int fd) const
 { return FD_ISSET(fd, &m_fd_set); }
 
 bool FileDescriptorActivity::start()
 {
     // Check that there is FDs set ...
     if (m_watched_fds.empty())
+    {
+        log(Error) << "FileDescriptorActivity: no descriptors added to watch" << endlog();
         return false;
+    }
 
     if (pipe(m_interrupt_pipe) == -1)
+    {
+        log(Error) << "FileDescriptorActivity: cannot create control pipe" << endlog();
         return false;
+    }
 
     if (!Activity::start())
     {
@@ -155,18 +169,15 @@ void FileDescriptorActivity::loop()
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 
+        m_has_error   = false;
+        m_has_timeout = false;
         if (ret == -1)
         {
-            if (errno != EBADF)
-            {
-                log(Error) << "internal error in FileDescriptorActivity: got errno = " << errno << endlog();
-                break;
-            }
-            else
-                m_error = true;
+            log(Error) << "FileDescriptorActivity: error in select(), errno = " << errno << endlog();
+            m_has_error = true;
         }
-        else
-            m_error = false;
+        else if (ret == 0)
+            m_has_timeout = true;
 
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe

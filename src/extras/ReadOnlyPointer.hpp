@@ -69,6 +69,18 @@ namespace RTT
             }
         };
 
+        template<typename T>
+        void intrusive_ptr_add_ref(ROPtrInternal<T>* data)
+        {
+            data->ref();
+        }
+        template<typename T>
+        void intrusive_ptr_release(ROPtrInternal<T>* data)
+        {
+            if (!data->deref())
+                delete data;
+        }
+
     template<typename T>
     class ReadOnlyPointer
     {
@@ -114,18 +126,6 @@ namespace RTT
             return value;
         }
     };
-
-    template<typename T>
-    void intrusive_ptr_add_ref(typename RTT::extras::ROPtrInternal<T>* data)
-    {
-        data->ref();
-    }
-    template<typename T>
-    void intrusive_ptr_release(typename RTT::extras::ROPtrInternal<T>* data)
-    {
-        if (!data->deref())
-            delete data;
-    }
 }}
 
 #endif

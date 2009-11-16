@@ -20,7 +20,7 @@
 #ifndef BUFFERSTEST_H
 #define BUFFERSTEST_H
 
-#include <extras/ReadWritePointer.hpp>
+#include <extras/ReadOnlyPointer.hpp>
 
 class PtrTest
 {
