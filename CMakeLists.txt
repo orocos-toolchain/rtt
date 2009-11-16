@@ -93,6 +93,7 @@ INCLUDE(config/rtt_macros.cmake)
 #                                                         #
 ###########################################################
 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 ADD_SUBDIRECTORY(rtt)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
