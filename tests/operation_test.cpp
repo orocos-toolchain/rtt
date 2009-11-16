@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace RTT::detail;
+using namespace RTT;
 
 /**
  * Test fixture.
@@ -111,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
 
 
 // Test adding and calling an operation to the default service.
-BOOST_AUTO_TEST_CASE( testOperationCall )
+BOOST_AUTO_TEST_CASE( testOperationCall2 )
 {
     tc.provides()->addOperation("op0", &OperationTest::func0, this);
     tc.provides()->addOperation("op1", &OperationTest::func1, this);
