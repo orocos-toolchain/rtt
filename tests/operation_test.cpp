@@ -17,7 +17,13 @@ class OperationTest
 {
 public:
     OperationTest() : tc("TC"), op0r("op0r"), op0cr("op0cr"), op1r("op1r"), op1cr("op1cr"), op0("op0"), op1("op1"), op2("op2"), op3("op3"), op4("op4") {
-    }
+
+        tc.provides()->addOperation("op0", &OperationTest::func0, this);
+        tc.provides()->addOperation("op1", &OperationTest::func1, this);
+        BOOST_CHECK( s->getOperation<double(void)>("op0") );
+        BOOST_CHECK( s->getOperation<double(int)>("op1") );
+
+     }
 
     ~OperationTest() {
 
@@ -36,7 +42,17 @@ public:
     double func3(int i, double d, bool c) { return 4.0; }
     double func4(int i, double d, bool c, std::string s) { return 5.0; }
 
+    // The return values of signals are intentionally distinct than these above.
+    void sig0() { return sig=-1.0; }
+    double sig1(int i) { return (sig=-2.0); }
+    void sig2(int i, double d) { sig=-3.0; }
+    double sig3(int i, double d, bool c) { return (sig=-4.0); }
+    void sig4(int i, double d, bool c, std::string s) { return sig=-5.0; }
+
     TaskContext tc;
+
+    // check value for signals
+    double sig;
 
     Operation<double&(void)> op0r;
     Operation<const double&(void)> op0cr;
@@ -90,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
 }
 
 // Test calling an operation (user API)
-BOOST_AUTO_TEST_CASE( testOperationCall )
+BOOST_AUTO_TEST_CASE( testOperationCall2 )
 {
     ServiceProvider* s =  new ServiceProvider("Service");
 
@@ -110,15 +126,18 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
 
-
-// Test adding and calling an operation to the default service.
-BOOST_AUTO_TEST_CASE( testOperationCall2 )
+// Test adding an operation to the default service.
+BOOST_AUTO_TEST_CASE( testOperationAdd )
 {
-    tc.provides()->addOperation("op0", &OperationTest::func0, this);
-    tc.provides()->addOperation("op1", &OperationTest::func1, this);
-    BOOST_CHECK( s->getOperation<double(void)>("op0") );
-    BOOST_CHECK( s->getOperation<double(int)>("op1") );
+    tc.provides()->addOperation("top0", &OperationTest::func0, this);
+    tc.provides()->addOperation("top1", &OperationTest::func1, this);
+    BOOST_CHECK( s->getOperation<double(void)>("top0") );
+    BOOST_CHECK( s->getOperation<double(int)>("top1") );
+}
 
+// Test calling an operation of the default service.
+BOOST_AUTO_TEST_CASE( testOperationCall0 )
+{
     // Test calling an operation using a Method.
     Method<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
@@ -126,6 +145,22 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
     BOOST_CHECK( m0.ready() );
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
+
+// Test adding and signalling an operation to the default service.
+BOOST_AUTO_TEST_CASE( testOperationSignal )
+{
+    // invoke sig0 according to call/thread specification.
+    op0.signals(&OperationTest::sig0, this);
+
+    // Test calling an operation using a Method.
+    Method<double(void)> m0("op0");
+    BOOST_CHECK( m0.ready() == false );
+    m0 = s->getOperation<double(void)>("op0");
+    BOOST_CHECK( m0.ready() );
+    BOOST_CHECK_EQUAL( 1.0, m0.call() );
+    BOOST_CHECK_EQUAL( -1.0, sig );
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

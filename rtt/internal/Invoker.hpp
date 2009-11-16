@@ -46,6 +46,10 @@
 
 namespace RTT
 {
+    /**
+     *  Returns the status of a send() invocation.
+     */
+    enum SendStatus { SendFailure = -1, SendNotReady = 0, SendSuccess = 1 };
     namespace internal
     {
         /**
@@ -59,8 +63,14 @@ namespace RTT
         struct InvokerBaseImpl<0,F>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::result_type result_reference;
             virtual ~InvokerBaseImpl() {}
-            virtual result_type operator()() = 0;
+            virtual result_type call() = 0;
+            virtual SendStatus send() = 0;
+            virtual SendStatus collect(result_reference r) = 0;
+            virtual SendStatus collectIfDone(result_reference r) = 0;
+
+            result_type operator()() { return call(); }
         };
 
         template<class F>

@@ -49,29 +49,110 @@ namespace RTT
 {
     namespace internal
     {
+        /**
+         * Implements call, send, collect, collectIfDone for all function arities.
+         * call is implemented using boost::function, the others are functions
+         * of this class.
+         *
+         * You can pass arguments by (const) value and by (const) reference. Passing
+         * pointers is 'accidentally' supported in-process, it will not work with out-of-process
+         * calls. The send takes all arguments (C++ doesn't know pure out args), the collect()
+         * only takes the return value and the 'reference' arguments (if any)
+         */
         template<class FunctionT>
         class LocalMethodImpl
-            : public base::MethodBase<FunctionT>
+            : public base::MethodBase<FunctionT>,
+              protected BindStorage<FunctionT>
         {
         protected:
             boost::function<FunctionT> mmeth;
+            CommandProcessor* mcp;
+
         public:
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
+            typedef typename boost::function_traits<Signature>::result_type result_reference;
             typedef boost::function_traits<Signature> traits;
 
-            void readArguments() {}
-
-            bool execute() {
-                return false;
+            void execute() {
+                this->exec(); // calls BindStorage.
+                delete this;
+                return;
             }
 
+            CommandProcessor* getCommandProcessor() const { return mcp; }
+
+            // We need a handle object !
+            SendStatus send() {
+                assert(mcp);
+                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+            }
+
+            template<class T1>
+            SendStatus send( T1 a1 ) {
+                assert(mcp);
+                // bind types from Storage<Function>
+                this->store( a1 );
+                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+            }
+
+            template<class T1, class T2>
+            SendStatus send( T1 a1, T2 a2 ) {
+                // bind types from Storage<Function>
+                this->store( a1, a2 );
+                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+            }
+
+            template<class T1, class T2, class T3>
+            SendStatus send( T1 a1, T2 a2, T3 a3 ) {
+                // bind types from Storage<Function>
+                this->store( a1, a2, a3 );
+                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            SendStatus send( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+                // bind types from Storage<Function>
+                this->store( a1, a2, a3, a4 );
+                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+            }
+
+            // XXX What with void returns ?
+            SendStatus collect( result_reference r ) {
+
+            }
+
+            template<class T1>
+            SendStatus collect( result_reference r,  T1 a1 ) {
+                assert(mcp);
+            }
+
+            template<class T1, class T2>
+            SendStatus collect( result_reference r,  T1 a1, T2 a2 ) {
+            }
+
+            template<class T1, class T2, class T3>
+            SendStatus collect( result_reference r,  T1 a1, T2 a2, T3 a3 ) {
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            SendStatus collect( result_reference r,  T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            }
+#if 0
             /**
              * Invoke this operator if the method has no arguments.
              */
             result_type invoke()
             {
-                return mmeth();
+                // if component or 3rd party thread, use that one, otherwise,
+                // just execute the method.
+                SendHandle<Signature> h;
+                if ( mcp ) {
+                    h = send();
+                    h.collect();
+                    return h.ret();
+                } else
+                    return mmeth();
             }
 
             /**
@@ -109,7 +190,7 @@ namespace RTT
             {
                 return mmeth(t1, t2, t3, t4);
             }
-
+#endif
         };
 
         /**
