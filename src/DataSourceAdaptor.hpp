@@ -674,17 +674,17 @@ namespace RTT
             if (t1)
                 return t1;
 
+            // assignable case: this is a more efficient implementation than the one below (t2)
+            // does not involve a copy.
+            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
+            if (ta1 && &(ta1->set()) != 0 ) // check for null set()
+                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
+
             // value to const ref case
             // makes a copy !
             DataSource<TResult>* t2 = DataSource<TResult>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
-
-            // assignable case: this is a more efficient implementation than the one above (t2)
-            // does not involve a copy.
-            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
-            if (ta1 && &(ta1->set()) != 0 ) // check for null set()
-                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
 
 #ifndef ORO_EMBEDDED
             // ref to const ref case
