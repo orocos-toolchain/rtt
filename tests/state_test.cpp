@@ -984,7 +984,7 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
     BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.
-    BOOST_CHECK( gtask.stop() );
+    tc->stop();
 
     try {
         tc->engine()->states()->unloadStateMachine( prog_name );
