@@ -1,3 +1,52 @@
+           The Orocos Real-Time Toolkit v1.10.2.
+           ====================================
+
+The Orocos development team is pleased to announce the second bug fix
+release of the Real-Time Toolkit v1.10, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.10.2/orocos-rtt-1.10.2-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.10.x/doc-xml/orocos-installation.html>
+
+Most prominent fixes are:
+ * Fix bug #734: Removed allocation when copying variable sized objects in scripting
+ * Many fixes for compiling with mingw on win32
+ * Fix bug #731: wrong mTaskState handling for children in RTT::ExecutionEngine::startContexts()
+ * Fixes in detecting installed boost libraries
+ * Fix crash when terminating threads on win32
+ * provide --help option for unit tests.
+ * scripting: Fix parse error (missing ')') in function foo() definitions
+ * Force CMAKE_BUILD_TYPE=RelWithDebInfo if not set by user
+ * Overall fixes in operator= during self-assignment
+ * Fix bug #726: state machine crashes when calling stop() in transition check
+ * Many fixes for various TAO/Omniorb build configurations on different platforms
+ * Give the default activity the name of its TaskContext
+
+           The Orocos Real-Time Toolkit v1.10.1.
+           ====================================
+
+The Orocos development team is pleased to announce the first bug fix
+release of the Real-Time Toolkit v1.10, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.10.1/orocos-rtt-1.10.1-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.10.x/doc-xml/orocos-installation.html>
+
+Most prominent fixes are:
+ * Fixed some unit tests under LXRT
+ * Corrected priority checks on Mac OS X
+ * Fixed wrong order of multiplication/division in scripting (bug #664)
+ * Fix crash/bug in scripting where parsers enters infinite recursion
+ * Fix linking with Xenomai when using the orocos-rtt-xenomai.pc file
+ * Fix: building RTT with mingw. Based on suggestions on Orocos-dev ML.
+ * Fixed install instructions after angry user feedback. Users should be
+   aware of the use of CMAKE_INCLUDE_PATH and CMAKE_LIBRARY_PATH to specify
+   where their libraries are installed in non-standard locations.
+
            The Orocos Real-Time Toolkit v1.10.0.
            ====================================
 
