@@ -60,6 +60,10 @@ TypesTest::tearDown()
 bool TypesTest::assertBool( bool b) {
     return b;
 }
+bool TypesTest::assertEqual( double a, double b) {
+    BOOST_CHECK_EQUAL(a,b);
+    return a == b;
+}
 bool TypesTest::assertMsg( bool b, const std::string& msg) {
     return b;
 }
@@ -70,6 +74,8 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         TaskObject* to = new TaskObject("test");
         to->methods()->addMethod( method("assert", &TypesTest::assertBool, this),
                                   "Assert", "bool", "");
+        to->methods()->addMethod( method("assertEqual", &TypesTest::assertEqual, this),
+                                  "Assert", "a1", "", "a2","");
         to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
                                      "Assert message", "bool", "", "text", "text" );
         to->methods()->addMethod( method("print",&TypesTest::print,this ),
@@ -154,25 +160,25 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         // various array constructors
-        "set ar2 = array(10.,5.)\n"+
-        "do test.assert( ar2.size == 2)\n"+
-        "do test.assert( ar2.capacity == 2)\n"+
+        "set ar2 = array(10.,5.)\n"+ // keeps capacity
+        "do test.assertEqual( ar2.size, 2)\n"+
+        "do test.assertEqual( ar2.capacity, 5)\n"+
         "do test.assert( ar2[0] == 10.0 )\n"+
         "do test.assert( ar2[1] == 5.0 )\n"+
         "set ar3 = array(10.)\n"+
         "do test.assert( ar3.size == 1)\n"+
         // 70:
-        "do test.assert( ar3.capacity == 1)\n"+
+        "do test.assert( ar3.capacity >= 1)\n"+
         "do test.assert( ar3[0] == 10.0 )\n"+
         "set ar4 = array(2, 7.)\n"+
         "do test.assert( ar4.size == 2)\n"+
-        "do test.assert( ar4.capacity == 2)\n"+
+        "do test.assert( ar4.capacity >= 2)\n"+
         "do test.assert( ar4[0] == 7.0 )\n"+
         "do test.assert( ar4[1] == 7.0 )\n"+
         // various array assignments
         "set ar2 = ar4\n"+
         "do test.assert( ar2.size == 2)\n"+
-        "do test.assert( ar2.capacity == 2)\n"+
+        "do test.assert( ar2.capacity >= 5)\n"+
         // 80:
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n"+
@@ -182,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         //"do test.print( ar.size )\n"+
         "do test.assert( ar.size == 7)\n"+
         //"do test.print( ar.capacity )\n"+
-        "do test.assert( ar.capacity == 7)\n"+ // check keeping capacity: ar(10) vs ar2(2)
+        "do test.assertEqual( ar.capacity, 10)\n"+ // check keeping capacity: ar(10) vs ar2(2)
         //-- This fails because .capacity() gets a copy of the std::vector
         // See DataSourceAdaptor.hpp:263 and :676 ('returns/make a copy'
         "do test.assert( ar2[0] == 7.0 )\n"+
