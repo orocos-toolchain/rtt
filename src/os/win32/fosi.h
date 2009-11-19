@@ -65,10 +65,10 @@ extern "C"
 #include <unistd.h>
 #endif
 
-    RTT_API void sleep(long s);
+    RTT_API unsigned int sleep(unsigned int seconds);
 	
 #if __GNUC__ != 4
-    RTT_API void usleep(long us);
+    RTT_API int usleep(unsigned int us);
 #endif
 
     typedef long long NANO_TIME;
