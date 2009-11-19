@@ -36,6 +36,7 @@ public:
     ActivityInterface* tsim;
     TaskObject* createMethodFactory();
     bool assertBool( bool );
+    bool assertEqual( double, double );
     bool assertMsg( bool, const std::string& msg);
     void print(int i) { std::cout<<"print:"<<i<<std::endl;}
     void executePrograms(const std::string& prog);
