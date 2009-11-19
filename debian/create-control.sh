@@ -15,17 +15,19 @@ fi
 echo "Building scripts for targets: $targets"
 
 # Prepare control file:
-rm -f control
+rm -f control control.targets
 
 echo "Creating control ..."
-cat control.common | sed -e"s/@TARGET@/$t/g;s/@TARGET-DEV@/$tdev/g;s/@LIBVER@/$major/g;s/@BUILD_DEPS@/$bdeps/g" > control
 for t in $targets; do 
     # append control-template.in to control file
     if test $t = xenomai; then tdev=", xenomai-dev | libxenomai-dev"; bdeps="$tdev"; fi
     if test $t = lxrt; then tdev=", librtai-dev"; bdeps="$tdev"; fi
-    cat control-template.in | sed -e"s/@TARGET@/$t/g;s/@TARGET-DEV@/$tdev/g;s/@LIBVER@/$major/g" >> control
-    cat control-$t.in >> control
+    cat control-template.in | sed -e"s/@TARGET@/$t/g;s/@TARGET-DEV@/$tdev/g;s/@LIBVER@/$major/g" >> control.targets
+    cat control-$t.in >> control.targets
 done
+# generate final control file = common + targets
+cat control.common | sed -e"s/@LIBVER@/$major/g;s/@BUILD_DEPS@/$bdeps/g" > control
+cat control.targets >> control
 
 # Prepare *.install files:
 for i in $(ls *template*install); do
