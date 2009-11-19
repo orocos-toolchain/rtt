@@ -5,6 +5,9 @@ The Orocos development team is pleased to announce the second bug fix
 release of the Real-Time Toolkit v1.10, a C++ toolkit for building
 component based, real-time robotics and machine control applications.
 
+As an exception, Win32 users are advised to recompile all components if they used
+the win32 fosi layer directly (calls to sleep and usleep).
+
 You can download this release from
   <http://www.orocos.org/stable/rtt/v1.10.2/orocos-rtt-1.10.2-src.tar.bz2>
 and read the installation instructions on
