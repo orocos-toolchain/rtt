@@ -48,7 +48,7 @@ extern "C"
 {
 #endif
 
-unsigned int sleep(unsigned int seconds)
+unsigned int sleep(unsigned int s)
 {
   Sleep(s*1000);
 }
