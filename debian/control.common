@@ -20,7 +20,7 @@ Description: Orocos Real-Time Toolkit (debug symbols)
 Package: liborocos-rtt-common@LIBVER@-dev
 Section: libs
 Architecture: any
-Depends: libboost-dev, libboost-graph-dev
+Depends: libboost-dev | libboost1.35-dev | libboost1.36-dev | libboost1.37-dev, libboost-graph-dev | libboost-graph1.35-dev | libboost-graph1.36-dev | libboost-graph1.37-dev
 Conflicts: liborocos-rtt-dev, liborocos-rtt-common-dev
 Replaces:  liborocos-rtt-common-dev
 Provides:  liborocos-rtt-common-dev
