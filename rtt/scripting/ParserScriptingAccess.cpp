@@ -44,7 +44,6 @@
 #include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
 #include "../Method.hpp"
-#include "../Command.hpp"
 #include "ProgramProcessor.hpp"
 #include "StateMachineProcessor.hpp"
 #include <sstream>

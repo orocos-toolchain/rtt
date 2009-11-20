@@ -42,7 +42,6 @@
 #include "../Attribute.hpp"
 #include "../internal/FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
-#include "CommandDS.hpp"
 #include "../Method.hpp"
 
 namespace RTT
@@ -50,7 +49,7 @@ namespace RTT
 
     using namespace detail;
 
-        void StateMachineTask::createCommandFactory() {
+        void StateMachineTask::createMethodFactory() {
             // Add the state specific methods :
             // Special trick : we store the 'this' pointer in a DataSource, such that when
             // the created commands are copied, they also get the new this pointer.
@@ -61,48 +60,44 @@ namespace RTT
             // may contain commands upon which the state machine is
             // not strictly active (entry executed and no transition
             // in progress) when activate() returns, hence activate()
-            // takes time and is thus a command. This is however in
+            // takes time and is thus a method. This is however in
             // violation with the concept of 'initialisation of the
             // SM' which may contain non-rt safe code. When activate() is
             // called directly upon the SM in C++, it _is_ a method, but
             // with the same deficiencies.
-            commands()->addCommandDS(ptr, command_ds("activate",
-                                               &StateMachine::activate, &StateMachine::isStrictlyActive, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("activate",
+                                               &StateMachine::activate),
                                     "Activate this StateMachine to initial state and enter request Mode.");
-            commands()->addCommandDS(ptr, command_ds("deactivate",
-                                               &StateMachine::deactivate, &StateMachine::isActive, mengine->commands(),true),
+            methods()->addMethodDS(ptr, method_ds("deactivate",
+                                               &StateMachine::deactivate),
                                     "Deactivate this StateMachine");
-            commands()->addCommandDS(ptr, command_ds("start",
-                                               &StateMachine::automatic, &StateMachine::isAutomatic, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("start",
+                                               &StateMachine::automatic),
                                     "Start this StateMachine, enter automatic Mode.");
-            commands()->addCommandDS(ptr, command_ds("automatic",
-                                               &StateMachine::automatic, &StateMachine::isAutomatic, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("automatic",
+                                               &StateMachine::automatic),
                                     "Start this StateMachine, enter automatic Mode.");
-            commands()->addCommandDS(ptr, command_ds("pause",
-                      &StateMachine::pause, &StateMachine::isPaused, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("pause",
+                      &StateMachine::pause),
                                  "Pause this StateMachine, enter paused Mode.");
-            commands()->addCommandDS(ptr, command_ds("step",
-                      &StateMachine::step, &StateMachine::stepDone, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("step",
+                      &StateMachine::step),
                                  "Step this StateMachine. When paused, step a single instruction or transition evaluation. \n"
                                  "When in reactive mode, evaluate transitions and go to a next state, or if none, run handle.");
-            commands()->addCommandDS(ptr, command_ds("reset",
-                      &StateMachine::reset, &StateMachine::inInitialState, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("reset",
+                      &StateMachine::reset),
                                  "Reset this StateMachine to the initial state");
-            commands()->addCommandDS(ptr, command_ds("stop",
-                      &StateMachine::stop, &StateMachine::inFinalState, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("stop",
+                      &StateMachine::stop),
                                  "Stop this StateMachine to the final state and enter request Mode.");
-            commands()->addCommandDS(ptr, command_ds("reactive",
-                      &StateMachine::reactive, &StateMachine::isStrictlyActive, mengine->commands()),
-                                 "Enter reactive mode (see requestState() and step() ).\n Command is done if ready for requestState() or step() command.");
-            commands()->addCommandDS(ptr, command_ds("requestState",
-                      &StateMachine::requestState, &StateMachine::inStrictState, mengine->commands()),
+            methods()->addMethodDS(ptr, method_ds("reactive",
+                      &StateMachine::reactive),
+                                 "Enter reactive mode (see requestState() and step() ).\n Method is done if ready for requestState() or step() method.");
+            methods()->addMethodDS(ptr, method_ds("requestState",
+                      &StateMachine::requestState),
                                  "Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.",
                                  "State", "The state to make the transition to.");
-        }
 
-    void StateMachineTask::createMethodFactory()
-    {
-            DataSource<StateMachineWPtr>* ptr =  _this.get();
             methods()->addMethodDS(ptr, method_ds("inState", &StateMachine::inState), "Is the StateMachine in a given state ?", "State", "State Name");
             methods()->addMethodDS(ptr, method_ds("inError", &StateMachine::inError), "Is this StateMachine in error ?");
             methods()->addMethodDS(ptr, method_ds("getState", &StateMachine::getCurrentStateName), "The name of the current state. An empty string if not active.");
@@ -117,9 +112,9 @@ namespace RTT
 
         StateMachineTask* StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
         {
-            // if this gets copied, all created commands will use the new instance of StateMachineTask to
-            // call the member functions. Further more, all future commands for the copy will also call the new instance
-            // while future commands for the original will still call the original.
+            // if this gets copied, all created methods will use the new instance of StateMachineTask to
+            // call the member functions. Further more, all future methods for the copy will also call the new instance
+            // while future methods for the original will still call the original.
             StateMachineTask* tmp = new StateMachineTask( newsc, this->mengine );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
@@ -136,7 +131,6 @@ namespace RTT
               statemachine(statem),
               mengine(ee)
         {
-            this->createCommandFactory();
             this->createMethodFactory();
             this->setEngine( ee );
         }

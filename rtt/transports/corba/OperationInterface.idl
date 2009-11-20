@@ -13,7 +13,6 @@ module RTT
   module corba
   {
     typedef sequence<string> CMethodList;
-    typedef sequence<string> CCommandList;
     typedef sequence<CExpression> CArguments;
 
     /**
@@ -81,52 +80,6 @@ module RTT
 									      CWrongTypeArgException);
     };
 
-    /**
-     * A CCommand interface delivers objects which contain asynchronous commands.
-     * @ingroup CompIDL
-     */
-    interface CCommandInterface
-    {
-      /**
-       * Get a list of all commands.
-       */
-      CCommandList getCommands();
-
-      /**
-       * Get a list of all arguments of a given command.
-       */
-      CDescriptions getArguments(in string command) raises (CNoSuchNameException);
-
-      /**
-       * Get a result type of a given command.
-       */
-      string getResultType(in string command) raises (CNoSuchNameException);
-
-      /**
-       * Get a description of a given command.
-       */
-      string getDescription(in string command) raises (CNoSuchNameException);
-
-      /**
-       * Create a command and fill in the arguments later.
-       */
-      //CCommand createCommand(in string command) raises (CNoSuchNameException);
-
-      /**
-       * Create a command of an object.
-       */
-      CCommand createCommand(in string command, in CArguments args) raises ( CNoSuchNameException,
-									   CWrongNumbArgException,
-									   CWrongTypeArgException);
-
-      /**
-       * Create a command of an object with any arguments.
-       */
-      CCommand createCommandAny(in string command, in CAnyArguments args) raises ( CNoSuchNameException,
-										 CWrongNumbArgException,
-										 CWrongTypeArgException);
-
-    };
   };
 };
 #endif

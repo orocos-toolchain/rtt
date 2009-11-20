@@ -296,17 +296,3 @@ CORBA::Long Orocos_CScriptingAccess_i::execute (
     return mee->execute( code );
 }
 
-::RTT::corba::CCommand_ptr Orocos_CScriptingAccess_i::getCommand (
-      CORBA::Long ticket
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ))
-{
-    base::DispatchInterface::shared_ptr ret = mee->getCommand(ticket);
-    if ( !ret )
-        return corba::CCommand::_nil();
-    Orocos_CCommand_i* com = new Orocos_CCommand_i( ret, mpoa.in() );
-    return com->activate_this();
-
-}

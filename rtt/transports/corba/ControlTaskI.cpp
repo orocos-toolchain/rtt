@@ -102,11 +102,6 @@ Orocos_CControlObject_i::~Orocos_CControlObject_i (void)
         PortableServer::ObjectId_var oid = mpoa->servant_to_id(mMFact_i.in());
         mpoa->deactivate_object(oid.in());
     }
-    if (!CORBA::is_nil(mCFact))
-    {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mCFact_i.in());
-        mpoa->deactivate_object(oid.in());
-    }
 
     // FIXME free up cache ? This is done by refcountservantbase ?
     for( CTObjMap::iterator it = ctobjmap.begin(); it != ctobjmap.end(); ++it) {
@@ -180,26 +175,6 @@ PortableServer::POA_ptr Orocos_CControlObject_i::_default_POA()
         }
     }
     return CMethodInterface::_duplicate( mMFact.in() );
-}
-
-::RTT::corba::CCommandInterface_ptr Orocos_CControlObject_i::commands (
-
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    if ( CORBA::is_nil( mCFact ) ) {
-        log(Debug) << "Creating CCommandInterface."<<endlog();
-        Orocos_CCommandInterface_i* mserv;
-        mCFact_i = mserv = new Orocos_CCommandInterface_i( mobj->commands(), mpoa );
-        try {
-            mCFact = mserv->_this();
-        } catch( ... ) {
-            log(Error) << "Failed to create CCommandInterface." <<endlog();
-        }
-    }
-    return ::RTT::corba::CCommandInterface::_duplicate( mCFact.in() );
 }
 
 ::RTT::corba::CControlObject_ptr Orocos_CControlObject_i::getObject (

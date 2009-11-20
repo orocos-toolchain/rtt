@@ -52,13 +52,14 @@
 #include <Property.hpp>
 #include "../Attribute.hpp"
 #include "parse_exception.hpp"
+#include "DataSourceCommand.hpp"
 
 namespace RTT {
     using namespace detail;
 
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
-            : detail::OperationFactoryPart<DispatchInterface*>("A function."), func(pi), proc(procs) {}
+            : detail::OperationFactoryPart<DataSourceBase*>("A function."), func(pi), proc(procs) {}
 
         std::string FunctionFactory::resultType() const {
             return std::string("bool");
@@ -79,7 +80,7 @@ namespace RTT {
             return func->getArguments().size();
         }
 
-        DispatchInterface* FunctionFactory::produce(
+        DataSourceBase* FunctionFactory::produce(
                       const std::vector<DataSourceBase::shared_ptr>& args
                       ) const {
 
@@ -128,8 +129,8 @@ namespace RTT {
             //fcopy->clearArguments();
 
             // the command gets ownership of the new function :
-            // this command is a DispatchInterface...
-            return new CommandExecFunction( icom, fcopy, proc->programs() );
+            // this command is a DataSourceBase...
+            return new DataSourceCommand( new CommandExecFunction( icom, fcopy, proc->programs() ));
         }
 }
 

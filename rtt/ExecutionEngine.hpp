@@ -47,9 +47,6 @@
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "internal/EventProcessor.hpp"
 #endif
-#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-#include "internal/CommandProcessor.hpp"
-#endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
 #include "scripting/ProgramProcessor.hpp"
 #endif
@@ -98,7 +95,6 @@ namespace RTT
          * We store the Processors as base::RunnableInterface pointers,
          * and dynamic_cast them back to the correct type.
          */
-        base::RunnableInterface* cproc;
         base::RunnableInterface* pproc;
         base::RunnableInterface* smproc;
         base::RunnableInterface* eproc;
@@ -183,11 +179,6 @@ namespace RTT
         base::TaskCore* getTaskCore() const { return taskc; }
 
         /**
-         * Return the internal::CommandProcessor of this engine.
-         */
-        internal::CommandProcessor* commands() const;
-
-        /**
          * Return the scripting::ProgramProcessor of this engine.
          */
         scripting::ProgramProcessor* programs() const;
@@ -201,12 +192,6 @@ namespace RTT
          * Return the internal::EventProcessor of this engine.
          */
         internal::EventProcessor* events() const;
-
-        /**
-         * Install a new CommandProcessor.
-         * @param c becomes owned by this object and is returned in commands().
-         */
-        virtual void setCommandProcessor(internal::CommandProcessor* c);
 
         /**
          * Install a new ProgramProcessor.

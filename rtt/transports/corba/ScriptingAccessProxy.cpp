@@ -40,7 +40,6 @@
 #include "ScriptingAccessProxy.hpp"
 #include "ScriptingAccessC.h"
 #include "../../scripting/ProgramExceptions.hpp"
-#include "CommandProxy.hpp"
 
 namespace RTT
 {namespace corba
@@ -56,13 +55,6 @@ namespace RTT
 
     int ScriptingAccessProxy::execute( const string& code ) {
         return msa->execute( code.c_str() );
-    }
-
-    DispatchInterface::shared_ptr ScriptingAccessProxy::getCommand( int ticket ) {
-        CCommand_var result = msa->getCommand(ticket);
-        if ( CORBA::is_nil(result) )
-            return DispatchInterface::shared_ptr();
-        return DispatchInterface::shared_ptr( CommandProxy::Create( result.in() ) );
     }
 
     bool ScriptingAccessProxy::loadPrograms( string code, string filename, bool do_throw ) {

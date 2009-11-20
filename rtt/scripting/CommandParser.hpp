@@ -72,7 +72,6 @@ namespace RTT
       // dispatch the command per definition or let it be context dependent.
       bool mas_action;
 
-    base::DispatchInterface* dcom;
     base::ActionInterface* retcommand;
     base::ConditionInterface* implicittermcondition;
     base::ConditionInterface* dispatchCond;

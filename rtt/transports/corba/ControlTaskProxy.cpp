@@ -56,7 +56,6 @@
 #include "ControlTaskServer.hpp"
 #include "ControlTaskC.h"
 #include "CorbaMethodFactory.hpp"
-#include "CorbaCommandFactory.hpp"
 #include "CORBAExpression.hpp"
 #include "ScriptingAccessProxy.hpp"
 #include "../../internal/TaskObject.hpp"
@@ -241,18 +240,6 @@ namespace RTT
                 this->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
             }
         }
-        // commands:
-        log(Debug) << "Fetching Commands."<<endlog();
-        CCommandInterface_var cfact = mtask->commands();
-        if (cfact) {
-            CCommandList_var objs;
-            objs = cfact->getCommands();
-            for ( size_t i=0; i < objs->length(); ++i) {
-                if (this->commands()->hasMember( string(objs[i].in() )))
-                    continue; // already added.
-                this->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
-            }
-        }
 
         // first do properties:
       log(Debug) << "Fetching Properties."<<endlog();
@@ -434,18 +421,6 @@ namespace RTT
                     if (tobj->methods()->hasMember( string(objs[i].in() )))
                         continue; // already added.
                     tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
-                }
-            }
-            // commands:
-            log(Debug) << plist[i] << ": fetching Commands."<<endlog();
-            CCommandInterface_var cfact = cobj->commands();
-            if (cfact) {
-                CCommandList_var objs;
-                objs = cfact->getCommands();
-                for ( size_t i=0; i < objs->length(); ++i) {
-                    if (tobj->commands()->hasMember( string(objs[i].in() )))
-                        continue; // already added.
-                    tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
                 }
             }
             // Add if not yet present.

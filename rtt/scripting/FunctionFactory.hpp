@@ -42,7 +42,6 @@
 #include "../internal/OperationFactory.hpp"
 #include "../Property.hpp"
 #include "../base/ProgramInterface.hpp"
-#include "../base/DispatchInterface.hpp"
 
 #include <map>
 #include <string>
@@ -58,7 +57,7 @@ namespace RTT
      * a FunctionGraph in a Processor.
      */
     class FunctionFactory
-        : public internal::OperationFactoryPart<base::DispatchInterface*>
+        : public internal::OperationFactoryPart<base::DataSourceBase*>
     {
         base::ProgramInterfacePtr func;
         ExecutionEngine* proc;
@@ -71,7 +70,7 @@ namespace RTT
 
         int arity() const;
 
-        base::DispatchInterface* produce(const std::vector<base::DataSourceBase::shared_ptr>& args
+        base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args
                                    ) const;
     };
 }}

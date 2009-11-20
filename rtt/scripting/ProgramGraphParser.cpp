@@ -317,7 +317,7 @@ namespace RTT
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->commands()->hasMember( funcdef ))
+      if ( exportf && rootc->methods()->hasMember( funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
@@ -347,7 +347,7 @@ namespace RTT
       if (exportf) {
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
-          rootc->commands()->add(mfunc->getName(), cfi );
+          rootc->methods()->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 

@@ -43,8 +43,6 @@
 #include "ConditionTrue.hpp"
 #include "ConditionOnce.hpp"
 
-#include "AsynchCommandDecorator.hpp"
-
 #include "../TaskContext.hpp"
 #include "ArgumentsParser.hpp"
 #include "ConditionComposite.hpp"
@@ -62,7 +60,7 @@ namespace RTT
     }
   CommandParser::CommandParser( TaskContext* c, bool as_action)
       : mas_action( as_action ),
-        dcom(0), retcommand( 0 ),
+        retcommand( 0 ),
         implicittermcondition( 0 ), peer(0), context( c ),
         argsparser( 0 ), expressionparser( c ), peerparser( c, true )
   {
@@ -110,7 +108,7 @@ namespace RTT
       if ( obj == 0 )
           throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
       else {
-          if ( obj->methods()->hasMember(mcurmethod) == false && obj->commands()->hasMember(mcurmethod) == false && obj->events()->hasMember(mcurmethod) == false) {
+          if ( obj->methods()->hasMember(mcurmethod) == false && obj->events()->hasMember(mcurmethod) == false) {
               if ( mcurobject == "this" )
                   mcurobject = peer->getName();
               throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
@@ -132,46 +130,16 @@ namespace RTT
     mcurmethod = argsparser->methodname();
 
     OperationInterface* obj = argsparser->object();
-    CommandRepository::Factory* cfi = obj->commands();
     MethodRepository::Factory* mfi = obj->methods();
     EventService::Factory* efi = obj->events();
 
     assert(mfi);
-    assert(cfi);
     assert(efi);
 
     typedef std::pair<ActionInterface*,ConditionInterface*> ComCon;
     ComCon comcon;
 
-    if ( cfi->hasMember( mcurmethod ) )
-        try
-            {
-                dcom = cfi->produce( mcurmethod, argsparser->result() );
-                // check if wrapping is required:
-                if ( mas_action ) {
-                    // wrap it.
-                    comcon.first = new DispatchAction(dcom);
-                } else {
-                    // plain dispatch
-                    comcon.first = dcom;
-                }
-                comcon.second = dcom->createCondition();
-            }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    (mcurobject, mcurmethod, e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
-            }
-        catch( ... )
-            {
-                assert( false );
-            }
-    else if ( mfi->hasMember( mcurmethod ) )
+    if ( mfi->hasMember( mcurmethod ) )
         try
             {
                 // if the method returns a boolean, construct it as a command
@@ -257,7 +225,6 @@ namespace RTT
     void CommandParser::reset()
       {
         peer = 0;
-        dcom = 0;
         retcommand = 0;
         implicittermcondition = 0;
         mcurobject.clear();

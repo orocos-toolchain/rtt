@@ -104,7 +104,6 @@ private:
 
     RTT::corba::CAttributeInterface_var mAttrs;
     RTT::corba::CMethodInterface_var    mMFact;
-    RTT::corba::CCommandInterface_var   mCFact;
 
     PortableServer::ServantBase_var mAttrs_i;
     PortableServer::ServantBase_var mMFact_i;
@@ -154,14 +153,6 @@ public:
 
   virtual
   ::RTT::corba::CMethodInterface_ptr methods (
-
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-
-  virtual
-  ::RTT::corba::CCommandInterface_ptr commands (
 
     )
     ACE_THROW_SPEC ((

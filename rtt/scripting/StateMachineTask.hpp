@@ -61,9 +61,6 @@ namespace RTT
         ParsedStateMachineWPtr statemachine;
         ExecutionEngine* mengine;
 
-        bool true_gen() const;
-
-        void createCommandFactory();
         void createMethodFactory();
 
     public:

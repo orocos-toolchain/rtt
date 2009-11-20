@@ -108,7 +108,6 @@ namespace RTT {
     bool OperationInterface::removeObject(const std::string& obj_name ) {
         if (obj_name == "this") {
             this->methods()->clear();
-            this->commands()->clear();
             this->events()->clear();
             this->attributes()->clear();
             return true;

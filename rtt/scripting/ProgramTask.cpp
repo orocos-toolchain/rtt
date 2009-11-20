@@ -39,7 +39,6 @@
 
 #include "ProgramTask.hpp"
 
-#include "CommandDS.hpp"
 #include "../Method.hpp"
 #include "../internal/FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
@@ -58,18 +57,18 @@ namespace RTT
         this->setEngine( ee );
 
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
-        // Commands :
-        commands()->addCommandDS( ptr,
-                                  command_ds("start",&ProgramInterface::start, &ProgramInterface::isRunning,ee->commands()),
+        // Methods :
+        methods()->addMethodDS( ptr,
+                                  method_ds("start",&ProgramInterface::start),
                                   "Start or continue this program.");
-        commands()->addCommandDS( ptr,
-                                  command_ds("pause",&ProgramInterface::pause, &ProgramInterface::isPaused,ee->commands()),
+        methods()->addMethodDS( ptr,
+                                  method_ds("pause",&ProgramInterface::pause),
                                   "Pause this program.");
-        commands()->addCommandDS( ptr,
-                                  command_ds("step", &ProgramInterface::step, &ProgramInterface::stepDone,ee->commands()),
+        methods()->addMethodDS( ptr,
+                                  method_ds("step", &ProgramInterface::step),
                                   "Step a paused program.");
-        commands()->addCommandDS( ptr,
-                                  command_ds("stop", &ProgramInterface::stop, &ProgramInterface::isStopped,ee->commands()),
+        methods()->addMethodDS( ptr,
+                                  method_ds("stop", &ProgramInterface::stop),
                                   "Stop and reset this program.");
 
         // DataSources:
@@ -79,7 +78,7 @@ namespace RTT
                                 "Is this program being executed and not paused ?");
         methods()->addMethodDS( ptr,
                                 method_ds("inError", &ProgramInterface::inError),
-                                "Has this program executed an erroneous command ?");
+                                "Has this program executed an erroneous method ?");
         methods()->addMethodDS( ptr,
                                 method_ds("isPaused", &ProgramInterface::isPaused),
                                 "Is this program running but paused ?");

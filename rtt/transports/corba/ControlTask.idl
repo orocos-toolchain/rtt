@@ -48,11 +48,6 @@ module RTT
       CMethodInterface methods();
 
       /**
-       * Asynchronous CCommand Interface.
-       */
-      CCommandInterface commands();
-
-      /**
        * Get a list of all the child objects this object is connected to.
        */
       CObjectList getObjectList( );

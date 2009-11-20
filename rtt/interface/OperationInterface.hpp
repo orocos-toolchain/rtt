@@ -42,7 +42,6 @@
 #include <string>
 #include <vector>
 #include "../rtt-config.h"
-#include "CommandRepository.hpp"
 #include "MethodRepository.hpp"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "EventService.hpp"
@@ -60,8 +59,6 @@ namespace RTT
     class RTT_API OperationInterface
     {
     protected:
-        CommandRepository mcommands;
-
         MethodRepository mmethods;
 
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
@@ -81,13 +78,6 @@ namespace RTT
          * A list of all child objects of this interface.
          */
         typedef std::vector< std::string > ObjectList;
-
-        /**
-         * Returns the commands of this interface.
-         */
-        CommandRepository* commands() { return &mcommands; }
-
-        const CommandRepository* commands() const { return &mcommands; }
 
         /**
          * Returns the methods of this interface.

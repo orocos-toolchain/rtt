@@ -42,7 +42,6 @@
 #include "../TaskContext.hpp"
 #include "../internal/TaskObject.hpp"
 #include "../Method.hpp"
-#include "../Command.hpp"
 #include "../internal/TaskObject.hpp"
 
 namespace RTT {
@@ -88,47 +87,36 @@ Use this object in order to address programs or state machines which may or may 
                                          "Get the current state name of a state machine.",
                                          "Name", "The Name of the Loaded StateMachine");
 
-        // Commands for programs
-        obj->commands()->addCommand( command( "startProgram", &ExecutionAccess::startProgram ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        // Methods for programs
+        obj->methods()->addMethod( method( "startProgram", &ExecutionAccess::startProgram, this),
                     "Start a program", "Name", "The Name of the Loaded Program"  );
-        obj->commands()->addCommand( command( "stopProgram", &ExecutionAccess::stopProgram ,
-                                                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "stopProgram", &ExecutionAccess::stopProgram ,this),
                                            "Stop a program", "Name", "The Name of the Started Program" );
 
-        obj->commands()->addCommand( command( "stepProgram", &ExecutionAccess::stepProgram ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "stepProgram", &ExecutionAccess::stepProgram ,this),
                     "Step a single program instruction", "Name", "The Name of the Paused Program"  );
-        obj->commands()->addCommand( command( "pauseProgram", &ExecutionAccess::pauseProgram ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "pauseProgram", &ExecutionAccess::pauseProgram ,this),
                     "Pause a program", "Name", "The Name of the Started Program"  );
 
-        // Commands for state machines
+        // Methods for state machines
         // Activate/deactivate:
-        obj->commands()->addCommand( command( "activateStateMachine", &ExecutionAccess::activateStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "activateStateMachine", &ExecutionAccess::activateStateMachine ,this),
                     "Activate a StateMachine", "Name", "The Name of the Loaded StateMachine"  );
-        obj->commands()->addCommand( command( "deactivateStateMachine", &ExecutionAccess::deactivateStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "deactivateStateMachine", &ExecutionAccess::deactivateStateMachine ,this),
                     "Deactivate a StateMachine", "Name", "The Name of the Stopped StateMachine"  );
 
         // start/stop/pause:
-        obj->commands()->addCommand( command( "startStateMachine", &ExecutionAccess::startStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "startStateMachine", &ExecutionAccess::startStateMachine ,this),
                     "Start a StateMachine", "Name", "The Name of the Activated/Paused StateMachine"  );
-        obj->commands()->addCommand( command( "pauseStateMachine", &ExecutionAccess::pauseStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "pauseStateMachine", &ExecutionAccess::pauseStateMachine ,this),
                     "Pause a StateMachine", "Name", "The Name of a Started StateMachine"  );
-        obj->commands()->addCommand( command( "stopStateMachine", &ExecutionAccess::stopStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "stopStateMachine", &ExecutionAccess::stopStateMachine ,this),
                     "Stop a StateMachine", "Name", "The Name of the Started/Paused StateMachine"  );
-        obj->commands()->addCommand( command( "resetStateMachine", &ExecutionAccess::resetStateMachine ,
-                    &ExecutionAccess::true_gen , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "resetStateMachine", &ExecutionAccess::resetStateMachine ,this),
                     "Reset a StateMachine", "Name", "The Name of the Stopped StateMachine" );
 
         // request states
-        obj->commands()->addCommand( command( "requestStateMachineState", &ExecutionAccess::requestStateMachineState ,
-                                                    &ExecutionAccess::inStateMachineState , this, tc->engine()->commands()),
+        obj->methods()->addMethod( method( "requestStateMachineState", &ExecutionAccess::requestStateMachineState ,this),
                                            "Request a State change",
                                            "Name", "The Name of the StateMachine",
                                            "StateName", "The Name of the State to change to" );
