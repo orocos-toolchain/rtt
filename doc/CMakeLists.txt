@@ -44,7 +44,7 @@ IF (BUILD_DOCS)
   CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/xml/orocos.ent.in ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos.ent IMMEDIATE @ONLY)
 
   ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos-html.css
-	 COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/orocos-html.css ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos-html.css
+	 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/orocos-html.css ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos-html.css
 	 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/orocos-html.css
 	 )
 
