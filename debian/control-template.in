@@ -1,7 +1,7 @@
 Package: liborocos-rtt-corba-@TARGET@@LIBVER@-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-corba-@TARGET@@LIBVER@ (= ${Source-Version}), liborocos-rtt-corba-common@LIBVER@-dev
+Depends: liborocos-rtt-corba-@TARGET@@LIBVER@ (= ${Source-Version}), liborocos-rtt-corba-common@LIBVER@-dev, liborocos-rtt-@TARGET@@LIBVER@-dev
 Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-@TARGET@-dev
 Replaces:  liborocos-rtt-corba-@TARGET@-dev
 Provides: liborocos-rtt-corba-@TARGET@-dev
