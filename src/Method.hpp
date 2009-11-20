@@ -41,10 +41,10 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "UnMember.hpp"
-#include "MethodBase.hpp"
-#include "LocalMethod.hpp"
-#include "ActionInterface.hpp"
+#include "internal/UnMember.hpp"
+#include "base/MethodBase.hpp"
+#include "internal/LocalMethod.hpp"
+#include "base/ActionInterface.hpp"
 #include "Logger.hpp"
 
 namespace RTT
@@ -69,19 +69,19 @@ namespace RTT
      */
     template<class FunctionT>
     class Method
-        : public detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
+        : public internal::InvokerSignature<boost::function_traits<FunctionT>::arity,
                                           FunctionT,
-                                          boost::shared_ptr< detail::MethodBase<FunctionT> > >
+                                          boost::shared_ptr< base::MethodBase<FunctionT> > >
     {
         std::string mname;
-        typedef detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
+        typedef internal::InvokerSignature<boost::function_traits<FunctionT>::arity,
                                          FunctionT,
-                                         boost::shared_ptr< detail::MethodBase<FunctionT> > > Base;
+                                         boost::shared_ptr< base::MethodBase<FunctionT> > > Base;
     public:
         typedef FunctionT Signature;
         typedef typename boost::function_traits<Signature>::result_type result_type;
         typedef boost::function_traits<Signature> traits;
-        typedef boost::shared_ptr< detail::MethodBase<FunctionT> > MethodBasePtr;
+        typedef boost::shared_ptr< base::MethodBase<FunctionT> > MethodBasePtr;
 
         /**
          * Create an empty Method object.
@@ -133,8 +133,8 @@ namespace RTT
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
          */
-        Method(boost::shared_ptr<ActionInterface> implementation)
-            : Base( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) ),
+        Method(boost::shared_ptr<base::ActionInterface> implementation)
+            : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) ),
               mname()
         {
             if ( !this->impl && implementation ) {
@@ -150,11 +150,11 @@ namespace RTT
          *
          * @return *this
          */
-        Method& operator=(boost::shared_ptr<ActionInterface> implementation)
+        Method& operator=(boost::shared_ptr<base::ActionInterface> implementation)
         {
             if (this->impl && this->impl == implementation)
                 return *this;
-            this->impl = boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation);
+            this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
             }
@@ -171,7 +171,7 @@ namespace RTT
          */
         template<class M, class ObjectType>
         Method(std::string name, M meth, ObjectType object)
-            : Base( MethodBasePtr(new detail::LocalMethod<Signature>(meth, object) ) ),
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object) ) ),
               mname(name)
         {}
 
@@ -183,7 +183,7 @@ namespace RTT
          */
         template<class M>
         Method(std::string name, M meth)
-            : Base( MethodBasePtr(new detail::LocalMethod<Signature>(meth) ) ),
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth) ) ),
               mname(name)
         {}
 
@@ -232,8 +232,8 @@ namespace RTT
      * @param object A pointer to the object which has the above member function.
      */
     template<class F, class O>
-    Method< typename detail::UnMember<F>::type > method(std::string name, F method, O object) {
-        return Method<  typename detail::UnMember<F>::type >(name, method, object);
+    Method< typename internal::UnMember<F>::type > method(std::string name, F method, O object) {
+        return Method<  typename internal::UnMember<F>::type >(name, method, object);
     }
 
     /**
@@ -253,8 +253,8 @@ namespace RTT
      * @param method A pointer to a function to be executed.
      */
     template<class F>
-    Method< typename detail::ArgMember<F>::type > method_ds(std::string name, F method) {
-        return Method<  typename detail::ArgMember<F>::type >(name, method);
+    Method< typename internal::ArgMember<F>::type > method_ds(std::string name, F method) {
+        return Method<  typename internal::ArgMember<F>::type >(name, method);
     }
 }
 

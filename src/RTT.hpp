@@ -44,8 +44,7 @@
  */
 
 /**
- * @brief State Machines, Activities, XML Properties, Scripting,...
- *
+ * @brief Contains TaskContext, Activity, Method, Command, Property, Event etc.
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
  * The Orocos Real-Time Toolkit Online Manual</a>
@@ -53,28 +52,19 @@
 namespace RTT {}
 
 #ifdef OROPKG_CORELIB
-#include "CoreLib.hpp"
+#include "internal/CoreLib.hpp"
 #endif
 #ifdef OROPKG_EXECUTION
-#include "Execution.hpp"
+#include "extras/Execution.hpp"
 #endif
 #ifdef OROPKG_OS
 #include "os/OS.hpp"
 #endif
 #ifdef OROPKG_DEVICE_INTERFACE
-#include "dev/DeviceInterface.hpp"
+#include "extras/dev/DeviceInterface.hpp"
 #endif
 
-namespace RTT {
-    /**
-     * Implementation specific classes, not intended for
-     * users.
-     */
-    namespace detail {}
-
-    namespace OS {}
-    namespace Corba {}
-}
+#include "rtt-fwd.hpp"
 
 namespace BFL {
 }

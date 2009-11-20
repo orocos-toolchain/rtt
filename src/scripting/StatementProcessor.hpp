@@ -40,12 +40,12 @@
 #define ORO_EXECUTION_STATEMENT_PROCESSOR_HPP
 
 #include <string>
-#include "../DispatchInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 #include "../rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
-{
-    class TaskContext;
+{ namespace scripting {
 
     /**
      * This class parses and executes a single scripting
@@ -76,11 +76,11 @@ namespace RTT
         /**
          * Return the command with the ticket number \a cnr.
          */
-        DispatchInterface::shared_ptr getCommand( int cnr );
+        base::DispatchInterface::shared_ptr getCommand( int cnr );
     };
 
 
-}
+}}
 
 
 #endif

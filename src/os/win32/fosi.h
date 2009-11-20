@@ -33,10 +33,10 @@ extern "C"
 #endif
 
 #define _XOPEN_SOURCE 600   // use all Posix features.
+#include <windows.h>
 
 #ifdef _MSC_VER
 #include <cstdio>
-#include <windows.h>
 #include <cstdlib>
 #include <cerrno>
 #include <cstring>
@@ -65,8 +65,11 @@ extern "C"
 #include <unistd.h>
 #endif
 
-    RTT_API void sleep(long s);
-    RTT_API void usleep(long us);
+    RTT_API unsigned int sleep(unsigned int seconds);
+	
+#if __GNUC__ != 4
+    RTT_API int usleep(unsigned int us);
+#endif
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
@@ -91,7 +94,6 @@ extern "C"
 #define ORO_SCHED_RT    0 /** Linux FIFO scheduler */
 #define ORO_SCHED_OTHER 1 /** Linux normal scheduler */
 
-#ifdef _MSC_VER
     //conflicts with another struct under MSVC
     struct oro_timespec {
         long tv_sec;
@@ -99,9 +101,6 @@ extern "C"
     };
 
     typedef struct oro_timespec TIME_SPEC;
-#else // MINGW32
-    typedef struct timespec TIME_SPEC;
-#endif
 
 	// high-resolution time to timespec
 	// hrt is in ticks

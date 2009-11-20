@@ -40,7 +40,7 @@
 #define INTERNAL_QUAL
 
 namespace RTT
-{ namespace OS { namespace detail {
+{ namespace os {
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
@@ -162,16 +162,17 @@ namespace RTT
 	    // CALCULATE in nsecs
 	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
+        // next wake-up time :
+        task->periodMark += task->period;
+
 	    if ( timeRemaining > 0 ) {
-		//rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-		TIME_SPEC ts( ticks2timespec( timeRemaining ) );
-		rtos_nanosleep( &ts , NULL );
+	        //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
+	        TIME_SPEC ts( ticks2timespec( timeRemaining ) );
+	        rtos_nanosleep( &ts , NULL );
+	        return 0;
 	    }
 
-	    // next wake-up time :
-	    task->periodMark += task->period;
-
-	    return 0;
+	    return -1;
 	}
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask)
@@ -197,7 +198,7 @@ namespace RTT
             // check scheduler first.
             ret = rtos_task_check_scheduler(scheduler);
 
-            if (*priority <= 0){
+            if (*priority < 0){
                 log(Warning) << "Forcing priority ("<<*priority<<") of thread to 0." <<endlog();
                 *priority = 0;
                 ret = -1;
@@ -245,5 +246,5 @@ namespace RTT
 	}
 
     }
-}}
+}
 #undef INTERNAL_QUAL

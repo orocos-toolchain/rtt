@@ -40,11 +40,12 @@
 #ifndef PROPERTY_DEMARSHALLER
 #define PROPERTY_DEMARSHALLER
 
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 #include <string>
 
 namespace RTT
-{
+{ namespace marsh {
+
     /**
      * @brief The default Orocos demarshaller for extracting properties and property bags
      * from a property file.
@@ -60,5 +61,5 @@ namespace RTT
         ~PropertyDemarshaller();
         virtual bool deserialize( PropertyBag &v );
     };
-}
+}}
 #endif

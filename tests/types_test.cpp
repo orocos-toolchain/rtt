@@ -21,14 +21,16 @@
 #include "types_test.hpp"
 
 #include <iostream>
-#include <FunctionGraph.hpp>
+#include <scripting/FunctionGraph.hpp>
 #include <Method.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 #include <TaskContext.hpp>
-#include <ProgramProcessor.hpp>
-#include <StateMachineProcessor.hpp>
-#include <TaskObject.hpp>
+#include <scripting/ProgramProcessor.hpp>
+#include <scripting/StateMachineProcessor.hpp>
+#include <internal/TaskObject.hpp>
+#include <types/GlobalsRepository.hpp>
 
 using namespace std;
 
@@ -58,6 +60,10 @@ TypesTest::tearDown()
 bool TypesTest::assertBool( bool b) {
     return b;
 }
+bool TypesTest::assertEqual( double a, double b) {
+    BOOST_CHECK_EQUAL(a,b);
+    return a == b;
+}
 bool TypesTest::assertMsg( bool b, const std::string& msg) {
     return b;
 }
@@ -68,6 +74,8 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         TaskObject* to = new TaskObject("test");
         to->methods()->addMethod( method("assert", &TypesTest::assertBool, this),
                                   "Assert", "bool", "");
+        to->methods()->addMethod( method("assertEqual", &TypesTest::assertEqual, this),
+                                  "Assert", "a1", "", "a2","");
         to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
                                      "Assert message", "bool", "", "text", "text" );
         to->methods()->addMethod( method("print",&TypesTest::print,this ),
@@ -152,25 +160,25 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         // various array constructors
-        "set ar2 = array(10.,5.)\n"+
-        "do test.assert( ar2.size == 2)\n"+
-        "do test.assert( ar2.capacity == 2)\n"+
+        "set ar2 = array(10.,5.)\n"+ // keeps capacity
+        "do test.assertEqual( ar2.size, 2)\n"+
+        "do test.assertEqual( ar2.capacity, 5)\n"+
         "do test.assert( ar2[0] == 10.0 )\n"+
         "do test.assert( ar2[1] == 5.0 )\n"+
         "set ar3 = array(10.)\n"+
         "do test.assert( ar3.size == 1)\n"+
         // 70:
-        "do test.assert( ar3.capacity == 1)\n"+
+        "do test.assert( ar3.capacity >= 1)\n"+
         "do test.assert( ar3[0] == 10.0 )\n"+
         "set ar4 = array(2, 7.)\n"+
         "do test.assert( ar4.size == 2)\n"+
-        "do test.assert( ar4.capacity == 2)\n"+
+        "do test.assert( ar4.capacity >= 2)\n"+
         "do test.assert( ar4[0] == 7.0 )\n"+
         "do test.assert( ar4[1] == 7.0 )\n"+
         // various array assignments
         "set ar2 = ar4\n"+
         "do test.assert( ar2.size == 2)\n"+
-        "do test.assert( ar2.capacity == 2)\n"+
+        "do test.assert( ar2.capacity >= 5)\n"+
         // 80:
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n"+
@@ -180,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         //"do test.print( ar.size )\n"+
         "do test.assert( ar.size == 7)\n"+
         //"do test.print( ar.capacity )\n"+
-        "do test.assert( ar.capacity == 7)\n"+ // check keeping capacity: ar(10) vs ar2(2)
+        "do test.assertEqual( ar.capacity, 10)\n"+ // check keeping capacity: ar(10) vs ar2(2)
         //-- This fails because .capacity() gets a copy of the std::vector
         // See DataSourceAdaptor.hpp:263 and :676 ('returns/make a copy'
         "do test.assert( ar2[0] == 7.0 )\n"+
@@ -199,7 +207,6 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 
 }
-#if 0
 
 BOOST_AUTO_TEST_CASE( testOperators )
 {
@@ -297,7 +304,66 @@ BOOST_AUTO_TEST_CASE( testProperties )
     BOOST_CHECK_EQUAL( 2.321, pv.value()[2] );
     BOOST_CHECK_EQUAL( 3.321, pv.value()[3] );
 }
-#endif
+
+BOOST_AUTO_TEST_CASE( testOperatorOrder )
+{
+    string prog = string("program x {\n") +
+        "do test.assert( 6/2*4 == 12 )\n" + // not: 0
+        "do test.assert( 6*2/4 == 3 )\n" +  // not: 0
+        "do test.assert( 3+2*5 == 13)\n" +  // not: 30
+        "do test.assert( 3 < 2 != 5 > 1)\n" +
+        "do test.assert( 3*2 <= 12/2 )\n" +
+        "do test.assert( 3*2 < 6+1 )\n" +
+        "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
+        "do test.assert( 3*(2+1) == 9 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);    
+}
+
+BOOST_AUTO_TEST_CASE( testGlobals )
+{
+    GlobalsRepository::Instance()->setValue( new Constant<double>("cd_num", 3.33));
+    GlobalsRepository::Instance()->setValue( new Constant<string>("c_string", "Hello World!"));
+    GlobalsRepository::Instance()->setValue( new Attribute<double>("d_num", 3.33));
+    string prog = string("program x {\n") +
+        "do test.assert( cd_num == 3.33 )\n" +
+        "do test.assert( cd_num == d_num )\n" +  
+        "do test.assert( c_string == \"Hello World!\")\n" + 
+        "set d_num = 6.66\n" +
+        "do test.assert( d_num == 6.66 )\n" +
+        "}";
+    // execute
+    executePrograms(prog);    
+}
+
+BOOST_AUTO_TEST_CASE( testFlowStatus )
+{
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("NewData") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("OldData") );
+    BOOST_CHECK (GlobalsRepository::Instance()->getValue("NoData") );
+    string prog = string("program x {\n") +
+        "do test.assert( NewData )\n" +
+        "do test.assert( OldData )\n" +  
+        "do test.assert( !bool(NoData) )\n" +  
+        "do test.assert( NewData > NoData )\n" + 
+        "do test.assert( NewData > OldData )\n" + 
+        "do test.assert( OldData > NoData )\n" + 
+        "do test.assert( OldData == OldData )\n" + 
+        "if ( bool(NewData) && OldData ) then {\n" +
+        "} else {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" +
+        "if ( bool(NoData) ) then {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" + 
+        "if ( !bool(NoData) ) then {} else {\n" +
+        "   do test.assert(false)\n" +
+        "}\n" + 
+        "}";
+    // execute
+    executePrograms(prog);    
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -312,11 +378,11 @@ void TypesTest::executePrograms(const std::string& prog )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE( false && "Got empty test program." );
         }
 
     BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );

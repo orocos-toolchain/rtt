@@ -74,7 +74,7 @@ distribution.
 #	endif
 #endif
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 // Note tha "PutString" hardcodes the same list. This
 // is less flexible than it appears. Changing the entries

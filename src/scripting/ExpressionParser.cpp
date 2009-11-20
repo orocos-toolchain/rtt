@@ -35,13 +35,13 @@
 //#include "DumpObject.hpp"
 
 #include "ArgumentsParser.hpp"
-#include <Operators.hpp>
-#include <DataSourceCondition.hpp>
+#include "../types/Operators.hpp"
+#include "DataSourceCondition.hpp"
 
 #include "DataSourceTime.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "PeerParser.hpp"
-#include "Types.hpp"
+#include "../types/Types.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
@@ -302,15 +302,13 @@ namespace RTT
       modexp >> *( '+' >> modexp[
                      bind( &ExpressionParser::seen_binary, this, "+" ) ] );
     modexp =
-      divexp >> *( '%' >> divexp[
+      div_or_mul >> *( '%' >> div_or_mul[
                      bind( &ExpressionParser::seen_binary, this, "%" ) ] );
-    divexp =
-      multexp >> *( '/' >> multexp[
-                      bind( &ExpressionParser::seen_binary, this, "/" ) ] );
-    multexp =
-         unaryplusexp
-      >> *( '*' >> unaryplusexp[
-              bind( &ExpressionParser::seen_binary, this, "*" ) ] );
+    div_or_mul =
+      unaryplusexp >> *( ('/' >> unaryplusexp[
+            bind( &ExpressionParser::seen_binary, this, "/" ) ] )
+       | ('*' >> unaryplusexp[
+            bind( &ExpressionParser::seen_binary, this, "*" ) ] ) );
 
     unaryplusexp =
         '+' >> unaryminusexp[

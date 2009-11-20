@@ -48,7 +48,7 @@
 #include <xercesc/framework/LocalFileInputSource.hpp>
 #include <iostream>
 #include <fstream>
-//#include <rtstl/rtstreams.hpp>
+//#include "../os/rtstreams.hpp"
 #include <sstream>
 #include <vector>
 #include <stack>
@@ -56,12 +56,13 @@
 #include <string>
 #include "../Property.hpp"
 #include "StreamProcessor.hpp"
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 #include <istream>
 
 namespace RTT
-{
-    //using namespace rt_std; // Should be removed soon
+{ namespace marsh {
+
+    //using namespace os; // Should be removed soon
     using std::cerr;
     using std::endl;
 
@@ -300,5 +301,5 @@ namespace RTT
             }
 
     };
-}
+}}
 #endif

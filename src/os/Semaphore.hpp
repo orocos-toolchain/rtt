@@ -43,10 +43,10 @@
 
 #include "fosi.h"
 #include "../rtt-config.h"
-#include "Time.hpp"
+#include "../Time.hpp"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * An object oriented wrapper around a counting semaphore.
      * It works like a traffic light on which a thread can \a wait() until

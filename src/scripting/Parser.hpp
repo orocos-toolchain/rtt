@@ -45,25 +45,13 @@
 #include <istream>
 #include <vector>
 #include "parse_exception.hpp"
-#include "../DataSource.hpp"
-#include "../ProgramInterface.hpp"
+#include "../internal/DataSource.hpp"
+#include "../base/ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 #include "../rtt-config.h"
 
 namespace RTT
-{
-  class PropertyBase;
-  class ConditionInterface;
-}
-
-namespace RTT
-{
-    class ProgramInterface;
-    class ProgramTask;
-    class StateMachineTask;
-
-
-
+{ namespace scripting {
 
     /**
      * @brief This class is the public interface to the
@@ -79,7 +67,7 @@ namespace RTT
         /**
          * List of parsed functions.
          */
-        typedef std::vector< ProgramInterfacePtr > ParsedFunctions;
+        typedef std::vector< base::ProgramInterfacePtr > ParsedFunctions;
 
         /**
          * @brief Reads out the string, parses it, and returns a new @ref
@@ -91,7 +79,7 @@ namespace RTT
         /**
          * List of parsed programs.
          */
-        typedef std::vector< ProgramInterfacePtr > ParsedPrograms;
+        typedef std::vector< base::ProgramInterfacePtr > ParsedPrograms;
 
         /**
          * @brief Reads out the string, parses it, and returns a new @ref
@@ -118,30 +106,30 @@ namespace RTT
          * failure. Use ext to get the data from the components.
          * @throw parse_exception
          */
-        ConditionInterface* parseCondition(const std::string& s, TaskContext* );
+        base::ConditionInterface* parseCondition(const std::string& s, TaskContext* );
 
         /**
          * @brief Parses the command in s.
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
-        std::pair<CommandInterface*,ConditionInterface*>
+        std::pair<base::ActionInterface*,base::ConditionInterface*>
         parseCommand( const std::string&s, TaskContext* t, bool dispatch );
 
       /**
        * @brief Parses the expression in s.
-       * @return A DataSourceBase which contains the expression.
+       * @return A base::DataSourceBase which contains the expression.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      DataSourceBase::shared_ptr
+      base::DataSourceBase::shared_ptr
       parseExpression( const std::string&s, TaskContext* );
 
       /**
        * @brief Parses a change of a value in s.
-       * @return A DataSourceBase which contains the command to change the value.
+       * @return A base::DataSourceBase which contains the command to change the value.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      DataSourceBase::shared_ptr
+      base::DataSourceBase::shared_ptr
       parseValueChange( const std::string&s, TaskContext* );
   };
-};
+}}
 #endif

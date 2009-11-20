@@ -51,7 +51,7 @@
 #include <iostream>            // for std::cerr
 #endif
 
-#include "TimeService.hpp"
+#include "os/TimeService.hpp"
 
 namespace RTT
 {
@@ -99,7 +99,7 @@ namespace RTT
         /**
          * Function to get the loggers starting timestamp
          */
-        TimeService::ticks getReferenceTime()const;
+        os::TimeService::ticks getReferenceTime()const;
 
         /**
          * Enumerate all log-levels from absolute silence to

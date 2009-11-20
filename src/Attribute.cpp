@@ -37,9 +37,12 @@
 
 
 #include "Attribute.hpp"
+#include "rtt-fwd.hpp"
 
 namespace RTT
 {
+    using namespace detail;
+
   AttributeBase::AttributeBase()
   {
   }

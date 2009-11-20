@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "scripting/FunctionFactory.hpp"
+#include "FunctionFactory.hpp"
 
-#include "ExecutionEngine.hpp"
+#include "../ExecutionEngine.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 #include "CommandExecFunction.hpp"
@@ -47,14 +47,14 @@
 #include <sstream>
 #include <map>
 #include <string>
-#include "mystd.hpp"
+#include "../internal/mystd.hpp"
 #include <PropertyBag.hpp>
 #include <Property.hpp>
-#include "Attribute.hpp"
+#include "../Attribute.hpp"
 #include "parse_exception.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
 
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
@@ -114,7 +114,7 @@ namespace RTT
             }
 #else
             for (; dit != args.end(); ++dit, ++tit) {
-                CommandInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+                ActionInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
                 if (ret)
                     icom->add( ret );
                 else {

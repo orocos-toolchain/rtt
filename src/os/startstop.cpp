@@ -49,7 +49,7 @@
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
-# include "dev/DigitalOutInterface.hpp"
+# include "../extras/dev/DigitalOutInterface.hpp"
   using namespace RTT;
 #endif
 
@@ -60,24 +60,24 @@ using namespace std;
 #include <cstdio>
 #endif
     
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include "TimeService.hpp"
 
 using namespace RTT;
-static OS::StartStopManager* initM;
+using namespace RTT::os;
+static os::StartStopManager* initM;
 
-extern "C"
 int __os_init(int argc, char** argv )
 {
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
 
-    OS::MainThread::Instance();
+    os::MainThread::Instance();
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
-    initM = OS::StartStopManager::Instance();
+    initM = os::StartStopManager::Instance();
     int ret = initM->start();
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -99,8 +99,7 @@ int __os_init(int argc, char** argv )
         return ret;
 }
 
-extern "C"
-void __os_printFailure()
+void __os_printFailure(const char* prog)
 {
 #ifdef OS_HAVE_IOSTREAM
                         cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
@@ -108,26 +107,35 @@ void __os_printFailure()
                         cerr << " You might have called a function which throws"<<endl;
                         cerr << " without a try {} catch {} block."<< endl << endl;
                         cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
-                        cerr << "   valgrind --num-callers=16 <program> [options] --nocatch" << endl;
+                        cerr << "   valgrind -v --num-callers=16 "<< prog <<" [options...] --nocatch" << endl;
                         cerr << "Which will show where the exception occured."<<endl;
                         cerr << " ( Change num-callers for more/less detail."<<endl;
                         cerr << "   Also, compiling orocos and your program with"<<endl;
                         cerr << "   -g adds more usefull information. )"<<endl<<endl;
 #else
-                        printf("Orocos intercepted uncaught C++ exception\n");
+                        printf("Orocos intercepted an uncaught C++ exception\n");
 #endif
 
 }
 
-const char* oro_catchflag = "--nocatch";
+void __os_printException(const char* prog, std::exception& arg)
+{
+#ifdef OS_HAVE_IOSTREAM
+                        cerr << endl<<" Caught std::exception." << endl << "  what(): " << arg.what() <<endl;
+#endif
+                        __os_printFailure(prog);
+}
 
-extern "C"
+const char* oro_catchflag = "--nocatch";
+const char* oro_catchflag2 = "--no-catch";
+
 int __os_checkException(int& argc, char** argv)
 {
     bool dotry = true;
-    // look for --nocatch flag :
+    // look for --nocatch/--no-catch flag :
     for( int i=1; i < argc; ++i)
-        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0 ) {
+        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0
+                || strncmp(oro_catchflag2, argv[i], strlen(oro_catchflag2) ) == 0 ) {
             // if --no-catch was given last, remove it from the argc.
             if ( i == argc-1)
                 --argc;
@@ -137,7 +145,6 @@ int __os_checkException(int& argc, char** argv)
     return dotry;
 }
 
-extern "C"
 void __os_exit(void)
 {
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -147,7 +154,7 @@ void __os_exit(void)
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
     initM->stop();
-    OS::StartStopManager::Release();
+    os::StartStopManager::Release();
 
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
@@ -159,7 +166,7 @@ void __os_exit(void)
     TimeService::Release();
 
     // Stop Main Thread
-    OS::MainThread::Release();
+    os::MainThread::Release();
 
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_DTORS();

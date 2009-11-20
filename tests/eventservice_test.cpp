@@ -19,10 +19,10 @@
 
 #include <Event.hpp>
 #include <Logger.hpp>
-#include <RunnableInterface.hpp>
+#include <base/RunnableInterface.hpp>
 
-#include <EventService.hpp>
-#include <DataSourceGenerator.hpp>
+#include <interface/EventService.hpp>
+#include <internal/DataSourceGenerator.hpp>
 
 #include "eventservice_test.hpp"
 #include <boost/bind.hpp>

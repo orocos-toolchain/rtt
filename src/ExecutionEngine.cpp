@@ -37,10 +37,12 @@
 
 
 
-#include <Logger.hpp>
-#include <ExecutionEngine.hpp>
-#include <TaskCore.hpp>
+#include "Logger.hpp"
+#include "ExecutionEngine.hpp"
+#include "base/TaskCore.hpp"
 #include <algorithm>
+#include "rtt-fwd.hpp"
+#include "scripting/ProgramProcessor.hpp"
 
 namespace RTT
 {
@@ -52,6 +54,7 @@ namespace RTT
      */
 
     using namespace std;
+    using namespace detail;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner), estate( Stopped ),
@@ -231,6 +234,9 @@ namespace RTT
                     }
                     // estate remains Active or Stopped.
                     return false;
+                } else {
+                    // success:
+                    (*it)->mTaskState = TaskCore::Running;
                 }
             }
             estate = Running; // got to running
@@ -265,6 +271,9 @@ namespace RTT
                     // estate falls back to Stopped.
                     estate = Stopped;
                     return false;
+                } else {
+                    // success:
+                    (*it)->mTaskState = TaskCore::Active;
                 }
             }
             estate = Active; // got to active
@@ -292,7 +301,7 @@ namespace RTT
 
     bool ExecutionEngine::hasWork()
     {
-        return cproc->hasWork() && eproc->hasWork();
+        return cproc->hasWork() || eproc->hasWork();
     }
 
     void ExecutionEngine::step() {
@@ -348,7 +357,13 @@ namespace RTT
     }
 
     bool ExecutionEngine::breakLoop() {
-        return true;
+        bool ok = true;
+        if (taskc)
+            ok = taskc->breakUpdateHook();
+        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
+            ok = (*it)->breakUpdateHook() && ok;
+            }
+        return ok;
     }
 
     void ExecutionEngine::finalize() {

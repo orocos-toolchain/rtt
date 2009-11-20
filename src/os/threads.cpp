@@ -40,10 +40,8 @@
 #include "os/fosi_internal_interface.hpp"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     AtomicInt threads(0);
-
-    using namespace detail;
 
     bool CheckScheduler(int& sched_type)
     {

@@ -38,7 +38,7 @@
 #include "ProgramTask.hpp"
 #include "StateMachineTask.hpp"
 #include "DataSourceCommand.hpp"
-#include "ConditionInterface.hpp"
+#include "../base/ConditionInterface.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -183,7 +183,7 @@ namespace RTT
     throw parse_exception_parser_fail();
   }
 
-  std::pair<CommandInterface*, ConditionInterface*>
+  std::pair<ActionInterface*, ConditionInterface*>
   Parser::parseCommand( const std::string& _s,
                         TaskContext* tc, bool dodispatch )
   {
@@ -197,7 +197,7 @@ namespace RTT
     CommandParser parser( tc, !dodispatch );
     try
     {
-      boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+      boost_spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
       if ( ! ret.hit )
         throw parse_exception_parser_fail();
     }
@@ -209,7 +209,7 @@ namespace RTT
         {
             throw parse_exception_syntactic_error( e.descriptor );
         }
-    CommandInterface* ret = parser.getCommand();
+    ActionInterface* ret = parser.getCommand();
     ConditionInterface* cond_ret = parser.getImplTermCondition();
     parser.reset();
     return std::make_pair( ret, cond_ret );

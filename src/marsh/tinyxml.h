@@ -117,7 +117,7 @@ distribution.
 	#endif
 #endif
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 class TiXmlDocument;
 class TiXmlElement;

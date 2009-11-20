@@ -42,9 +42,11 @@
 #include "Property.hpp"
 #include "Logger.hpp"
 #include <algorithm>
+#include "rtt-fwd.hpp"
 
 namespace RTT
 {
+    using namespace detail;
 
     PropertyBag::PropertyBag( )
         : mproperties(), type("PropertyBag")
@@ -201,6 +203,9 @@ namespace RTT
 
     PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
     {
+        if(this == &orig)
+            return *this;
+
         this->clear();
 
         const_iterator i = orig.getProperties().begin();

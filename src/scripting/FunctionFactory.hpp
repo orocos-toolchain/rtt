@@ -39,17 +39,16 @@
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
-#include "../OperationFactory.hpp"
+#include "../internal/OperationFactory.hpp"
 #include "../Property.hpp"
-#include "../ProgramInterface.hpp"
-#include "../DispatchInterface.hpp"
+#include "../base/ProgramInterface.hpp"
+#include "../base/DispatchInterface.hpp"
 
 #include <map>
 #include <string>
 
 namespace RTT
-{
-    class ExecutionEngine;
+{ namespace scripting {
 
 
 
@@ -59,22 +58,22 @@ namespace RTT
      * a FunctionGraph in a Processor.
      */
     class FunctionFactory
-        : public detail::OperationFactoryPart<DispatchInterface*>
+        : public internal::OperationFactoryPart<base::DispatchInterface*>
     {
-        ProgramInterfacePtr func;
+        base::ProgramInterfacePtr func;
         ExecutionEngine* proc;
     public:
-        FunctionFactory(ProgramInterfacePtr func, ExecutionEngine* procs);
+        FunctionFactory(base::ProgramInterfacePtr func, ExecutionEngine* procs);
 
         std::string resultType() const;
 
-        std::vector< ArgumentDescription > getArgumentList() const;
+        std::vector< internal::ArgumentDescription > getArgumentList() const;
 
         int arity() const;
 
-        DispatchInterface* produce(const std::vector<DataSourceBase::shared_ptr>& args
+        base::DispatchInterface* produce(const std::vector<base::DataSourceBase::shared_ptr>& args
                                    ) const;
     };
-}
+}}
 
 #endif

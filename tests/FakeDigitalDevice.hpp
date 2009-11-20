@@ -28,12 +28,13 @@
 #ifndef FAKEDIGITALDEVICE_HPP
 #define FAKEDIGITALDEVICE_HPP
 
-#include "dev/DigitalInInterface.hpp"
-#include "dev/DigitalOutInterface.hpp"
+#include <extras/dev/DigitalInInterface.hpp>
+#include <extras/dev/DigitalOutInterface.hpp>
 #include <vector>
 
 namespace RTT
 {
+    using namespace dev;
     /**
      * A Fake (Simulated) Digital Input/Output Device which replicates the inputs
      * on its outputs.

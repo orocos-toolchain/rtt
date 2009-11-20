@@ -41,7 +41,7 @@
 #include "parser-types.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
-#include "../DataSource.hpp"
+#include "../internal/DataSource.hpp"
 
 #include <memory>
 #include <stack>
@@ -51,7 +51,7 @@
 #pragma interface
 #endif
 
-namespace RTT { namespace detail
+namespace RTT { namespace scripting
 {
   /**
    * This is a class containing a parse function for conditions.  It
@@ -60,7 +60,7 @@ namespace RTT { namespace detail
    */
   class ConditionParser
   {
-      DataSource<bool>::shared_ptr ds_bool;
+      internal::DataSource<bool>::shared_ptr ds_bool;
 
     void seendonecondition();
     void seenexpression();
@@ -85,12 +85,12 @@ namespace RTT { namespace detail
      * should subsequently call reset(), otherwise it will be deleted
      * in the ConditionParser destructor..
      */
-      ConditionInterface* getParseResult();
+      base::ConditionInterface* getParseResult();
 
       /**
        * Retrieve the result as a command, condition pair.
        */
-      std::pair<CommandInterface*,ConditionInterface*> getParseResultAsCommand();
+      std::pair<base::ActionInterface*,base::ConditionInterface*> getParseResultAsCommand();
 
     void reset();
   };

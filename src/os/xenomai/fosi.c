@@ -37,16 +37,3 @@
  
 #define OROBLD_OS_INTERNAL
 #include "os/fosi.h"
-#include <assert.h>
-
-
-int rtos_printf(const char *fmt, ...)
-{
-    va_list list;
-    char printkbuf [2000];
-    printkbuf[0] = '\0';
-    va_start (list, fmt);
-    vsprintf(printkbuf, fmt, list);
-    va_end (list);
-    return printf(printkbuf);
-}

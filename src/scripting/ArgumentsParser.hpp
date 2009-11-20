@@ -48,7 +48,7 @@
 #pragma interface
 #endif
 
-namespace RTT  { namespace detail
+namespace RTT  { namespace scripting
 {
 
 
@@ -66,7 +66,7 @@ namespace RTT  { namespace detail
   class ArgumentsParser
   {
     // the arguments we have already parsed.
-    std::vector<DataSourceBase::shared_ptr> margs;
+    std::vector<base::DataSourceBase::shared_ptr> margs;
     bool mparsed;
 
     rule_t arguments, argument;
@@ -79,14 +79,14 @@ namespace RTT  { namespace detail
     std::string mobject;
     std::string mmethod;
     TaskContext* _peer;
-    OperationInterface* mtobject;
+    interface::OperationInterface* mtobject;
   public:
     /**
      * Construct a new ArgumentsParser.  The object and method
      * parameters are for use in its error messages, and will
      * otherwise not be used..
      */
-      ArgumentsParser( ExpressionParser& p, TaskContext* peer, OperationInterface* tobject,
+      ArgumentsParser( ExpressionParser& p, TaskContext* peer, interface::OperationInterface* tobject,
                        const std::string& object, const std::string& method );
 
       ~ArgumentsParser();
@@ -96,7 +96,7 @@ namespace RTT  { namespace detail
           return _peer;
       }
 
-      OperationInterface* object()
+      interface::OperationInterface* object()
       {
           return mtobject;
       }
@@ -107,9 +107,9 @@ namespace RTT  { namespace detail
       }
 
     /**
-     * Get the parsed DataSource's.
+     * Get the parsed internal::DataSource's.
      */
-    std::vector<DataSourceBase::shared_ptr> result()
+    std::vector<base::DataSourceBase::shared_ptr> result()
       {
         return margs;
       }

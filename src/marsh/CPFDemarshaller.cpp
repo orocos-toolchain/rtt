@@ -37,8 +37,8 @@
 
 
 
-#include "marsh/CPFDemarshaller.hpp"
-#include "marsh/CPFDTD.hpp"
+#include "CPFDemarshaller.hpp"
+#include "CPFDTD.hpp"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>
@@ -61,7 +61,7 @@
 #include <cstdio>
 
 #include <Property.hpp>
-#include "PropertyIntrospection.hpp"
+#include "../base/PropertyIntrospection.hpp"
 #include <Logger.hpp>
 
 namespace RTT
@@ -69,6 +69,8 @@ namespace RTT
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
 #endif
+    using namespace marsh;
+    using namespace base;
 
     inline bool XMLChToStdString(const XMLCh* const c, std::string& res)
     {

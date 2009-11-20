@@ -40,7 +40,7 @@
 #include "ProgramLoader.hpp"
 #include "Parser.hpp"
 #include "ParsedStateMachine.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -49,8 +49,8 @@ using namespace boost;
 using namespace std;
 
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     ProgramLoader::ProgramLoader(bool rethrow /*=false*/)
         : mrethrow(rethrow)
     {}

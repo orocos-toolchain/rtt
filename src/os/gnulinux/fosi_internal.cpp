@@ -50,7 +50,7 @@ using namespace std;
 #define INTERNAL_QUAL
 
 namespace RTT
-{ namespace OS { namespace detail {
+{ namespace os {
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
@@ -177,8 +177,12 @@ namespace RTT
 	    if ( task->period == 0 )
             return 0;
 
+        // record this to detect overrun.
+	    NANO_TIME now = rtos_get_time_ns();
+	    NANO_TIME wake= task->periodMark.tv_sec * 1000000000LL + task->periodMark.tv_nsec;
+
         // inspired by nanosleep man page for this construct:
-        while ( clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &(task->periodMark), NULL) == -1 && errno == EINTR ) {
+        while ( clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &(task->periodMark), NULL) != 0 && errno == EINTR ) {
             errno = 0;
         }
 
@@ -190,7 +194,7 @@ namespace RTT
         task->periodMark.tv_nsec = tn % 1000000000LL;
         task->periodMark.tv_sec += ts.tv_sec + tn / 1000000000LL;
 
-	    return 0;
+	    return now > wake ? -1 : 0;
 	}
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
@@ -305,5 +309,5 @@ namespace RTT
 	}
 
     }
-}}
+}
 #undef INTERNAL_QUAL

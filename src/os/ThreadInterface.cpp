@@ -39,7 +39,7 @@
 #include "os/ThreadInterface.hpp"
 #include "os/threads.hpp"
 
-using namespace RTT::OS;
+using namespace RTT::os;
 
 ThreadInterface::ThreadInterface()
 {

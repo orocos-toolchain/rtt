@@ -1,0 +1,42 @@
+#ifndef ORO_CORBA_ATTRIBUTES
+#define ORO_CORBA_ATTRIBUTES
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+#include "Operations.idl"
+
+module RTT
+{
+  module corba
+  {
+    /**
+     * Exposes both attributes and properties
+     * of a task as CExpression objects.
+     * @ingroup CompIDL
+     */
+    interface CAttributeInterface
+    {
+      struct Property {
+	string name;
+	string description;
+      };
+
+      typedef sequence<Property> CPropertyNames;
+      typedef sequence<string> CAttributeNames;
+
+      CAttributeNames getAttributeList();
+
+      CPropertyNames  getPropertyList();
+
+      CExpression getAttribute( in string name );
+
+      CExpression getProperty( in string name );
+    };
+  };
+};
+
+
+#endif
+

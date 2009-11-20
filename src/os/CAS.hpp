@@ -42,7 +42,7 @@
 #include "oro_system.h"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * Compare And Swap.
      * Also known as Compare Exchange (cmpxch).

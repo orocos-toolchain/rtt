@@ -21,16 +21,18 @@
 #include "template_factory_test.hpp"
 
 #include <iostream>
-#include <FunctionGraph.hpp>
+#include <scripting/FunctionGraph.hpp>
 #include <Command.hpp>
 #include <Method.hpp>
-#include <DataSourceAdaptor.hpp>
-#include <DataSourceGenerator.hpp>
-#include <ProgramProcessor.hpp>
+#include <internal/DataSourceAdaptor.hpp>
+#include <internal/DataSourceGenerator.hpp>
+#include <scripting/ProgramProcessor.hpp>
+#include <internal/TaskObject.hpp>
+#include <internal/CompletionProcessor.hpp>
 
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <TaskObject.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 
 #include <rtt-config.h>
 
@@ -320,7 +322,7 @@ BOOST_AUTO_TEST_CASE( testEventC)
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
     h1 = cc.handle();
-    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, RTT::EventProcessor::OnlyLast );
+    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, EventProcessor::OnlyLast );
     h2 = cc.handle();
 
     h1.connect();

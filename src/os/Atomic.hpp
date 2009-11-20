@@ -42,7 +42,7 @@
 #include "oro_atomic.h"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * C++ abstraction of atomic integer operations.
      */

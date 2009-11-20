@@ -39,9 +39,10 @@
 #pragma implementation
 #endif
 #include "Property.hpp"
-#include "PropertyIntrospection.hpp"
+#include "base/PropertyIntrospection.hpp"
 
 namespace RTT {
+    using namespace detail;
 
 #if !defined(ORO_EMBEDDED) && defined(__GNUC__)
      template class Property<double>;

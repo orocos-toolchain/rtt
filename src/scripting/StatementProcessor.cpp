@@ -41,12 +41,12 @@
 #include "Parser.hpp"
 #include "parse_exception.hpp"
 
-#include "TaskContext.hpp"
-#include "DispatchInterface.hpp"
-#include "ConditionInterface.hpp"
-#include <MultiVector.hpp>
-#include <TypeStream.hpp>
-#include "Logger.hpp"
+#include "../TaskContext.hpp"
+#include "../base/DispatchInterface.hpp"
+#include "../base/ConditionInterface.hpp"
+#include "../extras/MultiVector.hpp"
+#include "../types/TypeStream.hpp"
+#include "../Logger.hpp"
 
 #include <vector>
 #include <boost/tuple/tuple.hpp>
@@ -268,7 +268,7 @@ namespace RTT
         }
 
         Parser _parser;
-        std::pair< CommandInterface*, ConditionInterface*> comcon;
+        std::pair< ActionInterface*, ConditionInterface*> comcon;
         DispatchInterface* command;
         ConditionInterface* condition;
 

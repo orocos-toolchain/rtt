@@ -27,12 +27,11 @@
 #include <scripting/ParsedStateMachine.hpp>
 #include <scripting/DumpObject.hpp>
 #endif
-#include <SimulationThread.hpp>
-#include <CommandFunctor.hpp>
+#include <extras/SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
-#include <StateMachine.hpp>
-#include <TaskObject.hpp>
+#include <scripting/StateMachine.hpp>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 
@@ -482,6 +481,29 @@ BOOST_AUTO_TEST_CASE( testStateTransitions)
      this->finishState( &gtc, "x");
 }
 
+BOOST_AUTO_TEST_CASE( testStateTransitionStop )
+{
+    // test processing of transition statements.
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "  if stop() == true then select NEXT\n" // calls stop on the component !
+        + " }\n"
+        + " }\n"
+        + " state NEXT {\n" // Failure state.
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " final state FINI {\n" // Success state.
+        + " entry { do test.assert(true); }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState( prog, &gtc );
+     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( &gtc, "x");
+}
+
 BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
 {
     // test processing of transition statements.
@@ -887,19 +909,19 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
     BOOST_CHECK( sm );
-    CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
-    CommandInterface* cs = newCommandFunctor(boost::bind(&StateMachine::automatic,sm ));
+    Command<bool(void)> act = tc->getObject("x")->commands()->getCommand<bool(void)>("activate");
+    Command<bool(void)> autom = tc->getObject("x")->commands()->getCommand<bool(void)>("automatic");
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( ca->execute()  );
+    BOOST_CHECK( act()  );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( gtc.engine()->commands()->process( cs ) != 0 );
+    BOOST_CHECK( autom() );
 //     while (1)
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
-    delete ca;
-    delete cs;
+
 //     cerr << "After run :"<<endl;
 //     tc->getPeer("states")->getPeer("x")->debug(true);
 // //     tc->getPeer("__states")->getPeer("X")->debug(false);
@@ -961,7 +983,7 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
     BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.
-    BOOST_CHECK( gtask.stop() );
+    tc->stop();
 
     try {
         tc->engine()->states()->unloadStateMachine( prog_name );

@@ -37,7 +37,7 @@
 
 #include "fosi_internal_interface.hpp"
 #include "Thread.hpp"
-#include "Time.hpp"
+#include "../Time.hpp"
 #include "threads.hpp"
 #include "../Logger.hpp"
 #include "MutexLock.hpp"
@@ -45,7 +45,7 @@
 #include "../rtt-config.h"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-# include "dev/DigitalOutInterface.hpp"
+# include "../extras/dev/DigitalOutInterface.hpp"
 #define SCOPE_ON   if ( task->d ) task->d->switchOn( bit );
 #define SCOPE_OFF  if ( task->d ) task->d->switchOff( bit );
 #else
@@ -63,12 +63,10 @@
 #define CATCH_ALL if (false)
 #endif
 
-namespace RTT
-{
-    namespace OS
+namespace RTT {
+    namespace os
     {
         using RTT::Logger;
-        using namespace detail;
 
         unsigned int Thread::default_stack_size = 0;
 
@@ -79,13 +77,20 @@ namespace RTT
             /**
              * This is one time initialisation
              */
-            Thread* task = static_cast<OS::Thread*> (t);
+            Thread* task = static_cast<os::Thread*> (t);
             Logger::In in(task->getName());
 
             task->configure();
 
+            // signal to setup() that we're created.
+            rtos_sem_signal(&(task->sem));
+
+            // This lock forces setup(), which holds the lock, to continue.
+            { MutexLock lock(task->breaker); }
+#ifdef OROPKG_OS_THREAD_SCOPE
             // order thread scope toggle bit on thread number
             unsigned int bit = task->threadNumber();
+#endif
             SCOPE_OFF
 
             int overruns = 0;
@@ -169,7 +174,7 @@ namespace RTT
                     {
                         task->emergencyStop();
                         Logger::In in(rtos_task_get_name(task->getTask()));
-                        log(Fatal) << rtos_task_get_name(task->getTask())
+                        log(Critical) << rtos_task_get_name(task->getTask())
                                 << " got too many periodic overruns in step() ("
                                 << overruns << " times), stopped Thread !"
                                 << endlog();
@@ -181,17 +186,17 @@ namespace RTT
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
-                    log(Fatal) << rtos_task_get_name(task->getTask())
+                    log(Critical) << rtos_task_get_name(task->getTask())
                             << " caught a C++ exception, stopped thread !"
                             << endlog();
-                    log(Fatal) << "exception was: "
+                    log(Critical) << "exception was: "
                                << e.what() << endlog();
                 } CATCH_ALL
                 {
                     SCOPE_OFF
                     task->emergencyStop();
                     Logger::In in(rtos_task_get_name(task->getTask()));
-                    log(Fatal) << rtos_task_get_name(task->getTask())
+                    log(Critical) << rtos_task_get_name(task->getTask())
                             << " caught an unknown C++ exception, stopped thread !"
                             << endlog();
                 }
@@ -211,10 +216,9 @@ namespace RTT
         }
 
         Thread::Thread(int scheduler, int _priority,
-                Seconds periods, const std::string & name, RunnableInterface* r) :
+                Seconds periods, const std::string & name) :
                     msched_type(scheduler), active(false), prepareForExit(false),
                     inloop(false),running(false),
-                    runComp(r),
                     maxOverRun(OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
                     period(Seconds_to_nsecs(periods)) // Do not call setPeriod(), since the semaphores are not yet used !
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -228,6 +232,9 @@ namespace RTT
         {
             Logger::In in("Thread");
             int ret;
+
+            // we do this under lock in order to force the thread to wait until we're done.
+            MutexLock lock(breaker);
 
             log(Info) << "Creating Thread for scheduler: " << msched_type << endlog();
             ret = rtos_sem_init(&sem, 0);
@@ -244,9 +251,6 @@ namespace RTT
                 return;
 #endif
             }
-
-            if (runComp)
-                runComp->setThread(this);
 
 #ifdef OROPKG_OS_THREAD_SCOPE
             // Check if threadscope device already exists
@@ -277,6 +281,9 @@ namespace RTT
 #endif
             }
 
+            // Wait for creation of thread.
+            rtos_sem_wait( &sem );
+
             const char* modname = getName();
             Logger::In in2(modname);
             log(Info) << "Thread created with scheduler type '"
@@ -302,21 +309,6 @@ namespace RTT
             log(Debug) << " done" << endlog();
             rtos_sem_destroy(&sem);
 
-            if (runComp)
-                runComp->setThread(0);
-
-        }
-
-        bool Thread::run(RunnableInterface* r)
-        {
-            if (isRunning())
-                return false;
-            if (runComp)
-                runComp->setThread(0);
-            runComp = r;
-            if (runComp)
-                runComp->setThread(this);
-            return true;
         }
 
         bool Thread::start()
@@ -454,7 +446,7 @@ namespace RTT
         bool Thread::setScheduler(int sched_type)
         {
             Logger::In in("Thread::setScheduler");
-            if (OS::CheckScheduler(sched_type) == false)
+            if (os::CheckScheduler(sched_type) == false)
                 return false;
             if (this->getScheduler() == sched_type)
             {
@@ -496,38 +488,26 @@ namespace RTT
 
         void Thread::step()
         {
-            if (runComp)
-                runComp->step();
         }
 
         void Thread::loop()
         {
-            if ( runComp != 0 )
-                runComp->loop();
-            else
-                this->step();
+            this->step();
         }
 
         bool Thread::breakLoop()
         {
-            if ( runComp != 0 )
-                return runComp->breakLoop();
             return false;
         }
 
 
         bool Thread::initialize()
         {
-            if (runComp)
-                return runComp->initialize();
-
             return true;
         }
 
         void Thread::finalize()
         {
-            if (runComp)
-                runComp->finalize();
         }
 
         bool Thread::setPeriod(double s)
@@ -541,7 +521,7 @@ namespace RTT
             nsecs nsperiod = ns + 1000* 1000* 1000* s ;
             if (nsperiod < 0)
                 return false;
-            if (nsperiod == 0 && period != 0 || nsperiod != 0 && period == 0) {
+            if ( (nsperiod == 0 && period != 0) || (nsperiod != 0 && period == 0)) {
                 // switch between periodic/non-periodic
                 // note for RTAI: the fosi_internal layer must detect if this is called from
                 // within rtos_task or outside the thread.

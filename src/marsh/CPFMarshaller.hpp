@@ -41,12 +41,14 @@
 #include <ostream>
 #include <fstream>
 #include <string>
+#include "Marshaller.hpp"
 #include "../Property.hpp"
-#include "../PropertyIntrospection.hpp"
+#include "../base/PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace RTT
-{
+{ namespace marsh {
+
 
     template<class T>
     class CPFMarshaller;
@@ -59,7 +61,7 @@ namespace RTT
     template<>
     class CPFMarshaller<std::ostream>
         : public Marshaller,
-          protected PropertyIntrospection,
+          protected base::PropertyIntrospection,
           public StreamProcessor<std::ostream>
     {
         std::fstream mfile;
@@ -78,7 +80,7 @@ namespace RTT
 
         std::string escape(std::string s);
 
-        virtual void introspect(PropertyBase* pb);
+        virtual void introspect(base::PropertyBase* pb);
 
         virtual void introspect(Property<bool> &v);
 
@@ -105,11 +107,11 @@ namespace RTT
          */
         CPFMarshaller(const std::string& filename);
 
-        virtual void serialize(PropertyBase* v);
+        virtual void serialize(base::PropertyBase* v);
 
         virtual void serialize(const PropertyBag &v);
 
         virtual void flush();
 	};
-}
+}}
 #endif

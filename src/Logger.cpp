@@ -40,7 +40,7 @@
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
 #include "os/Mutex.hpp"
-#include "TimeService.hpp"
+#include "os/TimeService.hpp"
 
 #include "Logger.hpp"
 #include <iomanip>
@@ -60,10 +60,12 @@
 
 #include <stdlib.h>
 #include "rtt-config.h"
+#include "rtt-fwd.hpp"
 
 namespace RTT
 {
     using namespace std;
+    using namespace detail;
 
     Logger* Logger::_instance = 0;
 
@@ -97,7 +99,7 @@ namespace RTT
      */
     struct Logger::D
     {
-        D(std::ostream& str) :
+        D(std::ostream& str, char const* logfile_name) :
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput( &str ),
 #endif
@@ -105,7 +107,7 @@ namespace RTT
               messagecnt(0),
 #endif
 #if defined(OROSEM_FILE_LOGGING) && !defined(OROSEM_PRINTF_LOGGING)
-              logfile("orocos.log"),
+              logfile(logfile_name ? logfile_name : "orocos.log"),
 #endif
               inloglevel(Info),
               outloglevel(Warning),
@@ -115,7 +117,7 @@ namespace RTT
               moduleptr("Logger")
         {
 #if defined(OROSEM_FILE_LOGGING) && defined(OROSEM_PRINTF_LOGGING)
-            logfile = fopen("orocos.log","w");
+            logfile = fopen(logfile_name ? logfile_name : "orocos.log","w");
 #endif
         }
 
@@ -145,7 +147,7 @@ namespace RTT
         void logit(std::ostream& (*pf)(std::ostream&))
         {
             // only on Logger::nl or Logger::endl, a time+log-line is written.
-            OS::MutexLock lock( inpguard );
+            os::MutexLock lock( inpguard );
             std:: string res = showTime() +" " + showLevel(inloglevel) + showModule() + " ";
 
             // do not log if not wanted.
@@ -287,11 +289,11 @@ namespace RTT
 
         std::string moduleptr;
 
-        OS::Mutex inpguard;
+        os::Mutex inpguard;
     };
 
     Logger::Logger(std::ostream& str)
-        :d ( new Logger::D(str) )
+        :d ( new Logger::D(str, getenv("ORO_LOGFILE")) )
     {
       this->startup();
     }
@@ -371,20 +373,20 @@ namespace RTT
 
     Logger& Logger::in(const std::string& modname)
     {
-        OS::MutexLock lock( d->inpguard );
+        os::MutexLock lock( d->inpguard );
         d->moduleptr = modname;
         return *this;
     }
 
     Logger& Logger::out(const std::string& oldmod)
     {
-        OS::MutexLock lock( d->inpguard );
+        os::MutexLock lock( d->inpguard );
         d->moduleptr = oldmod;
         return *this;
     }
 
     std::string Logger::getLogModule() const {
-        OS::MutexLock lock( d->inpguard );
+        os::MutexLock lock( d->inpguard );
         std::string ret = d->moduleptr;
         return ret;
     }
@@ -457,7 +459,7 @@ namespace RTT
             return "";
         std::string line;
         {
-            OS::MutexLock lock( d->inpguard );
+            os::MutexLock lock( d->inpguard );
             getline( d->remotestream, line );
             if ( !d->remotestream )
                 d->remotestream.clear();
@@ -480,7 +482,7 @@ namespace RTT
         if ( !d->maylog() )
             return *this;
 
-        OS::MutexLock lock( d->inpguard );
+        os::MutexLock lock( d->inpguard );
         if ( d->maylogStdOut() )
             d->logline << t;
 
@@ -514,7 +516,7 @@ namespace RTT
         else if ( pf == Logger::flush )
             this->logflush();
         else {
-            OS::MutexLock lock( d->inpguard );
+            os::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() )
                 d->logline << pf; // normal std operator in stream.
 #if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
@@ -530,7 +532,7 @@ namespace RTT
             return;
         {
             // just flush all buffers, do not produce a new logline
-            OS::MutexLock lock( d->inpguard );
+            os::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() ) {
 #ifndef OROSEM_PRINTF_LOGGING
                 d->stdoutput->flush();

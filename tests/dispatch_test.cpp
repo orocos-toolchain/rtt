@@ -22,11 +22,11 @@
 
 #include <iostream>
 #include <sstream>
-#include <FunctionGraph.hpp>
-#include <SimulationThread.hpp>
+#include <scripting/FunctionGraph.hpp>
+#include <extras/SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
-#include <TaskObject.hpp>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 
@@ -276,17 +276,17 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE( false );
         }
-    BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
+    BOOST_REQUIRE( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK(ltc.start());
     BOOST_CHECK(mtc.start());
     BOOST_CHECK(gtc.start());
-    BOOST_CHECK( tc->engine()->programs()->getProgram( (*pg_list.begin())->getName() )->start() );
+    BOOST_REQUIRE( tc->engine()->programs()->getProgram( (*pg_list.begin())->getName() )->start() );
 
     SimulationThread::Instance()->stop();
     SimulationThread::Instance()->run(1000);

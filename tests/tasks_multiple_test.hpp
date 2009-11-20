@@ -21,7 +21,9 @@
 #ifndef TASKS_MULTIPLE_TEST_HPP
 #define TASKS_MULTIPLE_TEST_HPP
 
-#include <PeriodicActivity.hpp>
+#include <extras/PeriodicActivity.hpp>
+#include <rtt-detail-fwd.hpp>
+using namespace RTT::detail;
 
 using namespace RTT;
 

@@ -38,7 +38,7 @@
 #ifndef PI_PROPERTY_BAG
 #define PI_PROPERTY_BAG
 
-#include "PropertyBase.hpp"
+#include "base/PropertyBase.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -49,8 +49,6 @@
 
 namespace RTT
 {
-    template< class T>
-    class Property;
 
 	/**
 	 * @brief A container for holding references to properties.
@@ -58,7 +56,7 @@ namespace RTT
 	 * @section intro Introduction
      *
      * This class groups properties of different types into a single
-	 * container. A PropertyBag object can handed to a Marshaller object
+	 * container. A PropertyBag object can handed to a marsh::Marshaller object
 	 * which will serialize the contents of the PropertyBag.
      *
      * All operations on a PropertyBag are non recursive. The PropertyBag
@@ -88,11 +86,11 @@ namespace RTT
      * To retrieve this property, either use \a find or \a getProperty to retrieve
      * a Property by name :
      * @verbatim
-     PropertyBase* pb = bag.find( "name" ).
+     base::PropertyBase* pb = bag.find( "name" ).
      Property<ClassT> pb = bag.getProperty<ClassT>( "name" ).
      @endverbatim
      * Both will return null if no such property exists.
-	 * @see PropertyBase, Property, BagOperations
+	 * @see base::PropertyBase, Property, BagOperations
      * @ingroup CoreLibProperties
 	 */
     class RTT_API PropertyBag
@@ -101,7 +99,7 @@ namespace RTT
         /**
          * The container in which the properties are stored.
          */
-        typedef std::vector<PropertyBase*> Properties;
+        typedef std::vector<base::PropertyBase*> Properties;
         /**
          * Deprecated, use Properties.
          */
@@ -147,36 +145,36 @@ namespace RTT
          * Add a valid property to the container. Analogous to addProperty.
          * @param p Pointer to the property to be added.
          */
-        void add(PropertyBase *p);
+        void add(base::PropertyBase *p);
 
         /**
          * Remove a property from the container. Analogous to removeProperty.
          * @param p Pointer to the property to be removed.
          */
-        void remove(PropertyBase *p);
+        void remove(base::PropertyBase *p);
 
         /**
          * Add a valid property to the container.
          * @param p Pointer to the property to be added.
          * @return false if ! p->ready(), true otherwise.
          */
-        bool addProperty(PropertyBase *p);
+        bool addProperty(base::PropertyBase *p);
 
         /**
          * Remove a property from the container.
          * @param p Pointer to the property to be removed.
          */
-        bool removeProperty(PropertyBase *p);
+        bool removeProperty(base::PropertyBase *p);
 
         /**
          * Set a property to be owned by this bag.
          */
-        bool ownProperty(PropertyBase* p);
+        bool ownProperty(base::PropertyBase* p);
 
         /**
          * Returns true if this property is owned by this Bag.
          */
-        bool ownsProperty(PropertyBase* p);
+        bool ownsProperty(base::PropertyBase* p);
 
         /**
          * Removes all PropertyBases from this bag, without deleting
@@ -226,7 +224,7 @@ namespace RTT
          * Returns the \a i'th Property, starting from 0.
          * @return zero if \a i is out of range.
          */
-        PropertyBase* getItem( int i) const
+        base::PropertyBase* getItem( int i) const
         {
             if ( i < 0 || i >= int(mproperties.size()) )
                 return 0;
@@ -241,30 +239,30 @@ namespace RTT
         /**
          * Identify the contents of this bag through introspection.
          */
-        void identify( PropertyIntrospection* pi ) const;
+        void identify( base::PropertyIntrospection* pi ) const;
 
         /**
          * Identify the contents of this bag through introspection.
          */
-        void identify( PropertyBagVisitor* pi ) const;
+        void identify( base::PropertyBagVisitor* pi ) const;
 
         /**
-         * Find the PropertyBase with name \a name. This function returns the first match.
+         * Find the base::PropertyBase with name \a name. This function returns the first match.
          *
          * @param  name The name of the property to search for.
-         * @return The PropertyBase with this name, zero
+         * @return The base::PropertyBase with this name, zero
          *         if it does not exist.
          */
-        PropertyBase* find(const std::string& name) const;
+        base::PropertyBase* find(const std::string& name) const;
 
         /**
-         * Finds the PropertyBase by value. This function returns the first match.
+         * Finds the base::PropertyBase by value. This function returns the first match.
          * @param value The value the Property should have
          * @param T The data type of the value.
          * @return a pointer to the property or zero if not found.
          */
         template<class T>
-        PropertyBase* findValue(const T& value) const {
+        base::PropertyBase* findValue(const T& value) const {
             for ( const_iterator i = mproperties.begin();
                   i != mproperties.end();
                   i++ )
@@ -296,7 +294,7 @@ namespace RTT
          * Equivalent to add().
          * @param item The Property to add to this bag.
          */
-        PropertyBag& operator<<( PropertyBase* item) { this->add(item); return *this; }
+        PropertyBag& operator<<( base::PropertyBase* item) { this->add(item); return *this; }
 
         const std::string& getType() const { return type;}
 
@@ -333,9 +331,9 @@ namespace RTT
         /**
          * A function object for finding a Property by name.
          */
-        struct FindProp : public std::binary_function<const PropertyBase*,const std::string, bool>
+        struct FindProp : public std::binary_function<const base::PropertyBase*,const std::string, bool>
         {
-            bool operator()(const PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
+            bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
         };
 
         std::string type;
@@ -361,7 +359,7 @@ namespace RTT
      * Defaults to ".".
      * @ingroup CoreLibProperties
      */
-    RTT_API PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
+    RTT_API base::PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
 
     /**
      * This function refreshes the values of the properties in one PropertyBag with
@@ -385,7 +383,7 @@ namespace RTT
      * name in \a target.
      * @ingroup CoreLibProperties
      */
-    RTT_API bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
+    RTT_API bool refreshProperty(const PropertyBag& target, const base::PropertyBase& source);
 
     /**
      * This function copies (recursively) the Properties of one Bag into

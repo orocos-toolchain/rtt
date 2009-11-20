@@ -94,7 +94,7 @@ distribution.
 	#define TIXML_EXPLICIT
 #endif
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 /*
    TiXmlString is an emulation of a subset of the std::string template.

@@ -43,10 +43,8 @@
  */
 
 #include "../rtt-config.h"
+#include <exception>
 
-#ifdef __cplusplus
-extern "C"
-#endif
 /**
  * Call this function from within main() before
  * using the RTT services. You do not need this
@@ -54,9 +52,6 @@ extern "C"
  */
 RTT_API int __os_init(int argc, char** argv );
 
-#ifdef __cplusplus
-extern "C"
-#endif
 /**
  * Call this function from within main() after
  * using the RTT services, just before returning. 
@@ -64,18 +59,18 @@ extern "C"
  */
 RTT_API void __os_exit(void);
 
-#ifdef __cplusplus
-extern "C"
-#endif
 /**
  * Internal: Inform the user that a failure occured.
  * @see ORO_main
  */
-RTT_API void __os_printFailure();
+RTT_API void __os_printFailure(const char* prog);
 
-#ifdef __cplusplus
-extern "C"
-#endif
+/**
+ * Internal: Inform the user that a failure occured.
+ * @see ORO_main
+ */
+RTT_API void __os_printException(const char* prog, std::exception& arg);
+
 /**
  * Internal: Check if the user requests disabling
  * exception catching at run-time.

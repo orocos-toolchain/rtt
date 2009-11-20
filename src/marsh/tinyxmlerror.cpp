@@ -69,7 +69,7 @@ distribution.
 // It also cleans up the code a bit.
 //
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 const char* TiXmlBase::errorString[ TIXML_ERROR_STRING_COUNT ] =
 {

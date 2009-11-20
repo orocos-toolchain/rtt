@@ -20,19 +20,18 @@
 #define BUFFERSTEST_H
 
 #include <RTT.hpp>
-#include <AtomicQueue.hpp>
-#include <BufferLockFree.hpp>
-#include <ListLockFree.hpp>
-#include <DataObjectInterfaces.hpp>
-#include <MemoryPool.hpp>
-//#include <SortedList.hpp>
+#include <internal/AtomicQueue.hpp>
+#include <base/Buffer.hpp>
+#include <internal/ListLockFree.hpp>
+#include <base/DataObject.hpp>
+#include <internal/MemoryPool.hpp>
+//#include <internal/SortedList.hpp>
 
-#include <os/SingleThread.hpp>
 #include <os/Thread.hpp>
 #include <rtt-config.h>
 
 using namespace RTT;
-using namespace RTT::OS;
+using namespace RTT::detail;
 
 class Dummy {
 public:

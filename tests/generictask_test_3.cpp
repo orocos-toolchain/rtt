@@ -21,17 +21,16 @@
 #include "generictask_test_3.hpp"
 
 #include <iostream>
-#include <Ports.hpp>
-#include <DataObjectInterfaces.hpp>
-#include <BufferLocked.hpp>
-#include <DataPort.hpp>
+#include <InputPort.hpp>
+#include <OutputPort.hpp>
 
-#include <SlaveActivity.hpp>
-#include <SequentialActivity.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
+#include <extras/SlaveActivity.hpp>
+#include <extras/SequentialActivity.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
+#include <Method.hpp>
 
 using namespace std;
 using namespace RTT;
@@ -159,6 +158,12 @@ Generic_TaskTest_3::tearDown()
     delete tsim;
     delete stc;
     delete stsim;
+}
+
+
+void Generic_TaskTest_3::new_data_listener(PortInterface* port)
+{
+    signalled_port = port;
 }
 
 // Registers the fixture into the 'registry'
@@ -594,423 +599,331 @@ BOOST_AUTO_TEST_CASE( testAttributes)
 
 }
 
-BOOST_AUTO_TEST_CASE( testPorts)
+BOOST_AUTO_TEST_CASE( testPortTaskInterface )
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    InputPort<int> rp1("Port1");
+    OutputPort<int> wp1("Port1");
+    InputPort<int> rp2("Port2");
+    OutputPort<int> wp2("Port2");
 
-    BOOST_CHECK( wdp.getPortType() == PortInterface::WritePort );
-    BOOST_CHECK( rdp.getPortType() == PortInterface::ReadPort );
-    BOOST_CHECK( dp.getPortType() == PortInterface::ReadWritePort );
-
-    // Test initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
-
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
-
-    BOOST_CHECK( wbp.getPortType() == PortInterface::WritePort );
-    BOOST_CHECK( rbp.getPortType() == PortInterface::ReadPort );
-    BOOST_CHECK( bp.getPortType() == PortInterface::ReadWritePort );
-
-    BOOST_CHECK( tc->ports()->addPort( &wdp ));
-    BOOST_CHECK( tc->ports()->addPort( &rdp ));
-    BOOST_CHECK( tc->ports()->addPort( &dp ));
-    BOOST_CHECK( tc->ports()->addPort( &dp2 ));
+    BOOST_CHECK( tc->ports()->addPort( &wp1 ));
+    BOOST_CHECK( tc->ports()->addPort( &rp2 ));
 
     // check adding same port twice.
-    BOOST_CHECK( tc->ports()->addPort( &wdp ) == false);
+    BOOST_CHECK( tc->ports()->addPort( &wp1 ) == false);
     {
         // also check adding different port with same name.
-        DataPort<double> tdp("WDName");
-        BOOST_CHECK( tc->ports()->addPort( &tdp ) == false);
+        InputPort<double> other_rp("Port1");
+        BOOST_CHECK( tc->ports()->addPort( &other_rp ) == false);
     }
 
-    BOOST_CHECK( tc->ports()->addPort( &wbp ));
-    BOOST_CHECK( tc->ports()->addPort( &rbp ));
-    BOOST_CHECK( tc->ports()->addPort( &bp ));
-    BOOST_CHECK( tc->ports()->addPort( &bp2 ));
+    {
+        auto_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
+        auto_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
 
-    // Test connection creation.
-    BOOST_CHECK(wdp.connectTo( &rdp ) );
-    BOOST_CHECK(dp.connectTo( rdp.connection() ));
+        tc1->ports()->addPort(&rp1);
+        tc1->ports()->addPort(&wp2);
+        tc2->ports()->addPort(&rp2);
+        tc2->ports()->addPort(&wp1);
 
-    BOOST_CHECK(wbp.connectTo( &rbp ) );
-    BOOST_CHECK(bp.connectTo( rbp.connection() ));
+        BOOST_CHECK( tc1->connectPorts(tc2.get()) );
+        BOOST_CHECK( wp1.connected() );
+        BOOST_CHECK( rp1.connected() );
+        wp1.write(2);
+        int value = 0;
+        BOOST_CHECK( rp1.read(value) );
+        BOOST_CHECK_EQUAL(2, value);
 
-    BOOST_CHECK( wdp.connected() );
-    BOOST_CHECK( rdp.connected() );
-    BOOST_CHECK( dp.connected() );
+        BOOST_CHECK( wp2.connected() );
+        BOOST_CHECK( rp2.connected() );
+        wp2.write(3);
+        value = 0;
+        BOOST_CHECK( rp2.read(value) );
+        BOOST_CHECK_EQUAL(3, value);
+    }
 
-    BOOST_CHECK( wbp.connected() );
-    BOOST_CHECK( rbp.connected() );
-    BOOST_CHECK( bp.connected() );
-
-    // Test data transfer
-    BOOST_CHECK( rdp.Get() == 1.0 );
-    wdp.Set( 3.0 );
-    BOOST_CHECK( rdp.Get() == 3.0 );
-    BOOST_CHECK( dp.Get() == 3.0 );
-    double dat = 0.0;
-    dp.Get( dat );
-    BOOST_CHECK( dat == 3.0 );
-    dat = 0.0;
-    rdp.Get( dat );
-    BOOST_CHECK( dat == 3.0 );
-
-    // Test Data-to-Data:
-    dp.disconnect();
-    BOOST_CHECK( dp.connectTo( &dp2 ) );
-    BOOST_CHECK( dp.connected() );
-    BOOST_CHECK( dp2.connected() );
-
-    dp.Set( 5.0 );
-    dp2.Get( dat );
-    BOOST_CHECK( dat == 5.0 );
-
-    dp2.Set( 6.0 );
-    BOOST_CHECK( dp.Get() == 6.0 );
-
-    dp.disconnect();
-    dp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
-    *((DataPortBase<double>*)&dp) = new DataObject<double>("Data",10.0);
-    //dp = new DataObject<double>("Data",10.0); // TODO the operator= is inaccessible on MinGW 3.4.2
-    BOOST_CHECK( dp.connected() );
-    BOOST_CHECK( dp.Get() == 10.0 );
-#endif
-    // Test buffer transfer
-    double val;
-    BOOST_CHECK( wbp.Push( 5.0 ) );
-    BOOST_CHECK( rbp.Pop( val ) );
-    BOOST_CHECK( val == 5.0 );
-
-    BOOST_CHECK( wbp.Push( 6.0 ) );
-    BOOST_CHECK( bp.Pop( val ) );
-    BOOST_CHECK( val == 6.0 );
-
-    BOOST_CHECK( bp.Push( 5.0 ) );
-    BOOST_CHECK( bp.Pop( val ) );
-    BOOST_CHECK( val == 5.0 );
-    BOOST_CHECK( bp.Pop( val ) == false );
-
-    // Test Buffer-to-Buffer:
-    bp.disconnect();
-    BOOST_CHECK( bp.connectTo( &bp2 ) );
-    BOOST_CHECK( bp.connected() );
-    BOOST_CHECK( bp2.connected() );
-
-    BOOST_CHECK( bp.Push( 5.0 ) );
-    BOOST_CHECK( bp2.Pop( val ) );
-    BOOST_CHECK( val == 5.0 );
-    BOOST_CHECK( bp2.Pop( val ) == false );
-
-    BOOST_CHECK( bp2.Push( 5.0 ) );
-    BOOST_CHECK( bp.Pop( val ) );
-    BOOST_CHECK( val == 5.0 );
-    BOOST_CHECK( bp2.Pop( val ) == false );
-
-    bp.disconnect();
-    bp2.disconnect();
-#if !defined( OROPKG_OS_MACOSX ) && !defined(OROBLD_OS_NO_ASM)
-    bp = new BufferLockFree<double>(10);
-    BOOST_CHECK( bp.connected() );
-    BOOST_CHECK( bp.buffer()->capacity() == 10 );
-#endif
-
+    // Tasks have been destroyed, but the ports not. Automatic disconnection
+    // is done when port objects are disconnected
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( rp2.connected() );
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( wp2.connected() );
 }
 
-BOOST_AUTO_TEST_CASE( testEventPorts )
+BOOST_AUTO_TEST_CASE(testPortConnectionInitialization)
 {
-    // Data ports
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    OutputPort<int> wp("WriterName", true);
+    InputPort<int> rp("ReaderName", ConnPolicy::data(true));
 
-    BOOST_CHECK( tce->ports()->addEventPort( &wdp ));
-    BOOST_CHECK( tc2->ports()->addEventPort( &rdp ));
-    BOOST_CHECK( tce->ports()->addEventPort( &dp ));
-    BOOST_CHECK( tc2->ports()->addEventPort( &dp2 ));
+    BOOST_CHECK( wp.createConnection(rp) );
+    int value = 0;
+    BOOST_CHECK( !rp.read(value) );
+    BOOST_CHECK( !wp.getLastWrittenValue(value) );
+    wp.write(10);
+    BOOST_CHECK( rp.read(value) );
+    BOOST_CHECK_EQUAL( 10, value );
 
-    // Buffer ports
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
+    wp.disconnect(rp);
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp.connected() );
 
-    BOOST_CHECK( tce->ports()->addEventPort( &wbp ));
-    BOOST_CHECK( tc2->ports()->addEventPort( &rbp ));
-    BOOST_CHECK( tce->ports()->addEventPort( &bp ));
-    BOOST_CHECK( tc2->ports()->addEventPort( &bp2 ));
+    value = 0;
+    BOOST_CHECK( wp.getLastWrittenValue(value) );
+    BOOST_CHECK_EQUAL( 10, value );
+    BOOST_CHECK_EQUAL( 10, wp.getLastWrittenValue() );
 
-    // Connect 3 data ports
-    BOOST_CHECK(wdp.connectTo( &rdp ) );
-    BOOST_CHECK(dp.connectTo( rdp.connection() ));
-
-    // Connect 3 buffer ports
-    BOOST_CHECK(wbp.connectTo( &rbp ) );
-    BOOST_CHECK(bp.connectTo( rbp.connection() ));
-
-    wdp.Set(1.0);
-    BOOST_CHECK( tc2->had_event == false );
-    BOOST_CHECK_EQUAL( tc2->nb_events, 0 ); // not running.
-    BOOST_CHECK( tce->had_event == false );
-    BOOST_CHECK_EQUAL( tce->nb_events, 0 ); // not running.
-
-    // After addEventPort, do the start (SequentialActivity)
-    tce->start();
-    tc2->start();
-
-    // Test data transfer
-    BOOST_CHECK( rdp.Get() == 1.0 );
-    wdp.Set( 3.0 );
-    BOOST_CHECK( rdp.Get() == 3.0 );
-    BOOST_CHECK( dp.Get() == 3.0 );
-    BOOST_CHECK( tce->had_event );
-    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
-    BOOST_CHECK( tc2->had_event );
-    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rdp) connected
-    tce->resetStats();
-    tc2->resetStats();
-
-    // Test Reconnection after tasks are running:
-    dp.disconnect();
-    BOOST_CHECK( dp.connectTo( &dp2 ) );
-    BOOST_CHECK( dp.connected() );
-    BOOST_CHECK( dp2.connected() );
-
-    double dat;
-    dp.Set( 5.0 );
-    dp2.Get( dat );
-    BOOST_CHECK( dat == 5.0 );
-    BOOST_CHECK( tce->had_event );
-    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
-    BOOST_CHECK( tc2->had_event );
-    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (dp2).
-    tce->resetStats();
-    tc2->resetStats();
-
-    dp2.Set( 6.0 );
-    BOOST_CHECK( dp.Get() == 6.0 );
-    BOOST_CHECK( tce->had_event );
-    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port fired.
-    BOOST_CHECK( tc2->had_event );
-    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port fired.
-    tce->resetStats();
-    tc2->resetStats();
-
-    dp.disconnect();
-    dp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
-    dp = new DataObject<double>("Data",10.0);
-    BOOST_CHECK( dp.connected() );
-    BOOST_CHECK( dp.Get() == 10.0 );
-#endif
-    // Each time, each TC must receive one event.
-    double val;
-    BOOST_CHECK( wbp.Push( 5.0 ) );
-    BOOST_CHECK( rbp.Pop( val ) );
-    BOOST_CHECK( tce->had_event );
-    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
-    BOOST_CHECK( tc2->had_event );
-    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event ports (rbp) fired.
-    tce->resetStats();
-    tc2->resetStats();
-
-    BOOST_CHECK( bp.Push( 5.0 ) );
-    BOOST_CHECK( bp.Pop( val ) );
-    BOOST_CHECK( tce->had_event );
-    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
-    BOOST_CHECK( tc2->had_event );
-    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rbp) fired.
-    tce->resetStats();
-    tc2->resetStats();
+    value = 0;
+    BOOST_CHECK( wp.createConnection(rp) );
+    BOOST_CHECK( rp.read(value) );
+    BOOST_CHECK_EQUAL( 10, value );
+    //wp.disconnect();
 }
 
-BOOST_AUTO_TEST_CASE( testConnections)
+BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    OutputPort<int> wp("WriterName");
+    InputPort<int> rp("ReaderName", ConnPolicy::data(ConnPolicy::LOCK_FREE, false));
 
-    BOOST_CHECK( wdp.getPortType() == PortInterface::WritePort );
-    BOOST_CHECK( rdp.getPortType() == PortInterface::ReadPort );
-    BOOST_CHECK( dp.getPortType() == PortInterface::ReadWritePort );
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp.connected() );
+    {
+        int value;
+        BOOST_CHECK( !rp.read(value) );
+        wp.write(value); // just checking if is works or if it crashes
+    }
 
-    // Test initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
+    BOOST_REQUIRE( wp.createConnection(rp) );
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp.connected() );
 
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
+    { 
+        int value = 0;
+        BOOST_CHECK( !rp.read(value) );
+        wp.write(1);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK( 1 == value );
+    }
 
-    BOOST_CHECK( wbp.getPortType() == PortInterface::WritePort );
-    BOOST_CHECK( rbp.getPortType() == PortInterface::ReadPort );
-    BOOST_CHECK( bp.getPortType() == PortInterface::ReadWritePort );
+    rp.clear();
+    { 
+        int value = 0;
+        BOOST_CHECK( !rp.read(value) );
+        wp.write(1);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK( 1 == value );
+    }
 
-    BOOST_CHECK( tc->ports()->addPort( &wdp ));
-    BOOST_CHECK( tc->ports()->addPort( &rdp ));
-    BOOST_CHECK( tc->ports()->addPort( &dp ));
-    BOOST_CHECK( tc->ports()->addPort( &dp2 ));
+    // Try disconnecting starting at the writer. Disconnecting from the reader
+    // will be done later
+    wp.disconnect();
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp.connected() );
+    {
+        int value;
+        wp.write(value);
+        BOOST_CHECK( !rp.read(value) );
+    }
+    wp.disconnect(); // calling it when not connected should be fine as well
 
-    // test setting the connection object
-    *((DataPortBase<double>*)&wdp) = new DataObject<double>("");
-    *((DataPortBase<double>*)&rdp) = new DataObject<double>("");
-    *((DataPortBase<double>*)&dp) = new DataObject<double>("");
-    *((DataPortBase<double>*)&dp2) = new DataObject<double>("");
-    // TODO the operator= is inaccessible on MinGW 3.4.2
-    //wdp = new DataObject<double>("");
-    //rdp = new DataObject<double>("");
-    //dp = new DataObject<double>("");
-    //dp2 = new DataObject<double>("");
+    { 
+        int value = 0;
+        BOOST_CHECK( !rp.read(value) );
+        wp.createBufferConnection(rp, 4);
+        BOOST_CHECK( !rp.read(value) );
+        wp.write(1);
+        wp.write(2);
+        wp.write(3);
+        wp.write(4);
+        wp.write(5);
+        BOOST_CHECK_EQUAL(0, value);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK_EQUAL(1, value);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK_EQUAL(2, value);
 
+        rp.clear();
+        BOOST_CHECK_EQUAL( rp.read(value), NoData );
+        wp.write(10);
+        wp.write(20);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK_EQUAL(10, value);
+        BOOST_CHECK( rp.read(value) );
+        BOOST_CHECK_EQUAL(20, value);
+        BOOST_CHECK_EQUAL( rp.read(value), OldData );
+    }
 
-    BOOST_CHECK( wdp.connected() );
-    BOOST_CHECK( rdp.connected() );
-    BOOST_CHECK( dp.connected() );
-    BOOST_CHECK( dp2.connected() );
+    // Try disconnecting from the reader this time
+    rp.disconnect();
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp.connected() );
+    {
+        int value;
+        wp.write(value);
+        BOOST_CHECK( !rp.read(value) );
+    }
+    rp.disconnect(); // calling it when not connected should be fine as well
 
-    BOOST_CHECK( dynamic_cast<DataObject<double>* >( wdp.connection()->getDataSource().get() ) );
-    BOOST_CHECK( dynamic_cast<DataObject<double>* >( rdp.connection()->getDataSource().get() ) );
-    BOOST_CHECK( dynamic_cast<DataObject<double>* >( dp.connection()->getDataSource().get() ) );
-    BOOST_CHECK( dynamic_cast<DataObject<double>* >( dp2.connection()->getDataSource().get() ) );
+    // Test automatic disconnection because of port destruction
+    {
+        InputPort<int> rp("ReaderName", ConnPolicy::data());
+        BOOST_CHECK(wp.createConnection(rp));
+        BOOST_CHECK( wp.connected() );
+        BOOST_CHECK( rp.connected() );
+    }
+    BOOST_CHECK( !wp.connected() );
+}
 
-    // test setting the connection object
-    wbp = new BufferLocked<double>(10);
-    rbp = new BufferLocked<double>(11);
-    bp = new BufferLocked<double>(12);
-    bp2 = new BufferLocked<double>(13);
+BOOST_AUTO_TEST_CASE(testPortForkedConnections)
+{
+    OutputPort<int> wp("W");
+    InputPort<int> rp1("R1", ConnPolicy::data());
+    InputPort<int> rp2("R2", ConnPolicy::buffer(4));
 
-    BOOST_CHECK( wbp.connected() );
-    BOOST_CHECK( rbp.connected() );
-    BOOST_CHECK( bp.connected() );
-    BOOST_CHECK( bp2.connected() );
+    wp.createConnection(rp1);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
+    wp.createConnection(rp2);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( rp2.connected() );
 
-    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( wbp.connection()->getBuffer().get() ) );
-    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( rbp.connection()->getBuffer().get() ) );
-    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( bp.connection()->getBuffer().get() ) );
-    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( bp2.connection()->getBuffer().get() ) );
+    wp.write(10);
+    wp.write(15);
+    wp.write(20);
+    wp.write(25);
+    wp.write(30);
 
+    int value = 0;
+    BOOST_CHECK( rp1.read(value));
+    BOOST_CHECK_EQUAL(30, value);
+
+    BOOST_CHECK( rp2.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK( rp2.read(value));
+    BOOST_CHECK_EQUAL(15, value);
+    BOOST_CHECK( rp2.read(value));
+    BOOST_CHECK_EQUAL(20, value);
+    BOOST_CHECK( rp2.read(value));
+    BOOST_CHECK_EQUAL(25, value);
+    BOOST_CHECK_EQUAL( rp2.read(value), OldData);
+
+    // Now removes only the buffer port
+    wp.disconnect(rp2);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
+
+    wp.write(10);
+    BOOST_CHECK( rp1.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+
+    // And finally the other port as well
+    wp.disconnect(rp1);
+    BOOST_CHECK( !wp.connected() );
+    BOOST_CHECK( !rp1.connected() );
+    BOOST_CHECK( !rp2.connected() );
 }
 
 BOOST_AUTO_TEST_CASE( testPortObjects)
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
 
-    tc->ports()->addPort( &wdp );
-    tc->ports()->addPort( &rdp );
-    tc->ports()->addPort( &dp );
-    tc->ports()->addPort( &dp2 );
+    tc->ports()->addPort( &wp1 );
+    tc->ports()->addPort( &rp1 );
 
     // Check if ports were added as objects as well
-    BOOST_CHECK( tc->getObject("WDName") != 0 );
-    BOOST_CHECK( tc->getObject("RDName") != 0 );
-    BOOST_CHECK( tc->getObject("DName") != 0 );
-    BOOST_CHECK( tc->getObject("D2Name") != 0 );
+    BOOST_CHECK( tc->getObject("Write") != 0 );
+    BOOST_CHECK( tc->getObject("Read") != 0 );
 
     // Set initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
+    wp1.write( 1.0 );
 
     // Connect ports.
-    wdp.connectTo( &rdp );
-    dp.connectTo( &dp2 );
-
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
-
-    tc->ports()->addPort( &wbp );
-    tc->ports()->addPort( &rbp );
-    tc->ports()->addPort( &bp );
-    tc->ports()->addPort( &bp2 );
-
-    // Check if ports were added as objects as well
-    BOOST_CHECK( tc->getObject("WBName") != 0 );
-    BOOST_CHECK( tc->getObject("RBName") != 0 );
-    BOOST_CHECK( tc->getObject("BName") != 0 );
-    BOOST_CHECK( tc->getObject("B2Name") != 0 );
-
-    // Connect ports.
-    wbp.connectTo( &rbp );
-    bp.connectTo( &bp2 );
+    wp1.createConnection( rp1 );
 
     // Test Methods set/get
-    Method<void(const double&)> mset;
-    Method<double(void)> mget;
+    Method<void(double const&)> mset;
+    Method<FlowStatus(double&)> mget;
 
-    mset = tc->getObject("WDName")->methods()->getMethod<void(const double&)>("Set");
+    mset = tc->getObject("Write")->methods()->getMethod<void(double const&)>("write");
     BOOST_CHECK( mset.ready() );
 
-    mget = tc->getObject("RDName")->methods()->getMethod<double(void)>("Get");
+    mget = tc->getObject("Read")->methods()->getMethod<FlowStatus(double&)>("read");
     BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );
 
-    BOOST_CHECK( mget() == 3.991 );
+    double get_value = 0;
+    BOOST_CHECK( mget(get_value) );
+    BOOST_CHECK_CLOSE( 3.991, get_value, 0.001 );
 
-    // Test Methods for DataPort
-    mset = tc->getObject("DName")->methods()->getMethod<void(const double&)>("Set");
-    BOOST_CHECK( mset.ready() );
+    //// Finally, check cleanup. Ports and port objects must be gone:
+    tc->ports()->removePort("Reader");
+    BOOST_CHECK( tc->getObject("Reader") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("Reader") == 0 );
 
-    mget = tc->getObject("D2Name")->methods()->getMethod<double(void)>("Get");
-    BOOST_CHECK( mget.ready() );
+    tc->ports()->removePort("Writer");
+    BOOST_CHECK( tc->getObject("Writer") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("Writer") == 0 );
+}
 
-    mset( 3.992 );
+BOOST_AUTO_TEST_CASE(testPortSignalling)
+{
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
 
-    BOOST_CHECK( mget() == 3.992 );
+    Handle hl( rp1.getNewDataOnPortEvent()->setup(
+                boost::bind(&Generic_TaskTest_3::new_data_listener, this, _1) ) );
+    hl.connect();
 
-    // Test Methods push/pull
-    Method<bool(const double&)> mpush;
-    Method<bool(double&)> mpop;
+    wp1.createConnection(rp1, ConnPolicy::data());
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
 
-    mpush = tc->getObject("WBName")->methods()->getMethod<bool(const double&)>("Push");
-    BOOST_CHECK( mpush.ready() );
+    wp1.disconnect();
+    wp1.createConnection(rp1, ConnPolicy::buffer(2));
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(0 == signalled_port);
+}
 
-    mpop = tc->getObject("RBName")->methods()->getMethod<bool(double&)>("Pop");
-    BOOST_CHECK( mpop.ready() );
+BOOST_AUTO_TEST_CASE(testPortDataSource)
+{
+    OutputPort<int> wp1("Write");
+    auto_ptr<InputPortInterface> reader(dynamic_cast<InputPortInterface*>(wp1.antiClone()));
+    BOOST_CHECK(wp1.connectTo(*reader, ConnPolicy::buffer(2)));
 
-    BOOST_CHECK( mpush( 3.991 ) );
+    DataSource<int>::shared_ptr source = static_cast< DataSource<int>* >(reader->getDataSource());
+    BOOST_CHECK(source);
 
-    double ret;
-    BOOST_CHECK( mpop(ret) );
+    BOOST_CHECK(!source->evaluate());
+    wp1.write(10);
+    wp1.write(20);
+    // value is still null when not get()/evaluate()
+    BOOST_CHECK_EQUAL(0, source->value());
 
-    BOOST_CHECK( ret == 3.991 );
+    // read a sample:
+    BOOST_CHECK(source->evaluate());
+    BOOST_CHECK_EQUAL(10, source->value());
+    BOOST_CHECK_EQUAL(10, source->value());
 
-    // Test Methods push/pop for DataPort
-    mpush = tc->getObject("BName")->methods()->getMethod<bool(const double&)>("Push");
-    BOOST_CHECK( mpush.ready() );
+    // get a sample (=evaluate+value):
+    BOOST_CHECK_EQUAL(20, source->get());
 
-    mpop = tc->getObject("B2Name")->methods()->getMethod<bool(double&)>("Pop");
-    BOOST_CHECK( mpop.ready() );
-
-    BOOST_CHECK( mpush( 3.993 ) );
-
-    BOOST_CHECK( mpop(ret) );
-
-    BOOST_CHECK( ret == 3.993 );
-
-    // Finally, check cleanup. Ports and port objects must be gone:
-    tc->ports()->removePort("RDName");
-    BOOST_CHECK( tc->getObject("RDName") == 0 );
-    BOOST_CHECK( tc->ports()->getPort("RDName") == 0 );
-
-    tc->ports()->removePort("BName");
-    BOOST_CHECK( tc->getObject("BName") == 0 );
-    BOOST_CHECK( tc->ports()->getPort("BName") == 0 );
+    // buffer empty, but value remains same as old:
+    BOOST_CHECK(!source->evaluate());
+    BOOST_CHECK_EQUAL(0, source->get());
+    BOOST_CHECK_EQUAL(20, source->value());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

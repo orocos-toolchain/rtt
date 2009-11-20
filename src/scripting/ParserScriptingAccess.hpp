@@ -39,13 +39,12 @@
 #ifndef ORO_EXECUTION_PARSER_SCRIPTING_ACCESS_HPP
 #define ORO_EXECUTION_PARSER_SCRIPTING_ACCESS_HPP
 
-#include "../ScriptingAccess.hpp"
-#include "../OperationInterface.hpp"
+#include "ScriptingAccess.hpp"
+#include "../interface/OperationInterface.hpp"
 #include "../rtt-config.h"
 
 namespace RTT
-{
-    class StatementProcessor;
+{ namespace scripting {
 
     /**
      * This implementation provides access to the loaded programs
@@ -67,7 +66,7 @@ namespace RTT
         bool doLoadStateMachineText( std::string code );
         bool doUnloadStateMachine( std::string name );
 
-        OperationInterface* createTaskObject(OperationInterface* obj);
+        interface::OperationInterface* createTaskObject(interface::OperationInterface* obj);
     public:
         ParserScriptingAccess( TaskContext* parent );
 
@@ -75,7 +74,7 @@ namespace RTT
 
         virtual int execute( const std::string& code );
 
-        virtual DispatchInterface::shared_ptr getCommand( int ticket );
+        virtual base::DispatchInterface::shared_ptr getCommand( int ticket );
 
         virtual Functions loadFunctions(std::string filename, bool do_throw = false );
         virtual Functions loadFunctions(std::string code, std::string filename, bool do_throw = false );
@@ -89,6 +88,6 @@ namespace RTT
         virtual bool unloadStateMachine( std::string name, bool do_throw = false );
 
     };
-}
+}}
 
 #endif

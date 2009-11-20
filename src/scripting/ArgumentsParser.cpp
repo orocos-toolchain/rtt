@@ -35,7 +35,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "ExpressionParser.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 
 
 namespace RTT

@@ -24,6 +24,7 @@
 #include <PropertyBag.hpp>
 
 using namespace RTT;
+using namespace base;
 
 struct Composite {
     Composite() : a(0), b(-1), c(+1) {}

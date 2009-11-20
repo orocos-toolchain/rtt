@@ -24,6 +24,7 @@
 
 using namespace RTT;
 
+
 class LoggerTest
 {
 public:

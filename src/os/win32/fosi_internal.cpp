@@ -51,7 +51,7 @@ using namespace std;
 #define INTERNAL_QUAL
 
 namespace RTT
-{ namespace OS { namespace detail {
+{ namespace os {
 
 void ErrorHandler(LPTSTR lpszFunction)
 {
@@ -321,5 +321,5 @@ void ErrorHandler(LPTSTR lpszFunction)
     }
 
     }
-}}
+}
 #undef INTERNAL_QUAL

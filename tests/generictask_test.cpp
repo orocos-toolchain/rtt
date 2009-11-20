@@ -21,18 +21,18 @@
 #include "generictask_test.hpp"
 
 #include <iostream>
-#include <FunctionGraph.hpp>
-#include <Ports.hpp>
+#include <scripting/FunctionGraph.hpp>
 #include <Method.hpp>
-#include <OperationInterface.hpp>
-#include <RemoteMethod.hpp>
+#include <interface/OperationInterface.hpp>
+#include <internal/RemoteMethod.hpp>
 
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
 #include <rtt-config.h>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 

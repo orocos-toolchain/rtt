@@ -39,16 +39,16 @@
 #ifndef ORO_CORELIB_EVENT_HPP
 #define ORO_CORELIB_EVENT_HPP
 
-#include "Signal.hpp"
+#include "internal/Signal.hpp"
 #include "Handle.hpp"
-#include "LocalEvent.hpp"
+#include "internal/LocalEvent.hpp"
 #include <boost/call_traits.hpp>
 #include <boost/function.hpp>
-#include "NameServerRegistrator.hpp"
-#include "Invoker.hpp"
+#include "extras/dev/NameServerRegistrator.hpp"
+#include "internal/Invoker.hpp"
 
 #include "Logger.hpp"
-#include "EventProcessor.hpp"
+#include "internal/EventProcessor.hpp"
 #include <cassert>
 
 namespace RTT
@@ -75,29 +75,29 @@ namespace RTT
      * @see The Orocos CoreLib manual for usage.
      * @ingroup CoreLibEvents
      * @ingroup RTTComponentInterface
-     * @todo Remove NameServer functionality, as this is deprecated by the EventService
+     * @todo Remove dev::NameServer functionality, as this is deprecated by the interface::EventService
      * class.
      */
     template<
-        typename SignatureT // function type R (T1, T2, ..., TN)
+        typename SignatureT
     >
     class Event
         : public detail::InvokerSignature<boost::function_traits<SignatureT>::arity,
                                           SignatureT,
-                                          boost::shared_ptr< detail::EventBase<SignatureT> > >,
-          private NameServerRegistrator<Event<SignatureT>*>
+                                          boost::shared_ptr< base::EventBase<SignatureT> > >,
+          private dev::NameServerRegistrator<Event<SignatureT>*>
     {
         typedef SignatureT FunctionT;
         std::string mname;
-        typedef boost::shared_ptr< detail::EventBase<FunctionT> > EventBasePtr;
+        typedef boost::shared_ptr< base::EventBase<FunctionT> > EventBasePtr;
         typedef detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
                                          FunctionT,
                                          EventBasePtr > Base;
     public:
        /**
-        * @see EventProcessor::AsynStorageType
+        * @see internal::EventProcessor::AsynStorageType
         */
-        typedef EventProcessor::AsynStorageType AsynStorageType;
+        typedef internal::EventProcessor::AsynStorageType AsynStorageType;
 
         typedef boost::function<SignatureT> SlotFunction;
 
@@ -114,7 +114,7 @@ namespace RTT
          * Create a named Synchronous/Asynchronous Event.
          */
         explicit Event(const std::string name )
-            : Base( EventBasePtr(new detail::LocalEvent<Signature>()) ),
+            : Base( EventBasePtr(new internal::LocalEvent<Signature>()) ),
               mname(name)
         {
             Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;
@@ -159,8 +159,8 @@ namespace RTT
          * @param implementation The implementation which is acquired
          * by the Event object. If it has the wrong type, it is freed.
          */
-        Event(boost::shared_ptr<ActionInterface> implementation)
-            : Base( boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation) ),
+        Event(boost::shared_ptr<base::ActionInterface> implementation)
+            : Base( boost::dynamic_pointer_cast< base::EventBase<Signature> >(implementation) ),
               mname()
         {
             if ( !this->impl && implementation ) {
@@ -176,11 +176,11 @@ namespace RTT
          *
          * @return *this;
          */
-        Event& operator=(boost::shared_ptr<ActionInterface> implementation)
+        Event& operator=(boost::shared_ptr<base::ActionInterface> implementation)
         {
             if (this->impl == implementation)
                 return *this;
-            this->impl = boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation);
+            this->impl = boost::dynamic_pointer_cast< base::EventBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Event '"<< mname <<"' from incompatible type."<< endlog();
             }
@@ -217,7 +217,7 @@ namespace RTT
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, EventProcessor* ep, AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle connect( const SlotFunction& l, internal::EventProcessor* ep, AsynStorageType t = internal::EventProcessor::OnlyFirst)
         {
             return this->impl ? ep->connect( l, *this, t ) : Handle();
         }
@@ -233,7 +233,7 @@ namespace RTT
         /**
          * @brief Setup an Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, EventProcessor* ep, AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle setup( const SlotFunction& l, internal::EventProcessor* ep, AsynStorageType t = internal::EventProcessor::OnlyFirst)
         {
             return this->impl ? ep->setup( l, *this, t ) : Handle();
         }
@@ -242,17 +242,17 @@ namespace RTT
 
         /**
          * @brief Public nameserver for Events.
-         * @see also EventService for a 'type-less'/universal
+         * @see also interface::EventService for a 'type-less'/universal
          * Event nameserver.
          */
-        static NameServer<EventType*> nameserver;
+        static dev::NameServer<EventType*> nameserver;
     };
 
 
     template<
         typename SignatureT
     >
-    NameServer<Event<SignatureT>*>
+    dev::NameServer<Event<SignatureT>*>
     Event<SignatureT>::nameserver;
 
 }

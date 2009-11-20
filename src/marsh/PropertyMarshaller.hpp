@@ -40,10 +40,11 @@
 #define PROPERTY_MARSHALLER_HPP
 
 #include <string>
-#include "../Marshaller.hpp"
+#include "Marshaller.hpp"
 
 namespace RTT
-{
+{ namespace marsh {
+
     /**
      * A class for writing a property or propertybag into file.
      * The file format used by Orocos is the 'Component Property Format'.
@@ -63,11 +64,11 @@ namespace RTT
         PropertyMarshaller(const std::string& filename);
         ~PropertyMarshaller();
 
-        virtual void serialize(PropertyBase* v);
+        virtual void serialize(base::PropertyBase* v);
 
         virtual void serialize(const PropertyBag &v);
 
         virtual void flush();
 	};
-}
+}}
 #endif

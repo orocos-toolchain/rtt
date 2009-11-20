@@ -39,7 +39,7 @@
 #ifndef STARTSTOPMANAGER_HPP
 #define STARTSTOPMANAGER_HPP
 
-#include "Time.hpp"
+#include "../Time.hpp"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <vector>
@@ -47,7 +47,7 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
     /**
      * @brief This manager starts and stops all globally registered start/stop
      * functions, without a particular order.

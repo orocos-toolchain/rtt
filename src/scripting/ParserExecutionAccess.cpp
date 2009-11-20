@@ -38,14 +38,15 @@
 
 
 #include "ParserExecutionAccess.hpp"
-#include "Logger.hpp"
-#include "TaskContext.hpp"
-#include "TaskObject.hpp"
-#include "Method.hpp"
-#include "Command.hpp"
+#include "../Logger.hpp"
+#include "../TaskContext.hpp"
+#include "../internal/TaskObject.hpp"
+#include "../Method.hpp"
+#include "../Command.hpp"
+#include "../internal/TaskObject.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
     ParserExecutionAccess::ParserExecutionAccess( TaskContext* parent )

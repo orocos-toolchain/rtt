@@ -38,7 +38,7 @@
 
 
 #include "TaskContext.hpp"
-#include <CommandInterface.hpp>
+#include "base/ActionInterface.hpp"
 
 #include <string>
 #include <algorithm>
@@ -46,19 +46,18 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include "DataSource.hpp"
+#include "internal/DataSource.hpp"
 #include "Method.hpp"
-#include "ConnectionInterface.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "scripting/ParserScriptingAccess.hpp"
 #include "scripting/ParserExecutionAccess.hpp"
 #endif
-#include "MarshallingAccess.hpp"
+#include "interface/MarshallingAccess.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
-#include "SequentialActivity.hpp"
+#include "extras/SequentialActivity.hpp"
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
 #include "Activity.hpp"
 #endif
@@ -68,6 +67,7 @@ namespace RTT
 
     using namespace boost;
     using namespace std;
+    using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore(name, initial_state)
@@ -86,7 +86,7 @@ namespace RTT
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-           ,our_act( new Activity( this->engine() ) )
+           ,our_act( new Activity( this->engine(), name ) )
 #endif
     {
         this->setup();
@@ -109,7 +109,7 @@ namespace RTT
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
-           ,our_act( parent ? 0 : new Activity( this->engine() ) )
+           ,our_act( parent ? 0 : new Activity( this->engine(), name ) )
 #endif
     {
         this->setup();
@@ -237,12 +237,12 @@ namespace RTT
         bool failure = false;
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
-        // connect our write ports to the read ports of 'peer'.
-        // and vice versa.
+
         DataFlowInterface::Ports myports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = myports.begin();
              it != myports.end();
              ++it) {
+
             // Then try to get the peer port's connection
             PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
             if ( !peerport ) {
@@ -250,55 +250,12 @@ namespace RTT
                 continue;
             }
 
-            // Detect already connected ports.
-            if ( peerport->connected() && (*it)->connected() ) {
-                if (peerport->connection() == (*it)->connection() )
-                    continue;
-                log(Warning) << "Ports '"<< peerport->getName() << "' of task " <<peer->getName() << " and task " << getName()
-                      << " have the same name but are not connected to each other." << endlog();
-            }
-
-            // NOTE: all code below can be replaced by a single line:
-            // peerport->connectTo( *it ) || (*it)->connectTo(peerport);
-            // but that has less informational log messages.
-
-            // Our port is connected thus peerport is not connected.
-            if ( (*it)->connected() ) {
-                // ask peer to connect to us:
-                if ( peerport->connectTo( *it ) ) {
-                    log(Info)<< "Connected Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
-                }
-                else {
-                    log(Error)<< "Failed to connect Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
-                    failure = true;
-                }
-                continue;
-            }
-
-            // Peer port is connected thus our port is not connected.
-            if ( peerport->connected() ) {
-                if ( (*it)->connectTo( peerport ) ) {
-                    log(Info)<< "Added Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
-                }
-                else {
-                    log(Error)<< "Not connecting Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
-                    failure = true;
-                }
-                continue;
-            }
-
-            // Last resort: both not connected: create new connection.
-            if ( !(*it)->connectTo( peerport ) ) {
-                // real error msg will be produced by factory itself.
-                log(Warning)<< "Failed to connect Port " << (*it)->getName() << " of " << getName() << " to peer Task "<<peer->getName() <<"." << endlog();
+            // Try to find a way to connect them
+            if ( !(*it)->connectTo(*peerport) ) {
+                log(Debug)<< "Data flow incompatible between ports "
+                          << getName() << "." << (*it)->getName() << " and "
+                          << peer->getName() << "." << (*it)->getName() << endlog();
                 failure = true;
-            } else {
-                // all went fine, add peerport as well, will always succeed:
-                log(Info)<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << endlog();
             }
         }
         return !failure;
@@ -447,7 +404,7 @@ namespace RTT
         return true;
     }
 
-    void TaskContext::setActivity(RTT::ActivityInterface* new_act)
+    void TaskContext::setActivity(ActivityInterface* new_act)
     {
         if (this->isActive())
             return;
@@ -507,10 +464,10 @@ namespace RTT
         const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
         for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
             {
-                int porttype = (*it)->getPortType();
-                if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
+                InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(*it);
+                if (read_port)
                     {
-                        Handle h = (*it)->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
+                        Handle h = read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
                         if (h) {
                             port_count++;
                             log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
@@ -541,6 +498,11 @@ namespace RTT
 
     void TaskContext::updateHook(std::vector<PortInterface*> const& updated_ports)
     {
+    }
+
+    bool TaskContext::isPortUpdated(base::PortInterface const& port) const
+    {
+        return find(updated_ports.begin(), updated_ports.end(), &port) != updated_ports.end();
     }
 }
 

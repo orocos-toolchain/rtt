@@ -41,12 +41,13 @@
 #define ORO_PROPERTYPARSER_HPP
 
 #include "parser-types.hpp"
+#include "../rtt-fwd.hpp"
 #include "CommonParser.hpp"
 #include <string>
 
 namespace RTT
 {
-    namespace detail {
+    namespace scripting {
     /**
      * Get the property and bag from an invocation path like
      * bag.subbag.prop .
@@ -56,7 +57,7 @@ namespace RTT
         CommonParser commonparser;
         rule_t propertylocator;
         PropertyBag*  _bag;
-        PropertyBase* _property;
+        base::PropertyBase* _property;
 
         void locateproperty( iter_t begin, iter_t end );
     public:
@@ -83,7 +84,7 @@ namespace RTT
          */
         rule_t& locator();
 
-        PropertyBase* property() const { return _property; }
+        base::PropertyBase* property() const { return _property; }
 
         PropertyBag*  bag() const { return _bag; }
     };

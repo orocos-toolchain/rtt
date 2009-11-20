@@ -69,7 +69,7 @@ distribution.
 
 #include "tinystr.h"
 
-namespace RTT { namespace detail {
+namespace RTT { namespace marsh {
 
 // Error value for find primitive
 const TiXmlString::size_type TiXmlString::npos = static_cast< size_type >(-1);

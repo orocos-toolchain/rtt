@@ -71,10 +71,13 @@ int ORO_main_impl(int,char**);
             if ( __os_checkException(argc,argv) ) {             \
                 try {                                           \
                     res = ORO_main_impl(argc, argv);            \
+                } catch( std::exception& arg )                  \
+                {                                               \
+                    __os_printException(argv[0], arg);          \
                 } catch( ... )                                  \
-                      {                                         \
-                          __os_printFailure();                  \
-                      }                                         \
+                {                                               \
+                    __os_printFailure(argv[0]);                 \
+                }                                               \
             } else {                                            \
                 res = ORO_main_impl(argc, argv);                \
             }                                                   \

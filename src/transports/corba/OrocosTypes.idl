@@ -1,0 +1,20 @@
+#ifndef ORO_OROCOS_TYPES_IDL
+#define ORO_OROCOS_TYPES_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
+module RTT
+{
+  module corba
+  {
+    // Classical Orocos type
+    typedef sequence<double> CDoubleSequence;
+  };
+
+};
+
+
+#endif

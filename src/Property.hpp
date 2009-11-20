@@ -39,12 +39,11 @@
 #define ORO_PROPERTY_HPP
 
 #include "rtt-config.h"
-#include "Marshaller.hpp"
-#include "PropertyBase.hpp"
+#include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#include "PropertyCommands.hpp"
-#include "DataSources.hpp"
-#include "BuildType.hpp"
+#include "internal/PropertyCommands.hpp"
+#include "internal/DataSources.hpp"
+#include "types/BuildType.hpp"
 #include <boost/type_traits.hpp>
 
 #include <string>
@@ -76,7 +75,7 @@ namespace RTT
 	 */
     template<typename T>
     class Property
-        : public PropertyBase
+        : public base::PropertyBase
     {
     public:
         /**
@@ -106,7 +105,7 @@ namespace RTT
          * @post ready() will always be true.
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : PropertyBase(name, description), _value( detail::BuildType<value_t>::Value( value ) )
+            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
         {
         }
 
@@ -116,7 +115,7 @@ namespace RTT
          * @post ready() will be true if orig.ready() is true.
          */
         Property( const Property<T>& orig)
-            : PropertyBase(orig.getName(), orig.getDescription()),
+            : base::PropertyBase(orig.getName(), orig.getDescription()),
               _value( orig._value ? orig._value->clone() : 0 )
         {}
 
@@ -126,9 +125,9 @@ namespace RTT
          * the value.
          * @see ready() to inspect if the creation succeeded.
          */
-        Property( PropertyBase* source)
-            : PropertyBase(source ? source->getName() : "", source ? source->getDescription() : ""),
-              _value( source ? AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
+        Property( base::PropertyBase* source)
+            : base::PropertyBase(source ? source->getName() : "", source ? source->getDescription() : ""),
+              _value( source ? internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
         {
         }
 
@@ -142,8 +141,8 @@ namespace RTT
          * @post ready() will be true if datasource is a valid pointer.
          */
         Property(const std::string& name, const std::string& description,
-                 typename AssignableDataSource<DataSourceType>::shared_ptr datasource )
-            : PropertyBase(name, description), _value( datasource )
+                 typename internal::AssignableDataSource<DataSourceType>::shared_ptr datasource )
+            : base::PropertyBase(name, description), _value( datasource )
         {}
 
         /**
@@ -161,17 +160,20 @@ namespace RTT
          * Construct a Property which mirrors a PropertyBase.
          * @param source A pointer to the property to mirror.
          */
-        Property<T>& operator=( PropertyBase* source )
+        Property<T>& operator=( base::PropertyBase* source )
         {
+            if ( this == source )
+                return *this;
+
             if ( source ) {
                 this->setName( source->getName() );
                 this->setDescription( source->getDescription() );
-                typename AssignableDataSource<DataSourceType>::shared_ptr vptr
-                    = AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
+                typename internal::AssignableDataSource<DataSourceType>::shared_ptr vptr
+                    = internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
                 if (vptr)
                     _value = vptr;
                 else
-                    _value = detail::BuildType<value_t>::Value() ;
+                    _value = types::BuildType<value_t>::Value() ;
             } else {
                 this->setName( "" );
                 this->setDescription( "" );
@@ -249,20 +251,20 @@ namespace RTT
 
         /**
          * Use this method instead of dynamic_cast<> to cast from
-         * PropertyBase to Property<T>. You need to delete the returned property
+         * base::PropertyBase to Property<T>. You need to delete the returned property
          * if it is no longer needed.
          * @param T The Desired property type, for example 'double'.
          * @param prop The property to narrow to Property<T>.
          * @return Null if prop is not convertible to type Property<T>,
          * a \b new Property<T> instance otherwise.
          */
-        static Property<T>* narrow( PropertyBase* prop );
+        static Property<T>* narrow( base::PropertyBase* prop );
 
-        virtual void identify( PropertyIntrospection* pi);
+        virtual void identify( base::PropertyIntrospection* pi);
 
-        virtual void identify( PropertyBagVisitor* pi);
+        virtual void identify( base::PropertyBagVisitor* pi);
 
-        virtual bool update( const PropertyBase* other)
+        virtual bool update( const base::PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 ) {
@@ -271,16 +273,16 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* updateCommand( const PropertyBase* other)
+        virtual base::ActionInterface* updateCommand( const base::PropertyBase* other)
         {
             // try to update from identical type or from const_reference_t.
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
             if ( origin != 0 && _value )
-                return new detail::UpdatePropertyCommand<T>(this, origin);
+                return new internal::UpdatePropertyCommand<T>(this, origin);
             return 0;
         }
 
-        virtual bool refresh( const PropertyBase* other)
+        virtual bool refresh( const base::PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 && _value ) {
@@ -289,16 +291,16 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* refreshCommand( const PropertyBase* other)
+        virtual base::ActionInterface* refreshCommand( const base::PropertyBase* other)
         {
             if ( !_value )
                 return 0;
             // refresh is just an update of the datasource.
-            DataSourceBase::shared_ptr sourcebase = other->getDataSource();
+            base::DataSourceBase::shared_ptr sourcebase = other->getDataSource();
             return _value->updateCommand( sourcebase.get() );
         }
 
-        virtual bool copy( const PropertyBase* other )
+        virtual bool copy( const base::PropertyBase* other )
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 && _value ) {
@@ -307,11 +309,11 @@ namespace RTT
             return false;
         }
 
-        virtual CommandInterface* copyCommand( const PropertyBase* other)
+        virtual base::ActionInterface* copyCommand( const base::PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 && _value )
-                return new detail::CopyPropertyCommand<T>(this, origin);
+                return new internal::CopyPropertyCommand<T>(this, origin);
             return 0;
         }
 
@@ -364,23 +366,23 @@ namespace RTT
             return new Property<T>( _name, _description );
         }
 
-        virtual DataSourceBase::shared_ptr getDataSource() const {
+        virtual base::DataSourceBase::shared_ptr getDataSource() const {
             return _value;
         }
 
-        typename AssignableDataSource<DataSourceType>::shared_ptr getAssignableDataSource() const {
+        typename internal::AssignableDataSource<DataSourceType>::shared_ptr getAssignableDataSource() const {
             return _value;
         }
 
         virtual std::string getType() const {
-            return DataSource<T>::GetType();
+            return internal::DataSource<T>::GetType();
         }
 
-        virtual const TypeInfo* getTypeInfo() const {
-            return DataSource<T>::GetTypeInfo();
+        virtual const types::TypeInfo* getTypeInfo() const {
+            return internal::DataSource<T>::GetTypeInfo();
         }
     protected:
-        typename AssignableDataSource<DataSourceType>::shared_ptr _value;
+        typename internal::AssignableDataSource<DataSourceType>::shared_ptr _value;
     };
 
 
@@ -406,7 +408,7 @@ namespace RTT
     }
 
     template<class T>
-    Property<T>* Property<T>::narrow( PropertyBase* prop ) {
+    Property<T>* Property<T>::narrow( base::PropertyBase* prop ) {
         Property<T>* res = dynamic_cast<Property<T>*>( prop );
         if (res)
             return res->clone();
@@ -436,24 +438,24 @@ namespace RTT
 #endif
 }
 
-#include "PropertyIntrospection.hpp"
+#include "base/PropertyIntrospection.hpp"
 
 namespace RTT
 {
     template< class T>
-    void Property<T>::identify( PropertyIntrospection* pi)
+    void Property<T>::identify( base::PropertyIntrospection* pi)
     {
         pi->introspect( *this );
     }
 
     template< class T>
-    void Property<T>::identify( PropertyBagVisitor* pi)
+    void Property<T>::identify( base::PropertyBagVisitor* pi)
     {
-        return PropertyBase::identify(pi);
+        return base::PropertyBase::identify(pi);
     }
 
     template<>
-    RTT_API void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
+    RTT_API void Property<PropertyBag>::identify( base::PropertyBagVisitor* pbi);
 }
 
 #endif

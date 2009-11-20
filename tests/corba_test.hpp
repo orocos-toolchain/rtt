@@ -1,15 +1,16 @@
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
-#include <corba/corba.h>
+#include <transports/corba/corba.h>
+#include <InputPort.hpp>
+#include <OutputPort.hpp>
 #include <TaskContext.hpp>
-#include <DataPort.hpp>
-#include <BufferPort.hpp>
-#include <corba/ControlTaskServer.hpp>
-#include <corba/ControlTaskProxy.hpp>
+#include <transports/corba/ControlTaskServer.hpp>
+#include <transports/corba/ControlTaskProxy.hpp>
 #include <string>
 
 using namespace RTT;
+using namespace RTT::detail;
 
 class CorbaTest
 {
@@ -20,21 +21,19 @@ public:
     TaskContext* tc;
     TaskContext* t2;
     TaskContext* tp;
-    Corba::ControlTaskServer* ts;
+    corba::ControlTaskServer* ts;
     TaskContext* tp2;
-    Corba::ControlTaskServer* ts2;
+    corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
 
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface* port);
+
     // Ports
-    DataPort<double>* md1;
-    DataPort<double>* md1bis;
-    DataPort<double>* md2;
-    ReadDataPort<double>* mdr1;
-    ReadDataPort<double>* mdr2;
-    WriteDataPort<double>* mdw1;
-    WriteDataPort<double>* mdw2;
-    BufferPort<double>* mb1;
-    BufferPort<double>* mb2;
+    InputPort<double>*  mi1;
+    OutputPort<double>* mo1;
+    InputPort<double>*  mi2;
+    OutputPort<double>* mo2;
 
     // ref/const-ref tests:
     double ret;
@@ -65,9 +64,21 @@ public:
     void setUp();
     void tearDown();
 
+    void testRemoteMethodC();
+    void testRemoteMethod();
+    void testAnyMethod();
+
+    void testDataFlowInterface();
+
+    void testPortConnections();
+    void testPortProxying();
+
+    void testHalfs();
+
     // helper test functions
-    void testPortStats();
-    void testPortDisconnect();
+    void testPortDataConnection();
+    void testPortBufferConnection();
+    void testPortDisconnected();
 };
 
 #endif

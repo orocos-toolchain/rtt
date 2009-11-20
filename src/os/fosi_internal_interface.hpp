@@ -51,9 +51,7 @@
 #include "fosi.h"
 
 namespace RTT {
-    namespace OS {
-        namespace detail {
-
+    namespace os {
             /**
              * Initialise the main thread. Anything necessary to 
              * setup the real-time environment on the current RTOS
@@ -215,7 +213,6 @@ namespace RTT {
              * @return It's name.
              */
             const char * rtos_task_get_name(const RTOS_TASK* task);
-        }
     }
 }
 #endif

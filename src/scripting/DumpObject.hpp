@@ -40,14 +40,11 @@
 #define ORO_DUMP_OBJECT_HPP
 
 #include "../rtt-config.h"
+#include "../interface/rtt-interface-fwd.hpp"
 
-namespace RTT{
-    class OperationInterface;
-}
+namespace RTT { namespace scripting {
 
-namespace RTT { namespace detail {
-
-RTT_API void DumpObject(RTT::OperationInterface* obj);
+RTT_API void DumpObject(interface::OperationInterface* obj);
 
 }}
 #endif

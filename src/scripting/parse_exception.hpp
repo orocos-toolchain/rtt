@@ -39,7 +39,7 @@
 
 #include <string>
 #include <vector>
-#include "../DataSourceBase.hpp"
+#include "../base/DataSourceBase.hpp"
 #include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -92,7 +92,7 @@ namespace RTT
         virtual parse_exception* copy() const = 0;
     };
 
-    namespace detail {
+    namespace scripting {
 
         /**
          * A Semantic parse exception means the parser recognised
@@ -470,7 +470,7 @@ namespace RTT
             std::string margsig;
         public:
             parse_exception_no_such_constructor(const std::string& tname,
-                                                std::vector<DataSourceBase::shared_ptr> args);
+                                                std::vector<base::DataSourceBase::shared_ptr> args);
 
             const std::string what() const { return margsig; }
 

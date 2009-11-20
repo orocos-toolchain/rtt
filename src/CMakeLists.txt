@@ -9,7 +9,6 @@ include (CreatePCFlags)
 ###
 
 ### OS Abstraction
-OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as much as possible. This will exclude lock-free and atomic algorithms." OFF)
 OPTION(OS_AGNOSTIC "Do not use asm/system.h and asm/atomic.h global system heades, but use RTT implementations." ON)
 OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)
 OPTION(OS_HAVE_STREAMS "Use C++ streams library." ON)
@@ -17,6 +16,9 @@ OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the O
 OPTION(ORO_OS_USE_BOOST_THREAD "Use the Boost.Thread library. Currently only the mutex implementation is used." OFF)
 
 if (ORO_OS_USE_BOOST_THREAD)
+  if (NOT Boost_THREAD_FOUND)
+    message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
+  endif()
   list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} )
 endif()
 
@@ -29,7 +31,7 @@ OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
 # Notify unit tests that no assembly must be tested.
 SET(TESTS_OS_NO_ASM ${OS_NO_ASM} PARENT_SCOPE)
-
+  
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 CMAKE_DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
@@ -75,6 +77,10 @@ OPTION(ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML."
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
 
+### POSIX Message queues for IPC dataflow
+OPTION(ENABLE_MQ "Enable real-time posix message queues for data-flow." ON)
+
+
 
 ###
 #   Collect Sources:
@@ -96,21 +102,23 @@ GLOBAL_ADD_INCLUDE( rtt ${CMAKE_CURRENT_BINARY_DIR}/rtt-config.h)
 
 GLOBAL_ADD_SRC( ${CPPS})
 
-ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( os )
-ADD_SUBDIRECTORY( corba )
+ADD_SUBDIRECTORY( interface )
+ADD_SUBDIRECTORY( base )
+ADD_SUBDIRECTORY( internal )
+ADD_SUBDIRECTORY( types )
+ADD_SUBDIRECTORY( transports/corba )
+ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )
-ADD_SUBDIRECTORY( dev )
-ADD_SUBDIRECTORY( impl )
-ADD_SUBDIRECTORY( dlib )
+ADD_SUBDIRECTORY( marsh )
+ADD_SUBDIRECTORY( plugin )
+ADD_SUBDIRECTORY( extras )
 ADD_SUBDIRECTORY( boost )
-ADD_SUBDIRECTORY( targets )
-
 
 # Reduce debugging info in scripting dir.
 IF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "Debug" )
   MESSAGE("Changing flags for Scripting files")
- SET_SOURCE_FILES_PROPERTIES( $ENV{GLOBAL_SCRIPTING_SRCS} PROPERTIES COMPILE_FLAGS "-g1 -O2" )
+ SET_SOURCE_FILES_PROPERTIES( $ENV{GLOBAL_SCRIPTING_SRCS} PROPERTIES COMPILE_FLAGS "-g -O1" )
 ENDIF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "Debug" )
 #SET_SOURCE_FILES_PROPERTIES( Timer.cpp PROPERTIES COMPILE_FLAGS "-g")
 
@@ -148,16 +156,16 @@ ENDIF ( BUILD_STATIC )
   CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(orocos-rtt-dynamic_${OROCOS_TARGET} ${OROCOS-RTT_LIBRARIES})
 
-#MESSAGE("Sending includes: ${OROCOS-RTT_INCLUDES} libs: ${OROCOS-RTT_LIBRARIES} rinc: ${RTT_CFLAGS} rlib: ${RTT_LINKFLAGS}")
-create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDES}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
+create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDE_DIRS}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
+create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RTT_DUMMY RTT_DUMMY RTT_USER_LINK_LIBS)
 
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/src/targets/rtt-target.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/target.in ${PROJ_BINARY_DIR}/src/targets/${OROCOS_TARGET} @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/src/os/targets/rtt-target.h @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/os/targets/target.in ${PROJ_BINARY_DIR}/src/os/targets/${OROCOS_TARGET} @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
-INSTALL(FILES ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
 INSTALL(TARGETS orocos-rtt-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
 IF(BUILD_STATIC)
   INSTALL(TARGETS orocos-rtt-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )

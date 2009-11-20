@@ -44,7 +44,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     /**
      * A class which represents the main() thread.
@@ -73,11 +73,6 @@ namespace RTT
          * After this call, no OS calls may be done.
          */
         static void Release();
-
-        /**
-         * Always fails.
-         */
-        virtual bool run( OS::RunnableInterface* r);
 
         /**
          * Always fails.
@@ -128,6 +123,10 @@ namespace RTT
         virtual bool setPriority(int priority);
 
         virtual int getPriority() const;
+
+        virtual void setMaxOverrun(int m);
+
+        virtual int getMaxOverrun() const;
 
         virtual void yield();
 

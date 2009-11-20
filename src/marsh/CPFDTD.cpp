@@ -37,11 +37,10 @@
 
 
 
-#include "marsh/CPFDTD.hpp"
+#include "CPFDTD.hpp"
 
-namespace RTT
-{
-    namespace detail
+namespace RTT {
+    namespace marsh
     {
         const char* cpf_dtd =
         "<!ELEMENT properties (description? , (simple|sequence|struct)* )> \

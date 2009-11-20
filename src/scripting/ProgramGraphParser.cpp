@@ -33,7 +33,7 @@
 #include "CommandNOP.hpp"
 #include "CommandDataSource.hpp"
 #include "ConditionTrue.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 #include "DataSourceCondition.hpp"
 
 #include "ConditionComposite.hpp"
@@ -156,8 +156,8 @@ namespace RTT
        );
 
     // the function's definition args :
-    funcargs = ch_p('(') >> ( ch_p(')') || (
-        !( valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
+    funcargs = ch_p('(') >> ( ch_p(')') | ((
+         valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
              >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
 
@@ -499,7 +499,7 @@ namespace RTT
         assert(mcondition);
         // transform the evaluation in a command, and pass the result
         // as a condition
-        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        std::pair<ActionInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_builder->setCommand( comcon.first );
         program_builder->startIfStatement( comcon.second, mpositer.get_position().line - ln_offset );
@@ -522,7 +522,7 @@ namespace RTT
         // analogous to seenifstatement
         // the evaluation is a command.
         assert(mcondition);
-        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        std::pair<ActionInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_builder->setCommand( comcon.first );
         program_builder->startWhileStatement( comcon.second, mpositer.get_position().line - ln_offset );
@@ -540,8 +540,8 @@ namespace RTT
     {
         // the for loop is different from the while and if branch
         // structures in that it places an init command before the loop.
-      CommandInterface* ac = 0;
-      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      ActionInterface* ac = 0;
+      std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
       // and not forget to reset()..
       valuechangeparser.clear();
       if ( acv.size() == 1) {
@@ -555,8 +555,8 @@ namespace RTT
 
     void ProgramGraphParser::seenforincr()
     {
-      CommandInterface* ac = 0;
-      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      ActionInterface* ac = 0;
+      std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
       if ( acv.size() == 1) {
           ac = acv.front();
       }
@@ -579,7 +579,7 @@ namespace RTT
         for_init_command = 0;
 
         // A for is nothing more than a while loop...
-        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        std::pair<ActionInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_builder->setCommand( comcon.first );
         program_builder->startWhileStatement( comcon.second, mpositer.get_position().line - ln_offset );
@@ -756,7 +756,7 @@ namespace RTT
   void ProgramGraphParser::seencommandcall()
   {
       // we get the data from commandparser
-      CommandInterface*   command;
+      ActionInterface*   command;
       command  = commandparser.getCommand();
       implcond = commandparser.getImplTermCondition();
 
@@ -781,10 +781,10 @@ namespace RTT
   void ProgramGraphParser::seenandcall()
   {
       // retrieve a clone of the previous 'do' or 'and' command:
-    CommandInterface* oldcmnd = program_builder->getCommand( program_builder->buildNode() )->clone();
+    ActionInterface* oldcmnd = program_builder->getCommand( program_builder->buildNode() )->clone();
     assert(oldcmnd);
     // set composite command : (oldcmnd can not be zero)
-    CommandInterface* compcmnd;
+    ActionInterface* compcmnd;
     // The implcond is already 'corrected' wrt result of evaluate().
     implcond = commandparser.getImplTermCondition();
 
@@ -816,8 +816,8 @@ namespace RTT
   {
     // some value changes generate a command, we need to add it to
     // the program.
-      CommandInterface* ac = 0;
-      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      ActionInterface* ac = 0;
+      std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
       // and not forget to reset()..
       valuechangeparser.clear();
       if ( acv.size() == 1) {

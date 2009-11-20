@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
+#include <Activity.hpp>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ BuffersTest::setUp()
 
     lockfree = new BufferLockFree<Dummy>(QS);
 
-    dataobj  = new DataObjectLockFree<Dummy>("name");
+    dataobj  = new DataObjectLockFree<Dummy>();
 
     //mslist =  new SortedList<Dummy>();
 
@@ -94,7 +95,7 @@ void subOne(Dummy& d)
 }
 
 
-struct LLFWorker : public RTT::OS::RunnableInterface
+struct LLFWorker : public RunnableInterface
 {
     volatile bool stop;
     typedef ListLockFree<Dummy> T;
@@ -126,7 +127,7 @@ struct LLFWorker : public RTT::OS::RunnableInterface
     }
 };
 
-struct LLFGrower : public RTT::OS::RunnableInterface
+struct LLFGrower : public RunnableInterface
 {
     volatile bool stop;
     typedef ListLockFree<Dummy> T;
@@ -154,7 +155,7 @@ struct LLFGrower : public RTT::OS::RunnableInterface
     }
 };
 
-struct AQWorker : public RTT::OS::RunnableInterface
+struct AQWorker : public RunnableInterface
 {
     bool stop;
     typedef QueueType T;
@@ -188,7 +189,7 @@ struct AQWorker : public RTT::OS::RunnableInterface
     }
 };
 
-struct AQGrower : public RTT::OS::RunnableInterface
+struct AQGrower : public RunnableInterface
 {
     volatile bool stop;
     typedef QueueType T;
@@ -490,7 +491,7 @@ BOOST_AUTO_TEST_CASE( testDObjLockFree )
     dataobj->Set( *c );
     BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
     int i = 0;
-    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
+    while ( i != 3.5*dataobj->MAX_THREADS ) {
         dataobj->Set( *c );
         dataobj->Set( d );
         ++i;
@@ -684,10 +685,10 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
-        boost::scoped_ptr<Thread> athread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadA", aworker ));
-        boost::scoped_ptr<Thread> bthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadB", bworker ));
-        boost::scoped_ptr<Thread> cthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadC", cworker ));
-        boost::scoped_ptr<Thread> gthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadG", grower ));
+        boost::scoped_ptr<Activity> athread( new Activity(ORO_SCHED_OTHER, 0, 0, aworker, "ActivityA" ));
+        boost::scoped_ptr<Activity> bthread( new Activity(ORO_SCHED_OTHER, 0, 0, bworker, "ActivityB" ));
+        boost::scoped_ptr<Activity> cthread( new Activity(ORO_SCHED_OTHER, 0, 0, cworker, "ActivityC" ));
+        boost::scoped_ptr<Activity> gthread( new Activity(ORO_SCHED_OTHER, 0, 0, grower, "ActivityG" ));
 
         athread->start();
         bthread->start();
@@ -741,16 +742,16 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
     AQGrower* grower = new AQGrower( qt );
 
     {
-        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
-        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
-        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
-        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
+        boost::scoped_ptr<Activity> athread( new Activity(20, aworker, "ActivityA" ));
+        boost::scoped_ptr<Activity> bthread( new Activity(20, bworker, "ActivityB" ));
+        boost::scoped_ptr<Activity> cthread( new Activity(20, cworker, "ActivityC" ));
+        boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "ActivityG"));
 
         // avoid system lock-ups
-        athread->setScheduler(ORO_SCHED_OTHER);
-        bthread->setScheduler(ORO_SCHED_OTHER);
-        cthread->setScheduler(ORO_SCHED_OTHER);
-        gthread->setScheduler(ORO_SCHED_OTHER);
+        athread->thread()->setScheduler(ORO_SCHED_OTHER);
+        bthread->thread()->setScheduler(ORO_SCHED_OTHER);
+        cthread->thread()->setScheduler(ORO_SCHED_OTHER);
+        gthread->thread()->setScheduler(ORO_SCHED_OTHER);
 
         athread->start();
         bthread->start();

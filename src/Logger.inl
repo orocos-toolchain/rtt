@@ -11,7 +11,6 @@
 
 namespace RTT
 {
-
     template< class T>
     Logger& Logger::operator<<( T t ) {
 #ifndef OROBLD_DISABLE_LOGGING

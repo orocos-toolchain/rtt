@@ -42,8 +42,8 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
-#include "../DataSource.hpp"
-#include "../Operators.hpp"
+#include "../internal/DataSource.hpp"
+#include "../types/Operators.hpp"
 #include "../Time.hpp"
 
 #include <stack>
@@ -52,7 +52,7 @@
 #pragma interface
 #endif
 
-namespace RTT { namespace detail
+namespace RTT { namespace scripting
 {
   /**
    * This parser parses a call of the form
@@ -64,7 +64,7 @@ namespace RTT { namespace detail
    */
   class DataCallParser
   {
-    DataSourceBase::shared_ptr ret;
+    base::DataSourceBase::shared_ptr ret;
     std::string mobject;
     std::string mmethod;
 
@@ -91,7 +91,7 @@ namespace RTT { namespace detail
         return datacall;
       };
 
-    DataSourceBase* getParseResult()
+    base::DataSourceBase* getParseResult()
       {
         return ret.get();
       };
@@ -99,15 +99,15 @@ namespace RTT { namespace detail
 
   /**
    * How we parse:  this parser works like a stack-based RPN
-   * calculator.  An atomic expression pushes one DataSource up the
+   * calculator.  An atomic expression pushes one internal::DataSource up the
    * stack, a binary expression pops two DataSources, and pushes a new
    * one, a unary pops one, and pushes one etc.  This allows for the
    * reentrancy we need..
    */
   class ExpressionParser
   {
-    rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, multexp,
-      divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
+    rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, div_or_mul,
+      modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
       time_expression, time_spec, indexexp, comma, open_brace, close_brace;
@@ -118,7 +118,7 @@ namespace RTT { namespace detail
      * We keep a reference to the DataSources in here, while they're
      * in here..
      */
-    std::stack<DataSourceBase::shared_ptr> parsestack;
+    std::stack<base::DataSourceBase::shared_ptr> parsestack;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -145,15 +145,15 @@ namespace RTT { namespace detail
       CommonParser commonparser;
       ValueParser valueparser;
       bool _invert_time;
-      OperatorRepository::shared_ptr opreg;
+      types::OperatorRepository::shared_ptr opreg;
   public:
     ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
 
     rule_t& parser();
 
-    DataSourceBase::shared_ptr getResult();
-    // after an expression is parsed, the resultant DataSourceBase will
+    base::DataSourceBase::shared_ptr getResult();
+    // after an expression is parsed, the resultant base::DataSourceBase will
     // still be on top of the stack, and it should be removed before
     // going back down the parse stack.  This is what this function
     // does..

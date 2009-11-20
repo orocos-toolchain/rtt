@@ -28,11 +28,12 @@
 #ifndef FAKEANALOGDEVICE_HPP
 #define FAKEANALOGDEVICE_HPP
 
-#include "dev/AnalogInInterface.hpp"
-#include "dev/AnalogOutInterface.hpp"
+#include <extras/dev/AnalogInInterface.hpp>
+#include <extras/dev/AnalogOutInterface.hpp>
 
 namespace RTT
 {
+    using namespace dev;
     /**
      * A test class which replaces a real device driver.
      * It reproduces on the output what it gets on the input.

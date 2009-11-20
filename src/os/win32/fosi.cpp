@@ -48,13 +48,17 @@ extern "C"
 {
 #endif
 
-void sleep(long s){
-	Sleep(s*1000);
+unsigned int sleep(unsigned int s)
+{
+  Sleep(s*1000);
 }
 
-void usleep(long us){
+#if __GNUC__ != 4
+int usleep(unsigned int us)
+{
     Sleep( us / 1000 );
 }
+#endif
 
 #ifdef __cplusplus
 }

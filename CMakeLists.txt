@@ -1,7 +1,7 @@
 #
 # Test CMake version
 #
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
 # for CMake 2.6 corrected behaviour (see "cmake --help-policy CMP0003")
 IF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 4)
@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 1.10.99 )
+SET( RTT_VERSION 1.92.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -46,13 +46,23 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 
 # Make compilation verbose
-SET(CMAKE_VERBOSE_MAKEFILE TRUE)
+#SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 ###################################################
 #                                                 #
 #       End project customization section         #
 #                                                 #
 ###################################################
+
+OPTION(ENABLE_TESTS "Turn on to enable the testing framework." ON)
+IF(ENABLE_TESTS)
+  INCLUDE(CTest)
+  ENABLE_TESTING()
+ENDIF()
+IF(BUILD_TESTING)
+  SET(BUILDNAME "${BUILDNAME}" CACHE STRING "Name of build on the dashboard")
+  MARK_AS_ADVANCED(BUILDNAME)
+ENDIF(BUILD_TESTING)
 
 # MESSAGE("Looking for compiler:")
 INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)

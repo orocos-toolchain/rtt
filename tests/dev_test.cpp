@@ -21,10 +21,10 @@
 #include "dev_test.hpp"
 #include "FakeAnalogDevice.hpp"
 #include "FakeDigitalDevice.hpp"
-#include <dev/AnalogInput.hpp>
-#include <dev/AnalogOutput.hpp>
-#include <dev/DigitalInput.hpp>
-#include <dev/DigitalOutput.hpp>
+#include <extras/dev/AnalogInput.hpp>
+#include <extras/dev/AnalogOutput.hpp>
+#include <extras/dev/DigitalInput.hpp>
+#include <extras/dev/DigitalOutput.hpp>
 
 
 #include <iostream>

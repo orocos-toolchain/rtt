@@ -49,10 +49,7 @@
 #endif
 
 namespace RTT
-{ namespace OS {
-    class MutexLock;
-    class MutexTryLock;
-    class MutexTimedLock;
+{ namespace os {
 
     /**
      * @brief An interface to a Mutex.

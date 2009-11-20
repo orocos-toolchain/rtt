@@ -45,13 +45,12 @@
 #include <queue>
 #include <string>
 #include "../rtt-config.h"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 {
-    class TaskContext;
-    class OperationInterface;
 
-    namespace detail {
+    namespace scripting {
     /**
      * Get the peer and object from an invocation path like
      *  a.b.c.d() .
@@ -61,7 +60,7 @@ namespace RTT
         CommonParser commonparser;
         rule_t peerpath, peerlocator;
         std::queue<std::string> callqueue;
-        OperationInterface* mcurobject;
+        interface::OperationInterface* mcurobject;
         std::string mlastobject;
         TaskContext* context;
         TaskContext* _peer;
@@ -114,9 +113,9 @@ namespace RTT
         std::string object();
 
         /**
-         * Returns the last matching TaskObject or zero if not found.
+         * Returns the last matching internal::TaskObject or zero if not found.
          */
-        OperationInterface* taskObject();
+        interface::OperationInterface* taskObject();
     };
 }}
 

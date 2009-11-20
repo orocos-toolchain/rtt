@@ -22,13 +22,15 @@
 
 #include <iostream>
 #include <Command.hpp>
-#include <CommandDS.hpp>
-#include <OperationInterface.hpp>
-#include <RemoteCommand.hpp>
-#include <TaskObject.hpp>
+#include <Activity.hpp>
+#include <scripting/CommandDS.hpp>
+#include <interface/OperationInterface.hpp>
+#include <internal/RemoteCommand.hpp>
+#include <internal/TaskObject.hpp>
 
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <extras/SimulationThread.hpp>
+#include <internal/TaskObject.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
@@ -165,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testCommandThreading )
     // Sends periodic commands.
     Sender scomp ( tc ); // tc is receiver.
 
-    tc->setActivity( new NonPeriodicActivity(ORO_SCHED_OTHER, 0) );
+    tc->setActivity( new Activity(ORO_SCHED_OTHER, 0, 0.0) );
     scomp.setActivity( new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.01) );
 
     BOOST_CHECK( tc->start() );
@@ -539,7 +541,7 @@ BOOST_AUTO_TEST_CASE( testCommandFromDS)
     BOOST_CHECK( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
 
-    std::vector<RTT::DataSourceBase::shared_ptr> args;
+    std::vector<DataSourceBase::shared_ptr> args;
     CommandC c0  = to.commands()->create("c0");
     CommandC c10 = to.commands()->create("c10").argC(1);
     CommandC c11 = to.commands()->create("c11").argC(1);

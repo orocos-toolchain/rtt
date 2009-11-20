@@ -1,0 +1,224 @@
+#ifndef ORO_OPERATIONS_IDL
+#define ORO_OPERATIONS_IDL
+
+module RTT
+{
+
+  module corba
+  {
+
+    typedef sequence<any> CAnyArguments;
+
+    exception CWrongNumbArgException
+    {
+      long wanted;
+      long received;
+    };
+
+    exception CWrongTypeArgException
+    {
+      long whicharg;
+      string expected;
+      string received;
+    };
+
+
+    /**
+     * An expression is an object which returns a value.
+     * @ingroup CompIDL
+     */
+    interface CExpression
+    {
+      /**
+       * Retrieve the latest result of
+       * evaluate(), without retriggering
+       * evaluation.
+       */
+      any value();
+
+      /**
+       * Evaluate this expression.
+       * @return true if the evaluation was succesful.
+       * If the expression evaluates to a boolean, it
+       * returns this boolean.
+       */
+      boolean evaluate();
+
+      /**
+       * Evaluate and return the result of the expression.
+       */
+      any get();
+
+      /**
+       * Return the type of the expression in a human readable
+       * format.
+       */
+      string getType();
+
+      /**
+       * Return the type name of the expression as it is known
+       * to the Orocos Type System.
+       */
+      string getTypeName();
+
+      /**
+       * Return the result of value() as a text string.
+       */
+      string toString();
+
+      /**
+       * Call this method to free this object.
+       */
+      void destroyExpression();
+    };
+
+    /**
+     * An expression of which the result can be set to
+     * a value. An simple example is an expression consisting of
+     * only a variable.
+     * @ingroup CompIDL
+     */
+    interface CAssignableExpression : CExpression
+    {
+
+      /**
+       * Evaluate the expression and set the result
+       * (which should be a reference type) to
+       * a value.
+       * @return false if \a value is of the wrong type.
+       */
+      boolean set(in any value);
+
+      /**
+       * Set the value of the expression from \a value.
+       * @return false if \a value is of the wrong type.
+       */
+      boolean fromString(in string value);
+
+    };
+
+    /**
+     * An CAction is an object which executes a function.
+     */
+    interface CAction
+    {
+      /**
+       * Execute this action.
+       * @return true if the action was succesful.
+       * If the action evaluates to a boolean, it
+       * returns this boolean.
+       */
+      boolean execute();
+
+      /**
+       * Send and execute the action with new arguments.
+       */
+      boolean executeAny(in CAnyArguments args) raises (CWrongNumbArgException,
+						       CWrongTypeArgException);
+
+      /**
+       * Reset this action.
+       * Required for Actions used within a command,
+       * It must be reset before execute is invoked.
+       */
+      void reset();
+
+      /**
+       * Call this method to free this object.
+       */
+      void destroyAction();
+
+    };
+
+    /**
+     * A method is both an CExpression and an CAction.
+     * @ingroup CompIDL
+     */
+    interface CMethod : CExpression, CAction
+    {
+    };
+
+    /**
+     * The processing state of a command
+     */
+    enum CommandStatus
+    { NotReady, Ready, Sent, NotAccepted, Accepted, Executed, NotValid, Valid, Done };
+
+    /**
+     * A command consists of an action to be
+     * executed remotely and a condition, to be
+     * evaluated remotely.
+     * @ingroup CompIDL
+     */
+    interface CCommand
+    {
+      /**
+       * Send and execute the contained command. The
+       * arguments used are the last arguments provided
+       * or the one given upon command creation.
+       */
+      boolean execute();
+
+      /**
+       * Send and execute the command with new arguments.
+       */
+      boolean executeAny(in CAnyArguments args) raises (CWrongNumbArgException,
+						       CWrongTypeArgException);
+
+      CommandStatus status();
+
+      /**
+       * Check if the CCommand was sent to the receiving task,
+       * thus if execute() was called.
+       * @retval true if sent to the command processor.
+       * @retval false otherwise.
+       */
+      boolean sent();
+
+      /**
+       * Check if the CCommand was accepted by the receiving task.
+       * @retval true if accepted by the command processor.
+       * @retval false otherwise.
+       */
+      boolean accepted();
+
+      /**
+       * Check if the CCommand was executed by the receiving task.
+       * @retval true if executed by the command processor.
+       * @retval false otherwise.
+       */
+      boolean executed();
+
+      /**
+       * Check the return value of the CCommand when it is
+       * executed.
+       * @retval true if accepted() and the command returned true,
+       * indicating that it is valid.
+       * @retval false otherwise.
+       */
+      boolean valid();
+
+      /**
+       * Evaluate if the command is done.
+       * @retval true if accepted(), valid() was true and the
+       * completion condition was true as well.
+       * @retval false otherwise.
+       */
+      boolean done();
+
+      /**
+       * Reset the command.
+       * Required before invoking execute() a second time.
+       */
+      void reset();
+
+      /**
+       * Call this method to free this object.
+       */
+      void destroyCommand();
+    };
+
+  };
+};
+#endif
+

@@ -19,7 +19,8 @@
 
 #include "time_test.hpp"
 #include <boost/bind.hpp>
-#include <Timer.hpp>
+#include <os/Timer.hpp>
+#include <rtt-detail-fwd.hpp>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -32,11 +33,12 @@
 
 using namespace std;
 using namespace RTT;
+using namespace RTT::detail;
 using namespace boost;
 
 TimeTest::TimeTest()
 {
-    hbg = RTT::TimeService::Instance();
+    hbg = TimeService::Instance();
     long_ns = 9007199254740992LL;       // == 2^53
     //long_ns = 4503599627370496LL;       // == 2^52
     //long_ns = 123456789123456789LL; // 1.234...e17 ns == approx 4 years, but double can not represent this.
@@ -62,7 +64,7 @@ struct TestTimer
     std::vector< std::pair<Timer::TimerId, Seconds> > occured;
     TimeService::Seconds mstart;
     TestTimer()
-        :Timer(32, ORO_SCHED_RT, OS::HighestPriority)
+        :Timer(32, ORO_SCHED_RT, os::HighestPriority)
     {
         occured.reserve(100);
         mstart = TimeService::Instance()->secondsSince(0);
@@ -108,14 +110,18 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     // Test ticks conversion invariance :
     // margin is in % rounding error.
     int margin = 1;
+#ifdef OROCOS_TARGET_LXRT
+    int small_margin = 20; // 20% of 10ns : allow a two-off.
+#else
     int small_margin = 10; // 10% of 10ns : allow a one-off.
+#endif
 
-    BOOST_REQUIRE_CLOSE( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
-    BOOST_REQUIRE_CLOSE( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
-    BOOST_REQUIRE_CLOSE( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), small_margin );
-    BOOST_REQUIRE_CLOSE( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin );
-    BOOST_REQUIRE_CLOSE( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin );
-    BOOST_REQUIRE_CLOSE( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), small_margin );
+    BOOST_REQUIRE_CLOSE( (double)long_ns  , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
+    BOOST_REQUIRE_CLOSE( (double)normal_ns, (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
+    BOOST_REQUIRE_CLOSE( (double)small_ns , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), small_margin );
+    BOOST_REQUIRE_CLOSE( (double)long_t  , (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin );
+    BOOST_REQUIRE_CLOSE( (double)normal_t, (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin );
+    BOOST_REQUIRE_CLOSE( (double)small_t , (double)TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), small_margin );
 }
 
 BOOST_AUTO_TEST_CASE( testTimeProgress )

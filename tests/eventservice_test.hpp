@@ -22,9 +22,11 @@
 
 
 #include <Event.hpp>
-#include <EventService.hpp>
-#include <SlaveActivity.hpp>
+#include <interface/EventService.hpp>
+#include <extras/SlaveActivity.hpp>
 #include <string>
+
+using namespace RTT::detail;
 
 class EventServiceTest
 {
@@ -41,9 +43,9 @@ public:
     std::string t_completer_string;
     double t_completer_double;
     bool t_completer_bool;
-    RTT::EventProcessor* event_proc;
-    RTT::EventService* es;
-    RTT::SlaveActivity act;
+    EventProcessor* event_proc;
+    EventService* es;
+    SlaveActivity act;
 public:
 	EventServiceTest(){ setUp(); };
 	~EventServiceTest(){ tearDown(); };

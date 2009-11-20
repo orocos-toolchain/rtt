@@ -42,9 +42,9 @@
 #include <string>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include "CommandBase.hpp"
-#include "LocalCommand.hpp"
-#include "UnMember.hpp"
+#include "base/CommandBase.hpp"
+#include "internal/LocalCommand.hpp"
+#include "internal/UnMember.hpp"
 
 namespace RTT
 {
@@ -91,11 +91,11 @@ namespace RTT
      */
     template<class CommandT>
     class Command
-        : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* >
+        : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, base::CommandBase<CommandT>* >
     {
     protected:
         std::string mname;
-        typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* > Base;
+        typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, base::CommandBase<CommandT>* > Base;
 
         BOOST_STATIC_ASSERT(( boost::is_same<typename boost::function_traits<CommandT>::result_type,bool>::value ));
     public:
@@ -104,7 +104,7 @@ namespace RTT
         /**
          * The status progressions of a Command.
          */
-        typedef DispatchInterface::Status Status;
+        typedef base::DispatchInterface::Status Status;
 
         /**
          * Create an empty, nameless command object. Use assignment to
@@ -161,7 +161,7 @@ namespace RTT
          */
         template<class CommandF, class ConditionF, class ObjectT>
         Command(std::string name, CommandF com, ConditionF con, ObjectT t, bool invert = false)
-            : Base( new detail::LocalCommand<CommandT>(com,con,t, invert)),
+            : Base( new internal::LocalCommand<CommandT>(com,con,t, invert)),
               mname(name)
         {
         }
@@ -175,13 +175,13 @@ namespace RTT
          * @param com A pointer to the member function to execute when the command is invoked.
          * @param con A pointer to the member function that evaluates if the command is done.
          * @param t A pointer to an object of the class which has \a com and \a con.
-         * @param commandp The CommandProcessor which will execute this Command.
+         * @param commandp The internal::CommandProcessor which will execute this Command.
          * @param invert Invert the result of \a con when evaluating the completion of the command.
          *
          */
         template<class CommandF, class ConditionF, class ObjectT>
-        Command(std::string name, CommandF com, ConditionF con, ObjectT t, CommandProcessor* commandp, bool invert = false)
-            : Base( new detail::LocalCommand<CommandT>(com,con,t,commandp, invert)),
+        Command(std::string name, CommandF com, ConditionF con, ObjectT t, internal::CommandProcessor* commandp, bool invert = false)
+            : Base( new internal::LocalCommand<CommandT>(com,con,t,commandp, invert)),
               mname(name)
         {
         }
@@ -192,12 +192,12 @@ namespace RTT
          * @param name The name of this command.
          * @param com A pointer to the 'C' function to execute when the command is invoked.
          * @param con A pointer to the 'C' function that evaluates if the command is done.
-         * @param commandp The CommandProcessor which will execute this Command.
+         * @param commandp The internal::CommandProcessor which will execute this Command.
          * @param invert Invert the result of \a con when evaluating the completion of the command.
          */
         template<class CommandF, class ConditionF>
-        Command(std::string name, CommandF com, ConditionF con, CommandProcessor* commandp, bool invert = false)
-            : Base( new detail::LocalCommand<CommandT>(com,con,commandp, invert)),
+        Command(std::string name, CommandF com, ConditionF con, internal::CommandProcessor* commandp, bool invert = false)
+            : Base( new internal::LocalCommand<CommandT>(com,con,commandp, invert)),
               mname(name)
         {
         }
@@ -209,8 +209,8 @@ namespace RTT
          * @param implementation An implementation which will be owned
          * by the command. If it is unusable, it is freed.
          */
-        Command(DispatchInterface* implementation)
-            : Base( dynamic_cast< detail::CommandBase<CommandT>* >(implementation) ),
+        Command(base::DispatchInterface* implementation)
+            : Base( dynamic_cast< base::CommandBase<CommandT>* >(implementation) ),
               mname()
         {
             // If not convertible, delete the implementation.
@@ -235,12 +235,12 @@ namespace RTT
          * @param implementation An implementation which will be owned
          * by the command. If it is unusable, it is freed.
          */
-        Command& operator=(DispatchInterface* implementation)
+        Command& operator=(base::DispatchInterface* implementation)
         {
             if ( this->impl && this->impl == implementation)
                 return *this;
             delete this->impl;
-            this->impl = dynamic_cast< detail::CommandBase<CommandT>* >(implementation);
+            this->impl = dynamic_cast< base::CommandBase<CommandT>* >(implementation);
             if (this->impl == 0 && implementation) {
                 log(Error) << "Tried to assign Command from incompatible type."<< endlog();
                 delete implementation;
@@ -286,7 +286,7 @@ namespace RTT
 
         /**
          * Returns true if the command was accepted when sent to the CommandProcessor.
-         * A Command is accepted when the CommandProcessor was running and its queue
+         * A Command is accepted when the internal::CommandProcessor was running and its queue
          * was not full.
          */
         bool accepted() const {
@@ -312,6 +312,12 @@ namespace RTT
             return this->impl->valid();
         }
 
+	bool status() const {
+	    if (!this->impl) return base::DispatchInterface::NotReady;
+	    return this->impl->status();
+	}
+
+
         /**
          * Returns the name of this Command object.
          *
@@ -328,7 +334,7 @@ namespace RTT
          *
          * @return The implementation
          */
-        detail::CommandBase<CommandT>* getCommandImpl() const {
+        base::CommandBase<CommandT>* getCommandImpl() const {
             return this->impl;
         }
 
@@ -337,7 +343,7 @@ namespace RTT
          *
          * @param new_impl The new implementation.
          */
-        void setCommandImpl(detail::CommandBase<CommandT>* new_impl) const {
+        void setCommandImpl(base::CommandBase<CommandT>* new_impl) const {
             delete this->impl;
             return this->impl = new_impl;
         }
@@ -345,8 +351,8 @@ namespace RTT
 
     /**
      * Factory function to create a Command object which executes a member function
-     * of an object. The object inherits from the TaskCore class and the command
-     * is executed in the ExecutionEngine's CommandProcessor of that object.
+     * of an object. The object inherits from the base::TaskCore class and the command
+     * is executed in the ExecutionEngine's internal::CommandProcessor of that object.
      *
      * @param name The name of the command.
      * @param command A pointer to a member function of \a object, which is executed as
@@ -360,13 +366,13 @@ namespace RTT
      * @return A new Command object.
      */
     template<class ComF, class ConF, class Object>
-    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, bool invert = false) {
-        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, invert);
+    Command< typename internal::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, bool invert = false) {
+        return Command<  typename internal::UnMember<ComF>::type >(name, command, condition, object, invert);
     }
 
     /**
      * Factory function to create a Command object which executes a member function
-     * of an object. A CommandProcessor is given in which the command is executed.
+     * of an object. A internal::CommandProcessor is given in which the command is executed.
      *
      * @param name The name of the command
      * @param command A pointer to a member function of \a object, which is executed as
@@ -380,8 +386,8 @@ namespace RTT
      * @return A new Command object.
      */
     template<class ComF, class ConF, class Object>
-    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, CommandProcessor* cp, bool invert = false) {
-        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, cp, invert);
+    Command< typename internal::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, internal::CommandProcessor* cp, bool invert = false) {
+        return Command<  typename internal::UnMember<ComF>::type >(name, command, condition, object, cp, invert);
     }
 
     /**
@@ -398,8 +404,8 @@ namespace RTT
      * @return A new Command object.
      */
     template<class ComF, class ConF>
-    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, CommandProcessor* cp, bool invert = false) {
-        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, cp, invert);
+    Command< typename internal::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, internal::CommandProcessor* cp, bool invert = false) {
+        return Command<  typename internal::UnMember<ComF>::type >(name, command, condition, cp, invert);
     }
 
 }

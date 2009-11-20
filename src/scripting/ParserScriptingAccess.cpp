@@ -40,18 +40,19 @@
 #include "ParserScriptingAccess.hpp"
 #include "StatementProcessor.hpp"
 #include "Parser.hpp"
-#include "Logger.hpp"
-#include "TaskContext.hpp"
-#include "TaskObject.hpp"
-#include "Method.hpp"
-#include "Command.hpp"
+#include "../Logger.hpp"
+#include "../TaskContext.hpp"
+#include "../internal/TaskObject.hpp"
+#include "../Method.hpp"
+#include "../Command.hpp"
 #include "ProgramProcessor.hpp"
 #include "StateMachineProcessor.hpp"
 #include <sstream>
 #include <fstream>
+#include "../internal/TaskObject.hpp"
 
-namespace RTT
-{
+namespace RTT {
+    using namespace detail;
     using namespace std;
 
     ParserScriptingAccess::ParserScriptingAccess( TaskContext* parent )

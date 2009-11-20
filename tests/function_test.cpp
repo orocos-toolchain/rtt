@@ -22,11 +22,11 @@
 
 #include <iostream>
 #include <sstream>
-#include <FunctionGraph.hpp>
-#include <SimulationThread.hpp>
+#include <scripting/FunctionGraph.hpp>
+#include <extras/SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
-#include <TaskObject.hpp>
+#include <internal/TaskObject.hpp>
 
 using namespace std;
 
@@ -44,7 +44,7 @@ using namespace std;
 void
 FunctionTest::setUp()
 {
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    SimulationThread::Instance()->stop();
     // ltc has a test object
     gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
     gtask.start();
@@ -134,14 +134,34 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
     string prog = string("export function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
+        + "export function foo_args() { \n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
+        + "program x { \n"
+        + "   do this.foo()\n"
+        + "   do this.foo_args()\n"
+        + "}";
+
+    this->doFunction( prog, &gtc );
+    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    this->finishFunction( &gtc, "x");
+}
+
+// Test removing exported function in infinite loop.
+BOOST_AUTO_TEST_CASE( testRemoveFunction)
+{
+    string prog = string("export function foo { \n")
+        + " while (true) { do nothing }\n"
+        + "}\n"
         + "program x { \n"
         + "   do this.foo()\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
+    this->doFunction( prog, &gtc, false );
+    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    // removing the program should lead to removal of the function from the PP.
     this->finishFunction( &gtc, "x");
 }
-
 BOOST_AUTO_TEST_CASE( testRecFunction)
 {
     string prog = string("export function foo { \n")
@@ -292,12 +312,12 @@ BOOST_AUTO_TEST_CASE( testFunctionFail)
         + "   try fooA()\n"
         + "   catch \n"
         + "      set success = true\n" // error caught.
-        + "   do test.assert(success)\n"
+        + "   do test.assertMsg(success,\"Program script did not detect exported function failure.\")\n"
         + "   set success = false\n"
         + "   try fooB()\n"
         + "   catch\n"
         + "      set success = true\n" // error caught.
-        + "   do test.assert(success)\n"
+        + "   do test.assertMsg(success,\"Program script did not detect exported function failure.\")\n"
         + "}";
 
     this->doFunction( prog, &gtc );
@@ -308,33 +328,33 @@ BOOST_AUTO_TEST_SUITE_END()
 
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
-    BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->programs());
+    BOOST_REQUIRE( tc->engine() );
+    BOOST_REQUIRE( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what() );
+            BOOST_REQUIRE_MESSAGE( false , exc.what() );
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK_MESSAGE(false , "No program parsed in test.");
+            BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
         }
     ProgramProcessor* pp = tc->engine()->programs();
-    BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );
+    BOOST_REQUIRE( pp->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
-    BOOST_CHECK( gtask.stop() );
 
     if (test ) {
         stringstream errormsg;
         errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
         BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled " + errormsg.str() );
+        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
+    tc->stop();
 }
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)

@@ -1,0 +1,223 @@
+#ifndef ORO_CONTROL_TASK_IDL
+#define ORO_CONTROL_TASK_IDL
+
+/**
+ * @file ControlTask.idl
+ * This file defines the interface of an
+ * Orocos Control Task Component.
+ */
+
+#include "OperationInterface.idl"
+#include "Attributes.idl"
+#include "ScriptingAccess.idl"
+#include "Services.idl"
+#include "DataFlow.idl"
+
+module RTT
+{
+  module corba
+  {
+
+    typedef sequence<string> CObjectList;
+
+    /**
+     * An Orocos TaskObject which hosts a method and command
+     * interface.
+     * @ingroup CompIDL
+     */
+    interface CControlObject
+    {
+      /**
+       * Return the name of this object.
+       */
+      string getName();
+
+      /**
+       * Return the description of this object.
+       */
+      string getDescription();
+
+      /**
+       * Query the attributes of this interface.
+       */
+      CAttributeInterface attributes();
+
+      /**
+       * Synchronous CMethod Interface.
+       */
+      CMethodInterface methods();
+
+      /**
+       * Asynchronous CCommand Interface.
+       */
+      CCommandInterface commands();
+
+      /**
+       * Get a list of all the child objects this object is connected to.
+       */
+      CObjectList getObjectList( );
+
+      /**
+       * Get a child object this object is connected to.
+       */
+      CControlObject getObject( in string name );
+
+      /**
+       * Has this object a child object with given name ?
+       */
+      boolean hasObject( in string name );
+
+    };
+
+    enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeWarning, RunTimeError };
+
+    /**
+     * A CControlTask is the main entry point of a distributed
+     * component.
+     */
+    interface CControlTask : CControlObject
+    {
+      typedef sequence<string> CControlTaskNames;
+
+      /**
+       * Returns the current state of the component.
+       */
+      CTaskState getTaskState();
+
+      /**
+       * Configure this component.
+       */
+      boolean configure();
+
+      /**
+       * Start this component.
+       */
+      boolean start();
+
+      /**
+       * Activate this component.
+       */
+      boolean activate();
+
+      /**
+       * Stop this component.
+       */
+      boolean stop();
+
+      /**
+       * Cleanup this component.
+       */
+      boolean cleanup();
+
+      /**
+       * Reset the error state of this component.
+       */
+      boolean resetError();
+
+      /**
+       * Is this component active ?
+       */
+      boolean isActive();
+
+      /**
+       * Is this component running ?
+       */
+      boolean isRunning();
+
+      /**
+       * Is this component configured ?
+       */
+      boolean isConfigured();
+
+      /**
+       * Is this component in a Fatal error state ?
+       */
+      boolean inFatalError();
+
+      /**
+       * Is this component in a RunTime warning state ?
+       */
+      boolean inRunTimeWarning();
+
+      /**
+       * Is this component in a RunTime error state ?
+       */
+      boolean inRunTimeError();
+
+      /**
+       * Read the number of times the warning state was entered.
+       */
+      long getWarningCount();
+
+      /**
+       * Read the number of times the error state was entered.
+       */
+      long getErrorCount();
+
+      /**
+       * The CScriptingAccess, for program and state machine
+       * information of this Task.
+       */
+      CScriptingAccess scripting();
+
+      /**
+       * Access to Process-wide services.
+       */
+      CServiceInterface services();
+
+      /**
+       * Access to the Data Flow ports.
+       */
+      CDataFlowInterface ports();
+
+      /**
+       * CControlTask Browsing functions.
+       */
+
+      /**
+       * Get a list of all the peers this task is connected to.
+       */
+      CControlTaskNames getPeerList( );
+
+      /**
+       * Get a peer this task is connected to.
+       */
+      CControlTask getPeer( in string name );
+
+      /**
+       * Has this task a peer with given name ?
+       */
+      boolean hasPeer( in string name );
+
+      /**
+       * Add a one-way peer connection.
+       */
+      boolean addPeer( in CControlTask p, in string alias );
+
+      /**
+       * Remove a one-way peer connection.
+       */
+      boolean removePeer( in string name );
+
+      /**
+       * Create a two-way peer connection.
+       */
+      boolean connectPeers( in CControlTask p );
+
+      /**
+       * Destroy a two-way peer connection.
+       */
+      boolean disconnectPeers( in string name );
+
+      /**
+       * Connect all compatible and equally named
+       * data ports with another CControlTask's
+       * data ports.
+       */
+      boolean connectPorts( in CControlTask p );
+
+    };
+  };
+};
+
+#endif

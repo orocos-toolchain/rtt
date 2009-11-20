@@ -378,7 +378,7 @@ CASE_SENSE_NAMES       = YES
 # will show members with their full class and namespace scopes in the 
 # documentation. If set to YES the scope will be hidden.
 
-HIDE_SCOPE_NAMES       = YES
+HIDE_SCOPE_NAMES       = NO
 
 # If the SHOW_INCLUDE_FILES tag is set to YES (the default) then Doxygen 
 # will put a list of the files that are included by a file in the documentation 
@@ -565,7 +565,7 @@ WARN_LOGFILE           = doxygen.warnings
 # with spaces.
 
 INPUT                  = @CMAKE_INSTALL_PREFIX@/include/rtt \
-                         @CMAKE_INSTALL_PREFIX@/include/rtt/Orocos.Main.hpp
+                         @CMAKE_INSTALL_PREFIX@/include/rtt/extras/Orocos.Main.hpp
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 

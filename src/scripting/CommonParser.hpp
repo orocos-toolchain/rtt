@@ -39,7 +39,7 @@
 
 #include "parser-types.hpp"
 
-namespace RTT { namespace detail
+namespace RTT { namespace scripting
 {
 
   /**

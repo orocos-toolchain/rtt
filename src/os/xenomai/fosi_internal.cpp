@@ -44,11 +44,11 @@
 #include <cassert>
 #define INTERNAL_QUAL
 
-#include "Logger.hpp"
+#include "../../Logger.hpp"
 
 namespace RTT
-{ namespace OS {
-    namespace detail {
+{
+    namespace os {
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main)
         {
@@ -357,6 +357,6 @@ namespace RTT
             return -1;
         }
     }
-}}
+}
 #undef INTERNAL_QUAL
 

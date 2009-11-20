@@ -39,7 +39,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace marsh
     {
         extern const char* cpf_dtd;
     }

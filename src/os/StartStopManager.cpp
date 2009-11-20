@@ -42,7 +42,7 @@
 
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     StartStopManager* StartStopManager::mt;
 

@@ -41,7 +41,7 @@
 #include <windows.h>
 
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     const int LowestPriority = -15;
 

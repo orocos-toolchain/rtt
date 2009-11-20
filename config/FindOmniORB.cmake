@@ -112,6 +112,7 @@ IF( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_IDL_FLAGS )
   MARK_AS_ADVANCED( OMNIORB4_CPP_FLAGS )
+
   LIST(APPEND OMNIORB4_LIBRARIES
     ${OMNIORB4_LIBRARY_omniORB4}
     ${OMNIORB4_LIBRARY_Dynamic4}
@@ -122,13 +123,13 @@ IF( OMNIORB4_IDL_COMPILER )
         ${OMNIORB4_LIBRARY_COSDynamic4}     # mandatory on FC2 and graal
         )
   ENDIF(OMNIORB4_LIBRARY_COS4)
-
 ENDIF( OMNIORB4_IDL_COMPILER )
 ENDIF( OMNIORB4_LIBRARY_omnithread )
 ENDIF( OMNIORB4_LIBRARY_omniORB4 )
 ENDIF( OMNIORB4_INCLUDE_DIR )
 
-IF( NOT OMNIORB4_FOUND )
+IF( OMNIORB4_FOUND )
+  SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
   SET(CORBA_LDFLAGS -l${OMNIORB4_LIBRARY_omniORB4} -l${OMNIORB4_LIBRARY_Dynamic4} -l${OMNIORB4_LIBRARY_omnithread})
   IF(OMNIORB4_LIBRARY_COS4)
     LIST(APPEND OMNIORB4_LDFLAGS
@@ -136,6 +137,11 @@ IF( NOT OMNIORB4_FOUND )
         -l${OMNIORB4_LIBRARY_COSDynamic4}     # mandatory on FC2 and graal
         )
   ENDIF(OMNIORB4_LIBRARY_COS4)
+  SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
+  SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
+  SET(CORBA_DEFINES "") #-DCORBA_IS_OMNIORB)
+
+ELSE( OMNIORB4_FOUND )
   MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")
@@ -147,10 +153,15 @@ IF( NOT OMNIORB4_FOUND )
   MESSAGE("    omniORB installation...")
 
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( NOT OMNIORB4_FOUND )
+ENDIF( OMNIORB4_FOUND )
+
+# Bail if we were required to find all components and missed at least one
+IF (OMNIORB4_FIND_REQUIRED AND NOT OMNIORB4_FOUND)
+    MESSAGE (FATAL_ERROR "Could not find OMNIORB4")
+ENDIF ()
 
 # Generate all files required for a corba server app.
-# ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... ) 
+# ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... )
 MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
    FOREACH (_current_FILE ${ARGN})
 
@@ -167,7 +178,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
          # the current CMakeLists.txt file, the ADD_CUSTOM_COMMAND is plainly
          # ignored and left out of the make files.
          ADD_CUSTOM_COMMAND(OUTPUT ${_out} ${_outh}
-          COMMAND ${OMNIORB4_IDL_COMPILER} -bcxx -Wba -Wbh=C.h -Wbs=C.cc -I${CMAKE_CURRENT_SOURCE_DIR} ${_current_FILE}
+          COMMAND ${OMNIORB4_IDL_COMPILER} -bcxx -Wbuse_quotes -Wba -Wbh=C.h -Wbs=C.cc -I${CMAKE_CURRENT_SOURCE_DIR} ${_current_FILE}
           DEPENDS ${_tmp_FILE}
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)

@@ -22,10 +22,12 @@
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
-#include "os/PeriodicThread.hpp"
+#include <Activity.hpp>
+#include <base/RunnableInterface.hpp>
 
 using namespace boost;
 using namespace std;
+using namespace base;
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -49,7 +51,7 @@ LoggerTest::tearDown()
 }
 
 struct TestLog
-  : public RTT::OS::RunnableInterface
+  : public RunnableInterface
 {
   bool fini;
   bool initialize() { fini = false; return true; }
@@ -104,9 +106,9 @@ BOOST_AUTO_TEST_CASE( testNewLog )
 BOOST_AUTO_TEST_CASE( testThreadLog )
 {
   boost::scoped_ptr<TestLog> run( new TestLog() );
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"ORThread1", 0.001) );
+  boost::scoped_ptr<ActivityInterface> t( new Activity(25, 0.001, 0, "ORActivity1") );
   boost::scoped_ptr<TestLog> run2( new TestLog() );
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t2( new RTT::OS::PeriodicThread(25,"ORThread2", 0.001) );
+  boost::scoped_ptr<ActivityInterface> t2( new Activity(25, 0.001, 0, "ORActivity2") );
 
   t->run( run.get() );
   t2->run( run2.get() );

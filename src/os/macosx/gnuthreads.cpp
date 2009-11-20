@@ -38,7 +38,7 @@
    <http://docs.huihoo.com/darwin/kernel-programming-guide/scheduler/chapter_8_section_2.html#//apple_ref/doc/uid/TP30000905-CH211-BABFGDHA>
  */
 namespace RTT
-{ namespace OS {
+{ namespace os {
 
     const int LowestPriority = 0;
     

@@ -45,10 +45,10 @@
 
 #include "AsynchCommandDecorator.hpp"
 
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "ArgumentsParser.hpp"
 #include "ConditionComposite.hpp"
-#include "DispatchAction.hpp"
+#include "../internal/DispatchAction.hpp"
 
 namespace RTT
 {
@@ -140,7 +140,7 @@ namespace RTT
     assert(cfi);
     assert(efi);
 
-    typedef std::pair<CommandInterface*,ConditionInterface*> ComCon;
+    typedef std::pair<ActionInterface*,ConditionInterface*> ComCon;
     ComCon comcon;
 
     if ( cfi->hasMember( mcurmethod ) )

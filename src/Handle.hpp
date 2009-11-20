@@ -39,7 +39,7 @@
 #ifndef ORO_CORELIB_SIGNAL_HANDLE_HPP
 #define ORO_CORELIB_SIGNAL_HANDLE_HPP
 
-#include "impl/signal_base.hpp"
+#include "internal/SignalBase.hpp"
 
 namespace RTT
 {
@@ -67,7 +67,7 @@ namespace RTT
 	class RTT_API Handle
 	{
 	private:
-		typedef detail::signal_base           sender_t; //! the signal type
+		typedef internal::SignalBase      sender_t; //! the signal type
         typedef sender_t::connection_t    connection_t; //! the connection type for the slot of this Handle
 	public:
         /**
@@ -165,77 +165,4 @@ namespace RTT
 		~CleanupHandle();
     };
 }
-
-#if 0
-namespace RTT
-{
-    class RTT_API Handle
-    {
-        sigslot::handle _c;
-        sigslot::handle _c2;
-    public:
-        Handle( const sigslot::handle & c,
-                const sigslot::handle & c2 );
-
-        Handle( const sigslot::handle & c );
-        Handle( const Handle& h );
-        Handle();
-        ~Handle();
-
-        /**
-         * Get the first internal sigslot handle.
-         */
-        sigslot::handle sighandle1() const { return _c; }
-
-        /**
-         * Get the second internal sigslot handle.
-         */
-        sigslot::handle sighandle2() const { return _c2; }
-#if 0
-        Handle& operator=(const Handle& h);
-
-        bool operator==(const Handle& h) const;
-
-        bool operator<(const Handle& h) const;
-
-        operator sigslot::handle() const {
-            return _c;
-        }
-#endif
-
-        /**
-         * Inspect if the connection(s) of this handle is connected
-         * to an Event.
-         * @return false if no valid connection exists or if the
-         * connection is not connected to the event.
-         */
-        bool connected() const;
-
-        /**
-         * Disconnect syn and asyn handlers.
-         * @return false if no valid connection exists.
-         */
-        bool disconnect();
-
-        /**
-         * (Re-)Connect syn and asyn handlers.
-         * @return false if no valid connection exists.
-         */
-        bool connect();
-
-        /**
-         * Inspect if this handle is pointing to valid (existing) connection(s).
-         * @return false if no connection(s) is associated with this handle.
-         */
-        operator bool() const;
-
-        /**
-         * Inspect if this handle is pointing to valid (existing) connection(s).
-         * @return false if no connection(s) is associated with this handle.
-         */
-        bool ready() const;
-    };
-}
-#endif
-
 #endif
