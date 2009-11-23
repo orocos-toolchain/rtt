@@ -30,10 +30,12 @@ set(XENOMAI_POSIX_NAME   pthread_rt)
 # Find headers and libraries
 if(XENOMAI_POSIX_ROOT_DIR)
   # Use location specified by environment variable
+  find_program(XENOMAI_XENO_CONFIG NAMES xeno-config  PATHS ${XENOMAI_POSIX_ROOT_DIR}/bin NO_DEFAULT_PATH)
   find_path(XENOMAI_POSIX_INCLUDE_DIR        NAMES ${header_NAME}        PATHS ${XENOMAI_POSIX_ROOT_DIR}/include PATH_SUFFIXES xenomai/posix NO_DEFAULT_PATH)
   find_library(XENOMAI_POSIX_LIBRARY         NAMES ${XENOMAI_POSIX_NAME}       PATHS ${XENOMAI_POSIX_ROOT_DIR}/lib     NO_DEFAULT_PATH)
 else()
   # Use default CMake search process
+  find_program(XENOMAI_XENO_CONFIG NAMES xeno-config )
   find_path(XENOMAI_POSIX_INCLUDE_DIR       NAMES ${header_NAME} PATH_SUFFIXES xenomai )
   find_library(XENOMAI_POSIX_LIBRARY        NAMES ${XENOMAI_POSIX_NAME})
 endif()
@@ -42,6 +44,9 @@ endif()
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
 set(XENOMAI_POSIX_PROCESS_INCLUDES XENOMAI_POSIX_INCLUDE_DIR)
 set(XENOMAI_POSIX_PROCESS_LIBS XENOMAI_POSIX_LIBRARY)
+
+execute_process(COMMAND xeno-config --posix-ldflags OUTPUT_VARIABLE XENOMAI_POSIX_LDFLAGS )
+execute_process(COMMAND xeno-config --posix-cflags OUTPUT_VARIABLE XENOMAI_POSIX_CFLAGS )
 
 message("Found XenomaiPosix in ${XENOMAI_POSIX_INCLUDE_DIR}")
 
