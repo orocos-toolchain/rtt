@@ -268,7 +268,6 @@ namespace RTT
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
                 // notify input that the connection is now complete.
                 if ( input_port.channelReady( channel_input->getOutputEndPoint() ) == false ) {
-                    output_port.disconnect();
                     log(Error) << "The input port "<< input_port.getName()
                                << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
 
