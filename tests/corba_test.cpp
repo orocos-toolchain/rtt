@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     mo2->disconnect();
 }
 
-BOOST_AUTO_TEST_CASE( testHalfs )
+BOOST_AUTO_TEST_CASE( testDataHalfs )
 {
     double result;
     // This test tests the differen port-to-port connections.
@@ -467,7 +467,6 @@ BOOST_AUTO_TEST_CASE( testHalfs )
     BOOST_REQUIRE( ports.in() );
 
     // test unbuffered C++ write --> Corba read
-    policy.type = RTT::corba::CData;
     policy.pull = false; // note: buildChannelInput must correct policy to pull = true (adds a buffer).
     CChannelElement_var cce = ports->buildChannelInput("mo", policy);
     CORBA::Any_var sample = new CORBA::Any();
@@ -488,8 +487,6 @@ BOOST_AUTO_TEST_CASE( testHalfs )
     cce->disconnect();
 
     // test unbuffered Corba write --> C++ read
-    policy.type = RTT::corba::CData;
-    policy.pull = false;
     cce = ports->buildChannelOutput("mi", policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
@@ -507,6 +504,73 @@ BOOST_AUTO_TEST_CASE( testHalfs )
     BOOST_CHECK_EQUAL( result, 4.44);
 }
 
+BOOST_AUTO_TEST_CASE( testBufferHalfs )
+{
+    double result;
+    // This test tests the differen port-to-port connections.
+    ts  = corba::ControlTaskServer::Create( tc, false ); //no-naming
+
+    // Create a default CORBA policy specification
+    RTT::corba::CConnPolicy policy;
+    policy.type = RTT::corba::CBuffer;
+    policy.init = false;
+    policy.lock_policy = RTT::corba::CLockFree;
+    policy.size = 10;
+    policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
+
+    // Set up an event handler to check if signalling works properly as well
+    Handle hl( mi1->getNewDataOnPortEvent()->setup(
+                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
+    BOOST_CHECK( hl.connect() );
+
+    corba::CDataFlowInterface_var ports  = ts->server()->ports();
+    BOOST_REQUIRE( ports.in() );
+
+    // test unbuffered C++ write --> Corba read
+    policy.pull = false; // note: buildChannelInput must correct policy to pull = true (adds a buffer).
+    CChannelElement_var cce = ports->buildChannelInput("mo", policy);
+    CORBA::Any_var sample = new CORBA::Any();
+    BOOST_REQUIRE( cce.in() );
+
+    // Check read of new data
+    mo1->write( 6.33 );
+    mo1->write( 3.33 );
+    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    sample >>= result;
+    BOOST_CHECK_EQUAL( result, 6.33);
+    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    sample >>= result;
+    BOOST_CHECK_EQUAL( result, 3.33);
+
+    // Check re-read of old data.
+    sample <<= 0.0;
+    BOOST_CHECK_EQUAL( cce->read( sample.out() ), COldData );
+    sample >>= result;
+    BOOST_CHECK_EQUAL( result, 3.33);
+
+    cce->disconnect();
+
+    // test unbuffered Corba write --> C++ read
+    cce = ports->buildChannelOutput("mi", policy);
+    sample = new CORBA::Any();
+    BOOST_REQUIRE( cce.in() );
+
+    // Check read of new data
+    result = 0.0;
+    sample <<= 6.44;
+    cce->write( sample.in() );
+    sample <<= 4.44;
+    cce->write( sample.in() );
+    BOOST_CHECK_EQUAL( mi1->read( result ), CNewData );
+    BOOST_CHECK_EQUAL( result, 6.44 );
+    BOOST_CHECK_EQUAL( mi1->read( result ), CNewData );
+    BOOST_CHECK_EQUAL( result, 4.44 );
+
+    // Check re-read of old data.
+    result = 0.0;
+    BOOST_CHECK_EQUAL( mi1->read( result ), COldData );
+    BOOST_CHECK_EQUAL( result, 4.44);
+}
 
 
 BOOST_AUTO_TEST_CASE( cleanupCorba )
