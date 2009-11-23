@@ -31,7 +31,7 @@ if (ENABLE_CORBA)
 	    endif()
 
  	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS TAO_PortableServer TAO)
+	    set(CORBA_USER_LINK_LIBS ${TAO_CLIENT_LIBRARIES})
 
        ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
@@ -51,7 +51,7 @@ if (ENABLE_CORBA)
 	    SET(CORBA_IS_OMNIORB 1)
 
         # Including an Omniorb header is sufficient to depend on this library.
-        set(CORBA_USER_LINK_LIBS omniORB4 omnithread )
+        set(CORBA_USER_LINK_LIBS ${OMNIORB4_CLIENT_LIBRARIES} )
 
         ENDIF(NOT OMNIORB4_FOUND)
     ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")

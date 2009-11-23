@@ -4,6 +4,7 @@
 
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
 # OMNIORB4_LIBRARIES    - Files to link against to use omniORB
+# OMNIORB4_CLIENT_LIBRARIES    - Files to link against if you included an omniORB header
 # OMNIORB4_IDL_COMPILER
 # OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_DIR          - (optional) Suggested installation directory to search
@@ -90,6 +91,9 @@ IF( OMNIORB4_IDL_COMPILER )
 
   SET( OMNIORB4_FOUND "YES" )
   SET(CORBA_IS_OMNIORB 1)
+  if (OMNIORB4_LIBRARY_omniORB4_FOUND )
+    list(APPEND OMNIORB4_CLIENT_LIBRARIES ${OMNIORB4_LIBRARY_omniORB4} ${OMNIORB4_LIBRARY_omnithread} )
+  endif()
 
   IF(NOT WIN32)
     SET(OMNIORB4_IDL_FLAGS "-bcxx -Wba -Wbh=.hh -Wbs=SK.cc -Wbd=DynSK.cc" CACHE STRING "Option for the omniorb4 idl compiler")
