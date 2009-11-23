@@ -97,8 +97,15 @@ bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
 {
     if ( channel && channel->inputReady() )
         return true;
-    if (channel)
+    if (channel) {
+        // in-the-middle disconnection, we need to inform both ends of
+        // the channel that it's going to be disposed. Both endpoints
+        // will inform their ports with a removal request.
+        // From a design perspective, this removal must be initiated
+        // by our connection manager and not by us.
         channel->disconnect(false);
+        channel->disconnect(true);
+    }
 
     return false;
 }

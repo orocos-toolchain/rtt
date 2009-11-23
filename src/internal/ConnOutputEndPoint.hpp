@@ -84,11 +84,12 @@ namespace RTT
 
         virtual void disconnect(bool forward)
         {
-            InputPort<T>* port = this->port;
-            this->port = 0;
-
+            // this implementation allows both a forward and backward
+            // disconnect.
             if (forward)
             {
+                InputPort<T>* port = this->port;
+                this->port = 0;
                 if (port)
                     port->removeConnection(cid);
             }

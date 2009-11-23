@@ -361,8 +361,7 @@ namespace RTT
                 return true;
             }
             // setup failed: manual cleanup.
-            chan->disconnect(true);
-            delete chan;
+            chan = 0; // deleted by channelReady() above !
             log(Error) << "Failed to create input stream for input port "<< input_port.getName() <<endlog();
             return false;
         }
