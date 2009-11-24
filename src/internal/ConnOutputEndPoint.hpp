@@ -74,6 +74,7 @@ namespace RTT
 
         ~ConnOutputEndpoint()
         {
+            this->disconnect(true); // inform port (if any) we're gone.
             delete cid;
         }
         /** Writes a new sample on this connection

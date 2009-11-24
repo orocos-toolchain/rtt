@@ -59,6 +59,7 @@ namespace RTT
 
         ~ConnInputEndpoint()
         {
+            this->disconnect(false); // inform port (if any) we're gone.
             delete cid;
         }
 
