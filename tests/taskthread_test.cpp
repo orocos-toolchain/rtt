@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     bprio = 15;
     rtsched = ORO_SCHED_OTHER;
     if ( os::CheckPriority( rtsched, bprio ) ) {
-        Activity m3task(ORO_SCHED_OTHER, 15);
+        Activity m3task(ORO_SCHED_OTHER, 15, 0.0);
         BOOST_CHECK( mtask.thread() != m3task.thread() );
         BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     }
@@ -461,10 +461,14 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
 
     // switching hard/soft
     // do not ASSERT since the ret-value may be false...
-    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+    if ( tt->setScheduler(ORO_SCHED_OTHER) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
-    if ( tt->setScheduler(ORO_SCHED_RT) )
+    }
+    if ( tt->setScheduler(ORO_SCHED_RT) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
+    }
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
     tt->setScheduler(ORO_SCHED_OTHER);
@@ -485,10 +489,14 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    if ( tt->setScheduler(ORO_SCHED_RT) )
+    if ( tt->setScheduler(ORO_SCHED_RT) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
-    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+    }
+    if ( tt->setScheduler(ORO_SCHED_OTHER) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
+    }
     Logger::log().setLogLevel( ll );
 
     // reconfigure periodicity when running.
