@@ -129,6 +129,11 @@ extern "C"
 	 */
 	int rtos_printf( const char *fmt, ... );
 
+    /** Allows the RTOS to print a warning when we violate real-time constraints. */
+  void rtos_enable_rt_warning();
+    /** Disallows the RTOS to print a warning when we violate real-time constraints. */
+  void rtos_disable_rt_warning();
+
 #ifdef __cplusplus
 }
 #endif

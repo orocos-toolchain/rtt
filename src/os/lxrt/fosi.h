@@ -389,6 +389,14 @@ int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when );
 
 #endif // OSBLD_OS_AGNOSTIC
 
+static inline void rtos_enable_rt_warning()
+{
+}
+
+static inline void rtos_disable_rt_warning()
+{
+}
+
 #ifdef __cplusplus
 }
 #endif

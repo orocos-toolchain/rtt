@@ -412,6 +412,14 @@ extern "C"
         return rtos_mutex_unlock(m);
     }
 
+    static inline void rtos_enable_rt_warning()
+    {
+    }
+
+    static inline void rtos_disable_rt_warning()
+    {
+    }
+
 #define rtos_printf printf
 
 #ifdef __cplusplus

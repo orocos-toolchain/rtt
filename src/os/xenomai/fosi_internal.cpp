@@ -45,6 +45,22 @@
 #define INTERNAL_QUAL
 
 #include "../../Logger.hpp"
+#include <signal.h>
+#include <execinfo.h>
+
+
+extern "C"
+void warn_upon_switch(int sig __attribute__((unused)))
+{
+    void *bt[32];
+    int nentries;
+
+    /* Dump a backtrace of the frame which caused the switch to
+       secondary mode: */
+    nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
+    backtrace_symbols_fd(bt,nentries,fileno(stdout));
+}
+
 
 namespace RTT
 {
@@ -137,6 +153,8 @@ namespace RTT
 #  endif
 # endif
 #endif
+            log(Info) << "Installing SIGXCPU handler." <<endlog();
+            signal(SIGXCPU, warn_upon_switch);
 
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
             return 0;
