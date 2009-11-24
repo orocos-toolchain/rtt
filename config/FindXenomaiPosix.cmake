@@ -40,13 +40,17 @@ else()
   find_library(XENOMAI_POSIX_LIBRARY        NAMES ${XENOMAI_POSIX_NAME})
 endif()
 
+if( XENOMAI_POSIX_LIBRARY AND XENOMAI_POSIX_INCLUDE_DIR AND NOT XENOMAI_XENO_CONFIG )
+  message(SEND_ERROR "Your Xenomai installation is broken: I can not determine Xenomai POSIX cflags/ldflags without xeno-config.")
+else()
+  execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --posix-ldflags OUTPUT_VARIABLE XENOMAI_POSIX_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --posix-cflags OUTPUT_VARIABLE XENOMAI_POSIX_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
 set(XENOMAI_POSIX_PROCESS_INCLUDES XENOMAI_POSIX_INCLUDE_DIR)
 set(XENOMAI_POSIX_PROCESS_LIBS XENOMAI_POSIX_LIBRARY)
-
-execute_process(COMMAND xeno-config --posix-ldflags OUTPUT_VARIABLE XENOMAI_POSIX_LDFLAGS )
-execute_process(COMMAND xeno-config --posix-cflags OUTPUT_VARIABLE XENOMAI_POSIX_CFLAGS )
 
 message("Found XenomaiPosix in ${XENOMAI_POSIX_INCLUDE_DIR}")
 
