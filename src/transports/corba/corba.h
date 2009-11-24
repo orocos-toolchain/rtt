@@ -52,7 +52,8 @@
 namespace CORBA {
     typedef Any* Any_ptr;
 }
-#define ACE_THROW_SPEC(x) throw x
+#undef ACE_THROW_SPEC
+#define ACE_THROW_SPEC(x)
 #define CORBA_EXCEPTION_INFO(x) x._name()
 #endif
 
