@@ -118,8 +118,11 @@ namespace RTT
                         if ( policy.init )
                             return channel_el_input->write(sample);
                         return true;
-                    } else
+                    } else {
+                        Logger::In in("OutputPort");
+                        log(Error) << "Failed to pass data sample to data channel. Aborting connection."<<endlog();
                         return false;
+                    }
                 }
             }
             // even if we're not written, test the connection with a default sample.
