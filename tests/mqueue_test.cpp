@@ -10,6 +10,7 @@
 #include <transports/mqueue/MQLib.hpp>
 #include <transports/mqueue/MQChannelElement.hpp>
 #include <transports/mqueue/MQTemplateProtocol.hpp>
+#include <os/fosi.h>
 
 using namespace std;
 using namespace RTT;
@@ -57,11 +58,14 @@ void MQueueTest::new_data_listener(PortInterface* port)
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
     signalled_port = 0; \
     code; \
+    rtos_disable_rt_warning(); \
     usleep(100000); \
+    rtos_enable_rt_warning(); \
     BOOST_CHECK( read_port == signalled_port );
 
 void MQueueTest::testPortDataConnection()
 {
+    rtos_enable_rt_warning();
     // This test assumes that there is a data connection mw1 => mr2
     // Check if connection succeeded both ways:
     BOOST_CHECK( mw1->connected() );
@@ -80,10 +84,13 @@ void MQueueTest::testPortDataConnection()
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 2.0, value );
     BOOST_CHECK( OldData == mr2->read(value) );
+
+    rtos_disable_rt_warning();
 }
 
 void MQueueTest::testPortBufferConnection()
 {
+    rtos_enable_rt_warning();
     // This test assumes that there is a buffer connection mw1 => mr2 of size 3
     // Check if connection succeeded both ways:
     BOOST_CHECK( mw1->connected() );
@@ -106,6 +113,8 @@ void MQueueTest::testPortBufferConnection()
     BOOST_CHECK( mr2->read(value) );
     BOOST_CHECK_EQUAL( 3.0, value );
     BOOST_CHECK( OldData == mr2->read(value) );
+
+    rtos_disable_rt_warning();
 }
 
 void MQueueTest::testPortDisconnected()
@@ -353,13 +362,19 @@ BOOST_AUTO_TEST_CASE( testVectorTransport )
     data.resize(10, 6.66);
     for(int i=0; i != data.size(); ++i)
         BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
+
+    rtos_enable_rt_warning();
     vout.write( data );
+    rtos_disable_rt_warning();
 
     // prepare data buffer for reception:
     data.clear();
     data.resize(20, 0.0);
     usleep(200000);
+
+    rtos_enable_rt_warning();
     BOOST_CHECK_EQUAL( vin.read(data), NewData);
+    rtos_disable_rt_warning();
 
     // check if both size and capacity and values are as expected.
     BOOST_CHECK_EQUAL( data.size(), 10);
@@ -367,7 +382,9 @@ BOOST_AUTO_TEST_CASE( testVectorTransport )
     for(int i=0; i != data.size(); ++i)
         BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
 
+    rtos_enable_rt_warning();
     BOOST_CHECK_EQUAL( vin.read(data), OldData);
+    rtos_disable_rt_warning();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -8,6 +8,7 @@
 
 #include <rtt-fwd.hpp>
 #include <marsh/binary_data_archive.hpp>
+#include <os/fosi.h>
 
 using namespace std;
 using namespace boost::archive;
@@ -52,6 +53,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     double d = 3.0;
     vector<double> c(10, 9.99);
 
+    rtos_enable_rt_warning();
     io::stream<io::array_sink>  outbuf(sink,1000);
     binary_data_oarchive out( outbuf ); // +0 alloc
     out << d; // +0 alloc
@@ -59,28 +61,17 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
 
     int stored = out.getArchiveSize();
     BOOST_CHECK( stored > 10*sizeof(double) );
+    rtos_disable_rt_warning();
+
     d = 0.0;
     c.clear();
     c.resize(20,0.0);
 
+    rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf ); // +0 alloc
     in >> d; // +0 alloc
     in >> c; // +0 alloc
-
-#if 0
-    // this code was for testing the compile errors I got on BOOST_SERIALIZATION_NVP(count) use in the serialization library.
-    int count;
-    nvp<int> n = BOOST_SERIALIZATION_NVP(count);
-    in >> n;
-
-    stringstream ss;
-    binary_iarchive bin( ss );
-
-    bin >> BOOST_SERIALIZATION_NVP(count);
-
-    in >> BOOST_SERIALIZATION_NVP(count);
-#endif
 
     BOOST_CHECK_CLOSE( d, 3.0, 0.01);
     BOOST_CHECK_EQUAL( c.size(), 10);
@@ -88,6 +79,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
         BOOST_CHECK_CLOSE( c[i], 9.99, 0.01);
     }
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
+    rtos_disable_rt_warning();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
