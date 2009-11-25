@@ -163,7 +163,7 @@ namespace RTT
          * A lower number will consume less memory.
 '        */
         ListLockFree(unsigned int lsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
-            : MAX_THREADS( threads ), blankp(0), required(0)
+            : MAX_THREADS( threads ), blankp(0), required(lsize)
         {
             const unsigned int BUF_NUM = BufNum();
             bufs = newStorage( BUF_NUM, lsize );
