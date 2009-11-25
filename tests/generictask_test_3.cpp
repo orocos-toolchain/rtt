@@ -773,20 +773,28 @@ BOOST_AUTO_TEST_CASE(testPortSimpleConnections)
     BOOST_CHECK( !wp.connected() );
 }
 
-BOOST_AUTO_TEST_CASE(testPortForkedConnections)
+BOOST_AUTO_TEST_CASE(testPortOneWriterThreeReaders)
 {
     OutputPort<int> wp("W");
     InputPort<int> rp1("R1", ConnPolicy::data());
     InputPort<int> rp2("R2", ConnPolicy::buffer(4));
+    InputPort<int> rp3("R3", ConnPolicy::data());
 
     wp.createConnection(rp1);
     BOOST_CHECK( wp.connected() );
     BOOST_CHECK( rp1.connected() );
     BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
     wp.createConnection(rp2);
     BOOST_CHECK( wp.connected() );
     BOOST_CHECK( rp1.connected() );
     BOOST_CHECK( rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
+    wp.createConnection(rp3);
+    BOOST_CHECK( wp.connected() );
+    BOOST_CHECK( rp1.connected() );
+    BOOST_CHECK( rp2.connected() );
+    BOOST_CHECK( rp3.connected() );
 
     wp.write(10);
     wp.write(15);
@@ -808,21 +816,127 @@ BOOST_AUTO_TEST_CASE(testPortForkedConnections)
     BOOST_CHECK_EQUAL(25, value);
     BOOST_CHECK_EQUAL( rp2.read(value), OldData);
 
+    BOOST_CHECK( rp3.read(value));
+    BOOST_CHECK_EQUAL(30, value);
+
     // Now removes only the buffer port
     wp.disconnect(rp2);
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
     BOOST_CHECK( wp.connected() );
     BOOST_CHECK( rp1.connected() );
     BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( rp3.connected() );
 
     wp.write(10);
     BOOST_CHECK( rp1.read(value));
     BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK( rp3.read(value));
+    BOOST_CHECK_EQUAL(10, value);
 
-    // And finally the other port as well
+    // And finally the other ports as well
     wp.disconnect(rp1);
+    wp.disconnect(rp3);
     BOOST_CHECK( !wp.connected() );
     BOOST_CHECK( !rp1.connected() );
     BOOST_CHECK( !rp2.connected() );
+    BOOST_CHECK( !rp3.connected() );
+    BOOST_CHECK_EQUAL( rp1.read(value), NoData );
+    BOOST_CHECK_EQUAL( rp2.read(value), NoData );
+    BOOST_CHECK_EQUAL( rp3.read(value), NoData );
+}
+
+BOOST_AUTO_TEST_CASE(testPortThreeWritersOneReader)
+{
+    OutputPort<int> wp1("W1");
+    OutputPort<int> wp2("W2");
+    OutputPort<int> wp3("W3");
+    InputPort<int> rp("R", ConnPolicy::buffer(4));
+
+    wp1.createConnection(rp);
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( rp.connected() );
+    BOOST_CHECK( !wp2.connected() );
+    BOOST_CHECK( !wp3.connected() );
+    wp2.createConnection(rp);
+    BOOST_CHECK( rp.connected() );
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( wp2.connected() );
+    BOOST_CHECK( !wp3.connected() );
+    wp3.createConnection(rp);
+    BOOST_CHECK( rp.connected() );
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( wp2.connected() );
+    BOOST_CHECK( wp3.connected() );
+
+    wp1.write(10);
+    wp1.write(20);
+    wp1.write(30);
+    wp1.write(40);
+    wp1.write(50);
+
+    wp2.write(12);
+    wp2.write(22);
+    wp2.write(32);
+    wp2.write(42);
+    wp2.write(52);
+
+    wp3.write(13);
+    wp3.write(23);
+    wp3.write(33);
+    wp3.write(43);
+    wp3.write(53);
+
+    int value = 0;
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(10, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(20, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(30, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(40, value);
+
+    // Now removes the middle writer
+    wp2.disconnect(rp);
+    BOOST_CHECK( rp.connected() );
+    BOOST_CHECK( wp1.connected() );
+    BOOST_CHECK( !wp2.connected() );
+    BOOST_CHECK( wp3.connected() );
+
+    // write one more sample
+    wp1.write(60);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(60, value);
+
+    // now check if wp3's connection is used:
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(13, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(23, value);
+
+    // in the middle adding a sample
+    wp1.write(70);
+
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(33, value);
+    BOOST_CHECK( rp.read(value));
+    BOOST_CHECK_EQUAL(43, value);
+
+    // now the in the middle sample shows up
+    BOOST_CHECK_EQUAL( rp.read(value), NewData );
+    BOOST_CHECK_EQUAL(70, value);
+    value = 0;
+    BOOST_CHECK_EQUAL( rp.read(value), OldData );
+    BOOST_CHECK_EQUAL(70, value);
+
+    // And finally the other ports as well
+    rp.disconnect(wp1);
+    rp.disconnect(wp3);
+    BOOST_CHECK( !rp.connected() );
+    BOOST_CHECK( !wp1.connected() );
+    BOOST_CHECK( !wp2.connected() );
+    BOOST_CHECK( !wp3.connected() );
+    BOOST_CHECK_EQUAL( rp.read(value), NoData );
 }
 
 BOOST_AUTO_TEST_CASE( testPortObjects)
