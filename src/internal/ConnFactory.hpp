@@ -216,11 +216,6 @@ namespace RTT
         template<typename T>
         static bool createConnection(OutputPort<T>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
-            if ( input_port.connected() ) {
-                log(Error) << "Can not connect to connected InputPort." <<endlog();
-                return false;
-            }
-
             if ( !output_port.isLocal() ) {
                 log(Error) << "Need a local OutputPort to create connections." <<endlog();
                 return false;

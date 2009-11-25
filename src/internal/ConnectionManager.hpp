@@ -128,7 +128,7 @@ namespace RTT
                 if ( cur_channel.get<1>() )
                     if ( pred( cur_channel ) )
                         return;
-                bool found;
+                bool found = false;
                 // The boost reference to pred is required
                 //boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1)(cur_channel);
                 if (connections)
@@ -168,7 +168,11 @@ namespace RTT
             template<typename Pred>
             void select_helper(Pred pred, bool& found, const ChannelDescriptor& descriptor) {
                 if ( !found && pred(descriptor) ) {
-                    cur_channel = descriptor;
+                    // new channel found, clear current.
+                    if ( cur_channel.get<1>() != descriptor.get<1>() ) {
+                        cur_channel.get<1>()->clear();
+                        cur_channel = descriptor;
+                    }
                     found = true;
                 }
             }

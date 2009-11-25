@@ -172,7 +172,7 @@ namespace RTT
             if ( cur_channel.get<1>() ) {
                 // cur_channel, already in use, check if connections needs to be created.
                 if (!connections) {
-                    connections = new List< ChannelDescriptor >(2);
+                    connections = new List< ChannelDescriptor >(2,2);
                     connections->append( cur_channel );
                 }
 

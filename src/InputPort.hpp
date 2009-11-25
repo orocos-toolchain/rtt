@@ -71,9 +71,15 @@ namespace RTT
             typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
             assert( result != NewData );
             if ( input ) {
-                result = input->read(sample);
-                if (result == NewData)
+                FlowStatus tresult = input->read(sample);
+                // the result trickery is for not overwriting OldData with NoData.
+                if (tresult == NewData) {
+                    result = tresult;
                     return true;
+                }
+                // stores OldData result
+                if (tresult > result)
+                    result = tresult;
             }
             return false;
         }
