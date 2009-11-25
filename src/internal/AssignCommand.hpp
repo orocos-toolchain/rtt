@@ -66,23 +66,28 @@ namespace RTT
         private:
             LHSSource lhs;
             RHSSource rhs;
+            bool news;
         public:
             /**
              * Assign \a r (rvalue) to \a l (lvalue);
              */
             AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r )
+                : lhs( l ), rhs( r ), news(false)
             {
             }
 
             void readArguments() {
-                rhs->evaluate();
+                news = rhs->evaluate();
             }
 
             bool execute()
             {
-                lhs->set( rhs->value() );
-                return true;
+                if (news) {
+                    lhs->set( rhs->value() );
+                    news=false;
+                    return true;
+                }
+                return false;
             }
 
             virtual base::ActionInterface* clone() const
@@ -111,22 +116,27 @@ namespace RTT
             LHSSource lhs;
             typedef typename DataSource<S>::const_ptr RHSSource;
             RHSSource rhs;
+            bool news;
         public:
             AssignContainerCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r )
+                : lhs( l ), rhs( r ), news(false)
             {
             }
 
             void readArguments() {
-                rhs->evaluate();
+                news = rhs->evaluate();
             }
 
             bool execute()
             {
                 if ( APred()( lhs->get(), rhs->value()) == false )
                     return false;
-                lhs->set( rhs->value() );
-                return true;
+                if ( news ) {
+                    lhs->set( rhs->value() );
+                    news = false;
+                    return true;
+                }
+                return false;
             }
 
             virtual base::ActionInterface* clone() const
@@ -157,22 +167,24 @@ namespace RTT
             LHSSource lhs;
             typedef typename DataSource<SetType>::shared_ptr RHSSource;
             RHSSource rhs;
+            bool news;
         public:
             AssignIndexCommand( LHSSource l, IndexSource index, RHSSource r)
-                : i(index),lhs( l ), rhs( r )
+                : i(index),lhs( l ), rhs( r ), news(false)
             {
             }
 
             void readArguments() {
-                rhs->evaluate();
+                news = rhs->evaluate();
             }
 
             bool execute()
             {
                 Index ind = i->get();
-                if ( Pred()( lhs->get(), ind) && &(lhs->set()) != 0 ) {
+                if ( Pred()( lhs->get(), ind) && &(lhs->set()) != 0 && news) {
                     lhs->set()[ ind ] = rhs->value();
                     lhs->updated();
+                    news = false;
                     return true;
                 }
                 return false;
