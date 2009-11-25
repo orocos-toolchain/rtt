@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testRepository )
     	BOOST_MESSAGE("----------- loop names: " << *it);
         PropertyBase* target;
         Property<PropertyBag> bag("Result","D");
-        BOOST_CHECK( TypeInfoRepository::Instance()->type( *it ) );
+        BOOST_REQUIRE( TypeInfoRepository::Instance()->type( *it ) );
         target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
         if ( target && target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
             BOOST_CHECK( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( testComposition )
     BOOST_CHECK( pvd.set() == init );
     BOOST_CHECK( pvd_cr.set() == init );
 
-    BOOST_CHECK( pvd.getTypeInfo() );
+    BOOST_REQUIRE( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
 
@@ -340,19 +340,19 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( filename );
-        BOOST_CHECK( pd.deserialize( target ) );
+        BOOST_REQUIRE( pd.deserialize( target ) );
     }
 
     Property<PropertyBag> bag = target.getProperty<PropertyBag>("b1");
-    BOOST_CHECK( bag.ready() );
+    BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "b1d" );
 
     bag = bag.rvalue().getProperty<PropertyBag>("b2");
-    BOOST_CHECK( bag.ready() );
+    BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "b2d" );
 
     Property<int> pi = bag.rvalue().getProperty<int>("p1");
-    BOOST_CHECK( pi.ready() );
+    BOOST_REQUIRE( pi.ready() );
     BOOST_CHECK( pi.get() == -1 );
     BOOST_CHECK( pi.getDescription() == "p1d" );
     deletePropertyBag( target );
@@ -380,12 +380,12 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( filename );
-        BOOST_CHECK( pd.deserialize( target ) );
+        BOOST_REQUIRE( pd.deserialize( target ) );
     }
 
     // check bag:
     Property<PropertyBag> bag = target.getProperty<PropertyBag>("p1");
-    BOOST_CHECK( bag.ready() );
+    BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "p1d" );
     BOOST_CHECK( bag.rvalue().size() == 7 );
 
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1->ready() );
+    BOOST_REQUIRE( p1->ready() );
     BOOST_CHECK( p1->rvalue().size() == 7 );
     BOOST_CHECK( p1->rvalue()[0] == 1.234 );
 
@@ -403,17 +403,17 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( "property_test_vect.cpf" );
-        BOOST_CHECK( pd.deserialize( target ) );
+        BOOST_REQUIRE( pd.deserialize( target ) );
     }
     bag = target.getProperty<PropertyBag>("driveLimits");
-    BOOST_CHECK( bag.ready() );
+    BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.rvalue().size() == 7 );
 
     // update bag -> array.
     BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1->ready() );
+    BOOST_REQUIRE( p1->ready() );
     //cout << p1 << endl;
     BOOST_CHECK( p1->rvalue().size() == 6 );
     BOOST_CHECK( p1->rvalue()[0] == 1 );
