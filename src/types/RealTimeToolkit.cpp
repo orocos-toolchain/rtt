@@ -147,6 +147,50 @@ namespace RTT
 #endif
             return os;
         }
+    };
+
+    /**
+     * Standard types don't need decomposition.
+     */
+    template<class T>
+    struct StdTypeInfo
+        : public TemplateTypeInfo<T,true>
+    {
+        StdTypeInfo(const char* type)
+            : TemplateTypeInfo<T,true>(type)
+        {}
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+            return false;
+        }
+
+        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
+            // First, try a plain update.
+            if ( result->update( source.get() ) )
+                return true;
+            return false;
+        }
+
+    };
+
+    /**
+     * Standard strings don't need decomposition.
+     */
+    struct StdStringTypeInfo
+        : public TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >
+    {
+        StdStringTypeInfo()
+            : TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string")
+        {}
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+            return false;
+        }
+
+        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
+            // First, try a plain update.
+            if ( result->update( source.get() ) )
+                return true;
+            return false;
+        }
 
     };
 
@@ -154,17 +198,17 @@ namespace RTT
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 
-        ti->addType( new TemplateTypeInfo<int, true>("int") );
-        ti->addType( new TemplateTypeInfo<unsigned int, true>("uint") );
-        ti->addType( new TemplateTypeInfo<double, true>("double") );
+        ti->addType( new StdTypeInfo<int>("int") );
+        ti->addType( new StdTypeInfo<unsigned int>("uint") );
+        ti->addType( new StdTypeInfo<double>("double") );
         ti->addType( new BoolTypeInfo() );
         ti->addType( new TypeInfoName<void>("void"));
-        ti->addType( new TemplateTypeInfo<FlowStatus, true>("FlowStatus"));
+        ti->addType( new StdTypeInfo<FlowStatus>("FlowStatus"));
 
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
-        ti->addType( new TemplateTypeInfo<float, true>("float") );
-        ti->addType( new TemplateTypeInfo<char, true>("char") );
+        ti->addType( new StdTypeInfo<float>("float") );
+        ti->addType( new StdTypeInfo<char>("char") );
         ti->addType( new StdVectorTypeInfo("array") );
         ti->addType( new ConnPolicyTypeInfo("ConnPolicy") );
 #endif
@@ -172,7 +216,7 @@ namespace RTT
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
-        ti->addType( new TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
+        ti->addType( new StdStringTypeInfo() );
 
         return true;
     }
