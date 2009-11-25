@@ -74,7 +74,7 @@ namespace RTT
 
         ~ConnOutputEndpoint()
         {
-            this->disconnect(true); // inform port (if any) we're gone.
+            //this->disconnect(true); // inform port (if any) we're gone.
             delete cid;
         }
         /** Writes a new sample on this connection
@@ -85,14 +85,15 @@ namespace RTT
 
         virtual void disconnect(bool forward)
         {
+            if ( !this->port )
+                return;
             // this implementation allows both a forward and backward
             // disconnect.
             if (forward)
             {
                 InputPort<T>* port = this->port;
                 this->port = 0;
-                if (port)
-                    port->removeConnection(cid);
+                port->removeConnection(cid);
             }
             else
                 base::ChannelElement<T>::disconnect(false);

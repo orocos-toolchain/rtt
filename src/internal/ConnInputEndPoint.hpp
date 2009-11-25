@@ -59,7 +59,7 @@ namespace RTT
 
         ~ConnInputEndpoint()
         {
-            this->disconnect(false); // inform port (if any) we're gone.
+            //this->disconnect(false); // inform port (if any) we're gone.
             delete cid;
         }
 
@@ -75,6 +75,9 @@ namespace RTT
 
         virtual void disconnect(bool forward)
         {
+            if (!this->port)
+                return;
+
             // this implementation allows both a forward and backward
             // disconnect.
             if (forward)
@@ -85,9 +88,6 @@ namespace RTT
             {
                 OutputPort<T>* port = this->port;
                 this->port = 0;
-                if (!port)
-                    return;
-
                 port->removeConnection( cid );
             }
         }
