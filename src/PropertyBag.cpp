@@ -382,9 +382,9 @@ namespace RTT
         //iterate over source, update or clone PropertyBases
 
         PropertyBag::Names allnames = source.list();
-        std::unique(allnames.begin(), allnames.end());
+        PropertyBag::Names::const_iterator endnames = std::unique(allnames.begin(), allnames.end());
         PropertyBag::Names::const_iterator it( allnames.begin() );
-        while ( it != allnames.end() )
+        while ( it != endnames )
         {
             PropertyBag::Properties sources = source.getProperties(*it);
             PropertyBag::Properties mines = target.getProperties(*it);
