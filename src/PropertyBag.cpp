@@ -117,8 +117,8 @@ namespace RTT
             mproperties.erase(i);
             i = std::find(mowned_props.begin(), mowned_props.end(), p);
             if ( i != mowned_props.end() ) {
-                mowned_props.erase(i);
                 delete *i;
+                mowned_props.erase(i); // invalidates i
             }
             return true;
         }
