@@ -257,7 +257,8 @@ namespace RTT
                 else
                     if ( ln == "simple" )
                     {
-
+                        name.clear();
+                        type.clear();
                         tag_stack.push( TAG_SIMPLE );
                         for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                         {
@@ -276,6 +277,9 @@ namespace RTT
                     else
                         if ( ln == "struct" || ln == "sequence")
                         {
+                            name.clear();
+                            type.clear();
+
                             for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                             {
                                 std::string an;
