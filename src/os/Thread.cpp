@@ -358,7 +358,7 @@ namespace RTT
             }
             else {
 
-                if (running)
+                if ( active )
                     return false;
                 Logger::In in("Thread::start");
 
