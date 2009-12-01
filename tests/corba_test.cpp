@@ -472,6 +472,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     CORBA::Any_var sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
+    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNoData );
     // Check read of new data
     mo1->write( 3.33 );
     BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
@@ -532,6 +533,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     CORBA::Any_var sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
+    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNoData );
     // Check read of new data
     mo1->write( 6.33 );
     mo1->write( 3.33 );
