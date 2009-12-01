@@ -85,6 +85,7 @@ namespace RTT {
             bool createStream( const ConnPolicy& policy );
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
+            void disconnect(base::PortInterface& p);
         };
 
         /**

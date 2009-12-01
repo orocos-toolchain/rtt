@@ -69,10 +69,20 @@ template<typename BaseClass>
 int RemotePort<BaseClass>::serverProtocol() const { return ORO_CORBA_PROTOCOL_ID; }
 template<typename BaseClass>
 bool RemotePort<BaseClass>::connected() const
-{ return dataflow->isConnected(this->getName().c_str()); }
+{
+    return dataflow->isConnected(this->getName().c_str());
+}
 template<typename BaseClass>
 void RemotePort<BaseClass>::disconnect()
-{ return dataflow->disconnectPort(this->getName().c_str()); }
+{
+    dataflow->disconnectPort(this->getName().c_str());
+}
+template<typename BaseClass>
+void RemotePort<BaseClass>::disconnect(PortInterface& port)
+{
+    Logger::In in("RemotePort::disconnect(PortInterface& port)");
+    log(Error) << "Disconnecting a single port not yet supported." <<endlog();
+}
 template<typename BaseClass>
 PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }

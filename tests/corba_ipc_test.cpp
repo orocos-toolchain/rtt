@@ -451,6 +451,7 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     write_port->createConnection(*mi);
     BOOST_CHECK(read_port->connected());
     BOOST_CHECK(write_port->connected());
+    // XXX This currently does not work:
     //read_port->disconnect(*mo);
     //write_port->disconnect(*mi);
     read_port->disconnect();
