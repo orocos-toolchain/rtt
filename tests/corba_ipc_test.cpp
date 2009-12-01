@@ -36,6 +36,7 @@
 #include <transports/corba/ControlTaskServer.hpp>
 #include <transports/corba/ControlTaskProxy.hpp>
 #include <string>
+#include <stdlib.h>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -179,6 +180,8 @@ BOOST_AUTO_TEST_CASE( setupCorba )
 {
     corba::ControlTaskProxy::InitOrb(0,0);
     corba::ControlTaskServer::ThreadOrb();
+    system("./corba-ipc-server &");
+    usleep(100000);
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
@@ -621,6 +624,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 BOOST_AUTO_TEST_CASE( cleanupCorba )
 {
     corba::ControlTaskProxy::DestroyOrb();
+    system("killall corba-ipc-server");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
