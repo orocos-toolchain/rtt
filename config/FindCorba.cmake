@@ -8,7 +8,7 @@ if (ENABLE_CORBA)
 	if(${OROCOS_TARGET} MATCHES "win32")
 	  set(XTRA_TAO_LIBS AnyTypeCode ValueType) #note: capital T
 	endif()
-	if(${OROCOS_TARGET} MATCHES "macosx|gnulinux")
+	if(${OROCOS_TARGET} MATCHES "macosx|gnulinux|xenomai|lxrt")
 	  set(XTRA_TAO_LIBS AnyTypeCode Valuetype) #note: small T
 	endif()
         find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
