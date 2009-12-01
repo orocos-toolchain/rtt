@@ -18,13 +18,7 @@
 
 
 
-#include "corba_test.hpp"
-
 #include <iostream>
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
 #include <Method.hpp>
 #include <interface/OperationInterface.hpp>
 #include <transports/corba/DataFlowI.h>
@@ -38,36 +32,36 @@
 #include <transports/corba/ControlTaskServer.hpp>
 #include <transports/corba/ControlTaskProxy.hpp>
 #include <string>
+#include <os/main.h>
 
 using namespace RTT;
 using namespace RTT::detail;
+using namespace std;
 
-class TheServer : public TaskContext {
+class TheServer : public TaskContext
+{
+public:
     // Ports
     InputPort<double>  mi1;
     OutputPort<double> mo1;
 
-public:
-    TheServer(): TaskContext("peer"), mi1("mi"), mo1("mo") {
-
+    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
         ports()->addEventPort( &mi1 );
         ports()->addPort( &mo1 );
-
+        this->addObject( this->createMethodFactory() );
+        this->start();
+        ts = corba::ControlTaskServer::Create( this, true ); //use-naming
     }
+    ~TheServer() {
+        this->stop();
+    }
+
     void updateHook(){
         double d = 123456.789;
         mi1.read(d);
         mo1.write(d);
     }
-};
 
-class CorbaTest
-{
-public:
-    CorbaTest() { this->setUp(); }
-    ~CorbaTest() { this->tearDown(); }
-
-    TaskContext* tc;
     corba::ControlTaskServer* ts;
 
     TaskObject* createMethodFactory();
@@ -92,60 +86,40 @@ public:
 
     // void(void) function test:
     void vm0(void) { ; }
-
-    void setUp();
-    void tearDown();
 };
 
-using namespace std;
-
-void
-CorbaTest::setUp()
-{
-    // connect DataPorts
-    tc =  new TheServer();
-    tc->addObject( this->createMethodFactory() );
-}
-
-
-void
-CorbaTest::tearDown()
-{
-    delete ts;
-    delete tc;
-
-    delete mi1;
-    delete mo1;
-}
-
-TaskObject* CorbaTest::createMethodFactory()
+TaskObject* TheServer::createMethodFactory()
 {
     TaskObject* to = new TaskObject("methods");
 
-    to->methods()->addMethod( method("vm0",  &CorbaTest::vm0, this), "VM0");
-    to->methods()->addMethod( method("m0",  &CorbaTest::m0, this), "M0");
-    to->methods()->addMethod( method("m1",  &CorbaTest::m1, this), "M1","a","ad");
-    to->methods()->addMethod( method("m2",  &CorbaTest::m2, this), "M2","a","ad","a","ad");
-    to->methods()->addMethod( method("m3",  &CorbaTest::m3, this), "M3","a","ad","a","ad","a","ad");
-    to->methods()->addMethod( method("m4",  &CorbaTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    to->methods()->addMethod( method("vm0",  &TheServer::vm0, this), "VM0");
+    to->methods()->addMethod( method("m0",  &TheServer::m0, this), "M0");
+    to->methods()->addMethod( method("m1",  &TheServer::m1, this), "M1","a","ad");
+    to->methods()->addMethod( method("m2",  &TheServer::m2, this), "M2","a","ad","a","ad");
+    to->methods()->addMethod( method("m3",  &TheServer::m3, this), "M3","a","ad","a","ad","a","ad");
+    to->methods()->addMethod( method("m4",  &TheServer::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
     return to;
 }
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  CorbaServerTestSuite,  CorbaTest )
-
-BOOST_AUTO_TEST_CASE( testBeServer )
+int ORO_main(int argc, char** argv)
 {
     corba::ControlTaskProxy::InitOrb(0,0);
-    tc->start();
-    ts = corba::ControlTaskServer::Create( tc, true ); //use-naming
-    BOOST_REQUIRE( ts );
 
-    // wait for shutdown.
-    corba::ControlTaskServer::RunOrb();
-    tc->stop();
+    {
+        TheServer ctest1("peerRMC");
+        TheServer ctest2("peerRM");
+        TheServer ctest3("peerAM");
+        TheServer ctest4("peerDFI");
+        TheServer ctest5("peerPC");
+        TheServer ctest6("peerPP");
+        TheServer ctest7("peerDH");
+        TheServer ctest8("peerBH");
+
+        // wait for shutdown.
+        corba::ControlTaskServer::RunOrb();
+    }
+
     corba::ControlTaskProxy::DestroyOrb();
+
+    return 0;
 }
-
-BOOST_AUTO_TEST_SUITE_END()
-

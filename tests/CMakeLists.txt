@@ -26,7 +26,7 @@ IF (BUILD_TESTING)
 	    LINK_LIBRARIES( orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} orocos-rtt-${OROCOS_TARGET})
       ENDIF(BUILD_STATIC)
       if (NOT OROCOS_TARGET STREQUAL win32)
-	add_definitions(-D_REENTRANT)
+        add_definitions(-D_REENTRANT)
       endif()
     ENDIF(ENABLE_CORBA)
     IF(ENABLE_MQ)
@@ -143,11 +143,32 @@ IF (BUILD_TESTING)
       ADD_EXECUTABLE( corba-test test-runner.cpp corba_test.cpp )
       TARGET_LINK_LIBRARIES( corba-test orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
-	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+	   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+	   )
       ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
       list(APPEND ORO_EXTRA_TESTS "corba-test")
+
+      ADD_EXECUTABLE( corba-ipc-test test-runner.cpp corba_ipc_test.cpp )
+      TARGET_LINK_LIBRARIES( corba-ipc-test orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+      SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+        )
+      ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
+      list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
+
+      # This server is required to run when the corba-ipc-test runs
+      ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
+      TARGET_LINK_LIBRARIES( corba-ipc-server orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+      SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+        )
+
     ENDIF(ENABLE_CORBA)
 
     IF(ENABLE_MQ)
