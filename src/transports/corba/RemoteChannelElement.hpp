@@ -227,14 +227,20 @@ namespace RTT {
           	      CORBA::SystemException
           	    ))
             {
+
                 FlowStatus fs;
                 if ( (fs = base::ChannelElement<T>::read(data_source->set())) )
                 {
                     sample = transport.createAny(data_source);
-                    return (CFlowStatus)fs;
+                    if ( sample != 0) {
+                        return (CFlowStatus)fs;
+                    }
+                    // this is a programmatic error and should never happen during run-time.
+                    log(Error) << "CORBA Transport failed to create Any for " << data_source->getTypeName() << " while it should have!" <<endlog();
                 }
-                else
-                    return CNoData;
+                // we *must* return something in sample.
+                sample = new CORBA::Any();
+                return CNoData;
             }
 
             bool write(typename base::ChannelElement<T>::param_t sample)
