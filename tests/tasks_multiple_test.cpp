@@ -36,12 +36,12 @@ using namespace RTT;
         nr_of_np = TimerThread::MAX_ACTIVITIES/2;
         runningP = 1;
         runningNp = 1; // see step() why it's 1 and not 0
-        errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called\n";
-        errStepNP = "Not all NonPreemptibleActivity::step() functions were called\n";
-        errFinNP = "Not all NonPreemptibleActivity::finalize() or finalize() functions were called\n";
-        errInitP ="Not all PreemptibleActivity::init() functions were called\n";
-        errStepP ="Not all PreemptibleActivity::step() functions were called\n";
-        errFinP ="Not all PreemptibleActivity::finalize() functions were called\n";
+        errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called.";
+        errStepNP = "Not all NonPreemptibleActivity::step() functions were called.";
+        errFinNP = "Not all NonPreemptibleActivity::finalize() or finalize() functions were called.";
+        errInitP ="Not all PreemptibleActivity::init() functions were called.";
+        errStepP ="Not all PreemptibleActivity::step() functions were called.";
+        errFinP ="Not all PreemptibleActivity::finalize() functions were called.";
 
         log(Info) << "Creating "<< nr_of_np << " High priority and "<< nr_of_p << " Low priority activities."<<endlog();
 
