@@ -495,12 +495,12 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     result = 0.0;
     sample <<= 4.44;
     cce->write( sample.in() );
-    BOOST_CHECK_EQUAL( mi1->read( result ), CNewData );
+    BOOST_CHECK_EQUAL( mi1->read( result ), NewData );
     BOOST_CHECK_EQUAL( result, 4.44 );
 
     // Check re-read of old data.
     result = 0.0;
-    BOOST_CHECK_EQUAL( mi1->read( result ), COldData );
+    BOOST_CHECK_EQUAL( mi1->read( result ), OldData );
     BOOST_CHECK_EQUAL( result, 4.44);
 }
 
@@ -561,14 +561,14 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     cce->write( sample.in() );
     sample <<= 4.44;
     cce->write( sample.in() );
-    BOOST_CHECK_EQUAL( mi1->read( result ), CNewData );
+    BOOST_CHECK_EQUAL( mi1->read( result ), NewData );
     BOOST_CHECK_EQUAL( result, 6.44 );
-    BOOST_CHECK_EQUAL( mi1->read( result ), CNewData );
+    BOOST_CHECK_EQUAL( mi1->read( result ), NewData );
     BOOST_CHECK_EQUAL( result, 4.44 );
 
     // Check re-read of old data.
     result = 0.0;
-    BOOST_CHECK_EQUAL( mi1->read( result ), COldData );
+    BOOST_CHECK_EQUAL( mi1->read( result ), OldData );
     BOOST_CHECK_EQUAL( result, 4.44);
 }
 
