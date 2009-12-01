@@ -156,7 +156,7 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("  OMNIORB4_IDL_COMPILER: ${OMNIORB4_IDL_COMPILER}" )
 
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( NOT OMNIORB4_FOUND )
+ENDIF( OMNIORB4_FOUND )
 
 # Bail if we were required to find all components and missed at least one
 IF (OMNIORB4_FIND_REQUIRED AND NOT OMNIORB4_FOUND)
