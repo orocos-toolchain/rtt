@@ -418,7 +418,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         if ( type_info->getProtocol(corba_policy.transport) == 0 ) {
             log(Error) << "Could not create out-of-band transport for port "<< port_name << " with transport id " << corba_policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
-            return RTT::corba::CChannelElement::_nil();
+            throw CNoCorbaTransport();
         }
         RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, true);
         // if no user supplied name, pass on the new name.
@@ -431,7 +431,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
             log(Info) <<"Sending data from port "<< policy2.name_id << " to out-of-band protocol "<< corba_policy.transport <<endlog();
         } else {
             log(Error) << "The type transporter for type "<<type_info->getTypeName()<< " failed to create an out-of-band endpoint for port " << port_name<<endlog();
-            return RTT::corba::CChannelElement::_nil();
+            throw CNoCorbaTransport();
         }
     } else {
         // No OOB. Always add output buffer.
