@@ -127,7 +127,7 @@ namespace RTT {
                             if (task->period != 0) // periodic
                             {
                                 MutexLock lock(task->breaker);
-                                while(task->running)
+                                while(task->running && !task->prepareForExit )
                                 {
                                     SCOPE_ON
                                     task->step(); // one cycle
@@ -138,7 +138,7 @@ namespace RTT {
                                         // reconfigure period before going to sleep
                                         rtos_task_set_period(task->getTask(), task->period);
                                         cur_period = task->period;
-                                        break;
+                                        break; // break while(task->running)
                                     }
 
                                     // rtos_task_wait_period will return immediately if
@@ -148,13 +148,13 @@ namespace RTT {
                                     {
                                         ++overruns;
                                         if (overruns == task->maxOverRun)
-                                            break;
+                                            break; // break while(task->running)
                                     }
                                     else if (overruns != 0)
                                         --overruns;
-                                }
+                                } // while(task->running)
                                 if (overruns == task->maxOverRun || task->prepareForExit)
-                                    break;
+                                    break; // break while(1) {}
                             }
                             else // non periodic:
                             {
@@ -414,7 +414,7 @@ namespace RTT {
                 }
             } else {
                 //
-                MutexTimedLock lock(breaker, 5*getPeriod() ); // hard-coded: wait 5 times the period
+                MutexTimedLock lock(breaker, 10*getPeriod() ); // hard-coded: wait 5 times the period
                 if ( lock.isSuccessful() ) {
                     // drop out of periodic mode.
                     rtos_task_make_periodic(&rtos_task, 0);
