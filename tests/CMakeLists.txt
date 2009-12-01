@@ -153,7 +153,7 @@ IF (BUILD_TESTING)
     IF(ENABLE_MQ)
       ADD_EXECUTABLE( mqueue-test test-runner.cpp mqueue_test.cpp )
       TARGET_LINK_LIBRARIES( mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET}
-        orocos-rtt-mqueue-${OROCOS_TARGET} ${TEST_LIBRARIES})
+        orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( mqueue-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
