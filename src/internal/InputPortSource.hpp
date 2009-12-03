@@ -61,17 +61,29 @@ namespace RTT
     template<typename T>
     class InputPortSource : public DataSource<T>
     {
-        InputPort<T>& port;
+        InputPort<T>* port;
         mutable T mvalue;
 
     public:
-        InputPortSource(InputPort<T>& port)
-            : port(port), mvalue() { }
+        typedef typename boost::intrusive_ptr<InputPortSource<T> > shared_ptr;
 
-        void reset() { port.clear(); }
+        InputPortSource(InputPort<T>& port)
+            : port(&port), mvalue() { }
+
+        /**
+         * Called by owner port to notify that it is being
+         * destructed. Since this InputPortSource is refcounted,
+         * we need a way to tell it that the port no longer
+         * exists.
+         */
+        void dropPort() {
+             port = 0;
+        }
+
+        void reset() { port->clear(); }
         bool evaluate() const
         {
-            return port.read(mvalue) == NewData;
+            return port->read(mvalue) == NewData;
         }
 
         typename DataSource<T>::result_t value() const
@@ -84,7 +96,7 @@ namespace RTT
                 return T();
         }
         DataSource<T>* clone() const
-        { return new InputPortSource<T>(port); }
+        { return new InputPortSource<T>(*port); }
         DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         { return const_cast<InputPortSource<T>*>(this); }
     };

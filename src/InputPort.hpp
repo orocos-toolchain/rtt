@@ -62,7 +62,7 @@ namespace RTT
     class InputPort : public base::InputPortInterface
     {
         friend class internal::ConnOutputEndpoint<T>;
-        internal::InputPortSource<T>* data_source;
+        typename internal::InputPortSource<T>::shared_ptr data_source;
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
 
@@ -88,7 +88,7 @@ namespace RTT
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
-        ~InputPort() { disconnect(); delete data_source;}
+        ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
 
         FlowStatus read(base::DataSourceBase::shared_ptr source)
         {
@@ -139,10 +139,9 @@ namespace RTT
          */
         base::DataSourceBase* getDataSource()
         {
-            if (data_source) return data_source;
+            if (data_source) return data_source.get();
             data_source = new internal::InputPortSource<T>(*this);
-            data_source->ref();
-            return data_source;
+            return data_source.get();
         }
 
         virtual bool createStream(ConnPolicy const& policy)
