@@ -305,6 +305,12 @@ namespace RTT
                     method("write", write_m, this),
                     "Writes a sample on the port.",
                     "sample", "");
+            typedef T (OutputPort<T>::*LastSample)() const;
+            LastSample last_m = &OutputPort::getLastWrittenValue;
+            object->methods()->addMethod(
+                    method("last", last_m, this),
+                    "Returns last written value to this port."
+                    );
             return object;
         }
     };
