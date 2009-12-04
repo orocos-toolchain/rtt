@@ -166,10 +166,12 @@ namespace RTT {
             CChannelElement_ptr buildChannelOutput(const char* reader_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
             	      CORBA::SystemException
             	      ,::RTT::corba::CNoCorbaTransport
+                      ,::RTT::corba::CNoSuchPortException
             	    ));
             CChannelElement_ptr buildChannelInput(const char* writer_port, RTT::corba::CConnPolicy& policy) ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	      ,::RTT::corba::CNoCorbaTransport
+                  ,::RTT::corba::CNoSuchPortException
           	    ));
 
             ::CORBA::Boolean createConnection( const char* writer_port,
