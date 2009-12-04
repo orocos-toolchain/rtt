@@ -70,7 +70,7 @@ namespace RTT
         {
             // first check if root (or if have sufficient privileges)
             if ( geteuid() != 0 ) {
-#if ((CONFIG_XENO_VERSION_MAJOR*100)+(CONFIG_XENO_VERSION_MINOR*10)+CONFIG_XENO_REVISION_LEVEL) >= 232
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2302
                 printf( "WARNING: You are not root. This program *may* require that you are root.\n");
                 // \todo verify have sufficient privileges
 #else

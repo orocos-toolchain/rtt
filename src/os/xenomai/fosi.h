@@ -81,6 +81,13 @@ extern "C" {
 #include <native/mutex.h>
 #include <native/sem.h>
 
+// BC: support Xenomai < 2.4.50
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2450
+#define rt_mutex_acquire rt_mutex_lock
+#define rt_mutex_release rt_mutex_unlock
+#endif
+
+
 	typedef RT_MUTEX rt_mutex_t;
 	typedef RT_MUTEX rt_rec_mutex_t;
 	typedef RT_SEM rt_sem_t;
@@ -244,33 +251,37 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_lock(m, TM_INFINITE );
+        return rt_mutex_acquire(m, TM_INFINITE );
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_lock(m, TM_NONBLOCK);
+        return rt_mutex_acquire(m, TM_NONBLOCK);
     }
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         CHK_XENO_CALL();
-	// @todo: we must migrate to rt_mutex_acquire_until(m, abstime)
-	// also the other lock/unlock functions must become acquire/release.
-        return rt_mutex_lock(m, rt_timer_ns2ticks(abs_time) - rt_timer_read()  );
+#if defined(rt_mutex_acquire) // see top of this file
+        // calling the old style API
+        return rt_mutex_acquire(m, rt_timer_ns2ticks(abs_time) - rt_timer_read()  );
+#else
+        // new style API
+        return rt_mutex_acquire_until(m, rt_timer_ns2ticks(abs_time) );
+#endif
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_unlock(m);
+        return rt_mutex_release(m);
     }
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_lock(m, TM_INFINITE );
+        return rt_mutex_release(m, TM_INFINITE );
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
@@ -288,19 +299,19 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_unlock(m);
+        return rt_mutex_release(m);
     }
 
     static inline void rtos_enable_rt_warning()
     {
         CHK_XENO_CALL();
-	rt_task_set_mode(0, T_WARNSW, NULL);
+        rt_task_set_mode(0, T_WARNSW, NULL);
     }
 
     static inline void rtos_disable_rt_warning()
     {
         CHK_XENO_CALL();
-	rt_task_set_mode(T_WARNSW, 0, NULL);
+        rt_task_set_mode(T_WARNSW, 0, NULL);
     }
 
 #define rtos_printf printf
