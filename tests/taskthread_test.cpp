@@ -504,6 +504,7 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
+#ifndef OROCOS_TARGET_XENOMAI // disabled until 'persistent' scheduler switching is implemented for Xenomai.
     if ( tt->setScheduler(ORO_SCHED_RT) ) {
         usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
@@ -512,6 +513,7 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
         usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
     }
+#endif
     Logger::log().setLogLevel( ll );
 
     // reconfigure periodicity when running.
