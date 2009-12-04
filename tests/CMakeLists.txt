@@ -141,7 +141,10 @@ IF (BUILD_TESTING)
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner.cpp corba_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+      TARGET_LINK_LIBRARIES( corba-test 
+            orocos-rtt-dynamic_${OROCOS_TARGET} 
+            orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+            ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
 	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -150,25 +153,33 @@ IF (BUILD_TESTING)
       ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
       list(APPEND ORO_EXTRA_TESTS "corba-test")
 
-      ADD_EXECUTABLE( corba-ipc-test test-runner.cpp corba_ipc_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-ipc-test orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
-      SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
-        )
-      ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
-      list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
-
-      # This server is required to run when the corba-ipc-test runs
-      ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
-      TARGET_LINK_LIBRARIES( corba-ipc-server orocos-rtt-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET} ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
-      SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
-        )
-
+      # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
+      IF (UNIX)
+          ADD_EXECUTABLE( corba-ipc-test test-runner.cpp corba_ipc_test.cpp )
+          TARGET_LINK_LIBRARIES( corba-ipc-test 
+                orocos-rtt-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+          SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
+            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            )
+          ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
+          list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
+    
+          # This server is required to run when the corba-ipc-test runs
+          ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
+          TARGET_LINK_LIBRARIES( corba-ipc-server 
+                orocos-rtt-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+          SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
+            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            )
+      ENDIF()
     ENDIF(ENABLE_CORBA)
 
     IF(ENABLE_MQ)
@@ -197,6 +208,38 @@ IF (BUILD_TESTING)
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
+      
+      # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
+      IF (UNIX)
+          ADD_EXECUTABLE( corba-mqueue-ipc-test test-runner.cpp corba_mqueue_ipc_test.cpp )
+          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-test 
+                orocos-rtt-dynamic_${OROCOS_TARGET}
+                orocos-rtt-mqueue-dynamic_${OROCOS_TARGET}
+                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+          SET_TARGET_PROPERTIES( corba-mqueue-ipc-test PROPERTIES
+            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            )
+          ADD_TEST( corba-mqueue-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-ipc-test )
+          list(APPEND ORO_EXTRA_TESTS "corba-mqueue-ipc-test")
+    
+          # This server is required to run when the corba-mqueue-ipc-test runs
+          ADD_EXECUTABLE( corba-mqueue-ipc-server corba_mqueue_ipc_server.cpp )
+          TARGET_LINK_LIBRARIES( corba-mqueue-ipc-server 
+                orocos-rtt-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-mqueue-dynamic_${OROCOS_TARGET}
+                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
+          SET_TARGET_PROPERTIES( corba-mqueue-ipc-server PROPERTIES
+            COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+            LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            )
+     ENDIF()
+
+      
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
 
     ADD_CUSTOM_TARGET(check ctest -V

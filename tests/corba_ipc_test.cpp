@@ -187,6 +187,8 @@ BOOST_AUTO_TEST_CASE( setupCorba )
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
     tp = corba::ControlTaskProxy::Create( "peerRMC", false ); // no-ior
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE( tp );
 
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
@@ -213,6 +215,8 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 BOOST_AUTO_TEST_CASE( testRemoteMethod )
 {
     tp = corba::ControlTaskProxy::Create( "peerRM" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerRM.ior");
     BOOST_REQUIRE(tp);
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
@@ -232,6 +236,9 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
 BOOST_AUTO_TEST_CASE( testAnyMethod )
 {
     tp = corba::ControlTaskProxy::Create( "peerAM" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerAM.ior");
+
     BOOST_REQUIRE(tp);
     s = tp->server();
     BOOST_REQUIRE( s );
@@ -310,6 +317,8 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
     tp = corba::ControlTaskProxy::Create( "peerDFI" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerDFI.ior");
 
     corba::CDataFlowInterface_var ports = tp->server()->ports();
 
@@ -335,6 +344,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
     tp = corba::ControlTaskProxy::Create( "peerPC" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerPC.ior");
+
     s = tp->server();
     // server to our own tc.
     ts2  = corba::ControlTaskServer::Create( tc, false ); //no-naming
@@ -427,6 +439,8 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
 {
     // This test creates connections between local and remote ports.
     tp = corba::ControlTaskProxy::Create( "peerPP" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerPP.ior");
 
     PortInterface* untyped_port;
      
@@ -484,6 +498,9 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     double result;
     // This test tests the differen port-to-port connections.
     tp = corba::ControlTaskProxy::Create( "peerDH" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerDH.ior");
+
     s = tp->server();
 
     // Create a default CORBA policy specification
@@ -551,6 +568,9 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 
     // This test tests the differen port-to-port connections.
     tp = corba::ControlTaskProxy::Create( "peerBH" , false);
+    if (!tp )
+        tp = corba::ControlTaskProxy::CreateFromFile( "peerBH.ior");
+
     s = tp->server();
 
     // Create a default CORBA policy specification
