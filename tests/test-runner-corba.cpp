@@ -24,6 +24,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <os/StartStopManager.hpp>
 #include <transports/corba/ControlTaskServer.hpp>
+#include <transports/corba/CorbaDispatcher.hpp>
 
 using boost::unit_test::test_suite;
 
@@ -35,7 +36,7 @@ struct InitOrocos {
 public:
 	InitOrocos(){  }
 	~InitOrocos(){ 
-
+	    corba::CorbaDispatcher::ReleaseAll();
 	    corba::ControlTaskServer::ShutdownOrb(true);
 	    corba::ControlTaskServer::DestroyOrb();
 

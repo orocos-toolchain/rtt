@@ -63,13 +63,17 @@ namespace RTT {
 
             bool do_exit;
 
-            static os::Mutex mlock;
+            static os::Mutex* mlock;
 
             CorbaDispatcher( const std::string& name)
             : Activity(ORO_SCHED_RT, os::LowestPriority, 0.0, 0, name),
               RClist(20,2),
               do_exit(false)
               {}
+
+            ~CorbaDispatcher() {
+                this->stop();
+            }
 
         public:
             /**
@@ -81,9 +85,11 @@ namespace RTT {
              * @return
              */
             static CorbaDispatcher* Instance(interface::DataFlowInterface* iface) {
+                if (!mlock)
+                    mlock = new os::Mutex();
                 DispatchMap::iterator result = DispatchI.find(iface);
                 if ( result == DispatchI.end() ) {
-                    os::MutexLock lock(mlock);
+                    os::MutexLock lock(*mlock);
                     // re-try to find (avoid race):
                     result = DispatchI.find(iface);
                     if ( result != DispatchI.end() )
@@ -100,6 +106,36 @@ namespace RTT {
                     return DispatchI[iface];
                 }
                 return result->second;
+            }
+
+            /**
+             * Releases and cleans up a specific interface from dispatching.
+             * @param iface
+             */
+            static void Release(interface::DataFlowInterface* iface) {
+                DispatchMap::iterator result = DispatchI.find(iface);
+                if ( result != DispatchI.end() ) {
+                    os::MutexLock lock(*mlock);
+                    delete result->second;
+                    DispatchI.erase(result);
+                }
+                if ( DispatchI.empty() )
+                    delete mlock;
+                mlock = 0;
+            }
+
+            /**
+             * May be called during program termination to clean up all resources.
+             */
+            static void ReleaseAll() {
+                DispatchMap::iterator result = DispatchI.begin();
+                while ( result != DispatchI.end() ) {
+                    delete result->second;
+                    DispatchI.erase(result);
+                    result = DispatchI.begin();
+                }
+                delete mlock;
+                mlock = 0;
             }
 
             void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {

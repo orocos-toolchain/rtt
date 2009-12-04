@@ -103,7 +103,7 @@ TaskObject* TheServer::createMethodFactory()
 
 int ORO_main(int argc, char** argv)
 {
-    corba::ControlTaskProxy::InitOrb(0,0);
+    corba::ControlTaskProxy::InitOrb(argc,argv);
 
     {
         TheServer ctest1("peerRMC");

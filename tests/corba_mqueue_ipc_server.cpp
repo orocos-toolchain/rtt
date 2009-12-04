@@ -37,7 +37,7 @@ public:
 
 int ORO_main(int argc, char** argv)
 {
-    corba::ControlTaskProxy::InitOrb(0,0);
+    corba::ControlTaskProxy::InitOrb(argc,argv);
     {
         TheServer cmt("other");
         corba::ControlTaskServer::RunOrb();
