@@ -156,11 +156,8 @@ void CorbaMQueueIPCTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueIPCTestSuite,  CorbaMQueueIPCTest )
 
 
-BOOST_AUTO_TEST_CASE( setupCorba )
+BOOST_AUTO_TEST_CASE( setupServer )
 {
-    corba::ControlTaskProxy::InitOrb(0,0);
-    corba::ControlTaskServer::ThreadOrb();
-
     system("./corba-mqueue-ipc-server &");
     usleep(100000);
 }
@@ -241,11 +238,9 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( cleanupCorba )
+BOOST_AUTO_TEST_CASE( cleanupServer )
 {
     system("killall corba-mqueue-ipc-server");
-    corba::ControlTaskServer::ShutdownOrb(true);
-    corba::ControlTaskServer::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

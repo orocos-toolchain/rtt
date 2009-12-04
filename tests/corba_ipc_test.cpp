@@ -176,7 +176,7 @@ void CorbaTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 
-BOOST_AUTO_TEST_CASE( setupCorba )
+BOOST_AUTO_TEST_CASE( setupServer )
 {
     system("./corba-ipc-server &");
     usleep(100000);
@@ -639,7 +639,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 }
 
 
-BOOST_AUTO_TEST_CASE( cleanupCorba )
+BOOST_AUTO_TEST_CASE( cleanupServer )
 {
     system("killall corba-ipc-server");
 }
