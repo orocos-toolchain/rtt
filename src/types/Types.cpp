@@ -180,7 +180,7 @@ namespace RTT
         // type, which is a fallback such that we won't have to return zero, but can
         // gracefully fall-back.
         // In order to not endlessly recurse, we check if we aren't the UnknownType !
-        if ( protocol_id > int(transporters.size()) || transporters[protocol_id] == 0) {
+        if ( protocol_id + 1 > int(transporters.size()) || transporters[protocol_id] == 0) {
             if ( DataSourceTypeInfo<UnknownType>::getTypeInfo() != this )
                 return DataSourceTypeInfo<UnknownType>::getTypeInfo()->getProtocol( protocol_id );
             else {
