@@ -139,7 +139,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
     }
     catch(CORBA::Exception& e)
     {
-        log(Error) << "Caught CORBA exception while creating port's input half:" << endlog();
+        log(Error) << "Caught CORBA exception while creating a remote channel output:" << endlog();
         log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
         return NULL;
     }
