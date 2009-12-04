@@ -75,6 +75,7 @@
 #include <omniORB4/Naming.hh>
 #endif
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "../../internal/TaskObject.hpp"
