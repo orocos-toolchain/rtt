@@ -96,6 +96,7 @@ namespace RTT {
 
     SimulationThread::~SimulationThread()
     {
+        this->stop();
     }
 
     bool SimulationThread::isRunning() const
