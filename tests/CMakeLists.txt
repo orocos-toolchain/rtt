@@ -140,7 +140,7 @@ IF (BUILD_TESTING)
     ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
 
     IF(ENABLE_CORBA)
-      ADD_EXECUTABLE( corba-test test-runner.cpp corba_test.cpp )
+      ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp )
       TARGET_LINK_LIBRARIES( corba-test 
             orocos-rtt-dynamic_${OROCOS_TARGET} 
             orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
@@ -155,7 +155,7 @@ IF (BUILD_TESTING)
 
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
       IF (UNIX)
-          ADD_EXECUTABLE( corba-ipc-test test-runner.cpp corba_ipc_test.cpp )
+          ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
                 orocos-rtt-dynamic_${OROCOS_TARGET} 
                 orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
@@ -198,7 +198,7 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ)
 
     IF(ENABLE_MQ AND ENABLE_CORBA)
-      ADD_EXECUTABLE( corba-mqueue-test test-runner.cpp corba_mqueue_test.cpp )
+      ADD_EXECUTABLE( corba-mqueue-test test-runner-corba.cpp corba_mqueue_test.cpp )
       TARGET_LINK_LIBRARIES( corba-mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET}
         orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET}
         ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
@@ -211,7 +211,7 @@ IF (BUILD_TESTING)
       
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
       IF (UNIX)
-          ADD_EXECUTABLE( corba-mqueue-ipc-test test-runner.cpp corba_mqueue_ipc_test.cpp )
+          ADD_EXECUTABLE( corba-mqueue-ipc-test test-runner-corba.cpp corba_mqueue_ipc_test.cpp )
           TARGET_LINK_LIBRARIES( corba-mqueue-ipc-test 
                 orocos-rtt-dynamic_${OROCOS_TARGET}
                 orocos-rtt-mqueue-dynamic_${OROCOS_TARGET}

@@ -165,12 +165,6 @@ void CorbaTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 
 
-BOOST_AUTO_TEST_CASE( setupCorba )
-{
-    corba::ControlTaskProxy::InitOrb(0,0);
-    corba::ControlTaskServer::ThreadOrb();
-}
-
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
 
@@ -572,12 +566,6 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     result = 0.0;
     BOOST_CHECK_EQUAL( mi1->read( result ), OldData );
     BOOST_CHECK_EQUAL( result, 4.44);
-}
-
-
-BOOST_AUTO_TEST_CASE( cleanupCorba )
-{
-    corba::ControlTaskProxy::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

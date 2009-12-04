@@ -124,11 +124,6 @@ void CorbaMQueueTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueTestSuite,  CorbaMQueueTest )
 
 
-BOOST_AUTO_TEST_CASE( setupCorba )
-{
-    corba::ControlTaskProxy::InitOrb(0,0);
-}
-
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
@@ -193,12 +188,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ports->disconnectPort("mw");
     testPortDisconnected();
 #endif
-}
-
-BOOST_AUTO_TEST_CASE( cleanupCorba )
-{
-    corba::ControlTaskServer::ShutdownOrb(true);
-    corba::ControlTaskServer::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
