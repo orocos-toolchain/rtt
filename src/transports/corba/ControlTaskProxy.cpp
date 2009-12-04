@@ -75,6 +75,7 @@
 #include <omniORB4/Naming.hh>
 #endif
 #include <iostream>
+#include <string>
 
 #include "../../internal/TaskObject.hpp"
 #include "RemotePorts.hpp"
@@ -482,6 +483,17 @@ namespace RTT
             cerr << is.what() << endl;
         }
         return 0;
+    }
+
+    ControlTaskProxy* ControlTaskProxy::CreateFromFile(std::string name) {
+        if ( CORBA::is_nil(orb) || name.empty() )
+            return 0;
+
+        // create new:
+        ifstream namestream( name.c_str() );
+        string ior;
+        namestream >> ior;
+        return Create( ior, true);
     }
 
     TaskContext* ControlTaskProxy::Create(::RTT::corba::CControlTask_ptr t, bool force_remote) {

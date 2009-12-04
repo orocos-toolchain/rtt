@@ -138,6 +138,14 @@ namespace RTT
 
         /**
          * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
+         * @param filename A file containing an IOR which refers to the existing ControlTaskServer.
+         * @retval 0 if the ORB is not initialised
+         * @return A new or previously created CORBA proxy for \a filename.
+         */
+        static ControlTaskProxy* CreateFromFile(std::string filename);
+
+        /**
+         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
          * This method may in fact return the real TaskContext in case the servant
          * of \a task is in the same process.
          * @param task The Object to create a proxy for.
