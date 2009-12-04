@@ -22,6 +22,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
+#include <os/StartStopManager.hpp>
 
 using boost::unit_test::test_suite;
 
@@ -32,8 +33,15 @@ struct InitOrocos {
 public:
 	InitOrocos(){  }
 	~InitOrocos(){ 
+	    // If we call __os_exit() in Xenomai, we get an ABORT
+	    // because the main task is cleaned up too early.
+	    // The work around for now is to stop all threads but
+	    // the main thread. To be fixed if boost::test allows it.
 #ifndef OROCOS_TARGET_XENOMAI
-        __os_exit(); 
+        __os_exit();
+#else
+        os::StartStopManager::Instance()->stop();
+        os::StartStopManager::Release();
 #endif
 }
 
