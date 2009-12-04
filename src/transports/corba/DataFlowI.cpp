@@ -304,6 +304,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
          	      CORBA::SystemException
          	      ,::RTT::corba::CNoCorbaTransport
+                  ,::RTT::corba::CNoSuchPortException
          	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelOutput");
@@ -378,6 +379,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
         const char* port_name, CConnPolicy & corba_policy) ACE_THROW_SPEC ((
         	      CORBA::SystemException
         	      ,::RTT::corba::CNoCorbaTransport
+        	      ,::RTT::corba::CNoSuchPortException
         	    ))
 {
     Logger::In in("CDataFlowInterface_i::buildChannelInput");

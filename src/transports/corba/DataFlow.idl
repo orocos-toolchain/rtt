@@ -158,7 +158,7 @@ module RTT
        * into the policy, such as the name of the newly created connection.
        */
       CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport);
+            raises(CNoCorbaTransport,CNoSuchPortException);
 
       /**
        * Use this to read from an output port with
@@ -167,7 +167,7 @@ module RTT
        * into the policy, such as the name of the newly created connection.
        */
       CChannelElement buildChannelInput(in string output_port, inout CConnPolicy policy)
-            raises(CNoCorbaTransport);
+            raises(CNoCorbaTransport,CNoSuchPortException);
 
       /**
        * Connect the given named port to the given remote port.
