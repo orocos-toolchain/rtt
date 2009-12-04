@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     // Test ticks conversion invariance :
     // margin is in % rounding error.
     int margin = 1;
-#ifdef OROCOS_TARGET_LXRT
+#if defined( OROCOS_TARGET_LXRT) || defined(OROCOS_TARGET_XENOMAI)
     int small_margin = 20; // 20% of 10ns : allow a two-off.
 #else
     int small_margin = 10; // 10% of 10ns : allow a one-off.
