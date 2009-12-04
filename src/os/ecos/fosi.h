@@ -246,6 +246,14 @@ extern "C"
     return 0;
   }
 
+    static inline void rtos_enable_rt_warning()
+    {
+    }
+
+    static inline void rtos_disable_rt_warning()
+    {
+    }
+
 #define rtos_printf diag_printf
 
 #ifdef __cplusplus

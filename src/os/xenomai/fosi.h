@@ -291,6 +291,18 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
         return rt_mutex_unlock(m);
     }
 
+    static inline void rtos_enable_rt_warning()
+    {
+        CHK_XENO_CALL();
+	rt_task_set_mode(0, T_WARNSW, NULL);
+    }
+
+    static inline void rtos_disable_rt_warning()
+    {
+        CHK_XENO_CALL();
+	rt_task_set_mode(T_WARNSW, 0, NULL);
+    }
+
 #define rtos_printf printf
 
 #ifdef __cplusplus
