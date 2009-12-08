@@ -223,6 +223,7 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
     if (ip == 0)
         throw corba::CNoSuchPortException();
 
+    CORBA_CHECK_THREAD();
     // lookup the C++ channel that matches the corba channel and
     // inform our local port that that C++ channel is ready.
     ChannelList::iterator it=channel_list.begin();
@@ -245,6 +246,7 @@ void CDataFlowInterface_i::disconnectPort(const char * port_name) ACE_THROW_SPEC
         log(Error) << "disconnectPort: No such port: "<< port_name <<endlog();
         throw corba::CNoSuchPortException();
     }
+    CORBA_CHECK_THREAD();
     p->disconnect();
 }
 
@@ -261,6 +263,7 @@ void CDataFlowInterface_i::removeConnection(
         log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
         throw corba::CNoSuchPortException();
     }
+    CORBA_CHECK_THREAD();
     RemoteConnID rcid(reader_interface, reader_port);
     writer->removeConnection( &rcid );
 }
@@ -277,6 +280,7 @@ void CDataFlowInterface_i::removeConnection(
         throw corba::CNoSuchPortException();
     }
 
+    CORBA_CHECK_THREAD();
     RTT::ConnPolicy p2 = toRTT(policy);
     if ( p->createStream( p2 ) ) {
         policy = toCORBA(p2);
@@ -295,6 +299,7 @@ void CDataFlowInterface_i::removeStream( const char* port, const char* stream_na
         log(Error) << "createStream: No such port: "<< p->getName() <<endlog();
         throw corba::CNoSuchPortException();
     }
+    CORBA_CHECK_THREAD();
     StreamConnID rcid(stream_name);
     p->removeConnection( &rcid );
 }
@@ -321,6 +326,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     if (!transporter)
         throw CNoCorbaTransport();
 
+    CORBA_CHECK_THREAD();
     // Convert to RTT policy.
     ConnPolicy policy2 = toRTT(corba_policy);
 
@@ -397,6 +403,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     if (!transporter)
         throw CNoCorbaTransport();
 
+    CORBA_CHECK_THREAD();
     // Convert to RTT policy.
     ConnPolicy policy2 = toRTT(corba_policy);
 
@@ -465,6 +472,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     if (writer == 0)
         throw CNoSuchPortException();
 
+    CORBA_CHECK_THREAD();
     // Check if +reader_interface+ is local. If it is, use the non-CORBA
     // connection.
     RTT::interface::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(reader_interface);

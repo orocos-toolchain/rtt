@@ -40,21 +40,32 @@
 #define ORO_CORBA_SUPPORT_HH
 
 #include "rtt-corba-config.h"
+
+// This macro had to be introduced to make Omniorb compatible with Xenomai.
+// Omniorb4 creates its own threads, which are not Xenomai threads.
+// This check turns plain posix threads into Xenomai threads on the Xenomai target.
+#define CORBA_CHECK_THREAD()
+
 #if CORBA_IS_TAO
-#include <ace/SString.h>
-#include <tao/corba.h>
-#include <tao/PortableServer/PS_ForwardC.h>
-#define CORBA_SERVANT(f) f ## "S.h"
-#define CORBA_EXCEPTION_INFO(x) x._info().c_str()
+# include <ace/SString.h>
+# include <tao/corba.h>
+# include <tao/PortableServer/PS_ForwardC.h>
+# define CORBA_SERVANT(f) f ## "S.h"
+# define CORBA_EXCEPTION_INFO(x) x._info().c_str()
 #else
-#include <omniORB4/CORBA.h>
-#include <omniORB4/poa.h>
+# include <omniORB4/CORBA.h>
+# include <omniORB4/poa.h>
 namespace CORBA {
     typedef Any* Any_ptr;
 }
-#undef ACE_THROW_SPEC
-#define ACE_THROW_SPEC(x)
-#define CORBA_EXCEPTION_INFO(x) x._name()
+# undef ACE_THROW_SPEC
+# define ACE_THROW_SPEC(x)
+# define CORBA_EXCEPTION_INFO(x) x._name()
+// This Xenomai specific work-around is required for omniorb.
+# ifdef OROCOS_TARGET_XENOMAI
+#  undef CORBA_CHECK_THREAD
+#  define CORBA_CHECK_THREAD() if (rt_task_self() == 0) rt_task_shadow(0,0,0,0)
+# endif
 #endif
 
 #endif

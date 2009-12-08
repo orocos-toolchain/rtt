@@ -1,6 +1,8 @@
 #ifndef RTT_CORBA_CONFIG_H
 #define RTT_CORBA_CONFIG_H
 
+#include "../../rtt-config.h"
+
 #define RTT_CORBA_IMPLEMENTATION @CORBA_IMPLEMENTATION@
 
 #cmakedefine CORBA_IS_TAO 1
