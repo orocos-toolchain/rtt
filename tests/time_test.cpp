@@ -111,9 +111,9 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     // margin is in % rounding error.
     int margin = 1;
 #if defined( OROCOS_TARGET_LXRT) || defined(OROCOS_TARGET_XENOMAI)
-    int small_margin = 20; // 20% of 10ns : allow a two-off.
+    int small_margin = 25; // 25% of 8ns : allow a two-off.
 #else
-    int small_margin = 10; // 10% of 10ns : allow a one-off.
+    int small_margin = 10; // 10% of 8ns : allow a one-off.
 #endif
 
     BOOST_REQUIRE_CLOSE( (double)long_ns  , (double)TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
