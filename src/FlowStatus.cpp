@@ -37,6 +37,7 @@
 
 
 #include "FlowStatus.hpp"
+#include <string>
 
 using namespace std;
 
@@ -61,7 +62,7 @@ namespace RTT {
     {
         // default:
         fs = NoData;
-        string s;
+		std::string s;
         is >> s;
         if (s == "OldData")
             fs = OldData;
