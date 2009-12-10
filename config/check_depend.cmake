@@ -217,12 +217,9 @@ if(OROCOS_TARGET STREQUAL "win32")
       set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
     set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /bigobj ${PARALLEL_FLAG}")
-    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
-    # We force to ON
-    message("Forcing OS_NO_ASM to ON for MSVC.")
+    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib)
     # For boost::intrusive !
     find_package(Boost 1.36 REQUIRED)
-    set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
