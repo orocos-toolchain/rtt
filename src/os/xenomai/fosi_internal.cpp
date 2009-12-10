@@ -162,7 +162,7 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
         {
-            rt_task_delete( &(main_task->xenotask) );
+            //rt_task_delete( &(main_task->xenotask) );
             free (main_task->name);
             munlockall();
             return 0;
