@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 
 BOOST_AUTO_TEST_CASE( cleanupServer )
 {
-    system("killall corba-ipc-server");
+    system("kill -9 $(pidof corba-ipc-server)");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
