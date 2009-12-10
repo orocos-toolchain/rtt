@@ -231,6 +231,36 @@ namespace RTT
         }
 
         /**
+         * Erase a value from the list.
+         * @param function each elements for which pred returns true are removed
+         * @return true if at least one element has been removed
+         * @note This function is only real-time if the destructor and copy-constructor of
+         * of \a T is real-time.
+         */
+        template<typename Pred>
+        bool delete_if(Pred pred)
+        {
+            os::MutexLock lock(m);
+            bool deleted = false;
+
+            BufferType::iterator cur(mlist.begin());
+            BufferType::iterator last(mlist.end());
+
+            while(cur != last) 
+            {
+            if(pred(cur->data))
+            {
+                cur = mlist.erase_and_dispose(cur, boost::bind(&ListLocked::give_back, this, _1) );
+                deleted = true;
+            }
+            else
+                ++cur;
+            }
+
+            return deleted;
+        }
+
+        /**
          * Apply a function to the elements of the whole list.
          * @param func The function to apply.
          */
