@@ -43,11 +43,11 @@
 #include "ListLockFree.hpp"
 
 
-void intrusive_ptr_add_ref( RTT::detail::IntrusiveStorage* p ) {
+void RTT_API intrusive_ptr_add_ref( RTT::detail::IntrusiveStorage* p ) {
     oro_atomic_inc( &p->ref );
 }
 
-void intrusive_ptr_release( RTT::detail::IntrusiveStorage* p ) {
+void RTT_API intrusive_ptr_release( RTT::detail::IntrusiveStorage* p ) {
     if (oro_atomic_dec_and_test( &p->ref ) )
         delete p;
 }
