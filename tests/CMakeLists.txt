@@ -130,14 +130,17 @@ IF (BUILD_TESTING)
         COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( dev-test ${RUNTIME_OUTPUT_DIRECTORY}/dev-test )
 
-    ADD_EXECUTABLE( specactivities-test test-runner.cpp
-        specialized_activities.cpp)
-    TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-dynamic_${OROCOS_TARGET} )
-    SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
+    IF(UNIX AND NOT (OROCOS_TARGET STREQUAL "xenomai"))
+      ADD_EXECUTABLE( specactivities-test test-runner.cpp
+	specialized_activities.cpp)
+      TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-dynamic_${OROCOS_TARGET} )
+      SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
         COMPILE_DEFINITIONS ${OROCOS-RTT_DEFINITIONS} )
-    ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
+      ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
+          list(APPEND ORO_EXTRA_TESTS "specactivities-test")
+    ENDIF()
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp )
@@ -243,7 +246,7 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
 
     ADD_CUSTOM_TARGET(check ctest -V
-      DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test specactivities-test ${ORO_EXTRA_TESTS}
+      DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)
