@@ -509,7 +509,7 @@ namespace RTT
         : public RunnableInterface
     {
     protected:
-        friend class EventCatcher;
+        friend struct EventCatcher;
         /**
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
