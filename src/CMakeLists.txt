@@ -103,9 +103,6 @@ IF ( ENABLE_RT_MALLOC )
     SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
                                 COMPILE_FLAGS "${TLSF_FLAGS}")
 
-    GLOBAL_ADD_SRC( os/tlsf/tlsf.c )
-    GLOBAL_ADD_INCLUDE( rtt/os/tlsf tlsf/tlsf.h )
-
     GET_SOURCE_FILE_PROPERTY( TLSF os/tlsf/tlsf.c COMPILE_FLAGS)
     MESSAGE( "TLSF settings: ${TLSF}")
 
@@ -131,6 +128,11 @@ GLOBAL_ADD_INCLUDE( rtt ${HPPS})
 GLOBAL_ADD_INCLUDE( rtt ${CMAKE_CURRENT_BINARY_DIR}/rtt-config.h)
 
 GLOBAL_ADD_SRC( ${CPPS})
+
+IF (ENABLE_RT_MALLOC )
+    GLOBAL_ADD_SRC( os/tlsf/tlsf.c )
+    GLOBAL_ADD_INCLUDE( rtt/os/tlsf tlsf/tlsf.h )
+ENDIF (ENABLE_RT_MALLOC )
 
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( os )
