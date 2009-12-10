@@ -117,9 +117,11 @@ namespace RTT
                 case ConnPolicy::LOCKED:
                     data_object = new base::DataObjectLocked<T>(initial_value);
                     break;
+#ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
                     data_object = new base::DataObjectLockFree<T>(initial_value);
                     break;
+#endif
                 case ConnPolicy::UNSYNC:
                     data_object = new base::DataObjectUnSync<T>(initial_value);
                     break;
@@ -137,9 +139,11 @@ namespace RTT
                 case ConnPolicy::LOCKED:
                     buffer_object = new base::BufferLocked<T>(policy.size, initial_value);
                     break;
+#ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
                     buffer_object = new base::BufferLockFree<T>(policy.size, initial_value);
                     break;
+#endif
                 case ConnPolicy::UNSYNC:
                     buffer_object = new base::BufferUnSync<T>(policy.size, initial_value);
                     break;
