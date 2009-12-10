@@ -42,7 +42,7 @@
 using namespace std;
 
 namespace RTT { 
-    std::ostream& operator<<(std::ostream& os, FlowStatus fs)
+    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs)
     {
         switch (fs) {
         case NoData:

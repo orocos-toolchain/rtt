@@ -72,7 +72,7 @@ namespace RTT
     /**
      * Represents a Stream connection created by the ConnFactory.
      */
-    struct StreamConnID : public ConnID
+    struct RTT_API StreamConnID : public ConnID
     {
         std::string name_id;
         StreamConnID(const std::string& name)

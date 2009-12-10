@@ -53,15 +53,15 @@ namespace RTT { namespace base {
      * maintains the refcount for its successor, and holds a simple pointer to
      * its predecessor.
      */
-    class ChannelElementBase
+    class RTT_API ChannelElementBase
     {
     public:
         typedef boost::intrusive_ptr<ChannelElementBase> shared_ptr;
 
     private:
         oro_atomic_t refcount;
-        friend void intrusive_ptr_add_ref( ChannelElementBase* e );
-        friend void intrusive_ptr_release( ChannelElementBase* e );
+        friend void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );
+        friend void RTT_API intrusive_ptr_release( ChannelElementBase* e );
 
     protected:
         ChannelElementBase* input;
@@ -161,8 +161,8 @@ namespace RTT { namespace base {
         virtual void disconnect(bool forward);
     };
 
-    void intrusive_ptr_add_ref( ChannelElementBase* e );
-    void intrusive_ptr_release( ChannelElementBase* e );
+    void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );
+    void RTT_API intrusive_ptr_release( ChannelElementBase* e );
 
 }}
 
