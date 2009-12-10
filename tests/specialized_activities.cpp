@@ -1,6 +1,14 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
+#ifdef WIN32
+  #include <io.h>
+  #include <fcntl.h>
+  #define pipe(X) _pipe((X), 1024, _O_BINARY)
+  #define close _close
+  #define write _write
+#endif
+
 #include "specialized_activities.hpp"
 #include <extras/FileDescriptorActivity.hpp>
 #include <iostream>

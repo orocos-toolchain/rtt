@@ -40,8 +40,21 @@
 #include "../ExecutionEngine.hpp"
 #include "../base/TaskCore.hpp"
 
+#include <algorithm>
+
+#ifdef WIN32
+  #include <io.h>
+  #include <fcntl.h>
+  #define pipe(X) _pipe((X), 1024, _O_BINARY)
+  #define close _close
+  #define write _write
+  #undef max
+
+#else
 #include <sys/select.h>
 #include <unistd.h>
+#endif
+
 #include <boost/cstdint.hpp>
 
 using namespace RTT;
