@@ -223,6 +223,87 @@ namespace RTT { namespace OS {
         struct rebind { typedef local_allocator<U> other; };
     };
 
+    /**
+     * A real-time malloc allocator which allocates
+     * every block with oro_rt_malloc() and deallocates with oro_rt_free().
+     * This relies on the TLSF implementation.
+     */
+    template <class T> class rt_allocator
+    {
+    public:
+        typedef T                 value_type;
+        typedef value_type*       pointer;
+        typedef const value_type* const_pointer;
+        typedef value_type&       reference;
+        typedef const value_type& const_reference;
+        typedef std::size_t       size_type;
+        typedef std::ptrdiff_t    difference_type;
+        //...
+    public:
+        pointer address(reference x) const {
+            return &x;
+        }
+
+        const_pointer address(const_reference x) const {
+            return &x;
+        }
+    public:
+        pointer allocate(size_type n, const_pointer = 0) {
+            void* p = oro_rt_malloc(n * sizeof(T));
+            if (!p)
+                throw std::bad_alloc();
+            return static_cast<pointer>(p);
+        }
+
+        void deallocate(pointer p, size_type) {
+            oro_rt_free(p);
+        }
+
+        size_type max_size() const {
+            return static_cast<size_type>(-1) / sizeof(value_type);
+        }
+
+        void construct(pointer p, const value_type& x) {
+            new(p) value_type(x);
+        }
+
+        void destroy(pointer p) { p->~value_type(); }
+
+    public:
+        rt_allocator() {}
+        rt_allocator(const rt_allocator&) {}
+        ~rt_allocator() {}
+        template <class U>
+        rt_allocator(const rt_allocator<U>&) {}
+
+        template <class U>
+        struct rebind { typedef rt_allocator<U> other; };
+    private:
+        void operator=(const rt_allocator&);
+    };
+
+    template <class T>
+    inline bool operator==(const rt_allocator<T>&,
+                           const rt_allocator<T>&) {
+        return true;
+    }
+
+    template <class T>
+    inline bool operator!=(const rt_allocator<T>&,
+                           const rt_allocator<T>&) {
+        return false;
+    }
+
+    template<> class rt_allocator<void>
+    {
+        typedef void        value_type;
+        typedef void*       pointer;
+        typedef const void* const_pointer;
+
+        template <class U>
+        struct rebind { typedef rt_allocator<U> other; };
+    }
+
 #if 0
     // use the std::malloc_alloc class !
 
