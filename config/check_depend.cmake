@@ -189,13 +189,20 @@ endif()
 
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  # Force OFF on mqueue transport on WIN32 platform
+  message("Forcing ENABLE_MQ to OFF for WIN32")
+  set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on WIN32 platform." FORCE)
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
     set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
   endif()
   if (MSVC)
-    set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
+    if (MSVC80)
+    set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
+    set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
+    endif()
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /bigobj ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
     # We force to ON
     message("Forcing OS_NO_ASM to ON for MSVC.")
