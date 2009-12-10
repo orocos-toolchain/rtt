@@ -17,6 +17,8 @@
 
 #include "MutexLock.hpp"
 
+#include "tlsf/tlsf.h"
+
 namespace RTT { namespace OS {
     /**
      * A simple local allocator which
@@ -302,7 +304,8 @@ namespace RTT { namespace OS {
 
         template <class U>
         struct rebind { typedef rt_allocator<U> other; };
-    }
+    };
+
 
 #if 0
     // use the std::malloc_alloc class !
