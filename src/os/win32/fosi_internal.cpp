@@ -137,7 +137,7 @@ void ErrorHandler(LPTSTR lpszFunction)
                        int priority,
                        const char * name,
                        int sched_type,
-                       unsigned int stack_size,
+                       size_t stack_size,
                        void * (*start_routine)(void *),
                        ThreadInterface* obj)
     {
