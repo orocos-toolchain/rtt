@@ -131,7 +131,7 @@ GLOBAL_ADD_SRC( ${CPPS})
 
 IF (ENABLE_RT_MALLOC )
     GLOBAL_ADD_SRC( os/tlsf/tlsf.c )
-    GLOBAL_ADD_INCLUDE( rtt/os/tlsf tlsf/tlsf.h )
+    GLOBAL_ADD_INCLUDE( rtt/os/tlsf os/tlsf/tlsf.h )
 ENDIF (ENABLE_RT_MALLOC )
 
 ADD_SUBDIRECTORY( marsh )
