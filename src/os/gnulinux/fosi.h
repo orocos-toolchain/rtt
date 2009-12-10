@@ -59,9 +59,9 @@ extern "C"
     typedef struct timespec TIME_SPEC;
 
 
-    const TICK_TIME InfiniteTicks = LLONG_MAX;
-    const NANO_TIME InfiniteNSecs = LLONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
+    static const TICK_TIME InfiniteTicks = LLONG_MAX;
+    static const NANO_TIME InfiniteNSecs = LLONG_MAX;
+    static const double    InfiniteSeconds = DBL_MAX;
 
   typedef struct {
     pthread_t thread;
