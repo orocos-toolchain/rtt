@@ -176,6 +176,9 @@ struct TestAllocate
     }
 };
 
+/**
+ * self-removes in step() nbr 5 or in loop().
+ */
 struct TestSelfRemove
     : public RunnableInterface
 {
@@ -207,7 +210,7 @@ struct TestSelfRemove
 void
 ActivitiesTest::setUp()
 {
-    t_task_prio = new PeriodicActivity( 15, 0.01 );
+    periodic_act = new PeriodicActivity( 15, 0.01 );
     t_act = new Activity(15, 0.01);
 
     t_run_int_prio = new TestRunnableInterface(true);
@@ -224,7 +227,7 @@ ActivitiesTest::setUp()
 void
 ActivitiesTest::tearDown()
 {
-    delete t_task_prio;
+    delete periodic_act;
     delete t_act;
 
     delete t_run_int_prio;
@@ -241,10 +244,10 @@ BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
 
 BOOST_AUTO_TEST_CASE( testFailInit )
 {
-    t_task_prio->run( t_run_int_fail );
+    periodic_act->run( t_run_int_fail );
 
-    BOOST_CHECK( !t_task_prio->start() );
-    BOOST_CHECK( !t_task_prio->stop() );
+    BOOST_CHECK( !periodic_act->start() );
+    BOOST_CHECK( !periodic_act->stop() );
 
     BOOST_CHECK( t_act->run( t_run_int_fail ) );
     t_run_int_fail->reset(false);
@@ -402,10 +405,10 @@ BOOST_AUTO_TEST_CASE( testSelfRemove )
         ( new Activity( 14 ) );
     BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
     BOOST_CHECK( t_task_nonper->start() );
-    BOOST_CHECK( t_task_prio->run(t_self_remove) );
-    BOOST_CHECK( t_task_prio->start() );
+    BOOST_CHECK( periodic_act->run(t_self_remove) );
+    BOOST_CHECK( periodic_act->start() );
     testPause();
-    BOOST_CHECK( !t_task_prio->isRunning() );
+    BOOST_CHECK( !periodic_act->isRunning() );
     BOOST_CHECK( t_self_remove->fini );
     BOOST_CHECK( !t_task_nonper->isRunning() );
     BOOST_CHECK( t_run_int_nonper->fini );
@@ -469,7 +472,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 void ActivitiesTest::testAddRunnableInterface()
 {
-    bool adding_prio = t_task_prio->run( t_run_int_prio );
+    bool adding_prio = periodic_act->run( t_run_int_prio );
     BOOST_CHECK( adding_prio );
 
     bool adding_act = t_act->run( t_run_int_act );
@@ -479,7 +482,7 @@ void ActivitiesTest::testAddRunnableInterface()
 void ActivitiesTest::testRemoveRunnableInterface()
 {
     BOOST_CHECK( t_run_int_prio->fini );
-    BOOST_CHECK( t_task_prio->run( 0 ) );
+    BOOST_CHECK( periodic_act->run( 0 ) );
 
     BOOST_CHECK( t_run_int_act->fini );
     BOOST_CHECK( t_act->run( 0 ) );
@@ -487,8 +490,8 @@ void ActivitiesTest::testRemoveRunnableInterface()
 
 void ActivitiesTest::testStart()
 {
-    BOOST_CHECK( t_task_prio->start());
-    BOOST_CHECK( t_task_prio->isRunning() );
+    BOOST_CHECK( periodic_act->start());
+    BOOST_CHECK( periodic_act->isRunning() );
 
     BOOST_CHECK( t_act->start());
     BOOST_CHECK( t_act->isRunning() );
@@ -496,7 +499,18 @@ void ActivitiesTest::testStart()
 
 void ActivitiesTest::testPause()
 {
-    usleep(100000);
+#if 0
+    // does not work on Xenomai:
+    int rv = 0;
+    BOOST_CHECK( (rv = usleep(100000)) == 0);
+    if ( rv != 0)
+        BOOST_CHECK_EQUAL_MESSAGE(errno, 0, "Sleep failed. Errno is not zero.");
+#else
+    TIME_SPEC t;
+    t.tv_sec = 1;
+    t.tv_nsec = 0;
+    BOOST_CHECK( rtos_nanosleep(&t,0) == 0);
+#endif
 }
 
 void ActivitiesTest::testRunnableInterfaceInit() {
@@ -512,8 +526,8 @@ void ActivitiesTest::testRunnableInterfaceExecution() {
 
 void ActivitiesTest::testStop()
 {
-    BOOST_CHECK( t_task_prio->stop());
-    BOOST_CHECK( !t_task_prio->isRunning() );
+    BOOST_CHECK( periodic_act->stop());
+    BOOST_CHECK( !periodic_act->isRunning() );
 
     BOOST_CHECK( t_act->stop());
     BOOST_CHECK( !t_act->isRunning() );
@@ -521,14 +535,14 @@ void ActivitiesTest::testStop()
 
 void ActivitiesTest::testAddAllocate()
 {
-    BOOST_CHECK( t_task_prio->run( t_run_allocate ) );
+    BOOST_CHECK( periodic_act->run( t_run_allocate ) );
 
     BOOST_CHECK( t_act->run( t_run_allocate_act ) );
 }
 
 void ActivitiesTest::testRemoveAllocate()
 {
-    BOOST_CHECK( t_task_prio->run( 0 ) );
+    BOOST_CHECK( periodic_act->run( 0 ) );
 
     BOOST_CHECK( t_act->run( 0 ) );
 }

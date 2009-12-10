@@ -34,7 +34,7 @@ struct TestSelfRemove;
 class ActivitiesTest
 {
 public:
-    PeriodicActivity*   t_task_prio;
+    PeriodicActivity*   periodic_act;
     Activity*           t_act;
 
     TestRunnableInterface*  t_run_int_prio;
