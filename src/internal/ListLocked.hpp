@@ -243,8 +243,8 @@ namespace RTT
             os::MutexLock lock(m);
             bool deleted = false;
 
-            BufferType::iterator cur(mlist.begin());
-            BufferType::iterator last(mlist.end());
+            typename BufferType::iterator cur(mlist.begin());
+            typename BufferType::iterator last(mlist.end());
 
             while(cur != last) 
             {
