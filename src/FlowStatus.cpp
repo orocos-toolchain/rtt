@@ -37,11 +37,12 @@
 
 
 #include "FlowStatus.hpp"
+#include <string>
 
 using namespace std;
 
 namespace RTT { 
-    std::ostream& operator<<(std::ostream& os, FlowStatus fs)
+    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs)
     {
         switch (fs) {
         case NoData:
@@ -61,7 +62,7 @@ namespace RTT {
     {
         // default:
         fs = NoData;
-        string s;
+		std::string s;
         is >> s;
         if (s == "OldData")
             fs = OldData;

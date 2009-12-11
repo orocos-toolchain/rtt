@@ -49,6 +49,8 @@ namespace boost_spirit = boost::spirit;
 #include "../base/ActionInterface.hpp"
 #include "rtt-scripting-fwd.hpp"
 
+#undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h included through boost/spirit
+
 namespace RTT
 { namespace scripting {
 

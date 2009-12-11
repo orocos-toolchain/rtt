@@ -34,6 +34,7 @@ extern "C"
 
 #define _XOPEN_SOURCE 600   // use all Posix features.
 #include <windows.h>
+#undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
 
 #ifdef _MSC_VER
 #include <cstdio>

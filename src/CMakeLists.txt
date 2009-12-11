@@ -91,12 +91,6 @@ SET(ENV{GLOBAL_LIBRARY_SRCS})
 FILE( GLOB CPPS [^.]*.cpp )
 FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
-## Exceptions:
-if ( OS_NO_ASM )
-  file( GLOB ASM_FILES *ListLockFree.cpp *BufferLockFree.cpp )
-  list( REMOVE_ITEM CPPS ${ASM_FILES} )
-endif()
-
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
 GLOBAL_ADD_INCLUDE( rtt ${CMAKE_CURRENT_BINARY_DIR}/rtt-config.h)
 

@@ -51,12 +51,14 @@ extern "C"
 unsigned int sleep(unsigned int s)
 {
   Sleep(s*1000);
+  return 0;
 }
 
 #if __GNUC__ != 4
 int usleep(unsigned int us)
 {
     Sleep( us / 1000 );
+	return 0;
 }
 #endif
 

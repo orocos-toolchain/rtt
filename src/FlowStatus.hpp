@@ -42,6 +42,8 @@
 #include <ostream>
 #include <istream>
 
+#include "rtt-config.h"
+
 namespace RTT {
     /**
      * Returns the status of a data flow read.
@@ -51,8 +53,8 @@ namespace RTT {
      */
     enum FlowStatus { NoData = 0, OldData = 1, NewData = 2};
 
-    std::ostream& operator<<(std::ostream& os, FlowStatus fs);
-    std::istream& operator>>(std::istream& os, FlowStatus& fs);
+    RTT_API std::ostream& operator<<(std::ostream& os, FlowStatus fs);
+    RTT_API std::istream& operator>>(std::istream& os, FlowStatus& fs);
 }
 
 #endif

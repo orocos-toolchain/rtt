@@ -40,8 +40,6 @@
 #include "../ExecutionEngine.hpp"
 #include "../base/TaskCore.hpp"
 
-#include <sys/select.h>
-#include <unistd.h>
 #include <iostream>
 
 using namespace RTT;
@@ -72,6 +70,10 @@ bool IRQActivity::start() {
     return false; 
 }
 #else
+
+#include <sys/select.h>
+#include <unistd.h>
+
 bool IRQActivity::start()
 {
     if (m_irq == -1)

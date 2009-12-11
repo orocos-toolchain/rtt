@@ -48,7 +48,11 @@
 // Provide a dump RT_INTR type. start() always returns false on non-Xenomai
 // OSes.
 struct RT_INTR { };
+#ifdef _MSC_VER
+	#pragma message( "IRQActivity is available only on Xenomai. It will fail on startup")
+#else
 #warning "IRQActivity is available only on Xenomai. It will fail on startup"
+#endif
 #endif
 
 namespace RTT { namespace extras {
