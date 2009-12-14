@@ -43,8 +43,8 @@
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
-#include "../boost/function_types/function_type.hpp"
-#include "../boost/function_types/function_type_arity.hpp"
+#include <boost/function_types/function_type.hpp>
+#include <boost/function_types/function_arity.hpp>
 
 namespace RTT
 {
@@ -305,10 +305,10 @@ namespace RTT
          */
         template<class F, class O>
         struct quickbind
-            : public quickbind_impl<F,O, boost::function_type_arity<F>::value>
+            : public quickbind_impl<F,O, boost::function_types::function_arity<F>::value>
         {
             quickbind(F f, O o)
-                : quickbind_impl<F,O, boost::function_type_arity<F>::value>(f,o) {}
+                : quickbind_impl<F,O, boost::function_types::function_arity<F>::value>(f,o) {}
         };
 
         /**
@@ -317,10 +317,10 @@ namespace RTT
          */
         template<class F>
         struct quickbindC
-            : public quickbindC_impl<F, boost::function_type_arity<F>::value>
+            : public quickbindC_impl<F, boost::function_types::function_arity<F>::value>
         {
             quickbindC(F f)
-                : quickbindC_impl<F, boost::function_type_arity<F>::value>(f) {}
+                : quickbindC_impl<F, boost::function_types::function_arity<F>::value>(f) {}
         };
 
         /**

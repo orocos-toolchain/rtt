@@ -43,8 +43,9 @@
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
-#include "../boost/function_types/function_type_arity.hpp"
-#include "../boost/function_types/function_type_parameter.hpp"
+#include <boost/function_types/function_type.hpp>
+#include <boost/function_types/function_arity.hpp>
+#include <boost/function_types/parameter_types.hpp>
 #include "DataSource.hpp"
 #include "DataSources.hpp"
 
@@ -91,7 +92,7 @@ namespace RTT {
         struct CallBackWrapperFunction<Function,1>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>, 0 >::type T;
             CallBackWrapperFunction( Function& foo )
                 : mfoo(foo), marg( new ValueDataSource<T>() ) {}
             Function mfoo;
@@ -113,8 +114,8 @@ namespace RTT {
         struct CallBackWrapperFunction<Function,2>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T1;
-            typedef typename boost::function_types::function_type_parameter_c<Function,1>::type T2;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,0>::type T1;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,1>::type T2;
             CallBackWrapperFunction( Function& foo)
                 : mfoo(foo),
                 marg1( new ValueDataSource<T1>() ),
@@ -141,9 +142,9 @@ namespace RTT {
         struct CallBackWrapperFunction<Function, 3>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T1;
-            typedef typename boost::function_types::function_type_parameter_c<Function,1>::type T2;
-            typedef typename boost::function_types::function_type_parameter_c<Function,2>::type T3;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,0>::type T1;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,1>::type T2;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,2>::type T3;
             CallBackWrapperFunction( Function foo)
                 : mfoo(foo),
                 marg1( new ValueDataSource<T1>() ),
@@ -173,7 +174,7 @@ namespace RTT {
 
         // No bind arity detection work around
         template<class Function>
-        struct CallBackWrapper<Function,0>
+        struct CallBackWrapper<Function,1>
             :public EventCallBack
         {
             template<class Type>
@@ -192,10 +193,10 @@ namespace RTT {
         };
 
         template<class Function>
-        struct CallBackWrapper<Function,1>
+        struct CallBackWrapper<Function,2>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,1>::type T;
 
             template<class Type>
             CallBackWrapper( Type t, Function& foo )
@@ -218,11 +219,11 @@ namespace RTT {
         };
 
         template<class Function>
-        struct CallBackWrapper<Function,2>
+        struct CallBackWrapper<Function,3>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T1;
-            typedef typename boost::function_types::function_type_parameter_c<Function,1>::type T2;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,1>::type T1;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,2>::type T2;
 
             boost::function<void(T1,T2)> mfoo;
             template<class Type>
@@ -248,12 +249,12 @@ namespace RTT {
         };
 
         template<class Function>
-        struct CallBackWrapper<Function, 3>
+        struct CallBackWrapper<Function, 4>
             :public EventCallBack
         {
-            typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T1;
-            typedef typename boost::function_types::function_type_parameter_c<Function,1>::type T2;
-            typedef typename boost::function_types::function_type_parameter_c<Function,2>::type T3;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,1>::type T1;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,2>::type T2;
+            typedef typename boost::mpl::at_c<boost::function_types::parameter_types<Function>,3>::type T3;
 
             boost::function<void(T1,T2,T3)> mfoo;
             template<class Type>

@@ -142,7 +142,6 @@ ADD_SUBDIRECTORY( scripting )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( plugin )
 ADD_SUBDIRECTORY( extras )
-ADD_SUBDIRECTORY( boost )
 
 # Reduce debugging info in scripting dir.
 IF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "Debug" )

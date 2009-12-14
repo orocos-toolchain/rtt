@@ -47,8 +47,8 @@
 #include <boost/mpl/back.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/type_traits.hpp>
-#include "../boost/function_types/function_type.hpp"
-#include "../boost/function_types/function_type_signature.hpp"
+#include <boost/function_types/function_type.hpp>
+#include <boost/function_types/components.hpp>
 
 
 namespace RTT
@@ -64,11 +64,11 @@ namespace RTT
         template<class F>
         class UnMember
         {
-            typedef boost::function_type_signature<F> member_signature;
+            typedef boost::function_types::components<F> member_signature;
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
         public:
-            typedef typename boost::function_type<boost::plain_function,non_member_signature>::type type;
+            typedef typename boost::function_types::function_type<non_member_signature>::type type;
         };
 
         /**
@@ -79,7 +79,7 @@ namespace RTT
         template<class F>
         class ArgMember
         {
-            typedef boost::function_type_signature<F> member_signature;
+            typedef boost::function_types::components<F> member_signature;
             // remove the class from the arg list:
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
@@ -89,7 +89,7 @@ namespace RTT
                                                 typename boost::add_pointer<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type
                                                >::type arg_signature;
         public:
-            typedef typename boost::function_type<boost::plain_function,arg_signature>::type type;
+            typedef typename boost::function_types::function_type<arg_signature>::type type;
         };
 
         /**
@@ -98,9 +98,9 @@ namespace RTT
         template<class F>
         class UnPointer
         {
-            typedef boost::function_type_signature<F> signature;
+            typedef boost::function_types::components<F> signature;
         public:
-            typedef typename boost::function_type<boost::plain_function,signature>::type type;
+            typedef typename boost::function_types::function_type<signature>::type type;
         };
     }
 }

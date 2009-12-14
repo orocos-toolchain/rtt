@@ -44,7 +44,7 @@
 #include "../Handle.hpp"
 #include "EventCallBack.hpp"
 #include "EventProcessor.hpp"
-#include "../boost/function_types/function_type_arity.hpp"
+#include <boost/function_types/function_arity.hpp>
 
 namespace RTT { namespace internal {
 
@@ -106,7 +106,7 @@ namespace RTT { namespace internal {
         template<class Type, class Function>
         ConnectionC& callback(Type t, Function foo )
         {
-            return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_type_signature<Function>::arity::value>(t, foo ) );
+            return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_arity<Function>::value>(t, foo ) );
         }
 
         /**
@@ -123,7 +123,7 @@ namespace RTT { namespace internal {
                               EventProcessor* ep,
                               EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
         {
-            return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_type_signature<Function>::arity::value>(t, foo ), ep, s_type );
+            return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_arity<Function>::value>(t, foo ), ep, s_type );
         }
         /**
          * Add a Synchronous callback to a 'C' function.
@@ -132,7 +132,7 @@ namespace RTT { namespace internal {
         template<class Function>
         ConnectionC& callback( Function foo )
         {
-            return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_type_signature<Function>::arity::value>( foo ) );
+            return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_arity<Function>::value>( foo ) );
         }
 
         /**
@@ -146,7 +146,7 @@ namespace RTT { namespace internal {
         ConnectionC& callback( Function foo, EventProcessor* ep,
                                EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
         {
-            return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_type_signature<Function>::arity::value>( foo, ep ), s_type );
+            return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_arity<Function>::value>( foo, ep ), s_type );
         }
 
         /**
