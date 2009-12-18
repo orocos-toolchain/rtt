@@ -46,12 +46,286 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include <boost/function_types/parameter_types.hpp>
-#include "quickbind.hpp"
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/joint_view.hpp>
 
 namespace RTT
 {
     namespace internal
     {
+        template<class F, class O, int>
+        struct quickbind_impl;
+
+        template<class F, class O>
+        struct quickbind_impl<F,O,0>
+        {
+            F mf;
+            O mo;
+
+            quickbind_impl(F f, O o)
+                : mf(f), mo(o) {}
+
+            bool operator()() {
+                return (mo->*mf)();
+            }
+
+            template<class T1>
+            bool operator()(T1) {
+                return (mo->*mf)();
+            }
+
+            template<class T1, class T2>
+            bool operator()(T1, T2) {
+                return (mo->*mf)();
+            }
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1, T2, T3) {
+                return (mo->*mf)();
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1, T2, T3, T4) {
+                return (mo->*mf)();
+            }
+        };
+
+        template<class F, class O>
+        struct quickbind_impl<F,O,1>
+        {
+            F mf;
+            O mo;
+
+            quickbind_impl(F f, O o)
+                : mf(f), mo(o) {}
+
+            template<class T1>
+            bool operator()(T1& t1) {
+                return (mo->*mf)(t1);
+            }
+
+            template<class T1, class T2>
+            bool operator()(T1& t1, T2) {
+                return (mo->*mf)(t1);
+            }
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1& t1, T2, T3) {
+                return (mo->*mf)(t1);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2, T3, T4) {
+                return (mo->*mf)(t1);
+            }
+        };
+
+        template<class F, class O>
+        struct quickbind_impl<F,O,2>
+        {
+            F mf;
+            O mo;
+
+            quickbind_impl(F f, O o)
+                : mf(f), mo(o) {}
+
+            template<class T1, class T2>
+            bool operator()(T1& t1, T2& t2) {
+                return (mo->*mf)(t1,t2);
+            }
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1& t1, T2 t2, T3) {
+                return (mo->*mf)(t1,t2);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2 t2, T3, T4) {
+                return (mo->*mf)(t1,t2);
+            }
+        };
+
+        template<class F, class O>
+        struct quickbind_impl<F,O,3>
+        {
+            F mf;
+            O mo;
+
+            quickbind_impl(F f, O o)
+                : mf(f), mo(o) {}
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1& t1, T2 t2, T3 t3) {
+                return (mo->*mf)(t1,t2,t3);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2 t2, T3 t3, T4) {
+                return (mo->*mf)(t1,t2,t3);
+            }
+        };
+
+        template<class F, class O>
+        struct quickbind_impl<F,O,4>
+        {
+            F mf;
+            O mo;
+
+            quickbind_impl(F f, O o)
+                : mf(f), mo(o) {}
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2 t2, T3 t3, T4 t4) {
+                return (mo->*mf)(t1,t2,t3,t4);
+            }
+        };
+
+
+        template<class F, int>
+        struct quickbindC_impl;
+
+        template<class F>
+        struct quickbindC_impl<F,0>
+        {
+            F mf;
+
+            quickbindC_impl(F f)
+                : mf(f) {}
+
+            bool operator()() {
+                return mf();
+            }
+
+            template<class T1>
+            bool operator()(T1) {
+                return mf();
+            }
+
+            template<class T1, class T2>
+            bool operator()(T1, T2) {
+                return mf();
+            }
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1, T2, T3) {
+                return mf();
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1, T2, T3, T4) {
+                return mf();
+            }
+        };
+
+        template<class F>
+        struct quickbindC_impl<F,1>
+        {
+            F mf;
+
+            quickbindC_impl(F f)
+                : mf(f) {}
+
+            template<class T1>
+            bool operator()(T1& t1) {
+                return mf(t1);
+            }
+
+            template<class T1, class T2>
+            bool operator()(T1& t1, T2) {
+                return mf(t1);
+            }
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1& t1, T2, T3) {
+                return mf(t1);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2, T3, T4) {
+                return mf(t1);
+            }
+        };
+
+        template<class F>
+        struct quickbindC_impl<F,2>
+        {
+            F mf;
+
+            quickbindC_impl(F f)
+                : mf(f) {}
+
+            template<class T1,class T2>
+            bool operator()(T1& t1, T2& t2) {
+                return mf(t1,t2);
+            }
+
+            template<class T1,class T2, class T3>
+            bool operator()(T1& t1, T2& t2, T3) {
+                return mf(t1,t2);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2& t2, T3, T4) {
+                return mf(t1,t2);
+            }
+        };
+
+        template<class F>
+        struct quickbindC_impl<F,3>
+        {
+            F mf;
+
+            quickbindC_impl(F f)
+                : mf(f) {}
+
+            template<class T1, class T2, class T3>
+            bool operator()(T1& t1, T2& t2, T3& t3) {
+                return mf(t1,t2,t3);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2& t2, T3& t3, T4) {
+                return mf(t1,t2,t3);
+            }
+        };
+
+        template<class F>
+        struct quickbindC_impl<F,4>
+        {
+            F mf;
+
+            quickbindC_impl(F f)
+                : mf(f) {}
+            template<class T1, class T2, class T3, class T4>
+            bool operator()(T1& t1, T2& t2, T3& t3, T4& t4) {
+                return mf(t1,t2,t3,t4);
+            }
+        };
+
+        /**
+         * A class which binds a Type F to object O. If it is invoked
+         * with more arguments than F, the extra arguments are discarded.
+         */
+        template<class F, class O>
+        struct quickbind
+            : public quickbind_impl<F,O, boost::function_types::function_arity<F>::value>
+        {
+            quickbind(F f, O o)
+                : quickbind_impl<F,O, boost::function_types::function_arity<F>::value>(f,o) {}
+        };
+
+        /**
+         * A class which binds a C style function F. If it is invoked
+         * with more arguments than F, the extra arguments are discarded.
+         */
+        template<class F>
+        struct quickbindC
+            : public quickbindC_impl<F, boost::function_types::function_arity<F>::value>
+        {
+            quickbindC(F f)
+                : quickbindC_impl<F, boost::function_types::function_arity<F>::value>(f) {}
+        };
+
         /**
          * Store a bound argument which may be a reference, const reference or
          * any other type.
@@ -146,6 +420,13 @@ namespace RTT
             T* arg;
             RStore() : arg(0) {}
 
+            template<class Signature>
+            struct CollectSignature {
+                typedef typename boost::function_types::function_type<
+                    boost::mpl::joint_view< boost::mpl::vector<void,T&>,
+                    boost::function_types::parameter_types<Signature> > >::type type;
+            };
+
             template<class F>
             void store(F f) {
               arg = f();
@@ -220,35 +501,35 @@ namespace RTT
         struct BindStorageImpl<0, ToBind>
         {
             typedef bool result_type;
-            typedef typename CollectSignature<ToBind>::type Collect;
+            typedef typename RStore<result_type>::CollectSignature<ToBind>::type Collect;
 
             mutable RStore<result_type> ret;
             // stores the original function pointer
 
-            boost::function<ToBind> mcomm;
-            boost::function<Collect> mcoll;
+            boost::function<ToBind> comm;
+            boost::function<Collect> coll;
 
-            void exec() { ret.store( mcomm ); }
-            void coll() { ret.collect( mcoll() ); }
+            void exec() { ret.store( comm ); }
+            void collect() { ret.collect( coll() ); }
 
             template<class F, class C, class ObjectType>
             void setup(F f, C c, ObjectType t)
             {
-                mcomm = quickbind<F,ObjectType>( f, t); // allocates
-                mcoll  = quickbind<C,ObjectType>( c, t); // allocates
+                comm = quickbind<F,ObjectType>( f, t); // allocates
+                coll  = quickbind<C,ObjectType>( c, t); // allocates
             }
 
             template<class F, class C>
             void setup(F f, C c)
             {
-                mcomm = f;
-                mcoll = c;
+                comm = f;
+                coll = c;
             }
 
             void setup(boost::function<ToBind> f, boost::function<Collect> c)
             {
-                mcomm = f;
-                mcoll = c;
+                comm = f;
+                coll = c;
             }
         };
 

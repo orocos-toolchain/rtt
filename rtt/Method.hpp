@@ -45,6 +45,7 @@
 #include "base/MethodBase.hpp"
 #include "internal/LocalMethod.hpp"
 #include "base/ActionInterface.hpp"
+#include "internal/InvokerSignature.hpp"
 #include "Logger.hpp"
 
 namespace RTT

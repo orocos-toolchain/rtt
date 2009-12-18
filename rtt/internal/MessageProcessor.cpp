@@ -1,13 +1,12 @@
 
 #include "MessageProcessor.hpp"
-#include <AtomicQueue.hpp>
+#include "AtomicQueue.hpp"
 
 namespace RTT
 {
 
     using namespace std;
-
-    using namespace OS;
+    using namespace detail;
 
     MessageProcessor::MessageProcessor(int queue_size)
         :a_queue( new AtomicQueue<ExecutableInterface*>(queue_size) ),

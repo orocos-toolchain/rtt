@@ -36,116 +36,123 @@
  ***************************************************************************/
 
 
-#ifndef ORO_INVOKER_HPP
-#define ORO_INVOKER_HPP
+#ifndef ORO_INVOKER_SIGNATURE_HPP
+#define ORO_INVOKER_SIGNATURE_HPP
 
-#include <boost/function.hpp>
-#include <boost/function_types/function_type.hpp>
 #include <boost/type_traits.hpp>
-#include "InvokerBase.hpp"
-#include "Collect.hpp"
+#include "NA.hpp"
 
 namespace RTT
 {
     namespace internal
     {
-        template<int, class F, class BaseImpl>
-        struct InvokerImpl;
-
         /**
-         * Creates an invocation object with a function
-         * signature to invoke and an implementation in which
-         * an operator(args) is available which has this signature.
+         * Used by various classes to define operator(), given a Signature.
+         * @param int The number of arguments of operator().
+         * @param Signature The C-style function signature (function type).
+         * @param ToInvoke A class type which is called within operator().
          */
-        template<class F, class BaseImpl>
-        struct Invoker
-            : public InvokerImpl<boost::function_traits<F>::arity, F, BaseImpl>
-        {};
+        template<int, class Signature, class ToInvoke>
+        struct InvokerSignature;
 
-        template<class F, class BaseImpl>
-        struct InvokerImpl<0,F,BaseImpl>
-            : public Collect<F,BaseImpl> // inherits from BaseImpl
+        template<class F, class ToInvoke>
+        struct InvokerSignature<0,F,ToInvoke>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
+
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
+
             /**
              * Invoke this operator if the method has no arguments.
              */
-            result_type call()
+            result_type operator()()
             {
-                return BaseImpl::call();
+                if (impl)
+                    return (*impl)();
+                return NA<result_type>::na();
             }
+        protected:
+            ToInvoke impl;
+        };
 
-            SendStatus send()
-            {
-                return BaseImpl::send();
-            }
-
-            SendStatus collect()
-            {
-                return BaseImpl::collect();
-            }
-
-            SendStatus collectIfDone()
-            {
-                return BaseImpl::collectIfDone();
-            }
-};
-
-        template<class F, class BaseImpl>
-        struct InvokerImpl<1,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+        template<class F, class ToInvoke>
+        struct InvokerSignature<1,F,ToInvoke>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
+
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
+
             /**
              * Invoke this operator if the method has one argument.
              */
-            result_type call(arg1_type a1)
+            result_type operator()(arg1_type a1)
             {
-                return BaseImpl::template invoke<arg1_type>( a1 );
+                if (impl)
+                    return (*impl)( a1 );
+                return NA<result_type>::na();
             }
+        protected:
+            ToInvoke impl;
         };
 
-        template<class F, class BaseImpl>
-        struct InvokerImpl<2,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+        template<class F, class ToInvoke>
+        struct InvokerSignature<2,F,ToInvoke>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
 
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
+
             /**
              * Invoke this operator if the method has two arguments.
              */
-            result_type call(arg1_type t1, arg2_type t2)
+            result_type operator()(arg1_type t1, arg2_type t2)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type>(t1, t2);
+                if (impl)
+                    return (*impl)(t1, t2);
+                return NA<result_type>::na();
             }
 
+        protected:
+            ToInvoke impl;
         };
 
-        template<class F, class BaseImpl>
-        struct InvokerImpl<3,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+        template<class F, class ToInvoke>
+        struct InvokerSignature<3,F,ToInvoke>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
 
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() { }
+
             /**
              * Invoke this operator if the method has three arguments.
              */
-            result_type call(arg1_type t1, arg2_type t2, arg3_type t3)
+            result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+                if (impl)
+                    return (*impl)(t1, t2, t3);
+                return NA<result_type>::na();
             }
 
+        protected:
+            ToInvoke impl;
         };
 
-        template<class F, class BaseImpl>
-        struct InvokerImpl<4,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+        template<class F, class ToInvoke>
+        struct InvokerSignature<4,F,ToInvoke>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -153,16 +160,24 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
             typedef typename boost::function_traits<F>::arg4_type arg4_type;
 
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() { }
+
             /**
              * Invoke this operator if the method has four arguments.
              */
-            result_type call(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+                if (impl)
+                    return (*impl)(t1, t2, t3, t4);
+                return NA<result_type>::na();
             }
 
+        protected:
+            ToInvoke impl;
         };
 
-   }
+    }
 }
 #endif

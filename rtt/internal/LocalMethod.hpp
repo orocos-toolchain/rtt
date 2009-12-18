@@ -44,6 +44,8 @@
 #include "Invoker.hpp"
 #include "../base/MethodBase.hpp"
 #include "BindStorage.hpp"
+#include "MessageProcessor.hpp"
+#include "../SendStatus.hpp"
 
 namespace RTT
 {
@@ -66,7 +68,7 @@ namespace RTT
         {
         protected:
             boost::function<FunctionT> mmeth;
-            CommandProcessor* mcp;
+            MessageProcessor* mcp;
 
         public:
             typedef FunctionT Signature;
@@ -80,16 +82,25 @@ namespace RTT
                 return;
             }
 
-            CommandProcessor* getCommandProcessor() const { return mcp; }
+            void dispose() {
+                delete this;
+            }
+
+            MessageProcessor* getMessageProcessor() const { return mcp; }
+
+            SendStatus coll_impl() {
+                this->coll();
+                return SendFailure;
+            }
 
             // We need a handle object !
-            SendStatus send() {
+            SendStatus send_impl() {
                 assert(mcp);
                 return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1>
-            SendStatus send( T1 a1 ) {
+            SendStatus send_impl( T1 a1 ) {
                 assert(mcp);
                 // bind types from Storage<Function>
                 this->store( a1 );
@@ -97,58 +108,37 @@ namespace RTT
             }
 
             template<class T1, class T2>
-            SendStatus send( T1 a1, T2 a2 ) {
+            SendStatus send_impl( T1 a1, T2 a2 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2 );
                 return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3>
-            SendStatus send( T1 a1, T2 a2, T3 a3 ) {
+            SendStatus send_impl( T1 a1, T2 a2, T3 a3 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3 );
                 return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3, class T4>
-            SendStatus send( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            SendStatus send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3, a4 );
                 return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
-            // XXX What with void returns ?
-            SendStatus collect( result_reference r ) {
-
-            }
-
-            template<class T1>
-            SendStatus collect( result_reference r,  T1 a1 ) {
-                assert(mcp);
-            }
-
-            template<class T1, class T2>
-            SendStatus collect( result_reference r,  T1 a1, T2 a2 ) {
-            }
-
-            template<class T1, class T2, class T3>
-            SendStatus collect( result_reference r,  T1 a1, T2 a2, T3 a3 ) {
-            }
-
-            template<class T1, class T2, class T3, class T4>
-            SendStatus collect( result_reference r,  T1 a1, T2 a2, T3 a3, T4 a4 ) {
-            }
 #if 0
             /**
              * Invoke this operator if the method has no arguments.
              */
-            result_type invoke()
+            result_type call_impl()
             {
                 // if component or 3rd party thread, use that one, otherwise,
-                // just execute the method.
+                // just execute the method. NOTE: we will use a different class for each case.
                 SendHandle<Signature> h;
                 if ( mcp ) {
-                    h = send();
+                    h = send_impl();
                     h.collect();
                     return h.ret();
                 } else
@@ -159,7 +149,7 @@ namespace RTT
              * Invoke this operator if the method has one argument.
              */
             template<class T1>
-            result_type invoke(T1 t)
+            result_type call_impl(T1 t)
             {
                 return mmeth(t);
             }
@@ -168,7 +158,7 @@ namespace RTT
              * Invoke this operator if the method has two arguments.
              */
             template<class T1, class T2>
-            result_type invoke(T1 t1, T2 t2)
+            result_type call_impl(T1 t1, T2 t2)
             {
                 return mmeth(t1, t2);
             }
@@ -177,7 +167,7 @@ namespace RTT
              * Invoke this operator if the method has three arguments.
              */
             template<class T1, class T2, class T3>
-            result_type invoke(T1 t1, T2 t2, T3 t3)
+            result_type call_impl(T1 t1, T2 t2, T3 t3)
             {
                 return mmeth(t1, t2, t3);
             }
@@ -186,7 +176,7 @@ namespace RTT
              * Invoke this operator if the method has four arguments.
              */
             template<class T1, class T2, class T3, class T4>
-            result_type invoke(T1 t1, T2 t2, T3 t3, T4 t4)
+            result_type call_impl(T1 t1, T2 t2, T3 t3, T4 t4)
             {
                 return mmeth(t1, t2, t3, t4);
             }

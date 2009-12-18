@@ -3,24 +3,19 @@
 #ifndef ORO_MESSAGE_PROCESSOR_HPP
 #define ORO_MESSAGE_PROCESSOR_HPP
 
-#include "RunnableInterface.hpp"
-#include "ExecutableInterface.hpp"
-#include "BufferPolicy.hpp"
+#include "../base/RunnableInterface.hpp"
+#include "../base/ExecutableInterface.hpp"
 
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
 #include "rtt-config.h"
+#include "rtt-internal-fwd.hpp"
 
 namespace RTT
 {
-    template< class T, class RP, class WP>
-    class AtomicQueue;
-}
-
-namespace RTT
-{
+namespace internal {
     /**
      * @brief This class implements an Orocos message processor.
      * It executes incomming messages when running.
@@ -28,7 +23,7 @@ namespace RTT
      * @ingroup Processor
      */
     class MessageProcessor
-        : public RunnableInterface
+        : public base::RunnableInterface
     {
     public:
         /**
@@ -55,7 +50,7 @@ namespace RTT
          * @return false when the MessageProcessor is not running or does not accept messages.
          * @see acceptMessages
          */
-        virtual bool process(ExecutableInterface* c);
+        virtual bool process(base::ExecutableInterface* c);
 
         /**
          * Should the MessageProcessor accept or reject messages in \a process().
@@ -65,11 +60,11 @@ namespace RTT
 
     protected:
 
-        AtomicQueue<ExecutableInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
+        AtomicQueue<base::ExecutableInterface*,base::NonBlockingPolicy,base::NonBlockingPolicy>* a_queue;
 
         bool accept;
     };
-
+}
 }
 
 #endif

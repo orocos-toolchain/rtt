@@ -71,7 +71,7 @@ namespace RTT
         }
 
     protected:
-        typedef std::map<std::string,boost::shared_ptr<base::ActionInterface> > SimpleMethods;
+        typedef std::map<std::string,boost::shared_ptr<base::ExecutableInterface> > SimpleMethods;
         SimpleMethods simplemethods;
     public:
         typedef internal::MethodFactory Factory;
@@ -132,7 +132,7 @@ namespace RTT
          * @return true if it could be found, false otherwise.
          */
         template<class Signature>
-        boost::shared_ptr<base::ActionInterface> getMethod( std::string name )
+        boost::shared_ptr<base::ExecutableInterface> getMethod( std::string name )
         {
             Logger::In in("MethodRepository::getMethod");
             if ( simplemethods.count(name) ) {
@@ -140,16 +140,16 @@ namespace RTT
                     return simplemethods[name];
                 else
                     log(Error) << "Method '"<< name <<"' found, but has wrong Signature."<<endlog();
-                return boost::shared_ptr<base::ActionInterface>();
+                return boost::shared_ptr<base::ExecutableInterface>();
             }
 
 #ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {
-                return boost::shared_ptr<base::ActionInterface>(new internal::RemoteMethod<Signature>(this, name));
+                return boost::shared_ptr<base::ExecutableInterface>(new internal::RemoteMethod<Signature>(this, name));
             }
 #endif
             log(Warning) << "No such method: "<< name <<endlog();
-            return boost::shared_ptr<base::ActionInterface>();
+            return boost::shared_ptr<base::ExecutableInterface>();
         }
 
         /**
@@ -439,7 +439,7 @@ namespace RTT
         /**
          * Reset the implementation of a method.
          */
-        bool resetMethod(std::string name, base::ActionInterface::shared_ptr impl)
+        bool resetMethod(std::string name, base::ExecutableInterface::shared_ptr impl)
         {
             if (!hasMethod(name))
                 return false;

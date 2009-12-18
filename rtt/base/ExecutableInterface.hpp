@@ -3,7 +3,7 @@
 
 namespace RTT
 {
-    namespace detail
+    namespace base
     {
         /**
          * @brief An object that is executable and
@@ -12,7 +12,13 @@ namespace RTT
         class ExecutableInterface
         {
         public:
-            virtual ~ExecutableInterface();
+            /**
+             * Use this type for shared pointer storage of an
+             * ExecutableInterface object.
+             */
+            typedef boost::shared_ptr<ExecutableInterface> shared_ptr;
+
+            virtual ~ExecutableInterface() {}
 
             /**
              * Execute functionality and free this object.
@@ -20,6 +26,11 @@ namespace RTT
              * use this object after calling this method.
              */
             virtual void execute() = 0;
+
+            /**
+             * Just free this object without executing it.
+             */
+            virtual void dispose() = 0;
         };
     }
 }
