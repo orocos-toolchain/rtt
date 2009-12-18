@@ -27,7 +27,7 @@ namespace RTT
          * as required by CollectBaseImpl.
          */
         template<class F>
-        struct CollectSignature
+        struct CollectType
         {
         private:
             // Decompose F into all components (ret, args,...):

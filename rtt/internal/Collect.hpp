@@ -18,7 +18,7 @@ namespace RTT
          */
         template<class F, class BaseImpl>
         struct Collect
-            : public CollectImpl< boost::function_traits<F>::arity, typename CollectSignature<F>::Ft, BaseImpl >
+            : public CollectImpl< boost::function_traits<F>::arity, typename CollectType<F>::Ft, BaseImpl >
         {};
 
         template<class Ft, class BaseImpl>

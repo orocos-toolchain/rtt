@@ -220,7 +220,7 @@ namespace RTT
         struct BindStorageImpl<0, ToBind>
         {
             typedef bool result_type;
-            typedef typename CollectSignature<ToBind>::type Collect;
+            typedef typename CollectType<ToBind>::type Collect;
 
             mutable RStore<result_type> ret;
             // stores the original function pointer
