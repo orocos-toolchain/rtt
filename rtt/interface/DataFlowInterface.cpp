@@ -87,7 +87,7 @@ namespace RTT
     bool DataFlowInterface::addEventPort(InputPortInterface* port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         if (this->addPort(port)) {
             if (callback)
-                port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
+                port->getNewDataOnPortEvent()->connect(callback );
             eports.push_back(port);
             return true;
         }
@@ -109,7 +109,7 @@ namespace RTT
     bool DataFlowInterface::addEventPort(InputPortInterface* port, std::string description, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         if (this->addPort(port, description)) {
             if (callback)
-                port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
+                port->getNewDataOnPortEvent()->connect(callback);
             eports.push_back(port);
             return true;
         }

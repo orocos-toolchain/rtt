@@ -100,7 +100,7 @@ namespace RTT
         smproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        eproc = new EventProcessor();
+        eproc = new MessageProcessor();
 #else
         eproc = 0;
 #endif
@@ -392,9 +392,9 @@ namespace RTT
 #endif
     }
 
-    EventProcessor* ExecutionEngine::events() const {
+    MessageProcessor* ExecutionEngine::events() const {
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        return dynamic_cast<EventProcessor*>(eproc);
+        return dynamic_cast<MessageProcessor*>(eproc);
 #else
         return 0;
 #endif
@@ -414,7 +414,7 @@ namespace RTT
 #endif
     }
 
-    void ExecutionEngine::setEventProcessor(EventProcessor* e) {
+    void ExecutionEngine::setMessageProcessor(MessageProcessor* e) {
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
         delete eproc;
         eproc = e;

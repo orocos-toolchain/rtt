@@ -108,7 +108,7 @@ namespace RTT
       if ( obj == 0 )
           throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
       else {
-          if ( obj->methods()->hasMember(mcurmethod) == false && obj->events()->hasMember(mcurmethod) == false) {
+          if ( obj->methods()->hasMember(mcurmethod) == false ) {
               if ( mcurobject == "this" )
                   mcurobject = peer->getName();
               throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
@@ -131,10 +131,8 @@ namespace RTT
 
     OperationInterface* obj = argsparser->object();
     MethodRepository::Factory* mfi = obj->methods();
-    EventService::Factory* efi = obj->events();
 
     assert(mfi);
-    assert(efi);
 
     typedef std::pair<ActionInterface*,ConditionInterface*> ComCon;
     ComCon comcon;
@@ -150,28 +148,6 @@ namespace RTT
                     comcon.first =  new CommandDataSource( dsb );
                 else
                     comcon.first =  new CommandDataSourceBool( dsb_res );
-                comcon.second = new ConditionTrue();
-            }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    (mcurobject, mcurmethod, e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
-            }
-        catch( ... )
-            {
-                assert( false );
-            }
-    else if ( efi->hasMember( mcurmethod ) )
-        try
-            {
-                // if the method returns a boolean, construct it as a command
-                // which accepts/rejects the result.
-                comcon.first  = efi->produce( mcurmethod, argsparser->result() );
                 comcon.second = new ConditionTrue();
             }
         catch( const wrong_number_of_args_exception& e )

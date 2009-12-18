@@ -44,7 +44,8 @@
 #include "ChannelElement.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../internal/ConnectionManager.hpp"
-#include "../Event.hpp"
+#include "../internal/Signal.hpp"
+#include "../base/DataSourceBase.hpp"
 
 namespace RTT
 { namespace base {
@@ -57,7 +58,7 @@ namespace RTT
     class RTT_API InputPortInterface : public PortInterface
     {
     public:
-        typedef Event<void(PortInterface*)> NewDataOnPortEvent;
+        typedef internal::Signal<void(PortInterface*)> NewDataOnPortEvent;
 
     protected:
         internal::ConnectionManager cmanager;

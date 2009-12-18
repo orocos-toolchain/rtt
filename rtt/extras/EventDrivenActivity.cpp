@@ -41,14 +41,15 @@
 #pragma implementation
 #endif
 #include "EventDrivenActivity.hpp"
-#include "../internal/CompletionProcessor.hpp"
 #include "TimerThread.hpp"
 #include <boost/bind.hpp>
+
 
 
 namespace RTT {
     using namespace base;
     using namespace extras;
+    using namespace internal;
 
     EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r, const std::string& name )
         : Activity(priority, 0.0, _r), m_pending_events(0) { }
@@ -62,7 +63,7 @@ namespace RTT {
         delete m_pending_events;
     }
 
-    void EventDrivenActivity::event_trigger(Event<void()>* event)
+    void EventDrivenActivity::event_trigger(Signal<void()>* event)
     {
         if (!isRunning())
             return;
@@ -77,9 +78,9 @@ namespace RTT {
         m_pending_events = new Triggers(4 * m_events.size());
         m_wakeup.reserve(m_events.size());
 
-        for (Events::iterator it = m_events.begin(); it != m_events.end(); ++it)
+        for (Signals::iterator it = m_events.begin(); it != m_events.end(); ++it)
         {
-            Event<void(void)>& ev = **it;
+            Signal<void(void)>& ev = **it;
             Handle h = ev.connect( boost::bind(&EventDrivenActivity::event_trigger, this, *it) );
             if (!h)
             {
@@ -115,7 +116,7 @@ namespace RTT {
 
             do
             {
-                Event<void()>* pending;
+                Signal<void()>* pending;
                 m_pending_events->Pop(pending);
                 if (! pending)
                     return;
@@ -129,7 +130,7 @@ namespace RTT {
         }
     }
 
-    std::vector<Event<void()>*> const& EventDrivenActivity::getWakeupEvents() const
+    std::vector<Signal<void()>*> const& EventDrivenActivity::getWakeupEvents() const
     {
         return m_wakeup;
     }
@@ -141,7 +142,7 @@ namespace RTT {
         return Activity::stop();
     }
 
-    bool EventDrivenActivity::addEvent( Event<void(void)>* _event)
+    bool EventDrivenActivity::addEvent( Signal<void(void)>* _event)
     {
         if ( isActive() )
             return false;

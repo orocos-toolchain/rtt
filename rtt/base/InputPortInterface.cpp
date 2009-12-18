@@ -67,7 +67,7 @@ ConnPolicy InputPortInterface::getDefaultPolicy() const
 InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEvent()
 {
     if (!new_data_on_port_event)
-        new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
+        new_data_on_port_event = new NewDataOnPortEvent();
     return new_data_on_port_event;
 }
 

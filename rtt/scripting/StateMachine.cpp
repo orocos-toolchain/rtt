@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "StateMachine.hpp"
-#include "../internal/EventProcessor.hpp"
+#include "../ExecutionEngine.hpp"
 #include "StateMachineProcessor.hpp"
 #include "../interface/EventService.hpp"
 
@@ -46,6 +46,7 @@
 #include <assert.h>
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
+#include "internal/mystd.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -65,7 +66,7 @@ namespace RTT {
         this->addState(0); // allows global state transitions
     }
 
-    StateMachine::StateMachine(StateMachinePtr parent, EventProcessor* tc, const string& name )
+    StateMachine::StateMachine(StateMachinePtr parent, ExecutionEngine* tc, const string& name )
         : smpStatus(nill), _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
@@ -658,7 +659,7 @@ namespace RTT {
     {
         Logger::In in("StateMachine::createEventTransition");
         if (eproc == 0 ) {
-            Logger::log() << Logger::Error << "Can not receive event '"<< ename <<"' in StateMachine without EventProcessor."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not receive event '"<< ename <<"' in StateMachine without ExecutionEngine."<<Logger::endl;
             return false;
         }
 
@@ -688,10 +689,10 @@ namespace RTT {
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
-        log(Debug) << "Creating Asynchronous handler for '"<< ename <<"'."<< endlog();
+        log(Error) << "Creating SYNCHRONOUS handler for '"<< ename <<"'."<< endlog();
         log(Debug) << "From '"<< (from ? from->getName() : "(0)") <<"' to '"<< (to ? to->getName() : "(0)") <<"' else: "<< (elseto ? elseto->getName() : "(0)") << endlog();
-        handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args,
-                                    eproc );
+        handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args
+                                    );
 
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
@@ -708,6 +709,7 @@ namespace RTT {
 
     void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
     {
+        assert(false); // this function was meant to be executed in the own thread, is now in caller thread.
         // called by event to begin Transition to 'to'.
         // This interrupts the current run program at an interruption point ?
         // the transition and/or exit program can cleanup...

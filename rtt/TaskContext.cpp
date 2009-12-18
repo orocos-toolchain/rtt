@@ -117,9 +117,6 @@ namespace RTT
 
     void TaskContext::setup()
     {
-        // Work around for bug
-        this->mevents.setEventProcessor( ee->events() );
-
         mdescription = "The interface of this TaskContext.";
 
         this->methods()
@@ -467,7 +464,7 @@ namespace RTT
                 InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(*it);
                 if (read_port)
                     {
-                        Handle h = read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
+                        Handle h = read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1) );
                         if (h) {
                             port_count++;
                             log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
@@ -483,11 +480,12 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        // Since this handler is executed in our thread, we are always running.
+        // This is not thread-safe, need to protect with the task-lock.
+        assert(false);
         if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
             updated_ports.push_back(port);
-        // this is in essence superfluous. We are already triggered.
-        //this->getActivity()->trigger();
+
+        this->getActivity()->trigger();
     }
 
     void TaskContext::updateHook()

@@ -39,7 +39,7 @@
 #define TASK_EVENT_DRIVEN_HPP
 
 #include "../Activity.hpp"
-#include "../Event.hpp"
+#include "../internal/Signal.hpp"
 #include "../base/Buffer.hpp"
 #include <set>
 
@@ -55,7 +55,7 @@ namespace RTT
      * @brief An Event-driven base::ActivityInterface implementation.
      *
      * This class represents a Activity which can be attached
-     * to an Event<void(void)> and execute its functionality each time
+     * to an Signal<void(void)> and execute its functionality each time
      * the event is fired. The EventDrivenActivity is run asynchronously
      * in a given thread.
      */
@@ -63,8 +63,8 @@ namespace RTT
         : public Activity
     {
         // The set of events that can trigger this activity
-        typedef std::vector< Event< void() >* > Events;
-        Events   m_events;
+        typedef std::vector< internal::Signal< void() >* > Signals;
+        Signals   m_events;
 
         // The set of connection handles which link m_events with the activity
         typedef std::vector<Handle> Handles;
@@ -72,17 +72,17 @@ namespace RTT
 
         // The set of pending events (i.e. events that have been emitted since
         // the last time the activity went to sleep)
-        typedef base::Buffer< Event< void() >*, base::BlockingPolicy, base::NonBlockingPolicy > Triggers;
+        typedef base::Buffer< internal::Signal< void() >*, base::BlockingPolicy, base::NonBlockingPolicy > Triggers;
         Triggers* m_pending_events;
 
         // The set of wakeup events (i.e. the events which triggered the
         // current wakeup of the activity)
-        typedef std::vector< Event< void() >* > Wakeup;
+        typedef std::vector< internal::Signal< void() >* > Wakeup;
         Wakeup   m_wakeup;
 
         // The trigger method, called by the event. \c event_id is the index of
         // the event in m_events.
-        void event_trigger(Event<void()>* event);
+        void event_trigger(internal::Signal<void()>* event);
 
     public:
         /**
@@ -120,13 +120,13 @@ namespace RTT
          * is only valid in the associated base::RunnableInterface's step() method
          * (and, by extension, in the TaskContext hook functions)
          */
-        std::vector<Event<void()>*> const& getWakeupEvents() const;
+        std::vector<internal::Signal<void()>*> const& getWakeupEvents() const;
 
         /**
          * Set the Event which will trigger the execution
          * of this task, once started.
          */
-        bool addEvent( Event<void(void)>* _event);
+        bool addEvent( internal::Signal<void(void)>* _event);
     };
 
 }}

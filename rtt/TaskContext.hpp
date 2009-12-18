@@ -422,7 +422,9 @@ namespace RTT
         void setup();
 
     protected:
-        std::vector< base::PortInterface* > updated_ports;
+        typedef std::vector< base::PortInterface* > PortList;
+        PortList updated_ports;
+
         /**
          * This callback is called each time data arrived on an
          * event port.

@@ -43,7 +43,6 @@
 #include "DataSources.hpp"
 #include "../Handle.hpp"
 #include "EventCallBack.hpp"
-#include "EventProcessor.hpp"
 #include <boost/function_types/function_arity.hpp>
 
 namespace RTT { namespace internal {
@@ -65,8 +64,6 @@ namespace RTT { namespace internal {
         D* d;
 
         ConnectionC& mcallback(EventCallBack* ecb);
-
-        ConnectionC& mcallback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type);
     public:
         /**
          * The default constructor.
@@ -110,22 +107,6 @@ namespace RTT { namespace internal {
         }
 
         /**
-         * Add an Asynchronous callback to an object's member function.
-         * @param t A pointer to the object upon which the function must be invoked.
-         * @param foo The object's member function which is called back, for example '&X::my_function'
-         * @param ep The EventProcessor which will execute the callback 'foo'.
-         * @param s_type The method used when event overruns happen. By default, only the first event
-         * is propagated to the callbacks.
-         */
-        template<class Type, class Function>
-        ConnectionC& callback(Type t,
-                              Function foo,
-                              EventProcessor* ep,
-                              EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
-        {
-            return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_arity<Function>::value>(t, foo ), ep, s_type );
-        }
-        /**
          * Add a Synchronous callback to a 'C' function.
          * @param foo A 'C' function to call back when the event is emitted.
          */
@@ -133,20 +114,6 @@ namespace RTT { namespace internal {
         ConnectionC& callback( Function foo )
         {
             return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_arity<Function>::value>( foo ) );
-        }
-
-        /**
-         * Add an Asynchronous callback to a 'C' function.
-         * @param foo A 'C' function to call back when the event is emitted.
-         * @param ep The EventProcessor which will execute the callback 'foo'.
-         * @param s_type The method used when event overruns happen. By default, only the first event
-         * is propagated to the callbacks.
-         */
-        template<class Function>
-        ConnectionC& callback( Function foo, EventProcessor* ep,
-                               EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
-        {
-            return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_arity<Function>::value>( foo, ep ), s_type );
         }
 
         /**

@@ -44,7 +44,6 @@
 #include "../base/ActionInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"
-#include "../internal/EventProcessor.hpp"
 
 #include <map>
 #include <vector>
@@ -99,7 +98,7 @@ namespace RTT
         StateMachineParentPtr _parent;
 
         std::string _name;
-        internal::EventProcessor* eproc;
+        ExecutionEngine* eproc;
         Status::StateMachineStatus smStatus;
         StateMachineProcessor* smp;
 
@@ -126,9 +125,9 @@ namespace RTT
          * Create a new StateMachine in a TaskContext with an optional parent.
          * Set \a parent to zero for the top state machine. The initial Status of
          * a StateMachine is always inactive.
-         * @param ep The internal::EventProcessor of this StateMachine when transition events are used.
+         * @param ep The ExecutionEngine of this StateMachine when transition events are used.
          */
-        StateMachine(StateMachinePtr parent, internal::EventProcessor* ep, const std::string& name="Default");
+        StateMachine(StateMachinePtr parent, ExecutionEngine* ep, const std::string& name="Default");
 
         void setStateMachineProcessor(StateMachineProcessor* smproc) {
             smp = smproc;
@@ -140,7 +139,7 @@ namespace RTT
             }
         }
 
-        void setEventProcessor(internal::EventProcessor* smproc) {
+        void setEngine(ExecutionEngine* smproc) {
             eproc = smproc;
         }
 

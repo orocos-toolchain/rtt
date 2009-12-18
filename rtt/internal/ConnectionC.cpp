@@ -39,7 +39,6 @@
 #include "../interface/EventService.hpp"
 #include "ConnectionC.hpp"
 #include "FactoryExceptions.hpp"
-#include "EventProcessor.hpp"
 #include "../Logger.hpp"
 #include <vector>
 #include <boost/bind.hpp>
@@ -56,9 +55,6 @@ namespace RTT
         const EventService* mgcf;
         std::string mname;
         shared_ptr<EventCallBack> syn_ecb;
-        shared_ptr<EventCallBack> asyn_ecb;
-        EventProcessor::AsynStorageType ms_type;
-        EventProcessor* mep;
         Handle h;
 
         /**
@@ -75,52 +71,31 @@ namespace RTT
                     Logger::log() << Logger::Error << "Creating Syn connection to "+ mname +" failed."<<Logger::endl;
                 syn_ecb.reset();
             }
-            if (asyn_ecb) {
-                Logger::log() << Logger::Info << "Creating Asyn connection to "+ mname +"."<<Logger::endl;
-                // asyn_ecb is never deleted !
-                h = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
-                if (!h)
-                    Logger::log() << Logger::Error << "Creating ASyn connection to "+ mname +" failed."<<Logger::endl;
-                asyn_ecb.reset();
-            }
         }
 
         void callback(EventCallBack* ecb) {
-            if (syn_ecb || asyn_ecb) {
+            if (syn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Synchronous 'callback': already present."<<Logger::endl;
                 delete ecb;
                 return;
             }
             syn_ecb.reset( ecb );
         }
-        void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
-            if (syn_ecb || asyn_ecb) {
-                Logger::log() << Logger::Error << "Ignoring added Asynchronous 'callback': already present."<<Logger::endl;
-                delete ecb;
-                return;
-            }
-            asyn_ecb.reset( ecb ); mep = ep; ms_type = s_type;
-        }
 
         D( const EventService* gcf, const std::string& name)
-            : mgcf(gcf), mname(name), syn_ecb(), asyn_ecb(), mep(0), h()
+            : mgcf(gcf), mname(name), syn_ecb(), h()
         {
         }
 
         D(const D& other)
             : mgcf( other.mgcf), mname(other.mname),
-              syn_ecb( other.syn_ecb ), asyn_ecb( other.asyn_ecb ),
-              mep( other.mep ), h( other.h )
+              syn_ecb( other.syn_ecb ),
+              h( other.h )
         {
-            // We steal the connection info from other.
-            //other.syn_ecb = 0;
-            //other.asyn_ecb = 0;
         }
 
         ~D()
         {
-            //delete syn_ecb;
-            //delete asyn_ecb;
         }
 
         /**
@@ -172,18 +147,6 @@ namespace RTT
         Logger::In in("ConnectionC");
         if (d ) {
             d->callback( ecb );
-        } else {
-            Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
-            delete ecb; // created by us.
-        }
-        return *this;
-    }
-
-    ConnectionC& ConnectionC::mcallback( EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type)
-    {
-        Logger::In in("ConnectionC");
-        if (d) {
-            d->callback( ecb, ep, s_type );
         } else {
             Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
             delete ecb; // created by us.

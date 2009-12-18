@@ -441,13 +441,15 @@ namespace RTT
         peer    = peerparser->taskObject();
         peerparser->reset();
 
+        assert(false);
+#if 0
         if (peer->events()->hasEvent(evname) == false ) {
             if (curstate)
                 ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
             else
                 ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: Event "+evname+" not found in Task "+peer->getName() ));
         }
-
+#endif
         argsparser =
             new ArgumentsParser( *expressionparser, context, peer,
                                  evname, "handle" );
@@ -777,7 +779,8 @@ namespace RTT
         curobject = new StateMachineTask(curtemplate, context->engine() );
         curobject->setName( curmachinename );
         curtemplate->setTaskObject( curobject ); // store.
-        curtemplate->setEventProcessor( context->engine()->events() ); //handle events in TaskContext.
+        assert(false); // see below:
+        curtemplate->setEngine( context->engine() ); //handle events in TaskContext.
 
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.

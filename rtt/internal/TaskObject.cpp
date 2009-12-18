@@ -53,7 +53,6 @@ namespace RTT {
         assert(parent);
         if ( parent->addObject( this ) )
             mparent = parent;
-        this->mevents.setEventProcessor( parent->events()->getEventProcessor() );
     }
 
     TaskObject::~TaskObject()
@@ -62,10 +61,6 @@ namespace RTT {
     }
 
     void TaskObject::setEngine(ExecutionEngine* newengine) {
-        if(newengine)
-            mevents.setEventProcessor( newengine->events() );
-        else
-            mevents.setEventProcessor( 0 );
         // In case objects form circular links, this will run forever
         for (Objects::iterator it = mobjects.begin(); it != mobjects.end(); ++it)
             (*it)->setEngine(newengine);

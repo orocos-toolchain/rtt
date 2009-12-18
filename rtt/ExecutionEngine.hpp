@@ -44,8 +44,9 @@
 #include <vector>
 
 #include "rtt-config.h"
+#undef OROPKG_EXECUTION_ENGINE_EVENTS
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "internal/EventProcessor.hpp"
+#include "internal/MessageProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
 #include "scripting/ProgramProcessor.hpp"
@@ -53,6 +54,8 @@
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
 #include "scripting/StateMachineProcessor.hpp"
 #endif
+
+#include "internal/rtt-internal-fwd.hpp"
 
 namespace RTT
 {
@@ -66,7 +69,7 @@ namespace RTT
      * engine.
      *
      * The ExecutionEngine bundles a internal::CommandProcessor, scripting::ProgramProcessor,
-     * scripting::StateMachineProcessor and EventProcessor.
+     * scripting::StateMachineProcessor and MessageProcessor.
      *
      * @par Changing the Execution Policy
      * One can subclass this class in order to change the run-time
@@ -189,9 +192,9 @@ namespace RTT
         scripting::StateMachineProcessor* states() const;
 
         /**
-         * Return the internal::EventProcessor of this engine.
+         * Return the internal::MessageProcessor of this engine.
          */
-        internal::EventProcessor* events() const;
+        internal::MessageProcessor* events() const;
 
         /**
          * Install a new ProgramProcessor.
@@ -206,10 +209,10 @@ namespace RTT
         virtual void setStateMachineProcessor(scripting::StateMachineProcessor* s);
 
         /**
-         * Install a new EventProcessor.
+         * Install a new MessageProcessor.
          * @param e becomes owned by this object and is returned in events().
          */
-        virtual void setEventProcessor(internal::EventProcessor* e);
+        virtual void setMessageProcessor(internal::MessageProcessor* e);
 
     };
 

@@ -54,7 +54,7 @@ namespace RTT {
         class ConnectionManager;
         class DispatchAction;
         class EventC;
-        class EventProcessor;
+        class MessageProcessor;
         class MethodC;
         class SignalBase;
         class SimpleConnID;

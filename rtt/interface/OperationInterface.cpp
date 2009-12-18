@@ -44,9 +44,6 @@ namespace RTT {
     {}
 
     OperationInterface::OperationInterface(ExecutionEngine* ee)
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-           :mevents( ee )
-#endif
     {}
 
     OperationInterface::~OperationInterface()

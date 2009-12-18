@@ -289,7 +289,7 @@ namespace RTT {
     void ParsedStateMachine::setTaskObject(StateMachineTask* tc) {
         object = tc;
         if (tc) {
-            this->eproc = tc->events()->getEventProcessor();
+            this->eproc = tc->engine();
             assert(this->eproc);
         }
     }

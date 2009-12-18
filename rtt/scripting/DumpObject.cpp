@@ -64,13 +64,6 @@ void DumpObject(OperationInterface* peer)
     }
     cerr << endl;
 
-    cerr << "Events: ";
-    objlist = peer->events()->getNames();
-    for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
-        cerr << *it <<" ";
-    }
-    cerr << endl;
-
     objlist = peer->getObjectList();
     cerr << "Objects: ";
     if ( !objlist.empty() ) {

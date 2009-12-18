@@ -40,8 +40,9 @@
 #define EVENT_HOOK_HPP
 
 
-#include "../Event.hpp"
+#include "Signal.hpp"
 #include "../base/ActivityInterface.hpp"
+#include "../internal/DataSource.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
@@ -66,19 +67,10 @@ namespace RTT{
                 mfunc = sfunc;
                 return msetupSyn();
             }
-
-            Handle setupAsyn(boost::function<void(void)> afunc, EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                mfunc = afunc;
-                return msetupAsyn(t, s_type);
-            }
-
         protected:
             boost::function<void(void)> mfunc;
 
             virtual Handle msetupSyn( ) = 0;
-
-            virtual Handle msetupAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) = 0;
-
         };
 
         template<typename EventT>
@@ -98,12 +90,6 @@ namespace RTT{
         protected:
             Handle msetupSyn( ) {
                 Handle h = msource->setup( boost::bind(&This::synop,boost::shared_ptr<This>(this)) );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this)), t, s_type );
                 //seh = 0;
                 return h;
             }
@@ -147,12 +133,6 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1), t, s_type );
-                //seh = 0;
-                return h;
-            }
-
             Ret synop(A1 arg1)
             {
                 // set the received args.
@@ -161,13 +141,6 @@ namespace RTT{
                 return Ret();
             }
 
-            Ret asynop(A1 arg1)
-            {
-                // set the received args.
-                ma1->set(arg1);
-                mfunc();
-                return Ret();
-            }
         };
 
         template<typename EventT>
@@ -199,20 +172,7 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t, EventProcessor::AsynStorageType s_type ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2), t, s_type );
-                return h;
-            }
-
             Ret synop(A1 arg1, A2 arg2)
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                mfunc();
-                return Ret();
-            }
-            Ret asynop(A1 arg1, A2 arg2)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -255,21 +215,7 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t, EventProcessor::AsynStorageType s_type ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t, s_type );
-                return h;
-            }
-
             Ret synop(A1 arg1, A2 arg2, A3 arg3)
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                ma3->set(arg3);
-                mfunc();
-                return Ret();
-            }
-            Ret asynop(A1 arg1, A2 arg2, A3 arg3)
             {
                 // set the received args.
                 ma1->set(arg1);

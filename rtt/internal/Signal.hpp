@@ -143,18 +143,19 @@ namespace RTT {
      */
     template<
         typename Signature,
-        typename SlotFunction = boost::function<Signature>
+        typename TSlotFunction = boost::function<Signature>
     >
     class Signal :
         public get_signal_impl<Signature,
-                                       SlotFunction>::type
+                                       TSlotFunction>::type
     {
     protected:
         typedef typename get_signal_impl< Signature,
-                                                  SlotFunction>::type base_type;
+                                                  TSlotFunction>::type base_type;
 
     public:
         Signal() {}
+        typedef TSlotFunction SlotFunction;
     };
 
     } // end namespace detail
