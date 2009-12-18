@@ -29,7 +29,7 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 
-#include <boost/function_types/function_type_signature.hpp>
+#include <boost/function_types/function_type.hpp>
 #include <Method.hpp>
 
 using namespace std;
