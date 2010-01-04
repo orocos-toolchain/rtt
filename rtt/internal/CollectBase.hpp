@@ -27,7 +27,7 @@ namespace RTT
          */
         template<class F>
         struct CollectBase
-            : public CollectBaseImpl< boost::function_traits<F>::arity, typename CollectType<F>::Ft >
+            : public CollectBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, typename CollectType<F>::Ft >
         {};
 
         template<class Ft>
@@ -61,6 +61,8 @@ namespace RTT
              * @return
              */
             virtual SendStatus collect(arg1_type a1) = 0;
+
+            virtual SendStatus collectIfDone(arg1_type a1) = 0;
         };
 
         template<class Ft>
@@ -75,12 +77,14 @@ namespace RTT
              * @return
              */
             virtual SendStatus collect() = 0;
+            virtual SendStatus collectIfDone() = 0;
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
              * @return
              */
             virtual SendStatus collect(arg1_type a1, arg2_type a2) = 0;
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2) = 0;
         };
 
         template<class Ft>

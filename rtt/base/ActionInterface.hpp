@@ -50,7 +50,7 @@
 namespace RTT { namespace base {
 
     /**
-     * @brief Based on the software pattern 'action', this
+     * @brief Based on the software pattern 'command', this
      * interface allows execution of action objects.
      *
      * The action may return true or false to indicate

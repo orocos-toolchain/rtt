@@ -40,6 +40,8 @@
 #define ORO_INVOKER_SIGNATURE_HPP
 
 #include <boost/type_traits.hpp>
+#include "../SendHandle.hpp"
+#include "CollectSignature.hpp"
 #include "NA.hpp"
 
 namespace RTT
@@ -57,6 +59,7 @@ namespace RTT
 
         template<class F, class ToInvoke>
         struct InvokerSignature<0,F,ToInvoke>
+            : public CollectSignature< boost::function_traits<typename CollectType<F>::type>::arity, typename CollectType<F>::type, ToInvoke >
         {
             typedef typename boost::function_traits<F>::result_type result_type;
 
@@ -70,8 +73,19 @@ namespace RTT
             result_type operator()()
             {
                 if (impl)
-                    return (*impl)();
+                    return impl->call();
                 return NA<result_type>::na();
+            }
+
+            result_type call() {
+                return operator()();
+            }
+
+            SendHandle<F> send()
+            {
+                if (impl)
+                    return impl->send();
+                return SendFailure;
             }
         protected:
             ToInvoke impl;
@@ -79,6 +93,7 @@ namespace RTT
 
         template<class F, class ToInvoke>
         struct InvokerSignature<1,F,ToInvoke>
+            : public CollectSignature< boost::function_traits<typename CollectType<F>::type>::arity, typename CollectType<F>::type, ToInvoke >
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -93,8 +108,18 @@ namespace RTT
             result_type operator()(arg1_type a1)
             {
                 if (impl)
-                    return (*impl)( a1 );
+                    return impl->call( a1 );
                 return NA<result_type>::na();
+            }
+            result_type call(arg1_type a1) {
+                return operator()(a1);
+            }
+
+            SendHandle<F> send(arg1_type a1)
+            {
+                if (impl)
+                    return impl->send(a1);
+                return SendFailure;
             }
         protected:
             ToInvoke impl;
@@ -102,6 +127,7 @@ namespace RTT
 
         template<class F, class ToInvoke>
         struct InvokerSignature<2,F,ToInvoke>
+            : public CollectSignature< boost::function_traits<typename CollectType<F>::type>::arity, typename CollectType<F>::type, ToInvoke >
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -117,16 +143,27 @@ namespace RTT
             result_type operator()(arg1_type t1, arg2_type t2)
             {
                 if (impl)
-                    return (*impl)(t1, t2);
+                    return impl->call(t1, t2);
                 return NA<result_type>::na();
             }
 
+            result_type call(arg1_type a1, arg2_type a2) {
+                return operator()(a1,a2);
+            }
+
+            SendHandle<F> send(arg1_type a1, arg2_type a2)
+            {
+                if (impl)
+                    return impl->send(a1,a2);
+                return SendFailure;
+            }
         protected:
             ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
         struct InvokerSignature<3,F,ToInvoke>
+        : public CollectSignature<boost::function_traits<typename CollectType<F>::type>::arity, typename CollectType<F>::type, ToInvoke >
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -143,16 +180,27 @@ namespace RTT
             result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3)
             {
                 if (impl)
-                    return (*impl)(t1, t2, t3);
+                    return impl->call(t1, t2, t3);
                 return NA<result_type>::na();
             }
 
+            result_type call(arg1_type a1, arg2_type a2, arg3_type a3) {
+                return operator()(a1,a2,a3);
+            }
+
+            SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3)
+            {
+                if (impl)
+                    return impl->send(a1,a2,a3);
+                return SendFailure;
+            }
         protected:
             ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
         struct InvokerSignature<4,F,ToInvoke>
+            : public CollectSignature<boost::function_traits<typename CollectType<F>::type>::arity, typename CollectType<F>::type, ToInvoke >
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -170,8 +218,19 @@ namespace RTT
             result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
                 if (impl)
-                    return (*impl)(t1, t2, t3, t4);
+                    return impl->call(t1, t2, t3, t4);
                 return NA<result_type>::na();
+            }
+
+            result_type call(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
+                return operator()(a1,a2,a3,a4);
+            }
+
+            SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
+            {
+                if (impl)
+                    return impl->send(a1,a2,a3,a4);
+                return SendFailure;
             }
 
         protected:

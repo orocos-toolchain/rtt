@@ -107,7 +107,7 @@ namespace RTT
              */
             template<class F>
             void store(F f) {
-              arg = f();
+              //arg = f();
             }
 
             /**
@@ -269,7 +269,7 @@ namespace RTT
             mutable RStore<result_type> ret;
 
             void store(arg1_type t1) { a1(t1); }
-            void exec() { ret.store( boost::bind(comm, boost::ref(a1()) ) ); }
+            void exec() { /*ret.store( boost::bind(comm, boost::ref(a1()) ) );*/ }
             void collect() { ret.collect( coll, a1() ) ; }
 
             /**

@@ -8,6 +8,7 @@ namespace RTT
         /**
          * @brief An object that is executable and
          * is freed after execution.
+         * @todo: rename to DisposableInterface ?
          */
         class ExecutableInterface
         {
@@ -24,6 +25,7 @@ namespace RTT
              * Execute functionality and free this object.
              * You may no longer
              * use this object after calling this method.
+             * @todo rename to executeAndDispose() ?
              */
             virtual void execute() = 0;
 

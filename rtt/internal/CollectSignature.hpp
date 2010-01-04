@@ -55,6 +55,133 @@ namespace RTT
             typedef Ft type;
         };
 
+        /**
+         * Used to implement collect(), given a Function Signature.
+         * @param int The number of arguments of collect.
+         * @param Signature The C-style function signature (function type).
+         * @param ToCollect A class type which is called within collect.
+         */
+        template<int, class Signature, class ToCollect>
+        struct CollectSignature;
+
+        template<class F, class ToCollect>
+        struct CollectSignature<0,F,ToCollect>
+        {
+            CollectSignature() : impl() {}
+            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            ~CollectSignature() {}
+
+            /**
+             * Collect this operator if the method has no arguments.
+             */
+            SendStatus collect()
+            {
+                if (impl)
+                    return impl->collect();
+                return SendFailure;
+            }
+        protected:
+            ToCollect impl;
+        };
+
+        template<class F, class ToCollect>
+        struct CollectSignature<1,F,ToCollect>
+        {
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+
+            CollectSignature() : impl() {}
+            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            ~CollectSignature() {}
+
+            /**
+             * Collect this operator if the method has one argument.
+             */
+            SendStatus collect(arg1_type a1)
+            {
+                if (impl)
+                    return impl->collect( a1 );
+                return SendFailure;
+            }
+        protected:
+            ToCollect impl;
+        };
+
+        template<class F, class ToCollect>
+        struct CollectSignature<2,F,ToCollect>
+        {
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+
+            CollectSignature() : impl() {}
+            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            ~CollectSignature() {}
+
+            /**
+             * Collect this operator if the method has two arguments.
+             */
+            SendStatus collect(arg1_type t1, arg2_type t2)
+            {
+                if (impl)
+                    return impl->collect(t1, t2);
+                return SendFailure;
+            }
+
+        protected:
+            ToCollect impl;
+        };
+
+        template<class F, class ToCollect>
+        struct CollectSignature<3,F,ToCollect>
+        {
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+
+            CollectSignature() : impl() {}
+            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            ~CollectSignature() { }
+
+            /**
+             * Collect this operator if the method has three arguments.
+             */
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3)
+            {
+                if (impl)
+                    return impl->collect(t1, t2, t3);
+                return SendFailure;
+            }
+
+        protected:
+            ToCollect impl;
+        };
+
+        template<class F, class ToCollect>
+        struct CollectSignature<4,F,ToCollect>
+        {
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+
+            CollectSignature() : impl() {}
+            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            ~CollectSignature() { }
+
+            /**
+             * Collect this operator if the method has four arguments.
+             */
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            {
+                if (impl)
+                    return impl->collect(t1, t2, t3, t4);
+                return SendFailure;
+            }
+
+        protected:
+            ToCollect impl;
+        };
+
+
     }
 }
 #endif

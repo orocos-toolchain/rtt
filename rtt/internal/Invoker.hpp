@@ -72,24 +72,15 @@ namespace RTT
              */
             result_type call()
             {
-                return BaseImpl::call();
+                //return BaseImpl::call_impl();
             }
 
-            SendStatus send()
+            SendHandle<F> send()
             {
-                return BaseImpl::send();
+                return BaseImpl::send_impl();
             }
 
-            SendStatus collect()
-            {
-                return BaseImpl::collect();
-            }
-
-            SendStatus collectIfDone()
-            {
-                return BaseImpl::collectIfDone();
-            }
-};
+        };
 
         template<class F, class BaseImpl>
         struct InvokerImpl<1,F,BaseImpl>
@@ -102,7 +93,11 @@ namespace RTT
              */
             result_type call(arg1_type a1)
             {
-                return BaseImpl::template invoke<arg1_type>( a1 );
+                //return BaseImpl::template call_impl<arg1_type>( a1 );
+            }
+            SendHandle<F> send(arg1_type a1)
+            {
+                //return BaseImpl::template send_impl<arg1_type>( a1 );
             }
         };
 
@@ -119,9 +114,13 @@ namespace RTT
              */
             result_type call(arg1_type t1, arg2_type t2)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type>(t1, t2);
+                //return BaseImpl::template call_impl<arg1_type, arg2_type>(t1, t2);
             }
 
+            SendHandle<F> send(arg1_type t1, arg2_type t2)
+            {
+                //return BaseImpl::template send_impl<arg1_type, arg2_type>(t1, t2);
+            }
         };
 
         template<class F, class BaseImpl>
@@ -138,7 +137,7 @@ namespace RTT
              */
             result_type call(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+                //return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
             }
 
         };
@@ -158,7 +157,7 @@ namespace RTT
              */
             result_type call(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
-                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+                //return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
             }
 
         };

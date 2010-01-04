@@ -2,20 +2,19 @@
 #define ORO_CORELIB_SEND_HANDLE_HPP
 
 #include "rtt-config.h"
-#include "internal/Collect.hpp"
+#include "internal/CollectSignature.hpp"
+#include "internal/CollectBase.hpp"
+#include <boost/type_traits.hpp>
 
 namespace RTT
 {
-    template<int, class S>
-    class SendHandleImpl;
-
     /**
      * @brief The SendHandle is used to collect the result values
      * of an asynchronous invocation.
      */
     template<class Signature>
 	class SendHandle
-        :public SendHandleImpl<internal::CollectBase<Signature> >
+        : public internal::CollectSignature<boost::function_traits<Signature>::arity, Signature, internal::CollectBase<Signature>* >
 	{
 	private:
 		typedef internal::CollectBase<Signature>*      collector_t; //! the collection object
@@ -36,7 +35,7 @@ namespace RTT
          * No-op destructor, does not change signal/slot state.
          */
 		~SendHandle() {
-		    m_coll->dispose();
+		    //m_coll->dispose();
 		}
 
         /**

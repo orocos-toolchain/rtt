@@ -18,27 +18,24 @@ namespace RTT
          */
         template<class F, class BaseImpl>
         struct Collect
-            : public CollectImpl< boost::function_traits<F>::arity, typename CollectType<F>::Ft, BaseImpl >
-        {};
+            : public CollectImpl< boost::function_traits< typename CollectType<F>::Ft >::arity, typename CollectType<F>::Ft, BaseImpl >
+        {
+                SendStatus collect()
+                {
+                    return BaseImpl::collect_impl();
+                }
+
+                SendStatus collectIfDone()
+                {
+                    return BaseImpl::collectIfDone_impl();
+                }
+        };
 
         template<class Ft, class BaseImpl>
         struct CollectImpl<0,Ft,BaseImpl>
             : public BaseImpl
         {
             virtual ~CollectImpl() {}
-
-            /**
-             * Collect a void(void) F
-             * @return
-             */
-            virtual SendStatus collect()
-            {
-
-            }
-            virtual SendStatus collectIfDone()
-            {
-
-            }
         };
 
         template<class Ft, class BaseImpl>
@@ -52,13 +49,23 @@ namespace RTT
              * Collect F without returning the results.
              * @return
              */
-            virtual SendStatus collect() = 0;
+            virtual SendStatus collect()
+            {
+                return SendFailure;
+            }
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
              * @return
              */
-            virtual SendStatus collect(arg1_type a1) = 0;
+            virtual SendStatus collect(arg1_type a1)
+            {
+                return SendFailure;
+            }
+            virtual SendStatus collectIfDone(arg1_type a1)
+            {
+                return SendFailure;
+            }
         };
 
         template<class Ft, class BaseImpl>
@@ -73,13 +80,23 @@ namespace RTT
              * Collect F without returning the results.
              * @return
              */
-            virtual SendStatus collect() = 0;
+            virtual SendStatus collect()
+            {
+                return SendFailure;
+            }
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
              * @return
              */
-            virtual SendStatus collect(arg1_type a1, arg2_type a2) = 0;
+            virtual SendStatus collect(arg1_type a1, arg2_type a2)
+            {
+                return SendFailure;
+            }
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2)
+            {
+                return SendFailure;
+            }
         };
 
         template<class Ft, class BaseImpl>
@@ -95,13 +112,23 @@ namespace RTT
              * Collect F without returning the results.
              * @return
              */
-            virtual SendStatus collect() = 0;
+            virtual SendStatus collect()
+            {
+                return SendFailure;
+            }
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
              * @return
              */
-            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3)
+            {
+                return SendFailure;
+            }
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3)
+            {
+                return SendFailure;
+            }
         };
 
     }

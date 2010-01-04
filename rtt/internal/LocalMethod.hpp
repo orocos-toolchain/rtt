@@ -46,6 +46,7 @@
 #include "BindStorage.hpp"
 #include "MessageProcessor.hpp"
 #include "../SendStatus.hpp"
+#include "../SendHandle.hpp"
 
 namespace RTT
 {
@@ -88,44 +89,47 @@ namespace RTT
 
             MessageProcessor* getMessageProcessor() const { return mcp; }
 
-            SendStatus coll_impl() {
-                this->coll();
+            SendStatus collect_impl() {
+                return SendFailure;
+            }
+
+            SendStatus collectIfDone_impl() {
                 return SendFailure;
             }
 
             // We need a handle object !
-            SendStatus send_impl() {
+            SendHandle<Signature> send_impl() {
                 assert(mcp);
-                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1>
-            SendStatus send_impl( T1 a1 ) {
+            SendHandle<Signature> send_impl( T1 a1 ) {
                 assert(mcp);
                 // bind types from Storage<Function>
                 this->store( a1 );
-                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2>
-            SendStatus send_impl( T1 a1, T2 a2 ) {
+            SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2 );
-                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3>
-            SendStatus send_impl( T1 a1, T2 a2, T3 a3 ) {
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3 );
-                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3, class T4>
-            SendStatus send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3, a4 );
-                return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
 #if 0

@@ -39,8 +39,8 @@ namespace RTT
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::result_type result_reference;
             virtual ~InvokerBaseImpl() {}
-            virtual SendHandle send() = 0;
-            result_type operator()() = 0;
+            virtual SendHandle<F> send() = 0;
+            virtual result_type call() = 0;
         };
 
         template<class F>
@@ -50,7 +50,8 @@ namespace RTT
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function<F>::arg1_type arg1_type;
             virtual ~InvokerBaseImpl() {}
-            virtual result_type operator()(arg1_type a1) = 0;
+            virtual result_type call(arg1_type a1) = 0;
+            virtual SendHandle<F> send(arg1_type a1) = 0;
         };
 
         template<class F>
@@ -61,7 +62,8 @@ namespace RTT
             typedef typename boost::function<F>::arg1_type arg1_type;
             typedef typename boost::function<F>::arg2_type arg2_type;
             virtual ~InvokerBaseImpl() {}
-            virtual result_type operator()(arg1_type a1, arg2_type a2) = 0;
+            virtual result_type call(arg1_type a1, arg2_type a2) = 0;
+            virtual SendHandle<F> send(arg1_type a1, arg2_type a2) = 0;
         };
 
         template<class F>

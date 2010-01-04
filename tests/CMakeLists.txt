@@ -245,7 +245,7 @@ IF (BUILD_TESTING)
       
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
 
-    ADD_UNIT_TEST(operation_test EXTRA_TESTS ${TEST_LIBRARIES})
+    ADD_UNIT_TEST(method_test EXTRA_TESTS ${TEST_LIBRARIES})
 
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test taskcontext-test parser-test dev-test specactivities-test ${ORO_EXTRA_TESTS} #program-test state-test 
