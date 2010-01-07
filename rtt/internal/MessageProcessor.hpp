@@ -4,7 +4,7 @@
 #define ORO_MESSAGE_PROCESSOR_HPP
 
 #include "../base/RunnableInterface.hpp"
-#include "../base/ExecutableInterface.hpp"
+#include "../base/DisposableInterface.hpp"
 
 #include <string>
 #include <vector>
@@ -50,7 +50,7 @@ namespace internal {
          * @return false when the MessageProcessor is not running or does not accept messages.
          * @see acceptMessages
          */
-        virtual bool process(base::ExecutableInterface* c);
+        virtual bool process(base::DisposableInterface* c);
 
         /**
          * Should the MessageProcessor accept or reject messages in \a process().
@@ -60,7 +60,7 @@ namespace internal {
 
     protected:
 
-        AtomicQueue<base::ExecutableInterface*,base::NonBlockingPolicy,base::NonBlockingPolicy>* a_queue;
+        AtomicQueue<base::DisposableInterface*,base::NonBlockingPolicy,base::NonBlockingPolicy>* a_queue;
 
         bool accept;
     };

@@ -55,7 +55,7 @@ namespace RTT
          */
         template<class ToBind>
         struct MessageStorageImpl<0, ToBind>
-            : public ExecutableInterface
+            : public DisposableInterface
         {
             typedef bool result_type;
 
@@ -88,7 +88,7 @@ namespace RTT
          */
         template<class ToBind>
         struct MessageStorageImpl<1, ToBind>
-            : public ExecutableInterface
+            : public DisposableInterface
         {
             typedef void result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -127,7 +127,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<2, ToBind>
-        : public ExecutableInterface
+        : public DisposableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -165,7 +165,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<3, ToBind>
-        : public ExecutableInterface
+        : public DisposableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -193,7 +193,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<4, ToBind>
-            : public ExecutableInterface
+            : public DisposableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;

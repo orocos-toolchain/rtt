@@ -8,26 +8,24 @@ namespace RTT
         /**
          * @brief An object that is executable and
          * is freed after execution.
-         * @todo: rename to DisposableInterface ?
          */
-        class ExecutableInterface
+        class DisposableInterface
         {
         public:
             /**
              * Use this type for shared pointer storage of an
-             * ExecutableInterface object.
+             * DisposableInterface object.
              */
-            typedef boost::shared_ptr<ExecutableInterface> shared_ptr;
+            typedef boost::shared_ptr<DisposableInterface> shared_ptr;
 
-            virtual ~ExecutableInterface() {}
+            virtual ~DisposableInterface() {}
 
             /**
              * Execute functionality and free this object.
              * You may no longer
              * use this object after calling this method.
-             * @todo rename to executeAndDispose() ?
              */
-            virtual void execute() = 0;
+            virtual void executeAndDispose() = 0;
 
             /**
              * Just free this object without executing it.

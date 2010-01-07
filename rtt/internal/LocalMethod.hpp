@@ -83,7 +83,7 @@ namespace RTT
             typedef typename boost::function_traits<Signature>::result_type result_reference;
             typedef boost::function_traits<Signature> traits;
 
-            void execute() {
+            void executeAndDispose() {
                 if (!this->ret) {
                     this->exec(); // calls BindStorage.
                     if (sender){

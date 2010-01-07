@@ -44,7 +44,7 @@
 #include "internal/UnMember.hpp"
 #include "base/MethodBase.hpp"
 #include "internal/LocalMethod.hpp"
-#include "base/ExecutableInterface.hpp"
+#include "base/DisposableInterface.hpp"
 #include "internal/InvokerSignature.hpp"
 #include "Logger.hpp"
 
@@ -134,7 +134,7 @@ namespace RTT
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
          */
-        Method(boost::shared_ptr<base::ExecutableInterface> implementation)
+        Method(boost::shared_ptr<base::DisposableInterface> implementation)
             : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) ),
               mname()
         {
@@ -151,7 +151,7 @@ namespace RTT
          *
          * @return *this
          */
-        Method& operator=(boost::shared_ptr<base::ExecutableInterface> implementation)
+        Method& operator=(boost::shared_ptr<base::DisposableInterface> implementation)
         {
             if (this->impl && this->impl == implementation)
                 return *this;

@@ -40,7 +40,7 @@
 #define ORO_METHOD_BASE_HPP
 
 #include "../internal/Invoker.hpp"
-#include "ExecutableInterface.hpp"
+#include "DisposableInterface.hpp"
 
 namespace RTT
 {
@@ -53,7 +53,7 @@ namespace RTT
         template<class F>
         struct MethodBase
             : public internal::InvokerBase<F>,
-              public ExecutableInterface
+              public DisposableInterface
         {
             virtual ~MethodBase() {}
             virtual MethodBase<F>* cloneI() const = 0;

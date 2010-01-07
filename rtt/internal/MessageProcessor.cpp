@@ -9,7 +9,7 @@ namespace RTT
     using namespace detail;
 
     MessageProcessor::MessageProcessor(int queue_size)
-        :a_queue( new AtomicQueue<ExecutableInterface*>(queue_size) ),
+        :a_queue( new AtomicQueue<DisposableInterface*>(queue_size) ),
          accept(false)
     {
     }
@@ -34,10 +34,10 @@ namespace RTT
 	void MessageProcessor::step()
     {
         // execute one command from the AtomicQueue.
-        ExecutableInterface* com(0);
+        DisposableInterface* com(0);
         while ( !a_queue->isEmpty() ) {
             a_queue->dequeue( com );
-            com->execute();
+            com->executeAndDispose();
         }
     }
 
@@ -46,7 +46,7 @@ namespace RTT
         return ! a_queue->isEmpty();
     }
 
-    bool MessageProcessor::process( ExecutableInterface* c )
+    bool MessageProcessor::process( DisposableInterface* c )
     {
         if (accept && c) {
             bool result = a_queue->enqueue( c );
