@@ -44,9 +44,9 @@
 #include "Invoker.hpp"
 #include "../base/MethodBase.hpp"
 #include "BindStorage.hpp"
-#include "MessageProcessor.hpp"
 #include "../SendStatus.hpp"
 #include "../SendHandle.hpp"
+#include "../ExecutionEngine.hpp"
 
 namespace RTT
 {
@@ -72,12 +72,12 @@ namespace RTT
         {
         protected:
             boost::function<FunctionT> mmeth;
-            MessageProcessor* mcp;
-            ExecutionEngine* sender;
+            ExecutionEngine* myengine;
+            ExecutionEngine* caller;
             typedef BindStorage<FunctionT> Store;
 
         public:
-            LocalMethodImpl() : mcp(0), sender(0) {}
+            LocalMethodImpl() : myengine(0), caller(0) {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
@@ -86,12 +86,14 @@ namespace RTT
             void executeAndDispose() {
                 if (!this->ret) {
                     this->exec(); // calls BindStorage.
-                    if (sender){
-                        //sender->messages()->process(this);
+                    if (caller){
+                        caller->process(this);
                     }
                 } else {
-                    // Already executed, are in sender.
+                    // Already executed, are in caller.
                     // nop, we will check ret in collect()
+                    // This is the place to call call-back functions,
+                    // since we're in the caller's (or proxy's) EE.
                 }
                 return;
             }
@@ -99,45 +101,57 @@ namespace RTT
             void dispose() {
             }
 
-            MessageProcessor* getMessageProcessor() const { return mcp; }
+            ExecutionEngine* getMessageProcessor() const { return myengine; }
 
             // We need a handle object !
             SendHandle<Signature> send_impl() {
-                assert(mcp);
-                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                assert(myengine);
+                base::MethodBase<Signature>* cl = this->cloneI();
+                if ( myengine->process( cl ) )
+                    return SendHandle<Signature>( cl );
+                else {
+                    delete cl;
+                    return SendHandle<Signature>();
+                }
             }
 
             template<class T1>
             SendHandle<Signature> send_impl( T1 a1 ) {
-                assert(mcp);
+                assert(myengine);
                 // bind types from Storage<Function>
                 this->store( a1 );
-                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                return send_impl();
             }
 
             template<class T1, class T2>
             SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2 );
-                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                return send_impl();
+                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3 );
-                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                return send_impl();
+                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3, a4 );
-                //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
+                return send_impl();
+                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
             SendStatus collectIfDone_impl() {
-                return SendNotReady;
+                if ( this->ret ) {
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
             }
 
             // collect_impl belongs in LocalMethodImpl because it would need
@@ -173,10 +187,22 @@ namespace RTT
             }
 
             SendStatus collect_impl() {
+                /*
+                while( this->ret == false ) {
+                    myengine->waitForMessages();
+                }
+                return this->collectIfDone_impl();
+                 */
                 return SendNotReady;
             }
             template<class T1>
             SendStatus collect_impl( T1 a1 ) {
+                /*
+                while( this->ret == false ) {
+                    myengine->waitForMessages();
+                }
+                return this->collectIfDone_impl(a1);
+                 */
                 return SendNotReady;
             }
 
@@ -197,7 +223,7 @@ namespace RTT
             {
                 // if component or 3rd party thread, use that one, otherwise,
                 // just execute the method. NOTE: we will use a different class for each case.
-                if ( mcp ) {
+                if ( myengine ) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )
                         return ret_impl();
@@ -215,7 +241,7 @@ namespace RTT
             result_type call_impl(T1 a1)
             {
                 SendHandle<Signature> h;
-                if ( mcp ) {
+                if ( myengine ) {
                     h = send_impl(a1);
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
@@ -231,7 +257,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2)
             {
                 SendHandle<Signature> h;
-                if ( mcp ) {
+                if ( myengine ) {
                     h = send_impl(a1,a2);
                     if ( h.collect() == SendSuccess )
                         return ret_impl(a1,a2);
@@ -245,7 +271,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3)
             {
                 SendHandle<Signature> h;
-                if ( mcp ) {
+                if ( myengine ) {
                     h = send_impl(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
                         return ret_impl(a1,a2,a3);

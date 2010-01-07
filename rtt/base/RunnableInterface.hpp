@@ -97,13 +97,13 @@ namespace RTT
 
         /**
          * The method that will be periodically executed when this
-         * class RTT_API is run in a periodic thread.
+         * class is run in a periodic thread.
          */
         virtual void step() = 0;
 
         /**
          * The method that will be executed once when this
-         * class RTT_API is run in a non periodic thread. The default
+         * class is run in a non periodic thread. The default
          * implementation calls step() once.
          */
         virtual void loop();

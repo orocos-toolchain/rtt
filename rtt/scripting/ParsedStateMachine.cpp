@@ -181,7 +181,9 @@ namespace RTT {
 
     ParsedStateMachine::~ParsedStateMachine() {
         this->smStatus = Status::unloaded;
-        this->handleUnload();
+        if ( this->isLoaded() ){
+            getEngine()->removeFunction(this);
+        }
 
         // we own our states...
         for ( TransitionMap::iterator i = stateMap.begin();
@@ -206,8 +208,9 @@ namespace RTT {
         _text.reset( new string("No Text Set.") );
     }
 
-    void ParsedStateMachine::handleUnload()
+    void ParsedStateMachine::unloading()
     {
+        StateMachine::unloading();
         // just kill off the interface.
         if ( object == 0)
             return;

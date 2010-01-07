@@ -41,6 +41,7 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include "CommandNOP.hpp"
+#include "../rtt-config.h"
 #include "../base/AttributeBase.hpp"
 #include "../base/ProgramInterface.hpp"
 
@@ -111,8 +112,6 @@ namespace RTT
         bool executeUntil();
         bool executeStep();
 
-        virtual void handleUnload();
-
         internal::TaskObject* context;
     public:
         /**
@@ -137,6 +136,8 @@ namespace RTT
         virtual bool start();
 
         virtual bool execute();
+
+        virtual void unloading();
 
         virtual bool stop();
 

@@ -42,7 +42,7 @@ using namespace RTT;
 using namespace detail;
 
 CommandExecFunction::CommandExecFunction( base::ActionInterface* init_com,
-		                                  boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p,
+		                                  boost::shared_ptr<base::ProgramInterface> foo, ExecutionEngine* p,
 									      internal::AssignableDataSource<base::ProgramInterface*>* v,
 									      internal::AssignableDataSource<bool>* a )
 : minit(init_com),
@@ -54,8 +54,8 @@ _foo( foo ), isqueued(false), maccept( a ? a : new internal::UnboundDataSource<i
 
 CommandExecFunction::~CommandExecFunction() {
 	if ( _foo->isRunning() ) {
-		log(Warning) << "Stopping Function running in ProgramProcessor !" << endlog();
+		log(Warning) << "Stopping Function running in ExecutionEngine !" << endlog();
 	}
-	if ( _foo->getProgramProcessor() != 0 ) // ie if _foo->isLoaded().
+	if ( _foo->isLoaded() ) // ie if _foo->isLoaded().
 		_proc->removeFunction( _foo.get() );
 }

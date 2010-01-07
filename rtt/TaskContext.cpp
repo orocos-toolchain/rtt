@@ -50,10 +50,6 @@
 #include "Method.hpp"
 
 #include "rtt-config.h"
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "scripting/ParserScriptingAccess.hpp"
-#include "scripting/ParserExecutionAccess.hpp"
-#endif
 #include "interface/MarshallingAccess.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
@@ -71,17 +67,6 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore(name, initial_state)
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           ,mscriptAcc(new ParserScriptingAccess(this))
-#else
-           ,mscriptAcc(new ScriptingAccess(this))
-#endif
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           ,mengAcc( new ParserExecutionAccess(this ) )
-#else
-           ,mengAcc( new ExecutionAccess(this ) )
-#endif
-           ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
@@ -94,17 +79,6 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
         :  TaskCore(name, parent, initial_state)
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           ,mscriptAcc(new ParserScriptingAccess(this))
-#else
-           ,mscriptAcc(new ScriptingAccess(this))
-#endif
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           ,mengAcc( new ParserExecutionAccess(this ) )
-#else
-           ,mengAcc( new ExecutionAccess(this ) )
-#endif
-           ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
@@ -191,10 +165,6 @@ namespace RTT
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
             mattributes.clear();
-
-            delete mscriptAcc;
-            delete mengAcc;
-            delete marshAcc;
 
             // remove from all users.
             while( !musers.empty() ) {

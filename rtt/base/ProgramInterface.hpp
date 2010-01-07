@@ -42,7 +42,9 @@
 #include <vector>
 #include "DataSourceBase.hpp"
 #include "AttributeBase.hpp"
+#include "ExecutableInterface.hpp"
 #include <boost/shared_ptr.hpp>
+#include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "../scripting/rtt-scripting-fwd.hpp"
 
@@ -56,6 +58,7 @@ namespace RTT
 	 * instructions that can be stepwise executed.
 	 */
 	class RTT_API ProgramInterface
+        : public ExecutableInterface
 	{
     public:
         /**
@@ -65,25 +68,20 @@ namespace RTT
             /**
              * Enumerates the statuses of a ProgramInterface.
              */
-            enum ProgramStatus { stopped, //! The program is loaded in a scripting::ProgramProcessor but not running.
-                                 running, //! The program is running.
-                                 paused,  //! The program was running but is now paused.
-                                 error,   //! The program was running but has encountered an error.
-                                 unloaded //! This program is currently not loaded in a ProgramProcessor.
+            enum ProgramStatus {
+                unknown = 0, //! This program is currently not loaded in an ExecutionEngine.
+                stopped, //! The program is not running.
+                paused,  //! The program was running but is now paused.
+                running, //! The program is running.
+                error    //! The program was running but has encountered an error.
             };
         };
     protected:
         Status::ProgramStatus pStatus;
-        scripting::ProgramProcessor* pp;
-        virtual void handleUnload();
     public:
-        ProgramInterface(scripting::ProgramProcessor* progp = 0);
+        ProgramInterface();
 
         virtual ~ProgramInterface();
-
-        void setProgramProcessor(scripting::ProgramProcessor* progp);
-
-        scripting::ProgramProcessor* getProgramProcessor() const { return pp; }
 
         /**
          * Start the execution of this program.
@@ -131,7 +129,7 @@ namespace RTT
         /**
          * Returns true if the program is not executing (stopped) or not loaded.
          */
-        inline bool isStopped() const { return pStatus == Status::stopped || pStatus == Status::unloaded ; }
+        inline bool isStopped() const { return pStatus == Status::stopped; }
 
         /**
          * Returns true if the program is in error.

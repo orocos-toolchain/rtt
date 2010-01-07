@@ -56,7 +56,7 @@ namespace RTT
     {
         typedef std::map<std::string, base::AttributeBase*> VisibleWritableValuesMap;
     protected:
-        virtual void handleUnload();
+        virtual void unloading();
     public:
         ParsedStateMachine();
         virtual ~ParsedStateMachine();

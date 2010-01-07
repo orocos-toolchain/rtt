@@ -39,18 +39,11 @@
 #ifndef ORO_TASK_CONTEXT_HPP
 #define ORO_TASK_CONTEXT_HPP
 
-#include "interface/AttributeRepository.hpp"
 
 #include "rtt-config.h"
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "interface/EventService.hpp"
-#endif
-
+#include "interface/AttributeRepository.hpp"
 #include "interface/DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
-#include "scripting/ScriptingAccess.hpp"
-#include "interface/ExecutionAccess.hpp"
-#include "interface/MarshallingAccess.hpp"
 #include "base/TaskCore.hpp"
 #include "PropertyBag.hpp"
 
@@ -298,66 +291,6 @@ namespace RTT
 
     public:
         /**
-         * Get access to high level controls for
-         * programs, state machines and scripting
-         * statements.
-         */
-        scripting::ScriptingAccess* scripting()
-        {
-            return mscriptAcc;
-        }
-
-        /**
-         * Get access to high level controls for
-         * programs, state machines and scripting
-         * statements.
-         */
-        const scripting::ScriptingAccess* scripting() const
-        {
-            return mscriptAcc;
-        }
-
-        /**
-         * Get access to high level controls for
-         * controlling programs and state machines.
-         * It is the implementation of the 'engine'
-         * TaskObject.
-         */
-        interface::ExecutionAccess* execution()
-        {
-            return mengAcc;
-        }
-
-        /**
-         * Get access to high level controls for
-         * controlling programs and state machines.
-         * It is the implementation of the 'engine'
-         * TaskObject.
-         */
-        const interface::ExecutionAccess* execution() const
-        {
-            return mengAcc;
-        }
-
-        /**
-         * Get access to high level controls for
-         * (de)serializing properties to/from an XML format.
-         */
-        interface::MarshallingAccess* marshalling()
-        {
-            return marshAcc;
-        }
-
-        /**
-         * Get access to high level controls for
-         * (de)serializing properties to/from an XML format.
-         */
-        const interface::MarshallingAccess* marshalling() const
-        {
-            return marshAcc;
-        }
-
-        /**
          * The properties of this TaskContext.
          */
         PropertyBag* properties() {
@@ -400,12 +333,6 @@ namespace RTT
         Users         musers;
         /// the TaskObjects.
         Objects mobjects;
-
-        scripting::ScriptingAccess* mscriptAcc;
-
-        interface::ExecutionAccess* mengAcc;
-
-        interface::MarshallingAccess* marshAcc;
 
         /**
          * Inform this TaskContext that \a user is using

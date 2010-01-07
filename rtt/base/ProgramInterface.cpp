@@ -43,21 +43,9 @@
 namespace RTT {
     using namespace detail;
 
-
-    void ProgramInterface::handleUnload() {}
-
-    ProgramInterface::ProgramInterface(ProgramProcessor* progp/* = 0*/) : pStatus(Status::unloaded), pp(progp) {}
+    ProgramInterface::ProgramInterface() : pStatus(Status::stopped) {}
 
     ProgramInterface::~ProgramInterface()
     {}
 
-    void ProgramInterface::setProgramProcessor(ProgramProcessor* progp) {
-        pp = progp;
-        if (pp) {
-            pStatus = Status::stopped;
-        }else {
-            // preserve current pStatus for client reference.
-            this->handleUnload();
-        }
-    }
 }

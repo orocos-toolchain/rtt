@@ -166,15 +166,38 @@ namespace RTT {
     }
 
     bool TaskCore::start() {
-        return this->engine()->start();
+        if ( mTaskState < Running ) {
+            if ( startHook() ) {
+                mTaskState = Running;
+                return true;
+            } else {
+                mTaskState = Stopped;
+                return false;
+            }
+        }
+        return false;
     }
 
     bool TaskCore::stop() {
-        return this->engine()->stop();
+        if ( mTaskState >= Active ) {
+            stopHook();
+            mTaskState = Stopped;
+            return true;
+        }
+        return false;
     }
 
     bool TaskCore::activate() {
-        return this->engine()->activate();
+        if ( mTaskState < Active ) {
+            if ( activateHook() ) {
+                mTaskState = Active;
+                return true;
+            } else {
+                mTaskState = Stopped;
+                return false;
+            }
+        }
+        return false;
     }
 
     void TaskCore::cleanupHook() {

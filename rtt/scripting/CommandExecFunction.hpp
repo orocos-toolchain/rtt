@@ -43,9 +43,9 @@
 #include "../base/ActionInterface.hpp"
 #include "../internal/DataSources.hpp"
 #include "../base/ProgramInterface.hpp"
-#include "ProgramProcessor.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "../internal/DataSource.hpp"
+#include "../ExecutionEngine.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
@@ -85,14 +85,14 @@ namespace RTT
 
     /**
      * A command which queues (dispatches) a FunctionFraph for execution
-     * in a ProgramProcessor. See ConditionExecFunction to check if
+     * in a ExecutionEngine. See ConditionExecFunction to check if
      * it is done or not.
      */
     class RTT_API CommandExecFunction
         : public base::DispatchInterface
     {
         base::ActionInterface* minit;
-        ProgramProcessor* _proc;
+        ExecutionEngine* _proc;
         /**
          * _v is only necessary for the copy/clone semantics.
          */
@@ -106,14 +106,14 @@ namespace RTT
         internal::AssignableDataSource<bool>::shared_ptr maccept;
     public:
         /**
-         * Create a Command to send a function to a ProgramProcessor.
+         * Create a Command to send a function to a ExecutionEngine.
          * @param init_com  The command to execute before sending the
          * function into the processor, in order to initialise it.
          * @param foo The function to run in the processor.
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ProgramProcessor* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
+        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ExecutionEngine* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
 
         ~CommandExecFunction();
 

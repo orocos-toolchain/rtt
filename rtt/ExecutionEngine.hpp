@@ -39,22 +39,16 @@
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
+#include "os/Mutex.hpp"
 #include "base/RunnableInterface.hpp"
 #include "base/ActivityInterface.hpp"
+#include "base/DisposableInterface.hpp"
+#include "base/ExecutableInterface.hpp"
+#include "internal/Queue.hpp"
+#include "internal/List.hpp"
 #include <vector>
 
 #include "rtt-config.h"
-#undef OROPKG_EXECUTION_ENGINE_EVENTS
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "internal/MessageProcessor.hpp"
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-#include "scripting/ProgramProcessor.hpp"
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-#include "scripting/StateMachineProcessor.hpp"
-#endif
-
 #include "internal/rtt-internal-fwd.hpp"
 
 namespace RTT
@@ -81,42 +75,6 @@ namespace RTT
     class RTT_API ExecutionEngine
         : public base::RunnableInterface
     {
-    protected:
-        enum EngineState { Stopped, Activating, Active, Running };
-        /**
-         * The parent or 'owner' of this ExecutionEngine, may be null.
-         */
-        base::TaskCore*     taskc;
-
-        /**
-         * The ExecutionEngine keeps a state of its own which is synchronised
-         * with the parent and child base::TaskCore states.
-         */
-        EngineState     estate;
-
-        /**
-         * We store the Processors as base::RunnableInterface pointers,
-         * and dynamic_cast them back to the correct type.
-         */
-        base::RunnableInterface* pproc;
-        base::RunnableInterface* smproc;
-        base::RunnableInterface* eproc;
-
-        /**
-         * All tasks which execute in this ExecutionEngine.
-         */
-        std::vector<base::TaskCore*> children;
-
-        /**
-         * Install new Processors.
-         */
-        void setup();
-
-        /**
-         * Call all necessary hook functions of parent and children
-         * TaskContexts.
-         */
-        bool startContexts();
     public:
         /**
          * Create an execution engine with a internal::CommandProcessor, scripting::ProgramProcessor
@@ -127,39 +85,6 @@ namespace RTT
         ExecutionEngine( base::TaskCore* owner = 0);
 
         ~ExecutionEngine();
-
-        /**
-         * Run the Execution Engine's processors, but not the updateHook()
-         * functions of the TaskCores.
-         */
-        bool activate();
-
-        /**
-         * Run the Execution Engine's processors \b and the updateHook()
-         * functions of the TaskCores.
-         */
-        bool start();
-
-        /**
-         * Stop the processors and all TaskCores.
-         */
-        bool stop();
-
-        virtual bool initialize();
-
-        /**
-         * Executes (in that order) programs, state machines, commands,
-         * events and the base::TaskCore's update() function.
-         */
-        virtual void step();
-
-        virtual bool breakLoop();
-
-        virtual void finalize();
-
-        virtual void setActivity(base::ActivityInterface* t);
-
-        virtual bool hasWork();
 
         /**
          * The base::TaskCore which created this ExecutionEngine.
@@ -182,37 +107,86 @@ namespace RTT
         base::TaskCore* getTaskCore() const { return taskc; }
 
         /**
-         * Return the scripting::ProgramProcessor of this engine.
+         * Queue and execute (process) a given message. The message is
+         * executed in step() or loop() directly after all other
+         * queued ActionInterface objects. The constructor parameter
+         * \a queue_size limits how many messages can be queued in
+         * between step()s or loop().
+         *
+         * @return true if the message got accepted, false otherwise.
+         * @return false when the MessageProcessor is not running or does not accept messages.
+         * @see acceptMessages
          */
-        scripting::ProgramProcessor* programs() const;
+        virtual bool process(base::DisposableInterface* c);
 
         /**
-         * Return the scripting::StateMachineProcessor of this engine.
+         * Run a given function in step() or loop(). The function may only
+         * be destroyed after the
+         * ExecutionEngine is stopped or removeFunction() was invoked. The number of functions the Processor can
+         * run in parallel can be increased with setMaxFunctions().
+         * @return false if the Engine is not running or the 'pending' queue is full.
+         * @see removeFunction(), setMaxFunctions()
          */
-        scripting::StateMachineProcessor* states() const;
+        virtual bool runFunction(base::ExecutableInterface* f);
 
         /**
-         * Return the internal::MessageProcessor of this engine.
+         * Remove a running function added with runFunction.
+         * This method is only required if the function is to be destroyed
+         * and is still present in the Engine.
          */
-        internal::MessageProcessor* events() const;
+        virtual bool removeFunction(base::ExecutableInterface* f);
 
         /**
-         * Install a new ProgramProcessor.
-         * @param p becomes owned by this object and is returned in programs().
+         * Call this if you wish to block on a message arriving in the Execution Engine.
+         * Each time one or more messages are processed, waitForMessages will return
+         * and you can check (by a means you implemented your own) if your message
+         * has been processed.
+         *
+         * This function is for internal use only and is required for polling and collecting
+         * return values from asynchronous method invocations.
          */
-        virtual void setProgramProcessor(scripting::ProgramProcessor* p);
+        void waitForMessages();
+    protected:
+        /**
+         * The parent or 'owner' of this ExecutionEngine, may be null.
+         */
+        base::TaskCore*     taskc;
 
         /**
-         * Install a new StateMachineProcessor.
-         * @param s becomes owned by this object and is returned in states().
+         * Our Message queue
          */
-        virtual void setStateMachineProcessor(scripting::StateMachineProcessor* s);
+        internal::Queue<base::DisposableInterface*> mqueue;
 
         /**
-         * Install a new MessageProcessor.
-         * @param e becomes owned by this object and is returned in events().
+         * All functions which execute in this ExecutionEngine.
          */
-        virtual void setMessageProcessor(internal::MessageProcessor* e);
+        //internal::List<base::ExecutableInterface*> equeue;
+
+        std::vector<base::TaskCore*> children;
+
+        std::vector<base::ExecutableInterface*> funcs;
+
+        internal::Queue<base::ExecutableInterface*>* f_queue;
+
+        os::Mutex syncer;
+
+        void processMessages();
+        void processFunctions();
+        void processChildren();
+
+        virtual bool initialize();
+
+        /**
+         * Executes (in that order) programs, state machines, commands,
+         * events and the base::TaskCore's update() function.
+         */
+        virtual void step();
+
+        virtual bool breakLoop();
+
+        virtual void finalize();
+
+        virtual bool hasWork();
 
     };
 

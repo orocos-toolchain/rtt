@@ -330,7 +330,7 @@ namespace RTT
         }
         else
         {
-            curstate = new StateDescription(def, curtemplate->getTaskObject()->engine()->programs(), mpositer.get_position().line - ln_offset ); // create an empty state
+            curstate = new StateDescription(def, mpositer.get_position().line - ln_offset ); // create an empty state
             curtemplate->addState( curstate );
         }
 
@@ -407,7 +407,6 @@ namespace RTT
     void StateGraphParser::seentransprog()
     {
         transProgram = finishProgram();
-        transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
     }
 
     void StateGraphParser::seenelseprog()
@@ -488,7 +487,7 @@ namespace RTT
             }
             else
             {
-                next_state = new StateDescription(state_id,curtemplate->getTaskObject()->engine()->programs(), 1); // create an empty state
+                next_state = new StateDescription(state_id, 1); // create an empty state
                 curtemplate->addState( next_state );
             }
             assert( next_state );

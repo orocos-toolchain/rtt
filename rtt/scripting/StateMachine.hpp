@@ -39,9 +39,11 @@
 #ifndef HIERARCHICAL_STATE_MACHINE_HPP
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
+#include "../rtt-config.h"
 #include "StateInterface.hpp"
 #include "../base/ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
+#include "../base/ExecutableInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"
 
@@ -67,6 +69,7 @@ namespace RTT
      * Strategy software pattern to allow cleaner implementation.
      */
     class RTT_API StateMachine
+        : public base::ExecutableInterface
     {
         enum PrivateStatus { nill, gostop, goreset, pausing } smpStatus;
 
@@ -102,8 +105,6 @@ namespace RTT
         Status::StateMachineStatus smStatus;
         StateMachineProcessor* smp;
 
-        // Hook to denote to subclasses that we are unloaded.
-        virtual void handleUnload();
     public:
 
         typedef std::vector<StateMachinePtr> ChildList;
@@ -128,16 +129,6 @@ namespace RTT
          * @param ep The ExecutionEngine of this StateMachine when transition events are used.
          */
         StateMachine(StateMachinePtr parent, ExecutionEngine* ep, const std::string& name="Default");
-
-        void setStateMachineProcessor(StateMachineProcessor* smproc) {
-            smp = smproc;
-            if (smp)
-                smStatus = Status::inactive;
-            else {
-                smStatus = Status::unloaded;
-                this->handleUnload();
-            }
-        }
 
         void setEngine(ExecutionEngine* smproc) {
             eproc = smproc;
@@ -301,6 +292,8 @@ namespace RTT
          * state transitions.
          */
         bool execute();
+
+        void unloading();
 
         /**
          * Search from the current state a candidate next state.

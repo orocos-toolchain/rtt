@@ -58,7 +58,7 @@ namespace RTT
      * Orocos Program Parser Framework. It parsers Orocos program scripts,
      * Orocos State Contexts and allows to parse a text Command, Condition or Expression
      * to the respective objects.
-     * @see ProgramLoader. Use the ProgramLoader for a more user friendly loading of scripts
+     * @see ScriptingAccess for a more user friendly loading of scripts
      * into TaskContexts.
      */
     class RTT_API Parser

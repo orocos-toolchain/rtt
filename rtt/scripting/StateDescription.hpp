@@ -57,16 +57,15 @@ namespace RTT
         base::ProgramInterfacePtr mrun;
         std::string name;
         int entrypoint;
-        ProgramProcessor* pp;
         bool inited;
     public:
         /**
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(const std::string& _name, ProgramProcessor* pproc, int linenr )
+        StateDescription(const std::string& _name, int linenr )
             : mentry(), mexit(), mhandle(), mrun(),
-              name(_name), entrypoint(linenr), pp(pproc), inited(false)
+              name(_name), entrypoint(linenr), inited(false)
         {
         }
 
@@ -109,26 +108,18 @@ namespace RTT
 
         void setEntryProgram( base::ProgramInterfacePtr entry ) {
             mentry = entry;
-            if (mentry)
-                mentry->setProgramProcessor( pp );
         }
 
         void setRunProgram( base::ProgramInterfacePtr run ) {
             mrun = run;
-            if (mrun)
-                mrun->setProgramProcessor( pp );
         }
 
         void setHandleProgram( base::ProgramInterfacePtr handle ) {
             mhandle = handle;
-            if (mhandle)
-                mhandle->setProgramProcessor( pp );
         }
 
         void setExitProgram( base::ProgramInterfacePtr exit ) {
             mexit = exit;
-            if (mexit)
-                mexit->setProgramProcessor( pp );
         }
 
         bool isDefined() const

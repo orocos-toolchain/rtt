@@ -40,7 +40,7 @@
 #include "GraphCopier.hpp"
 #include "../base/AttributeBase.hpp"
 #include "ProgramTask.hpp"
-#include "ProgramProcessor.hpp"
+#include "ExecutionEngine.hpp"
 #include "../internal/TaskObject.hpp"
 
 #include "CommandNOP.hpp"
@@ -111,11 +111,12 @@ namespace RTT {
 
     FunctionGraph::~FunctionGraph()
     {
+        if ( this->isLoaded() ){
+            getEngine()->removeFunction(this);
+        }
         std::vector<AttributeBase*>::iterator it = args.begin();
         for ( ; it != args.end(); ++it)
             delete *it;
-        pStatus = Status::unloaded;
-        this->handleUnload();
     }
 
     void FunctionGraph::setProgramTask(TaskObject* mytask)
@@ -123,7 +124,7 @@ namespace RTT {
         context = mytask;
     }
 
-    void FunctionGraph::handleUnload()
+    void FunctionGraph::unloading()
     {
         if (context == 0)
             return;
@@ -141,7 +142,7 @@ namespace RTT {
 
     bool FunctionGraph::start()
     {
-        if ( !pp || !pp->getActivity() || !pp->getActivity()->isActive() )
+        if ( !isLoaded() )
             return false;
         if ( pStatus == Status::stopped || pStatus == Status::paused) {
             pStatus = Status::running;
@@ -152,7 +153,7 @@ namespace RTT {
 
     bool FunctionGraph::pause()
     {
-        if ( pp ) {
+        if ( isLoaded() ) {
             pausing = true;
             return true;
         }
@@ -161,7 +162,7 @@ namespace RTT {
 
     bool FunctionGraph::step()
     {
-        if ( pp && (pStatus == Status::paused) && mstep == false) {
+        if ( isLoaded() && (pStatus == Status::paused) && mstep == false) {
             mstep = true;
             return true;
         }
@@ -192,7 +193,7 @@ namespace RTT {
                 return true;
             break;
         case Status::error:
-        case Status::unloaded:
+        case Status::unknown:
             return false;
             break;
         case Status::stopped:
@@ -373,9 +374,6 @@ namespace RTT {
         // so that ret itself can be copied again :
         ret->finish();
 
-        // copy progproc state also
-        if (this->pp)
-            ret->setProgramProcessor(pp);
 //         std::cerr << "Resulted in :" <<std::endl;
 //         ret->debugPrintout();
 

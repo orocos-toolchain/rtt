@@ -44,7 +44,7 @@ namespace RTT {
 
   StateDescription* StateDescription::postponeState()
   {
-    StateDescription* ret = new StateDescription( "__pp__" + getName(), pp, entrypoint );
+    StateDescription* ret = new StateDescription( "__pp__" + getName(), entrypoint );
     ret->setEntryProgram( mentry );
     ret->setRunProgram( mrun );
     ret->setHandleProgram( mhandle );
@@ -59,7 +59,7 @@ namespace RTT {
 
   StateDescription* StateDescription::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
   {
-    StateDescription* ret = new StateDescription( name, pp, entrypoint );
+    StateDescription* ret = new StateDescription( name, entrypoint );
     ret->inited = isDefined();
     if ( mentry )
     {

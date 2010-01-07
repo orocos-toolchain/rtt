@@ -36,7 +36,6 @@
  ***************************************************************************/
 #include "StateMachine.hpp"
 #include "../ExecutionEngine.hpp"
-#include "StateMachineProcessor.hpp"
 #include "../interface/EventService.hpp"
 
 #include "../internal/DataSource.hpp"
@@ -77,10 +76,27 @@ namespace RTT {
 
    StateMachine::~StateMachine()
     {
+       if ( this->isLoaded() ){
+           getEngine()->removeFunction(this);
+       }
         delete initc;
     }
 
-    void StateMachine::handleUnload() {}
+   void StateMachine::unloading() {
+           if ( this->isActive() == false)
+               return;
+           if ( this->isReactive() )
+               this->requestFinalState();
+           if ( this->isAutomatic() )
+               this->stop();
+           if (this->currentState() != this->getFinalState() )
+               this->execute(); // try one last time
+           if (this->currentState() != this->getFinalState() )
+               log(Critical) << "Failed to bring StateMachine "<< this->getName()
+                             << " into the final state. Program stalled in state '"
+                             << this->currentState()->getName()<<"' line number "
+                             << this->getLineNumber()<<endlog(); // critical failure !
+   }
 
     StateMachine::Status::StateMachineStatus StateMachine::getStatus() const {
         return smStatus;
@@ -988,7 +1004,7 @@ namespace RTT {
     bool StateMachine::activate()
     {
         // inactive implies loaded, but check additionally if smp is at least active
-        if ( smStatus != Status::inactive || !smp->getActivity() || !smp->getActivity()->isActive() ) {
+        if ( smStatus != Status::inactive ) {
             return false;
         }
 

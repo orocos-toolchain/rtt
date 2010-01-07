@@ -40,9 +40,15 @@
 #include "Logger.hpp"
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
-#include <algorithm>
 #include "rtt-fwd.hpp"
-#include "scripting/ProgramProcessor.hpp"
+#include "os/MutexLock.hpp"
+
+#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <functional>
+#include <algorithm>
+
+#define ORONUM_EE_MQUEUE_SIZE 100
 
 namespace RTT
 {
@@ -55,12 +61,13 @@ namespace RTT
 
     using namespace std;
     using namespace detail;
+    using namespace boost;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
-        : taskc(owner), estate( Stopped ),
-          pproc( 0 ), smproc( 0 ), eproc( 0 )
+        : taskc(owner), mqueue(ORONUM_EE_MQUEUE_SIZE),
+          funcs( ORONUM_EE_MQUEUE_SIZE),
+          f_queue( new Queue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
     {
-        this->setup();
     }
 
     ExecutionEngine::~ExecutionEngine()
@@ -69,41 +76,28 @@ namespace RTT
         if (taskc)
             Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
 
-        // this order is fragile, so don't change it !
-        delete smproc;
-        delete pproc;
-        delete eproc;
-
         // make a copy to avoid call-back troubles:
         std::vector<TaskCore*> copy = children;
         for (std::vector<TaskCore*>::iterator it = copy.begin(); it != copy.end();++it){
             (*it)->setExecutionEngine( 0 );
         }
         assert( children.empty() );
-    }
 
-    void ExecutionEngine::setup()
-    {
-        Logger::In in("ExecutionEngine");
+        // empty executable interface list.
+        ExecutableInterface* foo = 0;
+        for(std::vector<ExecutableInterface*>::iterator it = funcs.begin();
+                it != funcs.end(); ++it ) {
+            foo = *it;
+            if ( foo ) {
+                foo->unloaded();
+                (*it) = 0;
+            }
+        }
+        while ( !f_queue->isEmpty() ) {
+            f_queue->dequeue( foo );
+            foo->unloaded();
+        }
 
-        if (taskc)
-            Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
-
-#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE);
-#else
-        pproc = 0;
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        smproc = new StateMachineProcessor();
-#else
-        smproc = 0;
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        eproc = new MessageProcessor();
-#else
-        eproc = 0;
-#endif
     }
 
     TaskCore* ExecutionEngine::getParent() {
@@ -120,198 +114,106 @@ namespace RTT
             children.erase(it);
     }
 
-    void ExecutionEngine::setActivity(ActivityInterface* t)
+    void ExecutionEngine::processFunctions()
     {
-        Logger::In in("ExecutionEngine::setActivity");
-
-        if (pproc)
-            pproc->setActivity(t);
-        if (smproc)
-            smproc->setActivity(t);
-        if (eproc)
-            eproc->setActivity(t);
-
-        RunnableInterface::setActivity(t);
-
-//        // if an owner is present, print some info.
-//        if (taskc) {
-//            if ( t )
-//                if ( ! t->isPeriodic() ) {
-//                    Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
-//                } else {
-//                    Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
-//                }
-//            else
-//                Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
-//        }
-    }
-
-    bool ExecutionEngine::activate()
-    {
-        // only do this from stopped.
-        if (estate != Stopped ||  ! this->getActivity() )
-            return false;
-        // Note: use this flag to communicate to startContexts (called within start() below).
-        estate = Activating;
-        if ( this->getActivity()->start() ) {
-            assert( estate == Active );
-            return true;
+        // Execute all loaded Functions :
+        ExecutableInterface* foo = 0;
+        // 1. Fetch new ones from queue.
+        while ( !f_queue->isEmpty() ) {
+            // 0. find an empty spot to store :
+            std::vector<ExecutableInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), foo );
+            if ( f_it == funcs.end() )
+                break; // no spot found, leave in queue.
+            f_queue->dequeue( foo );
+            *f_it = foo;
+            // stored successfully, now reset for next item from queue.
+            foo = 0;
         }
-        // failure to activate:
-        estate = Stopped;
-        return false;
-    }
-
-    bool ExecutionEngine::start()
-    {
-        if ( !this->getActivity() )
-            return false;
-        // identical to starting the activity if Stopped
-        if (estate == Stopped ) {
-            assert( this->getActivity()->isActive() == false );
-            if ( this->getActivity()->start() ) {
-                assert( estate == Running );
-                return true;
-            }
-        }
-        // Only start Contexts if already active.
-        if (estate == Active) {
-            assert( this->getActivity()->isActive() );
-            return startContexts();
-        }
-        return false;
-    }
-
-    bool ExecutionEngine::stop()
-    {
-        if ( !this->getActivity() )
-            return false;
-        if (this->getActivity()->stop() ) {
-            assert( estate == Stopped );
-            return true;
-        }
-        return false;
-    }
-
-    bool ExecutionEngine::startContexts()
-    {
-        // call user startHook or activateHook code.
-        if (estate == Running)
-            return false;
-        if (estate == Stopped || estate == Active ) {
-            if ( taskc ) {
-                assert( taskc->mTaskState < TaskCore::Running); // we control the running flag.
-                // detect error/unconfigured task.
-                if ( taskc->mTaskState < TaskCore::Stopped || taskc->startHook() == false )
-                    return false;
-                taskc->mTaskState = TaskCore::Running;
-            }
-
-            // call all children
-            for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-                assert( (*it)->mTaskState < TaskCore::Running);
-                if ( (*it)->mTaskState < TaskCore::Stopped || (*it)->startHook() == false) {
-                    // rewind
-                    std::vector<TaskCore*>::reverse_iterator rit( it );
-                    --rit;
-                    for ( ; rit != children.rend(); ++rit ) {
-                        (*rit)->stopHook();
-                        (*it)->mTaskState = estate == Stopped ? TaskCore::Stopped : TaskCore::Active; //revert to old state.
+        assert(foo == 0);
+        // 2. execute all present (if any):
+        if ( find_if( funcs.begin(), funcs.end(), lambda::_1 != foo) != funcs.end() ) {
+            MutexLock ml( syncer ); // we block until removeFunction finished.
+            for(std::vector<ExecutableInterface*>::iterator it = funcs.begin();
+                    it != funcs.end(); ++it ) {
+                foo = *it;
+                if ( foo ) {
+                    if ( foo->execute() == false ){
+                        foo->unloaded();
+                        (*it) = 0;
                     }
-
-                    //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
-                    if (taskc) {
-                        this->taskc->stopHook();
-                        this->taskc->mTaskState = estate == Stopped ? TaskCore::Stopped : TaskCore::Active;
-                    }
-                    // estate remains Active or Stopped.
-                    return false;
-                } else {
-                    // success:
-                    (*it)->mTaskState = TaskCore::Running;
                 }
             }
-            estate = Running; // got to running
-            return true;
         }
-        // Make all tasks active:
-        if (estate == Activating) {
-            if ( taskc ) {
-                assert( taskc->mTaskState < TaskCore::Active);
-                if ( taskc->mTaskState < TaskCore::Stopped || taskc->activateHook() == false)
-                    return false;
-                taskc->mTaskState = TaskCore::Active;
-            }
-            // call all children
-            for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-                assert( (*it)->mTaskState < TaskCore::Active );
-                // this line also detects unconfigured/error tasks:
-                if ( (*it)->mTaskState < TaskCore::Stopped || (*it)->activateHook() == false) {
-                    // rewind
-                    std::vector<TaskCore*>::reverse_iterator rit( it );
-                    --rit;
-                    for ( ; rit != children.rend(); ++rit ) {
-                        (*rit)->stopHook();
-                        (*it)->mTaskState = TaskCore::Stopped; //revert to old state.
-                    }
+    }
 
-                    //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
-                    if (taskc) {
-                        this->taskc->stopHook();
-                        this->taskc->mTaskState = TaskCore::Stopped;
-                    }
-                    // estate falls back to Stopped.
-                    estate = Stopped;
-                    return false;
-                } else {
-                    // success:
-                    (*it)->mTaskState = TaskCore::Active;
-                }
+    bool ExecutionEngine::runFunction( ExecutableInterface* f )
+    {
+        if (this->getActivity() && this->getActivity()->isActive() && f) {
+            f->loaded(this);
+            int result = f_queue->enqueue( f );
+            // signal work is to be done:
+            this->getActivity()->trigger();
+            return result != 0;
+        }
+        return false;
+    }
+
+    bool ExecutionEngine::removeFunction( ExecutableInterface* f )
+    {
+        // Remove from the queue.
+        std::vector<ExecutableInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), f );
+        if ( f_it != funcs.end() ) {
+            {
+                MutexLock ml(syncer);
+                f->unloaded();
+                *f_it = 0;
             }
-            estate = Active; // got to active
             return true;
         }
         return false;
     }
 
     bool ExecutionEngine::initialize() {
-        if ( this->startContexts() == false )
-            return false;
-
-        // these always return true:
-        bool ret = true;
-        if ( pproc ) ret = pproc->initialize();
-        assert (ret);
-        if ( smproc ) ret = smproc->initialize();
-        assert (ret);
-        if ( eproc ) ret =eproc->initialize();
-        assert (ret);
-        return ret;
+        f_queue->clear();
+        return true;
     }
 
     bool ExecutionEngine::hasWork()
     {
-        return eproc->hasWork();
+        return !mqueue.isEmpty();
+    }
+
+    void ExecutionEngine::processMessages()
+    {
+        // execute one command from the AtomicQueue.
+        DisposableInterface* com(0);
+        while ( !mqueue.isEmpty() ) {
+            mqueue.enqueue( com );
+            com->executeAndDispose();
+        }
+    }
+
+    bool ExecutionEngine::process( DisposableInterface* c )
+    {
+        if ( c ) {
+            bool result = mqueue.enqueue( c );
+            this->getActivity()->trigger();
+            return result;
+        }
+        return false;
     }
 
     void ExecutionEngine::step() {
         Logger::In in( taskc->getName() );
         // this #ifdef ... #endif is only for speed optimisations.
-#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        if (pproc)
-            pproc->step();
-        if ( !this->getActivity()->isRunning() ) return;
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        if (smproc)
-            smproc->step();
-        if ( !this->getActivity()->isRunning() ) return;
-#endif
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        if (eproc)
-            eproc->step();
-        if ( !this->getActivity()->isRunning() ) return;
-#endif
+
+        processMessages();
+        processFunctions();
+        processChildren();
+    }
+
+    void ExecutionEngine::processChildren() {
+        // XXX this code belongs in TaskCore.
         // only call updateHook in the Running state.
         if ( taskc ) {
             if ( taskc->mTaskState == TaskCore::Running || taskc->mTaskState == TaskCore::RunTimeWarning )
@@ -352,75 +254,20 @@ namespace RTT
     }
 
     void ExecutionEngine::finalize() {
-        if (pproc)
-            pproc->finalize();
-        if (smproc)
-            smproc->finalize();
-        if (eproc)
-            eproc->finalize();
         // call all children, but only if they are not in the error state !
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
-            (*rit)->stopHook();
+            (*rit)->stop();
             if ((*rit)->mTaskState != TaskCore::FatalError ) {
                 (*rit)->mTaskState = TaskCore::Stopped;
             }
 
         }
         if (taskc ) {
-            taskc->stopHook();
+            taskc->stop();
             if ( taskc->mTaskState != TaskCore::FatalError)
                 taskc->mTaskState = TaskCore::Stopped;
         }
-
-        // Finally:
-        estate = Stopped;
     }
-
-    ProgramProcessor* ExecutionEngine::programs() const {
-#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        return dynamic_cast<ProgramProcessor*>(pproc);
-#else
-        return 0;
-#endif
-    }
-
-    StateMachineProcessor* ExecutionEngine::states() const {
-#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        return dynamic_cast<StateMachineProcessor*>(smproc);
-#else
-        return 0;
-#endif
-    }
-
-    MessageProcessor* ExecutionEngine::events() const {
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        return dynamic_cast<MessageProcessor*>(eproc);
-#else
-        return 0;
-#endif
-    }
-
-    void ExecutionEngine::setProgramProcessor(ProgramProcessor* p) {
-#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        delete pproc;
-        pproc = p;
-#endif
-    }
-
-    void ExecutionEngine::setStateMachineProcessor(StateMachineProcessor* s) {
-#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        delete smproc;
-        smproc = s;
-#endif
-    }
-
-    void ExecutionEngine::setMessageProcessor(MessageProcessor* e) {
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        delete eproc;
-        eproc = e;
-#endif
-    }
-
 
 }
 

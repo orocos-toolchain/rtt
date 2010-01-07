@@ -69,7 +69,6 @@
 #include "ScriptingAccessI.h"
 #include "OperationsI.h"
 #include "../../scripting/ScriptingAccess.hpp"
-#include "../../scripting/ProgramLoader.hpp"
 #include "../../scripting/parse_exception.hpp"
 #include <sstream>
 

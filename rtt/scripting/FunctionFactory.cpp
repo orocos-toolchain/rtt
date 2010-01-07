@@ -130,7 +130,7 @@ namespace RTT {
 
             // the command gets ownership of the new function :
             // this command is a DataSourceBase...
-            return new DataSourceCommand( new CommandExecFunction( icom, fcopy, proc->programs() ));
+            return new DataSourceCommand( new CommandExecFunction( icom, fcopy, proc ));
         }
 }
 
