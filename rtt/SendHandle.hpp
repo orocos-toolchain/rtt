@@ -22,14 +22,14 @@ namespace RTT
         /**
          * Create an empty SendHandle.
          */
-		SendHandle();
+		SendHandle() {}
 
-        SendHandle(collector_t coll);
+        SendHandle(collector_t coll) : m_coll(coll) {}
 
         /**
          * Create a copy-equivalent SendHandle.
          */
-        SendHandle(const SendHandle& hs);
+        SendHandle(const SendHandle& hs) : m_coll(hs.m_coll) {}
 
         /**
          * No-op destructor, does not change signal/slot state.
@@ -42,14 +42,26 @@ namespace RTT
          * Inspect if this SendHandle is pointing to a valid (existing) invocation.
          * @return false if no invocation is associated with this SendHandle.
          */
-        operator bool() const;
+        operator bool() const { return m_coll;}
 
         /**
          * Inspect if this SendHandle is pointing to valid (existing) invocation.
          * @return false if no invocation is associated with this handle.
          */
-        bool ready() const;
+        bool ready() const { return m_coll;}
 
+        /**
+         * Collect this operator if the method has no arguments.
+         */
+        SendStatus collect()
+        {
+            if (this->impl)
+                return this->impl->collect();
+            return SendFailure;
+        }
+
+
+#if 0 // implemented in CollectSignature
         SendStatus collect() {
             return m_coll->collect();
         }
@@ -67,7 +79,7 @@ namespace RTT
         SendStatus collectIfDone(A1 a1) {
             return m_coll->collectIfDone(a1);
         }
-
+#endif
 	protected:
         /**
          * This is actually a smart pointer which always

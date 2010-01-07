@@ -70,8 +70,10 @@ namespace RTT
         protected:
             boost::function<FunctionT> mmeth;
             MessageProcessor* mcp;
+            typedef BindStorage<FunctionT> Store;
 
         public:
+            LocalMethodImpl() : mcp(0) {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
@@ -88,14 +90,6 @@ namespace RTT
             }
 
             MessageProcessor* getMessageProcessor() const { return mcp; }
-
-            SendStatus collect_impl() {
-                return SendFailure;
-            }
-
-            SendStatus collectIfDone_impl() {
-                return SendFailure;
-            }
 
             // We need a handle object !
             SendHandle<Signature> send_impl() {
@@ -132,7 +126,51 @@ namespace RTT
                 //return (mcp->process( this ) != 0) ? SendSuccess : SendFailure;
             }
 
-#if 0
+            // collect_impl belongs in LocalMethodImpl because it would need
+            // to be repeated in each BindStorage spec.
+            template<class T1>
+            SendStatus collect_impl( T1 a1 ) {
+                bf::vector<T1> vArgs( boost::ref(a1) );
+
+                if ( this->ret ) {
+                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendFailure;
+            }
+
+            template<class T1, class T2>
+            SendStatus collect_impl( T1 a1, T2 a2 ) {
+                bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
+                if ( this->ret ) {
+                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+                    return SendSuccess;
+                }
+                return SendFailure;
+            }
+
+            template<class T1, class T2, class T3>
+            SendStatus collect_impl( T1 a1, T2 a2, T3 a3 ) {
+                bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
+                if ( this->ret ) {
+                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendFailure;
+            }
+
+            SendStatus collect_impl() {
+                if ( this->ret ) {
+                    return SendSuccess;
+                } else
+                    return SendFailure;
+            }
+
+
+            SendStatus collectIfDone_impl() {
+                return SendFailure;
+            }
+
             /**
              * Invoke this operator if the method has no arguments.
              */
@@ -140,24 +178,101 @@ namespace RTT
             {
                 // if component or 3rd party thread, use that one, otherwise,
                 // just execute the method. NOTE: we will use a different class for each case.
-                SendHandle<Signature> h;
                 if ( mcp ) {
-                    h = send_impl();
-                    h.collect();
-                    return h.ret();
+                    SendHandle<Signature> h = send_impl();
+                    if ( h.collect() == SendSuccess )
+                        return ret_impl();
+                    else
+                        throw SendFailure;
                 } else
                     return mmeth();
             }
+
 
             /**
              * Invoke this operator if the method has one argument.
              */
             template<class T1>
-            result_type call_impl(T1 t)
+            result_type call_impl(T1 a1)
             {
-                return mmeth(t);
+                SendHandle<Signature> h;
+                if ( mcp ) {
+                    h = send_impl(a1);
+                    // collect_impl may take diff number of arguments than
+                    // call_impl/ret_impl(), so we use generic collect() + ret_impl()
+                    if ( h.collect() == SendSuccess )
+                        return ret_impl(a1);
+                    else
+                        throw SendFailure;
+                } else
+                    return mmeth(a1);
             }
 
+            template<class T1, class T2>
+            result_type call_impl(T1 a1, T2 a2)
+            {
+                SendHandle<Signature> h;
+                if ( mcp ) {
+                    h = send_impl(a1,a2);
+                    if ( h.collect() == SendSuccess )
+                        return ret_impl(a1,a2);
+                    else
+                        throw SendFailure;
+                } else
+                    return mmeth(a1,a2);
+            }
+
+            template<class T1, class T2, class T3>
+            result_type call_impl(T1 a1, T2 a2, T3 a3)
+            {
+                SendHandle<Signature> h;
+                if ( mcp ) {
+                    h = send_impl(a1,a2,a3);
+                    if ( h.collect() == SendSuccess )
+                        return ret_impl(a1,a2,a3);
+                    else
+                        throw SendFailure;
+                } else
+                    return mmeth(a1,a2,a3);
+            }
+
+            result_type ret_impl()
+            {
+                return this->ret(); // may return void.
+            }
+
+            /**
+             * This function has the same signature of call() and
+             * returns the stored return value, and tries to return
+             * all arguments.
+             */
+            template<class T1>
+            result_type ret_impl(T1 a1)
+            {
+                bf::vector<T1> vArgs( boost::ref(a1) );
+                if ( this->ret )
+                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
+                return this->ret(); // may return void.
+            }
+
+            template<class T1,class T2>
+            result_type ret_impl(T1 a1, T2 a2)
+            {
+                bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
+                if ( this->ret )
+                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
+                return this->ret(); // may return void.
+            }
+
+            template<class T1,class T2, class T3>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3)
+            {
+                bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
+                if ( this->ret )
+                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
+                return this->ret(); // may return void.
+            }
+#if 0
             /**
              * Invoke this operator if the method has two arguments.
              */
@@ -185,6 +300,28 @@ namespace RTT
                 return mmeth(t1, t2, t3, t4);
             }
 #endif
+            /**
+             * The object already stores the user class function pointer and
+             * the pointer to the class object.
+             */
+            template<class F, class ObjectType>
+            void setup(F f, ObjectType t)
+            {
+                this->mcomm = quickbind<F,ObjectType>( f, t); // allocates
+            }
+
+            template<class F>
+            void setup(F f)
+            {
+                this->mcomm = quickbindC<F>(f); // allocates
+            }
+
+            void setup(boost::function<Signature> f)
+            {
+                this->mcomm = f;
+            }
+
+
         };
 
         /**
@@ -224,6 +361,7 @@ namespace RTT
             LocalMethod(M meth, ObjectType object)
             {
                 this->mmeth = MethodBinder<Signature>()(meth, object);
+                this->setup(meth,object);
             }
 
             /**

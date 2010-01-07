@@ -46,12 +46,15 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include <boost/function_types/parameter_types.hpp>
+#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/include/filter_if.hpp>
 #include "quickbind.hpp"
 
 namespace RTT
 {
     namespace internal
     {
+        namespace bf=boost::fusion;
         /**
          * Store a bound argument which may be a reference, const reference or
          * any other type.
@@ -62,8 +65,13 @@ namespace RTT
             AStore() : arg() {}
             AStore(T t) : arg(t) {}
 
-            T operator()() { return arg; }
+            const T& operator()() const { return arg; }
             void operator()(T a) { arg = a; }
+
+            operator T() { return arg;}
+
+            // type is true if collectable
+            typedef boost::mpl::false_ type;
         };
 
         template<class T>
@@ -75,6 +83,10 @@ namespace RTT
 
             T& operator()() { return *arg; }
             void operator()(T& a) { arg = &a; }
+
+            operator T&() { return *arg;}
+            // type is true if collectable
+            typedef boost::mpl::true_ type;
         };
 
 #if 0
@@ -92,12 +104,25 @@ namespace RTT
 
         /**
          * Store a return value which may be a void, reference, const reference or
-         * any other type.
+         * any other type. We need these specialisations because the collection
+         * of the results will be different if R is non-void or poid (appears as
+         * first arg of collect() or not respectively). So RStore is the only
+         * instance that knows if a return value was stored or not. The user of this
+         * class needs to provide a function pointer in collect that has the collection signature
+         * and provides all collectable arguments. RStore will call this function with
+         * as first argument the return value (if non-void) followed by the rest of the arguments.
          */
         template<class T>
         struct RStore {
             T arg;
-            RStore() : arg() {}
+            bool executed;
+            RStore() : arg(), executed(false) {}
+
+            operator bool() const {
+                return executed;
+            }
+
+            T& operator()() { return arg; }
 
             /**
              * Stores the result of a function.
@@ -106,10 +131,19 @@ namespace RTT
              * @param f The function object to execute and store the results from
              */
             template<class F>
-            void store(F f) {
-              //arg = f();
+            void exec(F f) {
+                arg = f();
+                executed = true;
             }
 
+            template<class A1>
+            void collect(A1 a1) {
+              a1 = arg;
+            }
+
+            // type is true if collectable
+            typedef boost::mpl::true_ type;
+#if 0
             /**
              * Call Collect function f with the provided arguments.
              *
@@ -138,19 +172,36 @@ namespace RTT
             void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
               f(arg,a1,a2,a3,a4);
             }
+#endif
         };
 
         template<class T>
         struct RStore<T&>
         {
             T* arg;
-            RStore() : arg(0) {}
+            bool executed;
+            RStore() : arg(0), executed(false) {}
 
             template<class F>
-            void store(F f) {
-              arg = f();
+            void exec(F f) {
+              arg = &f();
+              executed = true;
             }
 
+            template<class A1>
+            void collect(A1 a1) {
+              a1 = *arg;
+            }
+
+            T& operator()() { return *arg; }
+
+            operator bool() const {
+                return executed;
+            }
+            // type is true if collectable
+            typedef boost::mpl::true_ type;
+
+#if 0
             template<class F>
             void collect(F f) {
               f(arg);
@@ -172,11 +223,13 @@ namespace RTT
             void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
               f(*arg,a1,a2,a3,a4);
             }
+#endif
         };
 
         template<>
         struct RStore<void> {
-          RStore() {}
+            bool executed;
+          RStore() :executed(false) {}
 
           template<class Signature>
           struct CollectSignature {
@@ -184,9 +237,25 @@ namespace RTT
           };
 
           template<class F>
-          void store(F f) {
+          void exec(F f) {
             f();
+            executed = true;
           }
+
+          template<class A1>
+          void collect(A1 a1) {
+            // nop
+          }
+
+          void operator()() { return; }
+
+          operator bool() const {
+              return executed;
+          }
+          // type is true if collectable
+          typedef boost::mpl::false_ type;
+
+#if 0
           template<class F>
           void collect(F f) {
             f();
@@ -207,6 +276,7 @@ namespace RTT
           void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
             f(a1,a2,a3,a4);
           }
+#endif
         };
 
         template<int, class T>
@@ -219,37 +289,14 @@ namespace RTT
         template<class ToBind>
         struct BindStorageImpl<0, ToBind>
         {
-            typedef bool result_type;
-            typedef typename CollectType<ToBind>::type Collect;
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
 
             mutable RStore<result_type> ret;
             // stores the original function pointer
 
             boost::function<ToBind> mcomm;
-            boost::function<Collect> mcoll;
 
-            void exec() { ret.store( mcomm ); }
-            void coll() { ret.collect( mcoll() ); }
-
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
-            {
-                mcomm = quickbind<F,ObjectType>( f, t); // allocates
-                mcoll  = quickbind<C,ObjectType>( c, t); // allocates
-            }
-
-            template<class F, class C>
-            void setup(F f, C c)
-            {
-                mcomm = f;
-                mcoll = c;
-            }
-
-            void setup(boost::function<ToBind> f, boost::function<Collect> c)
-            {
-                mcomm = f;
-                mcoll = c;
-            }
+            void exec() { ret.exec( mcomm ); }
         };
 
         /**
@@ -258,126 +305,81 @@ namespace RTT
         template<class ToBind>
         struct BindStorageImpl<1, ToBind>
         {
-            typedef bool result_type;
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
 
             // stores the original function pointer, supplied by the user.
-            boost::function<ToBind>  comm;
-            boost::function<ToBind>  coll;
+            boost::function<ToBind>  mcomm;
             // Store the argument.
             mutable AStore<arg1_type> a1;
             mutable RStore<result_type> ret;
 
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
+            bf::vector< AStore<arg1_type>& > aStore;
+            BindStorageImpl() : vStore( ret, a1), aStore( a1 ) {
+            }
+
             void store(arg1_type t1) { a1(t1); }
-            void exec() { /*ret.store( boost::bind(comm, boost::ref(a1()) ) );*/ }
-            void collect() { ret.collect( coll, a1() ) ; }
-
-            /**
-             * The object already stores the user class function pointer and
-             * the pointer to the class object.
-             */
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
-            {
-                comm = quickbind<F,ObjectType>( f, t); // allocates
-                coll = quickbind<C,ObjectType>( c, t); // allocates
-            }
-
-            template<class F, class C>
-            void setup(F f, C c)
-            {
-                comm = quickbindC<F>(f); // allocates
-                coll = quickbindC<C>(c);
-            }
-
-            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
-            {
-                comm = f;
-                coll = c;
-            }
+            void exec() { ret.exec( boost::bind(mcomm, boost::ref(a1()) ) ); }
 
         };
 
         template<class ToBind>
         struct BindStorageImpl<2, ToBind>
         {
-            typedef bool result_type;
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
 
             // stores the original function pointer
-            boost::function<ToBind> comm;
-            boost::function<ToBind> coll;
+            boost::function<ToBind> mcomm;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
+            mutable RStore<result_type> ret;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
+            bf::vector< AStore<arg1_type>&, AStore<arg2_type>& > aStore;
+            BindStorageImpl() : vStore( ret, a1, a2), aStore( a1, a2) {
+            }
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
-            bool exec() { return comm( a1(), a2() ); }
-            bool collect() const { return coll( a1(), a2() ); }
-
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
-            {
-                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2 ); // allocates
-                coll = quickbind<C,ObjectType>( c, t); // allocates
-            }
-
-            template<class F, class C>
-            void setup(F f, C c)
-            {
-                comm = boost::bind<bool>( f, _1, _2 ); // allocates
-                coll = quickbindC<C>(c);
-            }
-
-            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
-            {
-                comm = f;
-                coll = c;
-            }
+            void exec() { ret.exec( boost::bind(mcomm, boost::ref(a1()), boost::ref(a2()) ) ); }
 
         };
 
         template<class ToBind>
         struct BindStorageImpl<3, ToBind>
         {
-            typedef bool result_type;
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
             typedef typename boost::function_traits<ToBind>::arg3_type   arg3_type;
 
             // stores the original function pointer
-            boost::function<ToBind> comm;
-            boost::function<ToBind> coll;
+            boost::function<ToBind> mcomm;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
-            bool exec() { return comm( a1(), a2(), a3() ); }
-            bool collect() const { return coll( a1(), a2(), a3() ); }
-
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
-            {
-                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3 ); // allocates
-                coll = quickbind<C,ObjectType>( c, t); // allocates
-            }
+            bool exec() { return mcomm( a1(), a2(), a3() ); }
         };
 
         template<class ToBind>
         struct BindStorageImpl<4, ToBind>
         {
-            typedef bool result_type;
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
             typedef typename boost::function_traits<ToBind>::arg3_type   arg3_type;
             typedef typename boost::function_traits<ToBind>::arg4_type   arg4_type;
 
             // stores the original function pointer
-            boost::function<ToBind> comm;
-            boost::function<ToBind> coll;
+            boost::function<ToBind> mcomm;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
@@ -385,16 +387,7 @@ namespace RTT
             mutable AStore<arg4_type> a4;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool exec() { return comm( a1(), a2(), a3(), a4() ); }
-            bool collect() const { return coll( a1(), a2(), a3(), a4() ); }
-
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
-            {
-                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3, _4 ); // allocates
-                coll = quickbind<C,ObjectType>( c, t); // allocates
-            }
-
+            bool exec() { return mcomm( a1(), a2(), a3(), a4() ); }
         };
 
 

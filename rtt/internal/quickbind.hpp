@@ -46,8 +46,10 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include <boost/function_types/parameter_types.hpp>
+#include <boost/function_types/result_type.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/joint_view.hpp>
+#include <boost/type_traits.hpp>
 
 namespace RTT
 {
@@ -59,33 +61,34 @@ namespace RTT
         template<class F, class O>
         struct quickbind_impl<F,O,0>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
             O mo;
 
             quickbind_impl(F f, O o)
                 : mf(f), mo(o) {}
 
-            bool operator()() {
+            result_type operator()() {
                 return (mo->*mf)();
             }
 
             template<class T1>
-            bool operator()(T1) {
+            result_type operator()(T1) {
                 return (mo->*mf)();
             }
 
             template<class T1, class T2>
-            bool operator()(T1, T2) {
+            result_type operator()(T1, T2) {
                 return (mo->*mf)();
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1, T2, T3) {
+            result_type operator()(T1, T2, T3) {
                 return (mo->*mf)();
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1, T2, T3, T4) {
+            result_type operator()(T1, T2, T3, T4) {
                 return (mo->*mf)();
             }
         };
@@ -93,6 +96,7 @@ namespace RTT
         template<class F, class O>
         struct quickbind_impl<F,O,1>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
             O mo;
 
@@ -100,22 +104,22 @@ namespace RTT
                 : mf(f), mo(o) {}
 
             template<class T1>
-            bool operator()(T1& t1) {
+            result_type operator()(T1& t1) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2>
-            bool operator()(T1& t1, T2) {
+            result_type operator()(T1& t1, T2) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1& t1, T2, T3) {
+            result_type operator()(T1& t1, T2, T3) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2, T3, T4) {
+            result_type operator()(T1& t1, T2, T3, T4) {
                 return (mo->*mf)(t1);
             }
         };
@@ -123,6 +127,7 @@ namespace RTT
         template<class F, class O>
         struct quickbind_impl<F,O,2>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
             O mo;
 
@@ -130,17 +135,17 @@ namespace RTT
                 : mf(f), mo(o) {}
 
             template<class T1, class T2>
-            bool operator()(T1& t1, T2& t2) {
+            result_type operator()(T1& t1, T2& t2) {
                 return (mo->*mf)(t1,t2);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1& t1, T2 t2, T3) {
+            result_type operator()(T1& t1, T2 t2, T3) {
                 return (mo->*mf)(t1,t2);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2 t2, T3, T4) {
+            result_type operator()(T1& t1, T2 t2, T3, T4) {
                 return (mo->*mf)(t1,t2);
             }
         };
@@ -148,6 +153,7 @@ namespace RTT
         template<class F, class O>
         struct quickbind_impl<F,O,3>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
             O mo;
 
@@ -155,12 +161,12 @@ namespace RTT
                 : mf(f), mo(o) {}
 
             template<class T1, class T2, class T3>
-            bool operator()(T1& t1, T2 t2, T3 t3) {
+            result_type operator()(T1& t1, T2 t2, T3 t3) {
                 return (mo->*mf)(t1,t2,t3);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2 t2, T3 t3, T4) {
+            result_type operator()(T1& t1, T2 t2, T3 t3, T4) {
                 return (mo->*mf)(t1,t2,t3);
             }
         };
@@ -168,6 +174,7 @@ namespace RTT
         template<class F, class O>
         struct quickbind_impl<F,O,4>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
             O mo;
 
@@ -175,7 +182,7 @@ namespace RTT
                 : mf(f), mo(o) {}
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2 t2, T3 t3, T4 t4) {
+            result_type operator()(T1& t1, T2 t2, T3 t3, T4 t4) {
                 return (mo->*mf)(t1,t2,t3,t4);
             }
         };
@@ -187,32 +194,33 @@ namespace RTT
         template<class F>
         struct quickbindC_impl<F,0>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
 
             quickbindC_impl(F f)
                 : mf(f) {}
 
-            bool operator()() {
+            result_type operator()() {
                 return mf();
             }
 
             template<class T1>
-            bool operator()(T1) {
+            result_type operator()(T1) {
                 return mf();
             }
 
             template<class T1, class T2>
-            bool operator()(T1, T2) {
+            result_type operator()(T1, T2) {
                 return mf();
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1, T2, T3) {
+            result_type operator()(T1, T2, T3) {
                 return mf();
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1, T2, T3, T4) {
+            result_type operator()(T1, T2, T3, T4) {
                 return mf();
             }
         };
@@ -220,28 +228,29 @@ namespace RTT
         template<class F>
         struct quickbindC_impl<F,1>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
 
             quickbindC_impl(F f)
                 : mf(f) {}
 
             template<class T1>
-            bool operator()(T1& t1) {
+            result_type operator()(T1& t1) {
                 return mf(t1);
             }
 
             template<class T1, class T2>
-            bool operator()(T1& t1, T2) {
+            result_type operator()(T1& t1, T2) {
                 return mf(t1);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1& t1, T2, T3) {
+            result_type operator()(T1& t1, T2, T3) {
                 return mf(t1);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2, T3, T4) {
+            result_type operator()(T1& t1, T2, T3, T4) {
                 return mf(t1);
             }
         };
@@ -249,23 +258,24 @@ namespace RTT
         template<class F>
         struct quickbindC_impl<F,2>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
 
             quickbindC_impl(F f)
                 : mf(f) {}
 
             template<class T1,class T2>
-            bool operator()(T1& t1, T2& t2) {
+            result_type operator()(T1& t1, T2& t2) {
                 return mf(t1,t2);
             }
 
             template<class T1,class T2, class T3>
-            bool operator()(T1& t1, T2& t2, T3) {
+            result_type operator()(T1& t1, T2& t2, T3) {
                 return mf(t1,t2);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2& t2, T3, T4) {
+            result_type operator()(T1& t1, T2& t2, T3, T4) {
                 return mf(t1,t2);
             }
         };
@@ -273,18 +283,19 @@ namespace RTT
         template<class F>
         struct quickbindC_impl<F,3>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
 
             quickbindC_impl(F f)
                 : mf(f) {}
 
             template<class T1, class T2, class T3>
-            bool operator()(T1& t1, T2& t2, T3& t3) {
+            result_type operator()(T1& t1, T2& t2, T3& t3) {
                 return mf(t1,t2,t3);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2& t2, T3& t3, T4) {
+            result_type operator()(T1& t1, T2& t2, T3& t3, T4) {
                 return mf(t1,t2,t3);
             }
         };
@@ -292,12 +303,13 @@ namespace RTT
         template<class F>
         struct quickbindC_impl<F,4>
         {
+            typedef typename boost::function_types::result_type<F>::type result_type;
             F mf;
 
             quickbindC_impl(F f)
                 : mf(f) {}
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1& t1, T2& t2, T3& t3, T4& t4) {
+            result_type operator()(T1& t1, T2& t2, T3& t3, T4& t4) {
                 return mf(t1,t2,t3,t4);
             }
         };
@@ -308,10 +320,10 @@ namespace RTT
          */
         template<class F, class O>
         struct quickbind
-            : public quickbind_impl<F,O, boost::function_types::function_arity<F>::value>
+            : public quickbind_impl<F,O, boost::function_types::function_arity<F>::value-1>
         {
             quickbind(F f, O o)
-                : quickbind_impl<F,O, boost::function_types::function_arity<F>::value>(f,o) {}
+                : quickbind_impl<F,O, boost::function_types::function_arity<F>::value-1>(f,o) {}
         };
 
         /**

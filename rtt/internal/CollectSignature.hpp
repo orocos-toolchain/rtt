@@ -64,26 +64,22 @@ namespace RTT
         template<int, class Signature, class ToCollect>
         struct CollectSignature;
 
+        // This case is only present if the return value is void
+        // and all arguments are of in kind.
         template<class F, class ToCollect>
         struct CollectSignature<0,F,ToCollect>
         {
+            typedef void result_type;
             CollectSignature() : impl() {}
             CollectSignature(ToCollect implementation) : impl(implementation) {}
             ~CollectSignature() {}
 
-            /**
-             * Collect this operator if the method has no arguments.
-             */
-            SendStatus collect()
-            {
-                if (impl)
-                    return impl->collect();
-                return SendFailure;
-            }
         protected:
             ToCollect impl;
         };
 
+        // Used when return non void with only in kind args OR return void
+        // and one out/inout arg.
         template<class F, class ToCollect>
         struct CollectSignature<1,F,ToCollect>
         {
@@ -102,6 +98,7 @@ namespace RTT
                     return impl->collect( a1 );
                 return SendFailure;
             }
+
         protected:
             ToCollect impl;
         };

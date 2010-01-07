@@ -115,6 +115,12 @@ namespace RTT
                 return operator()(a1);
             }
 
+            result_type ret(arg1_type a1) {
+                if (impl)
+                    return impl->ret( a1 );
+                return NA<result_type>::na();
+            }
+
             SendHandle<F> send(arg1_type a1)
             {
                 if (impl)
