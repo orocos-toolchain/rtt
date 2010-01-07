@@ -136,43 +136,8 @@ namespace RTT
                 executed = true;
             }
 
-            template<class A1>
-            void collect(A1 a1) {
-              a1 = arg;
-            }
-
             // type is true if collectable
             typedef boost::mpl::true_ type;
-#if 0
-            /**
-             * Call Collect function f with the provided arguments.
-             *
-             * @param f A function object with the signature as defined above which
-             * receives the return value (if any) and arguments (if any) which were
-             * stored in store().
-             */
-            template<class F>
-            void collect(F f) {
-              f(arg);
-            }
-
-            template<class F,class A1>
-            void collect(F f, A1 a1) {
-              f(arg, a1);
-            }
-            template<class F,class A1, class A2>
-            void collect(F f, A1 a1, A2 a2) {
-              f(arg,a1,a2);
-            }
-            template<class F,class A1, class A2, class A3>
-            void collect(F f, A1 a1, A2 a2, A3 a3) {
-              f(arg,a1,a2,a3);
-            }
-            template<class F,class A1, class A2, class A3, class A4>
-            void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
-              f(arg,a1,a2,a3,a4);
-            }
-#endif
         };
 
         template<class T>
@@ -188,11 +153,6 @@ namespace RTT
               executed = true;
             }
 
-            template<class A1>
-            void collect(A1 a1) {
-              a1 = *arg;
-            }
-
             T& operator()() { return *arg; }
 
             operator bool() const {
@@ -200,83 +160,26 @@ namespace RTT
             }
             // type is true if collectable
             typedef boost::mpl::true_ type;
-
-#if 0
-            template<class F>
-            void collect(F f) {
-              f(arg);
-            }
-
-            template<class F,class A1>
-            void collect(F f, A1 a1) {
-              f(*arg, a1);
-            }
-            template<class F,class A1, class A2>
-            void collect(F f, A1 a1, A2 a2) {
-              f(*arg,a1,a2);
-            }
-            template<class F,class A1, class A2, class A3>
-            void collect(F f, A1 a1, A2 a2, A3 a3) {
-              f(*arg,a1,a2,a3);
-            }
-            template<class F,class A1, class A2, class A3, class A4>
-            void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
-              f(*arg,a1,a2,a3,a4);
-            }
-#endif
         };
 
         template<>
         struct RStore<void> {
             bool executed;
-          RStore() :executed(false) {}
+            RStore() :executed(false) {}
 
-          template<class Signature>
-          struct CollectSignature {
-              typedef Signature type;
-          };
+            template<class F>
+            void exec(F f) {
+                f();
+                executed = true;
+            }
 
-          template<class F>
-          void exec(F f) {
-            f();
-            executed = true;
-          }
+            void operator()() { return; }
 
-          template<class A1>
-          void collect(A1 a1) {
-            // nop
-          }
-
-          void operator()() { return; }
-
-          operator bool() const {
-              return executed;
-          }
-          // type is true if collectable
-          typedef boost::mpl::false_ type;
-
-#if 0
-          template<class F>
-          void collect(F f) {
-            f();
-          }
-          template<class F,class A1>
-          void collect(F f, A1 a1) {
-            f(a1);
-          }
-          template<class F,class A1, class A2>
-          void collect(F f, A1 a1, A2 a2) {
-            f(a1,a2);
-          }
-          template<class F,class A1, class A2, class A3>
-          void collect(F f, A1 a1, A2 a2, A3 a3) {
-            f(a1,a2,a3);
-          }
-          template<class F,class A1, class A2, class A3, class A4>
-          void collect(F f, A1 a1, A2 a2, A3 a3, A4 a4) {
-            f(a1,a2,a3,a4);
-          }
-#endif
+            operator bool() const {
+                return executed;
+            }
+            // type is true if collectable
+            typedef boost::mpl::false_ type;
         };
 
         template<int, class T>
@@ -473,6 +376,7 @@ namespace RTT
          * @param F A function signature (like 'int(double)')
          * which is the signature of the member function to be bound
          * and the boost::function signature to return.
+         * @deprecated No longer used.
          */
         template<class F>
         struct MethodBinder
