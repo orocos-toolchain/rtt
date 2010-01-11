@@ -42,6 +42,7 @@
 namespace RTT {
     namespace os {
         class AtomicInt;
+        class Condition;
         class MainThread;
         class Mutex;
         class MutexInterface;

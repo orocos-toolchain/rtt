@@ -41,8 +41,10 @@
 
 #include "fosi.h"
 #include "../rtt-config.h"
+#include "rtt-os-fwd.hpp"
 #include "Time.hpp"
 #ifdef ORO_OS_USE_BOOST_THREAD
+// BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG is defined in rtt-config.h
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
@@ -79,6 +81,7 @@ namespace RTT
      */
 	class RTT_API Mutex : public MutexInterface
     {
+	    friend class Condition;
 #ifndef ORO_OS_USE_BOOST_THREAD
 	protected:
 	    rt_mutex_t m;

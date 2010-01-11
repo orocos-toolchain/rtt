@@ -29,6 +29,9 @@
 #endif
 
 #cmakedefine ORO_OS_USE_BOOST_THREAD
+#ifdef ORO_OS_USE_BOOST_THREAD
+#define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
+#endif
 
 #cmakedefine CONFIG_FORCE_UP
 
