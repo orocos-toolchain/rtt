@@ -124,6 +124,14 @@ extern "C"
   int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time);
   int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
 
+  // Condition variables must support waiting, timed waiting and broadcasting.
+  typedef struct cond_struct rt_cond_t;
+  int rtos_cond_init(rt_cond_t *cond);
+  int rtos_cond_destroy(rt_cond_t *cond);
+  int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex);
+  int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time);
+  int rtos_cond_broadcast(rt_cond_t *cond);
+
 	/**
 	 * 'real-time' print function.
 	 */

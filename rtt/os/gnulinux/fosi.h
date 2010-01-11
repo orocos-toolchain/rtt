@@ -273,6 +273,34 @@ extern "C"
     {
     }
 
+    typedef pthread_cond_t rt_cond_t;
+
+    static inline int rtos_cond_init(rt_cond_t *cond)
+    {
+        return pthread_cond_init(cond, NULL);
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        return pthread_cond_destroy(cond);
+    }
+
+    static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
+    {
+        return pthread_cond_wait(cond, mutex);
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return pthread_cond_timedwait(cond, mutex, &arg_time);
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        return pthread_cond_broadcast(cond);
+    }
+
 #define rtos_printf printf
 
 #ifdef __cplusplus

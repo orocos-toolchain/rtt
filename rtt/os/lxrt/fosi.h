@@ -65,7 +65,7 @@ extern "C" {
 	// Finally, define the types we use :
 	typedef RT_TASK RTOS_RTAI_TASK;
 	typedef SEM     RTOS_RTAI_SEM;
-	typedef CND     RTOS_RTAO_CND;
+	typedef CND     RTOS_RTAI_CND;
 
 #else // AGNOSTIC
 
@@ -86,6 +86,12 @@ extern "C" {
 	typedef struct oro_rtai_sem_t {
 		RTOS_RTAI_SEM* sem;
 	} rt_sem_t;
+
+    // this is required because the rtos_cond_init function takes a pointer to RTOS_COND,
+    // which contains a pointer to the real RTAI cond
+    typedef struct oro_rtai_sem_t {
+        RTOS_RTAI_CND* cond;
+    } rt_cond_t;
 
 #define __LXRT_USERSPACE__
 
@@ -318,6 +324,44 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return rt_sem_signal(m->sem);
     }
 
+    static inline int rtos_cond_init(rt_cond_t *cond)
+    {
+        CHK_LXRT_CALL();
+        cond->cond = rt_cond_init(0);
+        return cond->cond == 0 ? -1 : 0;
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        CHK_LXRT_CALL();
+        return rt_cond_delete(cond->cond);
+    }
+
+    static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
+    {
+        CHK_LXRT_CALL();
+        int ret = rt_cond_wait(cond->cond, mutex->sem );
+        if (ret == 0)
+            return 0;
+        return -1;
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abstime)
+    {
+        CHK_LXRT_CALL();
+        int ret = rt_cond_wait_until(cond->cond, mutex->sem, nano2count(abs_time) );
+        if (ret == 0)
+            return 0;
+        if ( ret == SEM_TIMOUT )
+            return ETIMEOUT;
+        return -1;
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        CHK_LXRT_CALL();
+        return rt_cond_broadcast(cond->cond);
+    }
 inline
 int rtos_printf(const char *fmt, ...)
 {
@@ -386,6 +430,12 @@ int rtos_sem_trywait(rt_sem_t* m );
 int rtos_sem_value(rt_sem_t* m );
 int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
 int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when );
+
+int rtos_cond_init(rt_cond_t *cond);
+int rtos_cond_destroy(rt_cond_t *cond);
+int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex);
+int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time);
+int rtos_cond_broadcast(rt_cond_t *cond);
 
 #endif // OSBLD_OS_AGNOSTIC
 

@@ -91,6 +91,7 @@ extern "C" {
 	typedef RT_MUTEX rt_mutex_t;
 	typedef RT_MUTEX rt_rec_mutex_t;
 	typedef RT_SEM rt_sem_t;
+	typedef RT_COND rt_cond_t;
 
 	// Time Related
 	// 'S' -> Signed long long
@@ -313,6 +314,45 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
         CHK_XENO_CALL();
         rt_task_set_mode(T_WARNSW, 0, NULL);
     }
+
+    static inline int rtos_cond_init(rt_cond_t *cond)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_create(cond, 0);
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_delete(cond);
+    }
+
+    static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
+    {
+        CHK_XENO_CALL();
+        int ret = rt_cond_wait(cond, mutex, TM_INFINITE);
+        if (ret == 0)
+            return 0;
+        return -1;
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
+    {
+        CHK_XENO_CALL();
+        // BC: support Xenomai < 2.5.0
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2500
+        return rt_cond_wait(cond->cond, mutex->sem, rt_timer_ns2ticks(abs_time) - rt_timer_read() );
+#else
+        return rt_cond_wait_until(cond->cond, mutex->sem, rt_timer_ns2ticks(abs_time) );
+#endif
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_broadcast(cond);
+    }
+
 
 #define rtos_printf printf
 
