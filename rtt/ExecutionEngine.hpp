@@ -40,6 +40,7 @@
 #define ORO_EXECUTION_ENGINE_HPP
 
 #include "os/Mutex.hpp"
+#include "os/Condition.hpp"
 #include "base/RunnableInterface.hpp"
 #include "base/ActivityInterface.hpp"
 #include "base/DisposableInterface.hpp"
@@ -141,11 +142,58 @@ namespace RTT
          * Each time one or more messages are processed, waitForMessages will return
          * and you can check (by a means you implemented your own) if your message
          * has been processed.
+         * @param pred As long as !pred() blocks the calling thread. If pred() == true
+         * when entering this function, the returns immediately.
          *
-         * This function is for internal use only and is required for polling and collecting
-         * return values from asynchronous method invocations.
+         * This function is for internal use only and is required for asynchronous method invocations.
+         *
+         * @note waitForMessages requires another thread to execute processMessages()
+         * and may therefor not be called from within the component's Thread. Use
+         * waitAndProcessMessages() instead.
          */
-        void waitForMessages();
+        template<class Predicate>
+        void waitForMessages(Predicate& pred)
+        {
+            if ( pred() )
+                return;
+            // only to be called from the thread not executing step().
+            os::MutexLock lock(msg_lock);
+            while (!pred()) { // the mutex guards that processMessages can not run between !pred and the wait().
+                msg_cond.wait(msg_lock); // now processMessages may run.
+            }
+        }
+
+        /**
+         * Call this if you wish to block on a message arriving in the Execution Engine
+         * and execute it.
+         * @param pred As long as !pred() waits and processes messages. If pred() == true
+         * when entering this function, then no messages will be processed and this function
+         * return immediately.
+         *
+         * This function is for internal use only and is required for asynchronous method invocations.
+         *
+         * @note waitAndProcessMessages will call in turn this->processMessages() and may as a consequence
+         * recurse if we get an asynchronous call-back.
+         */
+        template<class Predicate>
+        void waitAndProcessMessages(Predicate& pred)
+        {
+            while ( !pred() ){
+                {
+                    // only to be called from the thread executing step().
+                    // We must lock because the cond variable will unlock msg_lock.
+                    os::MutexLock lock(msg_lock);
+                    if (!pred()) {
+                        msg_cond.wait(msg_lock); // now processMessages may run.
+                    } else {
+                        return; // do not process messages when pred() == true;
+                    }
+                }
+                // may not be called while holding the msg_lock !!!
+                this->processMessages();
+            }
+        }
+
     protected:
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
@@ -170,6 +218,8 @@ namespace RTT
 
         os::Mutex syncer;
 
+        os::Mutex msg_lock;
+        os::Condition msg_cond;
         void processMessages();
         void processFunctions();
         void processChildren();

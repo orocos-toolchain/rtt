@@ -185,12 +185,24 @@ namespace RTT
 
     void ExecutionEngine::processMessages()
     {
-        // execute one command from the AtomicQueue.
+        // execute all commands from the AtomicQueue.
+        // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
-        while ( !mqueue.isEmpty() ) {
-            mqueue.enqueue( com );
-            com->executeAndDispose();
+        {
+            while ( !mqueue.isEmpty() ) {
+                mqueue.dequeue( com );
+                com->executeAndDispose();
+            }
+            // there's no need to hold the lock during
+            // emptying the queue. But we must hold the
+            // lock once between excuteAndDispose and the
+            // broadcast to avoid the race condition in
+            // waitForMessages().
+            // This allows us to recurse into processMessages.
+            MutexLock locker( msg_lock );
         }
+        if ( com )
+            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
     }
 
     bool ExecutionEngine::process( DisposableInterface* c )
@@ -198,6 +210,7 @@ namespace RTT
         if ( c ) {
             bool result = mqueue.enqueue( c );
             this->getActivity()->trigger();
+            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
         }
         return false;
@@ -209,7 +222,7 @@ namespace RTT
 
         processMessages();
         processFunctions();
-        processChildren();
+        processChildren(); // aren't these ExecutableInterfaces ie functions ?
     }
 
     void ExecutionEngine::processChildren() {
