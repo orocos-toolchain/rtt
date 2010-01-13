@@ -173,6 +173,13 @@ void ErrorHandler(LPTSTR lpszFunction)
         Sleep(0);
     }
 
+    INTERNAL_QUAL int rtos_task_is_self(const RTOS_TASK* task) {
+        DWORD self = GetCurrentThreadId();
+        if ( self == task->threadId )
+            return 1;
+        return 0;
+    }
+
     INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type) {
 
     	//int policy = -1;

@@ -242,6 +242,15 @@ namespace RTT
             rt_task_yield();
         }
 
+        INTERNAL_QUAL int rtos_task_is_self(const RTOS_TASK* task) {
+            RT_TASK* self = rt_buddy();
+            if (self == 0)
+                return -1; // non-rtai thread. We could try to compare pthreads like in gnulinux ?
+            if ( self == task->rtaithread )
+                return 1;
+            return 0;
+        }
+
         INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
         {
             if (*scheduler != SCHED_LXRT_HARD && *scheduler != SCHED_LXRT_SOFT ) {

@@ -133,6 +133,13 @@ namespace RTT
 #endif
 	}
 
+	INTERNAL_QUAL int rtos_task_is_self(const RTOS_TASK* task) {
+	    pthread_t self = pthread_self();
+	    if ( pthread_equal(self, task->thread) == 0 ) // zero means false.
+	        return 0;
+	    return 1;
+	}
+
     INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type) {
         int policy = -1;
         struct sched_param param;

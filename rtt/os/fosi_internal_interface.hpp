@@ -213,6 +213,15 @@ namespace RTT {
              * @return It's name.
              */
             const char * rtos_task_get_name(const RTOS_TASK* task);
+
+            /**
+             * Returns 1 when \a task is the task struct of the thread
+             * calling this function, 0 otherwise.
+             * @param task the task struct to compare against.
+             * @retval -1 if task is not a valid task struct or
+             * this thread is not known to the rtos layer.
+             */
+            int rtos_task_is_self(const RTOS_TASK* task);
     }
 }
 #endif
