@@ -116,6 +116,8 @@ namespace RTT
 
         virtual RTOS_TASK * getTask();
 
+        virtual const RTOS_TASK * getTask() const;
+
         virtual bool setScheduler(int sched_type);
 
         virtual int getScheduler() const;

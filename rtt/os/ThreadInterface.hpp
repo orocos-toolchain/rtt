@@ -128,6 +128,11 @@ namespace RTT
             virtual RTOS_TASK * getTask() = 0;
 
             /**
+             * const version of the above.
+             */
+            virtual const RTOS_TASK * getTask() const = 0;
+
+            /**
              * Change the scheduler policy in which this
              * thread runs.
              * @param sched_type An OS-specific value which
@@ -189,6 +194,8 @@ namespace RTT
             {
                 return threadnb;
             }
+
+            bool isSelf() const;
         protected:
             /**
              * Threads are given an unique number,

@@ -38,6 +38,7 @@
  
 #include "os/ThreadInterface.hpp"
 #include "os/threads.hpp"
+#include "os/fosi_internal_interface.hpp"
 
 using namespace RTT::os;
 
@@ -52,4 +53,9 @@ ThreadInterface::~ThreadInterface()
     // we can not decrement, if a thread is
     // destroyed, the number becomes unused.
     //threads.dec();
+}
+
+bool ThreadInterface::isSelf() const
+{
+    return rtos_task_is_self( this->getTask() ) == 1;
 }

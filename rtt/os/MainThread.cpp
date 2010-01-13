@@ -83,6 +83,8 @@ namespace RTT
 
     RTOS_TASK * MainThread::getTask() { return &main_task; }
 
+    const RTOS_TASK * MainThread::getTask() const { return &main_task; }
+
     bool MainThread::setScheduler(int sched_type)
     {
         if ( rtos_task_set_scheduler(&main_task, sched_type) == 0)
