@@ -107,14 +107,6 @@ extern "C"
 	// hrt is in ticks
 	inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 	{
-		/*LARGE_INTEGER freq;
-		if(!QueryPerformanceFrequency(&freq) )
-			assert(false);
-
-		TIME_SPEC timevl;
-		timevl.tv_sec = hrt / freq.QuadPart;
-		timevl.tv_nsec = hrt*( 1000000000LL / freq.QuadPart );
-*/
 		TIME_SPEC timevl;
 		timevl.tv_sec = (long)(hrt / 1000000000LL);
 		timevl.tv_nsec = (long)(hrt % 1000000000LL);
@@ -123,7 +115,12 @@ extern "C"
 
     inline NANO_TIME rtos_get_time_ns( void )
     {
-    	return GetTickCount() * 1000000LL;
+		LARGE_INTEGER freq;
+		LARGE_INTEGER ticks;
+		QueryPerformanceFrequency(&freq);
+		QueryPerformanceCounter(&ticks);
+
+		return(NANO_TIME)(((double)ticks.QuadPart * 1000000000LL) / (double)freq.QuadPart);
     }
 
     /**
@@ -132,18 +129,11 @@ extern "C"
      */
     inline TICK_TIME rtos_get_time_ticks()
     {
-    	/*LARGE_INTEGER ticks;
-    	if( !QueryPerformanceCounter(&ticks) ){
-    		assert(false);
-    	}
-    	return (TICK_TIME) ticks.QuadPart;
-    	*/
     	return rtos_get_time_ns();
     }
 
     inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
-    	// printf("rtos_nanosleep %li ", (rqtp->tv_sec * 1000L + rqtp->tv_nsec/1000000L));
         Sleep(DWORD(rqtp->tv_sec * 1000L) + rqtp->tv_nsec/1000000L);
         return 0;
     }
