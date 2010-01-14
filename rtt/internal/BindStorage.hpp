@@ -42,36 +42,30 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
-#include <boost/function_types/function_type.hpp>
-#include <boost/function_types/function_arity.hpp>
-#include <boost/function_types/parameter_types.hpp>
-#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/filter_if.hpp>
-#include "quickbind.hpp"
 
 namespace RTT
 {
     namespace internal
     {
         namespace bf=boost::fusion;
+        namespace mpl=boost::mpl;
         /**
          * Store a bound argument which may be a reference, const reference or
          * any other type.
          */
         template<class T>
-        struct AStore {
+        struct AStore
+        {
             T arg;
             AStore() : arg() {}
             AStore(T t) : arg(t) {}
 
-            const T& operator()() const { return arg; }
+            const T& get() const { return arg; }
             void operator()(T a) { arg = a; }
 
             operator T() { return arg;}
-
-            // type is true if collectable
-            typedef boost::mpl::false_ type;
         };
 
         template<class T>
@@ -81,12 +75,10 @@ namespace RTT
             AStore() : arg(0) {}
             AStore(T& t) : arg(&t) {}
 
-            T& operator()() { return *arg; }
+            T& get() { return *arg; }
             void operator()(T& a) { arg = &a; }
 
             operator T&() { return *arg;}
-            // type is true if collectable
-            typedef boost::mpl::true_ type;
         };
 
 #if 0
@@ -101,6 +93,8 @@ namespace RTT
             void operator()(const T& a) { arg = &a; }
         };
 #endif
+        template<class T>
+        std::ostream& operator<<(std::ostream& o, AStore<T>& a) { o << "aarg:"<<a.get(); return o;}
 
         /**
          * Store a return value which may be a void, reference, const reference or
@@ -118,11 +112,14 @@ namespace RTT
             bool executed;
             RStore() : arg(), executed(false) {}
 
-            operator bool() const {
+            bool isExecuted() const {
                 return executed;
             }
 
-            T& operator()() { return arg; }
+            //bool operator()() { return executed; }
+
+            T& result() { return arg; }
+            operator T&() { return arg;}
 
             /**
              * Stores the result of a function.
@@ -136,8 +133,6 @@ namespace RTT
                 executed = true;
             }
 
-            // type is true if collectable
-            typedef boost::mpl::true_ type;
         };
 
         template<class T>
@@ -153,13 +148,14 @@ namespace RTT
               executed = true;
             }
 
-            T& operator()() { return *arg; }
-
-            operator bool() const {
+            bool isExecuted() const {
                 return executed;
             }
-            // type is true if collectable
-            typedef boost::mpl::true_ type;
+
+            //bool operator()() { return executed; }
+
+            T& result() { return *arg; }
+            operator T&() { return *arg;}
         };
 
         template<>
@@ -173,14 +169,50 @@ namespace RTT
                 executed = true;
             }
 
-            void operator()() { return; }
-
-            operator bool() const {
+            bool isExecuted() const {
                 return executed;
             }
-            // type is true if collectable
-            typedef boost::mpl::false_ type;
+
+            //bool operator()() { return executed; }
+
+            void result() { return; }
         };
+
+        template<class T>
+        std::ostream& operator<<(std::ostream& o, RStore<T>& a) { o << "rarg:"<<a.result(); return o;}
+
+        /**
+         * This helper struct is required to filter out the AStore
+         * elements that don't need to be returned to the user when
+         * collect or return is called. We only return AStore elements
+         * that store a pure reference and RStore elements that are not void.
+         * @see LocalMethodImpl
+         */
+        template<class Arg>
+        struct is_arg_return : public mpl::false_ {};
+
+        template<class T>
+        struct is_arg_return<AStore<T&> > : public mpl::true_
+        {};
+
+        template<>
+        struct is_arg_return<RStore<void> > : public mpl::false_
+        {};
+
+        template<class T>
+        struct is_arg_return<RStore<T> > : public mpl::true_
+        {};
+
+        /**
+         * Outargs are of type AStore and contain a pure reference.
+         */
+        template<class Arg>
+        struct is_out_arg : public mpl::false_ {};
+
+        template<class T>
+        struct is_out_arg<AStore<T&> > : public mpl::true_
+        {};
+
 
         template<int, class T>
         struct BindStorageImpl;
@@ -193,13 +225,19 @@ namespace RTT
         struct BindStorageImpl<0, ToBind>
         {
             typedef typename boost::function_traits<ToBind>::result_type result_type;
+            typedef RStore<result_type> RStoreType;
 
-            mutable RStore<result_type> ret;
+            boost::function<ToBind> mmeth;
+
+            mutable RStore<result_type> retn;
             // stores the original function pointer
 
-            boost::function<ToBind> mcomm;
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&> vStore;
+            BindStorageImpl() :  vStore(boost::ref(retn)) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn) {}
 
-            void exec() { ret.exec( mcomm ); }
+            void exec() { retn.exec( mmeth ); }
         };
 
         /**
@@ -210,21 +248,20 @@ namespace RTT
         {
             typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
+            typedef RStore<result_type> RStoreType;
 
             // stores the original function pointer, supplied by the user.
-            boost::function<ToBind>  mcomm;
+            boost::function<ToBind>  mmeth;
             // Store the argument.
             mutable AStore<arg1_type> a1;
-            mutable RStore<result_type> ret;
+            mutable RStore<result_type> retn;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
-            bf::vector< AStore<arg1_type>& > aStore;
-            BindStorageImpl() : vStore( ret, a1), aStore( a1 ) {
-            }
-
+            BindStorageImpl() : vStore(retn,a1) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1) {}
             void store(arg1_type t1) { a1(t1); }
-            void exec() { ret.exec( boost::bind(mcomm, boost::ref(a1()) ) ); }
+            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) ); }
 
         };
 
@@ -234,22 +271,22 @@ namespace RTT
             typedef typename boost::function_traits<ToBind>::result_type result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
+            typedef RStore<result_type> RStoreType;
 
             // stores the original function pointer
-            boost::function<ToBind> mcomm;
+            boost::function<ToBind> mmeth;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
-            mutable RStore<result_type> ret;
+            mutable RStore<result_type> retn;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
-            bf::vector< AStore<arg1_type>&, AStore<arg2_type>& > aStore;
-            BindStorageImpl() : vStore( ret, a1, a2), aStore( a1, a2) {
-            }
+            BindStorageImpl() : vStore(retn,a1,a2) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2) {}
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
-            void exec() { ret.exec( boost::bind(mcomm, boost::ref(a1()), boost::ref(a2()) ) ); }
+            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) ); }
 
         };
 
@@ -260,16 +297,23 @@ namespace RTT
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
             typedef typename boost::function_traits<ToBind>::arg3_type   arg3_type;
+            typedef RStore<result_type> RStoreType;
 
             // stores the original function pointer
-            boost::function<ToBind> mcomm;
+            boost::function<ToBind> mmeth;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
+            mutable RStore<result_type> retn;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
+            BindStorageImpl() : vStore(retn,a1,a2,a3) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
-            bool exec() { return mcomm( a1(), a2(), a3() ); }
+            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) ); }
         };
 
         template<class ToBind>
@@ -280,17 +324,24 @@ namespace RTT
             typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
             typedef typename boost::function_traits<ToBind>::arg3_type   arg3_type;
             typedef typename boost::function_traits<ToBind>::arg4_type   arg4_type;
+            typedef RStore<result_type> RStoreType;
 
             // stores the original function pointer
-            boost::function<ToBind> mcomm;
+            boost::function<ToBind> mmeth;
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
             mutable AStore<arg4_type> a4;
+            mutable RStore<result_type> retn;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
+            BindStorageImpl() : vStore(retn,a1,a2,a3,a4) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3,a4) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool exec() { return mcomm( a1(), a2(), a3(), a4() ); }
+            bool exec() { retn.exec( boost::bind( mmeth, a1.get(), a2.get(), a3.get(), a4.get() ) ); }
         };
 
 
@@ -317,71 +368,6 @@ namespace RTT
             : public BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>
         {
         };
-
-        template<int, class F>
-        struct MethodBinderImpl;
-
-        template<class F>
-        struct MethodBinderImpl<0,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<1,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<2,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<3,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2, _3 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<4,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4 );
-            }
-        };
-
-        /**
-         * Very simple \b factory class to bind a member function to an
-         * object pointer and leave the arguments open. The operator()
-         * returns a boost::function<F> object.
-         *
-         * There is no constructor and the operator() is
-         * implemented in the MethodBinderImpl base classes.
-         * @param F A function signature (like 'int(double)')
-         * which is the signature of the member function to be bound
-         * and the boost::function signature to return.
-         * @deprecated No longer used.
-         */
-        template<class F>
-        struct MethodBinder
-            : public MethodBinderImpl<boost::function_traits<F>::arity, F>
-        {};
     }
 }
 #endif

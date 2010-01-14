@@ -47,6 +47,13 @@
 #include "../SendStatus.hpp"
 #include "../SendHandle.hpp"
 #include "../ExecutionEngine.hpp"
+#include "MethodBinder.hpp"
+#include <boost/fusion/include/vector_tie.hpp>
+
+#include <iostream>
+// For doing I/O
+#include <boost/fusion/sequence/io.hpp>
+using namespace std;
 
 namespace RTT
 {
@@ -71,7 +78,6 @@ namespace RTT
               protected BindStorage<FunctionT>
         {
         protected:
-            boost::function<FunctionT> mmeth;
             ExecutionEngine* myengine;
             ExecutionEngine* caller;
             typedef BindStorage<FunctionT> Store;
@@ -84,12 +90,15 @@ namespace RTT
             typedef boost::function_traits<Signature> traits;
 
             void executeAndDispose() {
-                if (!this->ret) {
+                using namespace std;
+                if (!this->retn.isExecuted()) {
                     this->exec(); // calls BindStorage.
+                    //cout << "executed method"<<endl;
                     if (caller){
                         caller->process(this);
                     }
                 } else {
+                    //cout << "received method done msg."<<endl;
                     // Already executed, are in caller.
                     // nop, we will check ret in collect()
                     // This is the place to call call-back functions,
@@ -107,6 +116,7 @@ namespace RTT
             SendHandle<Signature> send_impl() {
                 assert(myengine);
                 base::MethodBase<Signature>* cl = this->cloneI();
+                //std::cout << "Sending clone..."<<std::endl;
                 if ( myengine->process( cl ) )
                     return SendHandle<Signature>( cl );
                 else {
@@ -148,7 +158,7 @@ namespace RTT
             }
 
             SendStatus collectIfDone_impl() {
-                if ( this->ret ) {
+                if ( this->retn.isExecuted()) {
                     return SendSuccess;
                 } else
                     return SendNotReady;
@@ -157,63 +167,61 @@ namespace RTT
             // collect_impl belongs in LocalMethodImpl because it would need
             // to be repeated in each BindStorage spec.
             template<class T1>
-            SendStatus collectIfDone_impl( T1 a1 ) {
-                bf::vector<T1> vArgs( boost::ref(a1) );
-                if ( this->ret ) {
-                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+            SendStatus collectIfDone_impl( T1& a1 ) {
+                if ( this->retn.isExecuted()) {
+                    bf::vector_tie(a1) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
                     return SendNotReady;
             }
 
             template<class T1, class T2>
-            SendStatus collectIfDone_impl( T1 a1, T2 a2 ) {
-                bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
-                if ( this->ret ) {
-                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+            SendStatus collectIfDone_impl( T1& a1, T2& a2 ) {
+                if ( this->retn.isExecuted()) {
+                    bf::vector_tie(a1,a2) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 }
                 return SendNotReady;
             }
 
             template<class T1, class T2, class T3>
-            SendStatus collectIfDone_impl( T1 a1, T2 a2, T3 a3 ) {
-                bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
-                if ( this->ret ) {
-                    vArgs = bf::filter_if<mpl::_>(this->vStore);
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3 ) {
+                if ( this->retn.isExecuted()) {
+                    bf::vector_tie(a1,a2,a3) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
+                if ( this->retn.isExecuted()) {
+                    bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
                     return SendNotReady;
             }
 
             SendStatus collect_impl() {
-                /*
-                while( this->ret == false ) {
-                    myengine->waitForMessages();
-                }
+                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
                 return this->collectIfDone_impl();
-                 */
-                return SendNotReady;
             }
             template<class T1>
-            SendStatus collect_impl( T1 a1 ) {
-                /*
-                while( this->ret == false ) {
-                    myengine->waitForMessages();
-                }
+            SendStatus collect_impl( T1& a1 ) {
+                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
                 return this->collectIfDone_impl(a1);
-                 */
-                return SendNotReady;
             }
 
             template<class T1, class T2>
-            SendStatus collect_impl( T1 a1, T2 a2 ) {
-                return SendNotReady;
+            SendStatus collect_impl( T1& a1, T2& a2 ) {
+                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
+                return this->collectIfDone_impl(a1,a2);
             }
 
             template<class T1, class T2, class T3>
-            SendStatus collect_impl( T1 a1, T2 a2, T3 a3 ) {
-                return SendNotReady;
+            SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) {
+                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
+                return this->collectIfDone_impl(a1,a2,a3);
             }
 
             /**
@@ -226,11 +234,11 @@ namespace RTT
                 if ( myengine ) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )
-                        return ret_impl();
+                        return h.ret();
                     else
                         throw SendFailure;
                 } else
-                    return mmeth();
+                    return this->mmeth();
             }
 
 
@@ -246,11 +254,11 @@ namespace RTT
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
                     if ( h.collect() == SendSuccess )
-                        return ret_impl(a1);
+                        return h.ret(a1);
                     else
                         throw SendFailure;
                 } else
-                    return mmeth(a1);
+                    return this->mmeth(a1);
             }
 
             template<class T1, class T2>
@@ -260,11 +268,11 @@ namespace RTT
                 if ( myengine ) {
                     h = send_impl(a1,a2);
                     if ( h.collect() == SendSuccess )
-                        return ret_impl(a1,a2);
+                        return h.ret(a1,a2);
                     else
                         throw SendFailure;
                 } else
-                    return mmeth(a1,a2);
+                    return this->mmeth(a1,a2);
             }
 
             template<class T1, class T2, class T3>
@@ -274,16 +282,30 @@ namespace RTT
                 if ( myengine ) {
                     h = send_impl(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
-                        return ret_impl(a1,a2,a3);
+                        return h.ret(a1,a2,a3);
                     else
                         throw SendFailure;
                 } else
-                    return mmeth(a1,a2,a3);
+                    return this->mmeth(a1,a2,a3);
+            }
+
+            template<class T1, class T2, class T3, class T4>
+            result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4)
+            {
+                SendHandle<Signature> h;
+                if ( myengine ) {
+                    h = send_impl(a1,a2,a3,a4);
+                    if ( h.collect() == SendSuccess )
+                        return h.ret(a1,a2,a3,a4);
+                    else
+                        throw SendFailure;
+                } else
+                    return this->mmeth(a1,a2,a3,a4);
             }
 
             result_type ret_impl()
             {
-                return this->ret(); // may return void.
+                return this->retn.result(); // may return void.
             }
 
             /**
@@ -294,51 +316,42 @@ namespace RTT
             template<class T1>
             result_type ret_impl(T1 a1)
             {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1> vArgs( boost::ref(a1) );
-                if ( this->ret )
-                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
-                return this->ret(); // may return void.
+                if ( this->retn.isExecuted())
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->retn.result(); // may return void.
             }
 
             template<class T1,class T2>
             result_type ret_impl(T1 a1, T2 a2)
             {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
-                if ( this->ret )
-                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
-                return this->ret(); // may return void.
+                if ( this->retn.isExecuted())
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg< boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->retn.result(); // may return void.
             }
 
             template<class T1,class T2, class T3>
             result_type ret_impl(T1 a1, T2 a2, T3 a3)
             {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
-                if ( this->ret )
-                    vArgs = this->aStore; //bf::filter_if<mpl::_>(this->vStore);
-                return this->ret(); // may return void.
+                if ( this->retn.isExecuted())
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->retn.result(); // may return void.
             }
 
-            /**
-             * The object already stores the user class function pointer and
-             * the pointer to the class object.
-             */
-            template<class F, class ObjectType>
-            void setup(F f, ObjectType t)
+            template<class T1,class T2, class T3, class T4>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
-                this->mcomm = quickbind<F,ObjectType>( f, t); // allocates
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
+                if ( this->retn.isExecuted())
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->retn.result(); // may return void.
             }
-
-            template<class F>
-            void setup(F f)
-            {
-                this->mcomm = quickbindC<F>(f); // allocates
-            }
-
-            void setup(boost::function<Signature> f)
-            {
-                this->mcomm = f;
-            }
-
 
         };
 
@@ -376,10 +389,11 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              */
             template<class M, class ObjectType>
-            LocalMethod(M meth, ObjectType object)
+            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller)
             {
                 this->mmeth = MethodBinder<Signature>()(meth, object);
-                this->setup(meth,object);
+                this->myengine = ee;
+                this->caller = caller;
             }
 
             /**
@@ -389,9 +403,11 @@ namespace RTT
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalMethod(M meth)
+            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller)
             {
                 this->mmeth = meth;
+                this->myengine = ee;
+                this->caller = caller;
             }
 
             boost::function<Signature> getMethodFunction() const

@@ -21,11 +21,12 @@ public:
     {
         tc =  new TaskContext( "root" );
         tc->addObject( this->createMethodFactory() );
-        tsim = new SimulationActivity(0.001, tc->engine() );
+        caller = new TaskContext("caller");
+        caller->start();
+        tc->start();
     }
 
-    TaskContext* tc;
-    ActivityInterface* tsim;
+    TaskContext* tc, *caller;
 
     // ref/const-ref tests:
     double ret;
@@ -57,10 +58,10 @@ public:
     {
         //     if ( tc->getPeer("programs") )
         //         delete tc->getPeer("programs");
-        tsim->stop();
+        tc->stop();
         SimulationThread::Instance()->stop();
         delete tc;
-        delete tsim;
+        delete  caller;
     }
 
     TaskObject* createMethodFactory()
@@ -81,19 +82,88 @@ public:
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  MethodTestSuite,  MethodTest )
 
-BOOST_AUTO_TEST_CASE(testMethod)
+BOOST_AUTO_TEST_CASE(testClientThreadMethod)
 {
     Method<double(void)> m0("m0", &MethodTest::m0, this);
     Method<double(int)> m1("m1", &MethodTest::m1, this);
     Method<double(int,double)> m2("m2", &MethodTest::m2, this);
-//    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
-//    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
+    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
+    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-//    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-//    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+}
+
+BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
+{
+    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
+    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
+    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
+    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
+
+    BOOST_REQUIRE( tc->isRunning() );
+    BOOST_REQUIRE( caller->isRunning() );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+}
+
+BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
+{
+    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
+    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
+    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, tc->engine(), caller->engine());
+
+    BOOST_REQUIRE( tc->isRunning() );
+    BOOST_REQUIRE( caller->isRunning() );
+    SendHandle<double(void)> h0 = m0.send();
+    SendHandle<double(int)> h1 = m1.send(1);
+    SendHandle<double(int,double)> h2 = m2.send(1, 2.0);
+    SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, false);
+    SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, false,"hello");
+
+    double retn=0;
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h1.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -2.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h2.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -3.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h3.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -4.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -5.0 );
+
+    // collectIfDone will certainly succeed after collect
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h1.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -2.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h2.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -3.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h3.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -4.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h4.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -5.0 );
+
+    // the return value api.
+    BOOST_CHECK_EQUAL( -1.0, h0.ret() );
+    BOOST_CHECK_EQUAL( -2.0, h1.ret(1) );
+    BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -2.0, h1.ret() );
+    BOOST_CHECK_EQUAL( -3.0, h2.ret() );
+    BOOST_CHECK_EQUAL( -4.0, h3.ret() );
+    BOOST_CHECK_EQUAL( -5.0, h4.ret() );
 }
 
 #if 0
@@ -175,8 +245,6 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     BOOST_CHECK( mm2.getMethodImpl() );
     BOOST_CHECK( mm2.ready() );
 
-    // start the activity, such that methods are accepted.
-    BOOST_CHECK( tsim->start()) ;
     // execute methods and check status:
     BOOST_CHECK_EQUAL( -1.0, mm0() );
 
@@ -296,8 +364,6 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
 
-    BOOST_CHECK( tsim->start()) ;
-
     double ret;
     MethodC c0  = to.methods()->create("m0").ret(ret);
     BOOST_CHECK( c0.execute() );
@@ -305,8 +371,6 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     MethodC c1  = to.methods()->create("m1").argC(1).ret(ret);
     BOOST_CHECK( c1.execute() );
     BOOST_CHECK_EQUAL( -2.0, ret );
-
-    BOOST_CHECK( tsim->stop()) ;
 
 }
 

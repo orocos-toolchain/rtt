@@ -75,6 +75,11 @@ namespace RTT
                 return BaseImpl::call_impl();
             }
 
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
+            }
+
             SendHandle<F> send()
             {
                 return BaseImpl::send_impl();
@@ -94,6 +99,14 @@ namespace RTT
             result_type call(arg1_type a1)
             {
                 return BaseImpl::template call_impl<arg1_type>( a1 );
+            }
+            result_type ret(arg1_type a1)
+            {
+                return BaseImpl::template ret_impl<arg1_type>( a1 );
+            }
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
             }
             SendHandle<F> send(arg1_type a1)
             {
@@ -117,6 +130,16 @@ namespace RTT
                 return BaseImpl::template call_impl<arg1_type, arg2_type>(t1, t2);
             }
 
+            result_type ret(arg1_type t1, arg2_type t2)
+            {
+                return BaseImpl::template ret_impl<arg1_type, arg2_type>(t1, t2);
+            }
+
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
+            }
+
             SendHandle<F> send(arg1_type t1, arg2_type t2)
             {
                 return BaseImpl::template send_impl<arg1_type, arg2_type>(t1, t2);
@@ -137,12 +160,22 @@ namespace RTT
              */
             result_type call(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                return BaseImpl::template send_impl<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+                return BaseImpl::template call_impl<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+            }
+
+            result_type ret(arg1_type t1, arg2_type t2, arg3_type t3)
+            {
+                return BaseImpl::template ret_impl<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+            }
+
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
             }
 
             SendHandle<F> send(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                return BaseImpl::template call_impl<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+                return BaseImpl::template send_impl<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
             }
 
         };
@@ -162,7 +195,22 @@ namespace RTT
              */
             result_type call(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
-                //return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+                return BaseImpl::template call_impl<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+            }
+
+            result_type ret(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            {
+                return BaseImpl::template ret_impl<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+            }
+
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
+            }
+
+            SendHandle<F> send(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            {
+                return BaseImpl::template send_impl<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
             }
 
         };

@@ -171,8 +171,8 @@ namespace RTT
          * @param object An object of the class which has \a meth as member function.
          */
         template<class M, class ObjectType>
-        Method(std::string name, M meth, ObjectType object)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object) ) ),
+        Method(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object, ee, caller) ) ),
               mname(name)
         {}
 
@@ -183,8 +183,8 @@ namespace RTT
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        Method(std::string name, M meth)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth) ) ),
+        Method(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth,ee,caller) ) ),
               mname(name)
         {}
 
@@ -233,8 +233,8 @@ namespace RTT
      * @param object A pointer to the object which has the above member function.
      */
     template<class F, class O>
-    Method< typename internal::UnMember<F>::type > method(std::string name, F method, O object) {
-        return Method<  typename internal::UnMember<F>::type >(name, method, object);
+    Method< typename internal::UnMember<F>::type > method(std::string name, F method, O object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return Method<  typename internal::UnMember<F>::type >(name, method, object, ee, caller);
     }
 
     /**
@@ -244,8 +244,8 @@ namespace RTT
      * @param method A pointer to a function to be executed.
      */
     template<class F>
-    Method<F> method(std::string name, F method) {
-        return Method<F>(name, method);
+    Method<F> method(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return Method<F>(name, method, ee, caller);
     }
     /**
      * Create a Method which executes a function locally.
@@ -254,8 +254,8 @@ namespace RTT
      * @param method A pointer to a function to be executed.
      */
     template<class F>
-    Method< typename internal::ArgMember<F>::type > method_ds(std::string name, F method) {
-        return Method<  typename internal::ArgMember<F>::type >(name, method);
+    Method< typename internal::ArgMember<F>::type > method_ds(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return Method<  typename internal::ArgMember<F>::type >(name, method, ee, caller);
     }
 }
 

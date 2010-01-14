@@ -77,6 +77,8 @@ namespace RTT
     class OutputPort;
     template<typename T>
     class Property;
+    template<typename T>
+    class SendHandle;
 
 }
 #endif

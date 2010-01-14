@@ -41,6 +41,7 @@ namespace RTT
             virtual ~InvokerBaseImpl() {}
             virtual SendHandle<F> send() = 0;
             virtual result_type call() = 0;
+            virtual result_type ret() = 0;
         };
 
         template<class F>
@@ -51,6 +52,8 @@ namespace RTT
             typedef typename boost::function<F>::arg1_type arg1_type;
             virtual ~InvokerBaseImpl() {}
             virtual result_type call(arg1_type a1) = 0;
+            virtual result_type ret(arg1_type a1) = 0;
+            virtual result_type ret() = 0;
             virtual SendHandle<F> send(arg1_type a1) = 0;
         };
 
@@ -63,6 +66,8 @@ namespace RTT
             typedef typename boost::function<F>::arg2_type arg2_type;
             virtual ~InvokerBaseImpl() {}
             virtual result_type call(arg1_type a1, arg2_type a2) = 0;
+            virtual result_type ret(arg1_type a1, arg2_type a2) = 0;
+            virtual result_type ret() = 0;
             virtual SendHandle<F> send(arg1_type a1, arg2_type a2) = 0;
         };
 
@@ -75,7 +80,10 @@ namespace RTT
             typedef typename boost::function<F>::arg2_type arg2_type;
             typedef typename boost::function<F>::arg3_type arg3_type;
             virtual ~InvokerBaseImpl() {}
-            virtual result_type operator()(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
+            virtual result_type call(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
+            virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
+            virtual result_type ret() = 0;
+            virtual SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
         };
 
         template<class F>
@@ -88,7 +96,10 @@ namespace RTT
             typedef typename boost::function<F>::arg3_type arg3_type;
             typedef typename boost::function<F>::arg4_type arg4_type;
             virtual ~InvokerBaseImpl() {}
-            virtual result_type operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
+            virtual result_type call(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
+            virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
+            virtual result_type ret() = 0;
+            virtual SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
         };
    }
 }

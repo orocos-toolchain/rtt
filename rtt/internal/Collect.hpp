@@ -51,7 +51,7 @@ namespace RTT
              */
             virtual SendStatus collect()
             {
-                return SendFailure;
+                return BaseImpl::collect_impl();
             }
             /**
              * Collect a void(arg1_type) F or
@@ -60,11 +60,11 @@ namespace RTT
              */
             virtual SendStatus collect(arg1_type a1)
             {
-                return SendFailure;
+                return BaseImpl::collect_impl(a1);
             }
             virtual SendStatus collectIfDone(arg1_type a1)
             {
-                return SendFailure;
+                return BaseImpl::collectIfDone_impl(a1);
             }
         };
 
@@ -82,7 +82,7 @@ namespace RTT
              */
             virtual SendStatus collect()
             {
-                return SendFailure;
+                return BaseImpl::collect_impl();
             }
             /**
              * Collect a void(arg1_type) F or
@@ -91,11 +91,11 @@ namespace RTT
              */
             virtual SendStatus collect(arg1_type a1, arg2_type a2)
             {
-                return SendFailure;
+                return BaseImpl::collect_impl(a1,a2);
             }
             virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2)
             {
-                return SendFailure;
+                return BaseImpl::collectIfDone_impl(a1,a2);
             }
         };
 
@@ -114,7 +114,7 @@ namespace RTT
              */
             virtual SendStatus collect()
             {
-                return SendFailure;
+                return BaseImpl::collect_impl();
             }
             /**
              * Collect a void(arg1_type) F or
@@ -123,11 +123,44 @@ namespace RTT
              */
             virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3)
             {
-                return SendFailure;
+                return BaseImpl::collect_impl(a1,a2,a3);
             }
             virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3)
             {
-                return SendFailure;
+                return BaseImpl::collectIfDone_impl(a1,a2,a3);
+            }
+        };
+
+        template<class Ft, class BaseImpl>
+        struct CollectImpl<4,Ft,BaseImpl>
+        : public BaseImpl
+        {
+            typedef typename boost::function<Ft>::arg1_type arg1_type;
+            typedef typename boost::function<Ft>::arg2_type arg2_type;
+            typedef typename boost::function<Ft>::arg3_type arg3_type;
+            typedef typename boost::function<Ft>::arg4_type arg4_type;
+            virtual ~CollectImpl() {}
+
+            /**
+             * Collect F without returning the results.
+             * @return
+             */
+            virtual SendStatus collect()
+            {
+                return BaseImpl::collect_impl();
+            }
+            /**
+             * Collect a void(arg1_type) F or
+             * arg1_type(void) F
+             * @return
+             */
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
+            {
+                return BaseImpl::collect_impl(a1,a2,a3,a4);
+            }
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
+            {
+                return BaseImpl::collectIfDone_impl(a1,a2,a3,a4);
             }
         };
 

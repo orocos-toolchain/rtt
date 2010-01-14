@@ -70,12 +70,19 @@ namespace RTT
         struct CollectSignature<0,F,ToCollect>
         {
             typedef void result_type;
-            CollectSignature() : impl() {}
-            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() {}
 
+            SendStatus collect()
+            {
+                if (this->impl)
+                    return this->impl->collect();
+                return SendFailure;
+            }
+
         protected:
-            ToCollect impl;
+            ToCollect cimpl;
         };
 
         // Used when return non void with only in kind args OR return void
@@ -85,8 +92,8 @@ namespace RTT
         {
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
 
-            CollectSignature() : impl() {}
-            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() {}
 
             /**
@@ -94,13 +101,19 @@ namespace RTT
              */
             SendStatus collect(arg1_type a1)
             {
-                if (impl)
-                    return impl->collect( a1 );
+                if (cimpl)
+                    return cimpl->collect( a1 );
                 return SendFailure;
             }
 
+            SendStatus collectIfDone(arg1_type a1)
+            {
+                if (cimpl)
+                    return cimpl->collectIfDone( a1 );
+                return SendFailure;
+            }
         protected:
-            ToCollect impl;
+            ToCollect cimpl;
         };
 
         template<class F, class ToCollect>
@@ -109,8 +122,8 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
 
-            CollectSignature() : impl() {}
-            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() {}
 
             /**
@@ -118,13 +131,19 @@ namespace RTT
              */
             SendStatus collect(arg1_type t1, arg2_type t2)
             {
-                if (impl)
-                    return impl->collect(t1, t2);
+                if (cimpl)
+                    return cimpl->collect(t1, t2);
                 return SendFailure;
             }
 
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2)
+            {
+                if (cimpl)
+                    return cimpl->collectIfDone(t1, t2);
+                return SendFailure;
+            }
         protected:
-            ToCollect impl;
+            ToCollect cimpl;
         };
 
         template<class F, class ToCollect>
@@ -134,8 +153,8 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
 
-            CollectSignature() : impl() {}
-            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() { }
 
             /**
@@ -143,13 +162,19 @@ namespace RTT
              */
             SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                if (impl)
-                    return impl->collect(t1, t2, t3);
+                if (cimpl)
+                    return cimpl->collect(t1, t2, t3);
                 return SendFailure;
             }
 
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3)
+            {
+                if (cimpl)
+                    return cimpl->collectIfDone(t1, t2, t3);
+                return SendFailure;
+            }
         protected:
-            ToCollect impl;
+            ToCollect cimpl;
         };
 
         template<class F, class ToCollect>
@@ -160,8 +185,8 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
             typedef typename boost::function_traits<F>::arg4_type arg4_type;
 
-            CollectSignature() : impl() {}
-            CollectSignature(ToCollect implementation) : impl(implementation) {}
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
             ~CollectSignature() { }
 
             /**
@@ -169,13 +194,19 @@ namespace RTT
              */
             SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
-                if (impl)
-                    return impl->collect(t1, t2, t3, t4);
+                if (cimpl)
+                    return cimpl->collect(t1, t2, t3, t4);
                 return SendFailure;
             }
 
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
+            {
+                if (cimpl)
+                    return cimpl->collect(t1, t2, t3, t4);
+                return SendFailure;
+            }
         protected:
-            ToCollect impl;
+            ToCollect cimpl;
         };
 
 

@@ -4,51 +4,67 @@
 #include "rtt-config.h"
 #include "internal/CollectSignature.hpp"
 #include "internal/CollectBase.hpp"
+#include "internal/InvokerSignature.hpp"
+#include "internal/InvokerBase.hpp"
+#include "base/MethodBase.hpp"
 #include <boost/type_traits.hpp>
 
 namespace RTT
 {
     /**
      * @brief The SendHandle is used to collect the result values
-     * of an asynchronous invocation.
+     * of an asynchronous invocation. The template argument Signature
+     * must have the same type as the method being invoked.
      */
     template<class Signature>
 	class SendHandle
-        : public internal::CollectSignature<boost::function_traits<Signature>::arity, Signature, internal::CollectBase<Signature>* >
+        : public internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
+                                            typename internal::CollectType<Signature>::Ft,
+                                            internal::CollectBase<Signature>* >,
+          public internal::InvokerSignature<boost::function_traits<Signature>::arity,
+                                          Signature,
+                                          base::MethodBase<Signature>* >
 	{
 	private:
-		typedef internal::CollectBase<Signature>*      collector_t; //! the collection object
+        typedef internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
+                                           typename internal::CollectType<Signature>::Ft,
+                                           internal::CollectBase<Signature>* >      CBase;
+        typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
+                                           Signature,
+                                           base::MethodBase<Signature>* >      IBase;
 	public:
         /**
          * Create an empty SendHandle.
          */
 		SendHandle() {}
 
-        SendHandle(collector_t coll) : m_coll(coll) {}
+        SendHandle(base::MethodBase<Signature>* coll) : CBase(coll), IBase(coll) {}
 
         /**
          * Create a copy-equivalent SendHandle.
          */
-        SendHandle(const SendHandle& hs) : m_coll(hs.m_coll) {}
+        SendHandle(const SendHandle& hs) : CBase(hs.cimpl), IBase(hs.impl) {}
 
         /**
          * No-op destructor, does not change signal/slot state.
          */
-		~SendHandle() {
-		    //m_coll->dispose();
-		}
+        ~SendHandle() {
+		    //impl->dispose();
+        }
 
         /**
          * Inspect if this SendHandle is pointing to a valid (existing) invocation.
          * @return false if no invocation is associated with this SendHandle.
          */
-        operator bool() const { return m_coll;}
+        operator bool() const { return this->impl != 0;}
 
         /**
          * Inspect if this SendHandle is pointing to valid (existing) invocation.
          * @return false if no invocation is associated with this handle.
          */
-        bool ready() const { return m_coll;}
+        bool ready() const { return this->impl != 0;}
+
+        using CBase::collect;
 
         /**
          * Collect this operator if the method has no arguments.
@@ -59,34 +75,7 @@ namespace RTT
                 return this->impl->collect();
             return SendFailure;
         }
-
-
-#if 0 // implemented in CollectSignature
-        SendStatus collect() {
-            return m_coll->collect();
-        }
-
-        template<class A1>
-        SendStatus collect(A1 a1) {
-            return m_coll->collect(a1);
-        }
-
-        SendStatus collectIfDone() {
-            return m_coll->collectIfDone();
-        }
-
-        template<class A1>
-        SendStatus collectIfDone(A1 a1) {
-            return m_coll->collectIfDone(a1);
-        }
-#endif
 	protected:
-        /**
-         * This is actually a smart pointer which always
-         * points to an existing connection object.
-         */
-        collector_t  m_coll;
-        ExecutionEngine* m_ee;
 	};
 }
 #endif

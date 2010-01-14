@@ -40,6 +40,7 @@
 #define ORO_EXECUTION_ENGINE_HPP
 
 #include "os/Mutex.hpp"
+#include "os/MutexLock.hpp"
 #include "os/Condition.hpp"
 #include "base/RunnableInterface.hpp"
 #include "base/ActivityInterface.hpp"
@@ -140,8 +141,25 @@ namespace RTT
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
          * Each time one or more messages are processed, waitForMessages will return
-         * and you can check (by a means you implemented your own) if your message
-         * has been processed.
+         * when pred() returns true.
+         * @param pred As long as !pred() blocks the calling thread. If pred() == true
+         * when entering this function, the returns immediately.
+         *
+         * This function is for internal use only and is required for asynchronous method invocations.
+         */
+        template<class Predicate>
+        void waitForMessages(const Predicate& pred)
+        {
+            if (this->getActivity()->thread()->isSelf())
+                waitAndProcessMessages(pred);
+            else
+                waitForMessagesInternal(pred);
+        }
+    protected:
+        /**
+         * Call this if you wish to block on a message arriving in the Execution Engine.
+         * Each time one or more messages are processed, waitForMessages will return
+         * when pred() returns true.
          * @param pred As long as !pred() blocks the calling thread. If pred() == true
          * when entering this function, the returns immediately.
          *
@@ -152,7 +170,7 @@ namespace RTT
          * waitAndProcessMessages() instead.
          */
         template<class Predicate>
-        void waitForMessages(Predicate& pred)
+        void waitForMessagesInternal(Predicate& pred)
         {
             if ( pred() )
                 return;
@@ -194,7 +212,6 @@ namespace RTT
             }
         }
 
-    protected:
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
          */

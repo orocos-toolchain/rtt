@@ -155,6 +155,8 @@ namespace RTT
         // See TaskContext::start().
         updated_ports.reserve(0);
 
+        // activity runs from the start.
+        our_act->start();
     }
 
         TaskContext::~TaskContext()
@@ -382,8 +384,10 @@ namespace RTT
             new_act = new Activity();
 #endif
         }
+        our_act->stop();
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
+        our_act->start();
     }
 
     ActivityInterface* TaskContext::getActivity()
