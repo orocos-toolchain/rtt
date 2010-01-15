@@ -122,7 +122,12 @@ extern "C"
 
     inline NANO_TIME rtos_get_time_ns( void )
     {
-    	return GetTickCount() * 1000000LL;
+		LARGE_INTEGER freq;
+		LARGE_INTEGER ticks;
+		QueryPerformanceFrequency(&freq);
+		QueryPerformanceCounter(&ticks);
+
+		return(NANO_TIME)(((double)ticks.QuadPart * 1000000000LL) / (double)freq.QuadPart);
     }
 
     /**
@@ -142,8 +147,12 @@ extern "C"
 
     inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
-    	// printf("rtos_nanosleep %li ", (rqtp->tv_sec * 1000L + rqtp->tv_nsec/1000000L));
-        Sleep(DWORD(rqtp->tv_sec * 1000L) + rqtp->tv_nsec/1000000L);
+		NANO_TIME start = rtos_get_time_ns();
+		NANO_TIME t = (NANO_TIME)rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
+        timeBeginPeriod(1);
+		if (t > 3000000L) Sleep((DWORD)(t/1000000L) - 1);
+		timeEndPeriod(1);
+		while(rtos_get_time_ns() - start < t) Sleep(0);
         return 0;
     }
 
