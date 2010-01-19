@@ -39,8 +39,6 @@
 #include "PortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "InputPortInterface.hpp"
-#include "../internal/TaskObject.hpp"
-#include "../Method.hpp"
 
 using namespace RTT;
 using namespace detail;

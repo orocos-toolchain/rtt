@@ -126,7 +126,7 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual internal::TaskObject* createPortObject();
+        virtual interface::ServiceProvider* createPortObject();
 
         /** Connects this port with \a other, using the given policy. Unlike
          * OutputPortInterface::createConnection, \a other can be the write port

@@ -37,7 +37,7 @@
 
 
 #include "PortInterface.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "../Method.hpp"
 #include "../internal/ConnFactory.hpp"
 
@@ -66,16 +66,14 @@ int PortInterface::serverProtocol() const
 ConnID* PortInterface::getPortID() const
 { return new LocalConnID(this); }
 
-TaskObject* PortInterface::createPortObject()
+ServiceProvider* PortInterface::createPortObject()
 {
 #ifndef ORO_EMBEDDED
-    TaskObject* to = new TaskObject( this->getName() );
-    to->methods()->addMethod( method("name",&PortInterface::getName, this),
+    ServiceProvider* to = new ServiceProvider( this->getName(), iface->getParent() );
+    to->addOperation( "name",&PortInterface::getName, this).doc(
             "Returns the port name.");
-    to->methods()->addMethod( method("connected",&PortInterface::connected, this),
-            "Check if this port is connected and ready for use.");
-    to->methods()->addMethod( method("disconnect",&PortInterface::disconnect, this),
-            "Disconnects this port from any connection it is part of.");
+    to->addOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");
+    to->addOperation("disconnect", &PortInterface::disconnect, this).doc("Disconnects this port from any connection it is part of.");
     return to;
 #else
     return 0;

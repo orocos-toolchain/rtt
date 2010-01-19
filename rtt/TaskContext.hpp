@@ -41,11 +41,10 @@
 
 
 #include "rtt-config.h"
-#include "interface/AttributeRepository.hpp"
+#include "interface/ServiceProvider.hpp"
 #include "interface/DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
-#include "PropertyBag.hpp"
 
 #include <string>
 #include <map>
@@ -89,8 +88,8 @@ namespace RTT
      * Peers.
      */
     class RTT_API TaskContext
-        : public interface::OperationInterface,
-          public base::TaskCore
+        : public base::TaskCore,
+          public interface::ServiceProvider
     {
     public:
         /**
@@ -124,33 +123,20 @@ namespace RTT
 
         virtual ~TaskContext();
 
-        virtual const std::string& getName() const;
+        interface::ServiceProvider* provides() { return this; }
 
-        virtual const std::string& getDescription() const;
+        interface::ServiceProvider* provides(const std::string& service_name) {
+            ServiceProvider* sp = services[service_name];
+            if (sp)
+                return sp;
+            sp = new ServiceProvider(service_name, this);
+            services[service_name] = sp;
+            return sp;
+        }
 
-        virtual void setDescription(const std::string& descr);
-
-        virtual interface::OperationInterface* getParent() { return this; }
-
-        /**
-         * This method is ignored by the TaskContext.
-         */
-        virtual void setParent(interface::OperationInterface*) { }
-
-        /**
-         * This method is ignored by the TaskContext.
-         * @see base::TaskCore::setExecutionEngine for (re-)setting a new
-         * ExecutionEngine, which is a base class of TaskContext.
-         */
-        virtual void setEngine(ExecutionEngine*) { }
-
-        /**
-         * Call this function to force a TaskContext to export its
-         * Data Flow ports as scripting objects.
-         * @deprecated Do not use this function, it is no longer
-         * required.
-         */
-        void exportPorts();
+        bool hasService(const std::string& service_name) {
+            return services.find(service_name) != services.end();
+        }
 
         /**
          * Add a one-way connection from this task to a peer task.
@@ -218,14 +204,16 @@ namespace RTT
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
         /**
-         * Add a new internal::TaskObject to this TaskContext.
+         * Add a new Service to this TaskContext.
          *
          * @param obj This object becomes owned by this TaskContext.
          *
-         * @return true if it cuold be added, false if such
-         * object already exists.
+         * @return true if it could be added, false if such
+         * service already exists.
          */
-        virtual bool addObject( interface::OperationInterface *obj );
+        virtual bool addService( interface::ServiceProvider *obj );
+
+        virtual void removeService( std::string const& service_name );
 
         /**
          * Sets the activity of this TaskContext. The
@@ -291,20 +279,6 @@ namespace RTT
 
     public:
         /**
-         * The properties of this TaskContext.
-         */
-        PropertyBag* properties() {
-            return mattributes.properties();
-        }
-
-        /**
-         * The properties of this TaskContext.
-         */
-        const PropertyBag* properties() const {
-            return mattributes.properties();
-        }
-
-        /**
          * Get the Data flow ports of this task.
          */
         interface::DataFlowInterface* ports() {
@@ -322,17 +296,16 @@ namespace RTT
         // non copyable
         TaskContext( TaskContext& );
     protected:
-        std::string mdescription;
 
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
-        typedef std::vector< interface::OperationInterface* > Objects;
+        typedef std::map< std::string, interface::ServiceProvider* > Services;
         /// map of the tasks we are using
         PeerMap         _task_map;
         /// map of the tasks that are using us.
         Users         musers;
-        /// the TaskObjects.
-        Objects mobjects;
+        /// the services we implement.
+        Services services;
 
         /**
          * Inform this TaskContext that \a user is using

@@ -39,6 +39,7 @@
 #include "IRQActivity.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../base/TaskCore.hpp"
+#include "../Logger.hpp"
 
 #include <iostream>
 
@@ -67,7 +68,7 @@ void IRQActivity::setIRQ(int irq) { m_irq = irq; }
 #ifndef OROPKG_OS_XENOMAI
 bool IRQActivity::start() {
     Logger::log() << Logger::Error << "IRQActivity is only usable on Xenomai" << Logger::endl;
-    return false; 
+    return false;
 }
 #else
 

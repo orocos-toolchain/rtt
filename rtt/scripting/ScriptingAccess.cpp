@@ -415,98 +415,60 @@ namespace RTT {
 
     void ScriptingAccess::createInterface()
     {
-        methods()->addMethod( method( "execute", &ScriptingAccess::execute, this),
-                                   "Execute a line of code.", "Code", "A single statement.");
+        addOperation("execute", &ScriptingAccess::execute, this).doc("Execute a line of code.").arg("Code", "A single statement.");
         // Methods for loading programs
-        methods()->addMethod( method( "loadPrograms", &ScriptingAccess::doLoadPrograms, this),
-                                   "Load a program from a given file.", "Filename", "The filename of the script."  );
-        methods()->addMethod( method( "loadProgramText", &ScriptingAccess::doLoadProgramText, this),
-                                   "Load a program from a string.", "Code", "A string containing one or more program scripts." );
-        methods()->addMethod( method( "unloadProgram", &ScriptingAccess::doUnloadProgram, this),
-                                   "Remove a loaded program.", "Name", "The name of the loaded Program"  );
+        addOperation("loadPrograms", &ScriptingAccess::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadProgramText", &ScriptingAccess::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
+        addOperation("unloadProgram", &ScriptingAccess::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
         // Query Methods for programs
-        methods()->addMethod( method( "getProgramStatus", &ScriptingAccess::getProgramStatus, this),
-                                            "Get the status of a program?", "Name", "The Name of the loaded Program"  );
-        methods()->addMethod( method( "getProgramLine", &ScriptingAccess::getProgramLine, this),
-                                            "Get the current line of execution of a program?", "Name", "The Name of the loaded Program"  );
+        addOperation("getProgramStatus", &ScriptingAccess::getProgramStatus, this).doc("Get the status of a program?").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramLine", &ScriptingAccess::getProgramLine, this).doc("Get the current line of execution of a program?").arg("Name", "The Name of the loaded Program");
 
         // Methods for loading state machines
-        methods()->addMethod( method( "loadStateMachines", &ScriptingAccess::doLoadStateMachines, this),
-                                   "Load a state machine from a given file.", "Filename", "The filename of the script."  );
-        methods()->addMethod( method( "loadStateMachineText", &ScriptingAccess::doLoadStateMachineText, this),
-                                   "Load a state machine from a string.", "Code", "A string containing one or more state machine scripts." );
-        methods()->addMethod( method( "unloadStateMachine", &ScriptingAccess::doUnloadStateMachine, this),
-                                   "Remove a loaded state machine.", "Name", "The name of the loaded State Machine"  );
+        addOperation("loadStateMachines", &ScriptingAccess::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadStateMachineText", &ScriptingAccess::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
+        addOperation("unloadStateMachine", &ScriptingAccess::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
         // Query Methods for state machines
-        methods()->addMethod( method( "getStateMachineStatus", &ScriptingAccess::getStateMachineStatus, this),
-                                            "Get the status of a state machine?", "Name", "The Name of the loaded State Machine"  );
-        methods()->addMethod( method( "getStateMachineLine", &ScriptingAccess::getStateMachineLine, this),
-                                            "Get the current line of execution of a state machine?", "Name", "The Name of the loaded State Machine"  );
+        addOperation("getStateMachineStatus", &ScriptingAccess::getStateMachineStatus, this).doc("Get the status of a state machine?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("getStateMachineLine", &ScriptingAccess::getStateMachineLine, this).doc("Get the current line of execution of a state machine?").arg("Name", "The Name of the loaded State Machine");
 
         // Query Methods for programs
-        methods()->addMethod( method( "hasProgram", &ScriptingAccess::hasProgram, this),
-                                            "Is a program loaded?", "Name", "The Name of the loaded Program"  );
-        methods()->addMethod( method( "isProgramRunning", &ScriptingAccess::isProgramRunning, this),
-                                            "Is a program running ?", "Name", "The Name of the Loaded Program"  );
-        methods()->addMethod( method( "isProgramPaused", &ScriptingAccess::isProgramPaused, this),
-                                            "Is a program paused ?", "Name", "The Name of the Loaded Program"  );
-        methods()->addMethod( method( "inProgramError", &ScriptingAccess::inProgramError, this),
-                                            "Is a program in error ?", "Name", "The Name of the Loaded Program"  );
+        addOperation("hasProgram", &ScriptingAccess::hasProgram, this).doc("Is a program loaded?").arg("Name", "The Name of the loaded Program");
+        addOperation("isProgramRunning", &ScriptingAccess::isProgramRunning, this).doc("Is a program running ?").arg("Name", "The Name of the Loaded Program");
+        addOperation("isProgramPaused", &ScriptingAccess::isProgramPaused, this).doc("Is a program paused ?").arg("Name", "The Name of the Loaded Program");
+        addOperation("inProgramError", &ScriptingAccess::inProgramError, this).doc("Is a program in error ?").arg("Name", "The Name of the Loaded Program");
 
         // Query Methods for state machines
-        methods()->addMethod( method( "hasStateMachine", &ScriptingAccess::hasStateMachine, this),
-                                            "Is a state machine loaded?", "Name", "The Name of the loaded State Machine"  );
-        methods()->addMethod( method( "isStateMachineActive", &ScriptingAccess::isStateMachineActive, this),
-                                            "Is a state machine active ?", "Name", "The Name of the Loaded StateMachine"  );
-        methods()->addMethod( method( "isStateMachineRunning", &ScriptingAccess::isStateMachineRunning, this),
-                                            "Is a state machine running ?", "Name", "The Name of the Loaded StateMachine"  );
-        methods()->addMethod( method( "isStateMachinePaused", &ScriptingAccess::isStateMachinePaused, this),
-                                            "Is a state machine paused ?", "Name", "The Name of the Loaded StateMachine"  );
-        methods()->addMethod( method( "inStateMachineError", &ScriptingAccess::inStateMachineError, this),
-                                            "Is a state machine in error ?", "Name", "The Name of the Loaded StateMachine"  );
-        methods()->addMethod( method( "inStateMachineState", &ScriptingAccess::inStateMachineState, this),
-                                         "Is a state machine in a given state ?",
-                                         "Name", "The Name of the Loaded StateMachine",
-                                         "State", "The name of the state in which it could be.");
-        methods()->addMethod( method( "getStateMachineState", &ScriptingAccess::getStateMachineState, this),
-                                         "Get the current state name of a state machine.",
-                                         "Name", "The Name of the Loaded StateMachine");
+        addOperation("hasStateMachine", &ScriptingAccess::hasStateMachine, this).doc("Is a state machine loaded?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("isStateMachineActive", &ScriptingAccess::isStateMachineActive, this).doc("Is a state machine active ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("isStateMachineRunning", &ScriptingAccess::isStateMachineRunning, this).doc("Is a state machine running ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("isStateMachinePaused", &ScriptingAccess::isStateMachinePaused, this).doc("Is a state machine paused ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("inStateMachineError", &ScriptingAccess::inStateMachineError, this).doc("Is a state machine in error ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("inStateMachineState", &ScriptingAccess::inStateMachineState, this).doc("Is a state machine in a given state ?").arg("Name", "The Name of the Loaded StateMachine").arg("State", "The name of the state in which it could be.");
+        addOperation("getStateMachineState", &ScriptingAccess::getStateMachineState, this).doc("Get the current state name of a state machine.").arg("Name", "The Name of the Loaded StateMachine");
 
         // Methods for programs
-        methods()->addMethod( method( "startProgram", &ScriptingAccess::startProgram, this),
-                    "Start a program", "Name", "The Name of the Loaded Program"  );
-        methods()->addMethod( method( "stopProgram", &ScriptingAccess::stopProgram ,this),
-                                           "Stop a program", "Name", "The Name of the Started Program" );
+        addOperation("startProgram", &ScriptingAccess::startProgram, this).doc("Start a program").arg("Name", "The Name of the Loaded Program");
+        addOperation("stopProgram", &ScriptingAccess::stopProgram , this).doc("Stop a program").arg("Name", "The Name of the Started Program");
 
-        methods()->addMethod( method( "stepProgram", &ScriptingAccess::stepProgram ,this),
-                    "Step a single program instruction", "Name", "The Name of the Paused Program"  );
-        methods()->addMethod( method( "pauseProgram", &ScriptingAccess::pauseProgram ,this),
-                    "Pause a program", "Name", "The Name of the Started Program"  );
+        addOperation("stepProgram", &ScriptingAccess::stepProgram , this).doc("Step a single program instruction").arg("Name", "The Name of the Paused Program");
+        addOperation("pauseProgram", &ScriptingAccess::pauseProgram , this).doc("Pause a program").arg("Name", "The Name of the Started Program");
 
         // Methods for state machines
         // Activate/deactivate:
-        methods()->addMethod( method( "activateStateMachine", &ScriptingAccess::activateStateMachine ,this),
-                    "Activate a StateMachine", "Name", "The Name of the Loaded StateMachine"  );
-        methods()->addMethod( method( "deactivateStateMachine", &ScriptingAccess::deactivateStateMachine ,this),
-                    "Deactivate a StateMachine", "Name", "The Name of the Stopped StateMachine"  );
+        addOperation("activateStateMachine", &ScriptingAccess::activateStateMachine , this).doc("Activate a StateMachine").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("deactivateStateMachine", &ScriptingAccess::deactivateStateMachine , this).doc("Deactivate a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
 
         // start/stop/pause:
-        methods()->addMethod( method( "startStateMachine", &ScriptingAccess::startStateMachine ,this),
-                    "Start a StateMachine", "Name", "The Name of the Activated/Paused StateMachine"  );
-        methods()->addMethod( method( "pauseStateMachine", &ScriptingAccess::pauseStateMachine ,this),
-                    "Pause a StateMachine", "Name", "The Name of a Started StateMachine"  );
-        methods()->addMethod( method( "stopStateMachine", &ScriptingAccess::stopStateMachine ,this),
-                    "Stop a StateMachine", "Name", "The Name of the Started/Paused StateMachine"  );
-        methods()->addMethod( method( "resetStateMachine", &ScriptingAccess::resetStateMachine ,this),
-                    "Reset a StateMachine", "Name", "The Name of the Stopped StateMachine" );
+        addOperation("startStateMachine", &ScriptingAccess::startStateMachine , this).doc("Start a StateMachine").arg("Name", "The Name of the Activated/Paused StateMachine");
+        addOperation("pauseStateMachine", &ScriptingAccess::pauseStateMachine , this).doc("Pause a StateMachine").arg("Name", "The Name of a Started StateMachine");
+        addOperation("stopStateMachine", &ScriptingAccess::stopStateMachine , this).doc("Stop a StateMachine").arg("Name", "The Name of the Started/Paused StateMachine");
+        addOperation("resetStateMachine", &ScriptingAccess::resetStateMachine , this).doc("Reset a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
 
         // request states
-        methods()->addMethod( method( "requestStateMachineState", &ScriptingAccess::requestStateMachineState ,this),
-                                           "Request a State change",
-                                           "Name", "The Name of the StateMachine",
-                                           "StateName", "The Name of the State to change to" );
+        addOperation("requestStateMachineState", &ScriptingAccess::requestStateMachineState , this).doc("Request a State change").arg("Name", "The Name of the StateMachine").arg("StateName", "The Name of the State to change to");
         mparent->addObject(this);
     }
 

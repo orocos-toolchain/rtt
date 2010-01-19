@@ -44,7 +44,7 @@
 #include <string>
 #include "../base/InputPortInterface.hpp"
 #include "../base/OutputPortInterface.hpp"
-#include "OperationInterface.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 { namespace interface {
@@ -71,14 +71,14 @@ namespace RTT
          * @param parent If not null, a internal::TaskObject will be added
          * to \a parent  for each port added to this interface.
          */
-        DataFlowInterface(OperationInterface* parent = 0);
+        DataFlowInterface(TaskContext* parent = 0);
 
         ~DataFlowInterface();
 
         /**
          * Returns the component this interface belongs to.
          */
-        OperationInterface* getParent();
+        TaskContext* getParent();
 
         /**
          * Add a Port to this task. It is only added to the C++
@@ -174,7 +174,7 @@ namespace RTT
          * @deprecated Do not use this function. It is no longer required.,
          * the objects are directly added to the parent TaskContext in \a addPort.
          */
-        OperationInterface* createPortObject(const std::string& name);
+        ServiceProvider* createPortObject(const std::string& name);
 
         /**
          * Get a port of a specific type.
@@ -193,7 +193,7 @@ namespace RTT
         typedef std::vector<std::pair<base::PortInterface*,std::string> > PortStore;
         Ports eports;
         PortStore mports;
-        OperationInterface* mparent;
+        TaskContext* mparent;
 
     };
 

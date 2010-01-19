@@ -42,7 +42,7 @@
 #include "base/InputPortInterface.hpp"
 #include "internal/Channels.hpp"
 #include "internal/InputPortSource.hpp"
-#include "internal/TaskObject.hpp"
+#include "interface/ServiceProvider.hpp"
 #include "Method.hpp"
 
 #include "OutputPort.hpp"
@@ -153,15 +153,13 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual internal::TaskObject* createPortObject()
+        virtual interface::ServiceProvider* createPortObject()
         {
-            internal::TaskObject* object = base::InputPortInterface::createPortObject();
+            interface::ServiceProvider* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
             typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             ReadSample read_m = &InputPort<T>::read;
-            object->methods()->addMethod( method("read", read_m, this),
-                    "Reads a sample from the port.",
-                    "sample", "");
+            object->addOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;
         }
     };

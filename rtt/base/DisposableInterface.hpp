@@ -1,6 +1,8 @@
 #ifndef EXECUTABLEINTERFACE_HPP
 #define EXECUTABLEINTERFACE_HPP
 
+#include <boost/shared_ptr.hpp>
+
 namespace RTT
 {
     namespace base

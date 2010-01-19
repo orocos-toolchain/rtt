@@ -39,7 +39,7 @@
 #include "MethodC.hpp"
 #include "FactoryExceptions.hpp"
 #include "../scripting/DataSourceCommand.hpp"
-#include "../interface/MethodRepository.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "../Logger.hpp"
 #include "Exceptions.hpp"
 #include <vector>
@@ -51,7 +51,7 @@ namespace RTT {
     class MethodC::D
     {
     public:
-        const MethodRepository::Factory* mmr;
+        const ServiceProvider::Factory* mmr;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
         DataSourceBase::shared_ptr rta;
@@ -71,8 +71,8 @@ namespace RTT {
                     args.clear();
                     if ( !m )
                         return;
-                    if (rta)
-                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
+//                    if (rta)
+//                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
                 }
             }
         }
@@ -93,7 +93,7 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( const MethodRepository::Factory* mr, const std::string& name)
+        D( const ServiceProvider::Factory* mr, const std::string& name)
             : mmr(mr), mname(name), rta(), m()
         {
             this->checkAndCreate();
@@ -116,7 +116,7 @@ namespace RTT {
     {
     }
 
-    MethodC::MethodC(const MethodRepository::Factory* mr, const std::string& name)
+    MethodC::MethodC(const MethodFactory* mr, const std::string& name)
         : d( mr ? new D( mr, name) : 0 ), m()
     {
         if ( d->m ) {
@@ -166,7 +166,7 @@ namespace RTT {
         if (d)
             d->ret( r );
         else {
-            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+//            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
         }
         return *this;
     }
@@ -177,7 +177,7 @@ namespace RTT {
             d->ret( r );
         else {
             // no d, store manually:
-            m = new DataSourceCommand(r->updateCommand( m.get() ) );
+//            m = new DataSourceCommand(r->updateCommand( m.get() ) );
         }
         return *this;
     }

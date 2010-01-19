@@ -39,6 +39,8 @@
 #include "FileDescriptorActivity.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../base/TaskCore.hpp"
+#include "../Logger.hpp"
+
 
 #include <algorithm>
 
@@ -171,7 +173,7 @@ void FileDescriptorActivity::loop()
     {
         m_fd_work = m_fd_set;
         FD_SET(pipe, &m_fd_work);
-        
+
         int ret;
         m_running = false;
         if (m_timeout == 0)

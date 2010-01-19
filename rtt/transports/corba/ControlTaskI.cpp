@@ -247,8 +247,7 @@ Orocos_CControlTask_i::Orocos_CControlTask_i (TaskContext* orig, PortableServer:
     : Orocos_CControlObject_i(orig, the_poa), mtask( orig ), mEEFact()
 {
     // Add the corba object to the interface:
-    mtask->methods()->addMethod(method("shutdown", &Orocos_CControlTask_i::shutdownCORBA, this),
-                                   "Shutdown CORBA ORB. This function makes RunOrb() return.");
+    mtask->addOperation("shutdown", &Orocos_CControlTask_i::shutdownCORBA, this).doc("Shutdown CORBA ORB. This function makes RunOrb() return.");
 
 }
 

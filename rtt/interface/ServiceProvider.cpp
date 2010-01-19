@@ -1,4 +1,6 @@
 #include "ServiceProvider.hpp"
+#include "../TaskContext.hpp"
+#include <algorithm>
 
 namespace RTT {
     using namespace detail;
@@ -15,16 +17,18 @@ namespace RTT {
 
     bool ServiceProvider::addLocalOperation( OperationBase& op )
     {
-        Logger::In in("ServiceProvider");
+        Logger::In in("ServiceProvider::addLocalOperation");
+        if ( op.getName().empty() || !op.getImplementation() ) {
+            log(Error) << "Failed to add Operation: '"<< op.getName() <<"' has no name or no implementation." <<endlog();
+            return false;
+        }
         if ( simpleoperations.count( op.getName() ) ) {
-            log(Error) << "Failed to addOperation: '"<< op.getName() <<"' already added." <<endlog();
-            return false;
+            log(Warning) << "While adding Operation: '"<< op.getName() <<"': replacing previously added operation." <<endlog();
+            this->removeOperation(op.getName());
         }
-        if ( op.getName().empty() || !op.ready() ) {
-            log(Error) << "Failed to addOperation: '"<< op.getName() <<"' was not ready() or has no name." <<endlog();
-            return false;
-        }
-        simpleoperations[op.getName()] = &op; //.getImplementation();
+        simpleoperations[op.getName()] = &op;
+        if (mowner)
+            op.setOwner(mowner->engine());
         return true;
     }
 
@@ -49,8 +53,20 @@ namespace RTT {
 
     void ServiceProvider::removeOperation(const std::string& name)
     {
+        if (!hasOperation(name))
+            return;
+        OperationList::iterator it = find(ownedoperations.begin(), ownedoperations.end(), simpleoperations.find(name)->second );
+        if (it != ownedoperations.end()) {
+            delete *it;
+            ownedoperations.erase(it);
+        }
         simpleoperations.erase( name );
         OperationFactory::remove(name);
+    }
+    void ServiceProvider::setOwner(TaskContext* new_owner) {
+        for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)
+            it->second->setOwner( new_owner ? new_owner->engine() : 0);
+        mowner = new_owner;
     }
 
 }

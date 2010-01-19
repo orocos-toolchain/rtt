@@ -43,7 +43,7 @@
 #include "base/DataObject.hpp"
 #include "internal/Channels.hpp"
 #include "internal/ConnFactory.hpp"
-#include "internal/TaskObject.hpp"
+#include "interface/ServiceProvider.hpp"
 #include "Method.hpp"
 
 #include "InputPort.hpp"
@@ -295,22 +295,16 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual internal::TaskObject* createPortObject()
+        virtual interface::ServiceProvider* createPortObject()
         {
-            internal::TaskObject* object = base::OutputPortInterface::createPortObject();
+            interface::ServiceProvider* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
             typedef void (OutputPort<T>::*WriteSample)(T const&);
             WriteSample write_m = &OutputPort::write;
-            object->methods()->addMethod(
-                    method("write", write_m, this),
-                    "Writes a sample on the port.",
-                    "sample", "");
             typedef T (OutputPort<T>::*LastSample)() const;
             LastSample last_m = &OutputPort::getLastWrittenValue;
-            object->methods()->addMethod(
-                    method("last", last_m, this),
-                    "Returns last written value to this port."
-                    );
+            object->addOperation("write", write_m, this).doc("Writes a sample on the port.").arg("sample", "");
+            object->addOperation("last", last_m, this).doc("Returns last written value to this port.");
             return object;
         }
     };

@@ -58,7 +58,6 @@ namespace RTT {
         class MethodC;
         class SignalBase;
         class SimpleConnID;
-        class TaskObject;
         struct ArgumentDescription;
         struct EventCallBack;
         struct EventCatcher;
@@ -77,7 +76,7 @@ namespace RTT {
         >
         class LocalEvent;
         template<
-            typename Signature 
+            typename Signature
         >
         class SubscriberBase;
         template<
@@ -133,8 +132,6 @@ namespace RTT {
         class UnMember;
         template<class F>
         class UnPointer;
-        template<class F>
-        struct FunctorDataSource;
         template<class F>
         struct InvokerBase;
         template<class F>
@@ -209,8 +206,6 @@ namespace RTT {
         struct FunctionForwarder;
         template<typename ResultT, typename FunctorT, typename arg1_type>
         class FunctorFactoryPart1;
-        template<typename ResultT, typename FunctorT, typename arg1_type>
-        class OperationFactoryPart1;
         template<typename ResultT, typename FunctorT>
         class FunctorFactoryPart0;
         template<typename ResultT, typename FunctorT>
@@ -223,20 +218,8 @@ namespace RTT {
         class FunctorFactoryPart5;
         template<typename ResultT, typename FunctorT>
         class FunctorFactoryPart6;
-        template<typename ResultT, typename FunctorT>
-        class OperationFactoryPart0;
-        template<typename ResultT, typename FunctorT>
-        class OperationFactoryPart2;
-        template<typename ResultT, typename FunctorT>
-        class OperationFactoryPart3;
-        template<typename ResultT, typename FunctorT>
-        class OperationFactoryPart4;
         template<typename ResultT>
         class FunctorFactoryPart;
-        template<typename ResultT>
-        class OperationFactory;
-        template<typename ResultT>
-        class OperationFactoryPart;
         template<typename SignatureT, typename FunctorT>
         class CommandFunctor;
         template<typename SignatureT, typename FunctorT>

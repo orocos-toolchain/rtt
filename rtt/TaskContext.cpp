@@ -66,7 +66,7 @@ namespace RTT
     using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
-        :  TaskCore(name, initial_state)
+        :  TaskCore( initial_state), ServiceProvider(name, this)
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
@@ -78,7 +78,7 @@ namespace RTT
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
-        :  TaskCore(name, parent, initial_state)
+        :  TaskCore(parent, initial_state), ServiceProvider(name, this)
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
@@ -91,66 +91,29 @@ namespace RTT
 
     void TaskContext::setup()
     {
+        // from ServiceProvider
         mdescription = "The interface of this TaskContext.";
 
-        this->methods()
-            ->addMethod( method("configure",&TaskContext::configure, this),
-                         "Configure this TaskContext (read properties etc)." );
-        this->methods()
-            ->addMethod( method("isConfigured",&TaskContext::isConfigured, this),
-                         "Is this TaskContext configured ?" );
-        this->methods()
-            ->addMethod( method("start",&TaskContext::start, this),
-                         "Start the Execution Engine of this TaskContext (= activate + updateHook() )." );
-        this->methods()
-            ->addMethod( method("activate",&TaskContext::activate, this),
-                         "Activate the Execution Engine of this TaskContext (= events and commands)." );
-        this->methods()
-            ->addMethod( method("stop",&TaskContext::stop, this),
-                         "Stop the Execution Engine of this TaskContext." );
-        this->methods()
-            ->addMethod( method("isRunning",&TaskContext::isRunning, this),
-                         "Is the Execution Engine executing this TaskContext ?" );
-        this->methods()
-            ->addMethod( method("getPeriod",&TaskContext::getPeriod, this),
-                         "Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period." );
-        this->methods()
-            ->addMethod( method("isActive",&TaskContext::isActive, this),
-                         "Is the Execution Engine of this TaskContext processing events and commands ?" );
-        this->methods()
-            ->addMethod( method("inFatalError",&TaskContext::inFatalError, this),
-                         "Check if this TaskContext is in the FatalError state." );
-        this->methods()
-            ->addMethod( method("warning",&TaskContext::warning, this),
-                         "Enter the RunTimeWarning state." );
-        this->methods()
-            ->addMethod( method("inRunTimeWarning",&TaskContext::inRunTimeWarning, this),
-                         "Check if this TaskContext is in the RunTimeWarning state." );
-        this->methods()
-            ->addMethod( method("getWarningCount",&TaskContext::getWarningCount, this),
-                         "Check if the number of times the RunTimeWarning state has been entered." );
-        this->methods()
-            ->addMethod( method("error",&TaskContext::error, this),
-                         "Enter the RunTimeError state." );
-        this->methods()
-            ->addMethod( method("inRunTimeError",&TaskContext::inRunTimeError, this),
-                         "Check if this TaskContext is in the RunTimeError state." );
-        this->methods()
-            ->addMethod( method("getErrorCount",&TaskContext::getErrorCount, this),
-                         "Check if the number of times the RunTimeError state has been entered." );
-        this->methods()
-            ->addMethod( method("cleanup",&TaskContext::cleanup, this),
-                         "Reset this TaskContext to the PreOperational state (write properties etc)." );
-        this->methods()
-            ->addMethod( method("resetError",&TaskContext::resetError, this),
-                         "Reset this TaskContext from the FatalError state." );
-        this->methods()
-            ->addMethod( method("update",&TaskContext::doUpdate, this),
-                         "Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
+        this->addOperation("configure", &TaskContext::configure, this).doc("Configure this TaskContext (read properties etc).");
+        this->addOperation("isConfigured", &TaskContext::isConfigured, this).doc("Is this TaskContext configured ?");
+        this->addOperation("start", &TaskContext::start, this).doc("Start the Execution Engine of this TaskContext (= activate + updateHook() ).");
+        this->addOperation("activate", &TaskContext::activate, this).doc("Activate the Execution Engine of this TaskContext (= events and commands).");
+        this->addOperation("stop", &TaskContext::stop, this).doc("Stop the Execution Engine of this TaskContext.");
+        this->addOperation("isRunning", &TaskContext::isRunning, this).doc("Is the Execution Engine executing this TaskContext ?");
+        this->addOperation("getPeriod", &TaskContext::getPeriod, this).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
+        this->addOperation("isActive", &TaskContext::isActive, this).doc("Is the Execution Engine of this TaskContext processing events and commands ?");
+        this->addOperation("inFatalError", &TaskContext::inFatalError, this).doc("Check if this TaskContext is in the FatalError state.");
+        this->addOperation("warning", &TaskContext::warning, this).doc("Enter the RunTimeWarning state.");
+        this->addOperation("inRunTimeWarning", &TaskContext::inRunTimeWarning, this).doc("Check if this TaskContext is in the RunTimeWarning state.");
+        this->addOperation("getWarningCount", &TaskContext::getWarningCount, this).doc("Check if the number of times the RunTimeWarning state has been entered.");
+        this->addOperation("error", &TaskContext::error, this).doc("Enter the RunTimeError state.");
+        this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this).doc("Check if this TaskContext is in the RunTimeError state.");
+        this->addOperation("getErrorCount", &TaskContext::getErrorCount, this).doc("Check if the number of times the RunTimeError state has been entered.");
+        this->addOperation("cleanup", &TaskContext::cleanup, this).doc("Reset this TaskContext to the PreOperational state (write properties etc).");
+        this->addOperation("resetError", &TaskContext::resetError, this).doc("Reset this TaskContext from the FatalError state.");
+        this->addOperation("update", &TaskContext::doUpdate, this).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
-        this->methods()
-            ->addMethod( method("trigger",&TaskContext::doTrigger, this),
-                         "Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
+        this->addOperation("trigger", &TaskContext::doTrigger, this).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
         // See TaskContext::start().
         updated_ports.reserve(0);
@@ -166,7 +129,7 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
-            mattributes.clear();
+            AttributeRepository::clear();
 
             // remove from all users.
             while( !musers.empty() ) {
@@ -182,24 +145,6 @@ namespace RTT
             // Ports are probably already destructed by user code.
 
         }
-
-    void TaskContext::exportPorts()
-    {
-        // This function is only used by the IOComponent, probably in the wrong way,
-        // since DataFlowInterface::addPort does the port object creation already.
-        DataFlowInterface::Ports myports = this->ports()->getPorts();
-        for (DataFlowInterface::Ports::iterator it = myports.begin();
-             it != myports.end();
-             ++it) {
-            // Add the port to the method interface.
-            if (this->getObject((*it)->getName()) == 0) {
-                OperationInterface* ms = this->ports()->createPortObject((*it)->getName());
-                if ( ms )
-                    if ( this->addObject( ms ) == false )
-                        delete ms;
-            }
-        }
-    }
 
     bool TaskContext::connectPorts( TaskContext* peer )
     {
@@ -228,21 +173,6 @@ namespace RTT
             }
         }
         return !failure;
-    }
-
-    const std::string& TaskContext::getName() const
-    {
-        return TaskCore::getName();
-    }
-
-    const std::string& TaskContext::getDescription() const
-    {
-        return mdescription;
-    }
-
-    void TaskContext::setDescription(const std::string&  d)
-    {
-        mdescription = d;
     }
 
     void TaskContext::addUser( TaskContext* peer )
@@ -290,7 +220,7 @@ namespace RTT
         bool TaskContext::connectPeers( TaskContext* peer )
         {
             if ( _task_map.count( peer->getName() ) != 0
-                 || peer->hasPeer( mtask_name ) )
+                 || peer->hasPeer( mname ) )
                 return false;
             this->addPeer ( peer );
             peer->addPeer ( this );
@@ -366,11 +296,19 @@ namespace RTT
             return 0;
         }
 
-    bool TaskContext::addObject( OperationInterface *obj ) {
-        if (OperationInterface::addObject(obj) == false)
+    bool TaskContext::addService( ServiceProvider* obj ) {
+        if ( services.find( obj->getName() ) != services.end() ) {
+            log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
-        obj->setEngine( this->engine() );
+        }
+        obj->setOwner( this );
+        services[obj->getName()] = obj;
         return true;
+    }
+
+    void TaskContext::removeService( string const& name) {
+        delete services[name];
+        services.erase(name);
     }
 
     void TaskContext::setActivity(ActivityInterface* new_act)
@@ -399,11 +337,8 @@ namespace RTT
 
     void TaskContext::clear()
     {
-        this->removeObject("this");
-        this->properties()->clear();
+        ServiceProvider::clear();
         this->ports()->clear();
-
-        OperationInterface::clear();
     }
 
     bool TaskContext::ready()

@@ -50,6 +50,7 @@ namespace RTT {
         class MethodRepository;
         class OperationInterface;
         class PropertyLoader;
+        class ServiceProvider;
     }
     namespace detail {
         using namespace interface;

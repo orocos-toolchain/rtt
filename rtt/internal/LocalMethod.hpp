@@ -43,6 +43,7 @@
 #include <string>
 #include "Invoker.hpp"
 #include "../base/MethodBase.hpp"
+#include "../base/OperationBase.hpp"
 #include "BindStorage.hpp"
 #include "../SendStatus.hpp"
 #include "../SendHandle.hpp"
@@ -61,8 +62,6 @@ namespace RTT
     {
         /**
          * Implements call, send, collect, collectIfDone for all function arities.
-         * call is implemented using boost::function, the others are functions
-         * of this class.
          *
          * You can pass arguments by (const) value and by (const) reference. Passing
          * pointers is 'accidentally' supported in-process, it will not work with out-of-process
@@ -81,6 +80,7 @@ namespace RTT
             ExecutionEngine* myengine;
             ExecutionEngine* caller;
             typedef BindStorage<FunctionT> Store;
+            base::OperationBase::ExecutionThread met;
 
         public:
             LocalMethodImpl() : myengine(0), caller(0) {}
@@ -88,6 +88,13 @@ namespace RTT
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
             typedef boost::function_traits<Signature> traits;
+
+            virtual void setExecutor(ExecutionEngine* ee) {
+                if (met == base::OperationBase::OwnThread)
+                    myengine = ee;
+                else
+                    myengine = 0;
+            }
 
             void executeAndDispose() {
                 using namespace std;
@@ -372,6 +379,8 @@ namespace RTT
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef boost::function_traits<Signature> traits;
 
+            typedef boost::shared_ptr<LocalMethod> shared_ptr;
+
             /**
              * Create an empty LocalMethod object.
              * Use assignment to initialise it.
@@ -389,11 +398,12 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              */
             template<class M, class ObjectType>
-            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller)
+            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
             {
                 this->mmeth = MethodBinder<Signature>()(meth, object);
                 this->myengine = ee;
                 this->caller = caller;
+                this->met = et;
             }
 
             /**
@@ -403,11 +413,12 @@ namespace RTT
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller)
+            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
             {
                 this->mmeth = meth;
                 this->myengine = ee;
                 this->caller = caller;
+                this->met = et;
             }
 
             boost::function<Signature> getMethodFunction() const

@@ -39,14 +39,15 @@
 #ifndef ORO_TASK_CORE_HPP
 #define ORO_TASK_CORE_HPP
 
-#include "../interface/OperationInterface.hpp"
 #include <string>
+#include "../rtt-fwd.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace base {
 
     /**
-     * The minimal Orocos task. It has a name and an ExecutionEngine
+     * The minimal Orocos task. It has a state and an ExecutionEngine
      * to process events,commands, programs, statemachines and run a user function. It
      * is useful for in embedded systems, where communication between
      * tasks may be hard coded and hence, no interface browsing or
@@ -141,22 +142,20 @@ namespace RTT
          * Create a TaskCore.
          * It's ExecutionEngine will be newly constructed with private
          * processing of commands, events, programs and state machines.
-         * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore( const std::string& name, TaskState initial_state = Stopped  );
+        TaskCore( TaskState initial_state = Stopped  );
 
         /**
          * Create a TaskCore.
          * Its commands programs and state machines are processed by \a parent.
          * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
-         * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
          */
-        TaskCore(const std::string& name, ExecutionEngine* parent, TaskState initial_state = Stopped );
+        TaskCore( ExecutionEngine* parent, TaskState initial_state = Stopped );
 
         virtual ~TaskCore();
 
@@ -315,22 +314,6 @@ namespace RTT
         /**
          *@}
          */
-
-        /**
-         * Get the name of this TaskCore.
-         */
-        const std::string& getName() const
-        {
-            return mtask_name;
-        }
-
-        /**
-         * Change the name of this TaskCore.
-         */
-        void setName(const std::string& n)
-        {
-            mtask_name = n;
-        }
 
         /**
          * Use this method to re-set the execution engine
@@ -511,8 +494,6 @@ namespace RTT
         // Required to set mTaskState to Running or Stopped.
         // As an alternative, one could query the EE.
         friend class ::RTT::ExecutionEngine;
-
-        std::string    mtask_name;
 
         /**
          * The execution engine which calls update() and processes

@@ -46,17 +46,15 @@ namespace RTT {
 
     using namespace std;
 
-    TaskCore::TaskCore(const std::string& name, TaskState initial_state /*= Stopped*/ )
-        :  mtask_name(name),
-           ee( new ExecutionEngine(this) )
+    TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
+        :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
            ,runtime_warnings(0), runtime_errors(0)
     {
     }
 
-    TaskCore::TaskCore(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
-        :  mtask_name(name),
-           ee( parent )
+    TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
+        :  ee( parent )
            ,mTaskState(initial_state)
            ,runtime_warnings(0), runtime_errors(0)
     {

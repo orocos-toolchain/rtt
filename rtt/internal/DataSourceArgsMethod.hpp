@@ -40,7 +40,8 @@
 #define ORO_DATASOURCE_ARGS_METHOD_HPP
 
 #include "DataSource.hpp"
-#include "FunctorDataSource.hpp"
+#include "FusedFunctorDataSource.hpp"
+#include "../base/MethodBase.hpp"
 #include <boost/function.hpp>
 
 namespace RTT
@@ -51,7 +52,7 @@ namespace RTT
          * A method which gets its arguments from a data source and
          * is a datasource itself.
          */
-        template<class SignatureT, class FunctorT = FunctorDataSource<boost::function<SignatureT> > >
+        template<class SignatureT, class FunctorT = FusedMCallDataSource<SignatureT> >
         class DataSourceArgsMethod
             : public DataSource< typename boost::function_traits<SignatureT>::result_type >
         {
@@ -63,7 +64,7 @@ namespace RTT
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef DataSource<result_type> Base;
 
-            DataSourceArgsMethod(boost::function<Signature> meth)
+            DataSourceArgsMethod(typename base::MethodBase<Signature>::shared_ptr meth)
                 : mmeth( new FunctorT(meth) )
             {
             }
@@ -73,59 +74,13 @@ namespace RTT
             {
             }
 
-            DataSourceArgsMethod<Signature,FunctorT>* create() const
-            {
-                return clone();
-            }
-
-            template<class Arg1T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1) const
+            template<class Sequence>
+            DataSourceArgsMethod<Signature,FunctorT>* create(Sequence a1) const
             {
                 DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
                 r->mmeth->setArguments(a1);
                 return r;
             }
-
-            template<class Arg1T, class Arg2T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2) const
-            {
-                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
-                r->mmeth->setArguments(a1, a2);
-                return r;
-            }
-
-            template<class Arg1T, class Arg2T, class Arg3T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3) const
-            {
-                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
-                r->mmeth->setArguments(a1, a2, a3);
-                return r;
-            }
-
-            template<class Arg1T, class Arg2T, class Arg3T, class Arg4T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4) const
-            {
-                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
-                r->mmeth->setArguments(a1, a2, a3, a4);
-                return r;
-            }
-
-            template<class Arg1T, class Arg2T, class Arg3T, class Arg4T, class Arg5T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4, DataSource<Arg5T>* a5) const
-            {
-                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
-                r->mmeth->setArguments(a1, a2, a3, a4, a5);
-                return r;
-            }
-
-            template<class Arg1T, class Arg2T, class Arg3T, class Arg4T, class Arg5T, class Arg6T>
-            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4, DataSource<Arg5T>* a5, DataSource<Arg6T>* a6) const
-            {
-                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
-                r->mmeth->setArguments(a1, a2, a3, a4, a5, a6);
-                return r;
-            }
-
 
             result_type operator()() {
                 return mmeth->get();
@@ -140,16 +95,12 @@ namespace RTT
             }
 
             virtual DataSourceArgsMethod<Signature,FunctorT>* clone() const {
-                return new DataSourceArgsMethod( typename FunctorT::shared_ptr(mmeth->clone()) );
+                return new DataSourceArgsMethod<Signature,FunctorT>( typename FunctorT::shared_ptr(mmeth->clone()) );
             }
 
             virtual DataSource<result_type>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
             {
                 return new DataSourceArgsMethod<Signature,FunctorT>( typename FunctorT::shared_ptr(mmeth->copy(alreadyCloned)) );
-            }
-
-            boost::function<Signature> getMethodFunction() const {
-                return mmeth.ff.gen;
             }
         };
     }

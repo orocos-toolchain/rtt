@@ -14,7 +14,7 @@ namespace RTT
     {
 
         OperationBase::OperationBase(const std::string& name)
-        :mname(name)
+        :mname(name),mowner(0)
         {
             descriptions.push_back("(not documented)");
         }

@@ -37,23 +37,22 @@
 
 
 #include "DataFlowInterface.hpp"
-#include "../internal/TaskObject.hpp"
 #include "../Logger.hpp"
-#include "OperationInterface.hpp"
-#include "../internal/TaskObject.hpp"
+#include "ServiceProvider.hpp"
+#include "../TaskContext.hpp"
 
 namespace RTT
 {
     using namespace detail;
 
-    DataFlowInterface::DataFlowInterface(OperationInterface* parent /* = 0 */)
+    DataFlowInterface::DataFlowInterface(TaskContext* parent /* = 0 */)
         : mparent(parent)
     {}
 
     DataFlowInterface::~DataFlowInterface() {
     }
 
-    OperationInterface* DataFlowInterface::getParent() {
+    TaskContext* DataFlowInterface::getParent() {
         return mparent;
     }
 
@@ -68,7 +67,7 @@ namespace RTT
         // This code belongs in addPort below, but in order to support
         // backwards compatible code, the PortObject is always created
         //
-        if (mparent && mparent->getObject( port->getName()) != 0) {
+        if (mparent && mparent->hasService( port->getName()) != 0) {
             log(Error) <<"Can not 'addPort' "<< port->getName() << ": name already in use as TaskObject." <<endlog();
             return false;
         }
@@ -77,9 +76,9 @@ namespace RTT
         port->setInterface( this );
         // NOTE: the API says this is not done, but for backwards compatibility
         // we leave it anyway inhere. :-(
-        OperationInterface* ms = this->createPortObject( port->getName());
+        ServiceProvider* ms = this->createPortObject( port->getName());
         if ( ms )
-            mparent->addObject( ms );
+            mparent->addService( ms );
         // END NOTE.
         return true;
     }
@@ -98,10 +97,10 @@ namespace RTT
         if (this->addPort(port) == false)
             return false;
         mports.back().second = description;
-        OperationInterface* ms = this->createPortObject( port->getName());
+        ServiceProvider* ms = this->createPortObject( port->getName());
         if ( ms ) {
-            mparent->removeObject( ms->getName() ); // See NOTE above.
-            mparent->addObject( ms );
+            mparent->removeService( ms->getName() ); // See NOTE above.
+            mparent->addService( ms );
         }
         return true;
     }
@@ -127,7 +126,7 @@ namespace RTT
               ++it)
             if ( it->first->getName() == name ) {
                 if (mparent)
-                    mparent->removeObject( name );
+                    mparent->removeService( name );
                 Ports::iterator ep = find(eports.begin(), eports.end(),it->first);
                 if ( ep!= eports.end() )
                     eports.erase( ep );
@@ -176,11 +175,11 @@ namespace RTT
         return "";
     }
 
-    OperationInterface* DataFlowInterface::createPortObject(const std::string& name) {
+    ServiceProvider* DataFlowInterface::createPortObject(const std::string& name) {
         PortInterface* p = this->getPort(name);
         if ( !p )
             return 0;
-        TaskObject* to = p->createPortObject();
+        ServiceProvider* to = p->createPortObject();
         if (to) {
             std::string d = this->getPortDescription(name);
             if ( !d.empty() )
@@ -198,7 +197,7 @@ namespace RTT
               it != mports.end();
               ++it) {
             if (mparent)
-                mparent->removeObject( it->first->getName() );
+                mparent->removeService( it->first->getName() );
         }
         mports.clear();
     }

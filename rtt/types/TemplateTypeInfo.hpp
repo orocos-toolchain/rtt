@@ -472,7 +472,7 @@ namespace RTT
         }
 
     };
-
+#if 0
         /**
          * The constructor classes allow to define type constructors
          * or type conversions (convert type B from type A).
@@ -637,6 +637,7 @@ namespace RTT
     TypeBuilder* newConstructor( Object obj, bool automatic = false) {
         return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj, automatic);
     }
+#endif
 }}
 
 #endif

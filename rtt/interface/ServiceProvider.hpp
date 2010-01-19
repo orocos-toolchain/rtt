@@ -5,6 +5,8 @@
 #include "../internal/LocalMethod.hpp"
 #include "../internal/DataSourceArgsMethod.hpp"
 #include "../internal/MethodC.hpp"
+#include "../internal/UnMember.hpp"
+
 #include "AttributeRepository.hpp"
 #include "../Operation.hpp"
 #ifdef ORO_REMOTING
@@ -28,16 +30,10 @@ namespace RTT
         : public internal::OperationFactory,
           public AttributeRepository
     {
-    protected:
-        typedef std::map<std::string,base::OperationBase* > SimpleOperations;
-        SimpleOperations simpleoperations;
-        std::string mname;
-        std::string mdescription;
-        TaskContext* mowner;
     public:
         typedef internal::OperationFactory Factory;
 
-        ServiceProvider(const std::string& name, TaskContext* owner);
+        ServiceProvider(const std::string& name, TaskContext* owner = 0);
 
         ~ServiceProvider();
 
@@ -49,7 +45,7 @@ namespace RTT
 
         void setName(const std::string& n) { mname = n;}
 
-        void setOwner(TaskContext* new_owner) { mowner = new_owner; }
+        void setOwner(TaskContext* new_owner);
         /**
          * Clear all added operations from the repository, saving memory space.
          */
@@ -97,8 +93,8 @@ namespace RTT
         {
             Logger::In in("ServiceProvider::getOperation");
             if ( simpleoperations.count(name) ) {
-                if ( boost::dynamic_pointer_cast< Operation<Signature> >(simpleoperations[name]) )
-                    return simpleoperations[name];
+                if ( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(simpleoperations[name]->getImplementation()) )
+                    return simpleoperations[name]->getImplementation();
                 else
                     log(Error) << "Operation '"<< name <<"' found, but has wrong Signature."<<endlog();
                 return boost::shared_ptr<base::DisposableInterface>();
@@ -130,43 +126,39 @@ namespace RTT
         template<class Signature>
         Operation<Signature>& addOperation( Operation<Signature>& op )
         {
-#if 0
-            const internal::LocalMethod<Signature>* lm = dynamic_cast< const internal::LocalMethod<Signature>* >( c->getImplementation() );
-            if ( !lm ) {
-                log(Error) << "Failed to addOperation: '"<< op.getName() <<"' is not a local method." <<endlog();
-                return false;
-            }
+#if 1
             if ( this->addLocalOperation( op ) == false )
-                return false;
-            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature>(
-                  internal::DataSourceArgsMethod<Signature>( op.getImplementation() ) ) );
+                return op;
+            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature,internal::DataSourceArgsMethod<Signature> >(
+                  internal::DataSourceArgsMethod<Signature>( op.getMethod() ) ) );
 #endif
             return op;
         }
 
+        /**
+         * Returns a function signature from a C++ member function
+         */
+        template<class FunctionT>
+        struct GetSignature {
+            typedef typename internal::UnMember< typename boost::remove_pointer<typename boost::function_types::function_type<typename boost::function_types::components<FunctionT>::type>::type>::type >::type Signature;
+        };
+
+        // UnMember serves to remove the member function pointer from the signature of func.
         template<class Func, class Service>
-        Operation<typename boost::function_types::function_type<typename boost::function_types::components<Func>::type>::type>&
+        Operation< typename GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
-//        template<class Signature, class Service>
-//        Operation<Signature>& addOperation2( const std::string name, boost::function<Signature> func, Service* serv = 0, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
         {
-            typedef typename boost::function_types::function_type<typename boost::function_types::components<Func>::type>::type Signature;
+            typedef typename GetSignature<Func>::Signature Signature;
             Operation<Signature>* op = new Operation<Signature>(name);
-            op->calls(func, serv);
+            op->calls(func, serv, et);
             if ( this->addLocalOperation( *op ) == false ) {
-                return *op; // TODO: XXX Leak here.
+                assert(false);
+                return *op; // should never be reached.
             }
-#if 0
-            const internal::LocalMethod<Signature>* lm = dynamic_cast< const internal::LocalMethod<Signature>* >( c->getImplementation() );
-            if ( !lm ) {
-                log(Error) << "Failed to addOperation: '"<< op.getName() <<"' is not a local method." <<endlog();
-                return false;
-            }
-            if ( this->addLocalOperation( op ) == false )
-                return false;
-            this->add( op.getName(), new internal::OperationFactoryPart<Signature>(
-                  internal::DataSourceArgsMethod<Signature>( lm->getOperationFunction()), description) );
-#endif
+            ownedoperations.push_back(op);
+            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature,internal::DataSourceArgsMethod<Signature> >(
+                  internal::DataSourceArgsMethod<Signature>( op->getMethod()) ) );
+
             return *op;
         }
 
@@ -232,6 +224,15 @@ namespace RTT
             simpleoperations[name] = impl;
             return true;
         }
+    protected:
+        bool testOperation(base::OperationBase& op);
+        typedef std::map<std::string,base::OperationBase* > SimpleOperations;
+        typedef std::vector<base::OperationBase*> OperationList;
+        SimpleOperations simpleoperations;
+        OperationList ownedoperations;
+        std::string mname;
+        std::string mdescription;
+        TaskContext* mowner;
     };
 }}
 

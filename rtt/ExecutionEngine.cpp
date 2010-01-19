@@ -73,8 +73,6 @@ namespace RTT
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
-        if (taskc)
-            Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
 
         // make a copy to avoid call-back troubles:
         std::vector<TaskCore*> copy = children;
@@ -217,9 +215,6 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        Logger::In in( taskc->getName() );
-        // this #ifdef ... #endif is only for speed optimisations.
-
         processMessages();
         processFunctions();
         processChildren(); // aren't these ExecutableInterfaces ie functions ?

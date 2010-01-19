@@ -33,28 +33,42 @@ namespace RTT
 
         Operation<Signature>& arg(const std::string& name, const std::string& description) { marg(name, description); return *this; }
 
-        Operation& calls(boost::function<Signature> func) {
+        Operation& calls(boost::function<Signature> func, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
             // creates a Local Method
+            impl.reset( new internal::LocalMethod<Signature>(func,0,0, et) );
+            return *this;
         }
 
         template<class Function, class Object>
-        Operation& calls(Function func, Object) {
+        Operation& calls(Function func, Object o, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
             // creates a Local Method or sets function
+            impl.reset( new internal::LocalMethod<Signature>(func,o,0,0, et) );
+            return *this;
         }
 
         Operation& signals(boost::function<Signature> func) {
             // attaches a signal to a Local Method
-
+            if (!impl)
+                impl.reset( new internal::LocalMethod<Signature>() );
+            //impl->signal(func);
+            return *this;
         }
 
         template<class Function, class Object>
-        Operation& signals(Function func, Object) {
+        Operation& signals(Function func, Object o) {
             // attaches a signal to a Local Method
+            if (!impl)
+                impl.reset( new internal::LocalMethod<Signature>() );
+            //impl->signal(func, o);
+            return *this;
         }
 
         virtual base::DisposableInterface::shared_ptr getImplementation() { return impl; }
         virtual const base::DisposableInterface::shared_ptr getImplementation() const { return impl; }
-    };
+
+        virtual typename base::MethodBase<Signature>::shared_ptr getMethod() { return impl; }
+        virtual const typename base::MethodBase<Signature>::shared_ptr getMethod() const { return impl; }
+};
 
 }
 

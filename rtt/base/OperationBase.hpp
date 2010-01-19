@@ -1,6 +1,7 @@
 #ifndef ORO_OPERATIONBASE_HPP_
 #define ORO_OPERATIONBASE_HPP_
 
+#include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ namespace RTT
         protected:
             std::string mname;
             std::vector<std::string> descriptions;
+            ExecutionEngine* mowner;
             void mdoc(const std::string& description);
             void marg(const std::string& name, const std::string& description);
         public:
@@ -42,9 +44,16 @@ namespace RTT
 
             virtual const DisposableInterface::shared_ptr getImplementation() const = 0;
 
+            /**
+             * An operation is ready if it has an implementation and is
+             * present in a TaskContext.
+             * @return
+             */
             bool ready() const {
-                return getImplementation();
+                return mowner && getImplementation();
             }
+
+            void setOwner(ExecutionEngine* ee) { mowner = ee; }
         };
     }
 }

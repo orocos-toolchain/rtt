@@ -39,7 +39,6 @@
 
 #include "MarshallingAccess.hpp"
 #include "../TaskContext.hpp"
-#include "../internal/TaskObject.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
@@ -53,34 +52,24 @@ namespace RTT {
         : mparent(parent)
     {
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-        OperationInterface* obj = parent->getObject("marshalling");
-        if (!obj)
-            obj = new TaskObject("marshalling","Read and write Properties to a file.");
-        obj->methods()->addMethod(method("loadProperties",&MarshallingAccess::loadProperties, this),
-                                  "Read, and create if necessary, Properties from a file.",
+        ServiceProvider* obj;
+        if (! mparent->hasService("marshalling") ) {
+            obj = new ServiceProvider("marshalling",parent);
+            obj->setDescription("Read and write Properties to a file.");
+        }
+        else
+            obj = mparent->provides("marshalling");
+        obj->addOperation("loadProperties",&MarshallingAccess::loadProperties, this).doc(
+                                  "Read, and create if necessary, Properties from a file.").arg(
                                   "Filename","The file to read the (new) Properties from.");
-        obj->methods()->addMethod(method("updateProperties",&MarshallingAccess::updateProperties, this),
-                                  "Read some Properties from a file.",
-                                  "Filename","The file to read the Properties from.");
-        obj->methods()->addMethod(method("readProperties",&MarshallingAccess::readProperties, this),
-                                  "Read all Properties from a file.",
-                                  "Filename","The file to read the Properties from.");
-        obj->methods()->addMethod(method("readProperty",&MarshallingAccess::readProperty, this),
-                                  "Read a single Property from a file.",
-                                  "Name", "The name of (or the path to) the property to read.",
-                                  "Filename","The file to read the Properties from.");
+        obj->addOperation("updateProperties", &MarshallingAccess::updateProperties, this).doc("Read some Properties from a file.").arg("Filename", "The file to read the Properties from.");
+        obj->addOperation("readProperties", &MarshallingAccess::readProperties, this).doc("Read all Properties from a file.").arg("Filename", "The file to read the Properties from.");
+        obj->addOperation("readProperty", &MarshallingAccess::readProperty, this).doc("Read a single Property from a file.").arg("Name", "The name of (or the path to) the property to read.").arg("Filename", "The file to read the Properties from.");
 
-        obj->methods()->addMethod(method("updateFile",&MarshallingAccess::updateFile, this),
-                                  "Write some Properties to a file.",
-                                  "Filename","The file to write the Properties to.");
-        obj->methods()->addMethod(method("writeProperties",&MarshallingAccess::writeProperties, this),
-                                  "Write all Properties to a file.",
-                                  "Filename","The file to write the Properties to.");
-        obj->methods()->addMethod(method("writeProperty",&MarshallingAccess::writeProperty, this),
-                                  "Write a single Properties to a file.",
-                                  "Name", "The name of (or the path to) the property to write.",
-                                  "Filename","The file to write the Properties to.");
-        mparent->addObject( obj );
+        obj->addOperation("updateFile", &MarshallingAccess::updateFile, this).doc("Write some Properties to a file.").arg("Filename", "The file to write the Properties to.");
+        obj->addOperation("writeProperties", &MarshallingAccess::writeProperties, this).doc("Write all Properties to a file.").arg("Filename", "The file to write the Properties to.");
+        obj->addOperation("writeProperty", &MarshallingAccess::writeProperty, this).doc("Write a single Properties to a file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
+        mparent->addService( obj );
 #endif
     }
 

@@ -41,13 +41,14 @@
 
 #include "../internal/Invoker.hpp"
 #include "DisposableInterface.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
     namespace base
     {
         /**
-         * The base class for all method implementations. Both local and remove
+         * The base class for all method implementations. Both local and remote
          * method implementations must inherit from this class.
          */
         template<class F>
@@ -55,8 +56,16 @@ namespace RTT
             : public internal::InvokerBase<F>,
               public DisposableInterface
         {
+            typedef boost::shared_ptr<MethodBase<F> > shared_ptr;
             virtual ~MethodBase() {}
             virtual MethodBase<F>* cloneI() const = 0;
+            /**
+             * Set an executor which will execute this method
+             * when it is called or sent. If ee is set to 0,
+             * the method will be executed in the client's thread.
+             * @param ee
+             */
+            virtual void setExecutor(ExecutionEngine* ee) = 0;
         };
     }
 }
