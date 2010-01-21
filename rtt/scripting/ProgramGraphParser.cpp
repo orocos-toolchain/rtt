@@ -42,6 +42,7 @@
 
 #include "TryCommand.hpp"
 #include "FunctionFactory.hpp"
+#include "../TaskContext.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -205,7 +206,7 @@ namespace RTT
 
   }
 
-    void ProgramGraphParser::initBodyParser(const std::string& name, OperationInterface* stck, int offset) {
+    void ProgramGraphParser::initBodyParser(const std::string& name, ServiceProvider* stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );
         program_builder->startFunction(name);
@@ -229,7 +230,7 @@ namespace RTT
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
 
-    void ProgramGraphParser::setStack(OperationInterface* st) {
+    void ProgramGraphParser::setStack(ServiceProvider* st) {
         context = st;
     }
 
@@ -243,8 +244,7 @@ namespace RTT
       }
       implcond_v.clear();
 
-      rootc->attributes()
-          ->setValue( new Alias<bool>("done",
+      rootc->setValue( new Alias<bool>("done",
                                       new DataSourceCondition( implcond->clone() ) ) );
   }
 
@@ -267,7 +267,7 @@ namespace RTT
       implcond = 0;
 
       // the done condition is no longer valid..
-      rootc->attributes()->removeValue( "done" );
+      rootc->removeValue( "done" );
   }
 
     void ProgramGraphParser::startofprogram()
@@ -280,15 +280,15 @@ namespace RTT
 
       std::string def(begin, end);
 
-      if ( rootc->getObject( def ) != 0 )
-          throw parse_exception_semantic_error("Object with name '" + def + "' already present in task '"+rootc->getName()+"'.");
+      if ( rootc->hasService( def ) )
+          throw parse_exception_semantic_error("Service with name '" + def + "' already present in task '"+rootc->getName()+"'.");
 
       FunctionGraphPtr pi(program_builder->startFunction( def ));
       // ptsk becomes the owner of pi.
-      ProgramTask* ptsk(new ProgramTask( pi, rootc->engine() ));
+      ProgramTask* ptsk(new ProgramTask( pi, rootc ));
       pi->setProgramTask(ptsk);
       context = ptsk;
-      rootc->addObject( ptsk );
+      rootc->addService( ptsk );
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -317,7 +317,7 @@ namespace RTT
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->methods()->hasMember( funcdef ))
+      if ( exportf && rootc->hasMember( funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
@@ -347,7 +347,7 @@ namespace RTT
       if (exportf) {
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
-          rootc->methods()->add(mfunc->getName(), cfi );
+          rootc->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 

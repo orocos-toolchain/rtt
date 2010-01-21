@@ -49,39 +49,28 @@ namespace RTT
 
     using namespace detail;
 
-    ProgramTask::ProgramTask(FunctionGraphPtr prog, ExecutionEngine* ee)
-        : ServiceProvider( prog->getName(), "Orocos Program Script"),
+    ProgramTask::ProgramTask(FunctionGraphPtr prog, TaskContext* tc)
+        : ServiceProvider( prog->getName(), tc),
           program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ),
           function(prog)
     {
-        this->setEngine( ee );
+        this->doc("Orocos Program Script");
 
+        // We need a weak pointer here in order to be able to unload programs that
+        // reference self. The only way we can use weak_ptr with Method/Operation is by putting it in the data source
+        // of the first argument. We can not 'boost::bind' to a weak pointer, only to a shared_ptr.
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Methods :
-        methods()->addMethodDS( ptr,
-                                  method_ds("start",&ProgramInterface::start),
-                                  "Start or continue this program.");
-        methods()->addMethodDS( ptr,
-                                  method_ds("pause",&ProgramInterface::pause),
-                                  "Pause this program.");
-        methods()->addMethodDS( ptr,
-                                  method_ds("step", &ProgramInterface::step),
-                                  "Step a paused program.");
-        methods()->addMethodDS( ptr,
-                                  method_ds("stop", &ProgramInterface::stop),
-                                  "Stop and reset this program.");
+        addOperationDS("start", &ProgramInterface::start,ptr).doc("Start or continue this program.");
+        addOperationDS("pause", &ProgramInterface::pause,ptr).doc("Pause this program.");
+        addOperationDS("step", &ProgramInterface::step,ptr).doc("Step a paused program.");
+        addOperationDS("stop", &ProgramInterface::stop,ptr).doc("Stop and reset this program.");
 
         // DataSources:
 
-        methods()->addMethodDS( ptr,
-                                method_ds("isRunning",&ProgramInterface::isRunning),
-                                "Is this program being executed and not paused ?");
-        methods()->addMethodDS( ptr,
-                                method_ds("inError", &ProgramInterface::inError),
-                                "Has this program executed an erroneous method ?");
-        methods()->addMethodDS( ptr,
-                                method_ds("isPaused", &ProgramInterface::isPaused),
-                                "Is this program running but paused ?");
+        addOperationDS("isRunning", &ProgramInterface::isRunning,ptr).doc("Is this program being executed and not paused ?");
+        addOperationDS("inError", &ProgramInterface::inError,ptr).doc("Has this program executed an erroneous method ?");
+        addOperationDS("isPaused", &ProgramInterface::isPaused,ptr).doc("Is this program running but paused ?");
     }
 
     ProgramTask::~ProgramTask() {

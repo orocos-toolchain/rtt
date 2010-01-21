@@ -93,7 +93,7 @@ namespace RTT
             // BC: user uses 'states.' or 'programs'.
             if ( !callqueue.empty() ) {
                 std::string name = callqueue.front();
-                if ( (name == "states" || name == "programs") && _peer->getObject(name) == 0) {
+                if ( (name == "states" || name == "programs") && _peer->hasService(name) == 0) {
                     log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
                     log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
                     callqueue.pop();
@@ -103,9 +103,9 @@ namespace RTT
             mcurobject = _peer;
 
             // all peers done, traverse objects:
-            while ( callqueue.size() > 0 && mcurobject->getObject( callqueue.front() ) ) {
+            while ( callqueue.size() > 0 && mcurobject->hasService( callqueue.front() ) ) {
                 //std::cerr<< mcurobject->getName() <<" has object " << callqueue.front()<<std::endl;
-                mcurobject = mcurobject->getObject( callqueue.front() );
+                mcurobject = mcurobject->provides( callqueue.front() );
                 mlastobject = callqueue.front();
                 callqueue.pop();
             }
@@ -172,8 +172,8 @@ namespace RTT
 
             //cout << "PP located "<<name <<endl;
         }
-        else if ( mcurobject->getObject(name) ) {
-            mcurobject = mcurobject->getObject(name);
+        else if ( mcurobject->hasService(name) ) {
+            mcurobject = mcurobject->provides(name);
             advance_on_error += end.base() - begin.base();
         }
         else {
@@ -209,7 +209,7 @@ namespace RTT
         return _peer;
     }
 
-    OperationInterface* PeerParser::taskObject()
+    ServiceProvider* PeerParser::taskObject()
     {
         return mcurobject;
     }

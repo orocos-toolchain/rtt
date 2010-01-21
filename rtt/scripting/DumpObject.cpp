@@ -40,7 +40,7 @@
 #include <vector>
 #include <string>
 #include "../base/DataSourceBase.hpp"
-#include "../interface/OperationInterface.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "../interface/ServiceProvider.hpp"
 #include "DumpObject.hpp"
 #include "rtt-fwd.hpp"
@@ -51,33 +51,17 @@ using namespace RTT::detail;
 
 namespace RTT { namespace scripting {
 
-void DumpObject(OperationInterface* peer)
+void DumpObject(ServiceProvider* peer)
 {
     if (!peer) { cerr << "Not dumping null task!"<<endl; return;}
 
-    cerr << "Dumping Task "<< peer->getName() << endl;
+    cerr << "Dumping Service "<< peer->getName() << endl;
     cerr << "Attributes: ";
-    std::vector<std::string> objlist = peer->attributes()->names();
+    std::vector<std::string> objlist = peer->names();
     for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
-        DataSourceBase::shared_ptr pds = peer->attributes()->getValue(*it)->getDataSource();
+        DataSourceBase::shared_ptr pds = peer->getValue(*it)->getDataSource();
         cerr << *it <<"(="<< pds<<") ";
     }
     cerr << endl;
-
-    objlist = peer->getObjectList();
-    cerr << "Objects: ";
-    if ( !objlist.empty() ) {
-        for(vector<string>::iterator it = objlist.begin(); it != objlist.end(); ++it)
-            cerr << *it << " ";
-    } else {
-        cerr <<"(none)";
-    }
-    cerr << endl << endl;
-
-    // recurse:
-    for(vector<string>::iterator it = objlist.begin(); it != objlist.end(); ++it)
-        if ( *it != "this" )
-            DumpObject( peer->getObject( *it ) );
-
 }}
 }

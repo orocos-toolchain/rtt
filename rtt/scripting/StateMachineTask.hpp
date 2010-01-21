@@ -59,7 +59,7 @@ namespace RTT
         // functions have a similar mechanism
         internal::ValueDataSource< StateMachineWPtr >::shared_ptr _this;
         ParsedStateMachineWPtr statemachine;
-        ExecutionEngine* mengine;
+        TaskContext* mtc;
 
         void createMethodFactory();
 
@@ -70,7 +70,7 @@ namespace RTT
          * By constructing this object, a stateMachine is added to a taskcontext
          * as a interface::ServiceProvider, with its commands and methods.
          */
-        StateMachineTask(ParsedStateMachinePtr statemachine, ExecutionEngine* ee=0);
+        StateMachineTask(ParsedStateMachinePtr statemachine, TaskContext* tc=0);
 
         ~StateMachineTask();
 
@@ -79,7 +79,7 @@ namespace RTT
          */
         StateMachinePtr getStateMachine() const { return _this->get().lock(); }
 
-        ExecutionEngine* engine() const { return mengine; }
+        ExecutionEngine* engine() const;
     };
 }}
 

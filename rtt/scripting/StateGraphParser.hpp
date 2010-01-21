@@ -64,7 +64,7 @@ namespace RTT { namespace scripting
       TaskContext* context;
       // The interface::ServiceProvider of the current StateMachine
       StateMachineTask* curobject ;
-      interface::OperationInterface* peer;
+      interface::ServiceProvider* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.

@@ -29,7 +29,7 @@
 #include "parse_exception.hpp"
 #include "ValueChangeParser.hpp"
 
-#include "../interface/OperationInterface.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "../types/Types.hpp"
 #include "../Attribute.hpp"
 #include "../TaskContext.hpp"
@@ -70,7 +70,7 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc, OperationInterface* storage )
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, ServiceProvider* storage )
         : type( 0 ), context( pc ), mstore( storage ? storage : pc ),
           expressionparser( pc ), peerparser( pc ), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
@@ -203,7 +203,7 @@ namespace RTT
                     ("Attempt to initialize a const "+type->getTypeName()+" with a "+expr->getTypeName()+"." );
             }
 
-        mstore->attributes()->setValue( var );
+        mstore->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -212,7 +212,7 @@ namespace RTT
     void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
     {
         std::string name( begin, end );
-        if ( mstore->attributes()->getValue( name ) ) {
+        if ( mstore->getValue( name ) ) {
             this->cleanup();
             throw parse_exception_semantic_error( "Identifier \"" + name +
                                                   "\" is already defined." );
@@ -241,7 +241,7 @@ namespace RTT
             throw parse_exception_semantic_error(
                                                  "Attempt to define an alias of type "+type->getTypeName()+" to an expression of type "+expr->getTypeName()+"." );
         }
-        mstore->attributes()->setValue( alias );
+        mstore->setValue( alias );
         definedvalues.push_back( alias );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -260,7 +260,7 @@ namespace RTT
             var = type->buildVariable(valuename,sizehint);
         }
         sizehint = -1;
-        mstore->attributes()->setValue( var );
+        mstore->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -294,7 +294,7 @@ namespace RTT
             var = type->buildVariable(valuename,sizehint);
         }
         sizehint = -1;
-        mstore->attributes()->setValue( var );
+        mstore->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -331,7 +331,7 @@ namespace RTT
         AttributeBase* var = 0;
         PropertyBase*     prop = 0;
 
-        OperationInterface* peername = peerparser.taskObject();
+        ServiceProvider* peername = peerparser.taskObject();
         peerparser.reset();
 
         // if bag is non-null, 'valuename' must be one of its properties :
@@ -347,11 +347,11 @@ namespace RTT
             propparser.reset();
         } else {
             // first check if it is a property :
-            if ( peername->attributes()->hasProperty( valuename ) ) {
-                prop =  peername->attributes()->properties()->find( valuename );
+            if ( peername->hasProperty( valuename ) ) {
+                prop =  peername->properties()->find( valuename );
             } else {
                 // not a property case :
-                var = peername->attributes()->getValue( valuename );
+                var = peername->getValue( valuename );
                 // SIDENOTE: now, we must be sure that if this program gets copied,
                 // the DS still points to the peer's attribute, and not to a new copy. Attribute and Properties
                 // takes care of this by definition, but the variable of a loaded StateMachine or program
@@ -430,7 +430,7 @@ namespace RTT
                 assigncommands.push_back(assigncommand);
                 // if null, not allowed.
                 if ( ! assigncommand )
-                    throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in OperationInterface "+ peername->getName()+"." );
+                    throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in ServiceProvider "+ peername->getName()+"." );
             }
             catch( const bad_assignment& e )
                 {
@@ -480,11 +480,11 @@ namespace RTT
         //assert( !expressionparser.hasResult() );
     }
 
-    void ValueChangeParser::store(OperationInterface* o)
+    void ValueChangeParser::store(ServiceProvider* o)
     {
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {
-            o->attributes()->setValue( mstore->attributes()->getValue(*it)->clone() );
+            o->setValue( mstore->getValue(*it)->clone() );
         }
     }
 
@@ -507,7 +507,7 @@ namespace RTT
         // erase/delete added values from the context:
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {
-            mstore->attributes()->removeValue( *it );
+            mstore->removeValue( *it );
         }
         alldefinednames.clear();
         this->cleanup();

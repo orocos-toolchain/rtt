@@ -131,7 +131,7 @@ namespace RTT
   {
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
-    OperationInterface* task = peerparser.taskObject();
+    ServiceProvider* task = peerparser.taskObject();
     peerparser.reset();
     //std::cerr << "ValueParser: seenvar : "<< name
     //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
@@ -148,11 +148,11 @@ namespace RTT
     }
 
     // non-nested property or attribute case :
-    if ( task && task->attributes()->hasAttribute( name ) ) {
-      ret = task->attributes()->getValue(name)->getDataSource();
+    if ( task && task->hasAttribute( name ) ) {
+      ret = task->getValue(name)->getDataSource();
       return;
     }
-    if ( peer==task && peer->attributes()->hasProperty( name ) ) {
+    if ( peer==task && peer->hasProperty( name ) ) {
         ret = peer->properties()->find(name)->getDataSource();
         return;
     }

@@ -59,7 +59,7 @@ namespace RTT {
 
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
-            : detail::OperationFactoryPart<DataSourceBase*>("A function."), func(pi), proc(procs) {}
+            : func(pi), proc(procs) {}
 
         std::string FunctionFactory::resultType() const {
             return std::string("bool");

@@ -41,7 +41,7 @@
 
 #include "../Attribute.hpp"
 #include "../internal/FactoryExceptions.hpp"
-#include "../ExecutionEngine.hpp"
+#include "../TaskContext.hpp"
 #include "../Method.hpp"
 
 namespace RTT
@@ -65,49 +65,29 @@ namespace RTT
             // SM' which may contain non-rt safe code. When activate() is
             // called directly upon the SM in C++, it _is_ a method, but
             // with the same deficiencies.
-            methods()->addMethodDS(ptr, method_ds("activate",
-                                               &StateMachine::activate),
-                                    "Activate this StateMachine to initial state and enter request Mode.");
-            methods()->addMethodDS(ptr, method_ds("deactivate",
-                                               &StateMachine::deactivate),
-                                    "Deactivate this StateMachine");
-            methods()->addMethodDS(ptr, method_ds("start",
-                                               &StateMachine::automatic),
-                                    "Start this StateMachine, enter automatic Mode.");
-            methods()->addMethodDS(ptr, method_ds("automatic",
-                                               &StateMachine::automatic),
-                                    "Start this StateMachine, enter automatic Mode.");
-            methods()->addMethodDS(ptr, method_ds("pause",
-                      &StateMachine::pause),
-                                 "Pause this StateMachine, enter paused Mode.");
-            methods()->addMethodDS(ptr, method_ds("step",
-                      &StateMachine::step),
+            addOperationDS("activate", &StateMachine::activate,ptr).doc("Activate this StateMachine to initial state and enter request Mode.");
+            addOperationDS("deactivate", &StateMachine::deactivate,ptr).doc("Deactivate this StateMachine");
+            addOperationDS("start", &StateMachine::automatic,ptr).doc("Start this StateMachine, enter automatic Mode.");
+            addOperationDS("automatic", &StateMachine::automatic,ptr).doc("Start this StateMachine, enter automatic Mode.");
+            addOperationDS("pause", &StateMachine::pause,ptr).doc("Pause this StateMachine, enter paused Mode.");
+            addOperationDS("step", &StateMachine::step,ptr).doc(
                                  "Step this StateMachine. When paused, step a single instruction or transition evaluation. \n"
                                  "When in reactive mode, evaluate transitions and go to a next state, or if none, run handle.");
-            methods()->addMethodDS(ptr, method_ds("reset",
-                      &StateMachine::reset),
-                                 "Reset this StateMachine to the initial state");
-            methods()->addMethodDS(ptr, method_ds("stop",
-                      &StateMachine::stop),
-                                 "Stop this StateMachine to the final state and enter request Mode.");
-            methods()->addMethodDS(ptr, method_ds("reactive",
-                      &StateMachine::reactive),
-                                 "Enter reactive mode (see requestState() and step() ).\n Method is done if ready for requestState() or step() method.");
-            methods()->addMethodDS(ptr, method_ds("requestState",
-                      &StateMachine::requestState),
-                                 "Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.",
-                                 "State", "The state to make the transition to.");
+            addOperationDS("reset", &StateMachine::reset,ptr).doc("Reset this StateMachine to the initial state");
+            addOperationDS("stop", &StateMachine::stop,ptr).doc("Stop this StateMachine to the final state and enter request Mode.");
+            addOperationDS("reactive", &StateMachine::reactive,ptr).doc("Enter reactive mode (see requestState() and step() ).\n Method is done if ready for requestState() or step() method.");
+            addOperationDS("requestState", &StateMachine::requestState,ptr).doc("Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.").arg("State", "The state to make the transition to.");
 
-            methods()->addMethodDS(ptr, method_ds("inState", &StateMachine::inState), "Is the StateMachine in a given state ?", "State", "State Name");
-            methods()->addMethodDS(ptr, method_ds("inError", &StateMachine::inError), "Is this StateMachine in error ?");
-            methods()->addMethodDS(ptr, method_ds("getState", &StateMachine::getCurrentStateName), "The name of the current state. An empty string if not active.");
-            methods()->addMethodDS(ptr, method_ds("isActive", &StateMachine::isActive), "Is this StateMachine activated (possibly in transition) ?");
-            methods()->addMethodDS(ptr, method_ds("isRunning", &StateMachine::isAutomatic), "Is this StateMachine running in automatic mode ?");
-            methods()->addMethodDS(ptr, method_ds("isReactive", &StateMachine::isReactive), "Is this StateMachine ready and waiting for requests or events ?");
-            methods()->addMethodDS(ptr, method_ds("isPaused", &StateMachine::isPaused), "Is this StateMachine paused ?");
-            methods()->addMethodDS(ptr, method_ds("inInitialState", &StateMachine::inInitialState), "Is this StateMachine in the initial state ?");
-            methods()->addMethodDS(ptr, method_ds("inFinalState", &StateMachine::inFinalState), "Is this StateMachine in the final state ?");
-            methods()->addMethodDS(ptr, method_ds("inTransition", &StateMachine::inTransition), "Is this StateMachine executing a entry|handle|exit program ?");
+            addOperationDS("inState", &StateMachine::inState,ptr).doc("Is the StateMachine in a given state ?").arg("State", "State Name");
+            addOperationDS("inError", &StateMachine::inError,ptr).doc("Is this StateMachine in error ?");
+            addOperationDS("getState", &StateMachine::getCurrentStateName,ptr).doc("The name of the current state. An empty string if not active.");
+            addOperationDS("isActive", &StateMachine::isActive,ptr).doc("Is this StateMachine activated (possibly in transition) ?");
+            addOperationDS("isRunning", &StateMachine::isAutomatic,ptr).doc("Is this StateMachine running in automatic mode ?");
+            addOperationDS("isReactive", &StateMachine::isReactive,ptr).doc("Is this StateMachine ready and waiting for requests or events ?");
+            addOperationDS("isPaused", &StateMachine::isPaused,ptr).doc("Is this StateMachine paused ?");
+            addOperationDS("inInitialState", &StateMachine::inInitialState,ptr).doc("Is this StateMachine in the initial state ?");
+            addOperationDS("inFinalState", &StateMachine::inFinalState,ptr).doc("Is this StateMachine in the final state ?");
+            addOperationDS("inTransition", &StateMachine::inTransition,ptr).doc("Is this StateMachine executing a entry|handle|exit program ?");
         }
 
         StateMachineTask* StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
@@ -115,24 +95,24 @@ namespace RTT
             // if this gets copied, all created methods will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future methods for the copy will also call the new instance
             // while future methods for the original will still call the original.
-            StateMachineTask* tmp = new StateMachineTask( newsc, this->mengine );
+            StateMachineTask* tmp = new StateMachineTask( newsc, this->mtc );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
-            AttributeRepository* dummy = this->attributes()->copy( replacements, instantiate );
-            *(tmp->attributes()) = *dummy;
+            AttributeRepository* dummy = AttributeRepository::copy( replacements, instantiate );
+            tmp->loadValues( dummy->getValues());
             delete dummy;
 
             return tmp;
         }
 
-        StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, ExecutionEngine* ee)
+        StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, TaskContext* tc)
             : ServiceProvider( statem->getName() ),
               _this( new ValueDataSource<StateMachineWPtr>( statem ) ),
               statemachine(statem),
-              mengine(ee)
+              mtc(tc)
         {
             this->createMethodFactory();
-            this->setEngine( ee );
+            this->setOwner( tc );
         }
 
     StateMachineTask::~StateMachineTask()
@@ -140,8 +120,10 @@ namespace RTT
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
         ParsedStateMachinePtr prog = statemachine.lock();
         if ( prog ) {
-            prog->setTaskObject(0);
+            prog->setServiceProvider(0);
         }
     }
+    ExecutionEngine* StateMachineTask::engine() const { return mtc->engine(); }
+
 }
 

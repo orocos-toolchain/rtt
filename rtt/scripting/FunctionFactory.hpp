@@ -39,6 +39,7 @@
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
+#include "../internal/ArgumentDescription.hpp"
 #include "../internal/OperationFactory.hpp"
 #include "../Property.hpp"
 #include "../base/ProgramInterface.hpp"
@@ -57,7 +58,7 @@ namespace RTT
      * a FunctionGraph in a Processor.
      */
     class FunctionFactory
-        : public internal::OperationFactoryPart<base::DataSourceBase*>
+        : public internal::OperationFactoryPart
     {
         base::ProgramInterfacePtr func;
         ExecutionEngine* proc;
@@ -66,12 +67,17 @@ namespace RTT
 
         std::string resultType() const;
 
-        std::vector< internal::ArgumentDescription > getArgumentList() const;
-
         int arity() const;
+
+        std::vector< internal::ArgumentDescription > getArgumentList() const;
 
         base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args
                                    ) const;
+        base::DataSourceBase* produceHandle() const { return 0; }
+        base::DataSourceBase* produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args
+                                   ) const { return 0; }
+        base::DataSourceBase* produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
+                                   ) const { return 0; }
     };
 }}
 

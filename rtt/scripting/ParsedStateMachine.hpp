@@ -83,9 +83,9 @@ namespace RTT
 
         void setText( std::string text);
 
-        StateMachineTask* getTaskObject() const;
+        StateMachineTask* getServiceProvider() const;
 
-        void setTaskObject(StateMachineTask* tc);
+        void setServiceProvider(StateMachineTask* tc);
 
         bool inState( const std::string& name );
         /**

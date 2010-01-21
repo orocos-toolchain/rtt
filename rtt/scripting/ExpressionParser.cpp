@@ -100,7 +100,7 @@ namespace RTT
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
-      OperationInterface* ops  = peerparser.taskObject();
+      ServiceProvider* ops  = peerparser.taskObject();
       peerparser.reset();
 
       // Check if it is a constructor
@@ -115,7 +115,7 @@ namespace RTT
               throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
           }
 
-          if ( ops->methods()->hasMember(mmethod) == false ) {
+          if ( ops->hasMember(mmethod) == false ) {
               //DumpObject( peer );
               if ( mobject != "this" )
                   throw parse_exception_no_such_method_on_component( "DataCall::"+mobject, mmethod );
@@ -149,7 +149,7 @@ namespace RTT
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
     std::vector<DataSourceBase::shared_ptr> args = argspar->result();
-    OperationInterface* peer = argspar->object();
+    ServiceProvider* peer = argspar->object();
     delete argspar;
 
     // separate track if we are handling a constructor:
@@ -161,12 +161,12 @@ namespace RTT
     } else {
         // plain method:
 
-        OperationInterface* ops = peer;
+        ServiceProvider* ops = peer;
         // we already checked for the existence of this object and method
         // in seendataname()..
 
         try {
-            ret = ops->methods()->produce( meth, args );
+            ret = ops->produce( meth, args );
         }
         catch( const wrong_number_of_args_exception& e )
             {

@@ -40,7 +40,7 @@
 #include "GraphCopier.hpp"
 #include "../base/AttributeBase.hpp"
 #include "ProgramTask.hpp"
-#include "ExecutionEngine.hpp"
+#include "TaskContext.hpp"
 #include "../interface/ServiceProvider.hpp"
 
 #include "CommandNOP.hpp"
@@ -130,7 +130,7 @@ namespace RTT {
             return;
         // just kill off the interface.
         if (context->getParent() ) {
-            context->getParent()->removeObject(context->getName());
+            context->getParent()->removeService(context->getName());
         } else {
             // no parent, delete it ourselves.
             delete context;

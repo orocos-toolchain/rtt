@@ -57,16 +57,17 @@ namespace RTT {
     using namespace std;
 
     ScriptingAccess::ScriptingAccess( TaskContext* parent )
-        : ServiceProvider("scripting","Access to the Scripting interface. \
-                Use this object in order to load or query programs or state machines."),
+        : ServiceProvider("scripting", parent),
         mparent(parent),sproc(0)
     {
+        this->doc("Access to the Scripting interface. \
+                Use this object in order to load or query programs or state machines.");
         this->createInterface();
     }
 
     ScriptingAccess::~ScriptingAccess()
     {
-        mparent->removeObject("scripting");
+        mparent->removeService("scripting");
         this->clear();
         delete sproc;
     }
@@ -469,7 +470,7 @@ namespace RTT {
 
         // request states
         addOperation("requestStateMachineState", &ScriptingAccess::requestStateMachineState , this).doc("Request a State change").arg("Name", "The Name of the StateMachine").arg("StateName", "The Name of the State to change to");
-        mparent->addObject(this);
+        mparent->addService(this);
     }
 
     int ScriptingAccess::execute(const string& code ){
@@ -496,7 +497,7 @@ namespace RTT {
       inputfile.unsetf( ios_base::skipws );
       istream_iterator<char> streambegin( inputfile );
       istream_iterator<char> streamend;
-      copy( streambegin, streamend, back_inserter( text ) );
+      std::copy( streambegin, streamend, back_inserter( text ) );
       return this->loadFunctions( text, file, do_throw );
     }
 
@@ -552,7 +553,7 @@ namespace RTT {
         inputfile.unsetf( ios_base::skipws );
         istream_iterator<char> streambegin( inputfile );
         istream_iterator<char> streamend;
-        copy( streambegin, streamend, back_inserter( text ) );
+        std::copy( streambegin, streamend, back_inserter( text ) );
         return this->loadPrograms( text, file, do_throw );
     }
 
@@ -637,7 +638,7 @@ namespace RTT {
         inputfile.unsetf( ios_base::skipws );
         istream_iterator<char> streambegin( inputfile );
         istream_iterator<char> streamend;
-        copy( streambegin, streamend, back_inserter( text ) );
+        std::copy( streambegin, streamend, back_inserter( text ) );
       return this->loadStateMachines( text, file, do_throw );
     }
 

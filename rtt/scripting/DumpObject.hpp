@@ -44,7 +44,7 @@
 
 namespace RTT { namespace scripting {
 
-RTT_API void DumpObject(interface::OperationInterface* obj);
+RTT_API void DumpObject(interface::ServiceProvider* obj);
 
 }}
 #endif

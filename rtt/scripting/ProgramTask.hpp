@@ -40,6 +40,7 @@
 #ifndef PROGRAM_TASK_HPP
 #define PROGRAM_TASK_HPP
 
+#include "../internal/ArgumentDescription.hpp"
 #include "../interface/ServiceProvider.hpp"
 #include "FunctionGraph.hpp"
 #include "../internal/DataSources.hpp"
@@ -61,7 +62,7 @@ namespace RTT
          * By constructing this object, a program is added to a taskcontext
          * as a TaskContext, with its commands and methods.
          */
-        ProgramTask( FunctionGraphPtr prog, ExecutionEngine* ee = 0 );
+        ProgramTask( FunctionGraphPtr prog, TaskContext* tc = 0 );
 
         ~ProgramTask();
 

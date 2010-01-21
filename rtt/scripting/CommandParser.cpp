@@ -102,13 +102,13 @@ namespace RTT
   {
       mcurobject = peerparser.object();
       peer = peerparser.peer();
-      OperationInterface* obj = peerparser.taskObject();
+      ServiceProvider* obj = peerparser.taskObject();
       peerparser.reset();
 
       if ( obj == 0 )
           throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
       else {
-          if ( obj->methods()->hasMember(mcurmethod) == false ) {
+          if ( obj->hasMember(mcurmethod) == false ) {
               if ( mcurobject == "this" )
                   mcurobject = peer->getName();
               throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
@@ -129,8 +129,8 @@ namespace RTT
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
-    OperationInterface* obj = argsparser->object();
-    MethodRepository::Factory* mfi = obj->methods();
+    ServiceProvider* obj = argsparser->object();
+    ServiceProvider* mfi = obj;
 
     assert(mfi);
 

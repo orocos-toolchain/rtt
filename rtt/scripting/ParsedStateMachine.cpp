@@ -32,6 +32,8 @@
 
 #include "../interface/ServiceProvider.hpp"
 #include "StateMachineTask.hpp"
+#include "../TaskContext.hpp"
+
 #include <cassert>
 
 #include <boost/lambda/lambda.hpp>
@@ -63,7 +65,7 @@ namespace RTT {
 
         // First copy the task such that commands and attributes can be correctly
         // copied. This also sets the EventProcessor for the SM.
-        ret->setTaskObject( this->object->copy(ret, replacements, instantiate) );
+        ret->setServiceProvider( this->object->copy(ret, replacements, instantiate) );
 
         // the parameters of the SC, similar to FunctionGraph's Arguments.
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
@@ -71,8 +73,8 @@ namespace RTT {
         {
             // What is sure, is that each param
             // must also be in the attributerepository.
-            assert( ret->getTaskObject()->attributes()->getValue( i->first ) );
-            ret->parametervalues[i->first] = ret->getTaskObject()->attributes()->getValue( i->first );
+            assert( ret->getServiceProvider()->getValue( i->first ) );
+            ret->parametervalues[i->first] = ret->getServiceProvider()->getValue( i->first );
         }
 
         //**********************
@@ -215,8 +217,8 @@ namespace RTT {
         if ( object == 0)
             return;
         if ( object->getParent() ) {
-            assert( object == object->getParent()->getObject( object->getName() ) );
-            object->getParent()->removeObject( object->getName() );
+            assert( object == object->getParent()->provides( object->getName() ) );
+            object->getParent()->removeService( object->getName() );
         } else {
             // no parent, delete it ourselves.
             delete object;
@@ -264,15 +266,15 @@ namespace RTT {
 
         if ( recursive == false )
             return;
-        //this->getTaskObject()->addPeer( this->getTaskObject()->getPeer("states")->getPeer("task") );
+        //this->getServiceProvider()->addPeer( this->getServiceProvider()->getPeer("states")->getPeer("task") );
         for ( ChildList::const_iterator i = getChildren().begin(); i != getChildren().end(); ++i )
         {
             std::string subname = name + "." + (*i)->getName();
             ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->get() );
             psc->setName( subname, true );
             // we own our child:
-            psc->getTaskObject()->setParent( 0 );
-            this->getTaskObject()->addObject( psc->getTaskObject() );
+            psc->getServiceProvider()->setOwner( 0 );
+            this->getServiceProvider()->addService( psc->getServiceProvider() );
         }
     }
 
@@ -286,10 +288,10 @@ namespace RTT {
         *_text = text;
     }
 
-    StateMachineTask* ParsedStateMachine::getTaskObject() const {
+    StateMachineTask* ParsedStateMachine::getServiceProvider() const {
         return object;
     }
-    void ParsedStateMachine::setTaskObject(StateMachineTask* tc) {
+    void ParsedStateMachine::setServiceProvider(StateMachineTask* tc) {
         object = tc;
         if (tc) {
             this->eproc = tc->engine();

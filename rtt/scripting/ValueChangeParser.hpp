@@ -46,7 +46,7 @@
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
 #include "../types/Types.hpp"
-#include "../interface/OperationInterface.hpp"
+#include "../interface/ServiceProvider.hpp"
 
 namespace RTT { namespace scripting
 {
@@ -104,7 +104,7 @@ namespace RTT { namespace scripting
         vardecl, constdecl, baredecl;
 
       TaskContext* context;
-      interface::OperationInterface* mstore;
+      interface::ServiceProvider* mstore;
       ExpressionParser expressionparser;
       PeerParser peerparser;
       PropertyParser propparser;
@@ -129,7 +129,7 @@ namespace RTT { namespace scripting
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc, interface::OperationInterface* storage= 0);
+      ValueChangeParser( TaskContext* tc, interface::ServiceProvider* storage= 0);
 
       /**
        * Clear assignCommands(), definedValues() and
@@ -140,7 +140,7 @@ namespace RTT { namespace scripting
       /**
        * Store allDefinedNames() in an additional TaskContext.
        */
-      void store( interface::OperationInterface* other );
+      void store( interface::ServiceProvider* other );
 
     /**
      * This base::ActionInterface holds the command assigning a value to

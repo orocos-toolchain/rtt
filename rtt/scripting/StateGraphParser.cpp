@@ -413,7 +413,7 @@ namespace RTT
     {
         // reuse transProgram to store else progr. See seenselect().
         //transProgram = finishProgram();
-        //transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
+        //transProgram->setProgramProcessor(curtemplate->getServiceProvider()->engine()->programs());
     }
 
     void StateGraphParser::seenelse()
@@ -590,7 +590,7 @@ namespace RTT
 
         // retrieve _all_ defined variables and parameters, store them and cleanup the
         // valuechangeparser.
-        valuechangeparser->store( curtemplate->getTaskObject() );
+        valuechangeparser->store( curtemplate->getServiceProvider() );
         valuechangeparser->reset();
 
         // prepend the commands for initialising the subMachine
@@ -614,9 +614,9 @@ namespace RTT
              it != curtemplate->getChildren().end(); ++it ) {
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
             if (psc) {
-                psc->getTaskObject()->setParent(0);
+                psc->getServiceProvider()->setOwner(0);
                 // since context is not the parent of psc, it wil not delete it.
-                context->removeObject( psc->getTaskObject()->getName() );
+                context->removeService( psc->getServiceProvider()->getName() );
             }
 
         }
@@ -734,14 +734,14 @@ namespace RTT
         if ( curtemplate )
         {
           // remove all 'this' data factories
-          curtemplate->getTaskObject()->methods()->clear();
+          curtemplate->getServiceProvider()->clear();
 
           // remove temporary subMachine peers from current task.
           for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
                it != curtemplate->getChildren().end(); ++it ) {
               ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
               if (psc) {
-                  context->removeObject( psc->getTaskObject()->getName() );
+                  context->removeService( psc->getServiceProvider()->getName() );
               }
           }
 
@@ -775,9 +775,9 @@ namespace RTT
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant machines.
         // 'sc' acts as a stack for storing variables.
-        curobject = new StateMachineTask(curtemplate, context->engine() );
+        curobject = new StateMachineTask(curtemplate, context );
         curobject->setName( curmachinename );
-        curtemplate->setTaskObject( curobject ); // store.
+        curtemplate->setServiceProvider( curobject ); // store.
         assert(false); // see below:
         curtemplate->setEngine( context->engine() ); //handle events in TaskContext.
 
@@ -838,12 +838,12 @@ namespace RTT
         curinstantiatedmachine->setName( curinstmachinename, true );
 
         // check if the type exists already :
-        if ( context->getObject( curinstmachinename ) )
-            ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already an Object named '" + curinstmachinename + "' ."));
+        if ( context->hasService( curinstmachinename ) )
+            ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already a Service named '" + curinstmachinename + "' ."));
 
         // Transfer ownership to the owning task.
-        curinstantiatedmachine->getTaskObject()->setParent( 0 );
-        context->addObject( curinstantiatedmachine->getTaskObject() );
+        curinstantiatedmachine->getServiceProvider()->setOwner( 0 );
+        context->addService( curinstantiatedmachine->getServiceProvider() );
 
         curinstantiatedmachine.reset();
         curinstmachinename.clear();
@@ -859,20 +859,20 @@ namespace RTT
         // make each subMachine a peer of the task so that we can access
         // its methods.
 
-        if ( !context->addObject( curinstantiatedmachine->getTaskObject() ) )
+        if ( !context->addService( curinstantiatedmachine->getServiceProvider() ) )
             ORO_THROW( parse_exception_semantic_error(
                 "Name clash: name of instantiated machine \"" + curinstmachinename +
                 "\"  already used as object name in task '"+context->getName()+"'." ));
-        // this trick sets the parent back to zero, such that the next call to addObject on curtemplate
+        // this trick sets the parent back to zero, such that the next call to addService on curtemplate
         // will re-set the parent. We will removeObject on 'context' lateron.
-        curinstantiatedmachine->getTaskObject()->setParent(0);
+        curinstantiatedmachine->getServiceProvider()->setOwner(0);
 
         curtemplate->addChild( curinstantiatedmachine );
-        curtemplate->getTaskObject()->addObject( curinstantiatedmachine->getTaskObject() );
+        curtemplate->getServiceProvider()->addService( curinstantiatedmachine->getServiceProvider() );
         // we add this statemachine to the list of variables, so that the
         // user can refer to it by its name...
         //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedmachine->getNameDS() );
-        //context->attributes()->setValue( curinstmachinename, pv );
+        //context->setValue( curinstmachinename, pv );
 
         curinstantiatedmachine->setName(curinstmachinename, false ); // not recursive !
 
@@ -980,7 +980,7 @@ namespace RTT
         curinstmachineparams.clear();
 
         // set the TaskContext name to the instance name :
-        curinstantiatedmachine->getTaskObject()->setName(curinstmachinename );
+        curinstantiatedmachine->getServiceProvider()->setName(curinstmachinename );
     }
 
     void StateGraphParser::seenmachinevariable() {
