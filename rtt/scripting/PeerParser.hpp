@@ -113,7 +113,7 @@ namespace RTT
         std::string object();
 
         /**
-         * Returns the last matching internal::TaskObject or zero if not found.
+         * Returns the last matching interface::ServiceProvider or zero if not found.
          */
         interface::OperationInterface* taskObject();
     };

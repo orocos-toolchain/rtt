@@ -47,7 +47,7 @@
 #include "rtt-config.h"
 #include "ProgramExceptions.hpp"
 #include "StatementProcessor.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "Parser.hpp"
 #include "parse_exception.hpp"
 #include "../Method.hpp"
@@ -57,7 +57,7 @@ namespace RTT {
     using namespace std;
 
     ScriptingAccess::ScriptingAccess( TaskContext* parent )
-        : TaskObject("scripting","Access to the Scripting interface. \
+        : ServiceProvider("scripting","Access to the Scripting interface. \
                 Use this object in order to load or query programs or state machines."),
         mparent(parent),sproc(0)
     {

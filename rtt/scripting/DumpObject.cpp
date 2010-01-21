@@ -41,7 +41,7 @@
 #include <string>
 #include "../base/DataSourceBase.hpp"
 #include "../interface/OperationInterface.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "DumpObject.hpp"
 #include "rtt-fwd.hpp"
 

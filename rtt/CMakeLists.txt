@@ -73,6 +73,9 @@ ENDIF (OROPKG_EXECUTION_ADVANCED)
 ### Marshalling
 OPTION(ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
 
+### Marshalling
+OPTION(ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
+
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
 CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)

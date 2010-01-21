@@ -30,7 +30,7 @@
 #include "../ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "StateMachineTask.hpp"
 #include <cassert>
 

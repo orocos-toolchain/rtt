@@ -342,7 +342,7 @@ namespace RTT
             // taskattributebase assignment commands lateron.
             prop = propparser.bag()->find( valuename );
             if ( prop == 0 )
-                throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of TaskObject '"+peername->getName()+"'." );
+                throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of ServiceProvider '"+peername->getName()+"'." );
 
             propparser.reset();
         } else {

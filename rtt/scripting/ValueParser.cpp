@@ -31,7 +31,7 @@
 #include "../Attribute.hpp"
 
 #include "../TaskContext.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "../types/GlobalsRepository.hpp"
 
 #include <boost/bind.hpp>

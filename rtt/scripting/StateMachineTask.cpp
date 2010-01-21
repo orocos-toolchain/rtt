@@ -126,7 +126,7 @@ namespace RTT
         }
 
         StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, ExecutionEngine* ee)
-            : TaskObject( statem->getName() ),
+            : ServiceProvider( statem->getName() ),
               _this( new ValueDataSource<StateMachineWPtr>( statem ) ),
               statemachine(statem),
               mengine(ee)
@@ -137,7 +137,7 @@ namespace RTT
 
     StateMachineTask::~StateMachineTask()
     {
-        // When the this TaskObject is deleted, make sure the program does not reference us.
+        // When the this ServiceProvider is deleted, make sure the program does not reference us.
         ParsedStateMachinePtr prog = statemachine.lock();
         if ( prog ) {
             prog->setTaskObject(0);

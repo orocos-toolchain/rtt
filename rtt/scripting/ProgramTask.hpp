@@ -40,7 +40,7 @@
 #ifndef PROGRAM_TASK_HPP
 #define PROGRAM_TASK_HPP
 
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include "FunctionGraph.hpp"
 #include "../internal/DataSources.hpp"
 
@@ -48,11 +48,11 @@ namespace RTT
 { namespace scripting {
 
     /**
-     * @brief This class represents a program as an internal::TaskObject in
+     * @brief This class represents a program as an interface::ServiceProvider in
      * the Orocos TaskContext system.
      */
     class ProgramTask
-        : public internal::TaskObject
+        : public interface::ServiceProvider
     {
         internal::ValueDataSource<base::ProgramInterfaceWPtr>::shared_ptr program;
         FunctionGraphWPtr function;

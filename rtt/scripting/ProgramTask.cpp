@@ -50,7 +50,7 @@ namespace RTT
     using namespace detail;
 
     ProgramTask::ProgramTask(FunctionGraphPtr prog, ExecutionEngine* ee)
-        : TaskObject( prog->getName(), "Orocos Program Script"),
+        : ServiceProvider( prog->getName(), "Orocos Program Script"),
           program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ),
           function(prog)
     {
@@ -85,7 +85,7 @@ namespace RTT
     }
 
     ProgramTask::~ProgramTask() {
-        // When the this TaskObject is deleted, make sure the program does not reference us.
+        // When the this ServiceProvider is deleted, make sure the program does not reference us.
         FunctionGraphPtr prog = function.lock();
         if ( prog ) {
             prog->setProgramTask(0);

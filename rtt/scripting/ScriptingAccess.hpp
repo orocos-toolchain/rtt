@@ -46,7 +46,7 @@
 #include "../base/ProgramInterface.hpp"
 #include "StateMachine.hpp"
 #include "../base/DispatchInterface.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -58,7 +58,7 @@ namespace RTT
      * It can be found as the \a scripting object of a TaskContext.
      */
     class RTT_API ScriptingAccess
-        : public internal::TaskObject
+        : public interface::ServiceProvider
     {
     protected:
         TaskContext* mparent;

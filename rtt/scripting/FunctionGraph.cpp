@@ -41,7 +41,7 @@
 #include "../base/AttributeBase.hpp"
 #include "ProgramTask.hpp"
 #include "ExecutionEngine.hpp"
-#include "../internal/TaskObject.hpp"
+#include "../interface/ServiceProvider.hpp"
 
 #include "CommandNOP.hpp"
 #include "ConditionFalse.hpp"
@@ -119,7 +119,7 @@ namespace RTT {
             delete *it;
     }
 
-    void FunctionGraph::setProgramTask(TaskObject* mytask)
+    void FunctionGraph::setProgramTask(ServiceProvider* mytask)
     {
         context = mytask;
     }

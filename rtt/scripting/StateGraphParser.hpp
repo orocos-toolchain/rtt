@@ -62,7 +62,7 @@ namespace RTT { namespace scripting
   {
       // Our task we are loaded in :
       TaskContext* context;
-      // The internal::TaskObject of the current StateMachine
+      // The interface::ServiceProvider of the current StateMachine
       StateMachineTask* curobject ;
       interface::OperationInterface* peer;
       our_pos_iter_t& mpositer;
