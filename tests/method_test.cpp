@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    ServiceProvider to("task");
+    ServiceProvider to("task", tc);
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,

@@ -3,7 +3,6 @@
 
 #include "../internal/OperationFactory.hpp"
 #include "../internal/LocalMethod.hpp"
-#include "../internal/DataSourceArgsMethod.hpp"
 #include "../internal/MethodC.hpp"
 #include "../internal/UnMember.hpp"
 
@@ -126,12 +125,9 @@ namespace RTT
         template<class Signature>
         Operation<Signature>& addOperation( Operation<Signature>& op )
         {
-#if 1
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature,internal::DataSourceArgsMethod<Signature> >(
-                  internal::DataSourceArgsMethod<Signature>( op.getMethod() ) ) );
-#endif
+            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature>(op.getMethod() ) );
             return op;
         }
 
@@ -140,7 +136,7 @@ namespace RTT
          */
         template<class FunctionT>
         struct GetSignature {
-            typedef typename internal::UnMember< typename boost::remove_pointer<typename boost::function_types::function_type<typename boost::function_types::components<FunctionT>::type>::type>::type >::type Signature;
+            typedef typename internal::UnMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
         };
 
         // UnMember serves to remove the member function pointer from the signature of func.
@@ -156,8 +152,44 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature,internal::DataSourceArgsMethod<Signature> >(
-                  internal::DataSourceArgsMethod<Signature>( op->getMethod()) ) );
+            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature>( op->getMethod()) );
+
+            return *op;
+        }
+
+        /**
+         * Returns a function signature from a C++ member function
+         * suitable for DS operations
+         */
+        template<class FunctionT>
+        struct GetSignatureDS {
+            typedef typename internal::ArgMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
+        };
+
+        /**
+         * For internal use only. The pointer of the object of which a member function
+         * must be invoked is stored in a internal::DataSource such that the pointer can change
+         * during program execution. Required in scripting for state machines.
+         */
+        template<class Func,class ObjT, class Service>
+        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( internal::DataSource< boost::weak_ptr<ObjT> >* wp,
+                const std::string name,
+                Func func, Service* serv = 0,
+                base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread)
+        {
+            typedef typename GetSignature<Func>::Signature Signature;    // normal function signature
+            typedef typename GetSignatureDS<Func>::Signature SignatureDS;// with ObjT as first argument.
+            Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
+            if (serv)
+                op->calls(func, serv, et);
+            else
+                op->calls(func, et);
+            if ( this->addLocalOperation( *op ) == false ) {
+                assert(false);
+                return *op; // should never be reached.
+            }
+            ownedoperations.push_back(op);
+            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( wp, op->getMethod()) );
 
             return *op;
         }
@@ -167,26 +199,17 @@ namespace RTT
          * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
-        template<class Signature,class CompT>
-        Operation<Signature>& addOperationDS( internal::DataSource< boost::weak_ptr<CompT> >* wp, Operation<Signature>& c)
+        template<class Signature,class ObjT>
+        Operation<Signature>& addOperationDS( internal::DataSource< boost::weak_ptr<ObjT> >* wp, Operation<Signature>& op)
         {
-#if 0
-            using namespace detail;
-            typedef typename OperationT::Signature Sig;
-            if ( this->hasMember(c.getName() ) )
-                return false;
-            const internal::LocalOperation<Sig>* lm = dynamic_cast< const internal::LocalOperation<Sig>* >( c.getOperationImpl().get() );
-            if ( !lm )
-                return false;
-            typedef internal::FunctorDataSourceDS0<CompT, boost::function<Sig> > FunctorT;
-            typedef internal::DataSourceArgsMethod<Sig, FunctorT> DSMeth;
-
-            this->add( c.getName(), new internal::OperationFactoryPart0<base::DataSourceBase*, DSMeth>(
-                        DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, lm->getOperationFunction()))),
-                        description));
-#endif
-            return c;
+            if ( this->addLocalOperation( op ) == false ) {
+                assert(false);
+                return op; // should never be reached.
+            }
+            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( wp, op.getMethod()) );
+            return op;
         }
+
         /**
          * For internal use only. Get a previously added operation as a DataSource.
          * This function is inferior to getOperation(std::string name)

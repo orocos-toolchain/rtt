@@ -63,10 +63,11 @@
 #include "ArgumentDescription.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "CreateSequence.hpp"
+#include "FusedFunctorDataSource.hpp"
 
 /**
- * @file OperationFactory.hpp This file contains some code that is common
- * for the interface::CommandRepository and Method Repository.
+ * @file OperationFactory.hpp This file contains the code
+ * required to register operations as scriptable entities.
  */
 
 namespace RTT
@@ -75,14 +76,14 @@ namespace RTT
 
         /**
          * @internal
-         * @defgroup OperationFactoryPart Base Classes for parts.
+         * @defgroup OperationFactoryPart Base Classes for scriptable parts.
          * @brief Class keeping the information on how to generate one thing that
          * the factory can generate.
          *
          * Each name in the OperationFactory will
          * be linked with one OperationFactoryPart that knows how to produce
-         * the thing that the name is used for..  Below are standard
-         * implementations for functors of various signatures.
+         * the thing that the name is used for.  Below is a fused (see Boost::fusion)
+         * implementation for functors of various signatures.
          *
          *@{
          */
@@ -106,28 +107,31 @@ namespace RTT
             virtual int arity() const = 0;
 
             /**
-             * Create one part (function object) for a given component.
+             * Create a DataSource for a given callable operation.
              * @param args The arguments for the target object's function.
              */
             virtual base::DataSourceBase* produce( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
+
+            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
+
+            virtual base::DataSourceBase* produceHandle() const = 0;
+
+            virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const = 0;
         };
 
         /**
          * OperationFactoryPart implementation that uses boost::fusion
          * to produce items.
          */
-        template<typename Signature, typename FunctorT>
+        template<typename Signature>
         class OperationFactoryPartFused
             : public OperationFactoryPart
         {
-            typedef FunctorT fun_t;
-            typedef typename FunctorT::result_type result_type;
-            fun_t fun;
+            typedef typename boost::function_traits<Signature>::result_type result_type;
+            typename base::MethodBase<Signature>::shared_ptr fun;
         public:
-            template<class InitF>
-            OperationFactoryPartFused( InitF f)
-                : OperationFactoryPart(),
-                  fun( f )
+            OperationFactoryPartFused( typename base::MethodBase<Signature>::shared_ptr f)
+                : fun( f )
             {
             }
 
@@ -136,15 +140,85 @@ namespace RTT
                 return DataSource<result_type>::GetType();
             }
 
-            int arity() const { return FunctorT::traits::arity; }
+            int arity() const { return boost::function_traits<Signature>::arity; }
 
             base::DataSourceBase* produce(
                             const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                return fun.create( create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                return new FusedMCallDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+            }
+
+            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
+                // convert our args and signature into a boost::fusion Sequence.
+                return new FusedMSendDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+            }
+
+            virtual base::DataSourceBase* produceHandle() const {
+                // Because of copy/clone,value objects must begin unbound.
+                return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
+            }
+
+            virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
+                return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
             }
         };
+
+            /**
+             * OperationFactoryPart implementation that uses boost::fusion
+             * to produce items. The methods invoked get their object pointer
+             * from the first data source, which contains a shared_ptr.
+             */
+            template<typename Signature,typename ObjT>
+            class OperationFactoryPartFusedDS
+                : public OperationFactoryPart
+            {
+                typedef typename boost::function_traits<Signature>::result_type result_type;
+                typename base::MethodBase<Signature>::shared_ptr fun;
+                // the datasource that stores a weak pointer is itself stored by a shared_ptr.
+                typename DataSource<boost::weak_ptr<ObjT> >::shared_ptr mwp;
+            public:
+                OperationFactoryPartFusedDS( DataSource< boost::weak_ptr<ObjT> >* wp, typename base::MethodBase<Signature>::shared_ptr f)
+                    : fun( f ), mwp(wp)
+                {
+                }
+
+                typedef std::vector<base::DataSourceBase::shared_ptr> ArgList;
+
+                std::string resultType() const
+                {
+                    return DataSource<result_type>::GetType();
+                }
+
+                int arity() const { return boost::function_traits<Signature>::arity; }
+
+                base::DataSourceBase* produce(ArgList const& args) const
+                {
+                    // the user won't give the necessary object argument, so we glue it in front.
+                    ArgList a2;
+                    a2.reserve(args.size()+1);
+                    a2.push_back(mwp);
+                    a2.insert(a2.end(), args.begin(), args.end());
+                    // convert our args and signature into a boost::fusion Sequence.
+                    return new FusedMCallDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                }
+
+                virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
+                    // convert our args and signature into a boost::fusion Sequence.
+                    return new FusedMSendDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                }
+
+                virtual base::DataSourceBase* produceHandle() const {
+                    // Because of copy/clone,value objects must begin unbound.
+                    return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
+                }
+
+                virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                    // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
+                    return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
+                }
+            };
 
         /**
          * @}
@@ -161,11 +235,6 @@ namespace RTT
         typedef std::map<std::string, OperationFactoryPart* > map_t;
         map_t data;
     public:
-        /**
-         * The descriptions of an argumentlist.
-         */
-        typedef std::vector<ArgumentDescription> Descriptions;
-
         /**
          * The arguments for an operation.
          */
@@ -213,27 +282,10 @@ namespace RTT
             if ( i == data.end() || i->second == 0 ) return -1;
             return i->second->arity();
         }
-        /**
-         * Produce an object that contains an operation.
-         *
-         * @param name The name of the operation
-         * @param args The arguments filled in as properties.
-         *
-         * @return a new object.
-         */
-        ResultT produce( const std::string& name, const PropertyBag& args ) const
-        {
-             map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
-            std::vector<base::DataSourceBase::shared_ptr> dsVect;
-            std::transform( args.begin(), args.end(),
-                            std::back_inserter( dsVect ),
-                            boost::bind( &base::PropertyBase::getDataSource, _1));
-            return i->second->produce(dsVect);
-        }
 
         /**
-         * Produce an object that contains an operation
+         * Produce a DataSource that call()s an operation.
+         * The DataSource will return the result of call().
          *
          * @param name The name of the operation
          * @param args The arguments filled in as data sources.
@@ -241,13 +293,73 @@ namespace RTT
          * @return a new object
          */
         ResultT produce( const std::string& name,
-                         const std::vector<base::DataSourceBase::shared_ptr>& args ) const
+                         const Arguments& args ) const
         {
-             map_t::const_iterator i = data.find( name );
+            map_t::const_iterator i = data.find( name );
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
             return i->second->produce( args );
         }
+
+        /**
+         * Produce a DataSource that send()s an operation.
+         * The DataSource will return the SendHandle of that operation.
+         *
+         * @param name The name of the operation
+         * @param args The arguments filled in as data sources.
+         *
+         * @return a new object
+         */
+        ResultT produceSend( const std::string& name,
+                             const Arguments& args ) const
+        {
+            map_t::const_iterator i = data.find( name );
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            return i->second->produceSend( args );
+        }
+
+        /**
+         * Produce an AssignableDataSource that contains a SendHandle,
+         * fit for the operation.
+         * The DataSource will return the SendHandle.
+         *
+         * @param name The name of the operation
+         * @param args The arguments filled in as data sources.
+         *
+         * @return a new object
+         */
+        ResultT produceHandle( const std::string& name ) const
+        {
+            map_t::const_iterator i = data.find( name );
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            return i->second->produceHandle();
+        }
+
+        /**
+         * Produce a DataSource that collects a sent operation,
+         * The DataSource will return the SendStatus and store
+         * the results in the presented arguments. Note that this
+         * function takes most of the time less arguments than its companions.
+         *
+         * @param name The name of the operation
+         * @param args The arguments filled in as data sources.
+         * @param blocking Set to true to block on the result.
+         *
+         * @return a new object
+         */
+        ResultT produceCollect( const std::string& name,
+                                const Arguments& args, bool blocking) const
+        {
+            map_t::const_iterator i = data.find( name );
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            return i->second->produceCollect( args, blocking );
+        }
+
 #if 0
+        /**
+         * The descriptions of an argumentlist.
+         */
+        typedef std::vector<ArgumentDescription> Descriptions;
+
         /**
          * Get the names and descriptions of all arguments of an operation.
          *

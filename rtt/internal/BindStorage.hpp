@@ -81,6 +81,42 @@ namespace RTT
             operator T&() { return *arg;}
         };
 
+        /**
+         * We must unpack weak pointers and
+         * rely on the use of AStoreLock in the
+         * code below.
+         */
+        template<class T>
+        struct AStore<boost::weak_ptr<T> >
+        {
+            boost::weak_ptr<T> arg;
+            AStore() : arg() {}
+            AStore(boost::weak_ptr<T> t) : arg(t) {}
+
+            T* get() const { return arg.lock().get(); } // we may only do this because of AStoreLock below.
+            void operator()(boost::weak_ptr<T> a) { arg = a; }
+
+            typedef boost::weak_ptr<T> A_type;
+            operator A_type() { return arg;}
+        };
+
+        /**
+         * The non-weak-pointer AStoreLock will be optimized out.
+         */
+        template<class T>
+        struct AStoreLock
+        {
+            AStoreLock(AStore<T>& t) : good(true) {}
+            const bool good;
+        };
+
+        template<class T>
+        struct AStoreLock< boost::weak_ptr<T> >
+        {
+            boost::shared_ptr<T> good;
+            AStoreLock(AStore< boost::weak_ptr<T> >& t) : good( t.arg.lock() ) {}
+        };
+
 #if 0
         template<class T>
         struct AStore<const T &>
@@ -261,7 +297,11 @@ namespace RTT
             BindStorageImpl() : vStore(retn,a1) {}
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1) {}
             void store(arg1_type t1) { a1(t1); }
-            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) ); }
+            void exec() {
+                AStoreLock<arg1_type> asl(a1);
+                if ( asl.good )
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
+            }
 
         };
 
@@ -286,7 +326,11 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2) {}
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
-            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) ); }
+            void exec() {
+                AStoreLock<arg1_type> asl(a1);
+                if ( asl.good )
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
+            }
 
         };
 
@@ -313,7 +357,11 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
-            void exec() { retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) ); }
+            void exec() {
+                AStoreLock<arg1_type> asl(a1);
+                if ( asl.good )
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
+            }
         };
 
         template<class ToBind>
@@ -341,7 +389,11 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3,a4) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool exec() { retn.exec( boost::bind( mmeth, a1.get(), a2.get(), a3.get(), a4.get() ) ); }
+            bool exec() {
+                AStoreLock<arg1_type> asl(a1);
+                if ( asl.good )
+                    retn.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
+            }
         };
 
 

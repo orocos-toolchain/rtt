@@ -106,6 +106,7 @@ namespace RTT
              * @return
              */
             virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
         };
     }
 }

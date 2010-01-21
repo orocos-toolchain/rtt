@@ -76,8 +76,15 @@ namespace RTT
 
             SendStatus collect()
             {
-                if (this->impl)
-                    return this->impl->collect();
+                if (this->cimpl)
+                    return this->cimpl->collect();
+                return SendFailure;
+            }
+
+            SendStatus collectIfDone()
+            {
+                if (this->cimpl)
+                    return this->cimpl->collectIfDone();
                 return SendFailure;
             }
 

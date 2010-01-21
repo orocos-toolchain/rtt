@@ -25,14 +25,13 @@ namespace RTT
                                           Signature,
                                           base::MethodBase<Signature>* >
 	{
-	private:
+	public:
         typedef internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
                                            typename internal::CollectType<Signature>::Ft,
                                            internal::CollectBase<Signature>* >      CBase;
         typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
                                            Signature,
                                            base::MethodBase<Signature>* >      IBase;
-	public:
         /**
          * Create an empty SendHandle.
          */
