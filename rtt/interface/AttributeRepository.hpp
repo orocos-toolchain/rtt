@@ -213,6 +213,20 @@ namespace RTT
         AttributeRepository* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
+         * Adds these attributes to this repository.
+         */
+        void loadValues( AttributeObjects const& new_values) {
+            values.insert(values.end(), new_values.begin(), new_values.end());
+        }
+
+        /**
+         * Returns all attributes in this repository.
+         */
+        AttributeObjects const& getValues() const {
+            return values;
+        }
+
+        /**
          * Return the names of all attributes.
          * @deprecated by getAttributes()
          */
