@@ -172,18 +172,13 @@ namespace RTT
          * during program execution. Required in scripting for state machines.
          */
         template<class Func,class ObjT, class Service>
-        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( internal::DataSource< boost::weak_ptr<ObjT> >* wp,
-                const std::string name,
-                Func func, Service* serv = 0,
+        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string name, Func func, internal::DataSource< boost::weak_ptr<ObjT> >* wp,
                 base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread)
         {
             typedef typename GetSignature<Func>::Signature Signature;    // normal function signature
             typedef typename GetSignatureDS<Func>::Signature SignatureDS;// with ObjT as first argument.
             Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
-            if (serv)
-                op->calls(func, serv, et);
-            else
-                op->calls(func, et);
+            op->calls(func, et);
             if ( this->addLocalOperation( *op ) == false ) {
                 assert(false);
                 return *op; // should never be reached.
