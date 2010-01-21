@@ -123,21 +123,6 @@ namespace RTT
 
         virtual ~TaskContext();
 
-        interface::ServiceProvider* provides() { return this; }
-
-        interface::ServiceProvider* provides(const std::string& service_name) {
-            ServiceProvider* sp = services[service_name];
-            if (sp)
-                return sp;
-            sp = new ServiceProvider(service_name, this);
-            services[service_name] = sp;
-            return sp;
-        }
-
-        bool hasService(const std::string& service_name) {
-            return services.find(service_name) != services.end();
-        }
-
         /**
          * Add a one-way connection from this task to a peer task.
          * @param peer The peer to add.
@@ -202,18 +187,6 @@ namespace RTT
          * @return null if no such peer.
          */
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
-
-        /**
-         * Add a new Service to this TaskContext.
-         *
-         * @param obj This object becomes owned by this TaskContext.
-         *
-         * @return true if it could be added, false if such
-         * service already exists.
-         */
-        virtual bool addService( interface::ServiceProvider *obj );
-
-        virtual void removeService( std::string const& service_name );
 
         /**
          * Sets the activity of this TaskContext. The
@@ -299,13 +272,10 @@ namespace RTT
 
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
-        typedef std::map< std::string, interface::ServiceProvider* > Services;
         /// map of the tasks we are using
         PeerMap         _task_map;
         /// map of the tasks that are using us.
         Users         musers;
-        /// the services we implement.
-        Services services;
 
         /**
          * Inform this TaskContext that \a user is using

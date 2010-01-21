@@ -42,9 +42,42 @@ namespace RTT
 
         void setDescription(const std::string& d) { mdescription = d;}
 
+        void doc(const std::string& d) { mdescription = d; }
+
         void setName(const std::string& n) { mname = n;}
 
         void setOwner(TaskContext* new_owner);
+
+        TaskContext* getParent() const { return mowner; }
+
+        /**
+         * Add a new Service to this TaskContext.
+         *
+         * @param obj This object becomes owned by this TaskContext.
+         *
+         * @return true if it could be added, false if such
+         * service already exists.
+         */
+        virtual bool addService( interface::ServiceProvider *obj );
+
+        virtual void removeService( std::string const& service_name );
+
+        interface::ServiceProvider* provides() { return this; }
+
+        interface::ServiceProvider* provides(const std::string& service_name) {
+            ServiceProvider* sp = services[service_name];
+            if (sp)
+                return sp;
+            sp = new ServiceProvider(service_name, mowner);
+            services[service_name] = sp;
+            return sp;
+        }
+
+        bool hasService(const std::string& service_name) {
+            return services.find(service_name) != services.end();
+        }
+
+
         /**
          * Clear all added operations from the repository, saving memory space.
          */
@@ -171,14 +204,14 @@ namespace RTT
          * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
-        template<class Func,class ObjT, class Service>
-        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string name, Func func, internal::DataSource< boost::weak_ptr<ObjT> >* wp,
+        template<class Func,class ObjT>
+        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::weak_ptr<ObjT> >* wp,
                 base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread)
         {
             typedef typename GetSignature<Func>::Signature Signature;    // normal function signature
             typedef typename GetSignatureDS<Func>::Signature SignatureDS;// with ObjT as first argument.
             Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
-            op->calls(func, et);
+            op->calls(func);
             if ( this->addLocalOperation( *op ) == false ) {
                 assert(false);
                 return *op; // should never be reached.
@@ -243,6 +276,10 @@ namespace RTT
             return true;
         }
     protected:
+        typedef std::map< std::string, interface::ServiceProvider* > Services;
+        /// the services we implement.
+        Services services;
+
         bool testOperation(base::OperationBase& op);
         typedef std::map<std::string,base::OperationBase* > SimpleOperations;
         typedef std::vector<base::OperationBase*> OperationList;

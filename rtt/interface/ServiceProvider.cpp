@@ -15,6 +15,22 @@ namespace RTT {
         clear();
     }
 
+    bool ServiceProvider::addService( ServiceProvider* obj ) {
+        if ( services.find( obj->getName() ) != services.end() ) {
+            log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
+            return false;
+        }
+        obj->setOwner( mowner );
+        services[obj->getName()] = obj;
+        return true;
+    }
+
+    void ServiceProvider::removeService( string const& name) {
+        delete services[name];
+        services.erase(name);
+    }
+
+
     bool ServiceProvider::addLocalOperation( OperationBase& op )
     {
         Logger::In in("ServiceProvider::addLocalOperation");
@@ -67,6 +83,9 @@ namespace RTT {
         for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)
             it->second->setOwner( new_owner ? new_owner->engine() : 0);
         mowner = new_owner;
-    }
+
+        for( Services::iterator it= services.begin(); it != services.end(); ++it)
+            it->second->setOwner( new_owner );
+}
 
 }

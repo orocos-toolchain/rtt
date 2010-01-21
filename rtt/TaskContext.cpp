@@ -296,21 +296,6 @@ namespace RTT
             return 0;
         }
 
-    bool TaskContext::addService( ServiceProvider* obj ) {
-        if ( services.find( obj->getName() ) != services.end() ) {
-            log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
-            return false;
-        }
-        obj->setOwner( this );
-        services[obj->getName()] = obj;
-        return true;
-    }
-
-    void TaskContext::removeService( string const& name) {
-        delete services[name];
-        services.erase(name);
-    }
-
     void TaskContext::setActivity(ActivityInterface* new_act)
     {
         if (this->isActive())
