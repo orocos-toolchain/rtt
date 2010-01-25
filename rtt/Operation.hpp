@@ -25,6 +25,19 @@ namespace RTT
         {
         }
 
+        Operation(const std::string& name, boost::function<Signature> func, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+        :OperationBase(name)
+        {
+            this->calls(func,et);
+        }
+
+        template<class Function, class Object>
+        Operation(const std::string& name, Function func, Object o, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+        :OperationBase(name)
+        {
+            this->calls(func, o, et);
+        }
+
         ~Operation()
         {
         }
