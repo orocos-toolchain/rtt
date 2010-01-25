@@ -27,13 +27,13 @@ ENDIF ()
 
 # If ACE_ROOT is available, set up our hints
 IF (ACE_ROOT)
-    SET (ACE_INCLUDE_HINTS HINTS "${ACE_ROOT}/include ${ACE_ROOT}")
-    SET (ACE_LIBRARY_HINTS HINTS "${ACE_ROOT}/lib")
+    SET (ACE_INCLUDE_HINTS "${ACE_INCLUDE_HINTS}" "${ACE_ROOT}/include" "${ACE_ROOT}")
+    SET (ACE_LIBRARY_HINTS "${ACE_LIBRARY_HINTS}" "${ACE_ROOT}/lib")
 ENDIF ()
 
 # Find headers and libraries
-find_path(ACE_INCLUDE_DIR NAMES ace/ACE.h ${ACE_INCLUDE_HINTS})
-find_library(ACE_LIBRARY NAMES ACE ACEd ${ACE_LIBRARY_HINTS})
+find_path(ACE_INCLUDE_DIR "ace/ACE.h" ${ACE_INCLUDE_HINTS})
+find_library(ACE_LIBRARY NAMES ACE ACEd HINTS ${ACE_LIBRARY_HINTS})
 
 # Set ACE_FOUND honoring the QUIET and REQUIRED arguments
 find_package_handle_standard_args(ACE DEFAULT_MSG ACE_LIBRARY ACE_INCLUDE_DIR)
