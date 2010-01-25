@@ -30,6 +30,8 @@
 #include "StateGraphParser.hpp"
 #include "CommonParser.hpp"
 #include "ConditionParser.hpp"
+#include "ConditionCompare.hpp"
+#include "ConditionComposite.hpp"
 #include "CommandParser.hpp"
 #include "ValueChangeParser.hpp"
 #include "ProgramGraphParser.hpp"
@@ -277,8 +279,10 @@ namespace RTT
         // new transition statements
         transition = str_p("transition") >> expect_event_or_if( transline | eventline )[bind(&StateGraphParser::seenendcondition,this)];
         transline  = progselect | (ifbranch >> !elsebranch);
+
+        // @todo: capturing events are only on local ports ?!.
         eventline  =
-            !peerparser->parser() >> commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)]
+            /*!peerparser->parser() >>*/ commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)]
             >> expect_eventargs(argslist[ bind( &StateGraphParser::seeneventargs, this)])
             >> expect_eventselect(transline[ bind( &StateGraphParser::seeneventtrans, this)]);
 
@@ -440,18 +444,16 @@ namespace RTT
         peer    = peerparser->taskObject();
         peerparser->reset();
 
-        assert(false);
-#if 0
-        if (peer->events()->hasEvent(evname) == false ) {
+        if (peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read")) {
             if (curstate)
-                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
+                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": InputPort "+evname+" not found in Task "+peer->getName() ));
             else
-                ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: Event "+evname+" not found in Task "+peer->getName() ));
+                ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: InputPort "+evname+" not found in Task "+peer->getName() ));
         }
-#endif
+
         argsparser =
-            new ArgumentsParser( *expressionparser, context, peer,
-                                 evname, "handle" );
+            new ArgumentsParser( *expressionparser, context, peer->provides(evname),
+                                 evname, "read" );
         argslist = argsparser->parser();
     }
 
@@ -493,45 +495,42 @@ namespace RTT
             assert( next_state );
         }
 
-        if (curcondition == 0)
-            curcondition = new ConditionTrue;
+        // this transition has a lower priority than the previous one
+        if ( selectln == 0)
+            selectln = mpositer.get_position().line - ln_offset;
 
         if (evname.empty()) {
-            // this transition has a lower priority than the previous one
-            if ( selectln == 0)
-                selectln = mpositer.get_position().line - ln_offset;
-//             if ( elsestate != 0)
-//                 curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram, rank--, selectln );
-//             else
-            curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
+            if (curcondition == 0)
+                curcondition = new ConditionTrue;
         } else {
-            bool res;
-//             if ( elsestate != 0)
-//                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
-//             else
-            //cerr << "Registering "<<evname<<" handler for SM."<<endl;
             try {
-                res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+                assert(peer->provides(evname)); // checked in seeneventname()
+                // combine the implicit 'read(arg) == NewData' with the guard, if any.
+                DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs);
+                DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb);
+                assert(read_ds);
+                ConditionInterface* evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );
+                if (curcondition == 0) {
+                    curcondition = evcondition;
+                } else {
+                    curcondition = new ConditionBinaryCompositeAND( evcondition, curcondition );
+                }
             }
             catch( const wrong_number_of_args_exception& e )
                 {
                     throw parse_exception_wrong_number_of_arguments
-                        ( peer->getName(), evname, e.wanted, e.received );
+                        ( peer->getName(), evname + ".read", e.wanted, e.received );
                 }
             catch( const wrong_types_of_args_exception& e )
                 {
                     throw parse_exception_wrong_type_of_argument
-                        ( peer->getName(), evname, e.whicharg, e.expected_, e.received_ );
+                        ( peer->getName(), evname + ".read", e.whicharg, e.expected_, e.received_ );
                 }
-            catch( ... )
-                {
-                    assert( false );
-                }
-
-            assert( res ); // checked in seeneventname()
             elsestate = 0;
             elseProgram.reset();
         }
+        // finally, install the handler:
+        curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
     }
 
     void StateGraphParser::seenendcondition() {
