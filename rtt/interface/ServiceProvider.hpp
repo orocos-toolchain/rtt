@@ -160,7 +160,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature>(op.getMethod() ) );
+            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature>( &op ) );
             return op;
         }
 
@@ -185,7 +185,7 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature>( op->getMethod()) );
+            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature>( op ) );
 
             return *op;
         }
@@ -217,7 +217,7 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( wp, op->getMethod()) );
+            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( wp, op) );
 
             return *op;
         }
@@ -234,7 +234,7 @@ namespace RTT
                 assert(false);
                 return op; // should never be reached.
             }
-            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( wp, op.getMethod()) );
+            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( wp, &op) );
             return op;
         }
 

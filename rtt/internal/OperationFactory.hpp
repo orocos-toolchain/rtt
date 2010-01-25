@@ -64,6 +64,7 @@
 #include "../base/DispatchInterface.hpp"
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
+#include "../Operation.hpp"
 
 /**
  * @file OperationFactory.hpp This file contains the code
@@ -97,6 +98,18 @@ namespace RTT
             virtual ~OperationFactoryPart() {};
 
             /**
+             * Returns the description of this operation.
+             * @return
+             */
+            virtual std::string description() const = 0;
+
+            /**
+             * Get a description of the desired arguments in
+             * the ArgumentDescription format.
+             */
+            virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
+
+            /**
              * Return the result (return) type of this part.
              */
             virtual std::string resultType() const = 0;
@@ -128,11 +141,24 @@ namespace RTT
             : public OperationFactoryPart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
-            typename base::MethodBase<Signature>::shared_ptr fun;
+            typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            Operation<Signature>* op;
         public:
-            OperationFactoryPartFused( typename base::MethodBase<Signature>::shared_ptr f)
-                : fun( f )
+            OperationFactoryPartFused( Operation<Signature>* o)
+                : op(o)
             {
+            }
+
+            virtual std::string description() const {
+                return op->getDescriptions().front();
+            }
+
+            virtual std::vector<ArgumentDescription> getArgumentList() const {
+                std::vector<std::string> const& descr = op->getDescriptions();
+                std::vector<ArgumentDescription> ret;
+                for (int i =1; i < descr.size(); i +=2 )
+                    ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1) ));
+                return ret;
             }
 
             std::string resultType() const
@@ -146,12 +172,12 @@ namespace RTT
                             const std::vector<base::DataSourceBase::shared_ptr>& args) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                return new FusedMCallDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
             }
 
             virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                return new FusedMSendDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                return new FusedMSendDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
             }
 
             virtual base::DataSourceBase* produceHandle() const {
@@ -174,13 +200,14 @@ namespace RTT
             class OperationFactoryPartFusedDS
                 : public OperationFactoryPart
             {
+                typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
                 typedef typename boost::function_traits<Signature>::result_type result_type;
-                typename base::MethodBase<Signature>::shared_ptr fun;
+                Operation<Signature>* op;
                 // the datasource that stores a weak pointer is itself stored by a shared_ptr.
                 typename DataSource<boost::weak_ptr<ObjT> >::shared_ptr mwp;
             public:
-                OperationFactoryPartFusedDS( DataSource< boost::weak_ptr<ObjT> >* wp, typename base::MethodBase<Signature>::shared_ptr f)
-                    : fun( f ), mwp(wp)
+                OperationFactoryPartFusedDS( DataSource< boost::weak_ptr<ObjT> >* wp, Operation<Signature>* o)
+                    : op( o ), mwp(wp)
                 {
                 }
 
@@ -193,6 +220,18 @@ namespace RTT
 
                 int arity() const { return boost::function_traits<Signature>::arity; }
 
+                virtual std::string description() const {
+                    return op->getDescriptions().front();
+                }
+
+                virtual std::vector<ArgumentDescription> getArgumentList() const {
+                    std::vector<std::string> const& descr = op->getDescriptions();
+                    std::vector<ArgumentDescription> ret;
+                    for (int i =1; i < descr.size(); i +=2 )
+                        ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
+                    return ret;
+                }
+
                 base::DataSourceBase* produce(ArgList const& args) const
                 {
                     // the user won't give the necessary object argument, so we glue it in front.
@@ -201,12 +240,12 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                    return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
                 }
 
                 virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMSendDataSource<Signature>(fun, create_sequence<typename boost::function_types::parameter_types<Signature>::type>()(args) );
+                    return new FusedMSendDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
                 }
 
                 virtual base::DataSourceBase* produceHandle() const {

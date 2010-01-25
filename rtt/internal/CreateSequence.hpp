@@ -129,7 +129,41 @@ namespace RTT
                               base::DataSourceBase*>& alreadyCloned) {
                 return type( bf::front(seq)->copy(alreadyCloned), tail::copy( bf::pop_front(seq), alreadyCloned ) );
             }
-        };
+
+            /**
+             * Returns the i'th argument type info as returned by
+             * DataSource<ArgI>::GetTypeInfo(), starting from 1.
+             * @param i A number between 1..N with N being the
+             * number of types in the mpl List of this class.
+             * @return An Orocos registered type info object.
+             */
+            static types::TypeInfo* GetTypeInfo(int i) {
+                if ( i <= 0 || i > size)
+                    return "na";
+                if ( i = 1 ) {
+                    return DataSource<arg_type>::GetTypeInfo();
+                } else {
+                    return tail::GetTypeInfo(i-1);
+                }
+            }
+
+            /**
+             * Returns the i'th argument type name as returned by
+             * DataSource<ArgI>::GetType(), starting from 1.
+             * @param i A number between 1..N with N being the
+             * number of types in the mpl List of this class.
+             * @return An full qualified type name.
+             */
+            static std::string GetType(int i) {
+                if ( i <= 0 || i > size)
+                    return "na";
+                if ( i = 1 ) {
+                    return DataSource<arg_type>::GetType();
+                } else {
+                    return tail::GetType(i-1);
+                }
+            }
+};
 
         template<class List>
         struct create_sequence_impl<List, 1> // mpl list of one
@@ -174,6 +208,17 @@ namespace RTT
                               base::DataSourceBase*>& alreadyCloned) {
                 return type( bf::front(seq)->copy(alreadyCloned) );
             }
+
+            static types::TypeInfo* GetTypeInfo(int i) {
+                if ( i != 1)
+                    return "na";
+                return DataSource<arg_type>::GetTypeInfo();
+            }
+            static std::string GetType(int i) {
+                if ( i != 1)
+                    return "na";
+                return DataSource<arg_type>::GetType();
+            }
         };
 
         template<class List>
@@ -210,6 +255,12 @@ namespace RTT
                               const base::DataSourceBase*,
                               base::DataSourceBase*>& alreadyCloned) {
                 return type();
+            }
+            static types::TypeInfo* GetTypeInfo(int i) {
+                return "na";
+            }
+            static std::string GetType(int i) {
+                return "na";
             }
         };
     }
