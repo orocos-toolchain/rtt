@@ -41,5 +41,5 @@
 namespace RTT {
     using namespace corba;
     CorbaDispatcher::DispatchMap CorbaDispatcher::DispatchI;
-    os::Mutex* CorbaDispatcher::mlock = 0;
+    RTT_CORBA_API os::Mutex* CorbaDispatcher::mlock = 0;
 }

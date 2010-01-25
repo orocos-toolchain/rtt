@@ -56,14 +56,14 @@ namespace RTT {
         class CorbaDispatcher : public Activity
         {
             typedef std::map<interface::DataFlowInterface*,CorbaDispatcher*> DispatchMap;
-            static DispatchMap DispatchI;
+            RTT_CORBA_API static DispatchMap DispatchI;
 
             typedef internal::List<base::ChannelElementBase::shared_ptr> RCList;
             RCList RClist;
 
             bool do_exit;
 
-            static os::Mutex* mlock;
+            RTT_CORBA_API static os::Mutex* mlock;
 
             CorbaDispatcher( const std::string& name)
             : Activity(ORO_SCHED_RT, os::LowestPriority, 0.0, 0, name),

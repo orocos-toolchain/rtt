@@ -52,7 +52,7 @@ namespace RTT
 
     PortableServer::POA_var ApplicationServer::rootPOA;
 
-    bool ApplicationServer::InitOrb(int argc, char* argv[], Seconds timeout ) {
+    RTT_CORBA_API bool ApplicationServer::InitOrb(int argc, char* argv[], Seconds timeout ) {
         if ( !CORBA::is_nil(orb) )
             return false;
 
