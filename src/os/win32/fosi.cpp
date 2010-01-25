@@ -57,8 +57,7 @@ unsigned int sleep(unsigned int s)
 #if __GNUC__ != 4
 int usleep(unsigned int us)
 {
-    Sleep( us / 1000 );
-    return 0;
+    return win32_nanosleep(us * 1000);
 }
 #endif
 
