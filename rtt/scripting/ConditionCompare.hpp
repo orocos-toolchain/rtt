@@ -39,8 +39,6 @@
 #define CONDITIONCOMPARE_HPP
 
 #include "../base/ConditionInterface.hpp"
-#include <typeinfo>
-
 #include "../internal/DataSource.hpp"
 
 namespace RTT
@@ -53,8 +51,7 @@ namespace RTT
    * compare_op given.  You should use std::less, std::less_equal,
    * std::greater, std::greater_equal, std::equal_to and
    * std::not_equal_to or other binary predicate functors as
-   * compare_op..
-   * @deprecated Remove this low-level class since it's nowhere used.
+   * compare_op.
    */
   template<typename T, typename compare_op>
   class ConditionCompare
@@ -67,25 +64,23 @@ namespace RTT
       : mdata1( data1 ), mdata2( data2 )
       {
       }
-
-    bool evaluate();
-    base::ConditionInterface* copy() const
+    virtual base::ConditionInterface* clone() const
       {
-        return new ConditionCompare<T, compare_op>(
-          mdata1.get(), mdata2.get() );
-      };
-    std::string toString()
-      {
-        return std::string( "compare<" ) + typeid( T ).name() +
-          ", " + typeid( compare_op ).name() + ">";
-      };
-  };
+        return new ConditionCompare<T,compare_op>( mdata1.get(), mdata2.get() );
+      }
 
-  template<typename T, typename compare_op>
-  bool ConditionCompare<T, compare_op>::evaluate()
-  {
-    compare_op op;
-    return op( mdata1->get(), mdata2->get() );
+      ConditionCompare* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+          return new ConditionCompare<T,compare_op>(mdata1->copy(alreadyCloned),mdata2->copy(alreadyCloned));
+      }
+
+    virtual ~ConditionCompare() {
+    }
+
+    bool evaluate()
+    {
+      compare_op op;
+      return op( mdata1->get(), mdata2->get() );
+    };
   };
 }}
 
