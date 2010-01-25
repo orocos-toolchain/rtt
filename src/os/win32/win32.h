@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:51 CEST 2005  gnulinux.h
+  tag: Peter Soetens  Sat May 7 12:56:51 CEST 2005  win32.h
 
-                        gnulinux.h -  description
+                        win32.h -  description
                            -------------------
     begin                : Sat May 07 2005
     copyright            : (C) 2005 Peter Soetens
@@ -42,3 +42,12 @@
  * This file indicates that the win32 version of
  * orocos headers is installed.
  */
+
+// Include this windows stuff as soon as possible. We use LEAN_AND_MEAN because of the Winsock include madness
+
+#  define WIN32_LEAN_AND_MEAN 
+#  include <windows.h>
+#  undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
+#  include <mmsystem.h> // For timeBeginPeriod()
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
