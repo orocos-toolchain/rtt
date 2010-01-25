@@ -69,6 +69,8 @@ namespace RTT
 
         int arity() const;
 
+        std::string description() const;
+
         std::vector< internal::ArgumentDescription > getArgumentList() const;
 
         base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args

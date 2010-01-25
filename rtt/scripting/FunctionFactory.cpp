@@ -65,6 +65,10 @@ namespace RTT {
             return std::string("bool");
         }
 
+        std::string FunctionFactory::description() const {
+            return "Orocos Program Script Function.";
+        }
+
         std::vector< ArgumentDescription > FunctionFactory::getArgumentList() const
         {
             std::vector<AttributeBase*> origlist = func->getArguments();
