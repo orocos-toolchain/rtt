@@ -194,7 +194,7 @@ namespace RTT
             /**
              * @todo might be improved by using equal_range
              */
-            while ( i != objects.end() )
+            for(;;)
                 {
                     for ( i = objects.begin();
                           i != objects.end();
@@ -204,12 +204,11 @@ namespace RTT
                                 break;
                         }
 
-                    if ( i != objects.end() ) {
-                        objects.erase( i );
+                    if ( i == objects.end() ) return;
 // #ifdef OROPKG_CORELIB_REPORTING
 //                         Logger::log() << Logger::Debug << "NameServer : Removing " << (*i).first << Logger::endl;
 // #endif
-                    }
+                       objects.erase( i );
                 }
         }
 
