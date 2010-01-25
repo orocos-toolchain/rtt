@@ -37,6 +37,8 @@
 #ifndef PARSER_TYPES_HPP
 #define PARSER_TYPES_HPP
 
+#include "../rtt-config.h"
+
 #include <boost/version.hpp>
 
 #if BOOST_VERSION >= 103800
