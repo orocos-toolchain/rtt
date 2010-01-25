@@ -132,15 +132,19 @@ extern "C"
     	return rtos_get_time_ns();
     }
 
-    inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
+    inline int win32_nanosleep(long long nano)
     {
 		NANO_TIME start = rtos_get_time_ns();
-		NANO_TIME t = (NANO_TIME)rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
         timeBeginPeriod(1);
-		if (t > 3000000L) Sleep((DWORD)(t/1000000L) - 1);
+		if (nano > 3000000L) Sleep((DWORD)(nano/1000000L) - 1);
 		timeEndPeriod(1);
-		while(rtos_get_time_ns() - start < t) Sleep(0);
+		while(rtos_get_time_ns() - start < nano) Sleep(0);
         return 0;
+    }
+
+    inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
+    {
+		return win32_nanosleep((NANO_TIME)rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec);
     }
 
     /**
