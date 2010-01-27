@@ -26,8 +26,12 @@ namespace RTT {
     }
 
     void ServiceProvider::removeService( string const& name) {
-        delete services[name];
-        services.erase(name);
+        // carefully written to avoid destructor to call back on us.
+        if ( services.count(name) ) {
+            ServiceProvider* sp = services.find(name)->second;
+            services.erase(name);
+            delete sp;
+        }
     }
 
 
