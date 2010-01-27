@@ -20,15 +20,25 @@ public:
 
         tc.provides()->addOperation("op0", &OperationTest::func0, this);
         tc.provides()->addOperation("op1", &OperationTest::func1, this);
+        tc.provides()->addOperation("op2", &OperationTest::func2, this);
+        tc.provides()->addOperation("op3", &OperationTest::func3, this);
+        tc.provides()->addOperation("op4", &OperationTest::func4, this);
         BOOST_CHECK( s->getOperation<double(void)>("op0") );
         BOOST_CHECK( s->getOperation<double(int)>("op1") );
+        BOOST_CHECK( s->getOperation<double(int)>("op2") );
+        BOOST_CHECK( s->getOperation<double(int,double)>("op3") );
+        BOOST_CHECK( s->getOperation<double(int,double,bool,string)>("op4") );
 
+        tc.provides()->addOperation("op0r", &OperationTest::func0r, this);
+
+        tc.provides()->addOperation("op1r", &OperationTest::func1r, this);
+        tc.provides()->addOperation("op1cr", &OperationTest::func1cr, this);
      }
 
     ~OperationTest() {
 
     }
-
+    double ret;
     double& func0r(void) { return ret; }
     const double& func0cr(void) { return ret; }
 
