@@ -94,9 +94,10 @@ namespace RTT
              */
             type operator()(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
             {
-                base::DataSourceBase* front = args.front().get();
+                assert( args.size() == size);
+                base::DataSourceBase::shared_ptr front = args.front();
 
-                DataSource<arg_type>* a =
+                typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
@@ -176,9 +177,10 @@ namespace RTT
 
             type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
             {
-                base::DataSourceBase* front = args.front().get();
+                assert( args.size() == 1);
+                base::DataSourceBase::shared_ptr front = args.front();
 
-                DataSource<arg_type>* a =
+                typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
@@ -231,6 +233,7 @@ namespace RTT
 
             type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
             {
+                assert( args.size() == 0);
                 return type();
             }
 
