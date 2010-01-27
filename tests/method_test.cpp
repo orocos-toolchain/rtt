@@ -74,8 +74,8 @@ public:
         to->addOperation("m0", &MethodTest::m0, this).doc("M0");
         to->addOperation("m1", &MethodTest::m1, this).doc("M1").arg("a", "ad");
         to->addOperation("m2", &MethodTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
-        //to->addOperation("m3", &MethodTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        //to->addOperation("m4", &MethodTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+        to->addOperation("m3", &MethodTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+        to->addOperation("m4", &MethodTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
         return to;
         }
 };
@@ -190,15 +190,15 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
     MethodC mc;
     double r = 0.0;
     mc = tc->provides("methods")->create("m0").ret( r );
-    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -1.0 );
 
     mc = tc->provides("methods")->create("m2").argC(1).argC(1.0).ret( r );
-    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -3.0 );
 
 //    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-//    BOOST_CHECK( mc.execute() );
+//    BOOST_CHECK( mc.call() );
 //    BOOST_CHECK( r == -4.0 );
 
 #if 0
@@ -330,15 +330,15 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     MethodC mc4( to.methods(), "m4");
     mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
 
-    BOOST_CHECK( mc0.execute() );
+    BOOST_CHECK( mc0.call() );
     BOOST_CHECK_EQUAL(-1.0, ret);
-    BOOST_CHECK( mc1.execute() );
+    BOOST_CHECK( mc1.call() );
     BOOST_CHECK_EQUAL(-2.0, ret);
-    BOOST_CHECK( mc2.execute() );
+    BOOST_CHECK( mc2.call() );
     BOOST_CHECK_EQUAL(-3.0, ret);
-    BOOST_CHECK( mc3.execute() );
+    BOOST_CHECK( mc3.call() );
     BOOST_CHECK_EQUAL(-4.0, ret);
-    BOOST_CHECK( mc4.execute() );
+    BOOST_CHECK( mc4.call() );
     BOOST_CHECK_EQUAL(-5.0, ret);
 }
 #endif
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     //method_ds("ms",&MethodTest::comstr );
 
     boost::shared_ptr<MethodTest> ptr( new MethodTest() );
-    ValueDataSource<boost::weak_ptr<MethodTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<MethodTest> >( ptr );
+    ValueDataSource<boost::shared_ptr<MethodTest> >::shared_ptr wp = new ValueDataSource<boost::shared_ptr<MethodTest> >( ptr );
     BOOST_CHECK( to.addOperationDS( wp.get(), meth0).doc("desc" ).ready() );
     BOOST_CHECK( to.addOperationDS( wp.get(), meth1).doc("desc").arg("a1", "d1" ).ready() );
 
@@ -373,10 +373,10 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
     double ret;
     MethodC c0  = to.create("m0").ret(ret);
-    BOOST_CHECK( c0.execute() );
+    BOOST_CHECK( c0.call() );
     BOOST_CHECK_EQUAL( -1.0, ret );
     MethodC c1  = to.create("m1").argC(1).ret(ret);
-    BOOST_CHECK( c1.execute() );
+    BOOST_CHECK( c1.call() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 
 }
