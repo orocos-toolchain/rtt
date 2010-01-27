@@ -4,8 +4,10 @@
 #include "DataSource.hpp"
 #include "../base/MethodBase.hpp"
 #include "CreateSequence.hpp"
+#include "BindStorage.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/function.hpp>
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/invoke_procedure.hpp>
 
@@ -14,6 +16,67 @@ namespace RTT
     namespace internal
     {
         namespace bf = boost::fusion;
+
+        /**
+         * A DataSource that calls a functor of signature \a Signature which gets its arguments from other
+         * data sources. The result type of this data source is the result type
+         * of the called function.
+         */
+        template<typename Signature>
+        struct FusedFunctorDataSource
+        : public DataSource<
+                  typename boost::function_traits<Signature>::result_type>
+          {
+              typedef typename boost::function_traits<Signature>::result_type
+                      result_type;
+              typedef result_type value_t;
+              typedef create_sequence<
+                      typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+              typedef typename SequenceFactory::type DataSourceSequence;
+              DataSourceSequence args;
+              boost::function<Signature> ff;
+              mutable RStore<result_type> ret;
+          public:
+              typedef boost::intrusive_ptr<FusedFunctorDataSource<Signature> >
+                      shared_ptr;
+
+              template<class Func>
+              FusedFunctorDataSource(Func g,
+                                     const DataSourceSequence& s = DataSourceSequence() ) :
+                  ff(g), args(s)
+              {
+              }
+
+              void setArguments(const DataSourceSequence& a1)
+              {
+                  args = a1;
+              }
+
+              value_t value() const
+              {
+                  return ret.result();
+              }
+
+              value_t get() const
+              {
+                  // forward invoke to ret object, which stores return value.
+                  ret.exec( boost::bind(&bf::invoke<boost::function<Signature>,typename SequenceFactory::data_type>, boost::ref(ff), SequenceFactory::data(args)));
+                  // TODO: XXX do updated() on all datasources that need it ?
+                  return ret.result();
+              }
+
+              virtual FusedFunctorDataSource<Signature>* clone() const
+              {
+                  return new FusedFunctorDataSource<Signature> (ff, args);
+              }
+              virtual FusedFunctorDataSource<Signature>* copy(
+                                                          std::map<
+                                                                  const base::DataSourceBase*,
+                                                                  base::DataSourceBase*>& alreadyCloned) const
+              {
+                  return new FusedFunctorDataSource<Signature> (ff, SequenceFactory::copy(args, alreadyCloned));
+              }
+          };
 
         /**
          * A DataSource that calls a method which gets its arguments from other

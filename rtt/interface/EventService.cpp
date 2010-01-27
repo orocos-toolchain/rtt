@@ -38,7 +38,6 @@
 
 #include "EventService.hpp"
 #include "../internal/mystd.hpp"
-#include "../internal/FunctorFactory.hpp"
 
 
 
@@ -71,7 +70,8 @@ namespace RTT {
             log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
             return Handle(); // empty handle.
         }
-        detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
+        assert(false);
+        detail::EventHookBase* ehi = 0; // mhooks.find(ename)->second->produce( args );
 
         // ehi is stored _inside_ the connection object !
         return ehi->setupSyn( func );

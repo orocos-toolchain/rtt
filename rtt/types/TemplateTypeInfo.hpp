@@ -45,8 +45,8 @@
 #include "../InputPort.hpp"
 #include "../OutputPort.hpp"
 #include <ostream>
-#include "../internal/FunctorFactory.hpp"
-#include "../internal/DataSourceArgsMethod.hpp"
+#include "../internal/FusedFunctorDataSource.hpp"
+#include "../internal/CreateSequence.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
 
@@ -472,28 +472,27 @@ namespace RTT
         }
 
     };
-#if 0
+
         /**
          * The constructor classes allow to define type constructors
          * or type conversions (convert type B from type A).
          * @see TypeInfo::addConstructor()
+         * @param S The function Signature, should at least have one argument
+         * and must return non-void.
          */
-        template<class Signature, int>
-        struct TemplateConstructor;
-
         template<class S>
-        struct TemplateConstructor<S,1>
-            : public TypeBuilder,
-              public internal::FunctorFactoryPart1<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
+        struct TemplateConstructor
+            : public TypeBuilder
         {
             typedef typename boost::function_traits<S>::result_type result_type;
             typedef typename boost::function_traits<S>::arg1_type arg1_type;
+            typedef internal::create_sequence<typename boost::function_types::parameter_types<S>::type> SequenceFactory;
 
             bool automatic;
+            boost::function<S> ff;
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
-                : internal::FunctorFactoryPart1<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f ),
-                automatic(autom)
+                : ff(f), automatic(autom)
             {}
 
             virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
@@ -507,112 +506,36 @@ namespace RTT
                     return base::DataSourceBase::shared_ptr();
                 }
                 try {
-                    return this->produce( args );
+                    return new internal::FusedFunctorDataSource<S>(ff, SequenceFactory()(args) );
                 } catch ( ... ) {
                 }
                 return base::DataSourceBase::shared_ptr();
             }
 
             virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const {
-                // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
-                // detect same type converion.
-                if ( arg->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
-                    return arg;
-                }
-                // detect invalid type conversion.
-                if ( arg->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                if ( boost::function_traits<S>::arity != 1) {
                     return base::DataSourceBase::shared_ptr();
+                } else {
+                    // The compiler should optimise this out...
+                    // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
+                    // detect same type converion.
+                    if ( arg->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
+                        return arg;
+                    }
+                    // detect invalid type conversion.
+                    if ( arg->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                        return base::DataSourceBase::shared_ptr();
+                    }
+                    // from now on, it should always succeed.
+                    std::vector<base::DataSourceBase::shared_ptr> args;
+                    args.push_back(arg);
+                    base::DataSourceBase::shared_ptr ret = this->build(args);
+                    if (ret && !automatic)
+                        log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
+                    return ret;
                 }
-                // from now on, it should always succeed.
-                std::vector<base::DataSourceBase::shared_ptr> args;
-                args.push_back(arg);
-                base::DataSourceBase::shared_ptr ret = this->build(args);
-                if (ret && !automatic)
-                    log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
-                return ret;
             }
         };
-
-        template<class S>
-        struct TemplateConstructor<S,2>
-            : public TypeBuilder,
-              public internal::FunctorFactoryPart2<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
-        {
-            template<class FInit>
-            TemplateConstructor( FInit f, bool autom)
-                : internal::FunctorFactoryPart2<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
-            {}
-
-            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                try {
-                    return this->produce( args );
-                } catch ( ... ) {
-                }
-                return base::DataSourceBase::shared_ptr();
-            }
-
-        };
-
-        template<class S>
-        struct TemplateConstructor<S,3>
-            : public TypeBuilder,
-              public internal::FunctorFactoryPart3<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
-        {
-            template<class FInit>
-            TemplateConstructor( FInit f, bool autom)
-                : internal::FunctorFactoryPart3<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
-            {}
-
-            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                try {
-                    return this->produce( args );
-                } catch ( ... ) {
-                }
-                return base::DataSourceBase::shared_ptr();
-            }
-
-        };
-
-        template<class S>
-        struct TemplateConstructor<S,4>
-            : public TypeBuilder,
-              public internal::FunctorFactoryPart4<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
-        {
-            template<class FInit>
-            TemplateConstructor( FInit f, bool autom)
-                : internal::FunctorFactoryPart4<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
-            {}
-
-            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                try {
-                    return this->produce( args );
-                } catch ( ... ) {
-                }
-                return base::DataSourceBase::shared_ptr();
-            }
-
-        };
-
-        template<class S>
-        struct TemplateConstructor<S,6>
-            : public TypeBuilder,
-              public internal::FunctorFactoryPart6<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >
-        {
-            template<class FInit>
-            TemplateConstructor( FInit f, bool autom)
-                : internal::FunctorFactoryPart6<base::DataSourceBase*, internal::DataSourceArgsMethod<S> >(f )
-            {}
-
-            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                try {
-                    return this->produce( args );
-                } catch ( ... ) {
-                }
-                return base::DataSourceBase::shared_ptr();
-            }
-
-        };
-
     /**
      * Create a new Constructor.
      *
@@ -622,7 +545,7 @@ namespace RTT
      */
     template<class Function>
     TypeBuilder* newConstructor( Function* foo, bool automatic = false ) {
-        return new detail::TemplateConstructor<Function, boost::function_traits<Function>::arity>(foo, automatic);
+        return new detail::TemplateConstructor<Function>(foo, automatic);
     }
 
     /**
@@ -635,9 +558,8 @@ namespace RTT
      */
     template<class Object>
     TypeBuilder* newConstructor( Object obj, bool automatic = false) {
-        return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj, automatic);
+        return new detail::TemplateConstructor<typename Object::Signature>(obj, automatic);
     }
-#endif
 }}
 
 #endif

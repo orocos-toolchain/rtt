@@ -341,11 +341,17 @@ namespace RTT {
 
    bool ScriptingAccess::loadProgram(ProgramInterfacePtr pi)
    {
-       if ( programs.find(pi->getName()) == programs.end() )
+       if ( programs.find(pi->getName()) != programs.end() ) {
+           log(Error) << "Could not load Program "<< pi->getName() << " in ScriptingAccess: name already in use."<<endlog();
            return false;
+       }
        programs[pi->getName()] = pi;
        pi->reset();
-       mparent->engine()->runFunction( pi.get() );
+       if ( mparent->engine()->runFunction( pi.get() ) == false) {
+           programs.erase(pi->getName());
+           log(Error) << "Could not load Program "<< pi->getName() << " in ExecutionEngine."<<endlog();
+           return false;
+       }
        return true;
    }
 

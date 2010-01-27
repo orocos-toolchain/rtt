@@ -372,9 +372,9 @@ namespace RTT
     bool RealTimeToolkitPlugin::loadConstructors()
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
-#if 0
 #ifndef ORO_EMBEDDED
         ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
+#if 1
         ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
         ti->type("array")->addConstructor( newConstructor( array_ctor2() ) );
         ti->type("double")->addConstructor( newConstructor( &float_to_double, true ));
