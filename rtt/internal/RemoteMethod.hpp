@@ -79,35 +79,35 @@ namespace RTT
              * @return true if ready and succesfully sent.
              */
             result_type invoke() {
-                mmeth.execute();
+                mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1>
             result_type invoke( T1 a1 ) {
                 this->store( a1 );
-                mmeth.execute();
+                mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2>
             result_type invoke( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
-                mmeth.execute();
+                mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3>
             result_type invoke( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
-                mmeth.execute();
+                mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3, class T4>
             result_type invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
-                mmeth.execute();
+                mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
         };
@@ -148,7 +148,7 @@ namespace RTT
             }
 
             virtual bool execute() {
-                return this->mmeth.execute();
+                return this->mmeth.call();
             }
 
             /**

@@ -141,9 +141,19 @@ namespace RTT
         }
 
         /**
-         * Execute the contained method.
+         * Call the contained method.
          */
-        bool execute();
+        bool call();
+
+        /**
+         * Send the contained method.
+         */
+        bool send();
+
+        /**
+         * Collect the contained method.
+         */
+        bool collect();
 
         /**
          * Reset the method.
@@ -157,7 +167,7 @@ namespace RTT
         bool ready() const;
 
         /**
-         * Get the contained data source.
+         * Get the contained data source for 'call'.
          */
         base::DataSourceBase::shared_ptr getDataSource();
     };

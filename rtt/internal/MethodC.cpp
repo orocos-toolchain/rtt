@@ -71,8 +71,8 @@ namespace RTT {
                     args.clear();
                     if ( !m )
                         return;
-//                    if (rta)
-//                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
+                    if (rta)
+                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
                 }
             }
         }
@@ -166,7 +166,7 @@ namespace RTT {
         if (d)
             d->ret( r );
         else {
-//            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
         }
         return *this;
     }
@@ -177,13 +177,13 @@ namespace RTT {
             d->ret( r );
         else {
             // no d, store manually:
-//            m = new DataSourceCommand(r->updateCommand( m.get() ) );
+            m = new DataSourceCommand(r->updateCommand( m.get() ) );
         }
         return *this;
     }
 
 
-    bool MethodC::execute() {
+    bool MethodC::call() {
         if (m)
             return m->evaluate();
         else {
