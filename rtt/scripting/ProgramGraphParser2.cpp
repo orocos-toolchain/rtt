@@ -51,17 +51,11 @@ namespace RTT
         assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
         assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
         assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
-        assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_and_command("Expected a command after 'and'.");
     }
     // Work around GCC 4.1 bug: not too much templates in one.cpp file.
   void ProgramGraphParser::setup2()
   {
-
-    andpart = str_p("and")
-        >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
-
     // a function statement : "call functionname"
     funcstatement = (
       str_p( "call" )
@@ -76,16 +70,6 @@ namespace RTT
     // break from a while or for loop,...
     breakstatement =
         str_p( "break" )[ bind (&ProgramGraphParser::seenbreakstatement, this) ];
-
-    // the termination clause part of a (call) statement.  A
-    // call statement looks like "do xxx until {
-    // terminationclauses }".  The termination clause part is
-    // everything starting at "until"..
-    terminationpart =
-        str_p( "until" )
-        >> opencurly
-        >> expect_term(+terminationclause)
-        >> closecurly;
 
     catchpart = (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
                  >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
@@ -113,21 +97,7 @@ namespace RTT
         [bind(&ProgramGraphParser::seenwhilestatement, this)]
          >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ] );
 
-    // a termination clause: "if xxx then call yyy" where xxx is
-    // a condition, and yyy is an identifier.
-    terminationclause =
-        str_p( "if" )
-            >> condition
-            >> expect_then( str_p("then") )
-            >> (callpart | returnpart | continuepart)[lambda::var(eol_skip_functor::skipeol) = false]
-            >> commonparser.eos[lambda::var(eol_skip_functor::skipeol) = true];
-
     continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
-
-    callpart = str_p("call")
-        >> commonparser.identifier[ bind( &ProgramGraphParser::seencallfunclabel,
-                                          this, _1, _2 ) ] ;
-    returnpart = str_p("return")[ bind( &ProgramGraphParser::seenreturnlabel, this)];
 
   }
 }

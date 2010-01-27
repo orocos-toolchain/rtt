@@ -22,17 +22,17 @@
 
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
-#include <Command.hpp>
+#include <Method.hpp>
 #include <Method.hpp>
 #include <internal/DataSourceAdaptor.hpp>
 #include <internal/DataSourceGenerator.hpp>
 #include <scripting/ProgramProcessor.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <internal/CompletionProcessor.hpp>
 
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 
 #include <rtt-config.h>
 
@@ -45,9 +45,9 @@ void
 Template_FactoryTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
-    tc->addObject( this->createUserMethodFactory() );
-    tc->addObject( this->createCommandFactory() );
+    tc->addService( this->createMethodFactory() );
+    tc->addService( this->createUserMethodFactory() );
+    tc->addService( this->createCommandFactory() );
     t_event_float = RTT::Event<int( float, float )>("FloatEvent");
     BOOST_CHECK( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
     tsim = new SimulationActivity(0.001, tc->engine() );
@@ -73,44 +73,53 @@ bool Template_FactoryTest::assertBool( bool b) {
     return b;
 }
 
-TaskObject* Template_FactoryTest::createMethodFactory()
+ServiceProvider* Template_FactoryTest::createMethodFactory()
 {
-    TaskObject* dat = new TaskObject("methods");
+    ServiceProvider* dat = new ServiceProvider("methods");
 
-    dat->methods()->addMethod( method("assert", &Template_FactoryTest::assertBool, this), "assert","b","bd");
-    dat->methods()->addMethod( method("m0", &Template_FactoryTest::m0, this), "M0");
-    dat->methods()->addMethod( method("m1", &Template_FactoryTest::m1, this), "M1","a","ad");
-    dat->methods()->addMethod( method("m2", &Template_FactoryTest::m2, this), "M2","a","ad","a","ad");
-    dat->methods()->addMethod( method("m3", &Template_FactoryTest::m3, this), "M3","a","ad","a","ad","a","ad");
-    dat->methods()->addMethod( method("m4", &Template_FactoryTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    dat->addOperation("assert", &Template_FactoryTest::assertBool, this).doc("assert").arg("b", "bd");
+    dat->addOperation("m0", &Template_FactoryTest::m0, this).doc("M0");
+    dat->addOperation("m1", &Template_FactoryTest::m1, this).doc("M1").arg("a", "ad");
+    dat->addOperation("m2", &Template_FactoryTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("m3", &Template_FactoryTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("m4", &Template_FactoryTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     return dat;
 }
 
-TaskObject* Template_FactoryTest::createUserMethodFactory()
+ServiceProvider* Template_FactoryTest::createUserMethodFactory()
 {
-    TaskObject* dat = new TaskObject("umethods");
+    ServiceProvider* dat = new ServiceProvider("umethods");
 
-    dat->methods()->addMethod( method("umd", &Template_FactoryTest::umd, this), "umd", "D0", "D0");
-    dat->methods()->addMethod( method("umv", &Template_FactoryTest::umv, this), "umv", "V0", "V0");
-    dat->methods()->addMethod( method("umcv", &Template_FactoryTest::umcv, this), "umv", "V0", "V0");
-    dat->methods()->addMethod( method("umcrv", &Template_FactoryTest::umcrv, this), "umv", "V0", "V0");
-    dat->methods()->addMethod( method("umrv", &Template_FactoryTest::umrv, this), "umv", "V0", "V0");
+    dat->addOperation("umd", &Template_FactoryTest::umd, this).doc("umd").arg("D0", "D0");
+    dat->addOperation("umv", &Template_FactoryTest::umv, this).doc("umv").arg("V0", "V0");
+    dat->addOperation("umcv", &Template_FactoryTest::umcv, this).doc("umv").arg("V0", "V0");
+    dat->addOperation("umcrv", &Template_FactoryTest::umcrv, this).doc("umv").arg("V0", "V0");
+    dat->addOperation("umrv", &Template_FactoryTest::umrv, this).doc("umv").arg("V0", "V0");
     return dat;
 }
 
-TaskObject* Template_FactoryTest::createCommandFactory()
+ServiceProvider* Template_FactoryTest::createCommandFactory()
 {
-    TaskObject* dat = new TaskObject("commands");
+    ServiceProvider* dat = new ServiceProvider("commands");
 
-    dat->commands()->addCommand( command("c00", &Template_FactoryTest::cd0, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c0d");
-    dat->commands()->addCommand( command("c10", &Template_FactoryTest::cd1, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c1d","a","ad");
-    dat->commands()->addCommand( command("c11", &Template_FactoryTest::cd1, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c1d","a","ad");
-    dat->commands()->addCommand( command("c20", &Template_FactoryTest::cd2, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
-    dat->commands()->addCommand( command("c21", &Template_FactoryTest::cd2, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
-    dat->commands()->addCommand( command("c22", &Template_FactoryTest::cd2, &Template_FactoryTest::cn2, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
-    dat->commands()->addCommand( command("c30", &Template_FactoryTest::cd3, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
-    dat->commands()->addCommand( command("c31", &Template_FactoryTest::cd3, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
-    dat->commands()->addCommand( command("c33", &Template_FactoryTest::cd3, &Template_FactoryTest::cn3, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
+    dat->addOperation("c00", &Template_FactoryTest::cd0, this).doc("c0d");
+addOperation("c00Done", &Template_FactoryTest::cn0, this).doc("Returns true when c00 is done.");
+    dat->addOperation("c10", &Template_FactoryTest::cd1, this).doc("c1d").arg("a", "ad");
+addOperation("c10Done", &Template_FactoryTest::cn0, this).doc("Returns true when c10 is done.").arg("a", "ad");
+    dat->addOperation("c11", &Template_FactoryTest::cd1, this).doc("c1d").arg("a", "ad");
+addOperation("c11Done", &Template_FactoryTest::cn1, this).doc("Returns true when c11 is done.").arg("a", "ad");
+    dat->addOperation("c20", &Template_FactoryTest::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c20Done", &Template_FactoryTest::cn0, this).doc("Returns true when c20 is done.").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("c21", &Template_FactoryTest::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c21Done", &Template_FactoryTest::cn1, this).doc("Returns true when c21 is done.").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("c22", &Template_FactoryTest::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c22Done", &Template_FactoryTest::cn2, this).doc("Returns true when c22 is done.").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("c30", &Template_FactoryTest::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c30Done", &Template_FactoryTest::cn0, this).doc("Returns true when c30 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("c31", &Template_FactoryTest::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c31Done", &Template_FactoryTest::cn1, this).doc("Returns true when c31 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    dat->addOperation("c33", &Template_FactoryTest::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c33Done", &Template_FactoryTest::cn3, this).doc("Returns true when c33 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     return dat;
 }
 

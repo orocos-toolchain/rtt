@@ -25,8 +25,8 @@
 #include <scripting/FunctionGraph.hpp>
 #include <extras/SimulationThread.hpp>
 #include <Method.hpp>
-#include <Command.hpp>
-#include <internal/TaskObject.hpp>
+#include <Method.hpp>
+#include <interface/ServiceProvider.hpp>
 
 using namespace std;
 
@@ -46,7 +46,7 @@ FunctionTest::setUp()
 {
     SimulationThread::Instance()->stop();
     // ltc has a test object
-    gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
+    gtc.addService(this->createObject("test", gtc.engine() ) );
     gtask.start();
     i = 0;
 }
@@ -76,38 +76,28 @@ void FunctionTest::reset() {
 }
 
 
-OperationInterface* FunctionTest::createObject(string a, CommandProcessor* cp)
+ServiceProvider* FunctionTest::createObject(string a, CommandProcessor* cp)
 {
-    TaskObject* dat = new TaskObject(a);
-    dat->methods()->addMethod( method( "assert", &FunctionTest::assertBool, this),
-                              "Assert", "bool", "" );
-    dat->methods()->addMethod( method( "increase", &FunctionTest::increase, this),
-                                "Return increasing i"  );
-    dat->methods()->addMethod( method( "reset", &FunctionTest::reset, this),
-                              "Reset i" );
-    dat->methods()->addMethod( method( "assertMsg", &FunctionTest::assertMsg, this),
-                                 "Assert message", "bool", "", "text", "text"  );
+    ServiceProvider* dat = new ServiceProvider(a);
+    dat->addOperation("assert", &FunctionTest::assertBool, this).doc("Assert").arg("bool", "");
+    dat->addOperation("increase", &FunctionTest::increase, this).doc("Return increasing i");
+    dat->addOperation("reset", &FunctionTest::reset, this).doc("Reset i");
+    dat->addOperation("assertMsg", &FunctionTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
 
-    dat->methods()->addMethod( method( "isTrue", &FunctionTest::assertBool, this),
-                              "Identity function", "bool", "" );
-    dat->methods()->addMethod( method( "i", &FunctionTest::getI, this),
-                         "Return the current number"  );
+    dat->addOperation("isTrue", &FunctionTest::assertBool, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("i", &FunctionTest::getI, this).doc("Return the current number");
 
-    dat->commands()->addCommand( command( "instantDone", &FunctionTest::true_genCom,
-                                      &FunctionTest::true_gen, this, cp),
-                                      "returns immediately" );
-    dat->commands()->addCommand( command( "neverDone", &FunctionTest::true_genCom,
-                                    &FunctionTest::false_gen, this, cp),
-                                    "returns never" );
-    dat->commands()->addCommand( command( "instantNotDone", &FunctionTest::true_genCom,
+    dat->addOperation("instantDone", &FunctionTest::true_genCom, this).doc("returns immediately");
+addOperation("instantDoneDone", &FunctionTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("neverDone", &FunctionTest::true_genCom, this).doc("returns never");
+addOperation("neverDoneDone", &FunctionTest::false_gen, this).doc("Returns true when neverDone is done.");
+    dat->addCommand( command( "instantNotDone", &FunctionTest::true_genCom,
                                          &FunctionTest::true_gen, this, cp, false),
                                          "returns never");
-    dat->commands()->addCommand( command( "instantFail", &FunctionTest::false_genCom,
-                                      &FunctionTest::true_gen, this, cp),
-                                      "fails immediately" );
-    dat->commands()->addCommand( command( "totalFail", &FunctionTest::false_genCom,
-                                    &FunctionTest::false_gen, this, cp),
-                                    "fails in command and condition" );
+    dat->addOperation("instantFail", &FunctionTest::false_genCom, this).doc("fails immediately");
+addOperation("instantFailDone", &FunctionTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("totalFail", &FunctionTest::false_genCom, this).doc("fails in command and condition");
+addOperation("totalFailDone", &FunctionTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -143,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "}";
 
     this->doFunction( prog, &gtc );
-    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getMethod<bool(void)>("foo") );
     this->finishFunction( &gtc, "x");
 }
 
@@ -158,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testRemoveFunction)
         + "}";
 
     this->doFunction( prog, &gtc, false );
-    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getMethod<bool(void)>("foo") );
     // removing the program should lead to removal of the function from the PP.
     this->finishFunction( &gtc, "x");
 }

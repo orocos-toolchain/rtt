@@ -43,7 +43,6 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "ConditionParser.hpp"
-#include "CommandParser.hpp"
 #include "ExpressionParser.hpp"
 #include "../TaskContext.hpp"
 #include "FunctionGraphBuilder.hpp"
@@ -136,11 +135,7 @@ namespace RTT { namespace scripting
 
       void skip_eol();
       void noskip_eol();
-      void startofnewstatement( const std::string& type);
-      void seencommandcall();
-      void seenandcall();
-      void seencommands();
-      void seendostatement();
+      void seenstatement();
       void seentrystatement();
       void startcatchpart();
       void seencatchpart();
@@ -192,7 +187,6 @@ namespace RTT { namespace scripting
 
       ConditionParser conditionparser;
       CommonParser commonparser;
-      CommandParser commandparser;
       ValueChangeParser valuechangeparser;
       ExpressionParser expressionparser;
       ArgumentsParser* argsparser;

@@ -26,11 +26,11 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <Method.hpp>
-#include <interface/OperationInterface.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <transports/corba/RemotePorts.hpp>
 #include <transports/corba/OperationsC.h>
-#include <transports/corba/OperationInterfaceC.h>
+#include <transports/corba/ServiceProviderC.h>
 
 using namespace std;
 using corba::ControlTaskProxy;
@@ -46,7 +46,7 @@ CorbaTest::setUp()
     mo2 = new OutputPort<double>("mo");
 
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
+    tc->addService( this->createMethodFactory() );
     tc->ports()->addPort( mi1 );
     tc->ports()->addPort( mo1 );
 
@@ -80,18 +80,18 @@ bool CorbaTest::assertBool( bool b) {
 }
 
 
-TaskObject* CorbaTest::createMethodFactory()
+ServiceProvider* CorbaTest::createMethodFactory()
 {
-    TaskObject* to = new TaskObject("methods");
+    ServiceProvider* to = new ServiceProvider("methods");
 
-    to->methods()->addMethod( method("assert",  &CorbaTest::assertBool, this), "assert","b","bd");
+    to->addOperation("assert", &CorbaTest::assertBool, this).doc("assert").arg("b", "bd");
 
-    to->methods()->addMethod( method("vm0",  &CorbaTest::vm0, this), "VM0");
-    to->methods()->addMethod( method("m0",  &CorbaTest::m0, this), "M0");
-    to->methods()->addMethod( method("m1",  &CorbaTest::m1, this), "M1","a","ad");
-    to->methods()->addMethod( method("m2",  &CorbaTest::m2, this), "M2","a","ad","a","ad");
-    to->methods()->addMethod( method("m3",  &CorbaTest::m3, this), "M3","a","ad","a","ad","a","ad");
-    to->methods()->addMethod( method("m4",  &CorbaTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    to->addOperation("vm0", &CorbaTest::vm0, this).doc("VM0");
+    to->addOperation("m0", &CorbaTest::m0, this).doc("M0");
+    to->addOperation("m1", &CorbaTest::m1, this).doc("M1").arg("a", "ad");
+    to->addOperation("m2", &CorbaTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m3", &CorbaTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m4", &CorbaTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     return to;
 }
 
@@ -176,19 +176,19 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
     MethodC mc;
     double r = 0.0;
-    mc = tp->getObject("methods")->methods()->create("vm0");
+    mc = tp->provides("methods")->create("vm0");
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == 0.0 );
 
-    mc = tp->getObject("methods")->methods()->create("m0").ret( r );
+    mc = tp->provides("methods")->create("m0").ret( r );
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -1.0 );
 
-    mc = tp->getObject("methods")->methods()->create("m2").argC(1).argC(1.0).ret( r );
+    mc = tp->provides("methods")->create("m2").argC(1).argC(1.0).ret( r );
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -3.0 );
 
-    mc = tp->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
+    mc = tp->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -4.0 );
 
@@ -202,11 +202,11 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
 
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
-    RTT::Method<double(void)> m0 = tp->getObject("methods")->methods()->getMethod<double(void)>("m0");
-    RTT::Method<double(int)> m1 = tp->getObject("methods")->methods()->getMethod<double(int)>("m1");
-    RTT::Method<double(int,double)> m2 = tp->getObject("methods")->methods()->getMethod<double(int,double)>("m2");
-    RTT::Method<double(int,double,bool)> m3 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool)>("m3");
-    RTT::Method<double(int,double,bool,std::string)> m4 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool,std::string)>("m4");
+    RTT::Method<double(void)> m0 = tp->provides("methods")->getMethod<double(void)>("m0");
+    RTT::Method<double(int)> m1 = tp->provides("methods")->getMethod<double(int)>("m1");
+    RTT::Method<double(int,double)> m2 = tp->provides("methods")->getMethod<double(int,double)>("m2");
+    RTT::Method<double(int,double,bool)> m3 = tp->provides("methods")->getMethod<double(int,double,bool)>("m3");
+    RTT::Method<double(int,double,bool,std::string)> m4 = tp->provides("methods")->getMethod<double(int,double,bool,std::string)>("m4");
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -222,10 +222,10 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     tp = corba::ControlTaskProxy::Create( ts->server() , true);
 
     // This test tests the createMethodAny() function of the server.
-    corba::CControlObject_var co = ts->server()->getObject("methods");
+    corba::CControlObject_var co = ts->server()->provides("methods");
     BOOST_CHECK( co.in() );
 
-    corba::CMethodInterface_var methods = co->methods();
+    corba::CMethodInterface_var methods = co;
     BOOST_CHECK( methods.in() );
 
     corba::CAnyArguments_var any_args = new corba::CAnyArguments(0);

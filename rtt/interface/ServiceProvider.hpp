@@ -1,6 +1,7 @@
 #ifndef ORO_SERVICE_PROVIDER_HPP
 #define ORO_SERVICE_PROVIDER_HPP
 
+#include "../rtt-config.h"
 #include "../internal/OperationFactory.hpp"
 #include "../internal/LocalMethod.hpp"
 #include "../internal/MethodC.hpp"

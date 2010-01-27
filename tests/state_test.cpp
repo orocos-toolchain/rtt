@@ -29,9 +29,9 @@
 #endif
 #include <extras/SimulationThread.hpp>
 #include <Method.hpp>
-#include <Command.hpp>
+#include <Method.hpp>
 #include <scripting/StateMachine.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 
 using namespace std;
 
@@ -55,7 +55,7 @@ StateTest::setUp()
 
 
     // ltc has a test object
-    gtc.addObject(this->createObject("test") );
+    gtc.addService(this->createObject("test") );
 
     gtc.events()->addEvent( &d_event, "D", "a1", "arg1 D" );
     gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
@@ -91,37 +91,27 @@ void StateTest::resetI() {
 }
 
 
-TaskObject* StateTest::createObject(string a)
+ServiceProvider* StateTest::createObject(string a)
 {
-    TaskObject* dat = new TaskObject(a);
+    ServiceProvider* dat = new ServiceProvider(a);
 
-    dat->methods()->addMethod( method( "assert", &StateTest::assertBool, this),
-                              "Assert", "bool", "" );
-    dat->methods()->addMethod( method( "increase", &StateTest::increase, this),
-                                "Return increasing i"  );
-    dat->methods()->addMethod( method( "resetI", &StateTest::resetI, this),
-                              "ResetI i" );
-    dat->methods()->addMethod( method( "assertMsg", &StateTest::assertMsg, this),
-                                 "Assert message", "bool", "", "text", "text"  );
-    dat->methods()->addMethod( method( "isTrue", &StateTest::assertBool, this),
-                              "Identity function", "bool", "" );
-    dat->methods()->addMethod( method( "i", &StateTest::getI, this),
-                         "Return the current number"  );
-    dat->commands()->addCommand( command( "instantDone", &StateTest::true_genCom,
-                                      &StateTest::true_gen, this, gtc.engine()->commands()),
-                                      "returns immediately" );
-    dat->commands()->addCommand( command( "neverDone", &StateTest::true_genCom,
-                                    &StateTest::false_gen, this, gtc.engine()->commands()),
-                                    "returns never" );
-    dat->commands()->addCommand( command( "instantNotDone", &StateTest::true_genCom,
-                                         &StateTest::true_gen, this, gtc.engine()->commands(), false),
+    dat->addOperation("assert", &StateTest::assertBool, this).doc("Assert").arg("bool", "");
+    dat->addOperation("increase", &StateTest::increase, this).doc("Return increasing i");
+    dat->addOperation("resetI", &StateTest::resetI, this).doc("ResetI i");
+    dat->addOperation("assertMsg", &StateTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+    dat->addOperation("isTrue", &StateTest::assertBool, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("i", &StateTest::getI, this).doc("Return the current number");
+    dat->addOperation("instantDone", &StateTest::true_genCom, this).doc("returns immediately");
+addOperation("instantDoneDone", &StateTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("neverDone", &StateTest::true_genCom, this).doc("returns never");
+addOperation("neverDoneDone", &StateTest::false_gen, this).doc("Returns true when neverDone is done.");
+    dat->addCommand( command( "instantNotDone", &StateTest::true_genCom,
+                                         &StateTest::true_gen, this, gtc.engine(), false),
                                          "returns never");
-    dat->commands()->addCommand( command( "instantFail", &StateTest::false_genCom,
-                                      &StateTest::true_gen, this, gtc.engine()->commands()),
-                                      "fails immediately" );
-    dat->commands()->addCommand( command( "totalFail", &StateTest::false_genCom,
-                                    &StateTest::false_gen, this, gtc.engine()->commands()),
-                                    "fails in command and condition" );
+    dat->addOperation("instantFail", &StateTest::false_genCom, this).doc("fails immediately");
+addOperation("instantFailDone", &StateTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("totalFail", &StateTest::false_genCom, this).doc("fails in command and condition");
+addOperation("totalFailDone", &StateTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -909,8 +899,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
     BOOST_CHECK( sm );
-    Command<bool(void)> act = tc->getObject("x")->commands()->getCommand<bool(void)>("activate");
-    Command<bool(void)> autom = tc->getObject("x")->commands()->getCommand<bool(void)>("automatic");
+    Command<bool(void)> act = tc->provides("x")->getMethod<bool(void)>("activate");
+    Command<bool(void)> autom = tc->provides("x")->getMethod<bool(void)>("automatic");
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     BOOST_CHECK( act()  );

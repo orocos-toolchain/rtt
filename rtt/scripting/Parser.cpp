@@ -34,7 +34,6 @@
 #include "ConditionParser.hpp"
 #include "ExpressionParser.hpp"
 #include "ValueChangeParser.hpp"
-#include "CommandParser.hpp"
 #include "ProgramTask.hpp"
 #include "StateMachineTask.hpp"
 #include "DataSourceCommand.hpp"
@@ -181,37 +180,5 @@ namespace RTT
         return ret;
     }
     throw parse_exception_parser_fail();
-  }
-
-  std::pair<ActionInterface*, ConditionInterface*>
-  Parser::parseCommand( const std::string& _s,
-                        TaskContext* tc, bool dodispatch )
-  {
-    // we need a writable version of the string..
-    std::string s( _s );
-      // This code is copied from parseCondition
-
-    our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
-    our_pos_iter_t parseend( s.end(), s.end(), "input" );
-
-    CommandParser parser( tc, !dodispatch );
-    try
-    {
-      boost_spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
-      if ( ! ret.hit )
-        throw parse_exception_parser_fail();
-    }
-    catch( const parse_exception& e )
-    {
-      // hm, no reason to catch here really
-      throw;
-    } catch( const parser_error<std::string, iter_t>& e )
-        {
-            throw parse_exception_syntactic_error( e.descriptor );
-        }
-    ActionInterface* ret = parser.getCommand();
-    ConditionInterface* cond_ret = parser.getImplTermCondition();
-    parser.reset();
-    return std::make_pair( ret, cond_ret );
   }
 }

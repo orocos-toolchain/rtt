@@ -479,12 +479,6 @@ namespace RTT {
         return sproc->execute( code );
     }
 
-    DispatchInterface::shared_ptr ScriptingAccess::getCommand( int ticket ){
-        if (sproc)
-            return sproc->getCommand(ticket);
-        return DispatchInterface::shared_ptr();
-    }
-
     ScriptingAccess::Functions  ScriptingAccess::loadFunctions( const string& file, bool do_throw/* = false*/ )
     {
       ifstream inputfile(file.c_str());

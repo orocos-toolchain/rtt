@@ -91,10 +91,14 @@ namespace RTT
           !(commonparser.identifier >> ".") >>   // just consume, peer locator already has object name
           expect_ident(commonparser.identifier)[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
           [ bind( &DataCallParser::seendataname, this ) ]
+          >> !(str_p(".send")[bind(&DataCallParser::seensend,this)] | ".call")
           >> !arguments
           )[ bind( &DataCallParser::seendatacall, this ) ];
   };
 
+  void DataCallParser::seensend() {
+      mis_send = true;
+  }
 
   void DataCallParser::seendataname()
   {
@@ -102,6 +106,7 @@ namespace RTT
       TaskContext* peer = peerparser.peer();
       ServiceProvider* ops  = peerparser.taskObject();
       peerparser.reset();
+      mis_send = false;
 
       // Check if it is a constructor
       if ( mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ) ) {
@@ -166,7 +171,10 @@ namespace RTT
         // in seendataname()..
 
         try {
-            ret = ops->produce( meth, args );
+            if (!mis_send)
+                ret = ops->produce( meth, args );
+            else
+                ret = ops->produceSend( meth, args);
         }
         catch( const wrong_number_of_args_exception& e )
             {

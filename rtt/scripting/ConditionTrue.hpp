@@ -39,6 +39,7 @@
 #ifndef CONDITIONTRUE_HPP
 #define CONDITIONTRUE_HPP
 
+#include "../rtt-config.h"
 #include "../base/ConditionInterface.hpp"
 
 namespace RTT
@@ -48,9 +49,8 @@ namespace RTT
     /**
      * A conditional that evaluates true
      */
-
     class RTT_API ConditionTrue
-                : public base::ConditionInterface
+    : public base::ConditionInterface
     {
 
         public:

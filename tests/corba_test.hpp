@@ -24,7 +24,7 @@ public:
     corba::ControlTaskServer* ts;
     TaskContext* tp2;
     corba::ControlTaskServer* ts2;
-    TaskObject* createMethodFactory();
+    ServiceProvider* createMethodFactory();
 
     PortInterface* signalled_port;
     void new_data_listener(PortInterface* port);

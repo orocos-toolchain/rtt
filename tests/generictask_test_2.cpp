@@ -21,16 +21,16 @@
 #include "generictask_test_2.hpp"
 
 #include <iostream>
-#include <Command.hpp>
+#include <Method.hpp>
 #include <Activity.hpp>
 #include <scripting/CommandDS.hpp>
-#include <interface/OperationInterface.hpp>
-#include <internal/RemoteCommand.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
+#include <internal/RemoteMethod.hpp>
+#include <interface/ServiceProvider.hpp>
 
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
@@ -43,7 +43,7 @@ void
 Generic_TaskTest_2::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createCommandFactory() );
+    tc->addService( this->createCommandFactory() );
     tsim = new SimulationActivity(0.001);
     tc->setActivity( tsim );
     SimulationThread::Instance()->stop();
@@ -70,30 +70,42 @@ bool Generic_TaskTest_2::assertBool( bool b) {
 }
 
 
-TaskObject* Generic_TaskTest_2::createCommandFactory()
+ServiceProvider* Generic_TaskTest_2::createCommandFactory()
 {
-    TaskObject* to = new TaskObject("commands");
+    ServiceProvider* to = new ServiceProvider("commands");
 
-    to->commands()->addCommand( command("c00", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands()), "c0d");
-    to->commands()->addCommand( command("c10", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands()), "c1d","a","ad");
-    to->commands()->addCommand( command("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands()), "c1d","a","ad");
-    to->commands()->addCommand( command("c20", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
-    to->commands()->addCommand( command("c21", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
-    to->commands()->addCommand( command("c22", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
-    to->commands()->addCommand( command("c30", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
-    to->commands()->addCommand( command("c31", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
-    to->commands()->addCommand( command("c33", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
-    to->commands()->addCommand( command("c40", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
-    to->commands()->addCommand( command("c41", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
-    to->commands()->addCommand( command("c44", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
+    to->addOperation("c00", &Generic_TaskTest_2::cd0, this).doc("c0d");
+addOperation("c00Done", &Generic_TaskTest_2::cn0, this).doc("Returns true when c00 is done.");
+    to->addOperation("c10", &Generic_TaskTest_2::cd1, this).doc("c1d").arg("a", "ad");
+addOperation("c10Done", &Generic_TaskTest_2::cn0, this).doc("Returns true when c10 is done.").arg("a", "ad");
+    to->addOperation("c11", &Generic_TaskTest_2::cd1, this).doc("c1d").arg("a", "ad");
+addOperation("c11Done", &Generic_TaskTest_2::cn1, this).doc("Returns true when c11 is done.").arg("a", "ad");
+    to->addOperation("c20", &Generic_TaskTest_2::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c20Done", &Generic_TaskTest_2::cn0, this).doc("Returns true when c20 is done.").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c21", &Generic_TaskTest_2::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c21Done", &Generic_TaskTest_2::cn1, this).doc("Returns true when c21 is done.").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c22", &Generic_TaskTest_2::cd2, this).doc("c2d").arg("a", "ad").arg("a", "ad");
+addOperation("c22Done", &Generic_TaskTest_2::cn2, this).doc("Returns true when c22 is done.").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c30", &Generic_TaskTest_2::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c30Done", &Generic_TaskTest_2::cn0, this).doc("Returns true when c30 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c31", &Generic_TaskTest_2::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c31Done", &Generic_TaskTest_2::cn1, this).doc("Returns true when c31 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c33", &Generic_TaskTest_2::cd3, this).doc("c3d").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c33Done", &Generic_TaskTest_2::cn3, this).doc("Returns true when c33 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c40", &Generic_TaskTest_2::cd4, this).doc("c4d").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c40Done", &Generic_TaskTest_2::cn0, this).doc("Returns true when c40 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c41", &Generic_TaskTest_2::cd4, this).doc("c4d").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c41Done", &Generic_TaskTest_2::cn1, this).doc("Returns true when c41 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("c44", &Generic_TaskTest_2::cd4, this).doc("c4d").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+addOperation("c44Done", &Generic_TaskTest_2::cn4, this).doc("Returns true when c44 is done.").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     return to;
 }
 
 
 struct Sender: public TaskContext
 {
-    Command<bool(void)> com0;
-    Command<bool(int)> com1;
+    Operation<bool(void)> com0;
+    Operation<bool(int)> com1;
     int com0count,com1count;
     TaskContext* mrecv;
 
@@ -103,8 +115,8 @@ struct Sender: public TaskContext
           com1count(0)
     {
         mrecv = receiver;
-        com0 = mrecv->getObject("commands")->commands()->getCommand<bool(void)>("c00");
-        com1 = mrecv->getObject("commands")->commands()->getCommand<bool(int)>("c11");
+        com0 = mrecv->provides("commands")->getMethod<bool(void)>("c00");
+        com1 = mrecv->provides("commands")->getMethod<bool(int)>("c11");
         BOOST_CHECK(com0.ready());
         BOOST_CHECK(com1.ready());
     }
@@ -182,11 +194,11 @@ BOOST_AUTO_TEST_CASE( testCommandThreading )
 
 BOOST_AUTO_TEST_CASE( testCommandsC)
 {
-    CommandC cc = tc->getObject("commands")->commands()->create("c00");
-    CommandC c20 = tc->getObject("commands")->commands()->create("c20").argC(1).argC(1.0);
-    CommandC c32 = tc->getObject("commands")->commands()->create("c31").argC(1).argC(1.0).argC('a');
-    CommandC c33 = tc->getObject("commands")->commands()->create("c33").argC(1).argC(1.0).argC('a');
-    CommandC c44 = tc->getObject("commands")->commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC cc = tc->provides("commands")->create("c00");
+    CommandC c20 = tc->provides("commands")->create("c20").argC(1).argC(1.0);
+    CommandC c32 = tc->provides("commands")->create("c31").argC(1).argC(1.0).argC('a');
+    CommandC c33 = tc->provides("commands")->create("c33").argC(1).argC(1.0).argC('a');
+    CommandC c44 = tc->provides("commands")->create("c44").argC(1).argC(1.0).argC('a').argC(true);
 
     // CASE 1 : Send command to not running task.
     BOOST_CHECK( cc.ready() );
@@ -360,11 +372,11 @@ BOOST_AUTO_TEST_CASE( testCommandsC)
 
 BOOST_AUTO_TEST_CASE( testRemoteCommand)
 {
-    Command<bool(void)> com0;
-    Command<bool(int)> com11;
+    Operation<bool(void)> com0;
+    Operation<bool(int)> com11;
 
-    com0 = new detail::RemoteCommand<bool(void)>(tc->getObject("commands")->commands(), "c00");
-    com11 = new detail::RemoteCommand<bool(int)>(tc->getObject("commands")->commands(), "c11");
+    com0 = new detail::RemoteCommand<bool(void)>(tc->provides("commands"), "c00");
+    com11 = new detail::RemoteCommand<bool(int)>(tc->provides("commands"), "c11");
 
     BOOST_CHECK( com0.ready() );
     com0(); // execute
@@ -375,53 +387,53 @@ BOOST_AUTO_TEST_CASE( testRemoteCommand)
 }
 BOOST_AUTO_TEST_CASE( testCommand)
 {
-    Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int)> com11("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
-    Command<bool(int)> com10("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+    Operation<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int)> com11("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine() );
+    Operation<bool(int)> com10("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine() );
 
-    Command<bool(int,double)> com22("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine()->commands() );
-    Command<bool(int,double)> com20("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double)> com21("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double)> com22("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine() );
+    Operation<bool(int,double)> com20("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double)> com21("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char)> com33("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com30("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com31("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char)> com33("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine() );
+    Operation<bool(int,double,char)> com30("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char)> com31("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char,bool)> com44("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com40("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com41("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char,bool)> com44("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com40("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com41("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
     // start the activity, such that commands are accepted.
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( com0() );
-    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com0.getMethodImpl());
 
     BOOST_CHECK( com11(1) );
-    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com11.getMethodImpl());
     BOOST_CHECK( com10(1) );
-    verifydispatch(*com10.getCommandImpl());
+    verifydispatch(*com10.getMethodImpl());
 
     BOOST_CHECK( com22(1, 1.0) );
-    verifydispatch(*com22.getCommandImpl());
+    verifydispatch(*com22.getMethodImpl());
     BOOST_CHECK( com20(1, 1.0) );
-    verifydispatch(*com20.getCommandImpl());
+    verifydispatch(*com20.getMethodImpl());
     BOOST_CHECK( com21(1, 1.0) );
-    verifydispatch(*com21.getCommandImpl());
+    verifydispatch(*com21.getMethodImpl());
 
     BOOST_CHECK( com33(1, 1.0, char('a') ) );
-    verifydispatch(*com33.getCommandImpl());
+    verifydispatch(*com33.getMethodImpl());
     BOOST_CHECK( com30(1, 1.0, char('a') ) );
-    verifydispatch(*com30.getCommandImpl());
+    verifydispatch(*com30.getMethodImpl());
     BOOST_CHECK( com31(1, 1.0, char('a') ) );
-    verifydispatch(*com31.getCommandImpl());
+    verifydispatch(*com31.getMethodImpl());
 
     BOOST_CHECK( com44(1, 1.0, char('a'),true) );
-    verifydispatch(*com44.getCommandImpl());
+    verifydispatch(*com44.getMethodImpl());
     BOOST_CHECK( com40(1, 1.0, char('a'),true) );
-    verifydispatch(*com40.getCommandImpl());
+    verifydispatch(*com40.getMethodImpl());
     BOOST_CHECK( com41(1, 1.0, char('a'),true) );
-    verifydispatch(*com41.getCommandImpl());
+    verifydispatch(*com41.getMethodImpl());
 
     BOOST_CHECK( tsim->stop() );
 }
@@ -431,62 +443,62 @@ BOOST_AUTO_TEST_CASE( testCommandFactory)
     // Test the addition of 'simple' commands to the operation interface,
     // and retrieving it back in a new Command object.
 
-    Command<bool(void)> com0("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int)> com11("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
-    Command<bool(int)> com10("c10", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+    Operation<bool(void)> com0("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int)> com11("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine() );
+    Operation<bool(int)> com10("c10", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine() );
 
-    TaskObject to("task");
+    ServiceProvider to("task");
 
-    BOOST_CHECK( to.commands()->addCommand(&com0) );
-    BOOST_CHECK( ! to.commands()->addCommand(&com0) );
-    BOOST_CHECK( to.commands()->addCommand(&com11) );
-    BOOST_CHECK( to.commands()->addCommand(&com10) );
+    BOOST_CHECK( to.addCommand(&com0) );
+    BOOST_CHECK( ! to.addCommand(&com0) );
+    BOOST_CHECK( to.addCommand(&com11) );
+    BOOST_CHECK( to.addCommand(&com10) );
 
     // test constructor
-    Command<bool(void)> rc0 = to.commands()->getCommand<bool(void)>("c0");
-    BOOST_CHECK( rc0.getCommandImpl() );
+    Operation<bool(void)> rc0 = to.getMethod<bool(void)>("c0");
+    BOOST_CHECK( rc0.getMethodImpl() );
     BOOST_CHECK( rc0.ready() );
 
     // test operator=()
-    Command<bool(int)> rc11;
-    rc11 = to.commands()->getCommand<bool(int)>("c11");
-    BOOST_CHECK( rc11.getCommandImpl() );
+    Operation<bool(int)> rc11;
+    rc11 = to.getMethod<bool(int)>("c11");
+    BOOST_CHECK( rc11.getMethodImpl() );
     BOOST_CHECK( rc11.ready() );
 
-    Command<bool(int)> rc10 = to.commands()->getCommand<bool(int)>("c10");
-    BOOST_CHECK( rc10.getCommandImpl() );
+    Operation<bool(int)> rc10 = to.getMethod<bool(int)>("c10");
+    BOOST_CHECK( rc10.getMethodImpl() );
     BOOST_CHECK( rc10.ready() );
 
     // start the activity, such that commands are accepted.
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( com0() );
-    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com0.getMethodImpl());
 
     BOOST_CHECK( com11(1) );
-    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com11.getMethodImpl());
 
     BOOST_CHECK( com10(1) );
-    verifydispatch(*com10.getCommandImpl());
+    verifydispatch(*com10.getMethodImpl());
 
     // test error cases:
     // Add uninitialised command:
-    Command<bool(void)> cvoid;
-    BOOST_CHECK(to.commands()->addCommand( &cvoid ) == false);
-    cvoid = Command<bool(void)>("voidc");
-    BOOST_CHECK(to.commands()->addCommand( &cvoid ) == false);
+    Operation<bool(void)> cvoid;
+    BOOST_CHECK(to.addCommand( &cvoid ) == false);
+    cvoid = Operation<bool(void)>("voidc");
+    BOOST_CHECK(to.addCommand( &cvoid ) == false);
 
     // wrong type:
-    cvoid = to.commands()->getCommand<bool(bool)>("c0");
+    cvoid = to.getMethod<bool(bool)>("c0");
     BOOST_CHECK( cvoid.ready() == false );
     // wrong type 2:
-    cvoid = to.commands()->getCommand<bool(int)>("c11");
+    cvoid = to.getMethod<bool(int)>("c11");
     BOOST_CHECK( cvoid.ready() == false );
     // wrong type 3:
-    cvoid = to.commands()->getCommand<bool(void)>("c11");
+    cvoid = to.getMethod<bool(void)>("c11");
     BOOST_CHECK( cvoid.ready() == false );
     // not existing:
-    cvoid = to.commands()->getCommand<bool(void)>("voidm");
+    cvoid = to.getMethod<bool(void)>("voidm");
     BOOST_CHECK( cvoid.ready() == false );
 
     cvoid.reset();
@@ -501,59 +513,59 @@ BOOST_AUTO_TEST_CASE( testCommandFactory)
 
 BOOST_AUTO_TEST_CASE( testCommandFromDS)
 {
-    Command<bool(void)> com0("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int)> com11("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
-    Command<bool(int)> com10("c10", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double)> com22("c22", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine()->commands() );
-    Command<bool(int,double)> com20("c20", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double)> com21("c21", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(void)> com0("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int)> com11("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine() );
+    Operation<bool(int)> com10("c10", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double)> com22("c22", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine() );
+    Operation<bool(int,double)> com20("c20", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double)> com21("c21", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char)> com33("c33", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com30("c30", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com31("c31", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char)> com33("c33", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine() );
+    Operation<bool(int,double,char)> com30("c30", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char)> com31("c31", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char,bool)> com44("c44", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com40("c40", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com41("c41", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char,bool)> com44("c44", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com40("c40", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com41("c41", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    TaskObject to("task");
+    ServiceProvider to("task");
 
-    BOOST_CHECK( to.commands()->addCommand( &com0, "desc" ) );
-    BOOST_CHECK( ! to.commands()->addCommand( &com0, "desc" ) );
+    BOOST_CHECK( to.addCommand( &com0, "desc" ) );
+    BOOST_CHECK( ! to.addCommand( &com0, "desc" ) );
 
-    BOOST_CHECK( to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
-    BOOST_CHECK( ! to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com10, "desc","a1", "d1" ) );
+    BOOST_CHECK( to.addCommand( &com11, "desc","a1", "d1" ) );
+    BOOST_CHECK( ! to.addCommand( &com11, "desc","a1", "d1" ) );
+    BOOST_CHECK( to.addCommand( &com10, "desc","a1", "d1" ) );
 
-    BOOST_CHECK( to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
-    BOOST_CHECK( ! to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( ! to.addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
 
-    BOOST_CHECK( to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    BOOST_CHECK( ! to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( ! to.addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
 
-    BOOST_CHECK( to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    BOOST_CHECK( ! to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    BOOST_CHECK( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( ! to.addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
 
     std::vector<DataSourceBase::shared_ptr> args;
-    CommandC c0  = to.commands()->create("c0");
-    CommandC c10 = to.commands()->create("c10").argC(1);
-    CommandC c11 = to.commands()->create("c11").argC(1);
-    CommandC c20 = to.commands()->create("c20").argC(1).argC(1.0);
-    CommandC c21 = to.commands()->create("c21").argC(1).argC(1.0);
-    CommandC c22 = to.commands()->create("c22").argC(1).argC(1.0);
-    CommandC c30 = to.commands()->create("c30").argC(1).argC(1.0).argC('a');
-    CommandC c31 = to.commands()->create("c31").argC(1).argC(1.0).argC('a');
-    CommandC c33 = to.commands()->create("c33").argC(1).argC(1.0).argC('a');
-    CommandC c40 = to.commands()->create("c40").argC(1).argC(1.0).argC('a').argC(true);
-    CommandC c41 = to.commands()->create("c41").argC(1).argC(1.0).argC('a').argC(true);
-    CommandC c44 = to.commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC c0  = to.create("c0");
+    CommandC c10 = to.create("c10").argC(1);
+    CommandC c11 = to.create("c11").argC(1);
+    CommandC c20 = to.create("c20").argC(1).argC(1.0);
+    CommandC c21 = to.create("c21").argC(1).argC(1.0);
+    CommandC c22 = to.create("c22").argC(1).argC(1.0);
+    CommandC c30 = to.create("c30").argC(1).argC(1.0).argC('a');
+    CommandC c31 = to.create("c31").argC(1).argC(1.0).argC('a');
+    CommandC c33 = to.create("c33").argC(1).argC(1.0).argC('a');
+    CommandC c40 = to.create("c40").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC c41 = to.create("c41").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC c44 = to.create("c44").argC(1).argC(1.0).argC('a').argC(true);
 
     BOOST_CHECK( tsim->start()) ;
     verifycommand(c0);
@@ -573,7 +585,7 @@ BOOST_AUTO_TEST_CASE( testCommandFromDS)
 
 BOOST_AUTO_TEST_CASE( testDSCommand)
 {
-    TaskObject to("task");
+    ServiceProvider to("task");
 
     // A command of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,
@@ -582,31 +594,31 @@ BOOST_AUTO_TEST_CASE( testDSCommand)
 
     CommandDS<bool(Generic_TaskTest_2*)> com0("c0",
                                             &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0,
-                                            tc->engine()->commands() );
+                                            tc->engine() );
 
-    command_ds("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, tc->engine()->commands() );
+    command_ds("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, tc->engine() );
 
     CommandDS<bool(Generic_TaskTest_2*,int)> com1("c1",
                                                 &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1,
-                                                tc->engine()->commands() );
+                                                tc->engine() );
 
-    command_ds("c1",&Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, tc->engine()->commands() );
+    command_ds("c1",&Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, tc->engine() );
 
-    command_ds("cs",&Generic_TaskTest_2::comstr, &Generic_TaskTest_2::comstr, tc->engine()->commands() );
+    command_ds("cs",&Generic_TaskTest_2::comstr, &Generic_TaskTest_2::comstr, tc->engine() );
 
     boost::shared_ptr<Generic_TaskTest_2> ptr( new Generic_TaskTest_2() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest_2> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest_2> >( ptr );
-    BOOST_CHECK( to.commands()->addCommandDS( wp.get(), com0, "desc" ) );
-    BOOST_CHECK( to.commands()->addCommandDS( wp.get(), com1, "desc", "a1", "d1" ) );
+    BOOST_CHECK( to.addCommandDS( wp.get(), com0, "desc" ) );
+    BOOST_CHECK( to.addCommandDS( wp.get(), com1, "desc", "a1", "d1" ) );
 
     // this actually works ! the command will detect the deleted pointer.
     //ptr.reset();
 
     BOOST_CHECK( tsim->start()) ;
 
-    CommandC c0  = to.commands()->create("c0");
+    CommandC c0  = to.create("c0");
     verifycommand(c0);
-    CommandC c1  = to.commands()->create("c1").argC(1);
+    CommandC c1  = to.create("c1").argC(1);
     verifycommand(c1);
 
     BOOST_CHECK( tsim->stop()) ;
@@ -617,11 +629,11 @@ BOOST_AUTO_TEST_CASE( testCRCommand)
 {
     this->ret = -3.3;
 
-    Command<bool(double&)> ic1r("c1r", &Generic_TaskTest_2::cn1r, &Generic_TaskTest_2::cd1r, this, tc->engine()->commands() );
-    Command<bool(const double&)> ic1cr("c1cr", &Generic_TaskTest_2::cn1cr, &Generic_TaskTest_2::cd1cr, this, tc->engine()->commands() );
+    Operation<bool(double&)> ic1r("c1r", &Generic_TaskTest_2::cn1r, &Generic_TaskTest_2::cd1r, this, tc->engine() );
+    Operation<bool(const double&)> ic1cr("c1cr", &Generic_TaskTest_2::cn1cr, &Generic_TaskTest_2::cd1cr, this, tc->engine() );
 
-    Command<bool(double&)> c1r = ic1r.getCommandImpl()->clone();
-    Command<bool(const double&)> c1cr = ic1cr.getCommandImpl()->clone();
+    Operation<bool(double&)> c1r = ic1r.getMethodImpl()->clone();
+    Operation<bool(const double&)> c1cr = ic1cr.getMethodImpl()->clone();
 
     BOOST_CHECK( c1r.ready() );
     BOOST_CHECK( c1cr.ready() );
@@ -629,13 +641,13 @@ BOOST_AUTO_TEST_CASE( testCRCommand)
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( c1cr(1.0) );
-    verifydispatch(*c1cr.getCommandImpl());
+    verifydispatch(*c1cr.getMethodImpl());
     BOOST_CHECK_EQUAL( 1.0, ret );
 
     this->ret = -3.3;
     double result = 0.0;
     BOOST_CHECK( c1r(result) );
-    verifydispatch(*c1r.getCommandImpl());
+    verifydispatch(*c1r.getMethodImpl());
     // ret == -3.3, result == -6.6
     BOOST_CHECK_EQUAL( -3.3, ret );
     BOOST_CHECK_EQUAL( ret * 2, result );
@@ -653,21 +665,21 @@ BOOST_AUTO_TEST_CASE( testCSCRCommand)
 
     CS cs2 = cs;
 
-    Command<bool(CS&)> ic1r("c1r", &Generic_TaskTest_2::CScn1r, &Generic_TaskTest_2::CScd1r, this, tc->engine()->commands() );
-    Command<bool(const CS&)> ic1cr("c1cr", &Generic_TaskTest_2::CScn1cr, &Generic_TaskTest_2::CScd1cr, this, tc->engine()->commands() );
+    Operation<bool(CS&)> ic1r("c1r", &Generic_TaskTest_2::CScn1r, &Generic_TaskTest_2::CScd1r, this, tc->engine() );
+    Operation<bool(const CS&)> ic1cr("c1cr", &Generic_TaskTest_2::CScn1cr, &Generic_TaskTest_2::CScd1cr, this, tc->engine() );
 
-    Command<bool(CS&)> c1r = ic1r.getCommandImpl()->clone();
-    Command<bool(const CS&)> c1cr = ic1cr.getCommandImpl()->clone();
+    Operation<bool(CS&)> c1r = ic1r.getMethodImpl()->clone();
+    Operation<bool(const CS&)> c1cr = ic1cr.getMethodImpl()->clone();
     BOOST_CHECK( c1r.ready() );
     BOOST_CHECK( c1cr.ready() );
 
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( c1cr(cs) );
-    verifydispatch(*c1cr.getCommandImpl());
+    verifydispatch(*c1cr.getMethodImpl());
 
     BOOST_CHECK( c1r(cs2) );
-    verifydispatch(*c1r.getCommandImpl());
+    verifydispatch(*c1r.getMethodImpl());
     BOOST_CHECK_CLOSE( 2*cs2.y+2*cs2.z, cs2.x, 0.0001 );
 
     BOOST_CHECK( tsim->stop() ) ;
@@ -676,58 +688,58 @@ BOOST_AUTO_TEST_CASE( testCSCRCommand)
 BOOST_AUTO_TEST_CASE( testAddCommand)
 {
 
-    Command<bool(void)> com0("c0");
-    com0 = command("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+    Operation<bool(void)> com0("c0");
+    com0 = command("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine() );
 
-    Command<bool(int)> com11("c11");
-    com11= command("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int)> com11("c11");
+    com11= command("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int)> com10= command("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+    Operation<bool(int)> com10= command("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine() );
 
-    Command<bool(int,double)> com22= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine()->commands() );
-    Command<bool(int,double)> com20= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double)> com21= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double)> com22= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn2, this, tc->engine() );
+    Operation<bool(int,double)> com20= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double)> com21= command("command", &Generic_TaskTest_2::cd2, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char)> com33= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com30= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char)> com31= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char)> com33= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn3, this, tc->engine() );
+    Operation<bool(int,double,char)> com30= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char)> com31= command("command", &Generic_TaskTest_2::cd3, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
-    Command<bool(int,double,char,bool)> com44= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com40= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int,double,char,bool)> com41= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Operation<bool(int,double,char,bool)> com44= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com40= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn0, this, tc->engine() );
+    Operation<bool(int,double,char,bool)> com41= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine() );
 
     // start the activity, such that commands are accepted.
     BOOST_CHECK( tsim->start()) ;
 
     // execute commands and check status:
     BOOST_CHECK( com0() );
-    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com0.getMethodImpl());
 
     BOOST_CHECK( com11(1) );
-    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com11.getMethodImpl());
     BOOST_CHECK( com10(1) );
-    verifydispatch(*com10.getCommandImpl());
+    verifydispatch(*com10.getMethodImpl());
 
     BOOST_CHECK( com22(1, 1.0) );
-    verifydispatch(*com22.getCommandImpl());
+    verifydispatch(*com22.getMethodImpl());
     BOOST_CHECK( com20(1, 1.0) );
-    verifydispatch(*com20.getCommandImpl());
+    verifydispatch(*com20.getMethodImpl());
     BOOST_CHECK( com21(1, 1.0) );
-    verifydispatch(*com21.getCommandImpl());
+    verifydispatch(*com21.getMethodImpl());
 
     BOOST_CHECK( com33(1, 1.0, char('a') ) );
-    verifydispatch(*com33.getCommandImpl());
+    verifydispatch(*com33.getMethodImpl());
     BOOST_CHECK( com30(1, 1.0, char('a') ) );
-    verifydispatch(*com30.getCommandImpl());
+    verifydispatch(*com30.getMethodImpl());
     BOOST_CHECK( com31(1, 1.0, char('a') ) );
-    verifydispatch(*com31.getCommandImpl());
+    verifydispatch(*com31.getMethodImpl());
 
     BOOST_CHECK( com44(1, 1.0, char('a'),true) );
-    verifydispatch(*com44.getCommandImpl());
+    verifydispatch(*com44.getMethodImpl());
     BOOST_CHECK( com40(1, 1.0, char('a'),true) );
-    verifydispatch(*com40.getCommandImpl());
+    verifydispatch(*com40.getMethodImpl());
     BOOST_CHECK( com41(1, 1.0, char('a'),true) );
-    verifydispatch(*com41.getCommandImpl());
+    verifydispatch(*com41.getMethodImpl());
 
     BOOST_CHECK( tsim->stop() );
 }

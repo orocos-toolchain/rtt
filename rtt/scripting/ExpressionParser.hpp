@@ -67,6 +67,7 @@ namespace RTT { namespace scripting
     base::DataSourceBase::shared_ptr ret;
     std::string mobject;
     std::string mmethod;
+    bool mis_send;
 
     rule_t datacall, arguments;
 
@@ -78,6 +79,7 @@ namespace RTT { namespace scripting
 
     void seendataname();
     void seendatacall();
+    void seensend();
     CommonParser commonparser;
     ExpressionParser& expressionparser;
     PeerParser peerparser;

@@ -19,7 +19,6 @@ IF (BUILD_TESTING)
 
     LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt )
     
-    if(FALSE)
     IF(ENABLE_CORBA)
       INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_INCLUDE_DIRS})
       LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_LINK_DIRECTORIES})
@@ -247,12 +246,10 @@ IF (BUILD_TESTING)
       
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
     
-    endif(FALSE)
-    
     ADD_UNIT_TEST(method_test EXTRA_TESTS ${TEST_LIBRARIES})
 
     ADD_CUSTOM_TARGET(check ctest -V
-      DEPENDS main-test core-test task-test taskcontext-test parser-test dev-test specactivities-test ${ORO_EXTRA_TESTS} #program-test state-test 
+      DEPENDS main-test core-test task-test taskcontext-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)

@@ -32,7 +32,6 @@
 #include "ConditionParser.hpp"
 #include "ConditionCompare.hpp"
 #include "ConditionComposite.hpp"
-#include "CommandParser.hpp"
 #include "ValueChangeParser.hpp"
 #include "ProgramGraphParser.hpp"
 #include "PeerParser.hpp"

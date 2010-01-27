@@ -38,9 +38,9 @@ public:
     ActivityInterface* tsim;
     SlaveActivity act;
     CommandProcessor processor;
-    TaskObject* createMethodFactory();
-    TaskObject* createUserMethodFactory();
-    TaskObject* createCommandFactory();
+    ServiceProvider* createMethodFactory();
+    ServiceProvider* createUserMethodFactory();
+    ServiceProvider* createCommandFactory();
 
     RTT::Event<int( float, float )> t_event_float;
     int float_listener(float a, float b);

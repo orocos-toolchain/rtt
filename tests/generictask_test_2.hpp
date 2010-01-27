@@ -33,7 +33,7 @@ class Generic_TaskTest_2
 public:
     TaskContext* tc;
     ActivityInterface* tsim;
-    TaskObject* createCommandFactory();
+    ServiceProvider* createCommandFactory();
 
     // ref/const-ref tests:
     double ret;

@@ -25,11 +25,9 @@
 #include <Method.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <TaskContext.hpp>
-#include <scripting/ProgramProcessor.hpp>
-#include <scripting/StateMachineProcessor.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <types/GlobalsRepository.hpp>
 
 using namespace std;
@@ -42,7 +40,8 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
+    sa = new ScriptingAccess(tc);
+    tc->addService( this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
     SimulationThread::Instance()->stop();
 }
@@ -69,17 +68,13 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-    TaskObject* TypesTest::createMethodFactory()
+    ServiceProvider* TypesTest::createMethodFactory()
     {
-        TaskObject* to = new TaskObject("test");
-        to->methods()->addMethod( method("assert", &TypesTest::assertBool, this),
-                                  "Assert", "bool", "");
-        to->methods()->addMethod( method("assertEqual", &TypesTest::assertEqual, this),
-                                  "Assert", "a1", "", "a2","");
-        to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
-                                     "Assert message", "bool", "", "text", "text" );
-        to->methods()->addMethod( method("print",&TypesTest::print,this ),
-                                  "print","v","v");
+        ServiceProvider* to = new ServiceProvider("test");
+        to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
+        to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+        to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
+        to->addOperation("print", &TypesTest::print, this ).doc("print").arg("v", "v");
         return to;
     }
 
@@ -318,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 3*(2+1) == 9 )\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_CASE( testGlobals )
@@ -328,13 +323,13 @@ BOOST_AUTO_TEST_CASE( testGlobals )
     GlobalsRepository::Instance()->setValue( new Attribute<double>("d_num", 3.33));
     string prog = string("program x {\n") +
         "do test.assert( cd_num == 3.33 )\n" +
-        "do test.assert( cd_num == d_num )\n" +  
-        "do test.assert( c_string == \"Hello World!\")\n" + 
+        "do test.assert( cd_num == d_num )\n" +
+        "do test.assert( c_string == \"Hello World!\")\n" +
         "set d_num = 6.66\n" +
         "do test.assert( d_num == 6.66 )\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_CASE( testFlowStatus )
@@ -344,25 +339,25 @@ BOOST_AUTO_TEST_CASE( testFlowStatus )
     BOOST_CHECK (GlobalsRepository::Instance()->getValue("NoData") );
     string prog = string("program x {\n") +
         "do test.assert( NewData )\n" +
-        "do test.assert( OldData )\n" +  
-        "do test.assert( !bool(NoData) )\n" +  
-        "do test.assert( NewData > NoData )\n" + 
-        "do test.assert( NewData > OldData )\n" + 
-        "do test.assert( OldData > NoData )\n" + 
-        "do test.assert( OldData == OldData )\n" + 
+        "do test.assert( OldData )\n" +
+        "do test.assert( !bool(NoData) )\n" +
+        "do test.assert( NewData > NoData )\n" +
+        "do test.assert( NewData > OldData )\n" +
+        "do test.assert( OldData > NoData )\n" +
+        "do test.assert( OldData == OldData )\n" +
         "if ( bool(NewData) && OldData ) then {\n" +
         "} else {\n" +
         "   do test.assert(false)\n" +
         "}\n" +
         "if ( bool(NoData) ) then {\n" +
         "   do test.assert(false)\n" +
-        "}\n" + 
+        "}\n" +
         "if ( !bool(NoData) ) then {} else {\n" +
         "   do test.assert(false)\n" +
-        "}\n" + 
+        "}\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -370,7 +365,6 @@ BOOST_AUTO_TEST_SUITE_END()
 void TypesTest::executePrograms(const std::string& prog )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->programs());
 
     Parser::ParsedPrograms pg_list;
     try {
@@ -385,7 +379,7 @@ void TypesTest::executePrograms(const std::string& prog )
             BOOST_REQUIRE( false && "Got empty test program." );
         }
 
-    BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( tsim->start() );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
@@ -410,13 +404,12 @@ void TypesTest::executePrograms(const std::string& prog )
     }
     BOOST_CHECK( (*pg_list.begin())->stop() );
     tsim->stop();
-    tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
+    sa->unloadProgram( (*pg_list.begin())->getName() );
 }
 
 void TypesTest::executeStates(const std::string& state )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->states());
     Parser::ParsedStateMachines pg_list;
     try {
         pg_list = parser.parseStateMachine( state, tc );
@@ -430,7 +423,7 @@ void TypesTest::executeStates(const std::string& state )
             BOOST_CHECK( false );
         }
 
-    BOOST_CHECK( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
+    BOOST_CHECK( sa->loadStateMachine( *pg_list.begin() ) );
     BOOST_CHECK( tsim->start() );
     BOOST_CHECK( (*pg_list.begin())->activate() );
     BOOST_CHECK( (*pg_list.begin())->start() );
@@ -447,5 +440,5 @@ void TypesTest::executeStates(const std::string& state )
     BOOST_CHECK( (*pg_list.begin())->deactivate() );
 
     tsim->stop();
-    tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
+    sa->unloadStateMachine( (*pg_list.begin())->getName() );
 }

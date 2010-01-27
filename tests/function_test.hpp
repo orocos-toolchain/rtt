@@ -36,7 +36,7 @@ public:
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
-    OperationInterface* createObject(std::string name, CommandProcessor* cp);
+    ServiceProvider* createObject(std::string name, CommandProcessor* cp);
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();

@@ -25,8 +25,8 @@
 #include <scripting/FunctionGraph.hpp>
 #include <extras/SimulationThread.hpp>
 #include <Method.hpp>
-#include <Command.hpp>
-#include <internal/TaskObject.hpp>
+#include <Method.hpp>
+#include <interface/ServiceProvider.hpp>
 
 
 using namespace std;
@@ -49,13 +49,13 @@ ProgramTest::setUp()
     var_i = &init_var;
     const_i = new Constant<int>("tconst_i",-1);
     // ltc has a test object
-    gtc.addObject( this->createObject(new TaskObject("test"), gtc.engine()->commands()) );
+    gtc.addService( this->createObject(new ServiceProvider("test"), gtc.engine()) );
 
     // also this functions
-    this->createObject( &gtc, gtc.engine()->commands());
+    this->createObject( &gtc, gtc.engine());
 
-    gtc.attributes()->addAttribute( &var_i );
-    gtc.attributes()->addConstant( const_i );
+    gtc.addAttribute( &var_i );
+    gtc.addConstant( const_i );
     var_i.set(-1);
     i = 0;
     SimulationThread::Instance()->stop();
@@ -88,36 +88,26 @@ void ProgramTest::resetI() {
 }
 
 
-OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandProcessor* cp)
+ServiceProvider* ProgramTest::createObject(ServiceProvider* dat, CommandProcessor* cp)
 {
     // Add the data of the EE:
-    dat->methods()->addMethod( method( "assert", &ProgramTest::assertBool, this),
-                              "Assert", "bool", "" );
-    dat->methods()->addMethod( method( "increase", &ProgramTest::increase, this),
-                                "Return increasing i"  );
-    dat->methods()->addMethod( method( "resetI", &ProgramTest::resetI, this),
-                              "ResetI i" );
-    dat->methods()->addMethod( method( "assertMsg", &ProgramTest::assertMsg, this),
-                                 "Assert message", "bool", "", "text", "text"  );
-    dat->methods()->addMethod( method( "isTrue", &ProgramTest::assertBool, this),
-                              "Identity function", "bool", "" );
-    dat->methods()->addMethod( method( "i", &ProgramTest::getI, this),
-                         "Return the current number"  );
-    dat->commands()->addCommand( command( "instantDone", &ProgramTest::true_genCom,
-                                      &ProgramTest::true_gen, this, cp),
-                                      "returns immediately" );
-    dat->commands()->addCommand( command( "neverDone", &ProgramTest::true_genCom,
-                                    &ProgramTest::false_gen, this, cp),
-                                    "returns never" );
-    dat->commands()->addCommand( command( "instantNotDone", &ProgramTest::true_genCom,
+    dat->addOperation("assert", &ProgramTest::assertBool, this).doc("Assert").arg("bool", "");
+    dat->addOperation("increase", &ProgramTest::increase, this).doc("Return increasing i");
+    dat->addOperation("resetI", &ProgramTest::resetI, this).doc("ResetI i");
+    dat->addOperation("assertMsg", &ProgramTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+    dat->addOperation("isTrue", &ProgramTest::assertBool, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("i", &ProgramTest::getI, this).doc("Return the current number");
+    dat->addOperation("instantDone", &ProgramTest::true_genCom, this).doc("returns immediately");
+addOperation("instantDoneDone", &ProgramTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("neverDone", &ProgramTest::true_genCom, this).doc("returns never");
+addOperation("neverDoneDone", &ProgramTest::false_gen, this).doc("Returns true when neverDone is done.");
+    dat->addCommand( command( "instantNotDone", &ProgramTest::true_genCom,
                                          &ProgramTest::true_gen, this, cp, false),
                                          "returns never" );
-    dat->commands()->addCommand( command( "instantFail", &ProgramTest::false_genCom,
-                                      &ProgramTest::true_gen, this, cp),
-                                      "fails immediately" );
-    dat->commands()->addCommand( command( "totalFail", &ProgramTest::false_genCom,
-                                    &ProgramTest::false_gen, this, cp),
-                                    "fails in command and condition" );
+    dat->addOperation("instantFail", &ProgramTest::false_genCom, this).doc("fails immediately");
+addOperation("instantFailDone", &ProgramTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("totalFail", &ProgramTest::false_genCom, this).doc("fails in command and condition");
+addOperation("totalFailDone", &ProgramTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -342,7 +332,7 @@ BOOST_AUTO_TEST_CASE(testProgramTask)
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    BOOST_REQUIRE_EQUAL( 4, gtc.attributes()->getAttribute<int>("tvar_i")->get() );
+    BOOST_REQUIRE_EQUAL( 4, gtc.getAttribute<int>("tvar_i")->get() );
     this->finishProgram( &gtc, "x");
 }
 

@@ -108,13 +108,6 @@ namespace RTT
          */
         base::ConditionInterface* parseCondition(const std::string& s, TaskContext* );
 
-        /**
-         * @brief Parses the command in s.
-         * @throw parse_exception Throws exceptions of type parse_exception.
-         */
-        std::pair<base::ActionInterface*,base::ConditionInterface*>
-        parseCommand( const std::string&s, TaskContext* t, bool dispatch );
-
       /**
        * @brief Parses the expression in s.
        * @return A base::DataSourceBase which contains the expression.

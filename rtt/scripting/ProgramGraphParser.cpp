@@ -37,6 +37,7 @@
 #include "DataSourceCondition.hpp"
 
 #include "ConditionComposite.hpp"
+#include "ConditionFalse.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 
@@ -77,7 +78,6 @@ namespace RTT
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         conditionparser( rootc ),
-        commandparser( rootc, true ), // as_action == true
         valuechangeparser( rootc ),
         expressionparser( rootc ),
         argsparser(0),
@@ -134,7 +134,6 @@ namespace RTT
     opencurly = expect_opencurly( ch_p('{') );
     closecurly = expect_closecurly( ch_p('}') );
     semicolon = expect_semicolon( ch_p(';') );
-    condition = expect_condition( conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] );
 
     // program is the production rule of this grammar.  The
     // production rule is the rule that the entire input should be
@@ -180,7 +179,7 @@ namespace RTT
     //line = !( statement ) >> eol_p;
     line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
 
-    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement;
+    statement = valuechange | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | dostatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -189,19 +188,12 @@ namespace RTT
 
     valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    // a do statement: "do xxx <and y> <and...> until { terminationclauses }"
-    dostatement =
-        (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ]
-         >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
-             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
-         ) [ bind( &ProgramGraphParser::seendostatement, this ) ];
+    dostatement = str_p("do") >> expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ];
 
-    // a try statement: "try xxx <and y> <and...> until { terminationclauses } catch { stuff to do once on any error} "
+    // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
-        (str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")]
-         >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
-             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
-         ) [ bind( &ProgramGraphParser::seendostatement, this ) ]
+        str_p("try")
+         >> expect_command ( expressionparser.parser()[ bind( &ProgramGraphParser::seentrystatement, this ) ] )
          >> !catchpart;
 
   }
@@ -233,42 +225,6 @@ namespace RTT
     void ProgramGraphParser::setStack(ServiceProvider* st) {
         context = st;
     }
-
-  void ProgramGraphParser::seencommands()
-  {
-      // Chain all implicit termination conditions into 'done' :
-      std::vector<ConditionInterface*>::iterator it = implcond_v.begin();
-      implcond = *it;
-      while ( ++it != implcond_v.end() ) {
-          implcond = new ConditionBinaryCompositeAND( implcond, *it ) ;
-      }
-      implcond_v.clear();
-
-      rootc->setValue( new Alias<bool>("done",
-                                      new DataSourceCondition( implcond->clone() ) ) );
-  }
-
-  void ProgramGraphParser::seendostatement()
-  {
-      // assert(implcond);
-      // Called after a whole command statement is parsed.
-      // a CommandNode should have at least one edge
-      // If it doesn't, then we add a default one,
-      // which just moves on to the next node..
-      if ( program_builder->buildEdges() == 0 )
-          {
-              program_builder->proceedToNext( implcond->clone(), mpositer.get_position().line - ln_offset );
-          }
-      else
-          {
-              program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
-          }
-      delete implcond;
-      implcond = 0;
-
-      // the done condition is no longer valid..
-      rootc->removeValue( "done" );
-  }
 
     void ProgramGraphParser::startofprogram()
     {
@@ -360,18 +316,7 @@ namespace RTT
       valuechangeparser.reset();
   }
 
-  void ProgramGraphParser::seencondition()
-  {
-       mcondition = conditionparser.getParseResult();
-       assert( mcondition );
 
-       // leaves the condition in the parser, if we want to use
-       // getParseResultAsCommand();
-       // mcondition is only used with seen*label statements,
-       // when the command and condition are associated,
-       // not in the branching where the evaluation of the
-       // condition is the command.
-  }
   void ProgramGraphParser::seenreturnstatement()
   {
       // return statement can happen in program and in a function
@@ -386,17 +331,6 @@ namespace RTT
           program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
       } else
           throw parse_exception_syntactic_error("Illegal use of 'break'. Can only be used within for and while loops.");
-  }
-
-  void ProgramGraphParser::seenreturnlabel()
-  {
-      // return label can happen in program and in a function
-      assert(mcondition);
-
-      program_builder->returnFunction( mcondition->clone(), mpositer.get_position().line - ln_offset );
-
-      delete mcondition;
-      mcondition = 0;
   }
 
   void ProgramGraphParser::seenfuncidentifier( iter_t begin, iter_t end )
@@ -464,23 +398,6 @@ namespace RTT
     void ProgramGraphParser::noskip_eol() {
         eol_skip_functor::skipeol = false;
     }
-
-  void ProgramGraphParser::startofnewstatement(const std::string& type)
-  {
-      // cleanup previous left conds (should do this in endofnewstatement func)
-      // try_cond will be zero if used, othewise, delete it
-      delete try_cond;
-      try_cond = 0;
-
-      // a 'do' fails on the first rejected command,
-      // a 'try' tries all commands.
-      if ( type == "do")
-          try_cmd = false;
-      else if (type == "try")
-          try_cmd = true;
-      else
-          assert(false);
-  }
 
     void ProgramGraphParser::startcatchpart() {
         // we saved the try_cond in the previous try statement,
@@ -623,6 +540,9 @@ namespace RTT
     scanner_t scanner( begin, end, policies );
     program_list.clear();
 
+    // todo :Add a universal collect/collectIfDone/ret(sendh, args) operationfactoryparts.
+    //rootc->add("collect",&ProgramGraphParser::collectHandler, this)
+
     try {
       if ( ! production.parse( scanner ) )
       {
@@ -643,7 +563,6 @@ namespace RTT
       program_list.clear();
       return result;
     }
-    // Catch Boost::Spirit exceptions
     catch( const parser_error<std::string, iter_t>& e )
         {
             cleanup();
@@ -748,68 +667,52 @@ namespace RTT
       context = 0;
 
       valuechangeparser.reset();
-      commandparser.reset();
       conditionparser.reset();
       peerparser.reset();
   }
 
-  void ProgramGraphParser::seencommandcall()
+  void ProgramGraphParser::seentrystatement()
   {
-      // we get the data from commandparser
+      // a try expression/method call.
       ActionInterface*   command;
-      command  = commandparser.getCommand();
-      implcond = commandparser.getImplTermCondition();
-
-      if ( !try_cmd ) {
-          program_builder->setCommand( command );
+      DataSourceBase* expr  = expressionparser.getResult().get();
+      expressionparser.dropResult();
+      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr);
+      if (bexpr == 0) {
+          // if not returning a bool, the try is useless.
+          command = new CommandDataSource( expr );
+          try_cond = new ConditionFalse(); // never execute catch part.
+          program_builder->setCommand(command);
       } else {
+          command = new CommandDataSourceBool( bexpr );
+
           // try-wrap the asyn or dispatch command, store the result in try_cond.
           TryCommand* trycommand =  new TryCommand( command );
           // returns true if failure :
           TryCommandResult* tryresult = new TryCommandResult( trycommand->result(), true );
           program_builder->setCommand( trycommand );
-          try_cond = tryresult;
-          // go further if command failed or if command finished.
-          implcond = new ConditionBinaryCompositeOR(try_cond->clone(), implcond );
+          try_cond = tryresult; // save try_cond for catch part (ie true if failure)
       }
-
-    implcond_v.push_back(implcond); // store
-
-    commandparser.reset();
+      if ( program_builder->buildEdges() == 0 )
+          program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
+      else
+          program_builder->proceedToNext( mpositer.get_position().line - ln_offset );      // we get the data from commandparser
   }
 
-  void ProgramGraphParser::seenandcall()
+  void ProgramGraphParser::seenstatement()
   {
-      // retrieve a clone of the previous 'do' or 'and' command:
-    ActionInterface* oldcmnd = program_builder->getCommand( program_builder->buildNode() )->clone();
-    assert(oldcmnd);
-    // set composite command : (oldcmnd can not be zero)
-    ActionInterface* compcmnd;
-    // The implcond is already 'corrected' wrt result of evaluate().
-    implcond = commandparser.getImplTermCondition();
-
-    if ( !try_cmd )
-        compcmnd = new CommandBinary( oldcmnd,
-                                      commandparser.getCommand() );
-    else {
-        TryCommand*      trycommand = new TryCommand( commandparser.getCommand() );
-        TryCommandResult* tryresult = new TryCommandResult( trycommand->result(), true );
-        compcmnd = new CommandBinary( oldcmnd,
-                                      trycommand );
-        // chain the failure detections: if try_cond evaluates true, the catch phrase is executed
-        // See : condition to enter the 'catch' block.
-        try_cond = new ConditionBinaryCompositeOR( try_cond, tryresult );
-        // chain the implicit term. conditions: a command is implicitly done if it failed or
-        // its implcond is true.
-        // See : adding implicit term condition if no if .. then branches were defined.
-        implcond = new ConditionBinaryCompositeOR( tryresult->clone(), implcond );
-    }
-
-    program_builder->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
-
-    implcond_v.push_back( implcond );
-
-    commandparser.reset();
+      // an expression/method call (former do).
+      DataSourceBase* expr  = expressionparser.getResult().get();
+      expressionparser.dropResult();
+      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr);
+      if (bexpr)
+          program_builder->setCommand( new CommandDataSourceBool( bexpr ) );
+      else
+          program_builder->setCommand( new CommandDataSource( expr ) );
+      if ( program_builder->buildEdges() == 0 )
+          program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
+      else
+          program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
   }
 
   void ProgramGraphParser::seenvaluechange()
@@ -849,6 +752,7 @@ namespace RTT
 
     void ProgramGraphParser::seencontinue( )
     {
+        // @todo complete the impl for for/while loops.
         // Used for "continue"
         assert ( mcondition );
 

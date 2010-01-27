@@ -171,12 +171,12 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
     Method<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods")->methods(),"m0") );
+    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
     Method<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods")->methods(),"m1") );
+    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
 

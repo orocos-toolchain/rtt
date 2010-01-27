@@ -61,57 +61,7 @@ namespace RTT
     struct StatementProcessor::D
     {
         TaskContext* tc;
-        std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> > comms;
-        int seq;
-        D() : seq(0) {}
-
-        void checkFinished()
-        {
-            std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> >::iterator it = comms.begin();
-            while( it != comms.end() )
-                {
-                    if ( it->get<1>()->valid() && it->get<2>()->evaluate() == true ) {
-                        Logger::log() <<Logger::Info<<"Command ("<<it->get<0>()<<") '"<< it->get<3>() << "' is done." <<Logger::endl;
-                        comms.erase(it);
-                        it = comms.begin(); // reset !
-                        continue;
-                    }
-                    if ( it->get<1>()->accepted() == false ) {
-                        Logger::log() <<Logger::Error<<"Command ("<<it->get<0>()<<") '"<< it->get<3>() << "' was not accepted." <<Logger::endl;
-                        comms.erase(it);
-                        it = comms.begin(); // reset !
-                        continue;
-                    }
-                    if ( it->get<1>()->executed() == true ) {
-                        if ( it->get<1>()->valid() == false ) {
-                            Logger::log() <<Logger::Error<<"Command ("<<it->get<0>()<<") '"<< it->get<3>() << "' was executed but rejected." <<Logger::endl;
-                            comms.erase(it);
-                            it = comms.begin(); // reset !
-                            continue;
-                        }
-                        Logger::log() <<Logger::Info<<"Command ("<<it->get<0>()<<") '"<< it->get<3>() << "' is busy." <<Logger::endl;
-                    }
-                    ++it;
-                }
-        }
-
-        DispatchInterface::shared_ptr getCommand(int cnr)
-        {
-            std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> >::iterator it = comms.begin();
-            while( it != comms.end() )
-                if ( it->get<0>() == cnr )
-                    return it->get<1>();
-            return DispatchInterface::shared_ptr();
-        }
-
-        int add(DispatchInterface* command, ConditionInterface* cond, std::string code)
-        {
-            comms.push_back( boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*,std::string>(seq, DispatchInterface::shared_ptr(command), cond, code) );
-            Logger::log() <<Logger::Info<<"Executing Command ("<<seq<<") '"<< code << "'..." <<Logger::endl;
-            command->dispatch();
-            ++seq;
-            return seq -1;
-        }
+        D() {}
 
         void printResult( DataSourceBase* ds, bool recurse) {
             std::string prompt(" = ");
@@ -240,22 +190,9 @@ namespace RTT
         delete d;
     }
 
-    void StatementProcessor::checkFinished() {
-        Logger::In in("StatementProcessor");
-        d->checkFinished();
-    }
-
-    DispatchInterface::shared_ptr StatementProcessor::getCommand(int cnr) {
-        Logger::In in("StatementProcessor");
-        return d->getCommand(cnr);
-    }
-
     int StatementProcessor::execute(const std::string& comm)
     {
         Logger::In in("StatementProcessor");
-
-        d->checkFinished();
-
         TaskContext* taskcontext = d->tc;
 
         // Minor hack : also check if it was an attribute of current TC, for example,
@@ -268,9 +205,6 @@ namespace RTT
         }
 
         Parser _parser;
-        std::pair< ActionInterface*, ConditionInterface*> comcon;
-        DispatchInterface* command;
-        ConditionInterface* condition;
 
         Logger::log() <<Logger::Debug << "Trying ValueChange...";
         try {
@@ -333,27 +267,7 @@ namespace RTT
             Logger::log() << Logger::Debug << "Ignoring Expression parse_exception :"<<Logger::nl;
             Logger::log() << Logger::Debug << pe.what() <<Logger::nl;
         }
-        Logger::log() << Logger::Debug << "Trying Command...";
-        try {
-            comcon = _parser.parseCommand( comm, taskcontext, true ); // create a dispatch command.
-            assert( dynamic_cast<DispatchInterface*>(comcon.first) );
-            command = dynamic_cast<DispatchInterface*>(comcon.first);
-            condition = comcon.second;
-        } catch ( parse_exception& pe ) {
-            Logger::log() << Logger::Debug << "CommandParser parse_exception :"<<Logger::nl;
-            Logger::log() << Logger::Error << pe.what() <<Logger::nl;
-            return -1;
-        } catch (...) {
-            Logger::log() << Logger::Error << "Illegal Input."<<Logger::nl;
-            return -1;
-        }
-
-        if ( command == 0 ) { // this should not be reached
-            Logger::log() << Logger::Error << "Uncaught : Illegal command."<<Logger::nl;
-            return -1;
-        }
-
-        return d->add( command, condition, comm);
+        return -1;
     }
 
 }

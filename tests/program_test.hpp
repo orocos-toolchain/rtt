@@ -35,7 +35,7 @@ public:
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
-    OperationInterface* createObject( OperationInterface*, CommandProcessor* cp );
+    ServiceProvider* createObject( ServiceProvider*, CommandProcessor* cp );
     Attribute<int> var_i;
     Constant<int>* const_i;
     bool assertBool( bool );

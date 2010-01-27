@@ -67,16 +67,6 @@ namespace RTT
          * is the ticket number of the command.
          */
         int execute(const std::string& code);
-
-        /**
-         * Check if commands are finished and free resources if so.
-         */
-        void checkFinished();
-
-        /**
-         * Return the command with the ticket number \a cnr.
-         */
-        base::DispatchInterface::shared_ptr getCommand( int cnr );
     };
 
 

@@ -393,7 +393,6 @@ namespace RTT
             return i->second->produceCollect( args, blocking );
         }
 
-#if 0
         /**
          * The descriptions of an argumentlist.
          */
@@ -412,7 +411,6 @@ namespace RTT
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
             return i->second->getArgumentList();
         }
-#endif
 
         /**
          * Get the type name of the result type of an operation.
@@ -428,7 +426,6 @@ namespace RTT
             return i->second->resultType();
         }
 
-#if 0
         /**
          * Get the description of an operation
          *
@@ -442,7 +439,6 @@ namespace RTT
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
             return i->second->description();
         }
-#endif
 
         /**
          * Add a new operation to the interface.

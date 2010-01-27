@@ -194,15 +194,6 @@ namespace RTT
         virtual int execute(const std::string& code );
 
         /**
-         * Get the associated command with a given ticket number.
-         *
-         * @param ticket The ticket number returned by execute().
-         *
-         * @return An object which represents the command.
-         */
-        virtual base::DispatchInterface::shared_ptr getCommand( int ticket );
-
-        /**
          * List of executed functions.
          */
         typedef std::vector< base::ProgramInterfacePtr > Functions;

@@ -569,15 +569,15 @@ BOOST_AUTO_TEST_CASE( testAttributes)
     Attribute<double> d1("d1", 1.234);
     BOOST_CHECK( i1.ready() );
     BOOST_CHECK( d1.ready() );
-    BOOST_CHECK(tc->attributes()->addAttribute( &d1 ));
-    BOOST_CHECK(tc->attributes()->addAttribute( &i1 ));
+    BOOST_CHECK(tc->addAttribute( &d1 ));
+    BOOST_CHECK(tc->addAttribute( &i1 ));
 
     i1.set( 3 );
     BOOST_CHECK_EQUAL( double(1.234), d1.get() );
     BOOST_CHECK_EQUAL( int(3), i1.get() );
 
-    BOOST_CHECK_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
-    BOOST_CHECK_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
+    BOOST_CHECK_EQUAL( double(1.234), tc->getAttribute<double>("d1")->get() );
+    BOOST_CHECK_EQUAL( int(3),        tc->getAttribute<int>("i1")->get() );
 
     // test setup of mirror:
     Attribute<string> s1;
@@ -585,9 +585,9 @@ BOOST_AUTO_TEST_CASE( testAttributes)
     Attribute<string> s2("hello","world");
     BOOST_CHECK( s2.ready() );
 
-    BOOST_CHECK(tc->attributes()->addAttribute( &s1 ) == false);
-    BOOST_CHECK(tc->attributes()->addAttribute( &s2 ) );
-    s1 = tc->attributes()->getAttribute<string>("hello");
+    BOOST_CHECK(tc->addAttribute( &s1 ) == false);
+    BOOST_CHECK(tc->addAttribute( &s2 ) );
+    s1 = tc->getAttribute<string>("hello");
     BOOST_CHECK( s1.ready() );
 
     BOOST_CHECK_EQUAL(std::string("hello"), s1.getName() );
@@ -948,8 +948,8 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     tc->ports()->addPort( &rp1 );
 
     // Check if ports were added as objects as well
-    BOOST_CHECK( tc->getObject("Write") != 0 );
-    BOOST_CHECK( tc->getObject("Read") != 0 );
+    BOOST_CHECK( tc->provides("Write") != 0 );
+    BOOST_CHECK( tc->provides("Read") != 0 );
 
     // Set initial value
     wp1.write( 1.0 );
@@ -961,10 +961,10 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     Method<void(double const&)> mset;
     Method<FlowStatus(double&)> mget;
 
-    mset = tc->getObject("Write")->methods()->getMethod<void(double const&)>("write");
+    mset = tc->provides("Write")->getMethod<void(double const&)>("write");
     BOOST_CHECK( mset.ready() );
 
-    mget = tc->getObject("Read")->methods()->getMethod<FlowStatus(double&)>("read");
+    mget = tc->provides("Read")->getMethod<FlowStatus(double&)>("read");
     BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );
@@ -975,11 +975,11 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
 
     //// Finally, check cleanup. Ports and port objects must be gone:
     tc->ports()->removePort("Reader");
-    BOOST_CHECK( tc->getObject("Reader") == 0 );
+    BOOST_CHECK( tc->provides("Reader") == 0 );
     BOOST_CHECK( tc->ports()->getPort("Reader") == 0 );
 
     tc->ports()->removePort("Writer");
-    BOOST_CHECK( tc->getObject("Writer") == 0 );
+    BOOST_CHECK( tc->provides("Writer") == 0 );
     BOOST_CHECK( tc->ports()->getPort("Writer") == 0 );
 }
 
