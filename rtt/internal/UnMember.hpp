@@ -49,7 +49,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/components.hpp>
-
+#include <boost/function_types/member_function_pointer.hpp>
 
 namespace RTT
 {
@@ -69,6 +69,22 @@ namespace RTT
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
         public:
             typedef typename boost::function_types::function_type<non_member_signature>::type type;
+        };
+
+        /**
+         * The inverse of UnMember. This class converts a non-member function type R (Args) to
+         * a member function type R (X::*)(Args) which can be used by a boost::function
+         * or similar.
+         */
+        template<class F,class Class>
+        class AddMember
+        {
+            typedef boost::function_types::components<F> non_member_signature;
+            typedef typename boost::mpl::insert<non_member_signature,
+                                               typename boost::mpl::next<typename boost::mpl::begin<non_member_signature>::type>::type,
+                                               Class>::type with_member_signature;
+        public:
+            typedef typename boost::function_types::member_function_pointer<with_member_signature>::type type;
         };
 
         /**

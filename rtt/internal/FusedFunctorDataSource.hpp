@@ -5,6 +5,7 @@
 #include "../base/MethodBase.hpp"
 #include "CreateSequence.hpp"
 #include "BindStorage.hpp"
+#include "UnMember.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
@@ -96,6 +97,7 @@ namespace RTT
               typedef typename SequenceFactory::type DataSourceSequence;
               DataSourceSequence args;
               typename base::MethodBase<Signature>::shared_ptr ff;
+              mutable RStore<result_type> ret;
           public:
               typedef boost::intrusive_ptr<FusedMCallDataSource<Signature> >
                       shared_ptr;
@@ -113,15 +115,19 @@ namespace RTT
 
               value_t value() const
               {
-                  return ff->ret();
+                  return ret.result();
               }
 
               value_t get() const
               {
                   // put the member's object as first since SequenceFactory does not know about the MethodBase type.
-                  bf::invoke(&base::MethodBase<Signature>::call, bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type>(ff.get(), SequenceFactory::data(args)));
+                  typedef bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type> full_type;
+                  typedef typename AddMember<Signature,base::MethodBase<Signature>* >::type call_type;
+                  // we need to store the ret value ourselves.
+                  ret.exec( boost::bind(&bf::invoke<call_type,full_type>, &base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args))) );
+                  //bf::invoke(&base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args)));
                   // TODO: XXX do updated() on all datasources that need it ?
-                  return ff->ret();
+                  return ret.result();
               }
 
               virtual FusedMCallDataSource<Signature>* clone() const
