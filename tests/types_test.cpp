@@ -43,7 +43,6 @@ TypesTest::setUp()
     sa = new ScriptingAccess(tc);
     tc->addService( this->createMethodFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
-    tsim = tc->getActivity();
     SimulationThread::Instance()->stop();
 }
 
@@ -51,7 +50,6 @@ TypesTest::setUp()
 void
 TypesTest::tearDown()
 {
-    tsim->stop();
     delete tc;
 }
 
@@ -72,9 +70,11 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
     {
         ServiceProvider* to = new ServiceProvider("test");
         to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
-        to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
         to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
+        //to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
         to->addOperation("print", &TypesTest::print, this ).doc("print").arg("v", "v");
+        to->addOperation("printb", &TypesTest::printb, this ).doc("printb").arg("v", "v");
+        to->addOperation("pass",&TypesTest::pass, this);
         return to;
     }
 
@@ -122,6 +122,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
+        "do test.print(ar1[11])\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
@@ -379,7 +380,6 @@ void TypesTest::executePrograms(const std::string& prog )
             BOOST_REQUIRE( false && "Got empty test program." );
         }
 
-    BOOST_CHECK( tsim->start() );
     BOOST_CHECK( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
@@ -403,7 +403,6 @@ void TypesTest::executePrograms(const std::string& prog )
         BOOST_CHECK_MESSAGE( false , errormsg.str() );
     }
     BOOST_CHECK( (*pg_list.begin())->stop() );
-    tsim->stop();
     sa->unloadProgram( (*pg_list.begin())->getName() );
 }
 
@@ -424,7 +423,6 @@ void TypesTest::executeStates(const std::string& state )
         }
 
     BOOST_CHECK( sa->loadStateMachine( *pg_list.begin() ) );
-    BOOST_CHECK( tsim->start() );
     BOOST_CHECK( (*pg_list.begin())->activate() );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
@@ -439,6 +437,5 @@ void TypesTest::executeStates(const std::string& state )
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( (*pg_list.begin())->deactivate() );
 
-    tsim->stop();
     sa->unloadStateMachine( (*pg_list.begin())->getName() );
 }
