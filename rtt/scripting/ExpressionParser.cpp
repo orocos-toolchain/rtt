@@ -156,7 +156,7 @@ namespace RTT
     std::vector<DataSourceBase::shared_ptr> args = argspar->result();
     ServiceProvider* peer = argspar->object();
     delete argspar;
-
+    assert(peer && "peer may never be null.");
     // separate track if we are handling a constructor:
     if ( obj == "this" && TypeInfoRepository::Instance()->type( meth ) ) {
         ret = TypeInfoRepository::Instance()->type( meth )->construct( args );

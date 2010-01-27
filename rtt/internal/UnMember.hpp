@@ -89,13 +89,14 @@ namespace RTT
 
         /**
          * A complexer variant of UnMember: Convert a member function type to
-         * a function type which contains the member as first argument.
+         * a function type which contains the object as first argument.
          * Thus R (X::*)(Args) becomes R (X::*, Args)
          */
         template<class F>
         class ArgMember
         {
             typedef boost::function_types::components<F> member_signature;
+            // TODO this erase/insert cycle can be removed and just use member_signature in function_type<T>
             // remove the class from the arg list:
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;

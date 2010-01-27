@@ -421,7 +421,7 @@ namespace RTT {
         do {
             if ( get<0>(*reqstep)->evaluate() ) {
                 // evaluate() might call stop() or other sm functions:
-                if (reqstep == reqend ) 
+                if (reqstep == reqend )
                     return current;
                 // check preconds of target state :
                 int cres = checkConditions( get<1>(*reqstep), stepping );
@@ -674,6 +674,7 @@ namespace RTT {
                                               StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
     {
         Logger::In in("StateMachine::createEventTransition");
+        assert(false);
         if (eproc == 0 ) {
             Logger::log() << Logger::Error << "Can not receive event '"<< ename <<"' in StateMachine without ExecutionEngine."<<Logger::endl;
             return false;

@@ -51,7 +51,7 @@ namespace RTT
 
     ProgramTask::ProgramTask(FunctionGraphPtr prog, TaskContext* tc)
         : ServiceProvider( prog->getName(), tc),
-          program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ),
+          program( new ValueDataSource<ProgramInterfacePtr>(prog) ),
           function(prog)
     {
         this->doc("Orocos Program Script");
@@ -59,7 +59,7 @@ namespace RTT
         // We need a weak pointer here in order to be able to unload programs that
         // reference self. The only way we can use weak_ptr with Method/Operation is by putting it in the data source
         // of the first argument. We can not 'boost::bind' to a weak pointer, only to a shared_ptr.
-        DataSource<ProgramInterfaceWPtr>* ptr = program.get();
+        DataSource<ProgramInterfacePtr>* ptr = program.get();
         // Methods :
         addOperationDS("start", &ProgramInterface::start,ptr).doc("Start or continue this program.");
         addOperationDS("pause", &ProgramInterface::pause,ptr).doc("Pause this program.");
@@ -75,7 +75,7 @@ namespace RTT
 
     ProgramTask::~ProgramTask() {
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
-        FunctionGraphPtr prog = function.lock();
+        FunctionGraphPtr prog = function;
         if ( prog ) {
             prog->setProgramTask(0);
         }

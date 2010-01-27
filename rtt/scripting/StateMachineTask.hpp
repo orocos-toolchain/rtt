@@ -54,11 +54,10 @@ namespace RTT
     class StateMachineTask
         : public interface::ServiceProvider
     {
-        //boost::weak_ptr<StateMachine> sm;
         // used when state machines are copied.
         // functions have a similar mechanism
-        internal::ValueDataSource< StateMachineWPtr >::shared_ptr _this;
-        ParsedStateMachineWPtr statemachine;
+        internal::ValueDataSource< StateMachinePtr >::shared_ptr _this;
+        ParsedStateMachinePtr statemachine;
         TaskContext* mtc;
 
         void createMethodFactory();
@@ -77,7 +76,7 @@ namespace RTT
         /**
          * Returns the StateMachine of this task.
          */
-        StateMachinePtr getStateMachine() const { return _this->get().lock(); }
+        StateMachinePtr getStateMachine() const { return _this->get(); }
 
         ExecutionEngine* engine() const;
     };

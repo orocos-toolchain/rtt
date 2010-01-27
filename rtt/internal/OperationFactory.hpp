@@ -195,6 +195,9 @@ namespace RTT
              * OperationFactoryPart implementation that uses boost::fusion
              * to produce items. The methods invoked get their object pointer
              * from the first data source, which contains a shared_ptr.
+             * @param Signature The full signature, with the object pointer as
+             * the first argument.
+             * @param ObjT The object pointer type used in Signature.
              */
             template<typename Signature,typename ObjT>
             class OperationFactoryPartFusedDS
@@ -204,9 +207,9 @@ namespace RTT
                 typedef typename boost::function_traits<Signature>::result_type result_type;
                 Operation<Signature>* op;
                 // the datasource that stores a weak pointer is itself stored by a shared_ptr.
-                typename DataSource<boost::weak_ptr<ObjT> >::shared_ptr mwp;
+                typename DataSource<boost::shared_ptr<ObjT> >::shared_ptr mwp;
             public:
-                OperationFactoryPartFusedDS( DataSource< boost::weak_ptr<ObjT> >* wp, Operation<Signature>* o)
+                OperationFactoryPartFusedDS( DataSource< boost::shared_ptr<ObjT> >* wp, Operation<Signature>* o)
                     : op( o ), mwp(wp)
                 {
                 }
@@ -218,7 +221,7 @@ namespace RTT
                     return DataSource<result_type>::GetType();
                 }
 
-                int arity() const { return boost::function_traits<Signature>::arity; }
+                int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
 
                 virtual std::string description() const {
                     return op->getDescriptions().front();
@@ -240,7 +243,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
+                    return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(a2) );
                 }
 
                 virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {

@@ -54,7 +54,7 @@ namespace RTT
             // Special trick : we store the 'this' pointer in a DataSource, such that when
             // the created commands are copied, they also get the new this pointer.
             // This requires template specialisations on the TemplateFactory level.
-            DataSource<StateMachineWPtr>* ptr = _this.get();
+            DataSource<StateMachinePtr>* ptr = _this.get();
 
             // I had to make activate() a command because the entry {}
             // may contain commands upon which the state machine is
@@ -107,7 +107,7 @@ namespace RTT
 
         StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, TaskContext* tc)
             : ServiceProvider( statem->getName() ),
-              _this( new ValueDataSource<StateMachineWPtr>( statem ) ),
+              _this( new ValueDataSource<StateMachinePtr>( statem ) ),
               statemachine(statem),
               mtc(tc)
         {
@@ -118,9 +118,8 @@ namespace RTT
     StateMachineTask::~StateMachineTask()
     {
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
-        ParsedStateMachinePtr prog = statemachine.lock();
-        if ( prog ) {
-            prog->setServiceProvider(0);
+        if ( statemachine ) {
+            statemachine->setServiceProvider(0);
         }
     }
     ExecutionEngine* StateMachineTask::engine() const { return mtc->engine(); }

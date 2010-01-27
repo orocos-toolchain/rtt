@@ -776,7 +776,6 @@ namespace RTT
         curobject = new StateMachineTask(curtemplate, context );
         curobject->setName( curmachinename );
         curtemplate->setServiceProvider( curobject ); // store.
-        assert(false); // see below:
         curtemplate->setEngine( context->engine() ); //handle events in TaskContext.
 
         // we pass the plain file positer such that parse errors are

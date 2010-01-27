@@ -58,7 +58,8 @@ namespace RTT
 
     namespace {
         assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
-        assertion<std::string> expect_closecurly("Closing curly brace '}' expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_closecurly("Closing curly brace '}' expected in statement block (or could not find out what this line means).");
+        assertion<std::string> expect_closefunction("Closing curly brace '}' expected at end of program or function (or could not find out what this line means).");
         assertion<std::string> expect_open("Open brace '(' expected.");
         assertion<std::string> expect_close("Closing brace ')' expected.");
         assertion<std::string> expect_comma("Expected a comma separator.");
@@ -134,6 +135,7 @@ namespace RTT
     opencurly = expect_opencurly( ch_p('{') );
     closecurly = expect_closecurly( ch_p('}') );
     semicolon = expect_semicolon( ch_p(';') );
+    condition = expect_condition( conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] );
 
     // program is the production rule of this grammar.  The
     // production rule is the rule that the entire input should be
@@ -152,7 +154,7 @@ namespace RTT
        >> !funcargs
        >> opencurly
        >> content
-       >> closecurly[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
+       >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
        );
 
     // the function's definition args :
@@ -167,7 +169,7 @@ namespace RTT
       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> opencurly
       >> content
-      >> closecurly[ bind( &ProgramGraphParser::seenprogramend, this ) ];
+      >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
     content = *line;
@@ -316,6 +318,18 @@ namespace RTT
       valuechangeparser.reset();
   }
 
+  void ProgramGraphParser::seencondition()
+  {
+       mcondition = conditionparser.getParseResult();
+       assert( mcondition );
+
+       // leaves the condition in the parser, if we want to use
+       // getParseResultAsCommand();
+       // mcondition is only used with seen*label statements,
+       // when the command and condition are associated,
+       // not in the branching where the evaluation of the
+       // condition is the command.
+  }
 
   void ProgramGraphParser::seenreturnstatement()
   {

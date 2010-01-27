@@ -206,11 +206,10 @@ namespace RTT
          * during program execution. Required in scripting for state machines.
          */
         template<class Func,class ObjT>
-        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::weak_ptr<ObjT> >* wp,
+        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::shared_ptr<ObjT> >* sp,
                 base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread)
         {
-            typedef typename GetSignature<Func>::Signature Signature;    // normal function signature
-            typedef typename GetSignatureDS<Func>::Signature SignatureDS;// with ObjT as first argument.
+            typedef typename GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
             Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
             op->calls(func);
             if ( this->addLocalOperation( *op ) == false ) {
@@ -218,7 +217,7 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( wp, op) );
+            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( sp, op) );
 
             return *op;
         }
@@ -229,13 +228,13 @@ namespace RTT
          * during program execution. Required in scripting for state machines.
          */
         template<class Signature,class ObjT>
-        Operation<Signature>& addOperationDS( internal::DataSource< boost::weak_ptr<ObjT> >* wp, Operation<Signature>& op)
+        Operation<Signature>& addOperationDS( internal::DataSource< boost::shared_ptr<ObjT> >* sp, Operation<Signature>& op)
         {
             if ( this->addLocalOperation( op ) == false ) {
                 assert(false);
                 return op; // should never be reached.
             }
-            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( wp, &op) );
+            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( sp, &op) );
             return op;
         }
 
