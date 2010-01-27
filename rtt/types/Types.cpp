@@ -96,7 +96,7 @@ namespace RTT
         // cleanup transporters
         for (Transporters::iterator i = transporters.begin(); i != transporters.end(); ++i)
             delete *i;
-            
+
         // cleanup constructors
         for (Constructors::iterator i= constructors.begin(); i != constructors.end(); ++i)
             delete (*i);
@@ -195,7 +195,7 @@ namespace RTT
     {
         std::vector<int>    ret;
         for (size_t i=0; i<transporters.size(); ++i)
-        {   
+        {
             // dump only protocols with an actual transporter
             // NB the transporter does not have a name, so you have to manually
             // match the protocol number to an actual transport
@@ -253,7 +253,7 @@ namespace RTT
 		}
 		return 0;
     }
-	
+
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
         std::string tname = t->getTypeName();
@@ -292,11 +292,11 @@ namespace RTT
         {
             std::vector<int>    transports;
             transports = it->second->getTransportNames();
-            Logger::log() << Logger::Debug << "-- " << it->first 
+            Logger::log() << Logger::Debug << "-- " << it->first
                           << " (" << (*it).second->getTypeName() << ") protocols [";
             for (std::vector<int>::const_iterator   iter=transports.begin();
                  iter != transports.end();
-                 ++iter) 
+                 ++iter)
             {
                 Logger::log() << *iter;
             }

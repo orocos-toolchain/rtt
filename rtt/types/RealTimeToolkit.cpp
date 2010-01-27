@@ -374,7 +374,7 @@ namespace RTT
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 #ifndef ORO_EMBEDDED
         ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
-#if 1
+        // fixed number of args:
         ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
         ti->type("array")->addConstructor( newConstructor( array_ctor2() ) );
         ti->type("double")->addConstructor( newConstructor( &float_to_double, true ));
@@ -385,7 +385,6 @@ namespace RTT
         ti->type("int")->addConstructor( newConstructor( &double_to_int, false ));
         ti->type("int")->addConstructor( newConstructor( &uint_to_int, false ));
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
-#endif
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
 #endif

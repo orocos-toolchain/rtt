@@ -496,19 +496,13 @@ namespace RTT
             {}
 
             virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
-                // detect same type converion.
-                if ( args.size() == 1 && args[0]->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
-                    return args[0];
-                }
-                // detect invalid type conversion.
-                if ( args.size() == 1 && args[0]->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                // number of arguments must be exact.
+                if ( args.size() != boost::function_traits<S>::arity )
                     return base::DataSourceBase::shared_ptr();
-                }
                 try {
                     return new internal::FusedFunctorDataSource<S>(ff, SequenceFactory()(args) );
-                } catch ( ... ) {
-                }
+                } catch(...) // wrong argument types
+                {}
                 return base::DataSourceBase::shared_ptr();
             }
 
@@ -530,7 +524,8 @@ namespace RTT
                     std::vector<base::DataSourceBase::shared_ptr> args;
                     args.push_back(arg);
                     base::DataSourceBase::shared_ptr ret = this->build(args);
-                    if (ret && !automatic)
+                    assert( ret );
+                    if (!automatic)
                         log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
                     return ret;
                 }
