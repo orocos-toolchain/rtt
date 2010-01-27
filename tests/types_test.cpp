@@ -42,7 +42,8 @@ TypesTest::setUp()
     tc =  new TaskContext( "root" );
     sa = new ScriptingAccess(tc);
     tc->addService( this->createMethodFactory() );
-    tsim = new SimulationActivity( 0.001, tc->engine() );
+    tc->setActivity( new SimulationActivity( 0.001 ));
+    tsim = tc->getActivity();
     SimulationThread::Instance()->stop();
 }
 
@@ -52,7 +53,6 @@ TypesTest::tearDown()
 {
     tsim->stop();
     delete tc;
-    delete tsim;
 }
 
 
@@ -379,8 +379,8 @@ void TypesTest::executePrograms(const std::string& prog )
             BOOST_REQUIRE( false && "Got empty test program." );
         }
 
-    BOOST_CHECK( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
