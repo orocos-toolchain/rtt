@@ -19,77 +19,89 @@
 
 
 #include <rtt-config.h>
-#include "state_test.hpp"
-
-#include <iostream>
-#include <sstream>
-#ifndef NOPARSER
+#include <extras/SimulationThread.hpp>
+#include <extras/SimulationActivity.hpp>
+#include <scripting/StateMachine.hpp>
 #include <scripting/ParsedStateMachine.hpp>
 #include <scripting/DumpObject.hpp>
-#endif
-#include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Method.hpp>
-#include <scripting/StateMachine.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <scripting/Parser.hpp>
 
-using namespace std;
+#include <interface/ServiceProvider.hpp>
+#include <TaskContext.hpp>
+#include <Method.hpp>
+#include <Port.hpp>
+#include <scripting/ScriptingAccess.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-StateTest::StateTest()
-    :gtc("root"),
-     gtask( 0.01, gtc.engine() )
+#include <string>
+#include <iostream>
+#include <sstream>
+
+using namespace RTT;
+using namespace RTT::detail;
+using namespace std;
+
+class StateTest
 {
-	setUp();
-}
+public:
+    Parser parser;
+    TaskContext gtc;
+    InputPort<double> d_event;
+    InputPort<bool>   b_event;
+    InputPort<int>    t_event;
+    OutputPort<double> d_event_source;
+    OutputPort<bool>   b_event_source;
+    OutputPort<int>    t_event_source;
+    ScriptingAccess* sa;
+    //Event<void(void)> t_event;
+    ServiceProvider* createObject(std::string);
+    bool assertBool( bool b) { return b; }
+    bool assertMsg( bool b, const std::string& msg) {
+        if ( b == false )
+            cout << "Asserted :" << msg << endl;
+        return true; // allow to continue to check other commands.
+    }
+    int increase() { return ++i;}
+    void resetI() { i = 0; }
+    void doState( const std::string& prog, TaskContext*, bool test=true );
+    void finishState( TaskContext* , std::string, bool test=true );
 
+    bool true_genCom() { return true; }
+    bool false_genCom() { return false; }
+    bool true_gen() const { return true; }
+    bool false_gen() const { return false; }
 
-void
-StateTest::setUp()
-{
-    d_event = Event<void(double)>("d_event");
-    b_event = Event<void(bool)>("b_event");
-    t_event = Event<void(void)>("t_event");
+    bool bool_gen( bool b ) const { return b; }
+    int getI() const {return i;}
+    int i;
+    std::string sline;
+public:
+    StateTest()
+        :gtc("root"),
+         d_event("d_event"), b_event("b_event"), t_event("t_event"),
+         d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
+         sa( new ScriptingAccess(&gtc) )
+    {
+        gtc.setActivity( new SimulationActivity(0.001) );
+#if 1
+        // ltc has a test object
+        gtc.addService(this->createObject("test") );
 
-
-    // ltc has a test object
-    gtc.addService(this->createObject("test") );
-
-    gtc.events()->addEvent( &d_event, "D", "a1", "arg1 D" );
-    gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
-    gtc.events()->addEvent( &t_event, "T" );
-    i = 0;
-    SimulationThread::Instance()->stop();
-}
-
-
-void
-StateTest::tearDown()
-{
-    // if a test failed, we must still stop :
-    gtask.stop();
-}
-
-
-bool StateTest::assertBool( bool b) {
-    return b;
-}
-bool StateTest::assertMsg( bool b, const std::string& msg) {
-    if ( b == false )
-        cout << "Asserted :" << msg << endl;
-    return true; // allow to continue to check other commands.
-}
-
-int StateTest::increase() {
-    return ++i;
-}
-
-void StateTest::resetI() {
-    i = 0;
-}
-
+        gtc.ports()->addPort( &d_event );
+        gtc.ports()->addPort( &b_event );
+        gtc.ports()->addPort( &t_event );
+        gtc.ports()->addPort( &d_event_source );
+        gtc.ports()->addPort( &b_event_source );
+        gtc.ports()->addPort( &t_event_source );
+#endif
+        i = 0;
+        SimulationThread::Instance()->stop();
+    }
+    ~StateTest(){
+    }
+};
 
 ServiceProvider* StateTest::createObject(string a)
 {
@@ -102,16 +114,15 @@ ServiceProvider* StateTest::createObject(string a)
     dat->addOperation("isTrue", &StateTest::assertBool, this).doc("Identity function").arg("bool", "");
     dat->addOperation("i", &StateTest::getI, this).doc("Return the current number");
     dat->addOperation("instantDone", &StateTest::true_genCom, this).doc("returns immediately");
-addOperation("instantDoneDone", &StateTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("instantDoneDone", &StateTest::true_gen, this).doc("Returns true when instantDone is done.");
     dat->addOperation("neverDone", &StateTest::true_genCom, this).doc("returns never");
-addOperation("neverDoneDone", &StateTest::false_gen, this).doc("Returns true when neverDone is done.");
-    dat->addCommand( command( "instantNotDone", &StateTest::true_genCom,
-                                         &StateTest::true_gen, this, gtc.engine(), false),
-                                         "returns never");
+    dat->addOperation("neverDoneDone", &StateTest::false_gen, this).doc("Returns true when neverDone is done.");
+    dat->addOperation("instantNotDone", &StateTest::true_genCom,this).doc("returns never.");
+    dat->addOperation("instantNotDoneDone", &StateTest::false_gen,this).doc("returns never.");
     dat->addOperation("instantFail", &StateTest::false_genCom, this).doc("fails immediately");
-addOperation("instantFailDone", &StateTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("instantFailDone", &StateTest::true_gen, this).doc("Returns true when instantFail is done.");
     dat->addOperation("totalFail", &StateTest::false_genCom, this).doc("fails in command and condition");
-addOperation("totalFailDone", &StateTest::false_gen, this).doc("Returns true when totalFail is done.");
+    dat->addOperation("totalFailDone", &StateTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -264,13 +275,15 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
         ;
 
     // should fail each time
+    int x = 0;
     while ( i < 6 ) {
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        BOOST_CHECK( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
+        BOOST_CHECK_MESSAGE( sa->getStateMachineStatus("x") == StateMachine::Status::error, "Status is: " + sa->getStateMachineStatusStr("x") );
 
         this->finishState( &gtc, "x", false);
+        ++i;
     }
 }
 BOOST_AUTO_TEST_CASE( testStateChildren)
@@ -391,6 +404,7 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " }\n"
         + " RootMachine X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
         ;
+
     this->doState( prog, &gtc );
     this->finishState( &gtc, "x");
 }
@@ -413,6 +427,29 @@ BOOST_AUTO_TEST_CASE( testStateEmpty)
         ;
      this->doState( prog, &gtc );
      this->finishState( &gtc, "x");
+}
+
+BOOST_AUTO_TEST_CASE( testStateEmptyChild)
+{
+    // test processing of completely empty states
+    string prog = string("StateMachine Y {\n")
+        + " initial state INIT {\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + "}\n"
+        + "StateMachine X {\n"
+        + "  SubMachine Y y;\n"
+        + " initial state INIT {\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + "}\n"
+        + "RootMachine X x\n"
+        ;
+
+    this->doState( prog, &gtc );
+    this->finishState( &gtc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateTransitions)
@@ -467,7 +504,7 @@ BOOST_AUTO_TEST_CASE( testStateTransitions)
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -490,7 +527,7 @@ BOOST_AUTO_TEST_CASE( testStateTransitionStop )
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -551,7 +588,7 @@ BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -620,7 +657,7 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         ;
 
      this->doState( prog, &gtc );
-     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -711,10 +748,10 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
 {
     // test event reception in sub states.
     string prog = string("StateMachine Y {\n")
-        + " var   double t = 0.0\n"
+        + " var   int t = 0\n"
         + " var   double et = 0.0\n"
         + " var   bool eb = false\n"
-        + " transition t_event() select TESTSELF\n" // test self transition
+        + " transition t_event(t) select TESTSELF\n" // test self transition
         + " transition d_event(et)\n"
         + "     if et < 0. then  select ISNEGATIVE\n"
         + "     else select ISPOSITIVE\n"
@@ -747,7 +784,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " entry {\n"
         + "      set eb = !eb\n"
         + " }\n"
-        + " transition t_event() select TESTSELF\n"     // does not execute entry {}
+        + " transition t_event(t) select TESTSELF\n"     // does not execute entry {}
         + " transition b_event(eb) { set eb = true; }\n"
         + " transition select INIT\n"
         + " }\n"
@@ -760,28 +797,28 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " run {\n"
         //        + "     do test.assert(false)\n"
         + "     do y1.activate()\n"
-        + "     do d_event(-1.0)\n"
+        + "     do d_event_source.write(-1.0)\n"
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do d_event(+1.0)\n"
+        + "     do d_event_source.write(+1.0)\n"
         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
         + "          do test.assertMsg( false, y1.getState() )\n" // 15
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do b_event(true)\n"
+        + "     do b_event_source.write(true)\n"
         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISTRUE\") ) then\n"
         + "          do test.assertMsg(false, y1.getState() )\n"
         + "     do test.assertMsg( y1.inState(\"ISTRUE\"), y1.getState() )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do b_event(false)\n"
+        + "     do b_event_source.write(false)\n"
         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISFALSE\") ) then\n"
         + "          do test.assertMsg(false, y1.getState() )\n"
@@ -790,18 +827,18 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         // test self transitions
         + "     set y1.eb = true;\n"
-        + "     do t_event()\n"
+        + "     do t_event_source.write(1)\n"
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
         + "     do test.assert( y1.eb == false )\n"
-        + "     do t_event()\n"
+        + "     do t_event_source.write(1)\n"
         + "     do nothing\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
         + "     do test.assert( y1.eb == false )\n" // no entry
-        + "     do b_event(true)\n"
+        + "     do b_event_source.write(true)\n"
         + "     do nothing\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
         + "     do test.assert( y1.eb == true )\n"
@@ -852,7 +889,6 @@ BOOST_AUTO_TEST_SUITE_END()
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->states());
 
 #if 0
     // Classical way: use parser directly.
@@ -878,37 +914,38 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 #endif
     // Alternative way: test ScriptingAccess as well.
     try {
-        tc->scripting()->loadStateMachines( prog, std::string("state_test.cpp"), true );
+        sa->loadStateMachines( prog, std::string("state_test.cpp"), true );
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
+            BOOST_REQUIRE_MESSAGE( false, exc.what() );
         }
     catch( const parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
+            BOOST_REQUIRE_MESSAGE( false, exc.what() );
         }
     catch( const program_load_exception& e)
         {
-            BOOST_CHECK_MESSAGE( false, e.what() );
+            BOOST_REQUIRE_MESSAGE( false, e.what() );
         }
     catch( const std::exception& e ) {
             BOOST_CHECK_MESSAGE( false , e.what());
-            BOOST_CHECK_MESSAGE( false, "Uncaught Processor load exception" );
+            BOOST_REQUIRE_MESSAGE( false, "Uncaught Processor load exception" );
     }
-    BOOST_CHECK( gtask.start() );
-    StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
-    BOOST_CHECK( sm );
-    Command<bool(void)> act = tc->provides("x")->getMethod<bool(void)>("activate");
-    Command<bool(void)> autom = tc->provides("x")->getMethod<bool(void)>("automatic");
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    Method<bool(StateMachine*)> act = tc->provides("x")->getOperation<bool(StateMachine*)>("activate");
+    Method<bool(StateMachine*)> autom = tc->provides("x")->getOperation<bool(StateMachine*)>("automatic");
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( act()  );
+    //BOOST_CHECK( sm->activate() );
+    BOOST_CHECK( act(sm.get())  );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    BOOST_CHECK( autom() );
+    //BOOST_CHECK( sm->automatic() );
+    BOOST_CHECK( autom(sm.get()) );
 //     while (1)
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
@@ -957,33 +994,33 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 
 void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
 {
-    StateMachinePtr sm = tc->engine()->states()->getStateMachine(prog_name);
-    BOOST_CHECK( sm );
-    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->stop() );
+    StateMachinePtr sm = sa->getStateMachine(prog_name);
+    BOOST_REQUIRE( sm );
+    BOOST_CHECK( sa->getStateMachine( prog_name )->stop() );
     BOOST_CHECK( SimulationThread::Instance()->run(500) );
     if (test) {
         stringstream errormsg;
-        errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
+        errormsg << " on line " << sm->getLineNumber() <<", status is "<< sa->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
         BOOST_CHECK_MESSAGE( sm->isStopped(), "StateMachine stalled " + errormsg.str() );
     }
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
-    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
+    BOOST_CHECK( sa->getStateMachine( prog_name )->deactivate() );
     BOOST_CHECK( SimulationThread::Instance()->run(200) );
-    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
+    BOOST_CHECK( sa->getStateMachine( prog_name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.
     tc->stop();
 
     try {
-        tc->engine()->states()->unloadStateMachine( prog_name );
+        BOOST_CHECK( sa->unloadStateMachine( prog_name ) );
     }
     catch( const program_unload_exception& e)
         {
-            BOOST_CHECK_MESSAGE( false, e.what() );
+            BOOST_REQUIRE_MESSAGE( false, e.what() );
         }
     catch( ... ) {
-            BOOST_CHECK_MESSAGE( false, "Uncaught Processor unload exception" );
+            BOOST_REQUIRE_MESSAGE( false, "Uncaught Processor unload exception" );
     }
 
 }

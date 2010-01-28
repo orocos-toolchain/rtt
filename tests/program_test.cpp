@@ -18,77 +18,91 @@
 
 
 
-#include "program_test.hpp"
-
 #include <iostream>
 #include <sstream>
+#include <string>
+
+#include <scripting/Parser.hpp>
 #include <scripting/FunctionGraph.hpp>
+#include <scripting/ScriptingAccess.hpp>
 #include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Method.hpp>
+#include <extras/SimulationActivity.hpp>
 #include <interface/ServiceProvider.hpp>
 
-
-using namespace std;
+#include <TaskContext.hpp>
+#include <Method.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-ProgramTest::ProgramTest()
-	: gtc("root"),
-	  gtask( 0.01, gtc.engine() )
+using namespace RTT;
+using namespace RTT::detail;
+using namespace std;
+
+
+
+class ProgramTest
 {
-	setUp();
-}
+public:
+    Parser parser;
+    TaskContext gtc;
+    ScriptingAccess* sa;
+    ServiceProvider* createObject( ServiceProvider*);
+    Attribute<int> var_i;
+    Constant<int>* const_i;
 
+    bool assertBool( bool b) { return b; }
+    bool assertMsg( bool b, const std::string& msg) {
+        if ( b == false )
+            cout << "Asserted :" << msg << endl;
+        return true; // allow to continue to check other commands.
+    }
+    int increase() { return ++i;}
+    void resetI() { i = 0; }
 
-void
-ProgramTest::setUp()
-{
-    Attribute<int> init_var("tvar_i");
-    var_i = &init_var;
-    const_i = new Constant<int>("tconst_i",-1);
-    // ltc has a test object
-    gtc.addService( this->createObject(new ServiceProvider("test"), gtc.engine()) );
+    void doProgram( const std::string& prog, TaskContext*, bool test=true );
+    void finishProgram( TaskContext* , std::string );
+    void loopProgram( ProgramInterfacePtr );
 
-    // also this functions
-    this->createObject( &gtc, gtc.engine());
+    bool true_genCom() { return true; }
+    bool false_genCom() { return false; }
+    bool true_gen() const { return true; }
+    bool false_gen() const { return false; }
 
-    gtc.addAttribute( &var_i );
-    gtc.addConstant( const_i );
-    var_i.set(-1);
-    i = 0;
-    SimulationThread::Instance()->stop();
-}
+    bool bool_gen( bool b ) const { return b; }
+    int getI() const { return i; }
 
+    int i;
 
-void
-ProgramTest::tearDown()
-{
-    delete const_i;
-    gtask.stop();
-}
+    ProgramTest()
+    : gtc("root"),
+      sa( new ScriptingAccess(&gtc) )
+    {
+        gtc.setActivity(new SimulationActivity(0.01));
+        Attribute<int> init_var("tvar_i");
+        var_i = &init_var;
+        const_i = new Constant<int>("tconst_i",-1);
+        // ltc has a test object
+        gtc.addService( this->createObject(new ServiceProvider("test") ) );
 
+        // also this functions
+        this->createObject( &gtc );
 
-bool ProgramTest::assertBool( bool b) {
-    return b;
-}
-bool ProgramTest::assertMsg( bool b, const std::string& msg) {
-    if ( b == false )
-        cout << "Asserted :" << b << " with :" << msg << endl;
-    return b;
-}
+        gtc.addAttribute( &var_i );
+        gtc.addConstant( const_i );
+        var_i.set(-1);
+        i = 0;
+        SimulationThread::Instance()->stop();
+    }
 
-int ProgramTest::increase() {
-    return ++i;
-}
+    ~ProgramTest()
+    {
+        delete const_i;
+    }
 
-void ProgramTest::resetI() {
-    i = 0;
-}
+};
 
-
-ServiceProvider* ProgramTest::createObject(ServiceProvider* dat, CommandProcessor* cp)
+ServiceProvider* ProgramTest::createObject(ServiceProvider* dat)
 {
     // Add the data of the EE:
     dat->addOperation("assert", &ProgramTest::assertBool, this).doc("Assert").arg("bool", "");
@@ -98,16 +112,13 @@ ServiceProvider* ProgramTest::createObject(ServiceProvider* dat, CommandProcesso
     dat->addOperation("isTrue", &ProgramTest::assertBool, this).doc("Identity function").arg("bool", "");
     dat->addOperation("i", &ProgramTest::getI, this).doc("Return the current number");
     dat->addOperation("instantDone", &ProgramTest::true_genCom, this).doc("returns immediately");
-addOperation("instantDoneDone", &ProgramTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("instantDoneDone", &ProgramTest::true_gen, this).doc("Returns true when instantDone is done.");
     dat->addOperation("neverDone", &ProgramTest::true_genCom, this).doc("returns never");
-addOperation("neverDoneDone", &ProgramTest::false_gen, this).doc("Returns true when neverDone is done.");
-    dat->addCommand( command( "instantNotDone", &ProgramTest::true_genCom,
-                                         &ProgramTest::true_gen, this, cp, false),
-                                         "returns never" );
+    dat->addOperation("neverDoneDone", &ProgramTest::false_gen, this).doc("Returns true when neverDone is done.");
     dat->addOperation("instantFail", &ProgramTest::false_genCom, this).doc("fails immediately");
-addOperation("instantFailDone", &ProgramTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("instantFailDone", &ProgramTest::true_gen, this).doc("Returns true when instantFail is done.");
     dat->addOperation("totalFail", &ProgramTest::false_genCom, this).doc("fails in command and condition");
-addOperation("totalFailDone", &ProgramTest::false_gen, this).doc("Returns true when totalFail is done.");
+    dat->addOperation("totalFailDone", &ProgramTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -143,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testParseProgram)
     // a program which should never fail
     // test this methods, commands etc.
     string prog = string("program x { do test.instantDone() \n")
-        + " \n " + "and\n" + " test.instantDone() and test.instantDone()\n"
+        + " \n " + "&&\n" + " test.instantDone() && test.instantDone()\n"
         + " do test.assert( test.isTrue( true ) )\n"
         + " do test.assert( test.i == 0 )\n"
         + " do test.increase()\n"
@@ -154,7 +165,7 @@ BOOST_AUTO_TEST_CASE(testParseProgram)
         + "    do test.assert( false )\n"
         + " do assert( isTrue( true ) )\n"
         + " do instantDone() \n"
-        + " and instantDone() and instantDone()\n"
+        + " && instantDone() && instantDone()\n"
         + " do resetI()\n"
         + " do assert( i == 0 )\n"
         + " if increase() + increase() + increase() != 6  then \n "
@@ -171,13 +182,11 @@ BOOST_AUTO_TEST_CASE(testParseProgram)
 BOOST_AUTO_TEST_CASE(testProgramFailure)
 {
     //also small test for program without newlines
-    string prog = string("program x { do test.instantFail() until { ")
-        + " if true then continue }"
-        + "}";
+    string prog = string("program x { do test.instantFail();}");
 
     this->doProgram( prog, &gtc, false );
 
-    BOOST_CHECK( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
+    BOOST_CHECK( sa->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishProgram( &gtc, "x");
 }
@@ -273,8 +282,8 @@ BOOST_AUTO_TEST_CASE(testProgramAnd)
 {
     // see if checking a remote condition works
     string prog = string("program x { do test.instantDone()\n")
-        + "and test.instantDone() \n"
-        + "and test.instantDone() \n"
+        + " && test.instantDone() \n"
+        + " && test.instantDone() \n"
         + " }";
     this->doProgram( prog, &gtc );
     this->finishProgram( &gtc, "x");
@@ -285,27 +294,24 @@ BOOST_AUTO_TEST_CASE(testProgramTry)
     // see if checking a remote condition works
     string prog = string("program progtry { try test.instantFail()\n")
         + "try instantDone() \n"
-        + "and test.instantFail() \n"
-        + "and test.instantDone() \n"
+        + " && test.instantFail() \n"
+        + " && test.instantDone() \n"
         + "try test.instantDone() \n"
-        + "and test.instantFail() \n"
-        + "and totalFail() until { \n"
-        + "  if true then continue }\n"
+        + " && test.instantFail() \n"
+        + " && totalFail()\n"
         + "try test.instantDone() \n"
-        + "and test.instantFail() \n"
-        + "and test.instantFail() catch { \n"
+        + " && test.instantFail() \n"
+        + " && test.instantFail() catch { \n"
         + "  try test.instantDone() \n"
-        + "  and test.instantDone() \n"
-        + "  and test.instantDone() catch {\n"
+        + "   && test.instantDone() \n"
+        + "   && test.instantDone() catch {\n"
         + "      do instantFail()\n"
         + "  }\n"
         + "}\n"
         + "do test.resetI() \n"
         + "try test.instantDone() \n"
-        + "and test.instantFail() \n"
-        + "and test.instantDone() until {\n"
-        + "  if done then continue\n"
-        + " } catch { \n"
+        + " && test.instantFail() \n"
+        + " && test.instantDone() catch { \n"
         + "  do test.increase()\n"
         + "}\n"
         + "if test.i == 0 then\n" // check if catch was reached
@@ -317,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testProgramTry)
 
 BOOST_AUTO_TEST_CASE(testProgramTask)
 {
-    // see if checking a remote condition works
+    // see if modifying an attribute works.
     string prog = string("export function foo {\n")
         + "  do assert( tvar_i == +2 ) \n"
         + "  do assert( tvar_i != tconst_i ) \n"
@@ -336,47 +342,11 @@ BOOST_AUTO_TEST_CASE(testProgramTask)
     this->finishProgram( &gtc, "x");
 }
 
-BOOST_AUTO_TEST_CASE(testProgramUntil)
-{
-    // see if checking a remote condition works
-    string prog = string("program proguntil {\n")
-        +" do test.resetI()\n"
-        +" do test.neverDone()\n"
-        + "until { \n"
-        + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
-        + "} \n"
-        + "do neverDone()\n"
-        + "until { \n"
-        + " if done then continue \n"
-        + " if test.increase() == 10 then continue \n" // we continue after 10 checks
-        + "} \n"
-        + " }";
-    this->doProgram( prog, &gtc );
-    this->finishProgram( &gtc, "proguntil");
-}
-
-BOOST_AUTO_TEST_CASE(testProgramUntilFail)
-{
-    // see if checking a remote condition works
-    string prog = string("program x { do test.instantFail()\n")
-        + "until { \n"
-        + " if done then continue \n" //  program should go into error
-        + "} \n"
-        + " }";
-    this->doProgram( prog, &gtc, false );
-
-    BOOST_CHECK( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
-
-    this->finishProgram( &gtc, "x");
-}
-
-
 BOOST_AUTO_TEST_SUITE_END()
 
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->programs());
 
     Parser::ParsedPrograms pg_list;
     try {
@@ -384,16 +354,15 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
+            BOOST_REQUIRE_MESSAGE( false, exc.what() );
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE_MESSAGE( false, "No program could be found by the parser." );
         }
     ProgramInterfacePtr pi = *pg_list.begin();
 
-    tc->engine()->programs()->loadProgram( pi );
-    BOOST_CHECK( gtask.start() );
+    sa->loadProgram( pi );
     BOOST_CHECK( pi->start() );
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
@@ -427,8 +396,8 @@ void ProgramTest::loopProgram( ProgramInterfacePtr f)
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
-    BOOST_CHECK( gtask.stop() );
-    BOOST_CHECK( tc->engine()->programs()->getProgram( prog_name )->stop() );
-    tc->engine()->programs()->unloadProgram( prog_name );
+    BOOST_REQUIRE( sa->getProgram(prog_name) );
+    BOOST_CHECK( sa->getProgram( prog_name )->stop() );
+    BOOST_CHECK( sa->unloadProgram( prog_name ) );
 
 }

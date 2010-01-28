@@ -47,6 +47,7 @@
 #include "StateMachine.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "../interface/ServiceProvider.hpp"
+#include "ProgramExceptions.hpp"
 
 namespace RTT
 { namespace scripting {

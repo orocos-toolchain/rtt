@@ -238,15 +238,6 @@ namespace RTT {
 
     bool ScriptingAccess::recursiveCheckUnloadStateMachine(StateMachinePtr si)
     {
-        // check this state
-        if ( si->isActive() ) {
-            string error(
-                              "Could not unload StateMachine \"" + si->getName() +
-                              "\" with the processor. It is still active, status is "+
-                    this->getStateMachineStatusStr( si->getName() ) );
-            ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
-        }
-
         // check children
         vector<StateMachinePtr>::const_iterator it2;
         for (it2 = si->getChildren().begin();
@@ -254,7 +245,7 @@ namespace RTT {
              ++it2)
         {
             StateMapIt it = states.find( (*it2)->getName() );
-            if ( it != states.end() ) {
+            if ( it == states.end() ) {
                 string error(
                                   "Could not unload StateMachine \"" + si->getName() +
                                   "\" with the processor. It contains not loaded child "+ (*it2)->getName() );

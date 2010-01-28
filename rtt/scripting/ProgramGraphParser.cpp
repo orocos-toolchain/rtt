@@ -38,6 +38,7 @@
 
 #include "ConditionComposite.hpp"
 #include "ConditionFalse.hpp"
+#include "ConditionOnce.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 
@@ -190,7 +191,11 @@ namespace RTT
 
     valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    dostatement = str_p("do") >> expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ];
+    dostatement = !str_p("do") >>
+            (
+              (( str_p("yield") | "nothing")>>eps_p(~commonparser.identchar | eol_p | end_p))[bind(&ProgramGraphParser::seenyield,this)]
+            | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
+            );
 
     // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
@@ -689,9 +694,9 @@ namespace RTT
   {
       // a try expression/method call.
       ActionInterface*   command;
-      DataSourceBase* expr  = expressionparser.getResult().get();
+      DataSourceBase::shared_ptr expr  = expressionparser.getResult().get();
       expressionparser.dropResult();
-      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr);
+      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr.get());
       if (bexpr == 0) {
           // if not returning a bool, the try is useless.
           command = new CommandDataSource( expr );
@@ -716,9 +721,9 @@ namespace RTT
   void ProgramGraphParser::seenstatement()
   {
       // an expression/method call (former do).
-      DataSourceBase* expr  = expressionparser.getResult().get();
+      DataSourceBase::shared_ptr expr  = expressionparser.getResult().get();
       expressionparser.dropResult();
-      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr);
+      DataSource<bool>* bexpr = dynamic_cast<DataSource<bool>*>(expr.get());
       if (bexpr)
           program_builder->setCommand( new CommandDataSourceBool( bexpr ) );
       else
@@ -727,6 +732,13 @@ namespace RTT
           program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
       else
           program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
+  }
+
+  void ProgramGraphParser::seenyield()
+  {
+      // a yield branch
+      program_builder->setCommand( new CommandNOP );
+      program_builder->proceedToNext( new ConditionOnce(false), mpositer.get_position().line - ln_offset );
   }
 
   void ProgramGraphParser::seenvaluechange()

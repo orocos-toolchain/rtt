@@ -84,7 +84,7 @@ namespace RTT {
         {
             // copy the submachines....
             assert( dynamic_cast<ParsedStateMachine*>( i->get() ) == static_cast<ParsedStateMachine*>( i->get() ));
-            ParsedStateMachine* oldmachine = static_cast<ParsedStateMachine*>( i->get() );
+            ParsedStateMachinePtr oldmachine = boost::dynamic_pointer_cast<ParsedStateMachine>( *i );
             ParsedStateMachinePtr newmachine(oldmachine->copy( replacements, instantiate ));
             // I would think that providing 'instantiate' would not hurt...
             // XXX? previously, the instantiate flag was not given to copy, does it now break apps ?
@@ -293,10 +293,6 @@ namespace RTT {
     }
     void ParsedStateMachine::setServiceProvider(StateMachineTask* tc) {
         object = tc;
-        if (tc) {
-            this->eproc = tc->engine();
-            assert(this->eproc);
-        }
     }
 
     bool ParsedStateMachine::inState( const std::string& name ) {

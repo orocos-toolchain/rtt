@@ -276,10 +276,10 @@ namespace RTT
     // TODO: implement the ifthenelse operator ?
     ifthenelseexp = andexp;
     andexp =
-      orexp >> *( ( str_p( "&&" ) | "and" ) >> orexp[
+      orexp >> *( ( str_p( "&&" ) ) >> orexp[
                     bind( &ExpressionParser::seen_binary, this, "&&" ) ] );
     orexp =
-      notequalexp >> *( ( str_p( "||" ) | "or" ) >> notequalexp[
+      notequalexp >> *( ( str_p( "||" ) ) >> notequalexp[
                         bind( &ExpressionParser::seen_binary, this, "||" ) ] );
     notequalexp =
       equalexp >> *( "!=" >> equalexp[
@@ -327,7 +327,7 @@ namespace RTT
           bind( &ExpressionParser::seen_unary, this, "-" ) ]
       | unarynotexp;
     unarynotexp =
-        ( str_p( "not" ) | '!' ) >> atomicexpression[
+        ch_p('!') >> atomicexpression[
             bind( &ExpressionParser::seen_unary, this, "!" ) ]
         | atomicexpression;
 

@@ -8,8 +8,10 @@
 #include <vector>
 #include <boost/mpl/front.hpp>
 #include <boost/mpl/pop_front.hpp>
+#include <boost/mpl/print.hpp>
 // The fusion <--> MPL link header
 #include <boost/fusion/mpl.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include "DataSource.hpp"
 #include "DataSourceAdaptor.hpp"
@@ -20,6 +22,39 @@ namespace RTT
     {
         namespace bf = boost::fusion;
         namespace mpl = boost::mpl;
+
+
+        template <class T> struct incomplete;
+
+        /**
+         * This function should have been in boost::type_traits itself (C++0x?).
+         */
+        template <typename T>
+        struct is_shared_ptr
+        {
+          enum {
+              value=mpl::or_<
+                      boost::is_convertible<T,::boost::shared_ptr<void> >,
+                      boost::is_convertible<T,::boost::shared_ptr<const void> > >::value
+          };
+          typedef typename mpl::or_<
+                      typename boost::is_convertible< T,::boost::shared_ptr<void> >,
+                      typename boost::is_convertible< T,::boost::shared_ptr<const void> > > type;
+        };
+
+        /***
+         * Helper class for extracting the bare pointer from a shared_ptr
+         * data source. Used in create_sequence::data() to unwrap the shared_ptr;
+         */
+        template<class Seq, class Data, class Enable = void >
+        struct GetPointerWrap {
+            Data operator()(Seq s) { return Data(bf::front(s)->get()); /* front(s) is a DataSource<Data> */}
+        }; // normal type
+
+        template<class Seq, class Data>
+        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
+            Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
+        }; // shared_ptr type
 
         template<class List, int size>
         struct create_sequence_impl;
@@ -44,6 +79,10 @@ namespace RTT
          * This is a typical head-tail recursive implementation
          * where operator() calls itself, but in another type
          * specialisation.
+         *
+         * @note When the first list element is an object pointer T*, it will be wrapped in a
+         * boost::shared_ptr<T> in order to support the operationDS semantics. The shared_ptr
+         * will be unwrapped from T when calling data().
          */
         template<class List>
         struct create_sequence: public create_sequence_impl<List, mpl::size<
@@ -59,7 +98,13 @@ namespace RTT
              */
             typedef create_sequence<typename mpl::pop_front<List>::type> tail;
 
-            typedef typename mpl::front<List>::type arg_type;
+            typedef typename mpl::front<List>::type bare_type;
+
+            /**
+             * As documented, if the first element of List is a pointer, wrap it
+             * in a boost::shared_ptr.
+             */
+            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
 
             typedef typename tail::data_type arg_tail_type;
 
@@ -82,7 +127,7 @@ namespace RTT
             /**
              * The joint T data type of head and tail.
              */
-            typedef bf::cons<arg_type, arg_tail_type> data_type;
+            typedef bf::cons<bare_type, arg_tail_type> data_type;
 
             /**
              * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence
@@ -115,7 +160,7 @@ namespace RTT
              * @return A sequence of type T holding the values of the DataSource<T>.
              */
             static data_type data(const type& seq) {
-                return data_type( bf::front(seq)->get(), tail::data( bf::pop_front(seq) ) );
+                return data_type( GetPointerWrap<type,bare_type>()(seq), tail::data( bf::pop_front(seq) ) );
             }
 
             /**
@@ -169,8 +214,10 @@ namespace RTT
         template<class List>
         struct create_sequence_impl<List, 1> // mpl list of one
         {
-            typedef typename mpl::front<List>::type arg_type;
-            typedef bf::cons<arg_type> data_type;
+            typedef typename mpl::front<List>::type bare_type;
+            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
+
+            typedef bf::cons<bare_type> data_type;
 
             // the result sequence type is a cons of the last argument in the vector.
             typedef bf::cons<typename DataSource<arg_type>::shared_ptr> type;
@@ -195,7 +242,7 @@ namespace RTT
              * @return A sequence of type T holding the values of the DataSource<T>.
              */
             static data_type data(const type& seq) {
-                return data_type( bf::front(seq)->get() );
+                return data_type( GetPointerWrap<type,bare_type>()(seq) );
             }
 
             /**

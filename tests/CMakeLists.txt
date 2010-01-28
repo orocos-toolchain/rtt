@@ -91,13 +91,13 @@ IF (BUILD_TESTING)
     #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     #ADD_TEST( event-test ${RUNTIME_OUTPUT_DIRECTORY}/event-test )
 
-    ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
-    TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
+    #ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
+    #TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    #SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
+    #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+    #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+    #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    #ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
 
     ADD_EXECUTABLE( parser-test test-runner.cpp types_test.cpp ) # dispatch_test.cpp
     TARGET_LINK_LIBRARIES( parser-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
@@ -107,21 +107,21 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( parser-test ${RUNTIME_OUTPUT_DIRECTORY}/parser-test )
 
-    #ADD_EXECUTABLE( program-test test-runner.cpp program_test.cpp function_test.cpp )
-    #TARGET_LINK_LIBRARIES( program-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    #SET_TARGET_PROPERTIES( program-test PROPERTIES
-    #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    #ADD_TEST( program-test ${RUNTIME_OUTPUT_DIRECTORY}/program-test )
+    ADD_EXECUTABLE( program-test test-runner.cpp program_test.cpp function_test.cpp )
+    TARGET_LINK_LIBRARIES( program-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    SET_TARGET_PROPERTIES( program-test PROPERTIES
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    ADD_TEST( program-test ${RUNTIME_OUTPUT_DIRECTORY}/program-test )
 
-    #ADD_EXECUTABLE( state-test test-runner.cpp state_test.cpp )
-    #TARGET_LINK_LIBRARIES( state-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    #SET_TARGET_PROPERTIES( state-test PROPERTIES
-    #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    #ADD_TEST( state-test ${RUNTIME_OUTPUT_DIRECTORY}/state-test )
+    ADD_EXECUTABLE( state-test test-runner.cpp state_test.cpp )
+    TARGET_LINK_LIBRARIES( state-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    SET_TARGET_PROPERTIES( state-test PROPERTIES
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
+    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    ADD_TEST( state-test ${RUNTIME_OUTPUT_DIRECTORY}/state-test )
 
     ADD_EXECUTABLE( dev-test test-runner.cpp dev_test.cpp )
     TARGET_LINK_LIBRARIES( dev-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})

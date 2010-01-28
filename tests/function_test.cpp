@@ -17,87 +17,107 @@
  ***************************************************************************/
 
 
-
-#include "function_test.hpp"
-
 #include <iostream>
 #include <sstream>
+#include <string>
+
+#include <scripting/Parser.hpp>
 #include <scripting/FunctionGraph.hpp>
+#include <scripting/ScriptingAccess.hpp>
 #include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Method.hpp>
+#include <extras/SimulationActivity.hpp>
 #include <interface/ServiceProvider.hpp>
 
-using namespace std;
+#include <TaskContext.hpp>
+#include <Method.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-    FunctionTest::FunctionTest()
-        : gtc("root" ),
-          gtask( 0.01, gtc.engine() )
+using namespace RTT;
+using namespace RTT::detail;
+using namespace std;
+
+
+
+class FunctionTest
+{
+public:
+    Parser parser;
+    TaskContext gtc;
+    ScriptingAccess* sa;
+    ServiceProvider* createObject( ServiceProvider*);
+    Attribute<int> var_i;
+    Constant<int>* const_i;
+
+    bool assertBool( bool b) { return b; }
+    bool assertMsg( bool b, const std::string& msg) {
+        if ( b == false )
+            cout << "Asserted :" << msg << endl;
+        return true; // allow to continue to check other commands.
+    }
+    int increase() { return ++i;}
+    void resetI() { i = 0; }
+
+    void doFunction( const std::string& prog, TaskContext*, bool test=true );
+    void finishFunction( TaskContext* , std::string );
+    void loopProgram( ProgramInterfacePtr );
+
+    bool true_genCom() { return true; }
+    bool false_genCom() { return false; }
+    bool true_gen() const { return true; }
+    bool false_gen() const { return false; }
+
+    bool bool_gen( bool b ) const { return b; }
+    int getI() const { return i; }
+
+    int i;
+
+    FunctionTest()
+    : gtc("root"),
+      sa( new ScriptingAccess(&gtc) )
     {
-    	setUp();
+        gtc.setActivity(new SimulationActivity(0.01));
+        Attribute<int> init_var("tvar_i");
+        var_i = &init_var;
+        const_i = new Constant<int>("tconst_i",-1);
+        // ltc has a test object
+        gtc.addService( this->createObject(new ServiceProvider("test") ) );
+
+        // also this functions
+        this->createObject( &gtc );
+
+        gtc.addAttribute( &var_i );
+        gtc.addConstant( const_i );
+        var_i.set(-1);
+        i = 0;
+        SimulationThread::Instance()->stop();
     }
 
+    ~FunctionTest()
+    {
+        delete const_i;
+    }
 
-void
-FunctionTest::setUp()
+};
+
+ServiceProvider* FunctionTest::createObject(ServiceProvider* dat)
 {
-    SimulationThread::Instance()->stop();
-    // ltc has a test object
-    gtc.addService(this->createObject("test", gtc.engine() ) );
-    gtask.start();
-    i = 0;
-}
-
-
-void
-FunctionTest::tearDown()
-{
-}
-
-
-bool FunctionTest::assertBool( bool b) {
-    return b;
-}
-bool FunctionTest::assertMsg( bool b, const std::string& msg) {
-    if ( b == false )
-        cout << "Asserted :" << b << " with :" << msg << endl;
-    return b;
-}
-
-int FunctionTest::increase() {
-    return ++i;
-}
-
-void FunctionTest::reset() {
-    i = 0;
-}
-
-
-ServiceProvider* FunctionTest::createObject(string a, CommandProcessor* cp)
-{
-    ServiceProvider* dat = new ServiceProvider(a);
+    // Add the data of the EE:
     dat->addOperation("assert", &FunctionTest::assertBool, this).doc("Assert").arg("bool", "");
     dat->addOperation("increase", &FunctionTest::increase, this).doc("Return increasing i");
-    dat->addOperation("reset", &FunctionTest::reset, this).doc("Reset i");
+    dat->addOperation("resetI", &FunctionTest::resetI, this).doc("ResetI i");
     dat->addOperation("assertMsg", &FunctionTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
-
     dat->addOperation("isTrue", &FunctionTest::assertBool, this).doc("Identity function").arg("bool", "");
     dat->addOperation("i", &FunctionTest::getI, this).doc("Return the current number");
-
     dat->addOperation("instantDone", &FunctionTest::true_genCom, this).doc("returns immediately");
-addOperation("instantDoneDone", &FunctionTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("instantDoneDone", &FunctionTest::true_gen, this).doc("Returns true when instantDone is done.");
     dat->addOperation("neverDone", &FunctionTest::true_genCom, this).doc("returns never");
-addOperation("neverDoneDone", &FunctionTest::false_gen, this).doc("Returns true when neverDone is done.");
-    dat->addCommand( command( "instantNotDone", &FunctionTest::true_genCom,
-                                         &FunctionTest::true_gen, this, cp, false),
-                                         "returns never");
+    dat->addOperation("neverDoneDone", &FunctionTest::false_gen, this).doc("Returns true when neverDone is done.");
     dat->addOperation("instantFail", &FunctionTest::false_genCom, this).doc("fails immediately");
-addOperation("instantFailDone", &FunctionTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("instantFailDone", &FunctionTest::true_gen, this).doc("Returns true when instantFail is done.");
     dat->addOperation("totalFail", &FunctionTest::false_genCom, this).doc("fails in command and condition");
-addOperation("totalFailDone", &FunctionTest::false_gen, this).doc("Returns true when totalFail is done.");
+    dat->addOperation("totalFailDone", &FunctionTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 
@@ -133,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "}";
 
     this->doFunction( prog, &gtc );
-    BOOST_CHECK( gtc.getMethod<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getOperation<bool(void)>("foo") );
     this->finishFunction( &gtc, "x");
 }
 
@@ -148,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testRemoveFunction)
         + "}";
 
     this->doFunction( prog, &gtc, false );
-    BOOST_CHECK( gtc.getMethod<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getOperation<bool(void)>("foo") );
     // removing the program should lead to removal of the function from the PP.
     this->finishFunction( &gtc, "x");
 }
@@ -319,7 +339,6 @@ BOOST_AUTO_TEST_SUITE_END()
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_REQUIRE( tc->engine() );
-    BOOST_REQUIRE( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
@@ -332,25 +351,25 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
         {
             BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
         }
-    ProgramProcessor* pp = tc->engine()->programs();
-    BOOST_REQUIRE( pp->loadProgram( *pg_list.begin() ) );
-    BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
+
+    BOOST_REQUIRE( sa->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( sa->getProgram( (*pg_list.begin())->getName() )->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
+        errormsg << " on line " << sa->getProgram("x")->getLineNumber() <<"."<<endl;
+        BOOST_CHECK_MESSAGE( sa->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
+        BOOST_CHECK_MESSAGE( sa->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
-    tc->stop();
 }
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
 {
-    tc->engine()->programs()->getProgram( prog_name )->stop();
-    tc->engine()->programs()->unloadProgram( prog_name );
+    BOOST_REQUIRE( sa->getProgram(prog_name) );
+    sa->getProgram( prog_name )->stop();
+    sa->unloadProgram( prog_name );
 }
 
 

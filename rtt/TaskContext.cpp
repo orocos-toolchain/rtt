@@ -119,7 +119,8 @@ namespace RTT
         updated_ports.reserve(0);
 
         // activity runs from the start.
-        our_act->start();
+        if (our_act)
+            our_act->start();
     }
 
         TaskContext::~TaskContext()

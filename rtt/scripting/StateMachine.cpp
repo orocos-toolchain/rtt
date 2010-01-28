@@ -57,16 +57,7 @@ namespace RTT {
     std::string StateMachine::emptyString;
 
     StateMachine::StateMachine(StateMachinePtr parent, const string& name )
-        : smpStatus(nill), _parent (parent) , _name(name), eproc(0), smStatus(Status::unloaded), smp(0),
-          initstate(0), finistate(0), current( 0 ), next(0), initc(0),
-          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), mstep(false), evaluating(0)
-    {
-        this->addState(0); // allows global state transitions
-    }
-
-    StateMachine::StateMachine(StateMachinePtr parent, ExecutionEngine* tc, const string& name )
-        : smpStatus(nill), _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
+        : smpStatus(nill), _parent (parent) , _name(name), smStatus(Status::unloaded),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), mstep(false), evaluating(0)
@@ -81,6 +72,10 @@ namespace RTT {
        }
         delete initc;
     }
+
+   void StateMachine::loading() {
+       smStatus = Status::inactive;
+   }
 
    void StateMachine::unloading() {
            if ( this->isActive() == false)
@@ -675,10 +670,6 @@ namespace RTT {
     {
         Logger::In in("StateMachine::createEventTransition");
         assert(false);
-        if (eproc == 0 ) {
-            Logger::log() << Logger::Error << "Can not receive event '"<< ename <<"' in StateMachine without ExecutionEngine."<<Logger::endl;
-            return false;
-        }
 
         if ( !( es && guard ) ) {
             Logger::log() << Logger::Error << "Invalid arguments for event '"<< ename <<"'. ";

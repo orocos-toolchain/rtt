@@ -112,16 +112,16 @@ namespace RTT {
         // both inside and outside of lexeme_d, we need two versions of
         // it.  Those are provided here: lexeme_identifier and
         // identifier..
-        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keywords;
-        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keywords;
+        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keyword;
+        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keyword;
         // #warning " Rule on stack  ?? "
         //RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords] );
         //BOOST_SPIRIT_DEBUG_RULE( identifier_base );
-        lexeme_identifier = idlr | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        lexeme_identifier = idlr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
         lexeme_notassertingidentifier = idlr;
 
         notassertingidentifier = idr;
-        identifier = idr | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        identifier = idr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
 
         // end of statement is on a newline or a ';'
         //eos = lexeme_d[ *(space_p - eol_p) >> (eol_p | ch_p(';')) ];

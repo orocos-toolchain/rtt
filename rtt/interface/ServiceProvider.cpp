@@ -6,7 +6,7 @@ namespace RTT {
     using namespace detail;
 
     ServiceProvider::ServiceProvider(const std::string& name, TaskContext* owner)
-    : mname(name), mowner(owner)
+    : mname(name), mowner(owner), parent(0)
     {
     }
 
@@ -20,18 +20,30 @@ namespace RTT {
             log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
         }
-        obj->setOwner( mowner );
+        if ( obj->getParent() == 0) {
+            obj->setOwner( mowner );
+            obj->setParent( this );
+        }
         services[obj->getName()] = obj;
         return true;
     }
 
     void ServiceProvider::removeService( string const& name) {
-        // carefully written to avoid destructor to call back on us.
+        delete unmountService(name);
+    }
+
+    ServiceProvider* ServiceProvider::unmountService( string const& name) {
+        // carefully written to avoid destructor to call back on us when called from removeService.
         if ( services.count(name) ) {
             ServiceProvider* sp = services.find(name)->second;
             services.erase(name);
-            delete sp;
+            if (sp->getParent() == this) {
+                sp->setParent( 0 ); // orphan.
+                sp->setOwner( 0 );
+            }
+            return sp;
         }
+        return 0;
     }
 
 
@@ -59,6 +71,12 @@ namespace RTT {
             simpleoperations.erase(simpleoperations.begin() );
         }
         OperationFactory::clear();
+        while ( !services.empty() ) {
+            if ( services.begin()->second->getParent() == this )
+                this->removeService( services.begin()->first );
+            else
+                this->unmountService( services.begin()->first );
+        }
     }
 
     std::vector<std::string> ServiceProvider::getOperations() const
@@ -90,6 +108,10 @@ namespace RTT {
 
         for( Services::iterator it= services.begin(); it != services.end(); ++it)
             it->second->setOwner( new_owner );
-}
+    }
+
+    void ServiceProvider::setParent( ServiceProvider* p) {
+        parent = p;
+    }
 
 }

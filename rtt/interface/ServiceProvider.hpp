@@ -35,7 +35,7 @@ namespace RTT
 
         ServiceProvider(const std::string& name, TaskContext* owner = 0);
 
-        ~ServiceProvider();
+        virtual ~ServiceProvider();
 
         const std::string& getName() const { return mname; }
 
@@ -49,7 +49,17 @@ namespace RTT
 
         void setOwner(TaskContext* new_owner);
 
-        TaskContext* getParent() const { return mowner; }
+        void setParent(ServiceProvider* new_parent);
+        /**
+         * The parent is the direct parent of this service.
+         */
+        ServiceProvider* getParent() const { return parent; }
+
+        /**
+         * The owner is the top-level TaskContext owning this service
+         * (indirectly).
+         */
+        TaskContext* getOwner() const { return mowner; }
 
         /**
          * Add a new Service to this TaskContext.
@@ -61,7 +71,18 @@ namespace RTT
          */
         virtual bool addService( interface::ServiceProvider *obj );
 
+        /**
+         * Remove and destroy a previously added sub-service.
+         * @param the name of the service to remove.
+         */
         virtual void removeService( std::string const& service_name );
+
+        /**
+         * Unmount a sub-service from this service, without destroying it.
+         * @param the name of the service to unmount.
+         * @return The unmounted service object, or null if name was not known.
+         */
+        virtual ServiceProvider* unmountService( string const& name);
 
         interface::ServiceProvider* provides() { return this; }
 
@@ -288,6 +309,7 @@ namespace RTT
         std::string mname;
         std::string mdescription;
         TaskContext* mowner;
+        ServiceProvider* parent;
     };
 }}
 

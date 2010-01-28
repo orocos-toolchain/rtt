@@ -135,6 +135,7 @@ namespace RTT { namespace scripting
 
       void skip_eol();
       void noskip_eol();
+      void seenyield();
       void seenstatement();
       void seentrystatement();
       void startcatchpart();

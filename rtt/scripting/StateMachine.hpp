@@ -101,9 +101,7 @@ namespace RTT
         StateMachineParentPtr _parent;
 
         std::string _name;
-        ExecutionEngine* eproc;
         Status::StateMachineStatus smStatus;
-        StateMachineProcessor* smp;
 
     public:
 
@@ -121,18 +119,6 @@ namespace RTT
          * a StateMachine is always inactive.
          */
         StateMachine(StateMachinePtr parent, const std::string& name="Default");
-
-        /**
-         * Create a new StateMachine in a TaskContext with an optional parent.
-         * Set \a parent to zero for the top state machine. The initial Status of
-         * a StateMachine is always inactive.
-         * @param ep The ExecutionEngine of this StateMachine when transition events are used.
-         */
-        StateMachine(StateMachinePtr parent, ExecutionEngine* ep, const std::string& name="Default");
-
-        void setEngine(ExecutionEngine* smproc) {
-            eproc = smproc;
-        }
 
         /**
          * Request a transition to a given state.
@@ -292,6 +278,8 @@ namespace RTT
          * state transitions.
          */
         bool execute();
+
+        void loading();
 
         void unloading();
 

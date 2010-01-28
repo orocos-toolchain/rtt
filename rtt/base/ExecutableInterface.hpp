@@ -40,6 +40,7 @@ namespace RTT
             void unloaded() { this->unloading(); engine = 0;}
 
         public:
+            ExecutableInterface() : engine(0) {}
             virtual ~ExecutableInterface() {}
 
             /**
