@@ -59,7 +59,6 @@ namespace RTT
     class PropertyBag;
     class ScopedHandle;
     class TaskContext;
-    template<typename T>
     class Alias;
     template<typename T>
     class Attribute;

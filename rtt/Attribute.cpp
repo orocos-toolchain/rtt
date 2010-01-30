@@ -61,5 +61,31 @@ namespace RTT
       return mname;
   }
 
+  void AttributeBase::setName(const std::string& n)
+  {
+      mname = n;
+  }
+
+  Alias::Alias(const std::string& name, DataSourceBase::shared_ptr d )
+      : base::AttributeBase(name),
+        data( d )
+  {
+  }
+
+  base::DataSourceBase::shared_ptr Alias::getDataSource() const
+  {
+      return data;
+  }
+
+  Alias* Alias::clone() const
+  {
+      return new Alias( mname, data.get() );
+  }
+  Alias* Alias::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool )
+  {
+      // instantiate does not apply.
+      return new Alias( mname, data->copy( replacements ) );
+  }
+
 
 }

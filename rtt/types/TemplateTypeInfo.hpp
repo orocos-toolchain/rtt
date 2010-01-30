@@ -233,7 +233,7 @@ namespace RTT
             typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
             if ( ! ds )
                 return 0;
-            return new Alias<T>( name, ds );
+            return new Alias( name, ds );
         }
 
         virtual const std::string& getTypeName() const { return tname; }

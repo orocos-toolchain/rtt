@@ -304,37 +304,23 @@ namespace RTT
     /**
      * This class is the most basic Attribute implementation
      * (only suitable for reading a internal::DataSource), does
-     * not allow any assignment, just stores a internal::DataSource<T>, and
+     * not allow any assignment, just stores a internal::DataSourceBase, and
      * returns it.  This also makes it useful as an alias of
      * temporary expressions like literal values, and rhs
      * expressions.
      */
-    template<typename T>
     class Alias
         : public base::AttributeBase
     {
-        typename internal::DataSource<T>::shared_ptr data;
+        base::DataSourceBase::shared_ptr data;
     public:
-        Alias(const std::string& name, typename internal::DataSource<T>::shared_ptr d )
-            : base::AttributeBase(name),
-              data( d )
-        {
-        }
+        Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
 
-        base::DataSourceBase::shared_ptr getDataSource() const
-        {
-            return data;
-        }
+        base::DataSourceBase::shared_ptr getDataSource() const;
 
-        Alias<T>* clone() const
-        {
-            return new Alias<T>( mname, data.get() );
-        }
-        Alias<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool )
-        {
-            // instantiate does not apply.
-            return new Alias<T>( mname, data->copy( replacements ) );
-        }
+        Alias* clone() const;
+
+        Alias* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool );
     };
 }
 #endif

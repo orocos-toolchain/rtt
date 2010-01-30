@@ -200,7 +200,7 @@ namespace RTT
          */
         template<class T>
         bool addDataObject( base::DataObjectInterface<T>* doi) {
-            return this->setValue( new Alias<T>(doi, doi->getName() ));
+            return this->setValue( new Alias(doi->getName(), doi ));
         }
 
         /**
