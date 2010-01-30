@@ -45,6 +45,7 @@
 #endif
 
 #include <string>
+#include "../rtt-fwd.hpp"
 #include "../base/ProgramInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 
@@ -81,8 +82,9 @@ namespace RTT
     {
     public:
 
-        virtual ~StateInterface()
-        {}
+        virtual ~StateInterface();
+
+        virtual void loaded(ExecutionEngine* ee);
 
         /**
          * @brief Get the name of this state.

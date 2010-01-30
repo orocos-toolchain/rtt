@@ -75,6 +75,9 @@ namespace RTT {
 
    void StateMachine::loading() {
        smStatus = Status::inactive;
+       // inform all scripts:
+       for(TransitionMap::iterator it=stateMap.begin(); it != stateMap.end(); ++it)
+           if (it->first) it->first->loaded( this->getEngine() );
    }
 
    void StateMachine::unloading() {
