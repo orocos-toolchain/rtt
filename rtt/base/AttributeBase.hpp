@@ -76,6 +76,13 @@ namespace RTT
         const std::string& getName() const;
 
         /**
+         * Get the name of this instance.
+         *
+         * @return the name
+         */
+        void setName(std::string const& new_name);
+
+        /**
          * Returns true if the Attribute was correctly
          * initialised.
          */
