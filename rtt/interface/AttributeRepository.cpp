@@ -95,6 +95,9 @@ namespace RTT {
         bag->add( pb );
         return true;
     }
+    void AttributeRepository::removeAttribute( const std::string& name ) {
+        removeValue(name);
+    }
 
   bool AttributeRepository::removeValue( const std::string& name )
   {
