@@ -133,7 +133,7 @@ namespace RTT {
         // if you go from reactive to automatic,
         // first execute the run program, before
         // evaluating transitions.
-        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error) {
             smStatus = Status::running;
             runState( current );
             return true;
@@ -143,7 +143,7 @@ namespace RTT {
 
     bool StateMachine::reactive()
     {
-        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error ) {
             smStatus = Status::active;
             return true;
         }
@@ -1023,11 +1023,13 @@ namespace RTT {
         enableGlobalEvents();
 
         // execute the entry program of the initial state.
-        if ( this->executePending() ) {
-            smStatus = Status::active;
-        }
-        else
-            smStatus = Status::activating;
+        if ( !inError() )
+            if ( this->executePending() )
+                smStatus = Status::active;
+            else {
+                if ( !inError() )
+                    smStatus = Status::activating;
+            }
 
         return true;
     }
@@ -1035,7 +1037,8 @@ namespace RTT {
 
     bool StateMachine::deactivate()
     {
-        if ( current == 0 ) {
+        // the only time to refuse executing this is when we did set ourselves to inactive before.
+        if ( smStatus == Status::inactive) {
             return false;
         }
 
@@ -1049,7 +1052,7 @@ namespace RTT {
         else {
             // if we stalled, in previous deactivate
             // even skip/stop exit program.
-            if ( next != 0 )
+            if ( next != 0 && current )
                 leaveState( current );
             else
                 currentExit = 0;
