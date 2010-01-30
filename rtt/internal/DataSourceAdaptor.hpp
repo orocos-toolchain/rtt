@@ -60,7 +60,7 @@ namespace RTT
      *
      * @verbatim
      *           (1)       (2)        (3)              (4)
-     * scripting::Parser:  value    constref   constref          value
+     * Parser:  value    constref   constref          value
      *            \/        \/   (copy to stack)   (copy to heap)
      *-----------------------------------------------------------
      * User  :  value    constref    value           constref
@@ -357,24 +357,24 @@ namespace RTT
      * to DataSource<[const] T [&]> which will return the result of the AssignableDataSource<T>::set()
      * method in its get() (thus a reference to a heaped value).
      *
-     * This class always makes a copy of the data during get() or value(). Use updated() if you
-     * modified this copy (for example because this class returns a reference to it).
+     * Previous versions of this class worked on a cached value, in order to let remote (CORBA) assignable
+     * data sources to know when From& set(void) was used, and updated() forwarded that use when the ref was updated.
+     * This caching is however not needed, updated() only needs to be forwarded.
      */
     template<class From, class To>
     struct AssignableDataSourceAdaptor
         : public DataSource<To>
     {
         typename AssignableDataSource<From>::shared_ptr orig_;
-        mutable typename DataSource<To>::value_t mcache;
 
         AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
             : orig_(orig) {}
 
-        virtual typename DataSource<To>::result_t get() const { mcache = orig_->get(); return mcache; }
+        virtual typename DataSource<To>::result_t get() const { return orig_->set(); }
 
-        virtual typename DataSource<To>::result_t value() const { mcache = orig_->value(); return mcache; }
+        virtual typename DataSource<To>::result_t value() const { return orig_->set(); }
 
-        virtual void updated() { orig_->set( mcache ); }
+        virtual void updated() { orig_->updated(); }
 
         virtual void reset() { orig_->reset(); }
 
