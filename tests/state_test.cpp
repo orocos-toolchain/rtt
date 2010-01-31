@@ -96,6 +96,7 @@ public:
         gtc.ports()->addPort( &b_event_source );
         gtc.ports()->addPort( &t_event_source );
 #endif
+        gtc.start();
         i = 0;
         SimulationThread::Instance()->stop();
     }
@@ -517,17 +518,17 @@ BOOST_AUTO_TEST_CASE( testStateTransitionStop )
         + "  if stop() == true then select NEXT\n" // calls stop on the component !
         + " }\n"
         + " }\n"
-        + " state NEXT {\n" // Failure state.
-        + " entry { do test.assert(false); }\n"
+        + " state NEXT {\n" // Success state.
+        + " entry { do test.assert(true); }\n"
         + " }\n"
-        + " final state FINI {\n" // Success state.
+        + " final state FINI {\n" // Failure state.
         + " entry { do test.assert(true); }\n"
         + " }\n"
         + " }\n"
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( sa->getStateMachine( "x" )->inState("NEXT") );
      this->finishState( &gtc, "x");
 }
 
@@ -637,19 +638,28 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         + "     do y1.start()\n"
         + " }\n"
         + " transitions {\n"
+        + "     select TEST\n"
+        + " }\n"
+        + " }\n"
+        + " state TEST {\n"
+        + " entry {\n"
+        + "     do yield\n"
+        + "     do test.assert( y1.inState(\"FINI\") )\n" // if y1 not in FINI, stop here.
+        + " }\n"
+        + " transitions {\n"
         + "     select FINI\n"
         + " }\n"
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do y1.stop()\n"
+        + "     do y1.stop()\n" // prepare y1 to start-over
         + " }\n"
         + " exit {\n"
         + "     set y1.isnegative = -1.0 \n"
         + "     do y1.deactivate()\n"
         + " }\n"
         + " transitions {\n"
-        + "     select INIT\n"
+        + "     select INIT\n" // start-over y1.
         + " }\n"
         + " }\n"
         + " }\n"
@@ -657,7 +667,6 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         ;
 
      this->doState( prog, &gtc );
-     BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -868,22 +877,6 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
      this->finishState( &gtc, "x");
 }
 
-BOOST_AUTO_TEST_CASE( testStateUntil)
-{
-//     this->doState( prog, &gtc );
-//     this->finishState( &gtc, "x");
-}
-
-BOOST_AUTO_TEST_CASE( testStateUntilFail)
-{
-//     this->doState( prog, &gtc, false );
-
-//     BOOST_CHECK( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
-
-//     this->finishState( &gtc, "x");
-}
-
-
 BOOST_AUTO_TEST_SUITE_END()
 
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
@@ -939,13 +932,13 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     //BOOST_CHECK( sm->activate() );
-    BOOST_CHECK( act(sm.get())  );
+    BOOST_CHECK( act(sm.get()) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     //BOOST_CHECK( sm->automatic() );
-    BOOST_CHECK( autom(sm.get()) );
+    BOOST_CHECK( autom(sm.get()) || !test  );
 //     while (1)
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
@@ -1006,6 +999,9 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
     BOOST_CHECK( sa->getStateMachine( prog_name )->deactivate() );
+    BOOST_CHECK( SimulationThread::Instance()->run(200) );
+    if ( sm->isActive() )
+        BOOST_CHECK( sa->getStateMachine( prog_name )->deactivate() );
     BOOST_CHECK( SimulationThread::Instance()->run(200) );
     BOOST_CHECK( sa->getStateMachine( prog_name )->isActive() == false );
 

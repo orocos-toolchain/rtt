@@ -321,6 +321,42 @@ BOOST_AUTO_TEST_CASE(testProgramTry)
     this->finishProgram( &gtc, "progtry");
 }
 
+BOOST_AUTO_TEST_CASE(testProgramToProgram)
+{
+    // test a program which starts/stops another program.
+    string prog = string("program y { do test.instantDone() \n")
+        + " do resetI()\n"
+        + " do assert( i == 0 )\n"
+        + "}";
+
+    string prog2 = string("program x {\n")
+        + " do assert( i == 0 )\n"
+        + " do test.increase()\n"
+        + " do assert( i == 1 )\n"
+        + " do y.start()\n"         // test start-stop
+        + " do yield\n"
+        + " do assert( i == 0 )\n"
+        + " do y.stop()\n"
+        + " do test.increase()\n"
+        + " do y.pause()\n"        // test pause-step
+        + " do assert( y.isPaused() )\n"
+        + " do assert( i == 1 )\n"
+        + " do yield\n"
+        + " do y.step()\n"
+        + " do assert( i == 1 )\n"
+        + " do y.step()\n"
+        + " do assert( i == 0 )\n"
+        + " do y.step()\n"
+        + " do y.step()\n"
+        + " do assert( y.isStopped() )\n"
+        + "}";
+
+    this->doProgram( prog, &gtc );
+    this->doProgram( prog2, &gtc );
+    this->finishProgram( &gtc, "x");
+    this->finishProgram( &gtc, "y");
+}
+
 BOOST_AUTO_TEST_CASE(testProgramCallFoo)
 {
     // see if modifying an attribute works.
