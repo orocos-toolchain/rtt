@@ -20,8 +20,7 @@ namespace RTT
         {
         protected:
             ExecutionEngine* engine;
-            friend class RTT::ExecutionEngine;
-
+        public:
             /**
              * Called by the ExecutionEngine \a ee to tell
              * this object it is being loaded. The engine
@@ -39,7 +38,6 @@ namespace RTT
              */
             void unloaded() { this->unloading(); engine = 0;}
 
-        public:
             ExecutableInterface() : engine(0) {}
             virtual ~ExecutableInterface() {}
 
