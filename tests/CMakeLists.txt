@@ -247,9 +247,10 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
     
     ADD_UNIT_TEST(method_test EXTRA_TESTS ${TEST_LIBRARIES})
+    ADD_UNIT_TEST(functors_test EXTRA_TESTS ${TEST_LIBRARIES})
 
     ADD_CUSTOM_TARGET(check ctest -V
-      DEPENDS main-test core-test task-test taskcontext-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
+      DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)
