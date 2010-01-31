@@ -75,9 +75,25 @@ namespace RTT {
 
    void StateMachine::loading() {
        smStatus = Status::inactive;
-       // inform all scripts:
-       for(TransitionMap::iterator it=stateMap.begin(); it != stateMap.end(); ++it)
-           if (it->first) it->first->loaded( this->getEngine() );
+       for(TransitionMap::iterator it=stateMap.begin(); it != stateMap.end(); ++it) {
+           // inform all entry/exit state scripts:
+           if (it->first)
+               it->first->loaded( this->getEngine() );
+           // inform all transition scripts
+           for(TransList::iterator tlit= it->second.begin(); tlit != it->second.end(); ++tlit ) {
+               if ( get<4>(*tlit) )
+                   get<4>(*tlit)->loaded( this->getEngine() );
+           }
+       }
+       // inform all event transitions.
+       for (EventMap::iterator it= eventMap.begin(); it != eventMap.end(); ++it) {
+           for(EventList::iterator evit= it->second.begin(); evit != it->second.end(); ++evit ) {
+               if (get<5>(*evit))
+                   get<5>(*evit)->loaded(this->getEngine());
+               if (get<8>(*evit))
+                   get<8>(*evit)->loaded(this->getEngine());
+           }
+       }
    }
 
    void StateMachine::unloading() {
