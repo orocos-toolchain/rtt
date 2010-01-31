@@ -65,18 +65,15 @@ namespace RTT { namespace scripting
   class DataCallParser
   {
     base::DataSourceBase::shared_ptr ret;
+    boost::shared_ptr<base::AttributeBase> mhandle;
     std::string mobject;
     std::string mmethod;
     bool mis_send;
 
     rule_t datacall, arguments;
 
-    void seenmethodname( iter_t begin, iter_t end )
-      {
-        std::string name( begin, end );
-        mmethod = name;
-      };
-
+    void seenmethodname( iter_t begin, iter_t end );
+    void seenobjectname( iter_t begin, iter_t end );
     void seendataname();
     void seendatacall();
     void seensend();
@@ -97,6 +94,10 @@ namespace RTT { namespace scripting
       {
         return ret.get();
       };
+    boost::shared_ptr<base::AttributeBase> getParseHandle()
+      {
+        return mhandle;
+      };
   };
 
   /**
@@ -112,7 +113,8 @@ namespace RTT { namespace scripting
       modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
-      time_expression, time_spec, indexexp, comma, open_brace, close_brace;
+      time_expression, time_spec, indexexp, comma, close_brace,
+      value_expression, call_expression;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up
@@ -121,6 +123,11 @@ namespace RTT { namespace scripting
      * in here..
      */
     std::stack<base::DataSourceBase::shared_ptr> parsestack;
+    /**
+     * Contains the last SendHandle encountered, Will also be dropped
+     * by dropResult().
+     */
+    boost::shared_ptr<base::AttributeBase> mhandle;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -155,6 +162,14 @@ namespace RTT { namespace scripting
     rule_t& parser();
 
     base::DataSourceBase::shared_ptr getResult();
+
+    /**
+     * In case the parsed result returns a SendHandle,
+     * ask the parser to also create a handle for it.
+     * @return null pointer if no handle could be made.
+     */
+    boost::shared_ptr<base::AttributeBase> getHandle();
+
     // after an expression is parsed, the resultant base::DataSourceBase will
     // still be on top of the stack, and it should be removed before
     // going back down the parse stack.  This is what this function

@@ -194,6 +194,12 @@ namespace RTT
 
     };
 
+        /**
+         * This is a placeholder for scripting purposes.
+         */
+        struct EmptySendHandle {};
+
+
     bool RealTimeToolkitPlugin::loadTypes()
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
@@ -211,6 +217,7 @@ namespace RTT
         ti->addType( new StdTypeInfo<char>("char") );
         ti->addType( new StdVectorTypeInfo("array") );
         ti->addType( new ConnPolicyTypeInfo("ConnPolicy") );
+        ti->addType( new TemplateTypeInfo<EmptySendHandle>("SendHandle") ); //dummy, replaced by real stuff when seen by parser.
 #endif
 
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),

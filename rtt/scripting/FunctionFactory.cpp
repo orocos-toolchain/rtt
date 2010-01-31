@@ -86,6 +86,7 @@ namespace RTT {
 
         DataSourceBase* FunctionFactory::produce(
                       const std::vector<DataSourceBase::shared_ptr>& args
+                      , ExecutionEngine* caller
                       ) const {
 
             // check if correct number of args :

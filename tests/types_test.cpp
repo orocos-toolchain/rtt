@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "var string str(10) = \"hello\"\n"+
         // 50:
         "do test.assert( str.size == 5)\n"+
-        "do test.assert( str.capacity >= 10)\n"+
+        "do test.assert( str.capacity >= 10)\n"+ // fails: check assignment & constructor stuff.
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
 //         "do test.assert( d == 10.0 )\n" +
-        "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
+        "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
         "do test.assert( a1.size == 2 )\n" +

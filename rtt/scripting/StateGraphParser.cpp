@@ -505,7 +505,7 @@ namespace RTT
             try {
                 assert(peer->provides(evname)); // checked in seeneventname()
                 // combine the implicit 'read(arg) == NewData' with the guard, if any.
-                DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs);
+                DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
                 DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb);
                 assert(read_ds);
                 ConditionInterface* evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );

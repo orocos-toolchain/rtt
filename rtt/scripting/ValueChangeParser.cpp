@@ -368,15 +368,16 @@ namespace RTT
 
         // collect RHS :
         DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        shared_ptr<AttributeBase> handle = expressionparser.getHandle();
         assert( expr );
         expressionparser.dropResult();
+
         //assert( !expressionparser.hasResult() );
 
         if ( index_ds && prop ) {
             //           throw parse_exception_semantic_error(
             //               "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
             ActionInterface* ac;
-#ifndef ORO_EMBEDDED
             try {
                 ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
             }
@@ -390,18 +391,10 @@ namespace RTT
                 throw parse_exception_semantic_error(
                                                      "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
             assigncommands.push_back( ac );
-#else
-            ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
-            if (ac)
-                assigncommands.push_back( ac );
-            else
-                return;
-#endif
         }
 
         if ( index_ds && var ) {
             ActionInterface* ac;
-#ifndef ORO_EMBEDDED
             try {
                 ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
                 assigncommands.push_back( ac );
@@ -415,16 +408,16 @@ namespace RTT
             if ( !ac )
                 throw parse_exception_semantic_error(
                                                      "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
-#else
-            ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
-            if (ac)
-                assigncommands.push_back( ac );
-            else
-                return;
-#endif
         }
         if ( !index_ds && var) {
-#ifndef ORO_EMBEDDED
+            // hack to drop-in a new instance of SendHandle:
+            if (var->getDataSource()->getTypeName() == "SendHandle" && handle) {
+                string name = var->getName();
+                peername->removeAttribute(name);
+                var = handle->clone();
+                var->setName( name ); // fill in the final handle name.
+                peername->setValue( var );
+            }
             try {
                 ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
                 assigncommands.push_back(assigncommand);
@@ -438,16 +431,8 @@ namespace RTT
                     throw parse_exception_semantic_error
                         ( "Attempt to assign variable of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
                 }
-#else
-            ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
-            if (assigncommand)
-                assigncommands.push_back(assigncommand);
-            else
-                return;
-#endif
         }
         if ( !index_ds && prop) {
-#ifndef ORO_EMBEDDED
             try {
                 ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
                 if ( ! assigncommand ) {
@@ -459,13 +444,6 @@ namespace RTT
                 throw parse_exception_semantic_error
                     ( "Attempt to assign property of type "+prop->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
-#else
-            ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
-            if ( assigncommand )
-                assigncommands.push_back(assigncommand);
-            else
-                return;
-#endif
         }
 
         // allow to restart over...

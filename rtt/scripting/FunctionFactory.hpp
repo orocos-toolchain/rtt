@@ -73,10 +73,10 @@ namespace RTT
 
         std::vector< internal::ArgumentDescription > getArgumentList() const;
 
-        base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args
+        base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
                                    ) const;
         base::DataSourceBase* produceHandle() const { return 0; }
-        base::DataSourceBase* produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args
+        base::DataSourceBase* produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
                                    ) const { return 0; }
         base::DataSourceBase* produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
                                    ) const { return 0; }

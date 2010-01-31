@@ -42,6 +42,7 @@
 #include "../TaskContext.hpp"
 #include "PeerParser.hpp"
 #include "../types/Types.hpp"
+#include "SendHandleAlias.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
@@ -88,10 +89,9 @@ namespace RTT
     // details..
     datacall =
         ( peerparser.locator() >>
-          !(commonparser.identifier >> ".") >>   // just consume, peer locator already has object name
-          expect_ident(commonparser.identifier)[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
+          !((commonparser.identifier >> ".")[bind(&DataCallParser::seenobjectname, this, _1, _2)]) >>
+          ( commonparser.keyword | expect_ident(commonparser.identifier))[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ] // may be send, call or method name.
           [ bind( &DataCallParser::seendataname, this ) ]
-          >> !(str_p(".send")[bind(&DataCallParser::seensend,this)] | ".call")
           >> !arguments
           )[ bind( &DataCallParser::seendatacall, this ) ];
   };
@@ -100,13 +100,31 @@ namespace RTT
       mis_send = true;
   }
 
+  void DataCallParser::seenobjectname( iter_t begin, iter_t end )
+    {
+      std::string name( begin, end );
+      mobject = name.substr(0, name.length() - 1);
+    };
+
+  void DataCallParser::seenmethodname( iter_t begin, iter_t end )
+    {
+      std::string name( begin, end );
+      if ( name == "send") {
+          mis_send = true;
+          mmethod = mobject;
+          mobject.clear();
+      } else {
+          mis_send = false;
+          mmethod = name;
+      }
+    };
+
   void DataCallParser::seendataname()
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
       ServiceProvider* ops  = peerparser.taskObject();
       peerparser.reset();
-      mis_send = false;
 
       // Check if it is a constructor
       if ( mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ) ) {
@@ -120,7 +138,7 @@ namespace RTT
               throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
           }
 
-          if ( ops->hasMember(mmethod) == false ) {
+          if ( mmethod != "collect" && mmethod != "collectIfDone" && ops->hasMember(mmethod) == false ) {
               //DumpObject( peer );
               if ( mobject != "this" )
                   throw parse_exception_no_such_method_on_component( "DataCall::"+mobject, mmethod );
@@ -164,17 +182,36 @@ namespace RTT
             throw parse_exception_no_such_constructor( meth, args );
         }
     } else {
-        // plain method:
+        // plain method or collect/collectIfDone
 
         ServiceProvider* ops = peer;
         // we already checked for the existence of this object and method
         // in seendataname()..
+        peerparser.reset();
 
         try {
-            if (!mis_send)
-                ret = ops->produce( meth, args );
-            else
-                ret = ops->produceSend( meth, args);
+            if ( meth == "collect" || meth == "collectIfDone") {
+                if ( ops->hasAttribute(obj) ) {
+                    SendHandleAlias* sha = dynamic_cast<SendHandleAlias*>( peer->getValue(obj) );
+                    if (sha) {
+                        // add SendHandle DS for Collect:
+                        args.insert( args.begin(), sha->getDataSource() );
+                        if (meth == "collect")
+                            ret = sha->getFactory()->produceCollect(args, true);// blocking
+                        else
+                            ret = sha->getFactory()->produceCollect(args, true);// blocking
+                        return;
+                    }
+                }
+                throw parse_exception_fatal_semantic_error( obj + "."+meth +": "+ obj +" is not a valid SendHandle object.");
+            }
+            if (!mis_send) {
+                ret = ops->produce( meth, args, peerparser.peer()->engine() ); // assumes peerparser.reset() has been called.
+                mhandle.reset();
+            } else {
+                ret = ops->produceSend( meth, args, peerparser.peer()->engine() );
+                mhandle.reset( new SendHandleAlias( meth, ops->produceHandle(meth), ops->getPart(meth)) );
+            }
         }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -186,11 +223,6 @@ namespace RTT
                 throw parse_exception_wrong_type_of_argument
                     (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
-#ifndef NDEBUG
-        catch(...) {
-            assert(false);
-        }
-#endif
     }
     assert( ret.get() );
   }
@@ -216,17 +248,13 @@ namespace RTT
 
     error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
-        // retry with a member :
+        //retry with a member :
         //std::cerr << "No DataCall in EP : "<<e.descriptor<<std::endl;
         return error_status<>( error_status<>::fail );
     }
 
-    error_status<> handle_no_member(scanner_t const& scan, parser_error<std::string, iter_t>&e )
-    {
-        // if this rule also fails, throw semantic exception ( member not found )
-        throw parse_exception_semantic_error( e.descriptor );
-        // dough ! not reached :
-        return error_status<>( error_status<>::rethrow );
+    void abort_rule(const string& reason) {
+        throw_(iter_t(), reason);
     }
 
   ExpressionParser::ExpressionParser( TaskContext* pc )
@@ -239,8 +267,6 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );
     BOOST_SPIRIT_DEBUG_RULE( unaryminusexp );
     BOOST_SPIRIT_DEBUG_RULE( unaryplusexp );
-    BOOST_SPIRIT_DEBUG_RULE( multexp );
-    BOOST_SPIRIT_DEBUG_RULE( divexp );
     BOOST_SPIRIT_DEBUG_RULE( modexp );
     BOOST_SPIRIT_DEBUG_RULE( plusexp );
     BOOST_SPIRIT_DEBUG_RULE( minusexp );
@@ -261,6 +287,8 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
     BOOST_SPIRIT_DEBUG_RULE( comma );
     BOOST_SPIRIT_DEBUG_RULE( close_brace );
+    BOOST_SPIRIT_DEBUG_RULE( value_expression );
+    BOOST_SPIRIT_DEBUG_RULE( call_expression );
 
     comma = expect_comma( ch_p(',') );
     close_brace = expect_close( ch_p(')') );
@@ -340,12 +368,16 @@ namespace RTT
         // or a time expression
       | time_expression
         // or a constant or user-defined value..
-      | my_guard( valueparser.parser())[ &handle_no_value ]
-               [ bind( &ExpressionParser::seenvalue, this ) ]
-      | my_guard( datacallparser.parser() )[&handle_no_datacall]
-                            [bind( &ExpressionParser::seendatacall, this ) ]
+      | value_expression
+      | call_expression
         // or an index or dot expression
         ) >> ! dotexp >> !indexexp;
+
+    // if it's value.keyword then pass it on to the call_expression.
+    value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
+                                                        [ bind( &ExpressionParser::seenvalue, this ) ];
+    call_expression  = my_guard( datacallparser.parser() )[&handle_no_datacall]
+                                [bind( &ExpressionParser::seendatacall, this ) ];
     // take index of an atomicexpression
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
@@ -444,6 +476,7 @@ namespace RTT
   {
       DataSourceBase::shared_ptr n( datacallparser.getParseResult() );
       parsestack.push( n );
+      mhandle = datacallparser.getParseHandle();
   }
 
   ExpressionParser::~ExpressionParser()
@@ -463,6 +496,12 @@ namespace RTT
   {
     assert( !parsestack.empty() );
     return parsestack.top();
+  }
+
+  boost::shared_ptr<AttributeBase> ExpressionParser::getHandle()
+  {
+    assert( !parsestack.empty() );
+    return mhandle;
   }
 
   void ExpressionParser::seen_unary( const std::string& op )

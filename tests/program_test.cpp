@@ -321,7 +321,28 @@ BOOST_AUTO_TEST_CASE(testProgramTry)
     this->finishProgram( &gtc, "progtry");
 }
 
-BOOST_AUTO_TEST_CASE(testProgramTask)
+BOOST_AUTO_TEST_CASE(testProgramCallFoo)
+{
+    // see if modifying an attribute works.
+    string prog = string("export function foo {\n")
+        + "  do assert( tvar_i == +2 ) \n"
+        + "  do assert( tvar_i != tconst_i ) \n"
+        + "  set tvar_i = +4\n"
+        + "  do assert( tvar_i == +4 ) \n"
+        + "}\n"
+        + "program x { \n"
+        + "do assert( tvar_i == -1 ) \n"
+        + "do assert( tvar_i == tconst_i ) \n"
+        + "set tvar_i = +2\n"
+        + "do assert( tvar_i == +2 )\n"
+        + "call foo()\n"
+        + "}";
+    this->doProgram( prog, &gtc );
+    BOOST_REQUIRE_EQUAL( 4, gtc.getAttribute<int>("tvar_i")->get() );
+    this->finishProgram( &gtc, "x");
+}
+
+BOOST_AUTO_TEST_CASE(testProgramDoFoo)
 {
     // see if modifying an attribute works.
     string prog = string("export function foo {\n")
@@ -339,6 +360,30 @@ BOOST_AUTO_TEST_CASE(testProgramTask)
         + "}";
     this->doProgram( prog, &gtc );
     BOOST_REQUIRE_EQUAL( 4, gtc.getAttribute<int>("tvar_i")->get() );
+    this->finishProgram( &gtc, "x");
+}
+
+BOOST_AUTO_TEST_CASE(testSend)
+{
+    // see if modifying an attribute works.
+    string prog = string("")
+        + "program x { \n"
+        + "increase.send() \n"
+        //+ "assert( i == 0 )\n"
+        + "yield \n"
+        + "assert( i == +1 )\n"
+        + "var SendHandle sh\n"
+        + "set sh = increase.send()\n"
+        + "var int r = 0\n"
+        + "sh.collect(tvar_i)\n"
+        //+ "assert( r == 2 )\n"
+        + "set sh = increase.send()\n"
+        + "sh.collect(tvar_i)\n"
+        + "assert( tvar_i == 3 )\n" // i is 3 but r isn't.
+        + "}";
+    this->doProgram( prog, &gtc );
+    BOOST_REQUIRE_EQUAL( i, 3 );
+    BOOST_REQUIRE_EQUAL( var_i.get(), 3 );
     this->finishProgram( &gtc, "x");
 }
 

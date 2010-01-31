@@ -95,6 +95,10 @@ namespace RTT
       this->setup2();
   }
 
+  void seennothing() {
+      cout << "Seen nothing !"<< endl;
+  }
+
   void ProgramGraphParser::setup() {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( openbrace );
@@ -193,7 +197,7 @@ namespace RTT
 
     dostatement = !str_p("do") >>
             (
-              (( str_p("yield") | "nothing")>>eps_p(~commonparser.identchar | eol_p | end_p))[bind(&ProgramGraphParser::seenyield,this)]
+              ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
             );
 
@@ -736,6 +740,7 @@ namespace RTT
 
   void ProgramGraphParser::seenyield()
   {
+      cout << "seen yield !" << endl;
       // a yield branch
       program_builder->setCommand( new CommandNOP );
       program_builder->proceedToNext( new ConditionOnce(false), mpositer.get_position().line - ln_offset );

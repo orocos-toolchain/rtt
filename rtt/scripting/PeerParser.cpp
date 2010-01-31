@@ -186,7 +186,7 @@ namespace RTT
             //cout << "PP failed "<<name <<endl;
             // store object name for higher level access.
             // do not consume it though.
-            //cout << std::string(begin, end +10)<<endl;
+            //cout << std::string(begin, end)<<endl;
             mlastobject = name;
             if (mfullpath)
                 mcurobject = 0; //when partial paths are OK, leave curobject pointing to last valid object.
