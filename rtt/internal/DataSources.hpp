@@ -61,7 +61,7 @@ namespace RTT
         : public AssignableDataSource<T>
     {
     protected:
-        typename DataSource<T>::value_t mdata;
+        mutable typename DataSource<T>::value_t mdata;
 
     public:
         /**
@@ -318,6 +318,9 @@ namespace RTT
         /**
          * A special DataSource only to be used for if you understand
          * the copy()/clone() semantics very well.
+         *
+         * UnboundDataSource is required to represent variables ('var') in program scripts.
+         * Otherwise copy/clone done in ParsedStateMachine will not work as expected.
          *
          * It has different copy semantics in comparison to 'bound' DataSources
          * (like ValueDataSource), being that, it returns new copies in copy(),

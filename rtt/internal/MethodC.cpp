@@ -52,10 +52,12 @@ namespace RTT {
     {
     public:
         const ServiceProvider::Factory* mmr;
+        ExecutionEngine* caller;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
         DataSourceBase::shared_ptr rta;
         DataSourceBase::shared_ptr m;
+        DataSourceBase::shared_ptr s;
 
         void checkAndCreate() {
             Logger::In in("MethodC");
@@ -67,7 +69,8 @@ namespace RTT {
                 size_t sz = mmr->getArity(mname);
                 if ( sz == args.size() ) {
                     // may throw or return nill
-                    m = mmr->produce(mname, args );
+                    m = mmr->produce(mname, args, caller );
+                    s = mmr->produceSend(mname, args, caller );
                     args.clear();
                     if ( !m )
                         return;
@@ -93,14 +96,14 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( const ServiceProvider::Factory* mr, const std::string& name)
-            : mmr(mr), mname(name), rta(), m()
+        D( const ServiceProvider::Factory* mr, const std::string& name, ExecutionEngine* caller)
+            : mmr(mr), caller(caller), mname(name), rta(), m()
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
-            : mmr(other.mmr), mname(other.mname),
+            : mmr(other.mmr), caller(other.caller), mname(other.mname),
               args( other.args ), rta( other.rta ), m( other.m )
         {
         }
@@ -116,8 +119,8 @@ namespace RTT {
     {
     }
 
-    MethodC::MethodC(const MethodFactory* mr, const std::string& name)
-        : d( mr ? new D( mr, name) : 0 ), m()
+    MethodC::MethodC(const MethodFactory* mr, const std::string& name, ExecutionEngine* caller)
+        : d( mr ? new D( mr, name, caller) : 0 ), m()
     {
         if ( d->m ) {
             this->m = d->m;
@@ -187,7 +190,7 @@ namespace RTT {
         if (m)
             return m->evaluate();
         else {
-            Logger::log() <<Logger::Error << "execute() called on incomplete MethodC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "call() called on incomplete MethodC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->mmr->getArity( d->mname );
@@ -198,10 +201,19 @@ namespace RTT {
         return false;
     }
 
-    void MethodC::reset()
-    {
-        if (m)
-            m->reset();
+    bool MethodC::send() {
+        if (s)
+            return s->evaluate();
+        else {
+            Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;
+            if (d) {
+                size_t sz;
+                sz = d->mmr->getArity( d->mname );
+                Logger::log() <<Logger::Error << "Wrong number of arguments provided for method '"+d->mname+"'"<<Logger::nl;
+                Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
+            }
+        }
+        return false;
     }
 
     bool MethodC::ready() const
@@ -209,5 +221,6 @@ namespace RTT {
         return m;
     }
 
-    DataSourceBase::shared_ptr MethodC::getDataSource() { return m; }
+    DataSourceBase::shared_ptr MethodC::getCallDataSource() { return m; }
+    DataSourceBase::shared_ptr MethodC::getSendDataSource() { return s; }
 }

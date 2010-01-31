@@ -56,6 +56,19 @@ namespace RTT
             Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
         }; // shared_ptr type
 
+        /**
+         * Helper to only update data sources that hold references.
+         */
+        template<class T>
+        struct UpdateHelper {
+            static void update(typename DataSource<T>::shared_ptr) {}
+        };
+
+        template<class T>
+        struct UpdateHelper<T&> {
+            static void update(typename DataSource<T&>::shared_ptr s) { s->updated(); }
+        };
+
         template<class List, int size>
         struct create_sequence_impl;
 
@@ -106,8 +119,6 @@ namespace RTT
              */
             typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
 
-            typedef typename tail::data_type arg_tail_type;
-
             /**
              * The type of a single element of the vector.
              */
@@ -123,6 +134,8 @@ namespace RTT
              * The joint DataSource<T>::shared_ptr type of head and tail, again a fusion view.
              */
             typedef bf::cons<element_type, tail_type> type;
+
+            typedef typename tail::data_type arg_tail_type;
 
             /**
              * The joint T data type of head and tail.
@@ -145,7 +158,8 @@ namespace RTT
                 typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a )
-                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
+                //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
 
                 args.erase(args.begin());
                 return bf::cons<element_type, tail_type>(
@@ -160,7 +174,13 @@ namespace RTT
              * @return A sequence of type T holding the values of the DataSource<T>.
              */
             static data_type data(const type& seq) {
+                // we want to return the bare_type, without any shared_ptr.
                 return data_type( GetPointerWrap<type,bare_type>()(seq), tail::data( bf::pop_front(seq) ) );
+            }
+
+            static void update(const type&seq) {
+                UpdateHelper<arg_type>::update( bf::front(seq) );
+                return tail::update( bf::pop_front(seq) );
             }
 
             /**
@@ -245,6 +265,11 @@ namespace RTT
                 return data_type( GetPointerWrap<type,bare_type>()(seq) );
             }
 
+            static void update(const type&seq) {
+                UpdateHelper<arg_type>::update( bf::front(seq) );
+                return;
+            }
+
             /**
              * Copies a sequence of DataSource<T>::shared_ptr according to the
              * copy/clone semantics of data sources.
@@ -292,6 +317,10 @@ namespace RTT
              */
             static data_type data(const type& seq) {
                 return data_type();
+            }
+
+            static void update(const type&seq) {
+                return;
             }
 
             /**

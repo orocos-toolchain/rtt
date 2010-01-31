@@ -26,6 +26,7 @@ namespace RTT
             ExecutionEngine* mowner;
             void mdoc(const std::string& description);
             void marg(const std::string& name, const std::string& description);
+            virtual void ownerUpdated() = 0;
         public:
             OperationBase(const std::string& name);
             virtual ~OperationBase();
@@ -53,7 +54,11 @@ namespace RTT
                 return mowner && getImplementation();
             }
 
-            void setOwner(ExecutionEngine* ee) { mowner = ee; }
+            void setOwner(ExecutionEngine* ee) {
+                mowner = ee;
+                // inform Operation<T> to update the implementation.
+                this->ownerUpdated();
+            }
         };
     }
 }

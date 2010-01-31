@@ -58,6 +58,7 @@ namespace RTT
         class D;
         D* d;
         base::DataSourceBase::shared_ptr m;
+        base::DataSourceBase::shared_ptr s;
     public:
         /**
          * The default constructor.
@@ -70,7 +71,7 @@ namespace RTT
          * The constructor.
          * @see interface::MethodRepository
          */
-        MethodC( const MethodFactory* mr, const std::string& name);
+        MethodC( const MethodFactory* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A MethodC is copyable by value.
@@ -87,14 +88,14 @@ namespace RTT
         /**
          * Add a datasource argument to the Method.
          * @param a A DataSource which contents are consulted each time
-         * when execute() is called.
+         * when call() is called.
          */
         MethodC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Method.
          * @param a A value of which a copy is made and this value is used each time
-         * in execute().
+         * in call().
          */
         template< class ArgT >
         MethodC& argC( const ArgT a )
@@ -105,8 +106,8 @@ namespace RTT
         /**
          * Add an argument by reference to the Method.
          * @param a A value of which the reference is used and re-read each time
-         * the method is executed. Thus if the contents of the source of \a a changes,
-         * execute() will use the new contents.
+         * the method is called. Thus if the contents of the source of \a a changes,
+         * call() will use the new contents.
          */
         template< class ArgT >
         MethodC& arg( ArgT& a )
@@ -156,12 +157,6 @@ namespace RTT
         bool collect();
 
         /**
-         * Reset the method.
-         * Required before invoking execute() a second time.
-         */
-        void reset();
-
-        /**
          * Returns true if this method is ready for execution.
          */
         bool ready() const;
@@ -169,7 +164,11 @@ namespace RTT
         /**
          * Get the contained data source for 'call'.
          */
-        base::DataSourceBase::shared_ptr getDataSource();
+        base::DataSourceBase::shared_ptr getCallDataSource();
+        /**
+         * Get the contained data source for 'send'.
+         */
+        base::DataSourceBase::shared_ptr getSendDataSource();
     };
 }}
 

@@ -19,6 +19,9 @@ namespace RTT
     : public base::OperationBase
     {
         typename internal::LocalMethod<Signature>::shared_ptr impl;
+        virtual void ownerUpdated() {
+            impl->setExecutor( this->mowner );
+        }
     public:
         Operation(const std::string& name)
         :OperationBase(name)
@@ -48,14 +51,14 @@ namespace RTT
 
         Operation& calls(boost::function<Signature> func, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
             // creates a Local Method
-            impl.reset( new internal::LocalMethod<Signature>(func,0,0, et) );
+            impl.reset( new internal::LocalMethod<Signature>(func, this->mowner,0, et) );
             return *this;
         }
 
         template<class Function, class Object>
         Operation& calls(Function func, Object o, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
             // creates a Local Method or sets function
-            impl.reset( new internal::LocalMethod<Signature>(func,o,0,0, et) );
+            impl.reset( new internal::LocalMethod<Signature>(func,o, this->mowner,0, et) );
             return *this;
         }
 

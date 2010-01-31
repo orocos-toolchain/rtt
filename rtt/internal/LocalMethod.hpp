@@ -49,6 +49,7 @@
 #include "../SendHandle.hpp"
 #include "../ExecutionEngine.hpp"
 #include "MethodBinder.hpp"
+#include "GlobalEngine.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
 
 #include <iostream>
@@ -93,7 +94,11 @@ namespace RTT
                 if (met == base::OperationBase::OwnThread)
                     myengine = ee;
                 else
-                    myengine = 0;
+                    myengine = GlobalEngine::Instance();
+            }
+
+            virtual void setCaller(ExecutionEngine* ee) {
+                caller = ee;
             }
 
             void executeAndDispose() {
@@ -119,10 +124,8 @@ namespace RTT
 
             ExecutionEngine* getMessageProcessor() const { return myengine; }
 
-            // We need a handle object !
-            SendHandle<Signature> send_impl() {
-                assert(myengine);
-                base::MethodBase<Signature>* cl = this->cloneI();
+            SendHandle<Signature> do_send(base::MethodBase<Signature>* cl) {
+                assert(myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
                 //std::cout << "Sending clone..."<<std::endl;
                 if ( myengine->process( cl ) )
                     return SendHandle<Signature>( cl );
@@ -131,37 +134,41 @@ namespace RTT
                     return SendHandle<Signature>();
                 }
             }
+            // We need a handle object !
+            SendHandle<Signature> send_impl() {
+                return do_send( this->cloneRT() );
+            }
 
             template<class T1>
             SendHandle<Signature> send_impl( T1 a1 ) {
-                assert(myengine);
                 // bind types from Storage<Function>
-                this->store( a1 );
-                return send_impl();
+                LocalMethodImpl* cl = this->cloneRT();
+                cl->store( a1 );
+                return do_send(cl);
             }
 
             template<class T1, class T2>
             SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 // bind types from Storage<Function>
-                this->store( a1, a2 );
-                return send_impl();
-                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
+                LocalMethodImpl* cl = this->cloneRT();
+                cl->store( a1,a2 );
+                return do_send(cl);
             }
 
             template<class T1, class T2, class T3>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 // bind types from Storage<Function>
-                this->store( a1, a2, a3 );
-                return send_impl();
-                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
+                LocalMethodImpl* cl = this->cloneRT();
+                cl->store( a1,a2,a3 );
+                return do_send(cl);
             }
 
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 // bind types from Storage<Function>
-                this->store( a1, a2, a3, a4 );
-                return send_impl();
-                //return (myengine->process( this ) != 0) ? SendSuccess : SendFailure;
+                LocalMethodImpl* cl = this->cloneRT();
+                cl->store( a1,a2,a3,a4 );
+                return do_send(cl);
             }
 
             SendStatus collectIfDone_impl() {
@@ -236,16 +243,15 @@ namespace RTT
              */
             result_type call_impl()
             {
-                // if component or 3rd party thread, use that one, otherwise,
-                // just execute the method. NOTE: we will use a different class for each case.
-                if ( myengine ) {
+
+                if (met == base::OperationBase::OwnThread && myengine != caller) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )
                         return h.ret();
                     else
                         throw SendFailure;
                 } else
-                    return this->mmeth();
+                    return this->mmeth(); // ClientThread
             }
 
 
@@ -256,7 +262,7 @@ namespace RTT
             result_type call_impl(T1 a1)
             {
                 SendHandle<Signature> h;
-                if ( myengine ) {
+                if (met == base::OperationBase::OwnThread && myengine != caller) {
                     h = send_impl(a1);
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
@@ -272,7 +278,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2)
             {
                 SendHandle<Signature> h;
-                if ( myengine ) {
+                if (met == base::OperationBase::OwnThread && myengine != caller) {
                     h = send_impl(a1,a2);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2);
@@ -286,7 +292,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3)
             {
                 SendHandle<Signature> h;
-                if ( myengine ) {
+                if (met == base::OperationBase::OwnThread && myengine != caller) {
                     h = send_impl(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3);
@@ -300,7 +306,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
                 SendHandle<Signature> h;
-                if ( myengine ) {
+                if (met == base::OperationBase::OwnThread && myengine != caller) {
                     h = send_impl(a1,a2,a3,a4);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4);
@@ -360,6 +366,7 @@ namespace RTT
                 return this->retn.result(); // may return void.
             }
 
+            virtual LocalMethodImpl<Signature>* cloneRT() const = 0;
         };
 
         /**
@@ -400,6 +407,8 @@ namespace RTT
             template<class M, class ObjectType>
             LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
             {
+                if (!ee)
+                    ee = GlobalEngine::Instance();
                 this->mmeth = MethodBinder<Signature>()(meth, object);
                 this->myengine = ee;
                 this->caller = caller;
@@ -415,6 +424,8 @@ namespace RTT
             template<class M>
             LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
             {
+                if (!ee)
+                    ee = GlobalEngine::Instance();
                 this->mmeth = meth;
                 this->myengine = ee;
                 this->caller = caller;
@@ -431,11 +442,18 @@ namespace RTT
                 return new LocalMethod<Signature>(*this);
             }
 
-            base::MethodBase<Signature>* cloneI() const
+            base::MethodBase<Signature>* cloneI(ExecutionEngine* caller) const
+            {
+                base::MethodBase<Signature>* ret = new LocalMethod<Signature>(*this);
+                ret->setCaller( caller );
+                return ret;
+            }
+
+            LocalMethodImpl<Signature>* cloneRT() const
             {
                 return new LocalMethod<Signature>(*this);
             }
-        };
+};
     }
 }
 

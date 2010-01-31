@@ -122,13 +122,42 @@ namespace RTT
             /**
              * Create a DataSource for a given callable operation.
              * @param args The arguments for the target object's function.
+             * The number of arguments must be identical to this->arity()
+             * @param caller The Engine that will receive notifications when
+             * the method has been executed, in case it runs in the owner's thread.
+             * Normally, this is the engine of the caller's TaskContext.
+             * @return a DataSource which will return the result of this operation.
              */
-            virtual base::DataSourceBase* produce( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
+            virtual base::DataSourceBase* produce( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const = 0;
 
-            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const = 0;
+            /**
+             * Create a DataSource for a given send operation.
+             * @param args The arguments for the target object's function.
+             * The number of arguments must be identical to this->arity()
+             * @param caller The Engine that will receive notifications when
+             * the method has been executed.
+             * Normally, this is the engine of the caller's TaskContext.
+             * @return a DataSource which contains the SendHandle of this operation.
+             * @see produceHandle
+             */
+            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const = 0;
 
+            /**
+             * Create an empty SendHandle object for this operation.
+             * @return a DataSource which contains an empty SendHandle.
+             */
             virtual base::DataSourceBase* produceHandle() const = 0;
 
+            /**
+             * Create a DataSource for collecting the results of a Send.
+             * @param args A vector of data sources of which the first element
+             * contains a properly initialised sendhandle and the remainder of the
+             * elements contains datasources for collecting the return value and
+             * reference arguments.
+             * @param blocking Set to true to do a blocking collect, false for a polling version.
+             * @return A DataSource which collects the results when evaluated and which returns
+             * the SendStatus.
+             */
             virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const = 0;
         };
 
@@ -169,19 +198,19 @@ namespace RTT
             int arity() const { return boost::function_traits<Signature>::arity; }
 
             base::DataSourceBase* produce(
-                            const std::vector<base::DataSourceBase::shared_ptr>& args) const
+                            const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
+                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
-            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
+            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                return new FusedMSendDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
+                return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
             virtual base::DataSourceBase* produceHandle() const {
-                // Because of copy/clone,value objects must begin unbound.
+                // Because of copy/clone,program script variables ('var') must begin unbound.
                 return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
             }
 
@@ -235,7 +264,7 @@ namespace RTT
                     return ret;
                 }
 
-                base::DataSourceBase* produce(ArgList const& args) const
+                base::DataSourceBase* produce(ArgList const& args, ExecutionEngine* caller) const
                 {
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
@@ -243,17 +272,22 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(op->getMethod(), SequenceFactory()(a2) );
+                    return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
                 }
 
-                virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args ) const {
+                virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
+                    // the user won't give the necessary object argument, so we glue it in front.
+                    ArgList a2;
+                    a2.reserve(args.size()+1);
+                    a2.push_back(mwp);
+                    a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMSendDataSource<Signature>(op->getMethod(), SequenceFactory()(args) );
+                    return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
                 }
 
                 virtual base::DataSourceBase* produceHandle() const {
                     // Because of copy/clone,value objects must begin unbound.
-                    return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
+                    return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature>& > >();
                 }
 
                 virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
@@ -273,7 +307,6 @@ namespace RTT
     class OperationFactory
     {
     protected:
-        typedef base::DataSourceBase* ResultT;
         typedef std::map<std::string, OperationFactoryPart* > map_t;
         map_t data;
     public:
@@ -334,12 +367,12 @@ namespace RTT
          *
          * @return a new object
          */
-        ResultT produce( const std::string& name,
-                         const Arguments& args ) const
+        base::DataSourceBase* produce( const std::string& name,
+                         const Arguments& args, ExecutionEngine* caller ) const
         {
             map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
-            return i->second->produce( args );
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+            return i->second->produce( args, caller );
         }
 
         /**
@@ -351,12 +384,12 @@ namespace RTT
          *
          * @return a new object
          */
-        ResultT produceSend( const std::string& name,
-                             const Arguments& args ) const
+        base::DataSourceBase* produceSend( const std::string& name,
+                             const Arguments& args, ExecutionEngine* caller ) const
         {
             map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
-            return i->second->produceSend( args );
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+            return i->second->produceSend( args, caller );
         }
 
         /**
@@ -369,10 +402,10 @@ namespace RTT
          *
          * @return a new object
          */
-        ResultT produceHandle( const std::string& name ) const
+        base::DataSourceBase* produceHandle( const std::string& name ) const
         {
             map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
             return i->second->produceHandle();
         }
 
@@ -388,11 +421,11 @@ namespace RTT
          *
          * @return a new object
          */
-        ResultT produceCollect( const std::string& name,
+        base::DataSourceBase* produceCollect( const std::string& name,
                                 const Arguments& args, bool blocking) const
         {
             map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
             return i->second->produceCollect( args, blocking );
         }
 
@@ -444,7 +477,7 @@ namespace RTT
         }
 
         /**
-         * Add a new operation to the interface.
+         * Add a new operation to the interface or replace an existing one.
          *
          * @param name The name of the operation
          * @param part A part which creates the operation.
@@ -453,7 +486,6 @@ namespace RTT
                   OperationFactoryPart* part )
         {
              map_t::iterator i = data.find( name );
-            // XXX, wouldn't it be better to throw ?
             if ( i != data.end() )
                 delete i->second;
             data[name] = part;
@@ -466,11 +498,24 @@ namespace RTT
          */
         void remove( const std::string& name )
         {
-             map_t::iterator i = data.find( name );
+            map_t::iterator i = data.find( name );
             if ( i != data.end() ) {
                 delete i->second;
                 data.erase(i);
             }
+        }
+
+        /**
+         * Get a previously added part of this factory.
+         * @param name
+         * @return
+         */
+        OperationFactoryPart* getPart(const std::string& name) {
+            map_t::iterator i = data.find( name );
+            if ( i != data.end() ) {
+                return i->second;
+            }
+            return 0;
         }
     };
 

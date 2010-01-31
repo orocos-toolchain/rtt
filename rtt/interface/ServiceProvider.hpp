@@ -269,21 +269,21 @@ namespace RTT
          * @return A internal::DataSource which, when evaluated, invokes the operation.
          */
         base::DataSourceBase* getOperation( std::string name,
-                                   const std::vector<base::DataSourceBase::shared_ptr>& args) const
+                                   const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
         {
-            return this->produce(name, args);
+            return this->produce(name, args, caller);
         }
 
         /**
-         * Create a internal::OperationC object, a template-less operation invocation
+         * Create a MethodC object, a template-less operation invocation
          * object. This function is inferior to getOperation(std::string name).
          *
          * @param name The name of the operation
          *
          * @return An object which can invoke a operation.
          */
-        internal::MethodC create(std::string name) {
-            return internal::MethodC( this, name );
+        internal::MethodC create(std::string name, ExecutionEngine* caller) {
+            return internal::MethodC( this, name, caller );
         }
 
         /**

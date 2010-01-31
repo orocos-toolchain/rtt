@@ -126,7 +126,7 @@ namespace RTT
                   // we need to store the ret value ourselves.
                   ret.exec( boost::bind(&bf::invoke<call_type,full_type>, &base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args))) );
                   //bf::invoke(&base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args)));
-                  // TODO: XXX do updated() on all datasources that need it ?
+                  SequenceFactory::update(args);
                   return ret.result();
               }
 
@@ -200,7 +200,7 @@ namespace RTT
           };
 
         /**
-         * A DataSource that sends a method which gets its arguments from other
+         * A DataSource that collects the result of an asynchronous method which store its results in other
          * data sources. The result type of this data source is a SendStatus.
          * @param Signature is the signature of the collect function, not of the
          * original send function.
@@ -214,7 +214,7 @@ namespace RTT
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
-              typedef typename mpl::push_front<arg_types,typename boost::add_reference<typename SendHandle<Signature>::CBase>::type >::type handle_and_arg_types;
+              typedef typename mpl::push_front<arg_types,typename boost::add_reference<SendHandle<Signature> >::type >::type handle_and_arg_types;
               typedef create_sequence< handle_and_arg_types// @todo XXX use &SendHandle to avoid a copy ???
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -245,9 +245,11 @@ namespace RTT
               {
                   // put the member's object as first since SequenceFactory does not know about the MethodBase type.
                   if (isblocking)
-                      return  ss = bf::invoke(&SendHandle<Signature>::CBase::collect, SequenceFactory::data(args));
+                      ss = bf::invoke(&SendHandle<Signature>::CBase::collect, SequenceFactory::data(args));
                   else
-                      return  ss = bf::invoke(&SendHandle<Signature>::CBase::collectIfDone, SequenceFactory::data(args));
+                      ss = bf::invoke(&SendHandle<Signature>::CBase::collectIfDone, SequenceFactory::data(args));
+                  SequenceFactory::update(args);
+                  return ss;
               }
 
               virtual FusedMCollectDataSource<Signature>* clone() const

@@ -61,6 +61,7 @@ namespace RTT
             T arg;
             AStore() : arg() {}
             AStore(T t) : arg(t) {}
+            AStore(AStore const& o) : arg(o.arg) {}
 
             const T& get() const { return arg; }
             void operator()(T a) { arg = a; }
@@ -74,6 +75,7 @@ namespace RTT
             T* arg;
             AStore() : arg(0) {}
             AStore(T& t) : arg(&t) {}
+            AStore(AStore const& o) : arg(o.arg) {}
 
             T& get() { return *arg; }
             void operator()(T& a) { arg = &a; }

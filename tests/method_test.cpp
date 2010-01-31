@@ -41,17 +41,11 @@ public:
     double m1cr(const double& a) { return a; }
 
     // plain argument tests:
-    double m0() { return -d0(); }
-    double m1(int i) { return -d1(i); }
-    double m2(int i, double d) { return -d2(i,d); }
-    double m3(int i, double d, bool c) { return -d3(i,d,c); }
-    double m4(int i, double d, bool c, std::string s) { return -d4(i,d,c,s); }
-
-    double d0() const { return 1.0; }
-    double d1(int i) const { return 2.0; }
-    double d2(int i, double d) const { return 3.0; }
-    double d3(int i, double d, bool c) const { return 4.0; }
-    double d4(int i, double d, bool c, std::string s) const { return 5.0; }
+    double m0() { return -1.0; }
+    double m1(int i) { if (i ==1) return -2.0; cout <<"i: "<< i <<endl; return 2.0; }
+    double m2(int i, double d) { if ( i == 1 && d == 2.0 ) return -3.0; else return 3.0; }
+    double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }
+    double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
 
     bool assertBool(bool b) { return b; }
 
@@ -94,28 +88,11 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethod)
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
-{
-    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
-    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
-
-    BOOST_REQUIRE( tc->isRunning() );
-    BOOST_REQUIRE( caller->isRunning() );
-    BOOST_CHECK_EQUAL( -1.0, m0() );
-    BOOST_CHECK_EQUAL( -2.0, m1(1) );
-    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
-}
-
-BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 {
     Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
     Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
@@ -125,11 +102,29 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
+}
+
+BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
+{
+    // we set the owner engine to zero and our caller engine to be able to send.
+    Method<double(void)> m0("m0", &MethodTest::m0, this, 0, caller->engine());
+    Method<double(int)> m1("m1", &MethodTest::m1, this, 0, caller->engine());
+    Method<double(int,double)> m2("m2", &MethodTest::m2, this, 0, caller->engine());
+    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, 0, caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, 0, caller->engine());
+
+    BOOST_REQUIRE( tc->isRunning() );
+    BOOST_REQUIRE( caller->isRunning() );
     SendHandle<double(void)> h0 = m0.send();
     SendHandle<double(int)> h1 = m1.send(1);
     SendHandle<double(int,double)> h2 = m2.send(1, 2.0);
-    SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, false);
-    SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, false,"hello");
+    SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, true);
+    SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, true,"hello");
 
     double retn=0;
     BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
@@ -159,8 +154,60 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -1.0, h0.ret() );
     BOOST_CHECK_EQUAL( -2.0, h1.ret(1) );
     BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -2.0, h1.ret() );
+    BOOST_CHECK_EQUAL( -3.0, h2.ret() );
+    BOOST_CHECK_EQUAL( -4.0, h3.ret() );
+    BOOST_CHECK_EQUAL( -5.0, h4.ret() );
+}
+
+BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
+{
+    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
+    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
+    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, tc->engine(), caller->engine());
+
+    BOOST_REQUIRE( tc->isRunning() );
+    BOOST_REQUIRE( caller->isRunning() );
+    SendHandle<double(void)> h0 = m0.send();
+    SendHandle<double(int)> h1 = m1.send(1);
+    SendHandle<double(int,double)> h2 = m2.send(1, 2.0);
+    SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, true);
+    SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, true,"hello");
+
+    double retn=0;
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h1.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -2.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h2.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -3.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h3.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -4.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -5.0 );
+
+    // collectIfDone will certainly succeed after collect
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h1.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -2.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h2.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -3.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h3.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -4.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h4.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -5.0 );
+
+    // the return value api.
+    BOOST_CHECK_EQUAL( -1.0, h0.ret() );
+    BOOST_CHECK_EQUAL( -2.0, h1.ret(1) );
+    BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, true,"hello") );
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );
     BOOST_CHECK_EQUAL( -4.0, h3.ret() );
@@ -183,17 +230,16 @@ BOOST_AUTO_TEST_CASE(testRemoteMethod)
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(testMethodsC)
 {
     MethodC mc;
     double r = 0.0;
-    mc = tc->provides("methods")->create("m0").ret( r );
+    mc = tc->provides("methods")->create("m0", tc->engine()).ret( r );
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -1.0 );
 
-    mc = tc->provides("methods")->create("m2").argC(1).argC(1.0).ret( r );
+    mc = tc->provides("methods")->create("m2", tc->engine()).argC(1).argC(1.0).ret( r );
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -3.0 );
 
@@ -214,6 +260,7 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
         +" do methods.assert( r == -5.0 )\n"
 #endif
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(testMethodFactory)
 {
@@ -372,10 +419,10 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     //ptr.reset();
 
     double ret;
-    MethodC c0  = to.create("m0").ret(ret);
+    MethodC c0  = to.create("m0", tc->engine()).ret(ret);
     BOOST_CHECK( c0.call() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to.create("m1").argC(1).ret(ret);
+    MethodC c1  = to.create("m1", tc->engine()).argC(1).ret(ret);
     BOOST_CHECK( c1.call() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 
@@ -394,8 +441,8 @@ BOOST_AUTO_TEST_CASE(testAddMethod)
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 #endif
 

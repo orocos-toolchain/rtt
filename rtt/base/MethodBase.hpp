@@ -58,7 +58,15 @@ namespace RTT
         {
             typedef boost::shared_ptr<MethodBase<F> > shared_ptr;
             virtual ~MethodBase() {}
-            virtual MethodBase<F>* cloneI() const = 0;
+
+            /**
+             * Creates a new clone of this method using operator new().
+             * @param caller The ExecutionEngine of the task that wishes
+             * to call this method.
+             * @return a clone.
+             * @nrt
+             */
+            virtual MethodBase<F>* cloneI(ExecutionEngine* caller) const = 0;
             /**
              * Set an executor which will execute this method
              * when it is called or sent. If ee is set to 0,
@@ -66,6 +74,8 @@ namespace RTT
              * @param ee
              */
             virtual void setExecutor(ExecutionEngine* ee) = 0;
+
+            virtual void setCaller(ExecutionEngine* ee) = 0;
         };
     }
 }
