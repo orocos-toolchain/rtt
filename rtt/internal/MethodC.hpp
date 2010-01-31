@@ -42,7 +42,7 @@
 #include <string>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "OperationFactory.hpp"
+#include "interface/OperationRepository.hpp"
 
 namespace RTT
 { namespace internal {
@@ -71,7 +71,7 @@ namespace RTT
          * The constructor.
          * @see interface::MethodRepository
          */
-        MethodC( const MethodFactory* mr, const std::string& name, ExecutionEngine* caller);
+        MethodC( const interface::OperationRepository* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A MethodC is copyable by value.

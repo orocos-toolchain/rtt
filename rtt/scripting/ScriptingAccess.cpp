@@ -51,6 +51,7 @@
 #include "Parser.hpp"
 #include "parse_exception.hpp"
 #include "../Method.hpp"
+#include "../internal/mystd.hpp"
 
 namespace RTT {
     using namespace detail;

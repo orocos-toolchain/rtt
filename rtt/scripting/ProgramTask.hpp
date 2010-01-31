@@ -40,7 +40,6 @@
 #ifndef PROGRAM_TASK_HPP
 #define PROGRAM_TASK_HPP
 
-#include "../internal/ArgumentDescription.hpp"
 #include "../interface/ServiceProvider.hpp"
 #include "FunctionGraph.hpp"
 #include "../internal/DataSources.hpp"

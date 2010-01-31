@@ -119,7 +119,7 @@ namespace RTT {
     {
     }
 
-    MethodC::MethodC(const MethodFactory* mr, const std::string& name, ExecutionEngine* caller)
+    MethodC::MethodC(const OperationRepository* mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m()
     {
         if ( d->m ) {

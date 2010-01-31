@@ -58,7 +58,6 @@ namespace RTT {
         class MethodC;
         class SignalBase;
         class SimpleConnID;
-        struct ArgumentDescription;
         struct EventCallBack;
         struct EventCatcher;
         struct EventHookBase;

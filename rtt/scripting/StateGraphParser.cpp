@@ -56,6 +56,7 @@
 #include <boost/call_traits.hpp>
 #include <iostream>
 #include <memory>
+#include "../internal/mystd.hpp"
 
 namespace RTT
 {

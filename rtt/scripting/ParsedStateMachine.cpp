@@ -33,6 +33,7 @@
 #include "../interface/ServiceProvider.hpp"
 #include "StateMachineTask.hpp"
 #include "../TaskContext.hpp"
+#include "../internal/mystd.hpp"
 
 #include <cassert>
 

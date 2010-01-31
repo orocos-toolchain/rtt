@@ -41,6 +41,7 @@
 
 namespace RTT {
     namespace interface {
+        struct ArgumentDescription;
         class AttributeRepository;
         class CommandRepository;
         class DataFlowInterface;

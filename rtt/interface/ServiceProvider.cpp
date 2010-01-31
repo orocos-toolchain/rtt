@@ -1,6 +1,7 @@
 #include "ServiceProvider.hpp"
 #include "../TaskContext.hpp"
 #include <algorithm>
+#include "../internal/mystd.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -70,7 +71,7 @@ namespace RTT {
         {
             simpleoperations.erase(simpleoperations.begin() );
         }
-        OperationFactory::clear();
+        OperationRepository::clear();
         while ( !services.empty() ) {
             if ( services.begin()->second->getParent() == this )
                 this->removeService( services.begin()->first );
@@ -99,7 +100,7 @@ namespace RTT {
             ownedoperations.erase(it);
         }
         simpleoperations.erase( name );
-        OperationFactory::remove(name);
+        OperationRepository::remove(name);
     }
     void ServiceProvider::setOwner(TaskContext* new_owner) {
         for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)

@@ -2,7 +2,8 @@
 #define ORO_SERVICE_PROVIDER_HPP
 
 #include "../rtt-config.h"
-#include "../internal/OperationFactory.hpp"
+#include "OperationRepository.hpp"
+#include "../internal/OperationRepositoryPart.hpp"
 #include "../internal/LocalMethod.hpp"
 #include "../internal/MethodC.hpp"
 #include "../internal/UnMember.hpp"
@@ -27,11 +28,11 @@ namespace RTT
      * @ingroup Services
      */
     class RTT_API ServiceProvider
-        : public internal::OperationFactory,
+        : public OperationRepository,
           public AttributeRepository
     {
     public:
-        typedef internal::OperationFactory Factory;
+        typedef OperationRepository Factory;
 
         ServiceProvider(const std::string& name, TaskContext* owner = 0);
 
@@ -84,9 +85,9 @@ namespace RTT
          */
         virtual ServiceProvider* unmountService( string const& name);
 
-        interface::ServiceProvider* provides() { return this; }
+        ServiceProvider* provides() { return this; }
 
-        interface::ServiceProvider* provides(const std::string& service_name) {
+        ServiceProvider* provides(const std::string& service_name) {
             ServiceProvider* sp = services[service_name];
             if (sp)
                 return sp;
@@ -182,7 +183,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::OperationFactoryPartFused<Signature>( &op ) );
+            this->add( op.getName(), new internal::OperationRepositoryPartFused<Signature>( &op ) );
             return op;
         }
 
@@ -207,7 +208,7 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFused<Signature>( op ) );
+            this->add( op->getName(), new internal::OperationRepositoryPartFused<Signature>( op ) );
 
             return *op;
         }
@@ -238,7 +239,7 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationFactoryPartFusedDS<SignatureDS,ObjT>( sp, op) );
+            this->add( op->getName(), new internal::OperationRepositoryPartFusedDS<SignatureDS,ObjT>( sp, op) );
 
             return *op;
         }
@@ -255,7 +256,7 @@ namespace RTT
                 assert(false);
                 return op; // should never be reached.
             }
-            this->add( op.getName(), new internal::OperationFactoryPartFusedDS<Signature,ObjT>( sp, &op) );
+            this->add( op.getName(), new internal::OperationRepositoryPartFusedDS<Signature,ObjT>( sp, &op) );
             return op;
         }
 

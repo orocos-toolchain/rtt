@@ -15,6 +15,8 @@
 
 #include "DataSource.hpp"
 #include "DataSourceAdaptor.hpp"
+#include "Exceptions.hpp"
+#include "FactoryExceptions.hpp"
 
 namespace RTT
 {
@@ -158,8 +160,8 @@ namespace RTT
                 typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a )
-                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
-                //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
+                    //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
 
                 args.erase(args.begin());
                 return bf::cons<element_type, tail_type>(

@@ -47,6 +47,7 @@
 #include <boost/mem_fn.hpp>
 
 #include "internal/DataSource.hpp"
+#include "internal/mystd.hpp"
 #include "Method.hpp"
 
 #include "rtt-config.h"

@@ -42,7 +42,7 @@
 #include "../rtt-config.h"
 
 namespace RTT
-{ namespace internal {
+{ namespace interface {
 
     /**
      * @brief Description of one Argument of a Command.

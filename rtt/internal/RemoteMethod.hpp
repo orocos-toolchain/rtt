@@ -132,7 +132,7 @@ namespace RTT
              * @param name The name of this method.
              * @param com The OperationFactory for methods.
              */
-            RemoteMethod(MethodFactory* of, std::string name)
+            RemoteMethod(interface::OperationRepository* of, std::string name)
             {
                 // create the method.
                 this->mmeth = MethodC(of, name);
