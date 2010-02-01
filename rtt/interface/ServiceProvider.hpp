@@ -57,6 +57,12 @@ namespace RTT
         ServiceProvider* getParent() const { return parent; }
 
         /**
+         * Return a standard container which contains all the sub-service names
+         * of this Service
+         */
+        virtual std::vector<std::string> getServiceNames() const;
+
+        /**
          * The owner is the top-level TaskContext owning this service
          * (indirectly).
          */

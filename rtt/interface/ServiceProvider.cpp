@@ -5,6 +5,7 @@
 
 namespace RTT {
     using namespace detail;
+    using namespace std;
 
     ServiceProvider::ServiceProvider(const std::string& name, TaskContext* owner)
     : mname(name), mowner(owner), parent(0)
@@ -14,6 +15,10 @@ namespace RTT {
     ServiceProvider::~ServiceProvider()
     {
         clear();
+    }
+
+    vector<string> ServiceProvider::getServiceNames() const {
+        return keys(services);
     }
 
     bool ServiceProvider::addService( ServiceProvider* obj ) {
