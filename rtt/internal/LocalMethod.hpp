@@ -81,7 +81,7 @@ namespace RTT
             ExecutionEngine* myengine;
             ExecutionEngine* caller;
             typedef BindStorage<FunctionT> Store;
-            base::OperationBase::ExecutionThread met;
+            ExecutionThread met;
 
         public:
             LocalMethodImpl() : myengine(0), caller(0) {}
@@ -91,7 +91,7 @@ namespace RTT
             typedef boost::function_traits<Signature> traits;
 
             virtual void setExecutor(ExecutionEngine* ee) {
-                if (met == base::OperationBase::OwnThread)
+                if (met == OwnThread)
                     myengine = ee;
                 else
                     myengine = GlobalEngine::Instance();
@@ -244,7 +244,7 @@ namespace RTT
             result_type call_impl()
             {
 
-                if (met == base::OperationBase::OwnThread && myengine != caller) {
+                if (met == OwnThread && myengine != caller) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )
                         return h.ret();
@@ -262,7 +262,7 @@ namespace RTT
             result_type call_impl(T1 a1)
             {
                 SendHandle<Signature> h;
-                if (met == base::OperationBase::OwnThread && myengine != caller) {
+                if (met == OwnThread && myengine != caller) {
                     h = send_impl(a1);
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
@@ -278,7 +278,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2)
             {
                 SendHandle<Signature> h;
-                if (met == base::OperationBase::OwnThread && myengine != caller) {
+                if (met == OwnThread && myengine != caller) {
                     h = send_impl(a1,a2);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2);
@@ -292,7 +292,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3)
             {
                 SendHandle<Signature> h;
-                if (met == base::OperationBase::OwnThread && myengine != caller) {
+                if (met == OwnThread && myengine != caller) {
                     h = send_impl(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3);
@@ -306,7 +306,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
                 SendHandle<Signature> h;
-                if (met == base::OperationBase::OwnThread && myengine != caller) {
+                if (met == OwnThread && myengine != caller) {
                     h = send_impl(a1,a2,a3,a4);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4);
@@ -405,7 +405,7 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              */
             template<class M, class ObjectType>
-            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();
@@ -422,7 +422,7 @@ namespace RTT
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();

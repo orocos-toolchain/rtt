@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
     int x = 0;
     while ( i < max && x < max) {
         this->doState( prog, &gtc, false );
-        cout << "i is: "<< i <<endl;
+        //cout << "i is: "<< i <<endl;
         // assert that an error happened :
         BOOST_CHECK_MESSAGE( sa->getStateMachineStatus("x") == StateMachine::Status::error, "Status is: " + sa->getStateMachineStatusStr("x") );
 

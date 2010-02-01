@@ -42,7 +42,7 @@
 #include <string>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "interface/OperationRepository.hpp"
+#include "../interface/OperationRepository.hpp"
 
 namespace RTT
 { namespace internal {

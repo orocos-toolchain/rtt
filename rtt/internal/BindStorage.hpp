@@ -348,7 +348,7 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3,a4) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool exec() {
+            void exec() {
                 retn.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
             }
         };

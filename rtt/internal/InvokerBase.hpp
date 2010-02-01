@@ -6,7 +6,7 @@
 #include <boost/type_traits.hpp>
 #include "CollectBase.hpp"
 #include "NA.hpp"
-#include "SendHandle.hpp"
+#include "../SendHandle.hpp"
 
 namespace RTT
 {

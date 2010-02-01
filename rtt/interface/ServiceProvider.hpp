@@ -198,7 +198,7 @@ namespace RTT
         // UnMember serves to remove the member function pointer from the signature of func.
         template<class Func, class Service>
         Operation< typename GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv = 0, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
         {
             typedef typename GetSignature<Func>::Signature Signature;
             Operation<Signature>* op = new Operation<Signature>(name);
@@ -229,7 +229,7 @@ namespace RTT
          */
         template<class Func,class ObjT>
         Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::shared_ptr<ObjT> >* sp,
-                base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread)
+                ExecutionThread et = ClientThread)
         {
             typedef typename GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
             Operation<SignatureDS>* op = new Operation<SignatureDS>(name);

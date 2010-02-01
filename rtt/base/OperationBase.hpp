@@ -12,6 +12,12 @@ namespace RTT
     template<class T>
     class Operation;
 
+    /**
+     * Users can choose if an operation is executed in the component's thread
+     * or in the thread of the caller.
+     */
+    enum ExecutionThread { OwnThread, ClientThread };
+
     namespace base
     {
         /**
@@ -30,8 +36,6 @@ namespace RTT
         public:
             OperationBase(const std::string& name);
             virtual ~OperationBase();
-
-            enum ExecutionThread { OwnThread, ClientThread };
 
             const std::string& getName() { return mname; }
 

@@ -28,14 +28,14 @@ namespace RTT
         {
         }
 
-        Operation(const std::string& name, boost::function<Signature> func, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et = ClientThread )
         :OperationBase(name)
         {
             this->calls(func,et);
         }
 
         template<class Function, class Object>
-        Operation(const std::string& name, Function func, Object o, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread )
+        Operation(const std::string& name, Function func, Object o, ExecutionThread et = ClientThread )
         :OperationBase(name)
         {
             this->calls(func, o, et);
@@ -49,14 +49,14 @@ namespace RTT
 
         Operation<Signature>& arg(const std::string& name, const std::string& description) { marg(name, description); return *this; }
 
-        Operation& calls(boost::function<Signature> func, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
+        Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread ) {
             // creates a Local Method
             impl.reset( new internal::LocalMethod<Signature>(func, this->mowner,0, et) );
             return *this;
         }
 
         template<class Function, class Object>
-        Operation& calls(Function func, Object o, base::OperationBase::ExecutionThread et = base::OperationBase::ClientThread ) {
+        Operation& calls(Function func, Object o, ExecutionThread et = ClientThread ) {
             // creates a Local Method or sets function
             impl.reset( new internal::LocalMethod<Signature>(func,o, this->mowner,0, et) );
             return *this;

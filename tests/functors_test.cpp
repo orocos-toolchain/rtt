@@ -81,16 +81,16 @@ public:
         to->addOperation("m4", &FunctorsTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
 
         // OwnThread
-        to->addOperation("o0r", &FunctorsTest::m0r, this,base::OperationBase::OwnThread).doc("M0r");
-        to->addOperation("o0cr", &FunctorsTest::m0cr, this,base::OperationBase::OwnThread).doc("M0cr");
-        to->addOperation("o1r", &FunctorsTest::m1r, this,base::OperationBase::OwnThread).doc("M1r");
-        to->addOperation("o1cr", &FunctorsTest::m1cr, this,base::OperationBase::OwnThread).doc("M1cr");
+        to->addOperation("o0r", &FunctorsTest::m0r, this,OwnThread).doc("M0r");
+        to->addOperation("o0cr", &FunctorsTest::m0cr, this,OwnThread).doc("M0cr");
+        to->addOperation("o1r", &FunctorsTest::m1r, this,OwnThread).doc("M1r");
+        to->addOperation("o1cr", &FunctorsTest::m1cr, this,OwnThread).doc("M1cr");
 
-        to->addOperation("o0", &FunctorsTest::m0, this,base::OperationBase::OwnThread).doc("M0");
-        to->addOperation("o1", &FunctorsTest::m1, this,base::OperationBase::OwnThread).doc("M1").arg("a", "ad");
-        to->addOperation("o2", &FunctorsTest::m2, this,base::OperationBase::OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
-        to->addOperation("o3", &FunctorsTest::m3, this,base::OperationBase::OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        to->addOperation("o4", &FunctorsTest::m4, this,base::OperationBase::OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+        to->addOperation("o0", &FunctorsTest::m0, this,OwnThread).doc("M0");
+        to->addOperation("o1", &FunctorsTest::m1, this,OwnThread).doc("M1").arg("a", "ad");
+        to->addOperation("o2", &FunctorsTest::m2, this,OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
+        to->addOperation("o3", &FunctorsTest::m3, this,OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+        to->addOperation("o4", &FunctorsTest::m4, this,OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
         return to;
         }
 };
