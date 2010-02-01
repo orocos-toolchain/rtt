@@ -47,6 +47,9 @@
 #include <boost/tuple/tuple.hpp>
 #include "internal/mystd.hpp"
 
+#define TRACE_INIT() Logger::In in( _name )
+#define TRACE(msg) if (mtrace) log(Info) << '[' << this->getStatusStr() << ']' << std::string(" ") + msg <<endlog()
+
 namespace RTT {
     using namespace detail;
     using boost::tuples::get;
@@ -60,20 +63,24 @@ namespace RTT {
         : smpStatus(nill), _parent (parent) , _name(name), smStatus(Status::unloaded),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), mstep(false), evaluating(0)
+          checking_precond(false), mstep(false), mtrace(false), evaluating(0)
     {
         this->addState(0); // allows global state transitions
     }
 
    StateMachine::~StateMachine()
     {
+       TRACE_INIT();
        if ( this->isLoaded() ){
            getEngine()->removeFunction(this);
        }
         delete initc;
+        TRACE( "StateMachine '" + _name + "' destroyed." );
     }
 
    void StateMachine::loading() {
+       TRACE_INIT();
+       TRACE( "Being Loaded in ExecutionEngine." );
        smStatus = Status::inactive;
        for(TransitionMap::iterator it=stateMap.begin(); it != stateMap.end(); ++it) {
            // inform all entry/exit state scripts:
@@ -97,6 +104,8 @@ namespace RTT {
    }
 
    void StateMachine::unloading() {
+       TRACE_INIT();
+       TRACE( "Being unloaded from ExecutionEngine." );
            if ( this->isActive() == false)
                return;
            if ( this->isReactive() )
@@ -116,9 +125,55 @@ namespace RTT {
         return smStatus;
     }
 
+    string StateMachine::getStatusStr() const {
+
+        switch ( smStatus )
+            {
+            case Status::inactive:
+                return "inactive";
+                break;
+            case Status::stopping:
+                return "stopping";
+                break;
+            case Status::stopped:
+                return "stopped";
+                break;
+            case Status::requesting:
+                return "requesting";
+                break;
+            case Status::running:
+                return "running";
+                break;
+            case Status::paused:
+                return "paused";
+                break;
+            case Status::active:
+                return "active";
+                break;
+            case Status::activating:
+                return "activating";
+                break;
+            case Status::deactivating:
+                return "deactivating";
+                break;
+            case Status::resetting:
+                return "resetting";
+                break;
+            case Status::error:
+                return "error";
+                break;
+            case Status::unloaded:
+                return "unloaded";
+                break;
+            }
+        return "na";
+    }
+
     bool StateMachine::pause()
     {
         if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            TRACE_INIT();
+            TRACE( "Will pause." );
             if (currentProg) {
                 currentProg->pause();
                 currentProg->execute();
@@ -126,19 +181,24 @@ namespace RTT {
             smpStatus = pausing;
             return true;
         }
+        TRACE( "Won't pause." );
         return false;
     }
 
     bool StateMachine::step()
     {
+        TRACE_INIT();
         if ( smStatus == Status::paused && mstep == false ) {
+            TRACE( "Will step." );
             mstep = true;
             return true;
         }
         if ( smStatus == Status::active ) {
+            TRACE( "Will step." );
             smStatus = Status::requesting;
             return true;
         }
+        TRACE( "Won't step." );
         return false;
     }
 
@@ -149,53 +209,67 @@ namespace RTT {
 
     bool StateMachine::automatic()
     {
+        TRACE_INIT();
         // if you go from reactive to automatic,
         // first execute the run program, before
         // evaluating transitions.
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error) {
+            TRACE( "Will start." );
             smStatus = Status::running;
             runState( current );
             return true;
         }
+        TRACE( "Won't start." );
         return false;
     }
 
     bool StateMachine::reactive()
     {
+        TRACE_INIT();
         if ( smStatus != Status::inactive && smStatus != Status::unloaded && smStatus != Status::error ) {
+            TRACE( "Will enter reactive mode." );
             smStatus = Status::active;
             return true;
         }
+        TRACE( "Won't enter reactive mode." );
         return false;
     }
 
     bool StateMachine::stop()
     {
+        TRACE_INIT();
         if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            TRACE( "Will stop." );
             smpStatus = gostop;
             return true;
         }
+        TRACE( "Won't stop." );
         return false;
     }
 
     bool StateMachine::reset()
     {
+        TRACE_INIT();
         // if waiting in final state, go ahead.
         if ( smStatus == Status::stopped ) {
+            TRACE( "Will reset.");
             smpStatus = goreset;
             return true;
         }
+        TRACE("Won't reset.");
         return false;
     }
 
     bool StateMachine::execute()
     {
+        TRACE_INIT();
         // internal transitional issues.
         switch (smpStatus) {
         case pausing:
+            TRACE("Is paused now.");
             smStatus = Status::paused;
             smpStatus = nill;
-            return !inError();
+            return true;
             break;
         case gostop:
             this->executePending();
@@ -204,11 +278,12 @@ namespace RTT {
                 if ( this->inTransition() ) {
                     smStatus = Status::stopping;
                 } else {
+                    TRACE("Is stopped now.");
                     smStatus = Status::stopped;
                 }
                 smpStatus = nill;
             }
-            return !inError();
+            return true;
             break;
         case goreset:
             if ( this->executePending() ) {
@@ -216,11 +291,12 @@ namespace RTT {
                 if ( this->inTransition() ) {
                     smStatus = Status::resetting;
                 } else {
+                    TRACE("Is reset now.");
                     smStatus = Status::active;
                 }
             }
             smpStatus = nill;
-            return !inError();
+            return true;
             break;
         case nill:
             break;
@@ -234,6 +310,7 @@ namespace RTT {
         case Status::requesting:
             if ( this->executePending() ) {   // if all steps done,
                 this->requestNextState();
+                TRACE("Is active now.");
                 smStatus = Status::active;
             }
             break;
@@ -244,87 +321,97 @@ namespace RTT {
             if ( this->executePending() == false)
                 break;
             // if all pending done:
-            if (true)
-                this->requestNextState(); // one state at a time
-            else {
-                // ??? Deprecate this ? is this an endless loop with commands ?
-                StateInterface* cur_s = this->currentState();
-                while ( cur_s != this->requestNextState() )  { // go until no transition found.
-                    cur_s = this->currentState();
-                }
-            }
+            this->requestNextState(); // one state at a time
             break;
         case Status::paused:
             if (mstep) {
                 if ( this->executePending(true) )    // if all steps done,
                     this->requestNextState(true); // one state at a time
+                TRACE("Did a step.");
                 mstep = false;
             }
             break;
         case Status::error:
         case Status::unloaded:
-            return false;
             break;
         case Status::activating:
             this->executePending();
             if ( !this->inTransition() ) {
+                TRACE("Is active now.");
                 smStatus = Status::active;
             }
             break;
         case Status::stopping:
-            if ( this->executePending() )
+            if ( this->executePending() ) {
+                TRACE("Is stopped now.");
                 smStatus = Status::stopped;
-            break;
+            }break;
         case Status::deactivating:
-            if ( this->executePending() )
+            if ( this->executePending() ) {
+                TRACE("Is inactive now.");
                 smStatus = Status::inactive;
-            break;
+            }break;
         case Status::resetting:
-            if ( this->executePending() )
+            if ( this->executePending() ) {
+                TRACE("Is reset now.");
                 smStatus = Status::active;
-            break;
+            }break;
         case Status::stopped:
             this->executePending();
-            if ( current != finistate ) // detect leaving final state by event/request
+            if ( current != finistate ) {// detect leaving final state by event/request
                 smStatus = Status::active;
-            break;
+            } break;
         }
-        return !inError();
+        return true;
     }
 
     bool StateMachine::requestInitialState()
     {
+        TRACE_INIT();
         // all conditions that must be satisfied to enter the initial state :
         if ( interruptible() && ( current == initstate || current == finistate ) )
         {
+            TRACE("Will enter initial state.");
             // this will try to execute the state change atomically
             this->requestStateChange( initstate );
             return true;
         }
+        TRACE("Won't enter initial state.");
         return false;
     }
 
     bool StateMachine::requestFinalState()
     {
+        TRACE_INIT();
         // if we are inactive or in transition, don't do anything.
-        if ( current == 0 || ( !inError() && !interruptible() ) )
+        if ( current == 0 || ( !inError() && !interruptible() ) ) {
+            TRACE("Won't enter final state.");
             return false;
+        }
 
         // this will try to execute the state change atomically
-        return this->requestStateChange( finistate );
-
+        if ( this->requestStateChange( finistate ) ) {
+            TRACE("Will enter final state.");
+            return true;
+        }
+        TRACE("Won't enter final state.");
+        return false;
     }
 
     void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
+        TRACE_INIT();
         if ( newState == current )
             {
                 // this is only true if current state was selected in a transition of current.
                 if ( transProg ) {
+                    TRACE("Transition triggered to self: '"+current->getName()+"'");
                     transProg->reset();
                     if (transProg->start() == false )
                         smStatus = Status::error;
                     currentTrans = transProg;
                     currentProg = transProg;
+                    // manually reset reqstep, or the next iteration would skip transition checks.
+                    reqstep = stateMap.find( current )->second.begin();
                     // from now on, we are in transition to self !
                     // currentRun is _not_ set to zero or reset.
                     // it is/may be interrupted by trans, then continued.
@@ -340,6 +427,7 @@ namespace RTT {
             }
         else
             {
+                TRACE("Transition triggered from '"+ (current ? current->getName() : "null") +"' to '"+(newState ? newState->getName() : "null")+"'.");
                 // reset handle and run, in case it is still set ( during error
                 // or when an event arrived ).
                 currentRun = 0;
@@ -381,6 +469,11 @@ namespace RTT {
     }
     void StateMachine::enableEvents( StateInterface* s )
     {
+//        TRACE_INIT();
+//        if (s) {
+//            TRACE("Enabling events for state '"+s->getName()+"'.");
+//        } else
+//            TRACE("Enabling global events.");
         EventMap::mapped_type& hlist = eventMap[s];
         for (EventList::iterator eit = hlist.begin();
              eit != hlist.end();
@@ -390,6 +483,11 @@ namespace RTT {
     }
     void StateMachine::disableEvents( StateInterface* s )
     {
+//        TRACE_INIT();
+//        if (s) {
+//            TRACE("Disabling events for state '"+s->getName()+"'.");
+//        } else
+//            TRACE("Disabling global events.");
         EventMap::mapped_type& hlist = eventMap[s];
         for (EventList::iterator eit = hlist.begin();
              eit != hlist.end();
@@ -401,6 +499,7 @@ namespace RTT {
 
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
+        TRACE_INIT();
         // bad idea, user, don't run this if we're not active...
         if( current == 0 )
             return 0;
@@ -408,12 +507,17 @@ namespace RTT {
         if ( !interruptible() || currentTrans ) {
             return current; // can not accept request, still in transition.
         }
-        if ( reqstep == reqend ) { // if nothing to evaluate, eval globals, then just handle()
 
-            // to a state specified by the user (global)
-            TransList::const_iterator it1, it2;
-            it1 = stateMap.find( 0 )->second.begin();
-            it2 = stateMap.find( 0 )->second.end();
+        // Reset global conditions.
+        TransList::const_iterator it, it1, it2;
+        it1 = stateMap.find( 0 )->second.begin();
+        it2 = stateMap.find( 0 )->second.end();
+
+        if ( reqstep == stateMap.find( current )->second.begin() ) // avoid reseting too much in stepping mode.
+            for ( it= it1; it != it2; ++it)
+                get<0>(*it)->reset();
+
+        if ( reqstep == reqend ) { // if nothing to evaluate, eval globals, then just handle()
 
             for ( ; it1 != it2; ++it1 )
                 if ( get<0>(*it1)->evaluate()
@@ -450,10 +554,6 @@ namespace RTT {
             }
             if ( reqstep + 1 == reqend ) {
                 // to a state specified by the user (global)
-                TransList::const_iterator it1, it2;
-                it1 = stateMap.find( 0 )->second.begin();
-                it2 = stateMap.find( 0 )->second.end();
-
                 for ( ; it1 != it2; ++it1 ) {
                     if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1) ) == 1 ) {
                              StateInterface* next = get<1>(*it1);
@@ -586,7 +686,7 @@ namespace RTT {
         }
 
         // between 2 states specified by the user.
-        TransList::iterator it1, it2;
+        TransList::iterator it, it1, it2;
         it1 = stateMap.find( current )->second.begin();
         it2 = stateMap.find( current )->second.end();
 
@@ -603,6 +703,11 @@ namespace RTT {
         it1 = stateMap.find( 0 )->second.begin();
         it2 = stateMap.find( 0 )->second.end();
 
+        // reset all conditions
+        for ( it= it1; it != it2; ++it)
+            get<0>(*it)->reset();
+
+        // evaluate them
         for ( ; it1 != it2; ++it1 )
             if ( get<1>(*it1) == s_n
                  && get<0>(*it1)->evaluate()
@@ -669,10 +774,15 @@ namespace RTT {
                                       ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                                       int priority, int line )
     {
+        TRACE_INIT();
         // we must be inactive.
         if ( current != 0)
             return;
 
+        if (from)
+            TRACE("Created transition from "+from->getName() +"' to '"+ to->getName()+"'");
+        else
+            TRACE("Created global transition to '"+ to->getName()+"'");
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
@@ -808,6 +918,8 @@ namespace RTT {
     void StateMachine::leaveState( StateInterface* s )
     {
         assert(s);
+//        TRACE_INIT();
+//        TRACE( "Planning to leave state " + s->getName() );
         disableEvents(s);
         currentExit = s->getExitProgram();
         if ( currentExit ) {
@@ -822,6 +934,7 @@ namespace RTT {
 
     void StateMachine::runState( StateInterface* s )
     {
+        TRACE_INIT();
         assert(s);
         currentRun = s->getRunProgram();
         if ( currentRun ) {
@@ -849,6 +962,9 @@ namespace RTT {
     void StateMachine::enterState( StateInterface* s )
     {
         assert(s);
+//        TRACE_INIT();
+//        TRACE( "Planning to enter state " + s->getName() );
+
         // Before a state is entered, all transitions are reset !
         TransList::iterator it;
         for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
@@ -869,6 +985,7 @@ namespace RTT {
 
     bool StateMachine::executePending( bool stepping )
     {
+        TRACE_INIT();
         // This function has great resposibility, since it acts like
         // a scheduler for pending requests. It tries to devise what to
         // do on basis of the contents of variables (like current*, next,...).
@@ -882,14 +999,16 @@ namespace RTT {
 
         // first try to execute transition program on behalf of current state.
         if ( currentTrans ) {
+            TRACE("Executing transition program from '"+ current->getName() + "' to '"+next->getName()+"'" );
             // exception : transition during handle, first finish handle !
             if ( currentHandle ) {
                 if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             } else
-            if ( this->executeProgram(currentTrans, stepping) == false )
-                return false;
+                if ( this->executeProgram(currentTrans, stepping) == false )
+                    return false;
             // done.
+            TRACE("Finished  transition program from '"+ current->getName() + "' to '"+next->getName()+"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentExit ? currentExit : (currentEntry ? currentEntry : currentRun);
@@ -899,9 +1018,11 @@ namespace RTT {
 
         // last is exit
         if ( currentExit ) {
+            TRACE("Executing exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             if ( this->executeProgram(currentExit, stepping) == false )
                 return false;
             // done.
+            TRACE("Finished  exit program from '"+ current->getName() + "' (going to '"+ (next ? next->getName() : "(null)") +"')" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = (currentEntry ? currentEntry : currentRun);
@@ -926,13 +1047,16 @@ namespace RTT {
                 return true;  // done if current == 0 !
             }
             // make change transition after exit of previous state:
+            TRACE("Formally  transitioning from      '"+ (current ? current->getName() : "(null)") + "' to '"+ (next ? next->getName() : "(null)") +"'" );
             current = next;
         }
 
         if ( currentEntry ) {
+            TRACE("Executing entry program of '"+ current->getName() +"'" );
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
+            TRACE("Finished  entry program of '"+ current->getName() +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -943,9 +1067,11 @@ namespace RTT {
 
         // Handle is executed after the transitions failed.
         if ( currentHandle ) {
+            TRACE("Executing handle program of '"+ current->getName() +"'" );
             if ( this->executeProgram(currentHandle, stepping) == false )
                 return false;
             // done.
+            TRACE("Finished  handle program of '"+ current->getName() +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -955,9 +1081,11 @@ namespace RTT {
 
         // Run is executed before the transitions.
         if ( currentRun ) {
+            TRACE("Executing run program of '"+ current->getName() +"'" );
             if ( this->executeProgram(currentRun, stepping) == false )
                 return false;
             // done.
+            TRACE("Finished  run program of '"+ current->getName() +"'" );
             // in stepping mode, delay 'true' one executePending().
             if ( stepping )
                 return false;
@@ -969,6 +1097,7 @@ namespace RTT {
 
     bool StateMachine::executeProgram(ProgramInterface*& cp, bool stepping)
     {
+        TRACE_INIT();
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
         bool result;
@@ -979,6 +1108,7 @@ namespace RTT {
         if ( result == false) {
             smStatus = Status::error;
             smpStatus = nill;
+            TRACE("Encountered run-time error at line " << this->getLineNumber() );
             return false;
         }
 
@@ -1012,16 +1142,23 @@ namespace RTT {
         stateMap[finistate];
     }
 
+    void StateMachine::trace(bool t) {
+        mtrace =t;
+    }
+
     bool StateMachine::activate()
     {
+        TRACE_INIT();
         // inactive implies loaded, but check additionally if smp is at least active
         if ( smStatus != Status::inactive ) {
+            TRACE("Won't activate: already active.");
             return false;
         }
 
         smpStatus = nill;
 
         if ( this->checkConditions( getInitialState() ) != 1 ) {
+            TRACE("Won't activate: preconditions failed.");
             return false; //preconditions not met.
         }
 
@@ -1029,6 +1166,7 @@ namespace RTT {
             initc->reset();
             initc->readArguments();
             if ( initc->execute() == false ) {
+                TRACE("Won't activate: Init Commands failed.");
                 return false; // fail to activate.
             }
         }
@@ -1043,11 +1181,14 @@ namespace RTT {
 
         // execute the entry program of the initial state.
         if ( !inError() )
-            if ( this->executePending() )
+            if ( this->executePending() ) {
                 smStatus = Status::active;
-            else {
-                if ( !inError() )
+                TRACE("Activated.");
+            } else {
+                if ( !inError() ) {
+                    TRACE("Still activating.");
                     smStatus = Status::activating;
+                }
             }
 
         return true;
@@ -1056,8 +1197,10 @@ namespace RTT {
 
     bool StateMachine::deactivate()
     {
+        TRACE_INIT();
         // the only time to refuse executing this is when we did set ourselves to inactive before.
         if ( smStatus == Status::inactive) {
+            TRACE("Won't deactivate: already inactive.");
             return false;
         }
 
@@ -1085,10 +1228,13 @@ namespace RTT {
 
         // this will execute the exitFunction (if any) and, if successfull,
         // set current to zero (using next).
-        if ( this->executePending() )
+        if ( this->executePending() ) {
+            TRACE("Deactivated.");
             smStatus = Status::inactive;
-        else
+        } else {
+            TRACE("Still deactivating.");
             smStatus = Status::deactivating;
+        }
 
 
         return true;

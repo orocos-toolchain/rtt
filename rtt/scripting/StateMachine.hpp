@@ -121,6 +121,11 @@ namespace RTT
         StateMachine(StateMachinePtr parent, const std::string& name="Default");
 
         /**
+         * Turn log(Debug) messages on or off to track state transitions.
+         */
+        void trace(bool on_off);
+
+        /**
          * Request a transition to a given state.
          */
         bool requestState(const std::string& statename) {
@@ -348,6 +353,11 @@ namespace RTT
          * Get the status of this state machine.
          */
         Status::StateMachineStatus getStatus() const;
+
+        /**
+         * Get the status in a readable string format.
+         */
+        std::string getStatusStr() const;
 
         /**
          * Add a State. If already present, changes nothing.
@@ -671,7 +681,7 @@ namespace RTT
 
         std::pair<PreConditionMap::const_iterator,PreConditionMap::const_iterator> prec_it;
         bool checking_precond;
-        bool mstep;
+        bool mstep, mtrace;
 
         int evaluating;
     };
