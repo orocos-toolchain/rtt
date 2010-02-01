@@ -740,7 +740,6 @@ namespace RTT
 
   void ProgramGraphParser::seenyield()
   {
-      cout << "seen yield !" << endl;
       // a yield branch
       program_builder->setCommand( new CommandNOP );
       program_builder->proceedToNext( new ConditionOnce(false), mpositer.get_position().line - ln_offset );
