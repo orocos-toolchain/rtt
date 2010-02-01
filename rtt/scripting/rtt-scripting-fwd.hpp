@@ -57,6 +57,7 @@ namespace RTT {
         class ConditionBool;
         class ConditionBoolDataSource;
         class ConditionBoolProperty;
+        class ConditionCache;
         class ConditionCompositeNOT;
         class ConditionDSDuration;
         class ConditionDuration;

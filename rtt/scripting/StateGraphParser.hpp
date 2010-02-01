@@ -111,6 +111,8 @@ namespace RTT { namespace scripting
 
       std::vector<base::DataSourceBase::shared_ptr> evargs;
       std::string evname;
+      std::map<std::string,ConditionCache*> cur_port_events;
+      std::map<std::string,ConditionCache*> global_port_events;
 
       rule_t production;
       rule_t newline;

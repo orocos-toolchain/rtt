@@ -63,6 +63,9 @@ public:
             cout << "Asserted :" << msg << endl;
         return true; // allow to continue to check other commands.
     }
+    void log(const std::string& msg) {
+        Logger::log(Logger::Info) << msg << endlog();
+    }
     int increase() { return ++i;}
     void resetI() { i = 0; }
     void doState( const std::string& prog, TaskContext*, bool test=true );
@@ -85,7 +88,7 @@ public:
          sa( new ScriptingAccess(&gtc) )
     {
         gtc.setActivity( new SimulationActivity(0.001) );
-#if 1
+
         // ltc has a test object
         gtc.addService(this->createObject("test") );
 
@@ -95,10 +98,15 @@ public:
         gtc.ports()->addPort( &d_event_source );
         gtc.ports()->addPort( &b_event_source );
         gtc.ports()->addPort( &t_event_source );
-#endif
+
+        d_event_source.connectTo( d_event );
+        b_event_source.connectTo( b_event );
+        t_event_source.connectTo( t_event );
         gtc.start();
         i = 0;
         SimulationThread::Instance()->stop();
+
+        gtc.addOperation("log", &StateTest::log, this);
     }
     ~StateTest(){
     }
@@ -760,100 +768,87 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " var   int t = 0\n"
         + " var   double et = 0.0\n"
         + " var   bool eb = false\n"
-        + " transition t_event(t) select TESTSELF\n" // test self transition
+        + " var   bool eflag = false\n"
+        + " transition t_event(t) { do log(\"Global Transition to TESTSELF\");} select TESTSELF\n" // test self transition
         + " transition d_event(et)\n"
-        + "     if et < 0. then  select ISNEGATIVE\n"
-        + "     else select ISPOSITIVE\n"
+        + "     if et < 0. then { do log(\"Global ISNEGATIVE Transition\");} select ISNEGATIVE\n"
+        + "     else { do log(\"Global ISPOSITIVE Transition\");} select ISPOSITIVE\n" // NewData == false !!!
         + " initial state INIT {\n"
-        + " transition b_event(eb)\n"
-        + "     if eb == false then select ISFALSE\n"
-        + "     else select ISTRUE\n"
+        + "   entry { do log(\"INIT\"); set eb = false; }\n"
         + " }\n"
         + " state ISNEGATIVE {\n"
-        + " transitions {\n"
-        + "      select INIT\n"
-        + " }\n"
+        + "   entry { do log(\"ISNEGATIVE\");}\n"
+        + "   transition b_event(eb)\n"
+        + "      if (eb) then { do log(\"Local ISNEGATIVE->INIT Transition\");} select INIT\n"
         + " }\n"
         + " state ISPOSITIVE {\n"
-        + " transitions {\n"
-        + "      select INIT\n" // 20
-        + "      }\n"
-        + " }\n"
-        + " state ISTRUE {\n"
-        + " transitions {\n"
-        + "      select INIT\n"
-        + "      }\n"
-        + " }\n"
-        + " state ISFALSE {\n"
-        + " transitions {\n"
-        + "      select INIT\n"
-        + " }\n"
+        + "   entry { do log(\"ISPOSITIVE\");}\n"
+        + "   transition b_event(eb)\n"
+        + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition\");} select INIT\n" // 20
         + " }\n"
         + " state TESTSELF {\n"
-        + " entry {\n"
-        + "      set eb = !eb\n"
-        + " }\n"
-        + " transition t_event(t) select TESTSELF\n"     // does not execute entry {}
-        + " transition b_event(eb) { set eb = true; }\n"
-        + " transition select INIT\n"
+        + "   entry {\n"
+        + "      do log(\"TESTSELF\");\n"
+        + "      set eflag = !eflag\n"
+        + "   }\n"
+        + "   transition t_event(t) { do log(\"Self Transition in TESTSELF\");} select TESTSELF\n"     // does not execute entry {}, overrides global t_event()
+        + "   transition b_event(eb)\n"
+        + "      if (eb == true) then { do log(\"Local TESTSELF->INIT Transition\");} select INIT\n"
+        + "      else { log(\"Failed to select INIT upon event.\");}\n"
         + " }\n"
         + " final state FINI {\n"
+        + "   entry { do log(\"FINI\");}\n"
         + " }\n"
         + " }\n" // 40
         + string("StateMachine X {\n") // 1
         + " SubMachine Y y1()\n"
         + " initial state INIT {\n"
-        + " run {\n"
-        //        + "     do test.assert(false)\n"
+        + " entry {\n"
+        + "     do y1.trace(true)\n"
         + "     do y1.activate()\n"
+        + "     do y1.start()\n"
+        + "     do yield\n"
+        + " }"
+        + " run {\n"
+
         + "     do d_event_source.write(-1.0)\n"
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
-        + "     do y1.requestState(\"INIT\")\n"
+        + "     do b_event_source.write( true )\n" // go to INIT.
+        + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
+
         + "     do d_event_source.write(+1.0)\n"
         + "     do nothing\n"
-        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
-        + "          do test.assertMsg( false, y1.getState() )\n" // 15
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
-        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
+        + "          do test.assertMsg( false, \"Not ISNEGATIVE but \" + y1.getState() )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do b_event_source.write( true )\n" // go to INIT.
+        + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do b_event_source.write(true)\n"
-        + "     do nothing\n"
-        + "     if ( !y1.inState(\"ISTRUE\") ) then\n"
-        + "          do test.assertMsg(false, y1.getState() )\n"
-        + "     do test.assertMsg( y1.inState(\"ISTRUE\"), y1.getState() )\n"
-        + "     do y1.requestState(\"INIT\")\n"
-        + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do b_event_source.write(false)\n"
-        + "     do nothing\n"
-        + "     if ( !y1.inState(\"ISFALSE\") ) then\n"
-        + "          do test.assertMsg(false, y1.getState() )\n"
-        + "     do test.assert( y1.inState(\"ISFALSE\") )\n"
-        + "     do y1.requestState(\"INIT\")\n"
-        + "     do test.assert( y1.inState(\"INIT\") )\n"
+
         // test self transitions
-        + "     set y1.eb = true;\n"
+        + "     set y1.eflag = true;\n"
         + "     do t_event_source.write(1)\n"
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
-        + "     do test.assert( y1.eb == false )\n"
+        + "     do test.assert( y1.eflag == false ) /* first */\n"
         + "     do t_event_source.write(1)\n"
         + "     do nothing\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
-        + "     do test.assert( y1.eb == false )\n" // no entry
-        + "     do b_event_source.write(true)\n"
-        + "     do nothing\n"
-        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
-        + "     do test.assert( y1.eb == true )\n"
-        + "     do y1.requestState(\"INIT\")\n"
-        + "     do test.assert( y1.inState(\"INIT\") )\n"
-        //+ "     do y1.deactivate()\n"
+        + "     do test.assert( y1.eflag == false ) /* second */\n" // no entry
+        + "     do log(\"Trigger b_event.\");\n"
+        + "     do b_event_source.write(true);\n"
+        + "     yield;\n"
+        + "     do test.assert( y1.inState(\"INIT\") ) /* last */\n"
         + " }\n"
         + " transitions {\n"
         + "     select FINI\n"
@@ -883,28 +878,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
 
-#if 0
-    // Classical way: use parser directly.
-    Parser::ParsedStateMachines pg_list;
-    try {
-        pg_list = parser.parseStateMachine( prog, tc );
-    }
-    catch( const file_parse_exception& exc )
-        {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
-        }
-    catch( const parse_exception& exc )
-        {
-            BOOST_CHECK_MESSAGE( false ,exc.what());
-        }
-    catch( ... ) {
-            BOOST_CHECK_MESSAGE( false, "Uncaught Parse Exception" );
-    }
-    if ( pg_list.empty() )
-        {
-            BOOST_CHECK( false );
-        }
-#endif
     // Alternative way: test ScriptingAccess as well.
     try {
         sa->loadStateMachines( prog, std::string("state_test.cpp"), true );
@@ -927,28 +900,15 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     StateMachinePtr sm = sa->getStateMachine("x");
     BOOST_REQUIRE( sm );
+    sm->trace(true);
     Method<bool(StateMachine*)> act = tc->provides("x")->getOperation<bool(StateMachine*)>("activate");
     Method<bool(StateMachine*)> autom = tc->provides("x")->getOperation<bool(StateMachine*)>("automatic");
-//      cerr << "Before activate :"<<endl;
-//      tc->getPeer("states")->getPeer("x")->debug(true);
-    //BOOST_CHECK( sm->activate() );
     BOOST_CHECK( act(sm.get()) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
-//      cerr << "After activate :"<<endl;
-//      tc->getPeer("states")->getPeer("x")->debug(true);
-    //BOOST_CHECK( sm->automatic() );
     BOOST_CHECK( autom(sm.get()) || !test  );
-//     while (1)
-    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
-//     cerr << "After run :"<<endl;
-//     tc->getPeer("states")->getPeer("x")->debug(true);
-// //     tc->getPeer("__states")->getPeer("X")->debug(false);
-//     if( tc->getPeer("__states")->getPeer("Y"))
-//         tc->getPeer("__states")->getPeer("Y")->debug(false);
-//     cerr << "               x.y1 running : "<< (gprocessor.getStateMachineStatus("x.y1") == Processor::StateMachineStatus::running) << endl;
-//     cerr << "               x running : "<< (gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::running) << endl;
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         // check error status of parent :
@@ -958,13 +918,15 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         errormsg <<" in StateMachine "+sm->getName()
                  <<" in state "<< sm->currentState()->getName()
                  <<" on line " << line <<" of that StateMachine:"<<endl;
-        stringstream sctext( sm->getText() );
-        int cnt = 1;
-        while ( cnt++ <line && sctext ) {
-            string garbage;
-            getline( sctext, garbage, '\n' );
+        {
+            stringstream sctext( sm->getText() );
+            int cnt = 1;
+            while ( cnt++ <line && sctext ) {
+                string garbage;
+                getline( sctext, garbage, '\n' );
+            }
+            getline( sctext, sline, '\n' );
         }
-        getline( sctext, sline, '\n' );
         errormsg <<"here  > " << sline << endl;
         if ( sm->inError() ) {
             RTT::detail::DumpObject( tc );
@@ -974,12 +936,26 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         StateMachine::ChildList cl = sm->getChildren();
         StateMachine::ChildList::iterator clit = cl.begin();
         while( clit != cl.end() ) {
+            line = (*clit)->getLineNumber();
+            {
+                stringstream sctext( (*clit)->getText() );
+                int cnt = 1;
+                while ( cnt++ <line && sctext ) {
+                    string garbage;
+                    getline( sctext, garbage, '\n' );
+                }
+                getline( sctext, sline, '\n' );
+            }
             stringstream cerrormsg;
             if ( (*clit)->currentState() )
-                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl <<"here  > " << sline << endl;
+                cerrormsg <<" in child "<< (*clit)->getName() <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl <<"here  > " << sline << endl;
             else
-                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl<<"here  > " << sline << endl;
-            BOOST_CHECK_MESSAGE( (*clit)->inError() == false, "Runtime error (inError() == true) encountered in child "+(*clit)->getName() + cerrormsg.str() );
+                cerrormsg <<" child "<< (*clit)->getName() << " (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl<<"here  > " << sline << endl;
+
+            BOOST_CHECK_MESSAGE( (*clit)->inError() == false, "Runtime error (inError() == true) encountered" + cerrormsg.str() );
+            if ( (*clit)->inError() == false && sm->inError() == true) {
+                cout << "Child Status:" << cerrormsg.str() << endl;
+            }
             ++clit;
         }
     }

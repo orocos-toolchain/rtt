@@ -40,7 +40,7 @@
 #include "StateMachineTask.hpp"
 
 #include "../Attribute.hpp"
-#include "../internal/FactoryExceptions.hpp"
+#include "../interface/FactoryExceptions.hpp"
 #include "../TaskContext.hpp"
 #include "../Method.hpp"
 
@@ -65,6 +65,7 @@ namespace RTT
             // SM' which may contain non-rt safe code. When activate() is
             // called directly upon the SM in C++, it _is_ a method, but
             // with the same deficiencies.
+            addOperationDS("trace", &StateMachine::trace,ptr).doc("Trace the execution of this StateMachine. *Not* Real-Time.");
             addOperationDS("activate", &StateMachine::activate,ptr).doc("Activate this StateMachine to initial state and enter request Mode.");
             addOperationDS("deactivate", &StateMachine::deactivate,ptr).doc("Deactivate this StateMachine");
             addOperationDS("start", &StateMachine::automatic,ptr).doc("Start this StateMachine, enter automatic Mode.");

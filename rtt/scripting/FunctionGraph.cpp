@@ -183,18 +183,20 @@ namespace RTT {
         }
         switch (pStatus) {
         case Status::running:
-            return this->executeUntil();
+            this->executeUntil();
+            return true;
             break;
         case Status::paused:
             if (mstep) {
                 mstep = false;
-                return this->executeStep();
+                this->executeStep();
+                return true;
             } else
                 return true;
             break;
         case Status::error:
         case Status::unknown:
-            return false;
+            return true;
             break;
         case Status::stopped:
             return true;

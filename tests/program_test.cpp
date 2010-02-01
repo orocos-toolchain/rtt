@@ -338,17 +338,21 @@ BOOST_AUTO_TEST_CASE(testProgramToProgram)
         + " do assert( i == 0 )\n"
         + " do y.stop()\n"
         + " do test.increase()\n"
-        + " do y.pause()\n"        // test pause-step
+        + " do y.pause()\n"        // test pause-step // 10
+        + " do yield\n"
         + " do assert( y.isPaused() )\n"
         + " do assert( i == 1 )\n"
-        + " do yield\n"
         + " do y.step()\n"
+        + " do yield\n"
         + " do assert( i == 1 )\n"
         + " do y.step()\n"
+        + " do yield\n"
         + " do assert( i == 0 )\n"
         + " do y.step()\n"
-        + " do y.step()\n"
-        + " do assert( y.isStopped() )\n"
+        + " do yield\n"
+        + " do y.step()\n"         // 20
+        + " do yield\n"
+        + " do assert( !y.isRunning() )\n"
         + "}";
 
     this->doProgram( prog, &gtc );

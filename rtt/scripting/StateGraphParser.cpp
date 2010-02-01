@@ -32,6 +32,8 @@
 #include "ConditionParser.hpp"
 #include "ConditionCompare.hpp"
 #include "ConditionComposite.hpp"
+#include "ConditionCache.hpp"
+#include "ConditionBoolDataSource.hpp"
 #include "ValueChangeParser.hpp"
 #include "ProgramGraphParser.hpp"
 #include "PeerParser.hpp"
@@ -171,8 +173,8 @@ namespace RTT
             >> statemachinecontent
             >> expect_end( ch_p( '}' ) );
 
-        // Zero or more declarations and Zero or more states
-        statemachinecontent = *( varline | state | transitions | transition);
+        // Zero or more declarations and Zero or more states. Once a state is encountered, no more global transitions may be defined.
+        statemachinecontent = *( varline | transitions | transition) >> *( varline | state);
 
         varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
@@ -290,7 +292,7 @@ namespace RTT
         // | eps_p[bind( &StateGraphParser::noselect, this )] ); // if eos fails skipeol stays false !, see clear() !
 
         ifbranch = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
-                                >> expect_if(str_p( "then" ))
+                                >> !str_p( "then" )
                                 >> progselect;
         elsebranch = str_p("else")[bind( &StateGraphParser::seenelse, this )]
             >> progselect;
@@ -360,7 +362,8 @@ namespace RTT
         curstate = 0;
         curinitialstateflag = false;
         curfinalstateflag = false;
-
+        // clear all port-triggered transitions for this state.
+        cur_port_events.clear();
     }
 
     void StateGraphParser::inprogram(const std::string& name)
@@ -444,7 +447,7 @@ namespace RTT
         peer    = peerparser->taskObject();
         peerparser->reset();
 
-        if (peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read")) {
+        if (peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read") == false) {
             if (curstate)
                 ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": InputPort "+evname+" not found in Task "+peer->getName() ));
             else
@@ -505,11 +508,29 @@ namespace RTT
         } else {
             try {
                 assert(peer->provides(evname)); // checked in seeneventname()
-                // combine the implicit 'read(arg) == NewData' with the guard, if any.
-                DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
-                DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb);
-                assert(read_ds);
-                ConditionInterface* evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );
+                ConditionInterface* evcondition = 0;
+                if ( global_port_events.count(evname) ){
+                    // clone the cached condition in order to avoid a second read on the port.
+                    evcondition = new ConditionBoolDataSource( global_port_events[evname]->getResult().get() );
+                } else
+                if ( cur_port_events.count(evname) ){
+                    // clone the cached condition in order to avoid a second read on the port.
+                    evcondition = new ConditionBoolDataSource( cur_port_events[evname]->getResult().get() );
+                } else {
+                    // combine the implicit 'read(arg) == NewData' with the guard, if any.
+                    DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
+                    DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb);
+                    assert(read_ds);
+                    evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );
+                    if (curstate) {
+                        cur_port_events[evname] = new ConditionCache( evcondition ); // caches result until reset().
+                        evcondition = cur_port_events[evname]->clone();
+                    } else {
+                        //global event:
+                        global_port_events[evname] = new ConditionCache( evcondition ); // caches result until reset().
+                        evcondition = global_port_events[evname]->clone();
+                    }
+                }
                 if (curcondition == 0) {
                     curcondition = evcondition;
                 } else {
