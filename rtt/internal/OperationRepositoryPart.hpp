@@ -13,6 +13,7 @@
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
 #include "../interface/OperationRepository.hpp"
+#include "../interface/FactoryExceptions.hpp"
 #include "../Operation.hpp"
 #include "../base/MethodBase.hpp"
 
@@ -65,11 +66,13 @@ namespace RTT
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
+                if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                 return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
             virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
+                if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                 return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
@@ -79,6 +82,8 @@ namespace RTT
             }
 
             virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                const int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
             }
@@ -130,6 +135,7 @@ namespace RTT
 
                 base::DataSourceBase* produce(ArgList const& args, ExecutionEngine* caller) const
                 {
+                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
@@ -140,6 +146,7 @@ namespace RTT
                 }
 
                 virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
+                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
@@ -155,6 +162,8 @@ namespace RTT
                 }
 
                 virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                    const int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                    if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
                 }

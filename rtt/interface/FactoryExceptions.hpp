@@ -47,7 +47,7 @@
  * DataSourceFactory's and CommandFactory's.
  */
 namespace RTT
-{ namespace internal {
+{ namespace interface {
 
     /**
      * Exception thrown when a factory is requested to

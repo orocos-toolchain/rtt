@@ -40,7 +40,7 @@
 #include <sstream>
 
 namespace RTT {
-    using namespace internal;
+    using namespace interface;
 
     name_not_found_exception::name_not_found_exception( const std::string& n )
           : name(n)

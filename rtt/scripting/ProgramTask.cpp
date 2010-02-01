@@ -40,7 +40,7 @@
 #include "ProgramTask.hpp"
 
 #include "../Method.hpp"
-#include "../internal/FactoryExceptions.hpp"
+#include "../interface/FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSources.hpp"
 

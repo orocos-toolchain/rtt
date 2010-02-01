@@ -53,7 +53,7 @@
 #include "../Attribute.hpp"
 #include "parse_exception.hpp"
 #include "DataSourceCommand.hpp"
-#include "../internal/FactoryExceptions.hpp"
+#include "../interface/FactoryExceptions.hpp"
 
 namespace RTT {
     using namespace detail;

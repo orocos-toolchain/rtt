@@ -100,10 +100,13 @@ namespace RTT
             // remove the class from the arg list:
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
+            typedef typename boost::add_pointer<typename boost::remove_const<typename boost::remove_reference<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type>::type>::type object_pointer;
             // insert it as first argument.
             typedef typename boost::mpl::insert<non_member_signature,
                                                 typename boost::mpl::next<typename boost::mpl::begin<non_member_signature>::type>::type,
-                                                typename boost::add_pointer<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type
+                                                object_pointer
+//                                                typename boost::add_pointer<typename boost::remove_const<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type>::type
+//                                                typename boost::add_pointer<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type
                                                >::type arg_signature;
         public:
             typedef typename boost::function_types::function_type<arg_signature>::type type;

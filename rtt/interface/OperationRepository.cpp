@@ -1,7 +1,7 @@
 #include "OperationRepository.hpp"
+#include "FactoryExceptions.hpp"
 #include <algorithm>
 #include "../internal/mystd.hpp"
-#include "../internal/FactoryExceptions.hpp"
 #include "../internal/Exceptions.hpp"
 
 using namespace RTT;
@@ -42,7 +42,7 @@ base::DataSourceBase* OperationRepository::produce(const std::string& name, cons
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
     return i->second->produce(args, caller);
 }
 
@@ -50,7 +50,7 @@ base::DataSourceBase* OperationRepository::produceSend(const std::string& name, 
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
     return i->second->produceSend(args, caller);
 }
 
@@ -58,7 +58,7 @@ base::DataSourceBase* OperationRepository::produceHandle(const std::string& name
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
     return i->second->produceHandle();
 }
 
@@ -66,7 +66,7 @@ base::DataSourceBase* OperationRepository::produceCollect(const std::string& nam
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
     return i->second->produceCollect(args, blocking);
 }
 
@@ -74,7 +74,7 @@ OperationRepository::Descriptions OperationRepository::getArgumentList(const std
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), Descriptions());
     return i->second->getArgumentList();
 }
 
@@ -82,7 +82,7 @@ std::string OperationRepository::getResultType(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), std::string());
     return i->second->resultType();
 }
 
@@ -90,7 +90,7 @@ std::string OperationRepository::getDescription(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), std::string());
     return i->second->description();
 }
 

@@ -239,6 +239,8 @@ namespace RTT
                 return *op; // should never be reached.
             }
             ownedoperations.push_back(op);
+            //typedef typename internal::incomplete<ObjT>::x x;
+            //typedef typename internal::incomplete<SignatureDS>::y y;
             this->add( op->getName(), new internal::OperationRepositoryPartFusedDS<SignatureDS,ObjT>( sp, op) );
 
             return *op;

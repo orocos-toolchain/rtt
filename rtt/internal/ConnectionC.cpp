@@ -38,7 +38,7 @@
 
 #include "../interface/EventService.hpp"
 #include "ConnectionC.hpp"
-#include "FactoryExceptions.hpp"
+#include "../interface/FactoryExceptions.hpp"
 #include "../Logger.hpp"
 #include <vector>
 #include <boost/bind.hpp>

@@ -7,6 +7,7 @@
 
 #include "../base/DataSourceBase.hpp"
 #include "ArgumentDescription.hpp"
+#include "FactoryExceptions.hpp"
 
 namespace RTT
 {
@@ -218,6 +219,7 @@ namespace RTT
              * @param name The name of the operation
              *
              * @return A list of descriptions.
+             * @throw name_not_found_exception
              */
             Descriptions getArgumentList(const std::string& name) const;
 
@@ -227,6 +229,7 @@ namespace RTT
              * @param name The name of the operation
              *
              * @return A name of a data type.
+             * @throw name_not_found_exception
              */
             std::string getResultType(const std::string& name) const;
 
@@ -236,6 +239,7 @@ namespace RTT
              * @param name The name of the operation
              *
              * @return A user readable description.
+             * @throw name_not_found_exception
              */
             std::string getDescription(const std::string& name) const;
 
