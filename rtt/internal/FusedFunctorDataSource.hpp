@@ -34,8 +34,8 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
-              DataSourceSequence args;
               boost::function<Signature> ff;
+              DataSourceSequence args;
               mutable RStore<result_type> ret;
           public:
               typedef boost::intrusive_ptr<FusedFunctorDataSource<Signature> >
@@ -95,8 +95,8 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
-              DataSourceSequence args;
               typename base::MethodBase<Signature>::shared_ptr ff;
+              DataSourceSequence args;
               mutable RStore<result_type> ret;
           public:
               typedef boost::intrusive_ptr<FusedMCallDataSource<Signature> >
@@ -156,8 +156,8 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
-              DataSourceSequence args;
               typename base::MethodBase<Signature>::shared_ptr ff;
+              DataSourceSequence args;
               mutable SendHandle<Signature> sh; // mutable because of get() const
           public:
               typedef boost::intrusive_ptr<FusedMSendDataSource<Signature> >

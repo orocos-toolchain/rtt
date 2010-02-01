@@ -80,7 +80,7 @@ namespace RTT {
             return mlist;
         }
 
-        int FunctionFactory::arity( ) const
+        unsigned int FunctionFactory::arity( ) const
         {
             return func->getArguments().size();
         }

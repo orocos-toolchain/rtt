@@ -272,6 +272,7 @@ namespace RTT
                         throw SendFailure;
                 } else
                     return this->mmeth(a1);
+                return NA<result_type>::na();
             }
 
             template<class T1, class T2>
@@ -286,6 +287,7 @@ namespace RTT
                         throw SendFailure;
                 } else
                     return this->mmeth(a1,a2);
+                return NA<result_type>::na();
             }
 
             template<class T1, class T2, class T3>
@@ -300,6 +302,7 @@ namespace RTT
                         throw SendFailure;
                 } else
                     return this->mmeth(a1,a2,a3);
+                return NA<result_type>::na();
             }
 
             template<class T1, class T2, class T3, class T4>
@@ -314,6 +317,7 @@ namespace RTT
                         throw SendFailure;
                 } else
                     return this->mmeth(a1,a2,a3,a4);
+                return NA<result_type>::na();
             }
 
             result_type ret_impl()

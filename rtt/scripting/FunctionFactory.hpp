@@ -67,7 +67,7 @@ namespace RTT
 
         std::string resultType() const;
 
-        int arity() const;
+        unsigned int arity() const;
 
         std::string description() const;
 

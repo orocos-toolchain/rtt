@@ -50,7 +50,7 @@ namespace RTT
             virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
                 std::vector<std::string> const& descr = op->getDescriptions();
                 std::vector<interface::ArgumentDescription> ret;
-                for (int i =1; i < descr.size(); i +=2 )
+                for (unsigned int i =1; i < descr.size(); i +=2 )
                     ret.push_back(interface::ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1) ));
                 return ret;
             }
@@ -60,7 +60,7 @@ namespace RTT
                 return DataSource<result_type>::GetType();
             }
 
-            int arity() const { return boost::function_traits<Signature>::arity; }
+            unsigned int arity() const { return boost::function_traits<Signature>::arity; }
 
             base::DataSourceBase* produce(
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
@@ -82,7 +82,7 @@ namespace RTT
             }
 
             virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
-                const int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                 if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
@@ -119,7 +119,7 @@ namespace RTT
                     return DataSource<result_type>::GetType();
                 }
 
-                int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
+                unsigned int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
 
                 virtual std::string description() const {
                     return op->getDescriptions().front();
@@ -128,7 +128,7 @@ namespace RTT
                 virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
                     std::vector<std::string> const& descr = op->getDescriptions();
                     std::vector<interface::ArgumentDescription> ret;
-                    for (int i =1; i < descr.size(); i +=2 )
+                    for (unsigned int i =1; i < descr.size(); i +=2 )
                         ret.push_back(interface::ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
                     return ret;
                 }
@@ -162,7 +162,7 @@ namespace RTT
                 }
 
                 virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
-                    const int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                    const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );

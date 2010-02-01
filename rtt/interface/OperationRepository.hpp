@@ -50,7 +50,7 @@ namespace RTT
             /**
              * Returns the arity (number of arguments) of this part.
              */
-            virtual int arity() const = 0;
+            virtual unsigned int arity() const = 0;
 
             /**
              * Create a DataSource for a given callable operation.
