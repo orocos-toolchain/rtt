@@ -20,6 +20,9 @@
 //	return old;
 //}
 
+#pragma warning(push)
+#pragma warning(disable : 4715)	// Disable warning on "specified function can potentially not return a value"
+
 template<typename T> inline T oro_cmpxchg(volatile void * ptr, T old, T _new)
 {
 	switch(sizeof(T))
@@ -32,6 +35,8 @@ template<typename T> inline T oro_cmpxchg(volatile void * ptr, T old, T _new)
 		return (T)(_InterlockedCompareExchange64((__int64 *)ptr, (__int64)_new, (__int64)old));		
 	}
 }
+
+#pragma warning(pop)
 
 /*
 #define oro_cmpxchg(ptr,o,n)\
