@@ -999,7 +999,7 @@ namespace RTT {
 
         // first try to execute transition program on behalf of current state.
         if ( currentTrans ) {
-            TRACE("Executing transition program from '"+ current->getName() + "' to '"+next->getName()+"'" );
+            TRACE("Executing transition program from '"+ (current ? current->getName() : "(null)") + "' to '"+ ( next ? next->getName() : "(null)")+"'" );
             // exception : transition during handle, first finish handle !
             if ( currentHandle ) {
                 if ( this->executeProgram(currentHandle, stepping) == false )
@@ -1100,12 +1100,11 @@ namespace RTT {
         TRACE_INIT();
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
-        bool result;
         if ( stepping )
-            result = currentProg->step();
+            currentProg->step();
         else
-            result = currentProg->execute();
-        if ( result == false) {
+            currentProg->execute();
+        if ( currentProg->inError() ) {
             smStatus = Status::error;
             smpStatus = nill;
             TRACE("Encountered run-time error at line " << this->getLineNumber() );
@@ -1211,14 +1210,17 @@ namespace RTT {
         // but if current exit is in error, skip it alltogether.
         if ( currentExit && currentExit->inError() )
             currentExit = 0;
+        if ( currentTrans && currentTrans->inError() )
+            currentTrans = 0;
+        // if we stalled, in previous deactivate
+        // even skip/stop exit program.
+        if ( next != 0 && current )
+            leaveState( current );
         else {
-            // if we stalled, in previous deactivate
-            // even skip/stop exit program.
-            if ( next != 0 && current )
-                leaveState( current );
-            else
-                currentExit = 0;
+            currentExit = 0;
+            currentTrans = 0;
         }
+
         // do not call enterState( 0 )
         currentProg = 0;
         currentEntry = 0;
@@ -1235,7 +1237,6 @@ namespace RTT {
             TRACE("Still deactivating.");
             smStatus = Status::deactivating;
         }
-
 
         return true;
     }

@@ -253,30 +253,30 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
         + "     do test.increase()\n"                // set i to i+1
         + "     do test.assert( test.i() != 1)\n" // fail if i == 1
         + " }\n"
-        + " handle {\n"
+        + " run {\n"
         + "     do test.assert( test.i != 2)\n"
         + " }\n"
         + " exit {\n"
         + "     do test.assert( test.i != 3)\n"
         + " }\n"
         + " transitions {\n"
-        + "     select FINI\n"
+        + "     if (true) then { do test.assert( test.i() != 7); } select FINI\n"
         + " }\n"
         + " }\n"
-        + " state ERROR { entry { do test.assert(false) }\n"
+        + " state ERROR {\n"
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
         + "     do test.assert( test.i != 4)\n"
         + " }\n"
-        + " handle {\n"
+        + " run {\n"
         + "     do test.assert( test.i != 5)\n"
         + " }\n"
         + " exit {\n"
         + "     do test.assert( test.i != 6)\n"
         + " }\n"
         + " transitions {\n"
-        + "     select INIT\n"
+        + "     select ERROR\n"
         + " }\n"
         + " }\n"
         + " }\n"
@@ -284,15 +284,16 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
         ;
 
     // should fail each time
+    const int max = 7;
     int x = 0;
-    while ( i < 6 ) {
+    while ( i < max && x < max) {
         this->doState( prog, &gtc, false );
-
+        cout << "i is: "<< i <<endl;
         // assert that an error happened :
         BOOST_CHECK_MESSAGE( sa->getStateMachineStatus("x") == StateMachine::Status::error, "Status is: " + sa->getStateMachineStatusStr("x") );
 
         this->finishState( &gtc, "x", false);
-        ++i;
+        ++x;
     }
 }
 BOOST_AUTO_TEST_CASE( testStateChildren)
