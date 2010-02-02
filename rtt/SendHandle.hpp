@@ -2,6 +2,7 @@
 #define ORO_CORELIB_SEND_HANDLE_HPP
 
 #include "rtt-config.h"
+#include "Logger.hpp"
 #include "internal/CollectSignature.hpp"
 #include "internal/CollectBase.hpp"
 #include "internal/InvokerSignature.hpp"
@@ -51,17 +52,32 @@ namespace RTT
 		    //impl->dispose();
         }
 
+        SendHandle& operator=(base::DisposableInterface* implementation)
+        {
+            if (this->IBase::impl && this->IBase::impl == implementation)
+                return *this;
+            this->IBase::impl = dynamic_cast< base::MethodBase<Signature>* >(implementation);
+            if ( !this->IBase::impl && implementation ) {
+                log(Error) << "Tried to assign SendHandle from incompatible type."<< endlog();
+            }
+            this->CBase::cimpl = dynamic_cast< internal::CollectBase<Signature>* >(implementation);
+            if ( !this->CBase::cimpl && implementation ) {
+                log(Error) << "Tried to assign SendHandle from incompatible type."<< endlog();
+            }
+            return *this;
+        }
+
         /**
          * Inspect if this SendHandle is pointing to a valid (existing) invocation.
          * @return false if no invocation is associated with this SendHandle.
          */
-        operator bool() const { return this->impl != 0;}
+        operator bool() const { return ready();}
 
         /**
          * Inspect if this SendHandle is pointing to valid (existing) invocation.
          * @return false if no invocation is associated with this handle.
          */
-        bool ready() const { return this->impl != 0;}
+        bool ready() const { return this->CBase::cimpl != 0 && this->IBase::impl != 0;}
 
         using CBase::collect;
 
