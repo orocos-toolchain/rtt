@@ -420,6 +420,8 @@ namespace RTT
 
     void TaskContext::updateHook()
     {
+        // When the user overrides this method, this code will never be called, so the portqueue will fill up
+        // and remain as such.
         PortInterface* port = 0;
         while ( portqueue.dequeue( port ) == true ) {
             if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
