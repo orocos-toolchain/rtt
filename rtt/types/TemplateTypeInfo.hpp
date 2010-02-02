@@ -488,8 +488,9 @@ namespace RTT
             typedef typename boost::function_traits<S>::arg1_type arg1_type;
             typedef internal::create_sequence<typename boost::function_types::parameter_types<S>::type> SequenceFactory;
 
-            bool automatic;
             boost::function<S> ff;
+            bool automatic;
+
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
                 : ff(f), automatic(autom)
