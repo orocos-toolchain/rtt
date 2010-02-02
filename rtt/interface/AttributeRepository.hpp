@@ -96,6 +96,34 @@ namespace RTT
         bool hasAttribute( const std::string& name ) const;
 
         /**
+         * Adds a variable of any type as read/write attribute to the attribute interface.
+         * An Alias is created which causes contents of this
+         * variable always to be in sync
+         * with the contents of the attribute.
+         * @param name The name of this attribute
+         * @param attr The variable that will be aliased.
+         */
+        template<class T>
+        bool addAlias( const std::string& name, T& attr) {
+            Alias a(name, new internal::ReferenceDataSource<T>(attr));
+            return this->addAttribute( &a );
+        }
+
+        /**
+         * Adds a variable of any type as read-only attribute to the attribute interface.
+         * An Alias is created which causes contents of the
+         * attribute always to be in sync
+         * with the contents of \a attr, but it can only be read through the interface.
+         * @param name The name of this attribute
+         * @param attr The variable that will be aliased.
+         */
+        template<class T>
+        bool addConstAlias( const std::string& name, const T& attr) {
+            Alias a(name, new internal::ConstReferenceDataSource<T>(attr));
+            return this->addAttribute( &a );
+        }
+
+        /**
          * Add an base::AttributeBase which remains owned by the
          * user.
          * @param a remains owned by the user, and becomes
@@ -192,18 +220,6 @@ namespace RTT
         bool removeValue(const std::string& name );
 
         /**
-         * Add a DataObject as an Attribute. This is especially useful
-         * to add the thread-safe DataObjects as thread-safe attributes.
-         * You can retrieve it through getValue().
-         * @param doi The DataObject, which remains owned by the user.
-         * @return true if doi->getName() is unique within this repository.
-         */
-        template<class T>
-        bool addDataObject( base::DataObjectInterface<T>* doi) {
-            return this->setValue( new Alias(doi->getName(), doi ));
-        }
-
-        /**
          * Return a new copy of this repository with the copy operation semantics.
          * @param instantiate set to true if you want a copy which will upon any future
          * copy return the same DataSources, thus 'fixating' or 'instantiating' the DataSources.
@@ -227,15 +243,9 @@ namespace RTT
         }
 
         /**
-         * Return the names of all attributes.
-         * @deprecated by getAttributes()
-         */
-        AttributeNames names() const;
-
-        /**
          * Return the names of all attributes in this repository.
          */
-        AttributeNames getAttributes() const;
+        AttributeNames getAttributeNames() const;
 
         /**
          * Return a bag of all properties.

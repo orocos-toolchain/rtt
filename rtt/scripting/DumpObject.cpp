@@ -57,7 +57,7 @@ void DumpObject(ServiceProvider* peer)
 
     cerr << "Dumping Service "<< peer->getName() << endl;
     cerr << "Attributes: ";
-    std::vector<std::string> objlist = peer->names();
+    std::vector<std::string> objlist = peer->getAttributeNames();
     for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
         DataSourceBase::shared_ptr pds = peer->getValue(*it)->getDataSource();
         cerr << *it <<"(="<< pds<<") ";

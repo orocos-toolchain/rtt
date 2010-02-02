@@ -80,11 +80,14 @@ namespace RTT {
 
   bool AttributeRepository::setValue( AttributeBase* value )
   {
-    map_t::iterator i = find( values.begin(), values.end(), value );
-    if ( i != values.end() )
-        return false;
-    values.push_back( value );
-    return true;
+      if ( !value->getDataSource() || value->getName().empty() )
+          return false;
+      map_t::iterator i = find( values.begin(), values.end(), value );
+      if ( i != values.end() ) {
+          *i = value;
+      } else
+          values.push_back( value );
+      return true;
   }
 
     bool AttributeRepository::addProperty( PropertyBase* pb ) {
@@ -138,9 +141,7 @@ namespace RTT {
         return false;
     }
 
-    std::vector<std::string> AttributeRepository::names() const { return this->getAttributes(); }
-
-    std::vector<std::string> AttributeRepository::getAttributes() const
+    std::vector<std::string> AttributeRepository::getAttributeNames() const
     {
         std::vector<std::string> ret;
         std::transform( values.begin(), values.end(), back_inserter(ret), bind(&AttributeBase::getName, _1) );
