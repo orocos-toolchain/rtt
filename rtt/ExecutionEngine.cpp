@@ -224,7 +224,7 @@ namespace RTT
         // XXX this code belongs in TaskCore.
         // only call updateHook in the Running state.
         if ( taskc ) {
-            if ( taskc->mTaskState == TaskCore::Running || taskc->mTaskState == TaskCore::RunTimeWarning )
+            if ( taskc->mTaskState == TaskCore::Running )
                 taskc->updateHook();
             if (  taskc->mTaskState == TaskCore::RunTimeError )
                 taskc->errorHook();
@@ -238,7 +238,7 @@ namespace RTT
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running || (*it)->mTaskState == TaskCore::RunTimeWarning )
+            if ( (*it)->mTaskState == TaskCore::Running )
                 (*it)->updateHook();
             if (  (*it)->mTaskState == TaskCore::RunTimeError )
                 (*it)->errorHook();

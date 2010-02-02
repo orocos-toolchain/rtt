@@ -102,26 +102,22 @@ namespace RTT
         // from ServiceProvider
         mdescription = "The interface of this TaskContext.";
 
-        this->addOperation("configure", &TaskContext::configure, this).doc("Configure this TaskContext (read properties etc).");
-        this->addOperation("isConfigured", &TaskContext::isConfigured, this).doc("Is this TaskContext configured ?");
-        this->addOperation("start", &TaskContext::start, this).doc("Start the Execution Engine of this TaskContext (= activate + updateHook() ).");
-        this->addOperation("activate", &TaskContext::activate, this).doc("Activate the Execution Engine of this TaskContext (= events and commands).");
-        this->addOperation("stop", &TaskContext::stop, this).doc("Stop the Execution Engine of this TaskContext.");
-        this->addOperation("isRunning", &TaskContext::isRunning, this).doc("Is the Execution Engine executing this TaskContext ?");
-        this->addOperation("getPeriod", &TaskContext::getPeriod, this).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
-        this->addOperation("isActive", &TaskContext::isActive, this).doc("Is the Execution Engine of this TaskContext processing events and commands ?");
-        this->addOperation("inFatalError", &TaskContext::inFatalError, this).doc("Check if this TaskContext is in the FatalError state.");
-        this->addOperation("warning", &TaskContext::warning, this).doc("Enter the RunTimeWarning state.");
-        this->addOperation("inRunTimeWarning", &TaskContext::inRunTimeWarning, this).doc("Check if this TaskContext is in the RunTimeWarning state.");
-        this->addOperation("getWarningCount", &TaskContext::getWarningCount, this).doc("Check if the number of times the RunTimeWarning state has been entered.");
-        this->addOperation("error", &TaskContext::error, this).doc("Enter the RunTimeError state.");
-        this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this).doc("Check if this TaskContext is in the RunTimeError state.");
-        this->addOperation("getErrorCount", &TaskContext::getErrorCount, this).doc("Check if the number of times the RunTimeError state has been entered.");
-        this->addOperation("cleanup", &TaskContext::cleanup, this).doc("Reset this TaskContext to the PreOperational state (write properties etc).");
-        this->addOperation("resetError", &TaskContext::resetError, this).doc("Reset this TaskContext from the FatalError state.");
-        this->addOperation("update", &TaskContext::doUpdate, this).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
+        this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (read properties etc).");
+        this->addOperation("isConfigured", &TaskContext::isConfigured, this, ClientThread).doc("Is this TaskContext configured ?");
+        this->addOperation("start", &TaskContext::start, this, ClientThread).doc("Start the Execution Engine of this TaskContext (= activate + updateHook() ).");
+        this->addOperation("activate", &TaskContext::activate, this, ClientThread).doc("Activate the Execution Engine of this TaskContext (= events and commands).");
+        this->addOperation("stop", &TaskContext::stop, this, ClientThread).doc("Stop the Execution Engine of this TaskContext.");
+        this->addOperation("isRunning", &TaskContext::isRunning, this, ClientThread).doc("Is the Execution Engine executing this TaskContext ?");
+        this->addOperation("getPeriod", &TaskContext::getPeriod, this, ClientThread).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
+        this->addOperation("isActive", &TaskContext::isActive, this, ClientThread).doc("Is the Execution Engine of this TaskContext processing events and commands ?");
+        this->addOperation("inFatalError", &TaskContext::inFatalError, this, ClientThread).doc("Check if this TaskContext is in the FatalError state.");
+        this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state.");
+        this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this, ClientThread).doc("Check if this TaskContext is in the RunTimeError state.");
+        this->addOperation("cleanup", &TaskContext::cleanup, this, ClientThread).doc("Reset this TaskContext to the PreOperational state (write properties etc).");
+        this->addOperation("resetError", &TaskContext::resetError, this, ClientThread).doc("Reset this TaskContext from the FatalError state.");
+        this->addOperation("update", &TaskContext::update, this, ClientThread).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
-        this->addOperation("trigger", &TaskContext::doTrigger, this).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
+        this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
         // See TaskContext::start().
         updated_ports.reserve(0);

@@ -49,14 +49,12 @@ namespace RTT {
     TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
         :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
-           ,runtime_warnings(0), runtime_errors(0)
     {
     }
 
     TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
         :  ee( parent )
            ,mTaskState(initial_state)
-           ,runtime_warnings(0), runtime_errors(0)
     {
         parent->addChild( this );
     }
@@ -80,14 +78,14 @@ namespace RTT {
     }
 
 
-    bool TaskCore::doUpdate()
+    bool TaskCore::update()
     {
         if ( !this->engine()->getActivity() )
             return false;
         return this->engine()->getActivity()->execute();
     }
 
-    bool TaskCore::doTrigger()
+    bool TaskCore::trigger()
     {
         if ( !this->engine()->getActivity() )
             return false;
@@ -111,8 +109,6 @@ namespace RTT {
         if ( mTaskState == Stopped ) {
             cleanupHook();
             mTaskState = PreOperational;
-            runtime_warnings = 0;
-            runtime_errors = 0;
             return true;
         }
         return false; // no cleanup when running or not configured.
@@ -122,17 +118,9 @@ namespace RTT {
         mTaskState = FatalError;
     }
 
-    void TaskCore::warning() {
-        if (mTaskState < Running )
-            return;
-        ++runtime_warnings;
-        mTaskState = RunTimeWarning;
-    }
-
     void TaskCore::error() {
         if (mTaskState < Running )
             return;
-        ++runtime_errors;
         mTaskState = RunTimeError;
     }
 
@@ -140,16 +128,6 @@ namespace RTT {
         if (mTaskState <= Running )
             return;
         mTaskState = Running;
-    }
-
-    int TaskCore::getWarningCount() const
-    {
-        return runtime_warnings;
-    }
-
-    int TaskCore::getErrorCount() const
-    {
-        return runtime_errors;
     }
 
     bool TaskCore::resetError() {
@@ -177,7 +155,7 @@ namespace RTT {
     }
 
     bool TaskCore::stop() {
-        if ( mTaskState >= Active ) {
+        if ( mTaskState >= Running ) {
             stopHook();
             mTaskState = Stopped;
             return true;
@@ -186,15 +164,8 @@ namespace RTT {
     }
 
     bool TaskCore::activate() {
-        if ( mTaskState < Active ) {
-            if ( activateHook() ) {
-                mTaskState = Active;
-                return true;
-            } else {
-                mTaskState = Stopped;
-                return false;
-            }
-        }
+        if ( this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->start() )
+            return isActive();
         return false;
     }
 
@@ -217,13 +188,9 @@ namespace RTT {
         return mTaskState == RunTimeError;
     }
 
-    bool TaskCore::inRunTimeWarning() const {
-        return mTaskState == RunTimeWarning;
-    }
-
     bool TaskCore::isActive() const
     {
-        return mTaskState >= Active;
+        return this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->isActive();
     }
 
     double TaskCore::getPeriod() const
@@ -238,18 +205,9 @@ namespace RTT {
     void TaskCore::errorHook() {
     }
 
-    bool TaskCore::startup()
-    {
-        return true;
-    }
-    void TaskCore::update()
-    {}
-    void TaskCore::shutdown()
-    {}
-
     bool TaskCore::startHook()
     {
-        return startup();
+        return true;
     }
 
     bool TaskCore::resetHook()
@@ -257,14 +215,8 @@ namespace RTT {
         return true;
     }
 
-    bool TaskCore::activateHook()
-    {
-        return true;
-    }
-
     void TaskCore::updateHook()
     {
-        update();
     }
 
     bool TaskCore::breakUpdateHook()
@@ -274,7 +226,6 @@ namespace RTT {
 
     void TaskCore::stopHook()
     {
-        shutdown();
     }
 
     void TaskCore::setExecutionEngine(ExecutionEngine* engine) {
