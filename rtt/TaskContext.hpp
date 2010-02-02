@@ -327,6 +327,7 @@ namespace RTT
     protected:
         typedef std::vector< base::PortInterface* > PortList;
         PortList updated_ports;
+        internal::AtomicQueue<base::PortInterface*> portqueue;
 
         /**
          * This callback is called each time data arrived on an

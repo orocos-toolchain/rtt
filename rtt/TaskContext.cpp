@@ -69,6 +69,7 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore( initial_state), ServiceProvider(name, this), ServiceRequester(name, this)
+           ,portqueue(64)
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
@@ -81,6 +82,7 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
         :  TaskCore(parent, initial_state), ServiceProvider(name, this), ServiceRequester(name, this)
+           ,portqueue(64)
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
@@ -416,16 +418,17 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        // This is not thread-safe, need to protect with the task-lock.
-        assert(false);
-        if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
-            updated_ports.push_back(port);
-
+        portqueue.enqueue( port );
         this->getActivity()->trigger();
     }
 
     void TaskContext::updateHook()
     {
+        PortInterface* port = 0;
+        while ( portqueue.dequeue( port ) == true ) {
+            if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
+                updated_ports.push_back(port);
+        }
         updateHook(updated_ports);
         updated_ports.clear();
     }
