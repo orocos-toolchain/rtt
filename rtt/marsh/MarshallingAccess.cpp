@@ -41,7 +41,7 @@
 #include "../TaskContext.hpp"
 
 #include "rtt-config.h"
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
+#if !defined(ORO_EMBEDDED)
 #include "../Method.hpp"
 #endif
 #include "PropertyLoader.hpp"
@@ -51,7 +51,7 @@ namespace RTT {
     MarshallingAccess::MarshallingAccess(TaskContext* parent)
         : mparent(parent)
     {
-#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
+#if !defined(ORO_EMBEDDED)
         ServiceProvider* obj;
         if (! mparent->hasService("marshalling") ) {
             obj = new ServiceProvider("marshalling",parent);

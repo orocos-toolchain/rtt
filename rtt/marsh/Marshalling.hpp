@@ -1,63 +1,29 @@
-/***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  MarshallingAccess.hpp
-
-                        MarshallingAccess.hpp -  description
-                           -------------------
-    begin                : do november 02 2006
-    copyright            : (C) 2006 FMTC
-    email                : peter.soetens@fmtc.be
-
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU General Public                   *
- *   License as published by the Free Software Foundation;                 *
- *   version 2 of the License.                                             *
- *                                                                         *
- *   As a special exception, you may use this file as part of a free       *
- *   software library without restriction.  Specifically, if other files   *
- *   instantiate templates or use macros or inline functions from this     *
- *   file, or you compile this file and link it with other files to        *
- *   produce an executable, this file does not by itself cause the         *
- *   resulting executable to be covered by the GNU General Public          *
- *   License.  This exception does not however invalidate any other        *
- *   reasons why the executable file might be covered by the GNU General   *
- *   Public License.                                                       *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU General Public             *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
-
-
-
-#ifndef ORO_MARSHALLING_ACCESS_HPP
-#define ORO_MARSHALLING_ACCESS_HPP
+#ifndef ORO_MARSHALLING_HPP_
+#define ORO_MARSHALLING_HPP_
 
 #include <string>
 #include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
+#include "../interface/ServiceRequester.hpp"
+#include "../Method.hpp"
+#include <string>
 
 namespace RTT
-{ namespace interface {
-
+{
     /**
-     * Load and save properties of a TaskContext.
+     * Service requester to load and save properties of a TaskContext.
      */
-    class RTT_API MarshallingAccess
+    class RTT_API Marshalling
+    : public interface::ServiceRequester
     {
         TaskContext* mparent;
     public:
         /**
          * This object is normally created by a TaskContext.
          */
-        MarshallingAccess(TaskContext* parent);
+        Marshalling(TaskContext* parent);
+
+        ~Marshalling();
 
         /**
          * Read a property file and update (or create any missing) properties in the
@@ -65,7 +31,7 @@ namespace RTT
          * component. This can be useful in combination with Orocos scripts when
          * the script requires additional properties from the parent TaskContext.
          */
-        bool loadProperties(const std::string& filename) const;
+        Method<bool (const std::string& filename)> loadProperties;
 
         /**
          * Read the property file and 'refresh' \b all the properties of the TaskContext.
@@ -75,7 +41,7 @@ namespace RTT
          * @param filename The file to read from.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool readProperties(const std::string& filename) const;
+        Method<bool (const std::string& filename)> readProperties;
 
         /**
          * Read the property file and 'refresh' \b some properties of the TaskContext.
@@ -86,7 +52,7 @@ namespace RTT
          * @param filename The file to read all the properties from.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool updateProperties(const std::string& filename) const;
+        Method<bool (const std::string& filename)> updateProperties;
 
         /**
          * Read a single property from a file. The name may be a 'path' like
@@ -96,7 +62,7 @@ namespace RTT
          * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to lookup \a name.
          */
-        bool readProperty(const std::string& name,const std::string& filename);
+        Method<bool (const std::string& name,const std::string& filename)> readProperty;
 
         /**
          * Write the property file with the properties of a TaskContext.
@@ -106,7 +72,7 @@ namespace RTT
          * @param filename The file to read from and write to (updating).
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool writeProperties(const std::string& filename) const;
+        Method<bool (const std::string& filename)> writeProperties;
 
         /**
          * Write the property file with the properties of a TaskContext, which
@@ -117,7 +83,7 @@ namespace RTT
          * @param filename The file to read from and write to.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool updateFile(const std::string& filename) const;
+        Method<bool (const std::string& filename)> updateFile;
 
         /**
          * Write a single property to a file. The name may be a 'path' like
@@ -127,9 +93,9 @@ namespace RTT
          * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to write \a name.
          */
-        bool writeProperty(const std::string& name, const std::string& filename);
+        Method<bool (const std::string& name, const std::string& filename)> writeProperty;
 
     };
-}}
+}
 
 #endif

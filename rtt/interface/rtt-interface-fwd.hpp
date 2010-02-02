@@ -46,10 +46,8 @@ namespace RTT {
         class DataFlowInterface;
         class EventService;
         class ExecutionAccess;
-        class MarshallingAccess;
         class OperationRepository;
         class OperationRepositoryPart;
-        class PropertyLoader;
         class ServiceProvider;
         class ServiceRequester;
     }

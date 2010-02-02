@@ -5,8 +5,8 @@ GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp mars
 IF (ENABLE_MARSHALLING)
   GLOBAL_ADD_INCLUDE( rtt/marsh CPFMarshaller.hpp
            XMLRPCDemarshaller.hpp XMLRPCMarshaller.hpp CPFDTD.hpp
-           StreamProcessor.hpp )
-  GLOBAL_ADD_SRC( marsh/CPFDTD.cpp marsh/CPFMarshaller.cpp)
+           StreamProcessor.hpp Marshalling.hpp PropertyLoader.hpp)
+  GLOBAL_ADD_SRC( marsh/CPFDTD.cpp marsh/CPFMarshaller.cpp marsh/Marshalling.cpp marsh/MarshallingAccess.cpp marsh/PropertyLoader.cpp)
 
   IF (XERCES_FOUND AND NOT OS_NOEXCEPTIONS)
     GLOBAL_ADD_INCLUDE( rtt/marsh CPFDemarshaller.hpp)
