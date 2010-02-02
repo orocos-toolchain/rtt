@@ -42,9 +42,11 @@
 
 #include "rtt-config.h"
 #include "interface/ServiceProvider.hpp"
+#include "interface/ServiceRequester.hpp"
 #include "interface/DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
+#include <boost/make_shared.hpp>
 
 #include <string>
 #include <map>
@@ -89,7 +91,8 @@ namespace RTT
      */
     class RTT_API TaskContext
         : public base::TaskCore,
-          public interface::ServiceProvider
+          public interface::ServiceProvider,
+          public interface::ServiceRequester
     {
     public:
         /**
@@ -150,6 +153,11 @@ namespace RTT
          * Add a data flow connection from this task's ports to a peer's ports.
          */
         virtual bool connectPorts( TaskContext* peer );
+
+        /**
+         * Connects all requires/provides services of this component to these of a peer.
+         */
+        virtual bool connectServices( TaskContext* peer);
 
         /**
          * Disconnect this TaskContext from it's peers.
@@ -265,6 +273,29 @@ namespace RTT
             return &dataPorts;
         }
 
+        /**
+         * Use this method to be able to make Method calls to services of this component.
+         *
+         * For example: getService<Scripting>("scripting")->loadPrograms("file.ops");
+         *
+         * @param name The name of the service to get, must have been added with
+         * addService.
+         * @param ServiceType the ServiceRequester type to use. Must have a default constructor.
+         * @return a shared ServiceRequester object which allows to call operations of service \a name.
+         */
+        template<class ServiceType>
+        boost::shared_ptr<ServiceType> getService(const std::string& name) {
+            if (!hasService(name)) return boost::shared_ptr<ServiceType>();
+            LocalServices::iterator it = localservs.find(name);
+            if (  it != localservs.end() ) {
+                return boost::dynamic_pointer_cast<ServiceType>(it->second);
+            }
+            boost::shared_ptr<ServiceType> st = boost::make_shared<ServiceType>(this);
+            st->connectTo( provides(name) );
+            localservs[name] = st;
+            return st;
+        }
+
     private:
         // non copyable
         TaskContext( TaskContext& );
@@ -300,6 +331,9 @@ namespace RTT
          * event port.
          */
         void dataOnPort(base::PortInterface*);
+
+        typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
+        LocalServices localservs;
     private:
         /**
          * The task-local ports.
