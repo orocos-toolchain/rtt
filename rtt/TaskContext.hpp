@@ -54,12 +54,13 @@
 namespace RTT
 {
     /**
-     * A TaskContext exports the commands, methods, events, properties and ports
-     * a task has. Furthermore, it allows to visit its peer tasks.
+     * The TaskContext is the C++ representation of an Orocos component.
+     * It defines which services it provides and requires and which ports are inputs and
+     * outputs. It can be configured through the means of properties.
      *
      * @par TaskContext interface
-     * You can define the interface of a TaskContext by adding communication primitives.
-     * These are commands(), properties(), methods(), events(), attributes() and ports().
+     * You can define the interface of a TaskContext by adding interface primitives.
+     * These are (data flow) ports, (configuration) properties and operations (functions).
      * Setting up the interface is explained at length in the Orocos Component Builder's
      * Manual.
      *
@@ -75,10 +76,8 @@ namespace RTT
      * In order to run the ExecutionEngine, the ExecutionEngine must
      * be run by an base::ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
-     * TaskContext will not accept any commands, nor process events,
-     * nor execute programs or state machines.  In this way, the user
-     * of this class can determine himself at which point and at which
-     * moment commands and programs can be executed.
+     * TaskContext will not accept any asynchronous invocations, nor process events,
+     * nor execute programs or state machines.
      *
      * @par Connecting TaskContexts
      * TaskContexts are connected using the unidirectional addPeer() or bidirectional
@@ -88,6 +87,9 @@ namespace RTT
      * In order to disconnect this task from its peers, use disconnect(), which
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
+     *
+     * In day-to-day use, TaskContexts are connected using the OCL::DeploymentComponent
+     * and an XML file or script.
      */
     class RTT_API TaskContext
         : public base::TaskCore,
@@ -274,17 +276,17 @@ namespace RTT
         }
 
         /**
-         * Use this method to be able to make Method calls to services of this component.
+         * Use this method to be able to make Method calls to services provided by this component.
          *
-         * For example: getService<Scripting>("scripting")->loadPrograms("file.ops");
+         * For example: getProvider<Scripting>("scripting")->loadPrograms("file.ops");
          *
          * @param name The name of the service to get, must have been added with
          * addService.
-         * @param ServiceType the ServiceRequester type to use. Must have a default constructor.
-         * @return a shared ServiceRequester object which allows to call operations of service \a name.
+         * @param ServiceType the ServiceRequester type to use. Must have a constructor that takes TaskContext* as argument.
+         * @return a shared ServiceRequester object which allows to call the operations provided by service \a name.
          */
         template<class ServiceType>
-        boost::shared_ptr<ServiceType> getService(const std::string& name) {
+        boost::shared_ptr<ServiceType> getProvider(const std::string& name) {
             if (!hasService(name)) return boost::shared_ptr<ServiceType>();
             LocalServices::iterator it = localservs.find(name);
             if (  it != localservs.end() ) {
