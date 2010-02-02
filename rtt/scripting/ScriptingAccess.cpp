@@ -64,6 +64,7 @@ namespace RTT {
         this->doc("Access to the Scripting interface. \
                 Use this object in order to load or query programs or state machines.");
         this->createInterface();
+        mparent->addService(this);
     }
 
     ScriptingAccess::~ScriptingAccess()
@@ -468,7 +469,6 @@ namespace RTT {
 
         // request states
         addOperation("requestStateMachineState", &ScriptingAccess::requestStateMachineState , this).doc("Request a State change").arg("Name", "The Name of the StateMachine").arg("StateName", "The Name of the State to change to");
-        mparent->addService(this);
     }
 
     int ScriptingAccess::execute(const string& code ){

@@ -61,8 +61,6 @@ namespace RTT
     class RTT_API ScriptingAccess
         : public interface::ServiceProvider
     {
-    protected:
-        TaskContext* mparent;
     public:
         ScriptingAccess( TaskContext* parent );
 
@@ -121,7 +119,6 @@ namespace RTT
 
         base::ProgramInterfacePtr getProgram(const std::string& name);
 
-    public:
         /**
          * Load a new State Machine and all its children.
          * @throw program_load_exception if a state machine with the same name already exists.
@@ -168,21 +165,6 @@ namespace RTT
          */
         StateMachinePtr getStateMachine(const std::string& name);
 
-    protected:
-        void recursiveLoadStateMachine( StateMachinePtr sc );
-        bool recursiveCheckLoadStateMachine( StateMachinePtr sc );
-        void recursiveUnloadStateMachine( StateMachinePtr sc );
-        bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
-
-        typedef std::map<std::string,StateMachinePtr> StateMap;
-        StateMap   states;
-        typedef StateMap::const_iterator StateMapIt;
-
-        typedef std::map<std::string,base::ProgramInterfacePtr> ProgMap;
-        ProgMap programs;
-        typedef ProgMap::const_iterator ProgMapIt;
-
-    public:
         /**
          * Parse and execute a statement.
          * @param code A single statement to execute.
@@ -524,6 +506,7 @@ namespace RTT
          *@}
          */
     protected:
+        TaskContext* mparent;
         StatementProcessor* sproc;
         bool doExecute(const std::string& code);
 
@@ -536,6 +519,20 @@ namespace RTT
         bool doUnloadStateMachine( const std::string& name );
 
         void createInterface(void);
+
+        void recursiveLoadStateMachine( StateMachinePtr sc );
+        bool recursiveCheckLoadStateMachine( StateMachinePtr sc );
+        void recursiveUnloadStateMachine( StateMachinePtr sc );
+        bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
+
+        typedef std::map<std::string,StateMachinePtr> StateMap;
+        StateMap   states;
+        typedef StateMap::const_iterator StateMapIt;
+
+        typedef std::map<std::string,base::ProgramInterfacePtr> ProgMap;
+        ProgMap programs;
+        typedef ProgMap::const_iterator ProgMapIt;
+
     };
 }}
 
