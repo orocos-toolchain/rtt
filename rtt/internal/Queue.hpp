@@ -74,11 +74,11 @@ namespace RTT
          * Optionally, add the number of threads that may
          * concurrently access this queue.
          */
-        Queue( int qsize, int t = ORONUM_OS_MAX_THREADS)
+        Queue( int qsize)
 #if defined(OROBLD_OS_NO_ASM)
-            : LockedQueue<T,ReadPolicy,WritePolicy>(qsize,t)
+            : LockedQueue<T,ReadPolicy,WritePolicy>(qsize)
 #else
-            : AtomicQueue<T,ReadPolicy,WritePolicy>(qsize,t)
+            : AtomicQueue<T,ReadPolicy,WritePolicy>(qsize)
 #endif
         {}
     };

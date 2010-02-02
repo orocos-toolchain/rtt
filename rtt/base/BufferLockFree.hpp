@@ -92,8 +92,8 @@ namespace RTT
          * Create a lock-free buffer wich can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
 '         */
-        BufferLockFree( unsigned int bufsize, const T& initial_value = T(), unsigned int max_threads = 2 )
-            : bufs( bufsize, max_threads ), mpool(bufsize, initial_value, max_threads)
+        BufferLockFree( unsigned int bufsize, const T& initial_value = T())
+            : bufs( bufsize ), mpool(bufsize, initial_value)
         {
         }
 

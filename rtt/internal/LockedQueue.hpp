@@ -86,7 +86,7 @@ namespace RTT
          * Create a lock-based queue wich can store \a lsize elements.
          * @param lsize the capacity of the queue.
 '        */
-        LockedQueue(unsigned int lsize, unsigned int unused = 0)
+        LockedQueue(unsigned int lsize)
             : cap(lsize),
               write_policy(lsize), read_policy(0),
               counter(0), dcounter(0)

@@ -314,8 +314,8 @@ namespace RTT
          * Initialise the memory pool with \a fixed_size elements.
          * @param fixed_size the number of elements, must be at least 1.
          */
-        FixedSizeMemoryPool(size_type fixed_size, const T& initial_value = T(), unsigned int max_threads = ORONUM_OS_MAX_THREADS )
-            : mpool(fixed_size == 0 ? 1 : fixed_size, max_threads), minit( initial_value ), mpit(0)
+        FixedSizeMemoryPool(size_type fixed_size, const T& initial_value = T() )
+            : mpool(fixed_size == 0 ? 1 : fixed_size), minit( initial_value ), mpit(0)
         {
             this->make_pool(fixed_size);
         }
