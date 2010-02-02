@@ -39,55 +39,64 @@
 #ifndef ORO_TASK_METHOD_HPP
 #define ORO_TASK_METHOD_HPP
 
-#include <boost/function.hpp>
 #include <string>
-#include "internal/UnMember.hpp"
+#include <boost/function.hpp>
 #include "base/MethodBase.hpp"
+#ifdef ORO_TEST_METHOD
+#include "internal/UnMember.hpp"
 #include "internal/LocalMethod.hpp"
-#include "base/DisposableInterface.hpp"
+#endif
 #include "internal/InvokerSignature.hpp"
+#include "base/MethodBaseInvoker.hpp"
 #include "Logger.hpp"
+#ifdef ORO_REMOTING
+#include "interface/OperationRepository.hpp"
+#include "internal/RemoteMethod.hpp"
+#endif
 
 namespace RTT
 {
     /**
      * @defgroup Methods Method Interface
-     * Invoking synchronous methods.
+     * Invoking synchronous and asynchronous methods.
      * @ingroup RTTComponentInterface
      */
 
 
     /**
-     * A method which executes a function.
+     * A Method serves as a placeholder (aka 'proxy') for a remote
+     * Operation. If you want to call an operation, you need a method to do it.
      *
-     * Usage:
-     @code
-     Method<double(int, double)> mymeth("name", &Class::foo, &c);
-     double result = mymeth( 3, 1.9);
-     @endcode
+     * The Method has the exact same signature template argument as the operation
+     * it wishes to call.
+     *
+     * Asynchronous methods need a caller's ExecutionEngine to be able to process
+     * the completion message.
+     *
      * @ingroup RTTComponentInterface
      * @ingroup Methods
      */
-    template<class FunctionT>
+    template<class SignatureT>
     class Method
-        : public internal::InvokerSignature<boost::function_traits<FunctionT>::arity,
-                                          FunctionT,
-                                          boost::shared_ptr< base::MethodBase<FunctionT> > >
+        : public internal::InvokerSignature<boost::function_traits<SignatureT>::arity,
+                                          SignatureT,
+                                          boost::shared_ptr< base::MethodBase<SignatureT> > >,
+          public base::MethodBaseInvoker
     {
         std::string mname;
-        typedef internal::InvokerSignature<boost::function_traits<FunctionT>::arity,
-                                         FunctionT,
-                                         boost::shared_ptr< base::MethodBase<FunctionT> > > Base;
+        ExecutionEngine* mcaller;
     public:
-        typedef FunctionT Signature;
+        typedef SignatureT Signature;
+        typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
+                                         Signature,
+                                         boost::shared_ptr< base::MethodBase<Signature> > > Base;
         typedef typename boost::function_traits<Signature>::result_type result_type;
         typedef boost::function_traits<Signature> traits;
-        typedef boost::shared_ptr< base::MethodBase<FunctionT> > MethodBasePtr;
+        typedef boost::shared_ptr< base::MethodBase<Signature> > MethodBasePtr;
 
         /**
          * Create an empty Method object.
          * Use assignment to initialise it.
-         * @see method
          */
         Method()
             : Base(), mname()
@@ -96,10 +105,9 @@ namespace RTT
         /**
          * Create an empty Method object.
          * Use assignment to initialise it.
-         * @see method
          */
-        Method(std::string name)
-            : Base(), mname(name)
+        Method(std::string name, ExecutionEngine* caller = 0)
+            : Base(), mname(name), mcaller(caller)
         {}
 
         /**
@@ -109,7 +117,7 @@ namespace RTT
          */
         Method(const Method& m)
             : Base(m.impl),
-              mname(m.mname)
+              mname(m.mname), mcaller(m.mcaller)
         {}
 
         /**
@@ -124,6 +132,7 @@ namespace RTT
             if ( this == &m )
                 return *this;
             mname = m.mname;
+            mcaller = m.mcaller;
             this->impl = m.impl;
             return *this;
         }
@@ -134,13 +143,14 @@ namespace RTT
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
          */
-        Method(boost::shared_ptr<base::DisposableInterface> implementation)
+        Method(boost::shared_ptr<base::DisposableInterface> implementation, ExecutionEngine* caller = 0)
             : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) ),
-              mname()
+              mname(), mcaller(caller)
         {
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to construct Method from incompatible type."<< endlog();
-            }
+            } else
+                this->impl->setCaller(mcaller);
         }
 
         /**
@@ -158,10 +168,12 @@ namespace RTT
             this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
-            }
+            } else
+                this->impl->setCaller(mcaller);
             return *this;
         }
 
+#ifdef ORO_TEST_METHOD
         /**
          * Construct a Method from a class member pointer and an
          * object of that class.
@@ -173,7 +185,7 @@ namespace RTT
         template<class M, class ObjectType>
         Method(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
             : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object, ee, caller) ) ),
-              mname(name)
+              mname(name), mcaller(caller)
         {}
 
         /**
@@ -185,8 +197,22 @@ namespace RTT
         template<class M>
         Method(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
             : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth,ee,caller) ) ),
+              mname(name), mcaller(caller)
+        {}
+#endif
+#ifdef ORO_REMOTING
+        /**
+         * Construct a Method from an operation repository part.
+         *
+         * @param name the name of this method
+         * @param meth an pointer to a function or function object.
+         */
+        template<class M>
+        Method(std::string name, interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0)
+            : Base( MethodBasePtr(new internal::RemoteMethod<Signature>(orp,caller) ) ),
               mname(name)
         {}
+#endif
 
         /**
          * Clean up the Method object.
@@ -208,7 +234,27 @@ namespace RTT
         /**
          * Get the name of this method.
          */
-        const std::string& getName() const {return mname;}
+        std::string const& getName() const {return mname;}
+
+        bool setImplementation(boost::shared_ptr<base::DisposableInterface> implementation, ExecutionEngine* caller = 0) {
+            *this = implementation;
+            if ( this->impl ) {
+                this->mcaller = caller;
+                this->impl->setCaller(caller);
+            }
+            return ready();
+        }
+
+        bool setImplementation(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
+#ifdef ORO_REMOTING
+            this->mcaller = caller;
+            *this = new RemoteMethod<Signature>( orp, caller);
+            return ready();
+#else
+            log(Error) <<"Could not set implementation of Method "<< mname <<": ORO_REMOTING disabled at compile time."<<endlog();
+            return false;
+#endif
+        }
 
         /**
          * Returns the internal implementation of the Method object.
@@ -225,6 +271,7 @@ namespace RTT
         }
     };
 
+#ifdef ORO_TEST_METHOD
     /**
      * Create a Method which executes a function locally.
      *
@@ -257,6 +304,7 @@ namespace RTT
     Method< typename internal::ArgMember<F>::type > method_ds(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
         return Method<  typename internal::ArgMember<F>::type >(name, method, ee, caller);
     }
+#endif
 }
 
 #endif

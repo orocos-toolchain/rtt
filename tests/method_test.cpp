@@ -1,4 +1,6 @@
 
+#define ORO_TEST_METHOD
+
 #include <iostream>
 #include <TaskContext.hpp>
 #include <Method.hpp>

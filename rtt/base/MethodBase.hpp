@@ -39,6 +39,7 @@
 #ifndef ORO_METHOD_BASE_HPP
 #define ORO_METHOD_BASE_HPP
 
+#include "../rtt-fwd.hpp"
 #include "../internal/Invoker.hpp"
 #include "DisposableInterface.hpp"
 #include <boost/shared_ptr.hpp>
