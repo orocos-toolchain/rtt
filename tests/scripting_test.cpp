@@ -16,12 +16,13 @@ using namespace RTT::detail;
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  ScriptingTestSuite,  OperationsFixture )
 
-BOOST_AUTO_TEST_CASE(TestGetService)
+BOOST_AUTO_TEST_CASE(TestGetProvider)
 {
-    ScriptingAccess* sa = new ScriptingAccess( tc ); // done by plugin.
+    //ScriptingAccess* sa = new ScriptingAccess( tc ); // done by TC or plugin.
 
-    boost::shared_ptr<Scripting> sc = tc->getService<Scripting>("scripting");
+    boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );
+    BOOST_CHECK ( sc->ready() );
     bool r;
     r = sc->loadProgramText("program Foo { do methods.assert(true); set ret = 10.0; }");
     BOOST_REQUIRE( r );

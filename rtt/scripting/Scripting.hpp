@@ -56,8 +56,6 @@ namespace RTT
 
         Method<int (const std::string&  )> getStateMachineLine;
 
-        Method<std::string (const std::string&  )> getCurrentState;
-
         Method<bool (const std::string& )> startProgram;
 
         Method<bool (const std::string& )> stopProgram;
@@ -98,7 +96,7 @@ namespace RTT
 
         Method<bool (const std::string& )> isStateMachinePaused;
 
-        Method<const std::string& (const std::string& )> getStateMachineState;
+        Method<std::string (const std::string& )> getStateMachineState;
 
         Method<bool (const std::string& , const std::string& )> inStateMachineState;
     };

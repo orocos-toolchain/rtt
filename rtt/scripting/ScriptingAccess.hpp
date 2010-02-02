@@ -319,15 +319,6 @@ namespace RTT
         virtual int getStateMachineLine(const std::string& name ) const;
 
         /**
-         * Get the current state of an activated state machine.
-         *
-         * @param name The name of the state machine
-         *
-         * @return The current state.
-         */
-        virtual std::string getCurrentState(const std::string& name ) const;
-
-        /**
          * @name Script Program Commands
          * @{
          */
@@ -493,7 +484,7 @@ namespace RTT
          * Get the current state of a state machine.
          * @param name The name of the StateMachine.
          */
-        const std::string& getStateMachineState(const std::string& name) const;
+        std::string getStateMachineState(const std::string& name) const;
 
         /**
          * Check if a state machine is in a given state

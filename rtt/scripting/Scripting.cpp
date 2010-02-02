@@ -67,7 +67,6 @@ namespace RTT
           loadStateMachineText("loadStateMachineText"),
           getStateMachineText("getStateMachineText"),
           getStateMachineLine("getStateMachineLine"),
-          getCurrentState("getCurrentState"),
           startProgram("startProgram"),
           stopProgram("stopProgram"),
           pauseProgram("pauseProgram"),
@@ -108,7 +107,6 @@ namespace RTT
         addMethod(loadStateMachineText);
         addMethod(getStateMachineText);
         addMethod(getStateMachineLine);
-        addMethod(getCurrentState);
         addMethod(startProgram);
         addMethod(stopProgram);
         addMethod(pauseProgram);

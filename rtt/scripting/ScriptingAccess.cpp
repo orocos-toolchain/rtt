@@ -422,8 +422,11 @@ namespace RTT {
         addOperation("unloadProgram", &ScriptingAccess::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
         // Query Methods for programs
+        addOperation("getProgramList", &ScriptingAccess::getProgramList, this).doc("Get a list of all loaded program scripts.");
         addOperation("getProgramStatus", &ScriptingAccess::getProgramStatus, this).doc("Get the status of a program?").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramStatusStr", &ScriptingAccess::getProgramStatusStr, this).doc("Get the status of a program as a human readable string.").arg("Name", "The Name of the loaded Program");
         addOperation("getProgramLine", &ScriptingAccess::getProgramLine, this).doc("Get the current line of execution of a program?").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramText", &ScriptingAccess::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
 
         // Methods for loading state machines
         addOperation("loadStateMachines", &ScriptingAccess::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
@@ -431,8 +434,11 @@ namespace RTT {
         addOperation("unloadStateMachine", &ScriptingAccess::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
         // Query Methods for state machines
+        addOperation("getStateMachineList", &ScriptingAccess::getStateMachineList, this).doc("Get a list of all loaded state machines");
         addOperation("getStateMachineStatus", &ScriptingAccess::getStateMachineStatus, this).doc("Get the status of a state machine?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("getStateMachineStatusStr", &ScriptingAccess::getStateMachineStatusStr, this).doc("Get the status of a state machine as a human readable string.");
         addOperation("getStateMachineLine", &ScriptingAccess::getStateMachineLine, this).doc("Get the current line of execution of a state machine?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("getStateMachineText", &ScriptingAccess::getStateMachineText, this).doc("Get the script of a StateMachine.").arg("Name", "The Name of the loaded StateMachine");
 
         // Query Methods for programs
         addOperation("hasProgram", &ScriptingAccess::hasProgram, this).doc("Is a program loaded?").arg("Name", "The Name of the loaded Program");
@@ -731,11 +737,6 @@ namespace RTT {
         return sm ? sm->getLineNumber() : -1;
     }
 
-    string ScriptingAccess::getCurrentState( const string& name ) const {
-        const StateMachinePtr sm = getStateMachine(name);
-        return sm ? sm->getCurrentStateName() : "";
-    }
-
     bool ScriptingAccess::startProgram(const string& name)
     {
         ProgramInterfacePtr pi = getProgram(name);
@@ -864,12 +865,12 @@ namespace RTT {
         return false;
     }
 
-    const string& ScriptingAccess::getStateMachineState(const string& name) const
+    string ScriptingAccess::getStateMachineState(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
             return sm->getCurrentStateName();
-        return NA<const string&>::na();
+        return "";
     }
 
     bool ScriptingAccess::requestStateMachineState(const string& name, const string& state)
