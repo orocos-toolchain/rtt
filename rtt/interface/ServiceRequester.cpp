@@ -69,8 +69,10 @@ namespace RTT
     bool ServiceRequester::ready() const
     {
         for (Methods::const_iterator it = mmethods.begin(); it != mmethods.end(); ++it)
-            if ( !it->second.ready() )
+            if ( !it->second.ready() ) {
+                log(Debug) << "ServiceRequeste: "<< it->first << " not set up." <<endlog();
                 return false;
+            }
         return true;
     }
 }

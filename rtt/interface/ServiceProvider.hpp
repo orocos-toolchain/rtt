@@ -40,6 +40,7 @@ namespace RTT
 
         const std::string& getName() const { return mname; }
 
+        using OperationRepository::getDescription;
         const std::string& getDescription() const { return mdescription; }
 
         void setDescription(const std::string& d) { mdescription = d;}
@@ -94,6 +95,8 @@ namespace RTT
         ServiceProvider* provides() { return this; }
 
         ServiceProvider* provides(const std::string& service_name) {
+            if (service_name == "this")
+                return this;
             ServiceProvider* sp = services[service_name];
             if (sp)
                 return sp;
@@ -102,7 +105,18 @@ namespace RTT
             return sp;
         }
 
+        ServiceProvider* getService(const std::string& service_name) {
+            if (service_name == "this")
+                return this;
+            Services::iterator it = services.find(service_name);
+            if (it != services.end() )
+                return it->second;
+            return 0;
+        }
+
         bool hasService(const std::string& service_name) {
+            if (service_name == "this")
+                return true;
             return services.find(service_name) != services.end();
         }
 
