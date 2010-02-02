@@ -1,10 +1,3 @@
-/**
- * Scripting.cpp
- *
- *  Created on: Feb 1, 2010
- *      Author: kaltan
- */
-
 #include "Scripting.hpp"
 
 namespace RTT
