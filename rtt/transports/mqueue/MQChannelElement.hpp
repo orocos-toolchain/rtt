@@ -48,6 +48,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "../../TaskContext.hpp"
 #include "../../Activity.hpp"
 #include "../../base/RunnableInterface.hpp"
 #include "../../types/TypeTransporter.hpp"
