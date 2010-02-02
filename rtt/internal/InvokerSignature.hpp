@@ -40,7 +40,7 @@
 #define ORO_INVOKER_SIGNATURE_HPP
 
 #include <boost/type_traits.hpp>
-#include "../SendHandle.hpp"
+#include "../base/DisposableInterface.hpp"
 #include "NA.hpp"
 #include "../rtt-fwd.hpp"
 

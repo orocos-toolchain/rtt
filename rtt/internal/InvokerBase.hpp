@@ -7,6 +7,7 @@
 #include "CollectBase.hpp"
 #include "NA.hpp"
 #include "../SendHandle.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 {

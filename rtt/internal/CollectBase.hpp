@@ -3,6 +3,7 @@
 
 #include "CollectSignature.hpp"
 #include "../SendStatus.hpp"
+#include <boost/function.hpp>
 
 namespace RTT
 {
