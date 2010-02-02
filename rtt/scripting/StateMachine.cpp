@@ -779,10 +779,11 @@ namespace RTT {
         if ( current != 0)
             return;
 
-        if (from)
+        if (from) {
             TRACE("Created transition from "+from->getName() +"' to '"+ to->getName()+"'");
-        else
+        } else {
             TRACE("Created global transition to '"+ to->getName()+"'");
+        }
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
@@ -1179,7 +1180,7 @@ namespace RTT {
         enableGlobalEvents();
 
         // execute the entry program of the initial state.
-        if ( !inError() )
+        if ( !inError() ) {
             if ( this->executePending() ) {
                 smStatus = Status::active;
                 TRACE("Activated.");
@@ -1189,6 +1190,7 @@ namespace RTT {
                     smStatus = Status::activating;
                 }
             }
+        }
 
         return true;
     }
