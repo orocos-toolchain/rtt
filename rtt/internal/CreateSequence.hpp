@@ -213,7 +213,7 @@ namespace RTT
             static types::TypeInfo* GetTypeInfo(int i) {
                 if ( i <= 0 || i > size)
                     return "na";
-                if ( i = 1 ) {
+                if ( i == 1 ) {
                     return DataSource<arg_type>::GetTypeInfo();
                 } else {
                     return tail::GetTypeInfo(i-1);
@@ -230,7 +230,7 @@ namespace RTT
             static std::string GetType(int i) {
                 if ( i <= 0 || i > size)
                     return "na";
-                if ( i = 1 ) {
+                if ( i == 1 ) {
                     return DataSource<arg_type>::GetType();
                 } else {
                     return tail::GetType(i-1);
