@@ -168,7 +168,8 @@ namespace RTT
             this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
-            } else
+            }
+            if (this->impl)
                 this->impl->setCaller(mcaller);
             return *this;
         }
