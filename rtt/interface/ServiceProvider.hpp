@@ -116,7 +116,7 @@ namespace RTT
          * Returns the names of all operations added to this interface.
          * @see getNames() to get a list of all operations available to scripting.
          */
-        std::vector<std::string> getOperations() const;
+        std::vector<std::string> getOperationNames() const;
 
         /**
          * Query for the existence of a Operation in this interface.
@@ -139,6 +139,14 @@ namespace RTT
         bool addLocalOperation( base::OperationBase& op );
 
         /**
+         * Get a locally added operation from this interface.
+         *
+         * @note Do not use this function unless you know what you're doing.
+         * @see getOperation() for getting normal, remotely available operations.
+         */
+        boost::shared_ptr<base::DisposableInterface> getLocalOperation( std::string name );
+
+        /**
          * Get a previously added operation for
          * use in a C++ Method object. Store the result of this
          * function in a Method<\a Signature> object.
@@ -153,13 +161,8 @@ namespace RTT
         boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
         {
             Logger::In in("ServiceProvider::getOperation");
-            if ( simpleoperations.count(name) ) {
-                if ( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(simpleoperations[name]->getImplementation()) )
-                    return simpleoperations[name]->getImplementation();
-                else
-                    log(Error) << "Operation '"<< name <<"' found, but has wrong Signature."<<endlog();
-                return boost::shared_ptr<base::DisposableInterface>();
-            }
+            boost::shared_ptr<base::DisposableInterface> r = getLocalOperation(name);;
+            if ( r ) return r;
 
 #ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {

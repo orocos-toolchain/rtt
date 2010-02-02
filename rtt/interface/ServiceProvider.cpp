@@ -70,6 +70,13 @@ namespace RTT {
         return true;
     }
 
+    boost::shared_ptr<base::DisposableInterface> ServiceProvider::getLocalOperation( std::string name ) {
+        if ( hasOperation(name) ) {
+            return simpleoperations.find(name)->second->getImplementation();
+        }
+        return boost::shared_ptr<base::DisposableInterface>();
+    }
+
     void ServiceProvider::clear()
     {
         while ( !simpleoperations.empty() )
@@ -85,7 +92,7 @@ namespace RTT {
         }
     }
 
-    std::vector<std::string> ServiceProvider::getOperations() const
+    std::vector<std::string> ServiceProvider::getOperationNames() const
     {
         return keys(simpleoperations);
     }
