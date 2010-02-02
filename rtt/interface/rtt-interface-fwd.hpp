@@ -43,15 +43,15 @@ namespace RTT {
     namespace interface {
         struct ArgumentDescription;
         class AttributeRepository;
-        class CommandRepository;
         class DataFlowInterface;
         class EventService;
         class ExecutionAccess;
         class MarshallingAccess;
-        class MethodRepository;
-        class OperationInterface;
+        class OperationRepository;
+        class OperationRepositoryPart;
         class PropertyLoader;
         class ServiceProvider;
+        class ServiceRequester;
     }
     namespace detail {
         using namespace interface;
