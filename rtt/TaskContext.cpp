@@ -336,10 +336,10 @@ namespace RTT
             return 0;
         }
 
-    void TaskContext::setActivity(ActivityInterface* new_act)
+    bool TaskContext::setActivity(ActivityInterface* new_act)
     {
-        if (this->isActive())
-            return;
+        if (this->isRunning())
+            return false;
         if ( new_act == 0) {
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
@@ -351,6 +351,7 @@ namespace RTT
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
         our_act->start();
+        return true;
     }
 
     ActivityInterface* TaskContext::getActivity()

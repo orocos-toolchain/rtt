@@ -164,9 +164,8 @@ namespace RTT {
     }
 
     bool TaskCore::activate() {
-        if ( this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->start() )
-            return isActive();
-        return false;
+        this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->start();
+        return isActive();
     }
 
     void TaskCore::cleanupHook() {

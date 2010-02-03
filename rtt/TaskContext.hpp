@@ -205,8 +205,12 @@ namespace RTT
          * getActivity() lateron to retrieve a safe pointer to it.
          * @param new_act The new activity for this TaskContext,
          * which becomes owned by this TaskContext.
+         * @return false if this->isRunning(). You can not change the
+         * activity of a TaskContext once it is running.
+         * @note This function may not be called from the current
+         * ExecutionEngine thread (OwnThread), another thread (ClientThread) must call this function.
          */
-        void setActivity( base::ActivityInterface* new_act );
+        bool setActivity( base::ActivityInterface* new_act );
 
         /**
          * Get a pointer to the activity running this
