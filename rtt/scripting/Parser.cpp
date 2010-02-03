@@ -38,6 +38,7 @@
 #include "StateMachineTask.hpp"
 #include "DataSourceCommand.hpp"
 #include "../base/ConditionInterface.hpp"
+#include "CommandComposite.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -181,5 +182,46 @@ namespace RTT
         return ret;
     }
     throw parse_exception_parser_fail();
+  }
+
+  DataSourceBase::shared_ptr Parser::parseValueStatement( const std::string& _s,
+                                                       TaskContext* tc )
+  {
+    std::string s( _s );
+
+    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+    our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
+
+    ValueChangeParser parser( tc, tc, mcaller );
+    try
+    {
+        parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+    }
+    catch( const parse_exception& e )
+    {
+        throw;
+    }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            // this only happens if input is really wrong.
+            throw parse_exception_syntactic_error( e.descriptor );
+        }
+
+    ActionInterface* ac = 0;
+    std::vector<ActionInterface*> acv = parser.assignCommands();
+    // and not forget to reset()..
+    if ( acv.size() == 1) {
+        ac = acv.front();
+    }
+    else if (acv.size() > 1) {
+        ac = new CommandComposite(acv);
+    }
+
+    if ( ac ) {
+        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand()->clone() );
+        //parser.reset(); don't do this, we want to keep it.
+        return ret;
+    }
+    return DataSourceBase::shared_ptr();
   }
 }

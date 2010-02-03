@@ -92,6 +92,11 @@ namespace RTT
         chset<> identchar( "a-zA-Z-_0-9" );
         RULE( type_name, lexeme_d[ alpha_p >> *identchar ] );
 
+        valuechange_parsers =  constantdefinition
+            | variabledefinition
+            | aliasdefinition
+            | variableassignment;
+
         constantdefinition =
             "const"
             // the type
@@ -496,6 +501,11 @@ namespace RTT
         sizehint = -1;
         peerparser.reset();
         propparser.reset();
+    }
+
+    rule_t& ValueChangeParser::parser()
+    {
+        return valuechange_parsers;
     }
 
     rule_t& ValueChangeParser::constantDefinitionParser()

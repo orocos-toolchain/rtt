@@ -73,7 +73,7 @@ namespace RTT
 
 
   DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c, TaskContext* caller )
-      : expressionparser( p ), peerparser( c ), mcaller( caller ? caller : c)
+      : mcaller( caller ? caller : c), mis_send(false), expressionparser( p ), peerparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );

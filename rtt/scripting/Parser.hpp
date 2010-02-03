@@ -116,21 +116,30 @@ namespace RTT
          */
         base::ConditionInterface* parseCondition(const std::string& s, TaskContext* );
 
-      /**
-       * @brief Parses the expression in s.
-       * @return A base::DataSourceBase which contains the expression.
-       * @throw parse_exception Throws exceptions of type parse_exception.
-       */
-      base::DataSourceBase::shared_ptr
-      parseExpression( const std::string&s, TaskContext* );
+        /**
+        * @brief Parses the expression in s.
+        * @return A base::DataSourceBase which contains the expression.
+        * @throw parse_exception Throws exceptions of type parse_exception.
+        */
+        base::DataSourceBase::shared_ptr
+        parseExpression( const std::string&s, TaskContext* );
 
-      /**
-       * @brief Parses a change of a value in s.
-       * @return A base::DataSourceBase which contains the command to change the value.
-       * @throw parse_exception Throws exceptions of type parse_exception.
-       */
-      base::DataSourceBase::shared_ptr
-      parseValueChange( const std::string&s, TaskContext* );
-  };
+        /**
+        * @brief Parses a change of a value in s.
+        * @return A base::DataSourceBase which contains the command to change the value.
+        * @throw parse_exception Throws exceptions of type parse_exception.
+        */
+        base::DataSourceBase::shared_ptr
+        parseValueChange( const std::string&s, TaskContext* );
+
+        /**
+        * @brief Parses a whole value manipulation/creation statement.
+        * Requires the set/var/const etc prefixes.
+        * @return A base::DataSourceBase which contains the command to change the value.
+        * @throw parse_exception Throws exceptions of type parse_exception.
+        */
+        base::DataSourceBase::shared_ptr
+        parseValueStatement( const std::string&s, TaskContext* );
+    };
 }}
 #endif

@@ -180,7 +180,7 @@ namespace RTT { namespace scripting
       void cleanup();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
-          dostatement, trystatement, statement, line, content, program, valuechange_parsers,
+          dostatement, trystatement, statement, line, content, program,
           production, valuechange, returnstatement, function, functions, arguments, funcstatement,
           continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement, breakstatement,
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,

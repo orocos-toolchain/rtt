@@ -188,12 +188,7 @@ namespace RTT
 
     statement = valuechange | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | dostatement;
 
-    valuechange_parsers =  valuechangeparser.constantDefinitionParser()
-        | valuechangeparser.variableDefinitionParser()
-        | valuechangeparser.aliasDefinitionParser()
-        | valuechangeparser.variableAssignmentParser();
-
-    valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
+    valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     dostatement = !str_p("do") >>
             (

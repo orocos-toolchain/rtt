@@ -101,7 +101,8 @@ namespace RTT { namespace scripting
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
         variableassignment, variablechange, paramdefinition, baredefinition,
-        vardecl, constdecl, baredecl;
+        vardecl, constdecl, baredecl,
+        valuechange_parsers;
 
       TaskContext* context;
       interface::ServiceProvider* mstore;
@@ -190,6 +191,12 @@ namespace RTT { namespace scripting
           return alldefinednames;
       }
 
+    /**
+     * Returns the full parser, as it is used most.
+     * The individual sub-parsers are below.
+     * @return
+     */
+    rule_t& parser();
 
     /**
      * the parser that parses definitions of constants.  Do not
