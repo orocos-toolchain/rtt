@@ -210,6 +210,7 @@ namespace RTT
         ti->addType( new BoolTypeInfo() );
         ti->addType( new TypeInfoName<void>("void"));
         ti->addType( new StdTypeInfo<FlowStatus>("FlowStatus"));
+        ti->addType( new StdTypeInfo<SendStatus>("SendStatus"));
 
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
@@ -315,6 +316,7 @@ namespace RTT
             int uint_to_int(unsigned int ui) { return ui; }
 #endif
         bool flow_to_bool(FlowStatus fs) { return fs; }
+        bool send_to_bool(SendStatus ss) { return ss; }
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>
@@ -394,6 +396,7 @@ namespace RTT
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
+        ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
 #endif
         return true;
     }
@@ -517,6 +520,14 @@ namespace RTT
         oreg->add( newBinaryOperator( "<=", std::less_equal<FlowStatus>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<FlowStatus>() ) );
 
+        // SendStatus
+        oreg->add( newBinaryOperator( "==", std::equal_to<SendStatus>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< SendStatus>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<SendStatus>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<SendStatus>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<SendStatus>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<SendStatus>() ) );
+
         return true;
     }
 
@@ -527,6 +538,9 @@ namespace RTT
         globals->setValue( new Constant<FlowStatus>("NoData",NoData) );
         globals->setValue( new Constant<FlowStatus>("OldData",OldData) );
         globals->setValue( new Constant<FlowStatus>("NewData",NewData) );
+        globals->setValue( new Constant<SendStatus>("SendFailure",SendFailure) );
+        globals->setValue( new Constant<SendStatus>("SendNotReady",SendNotReady) );
+        globals->setValue( new Constant<SendStatus>("SendSuccess",SendSuccess) );
 #ifndef ORO_EMBEDDED
         globals->setValue( new Constant<int>("DATA",ConnPolicy::DATA) );
         globals->setValue( new Constant<int>("BUFFER",ConnPolicy::BUFFER) );
