@@ -129,7 +129,7 @@ namespace RTT { namespace scripting
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc, interface::ServiceProvider* storage= 0);
+      ValueChangeParser( TaskContext* tc, interface::ServiceProvider* storage= 0, TaskContext* caller = 0);
 
       /**
        * Clear assignCommands(), definedValues() and

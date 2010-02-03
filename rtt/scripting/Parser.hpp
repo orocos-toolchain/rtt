@@ -63,7 +63,15 @@ namespace RTT
      */
     class RTT_API Parser
     {
+        TaskContext* mcaller;
     public:
+        /**
+         * Create a parser and allow to explicitly specify which
+         * TaskContext is calling it. This allows to generate the correct
+         * asynchonous method invocation code in case caller and parser
+         * are not identical.
+         */
+        Parser(TaskContext* caller = 0);
         /**
          * List of parsed functions.
          */

@@ -72,8 +72,8 @@ namespace RTT
 
 
 
-  DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c )
-      : expressionparser( p ), peerparser( c )
+  DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c, TaskContext* caller )
+      : expressionparser( p ), peerparser( c ), mcaller( caller ? caller : c)
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
@@ -206,10 +206,10 @@ namespace RTT
                 throw parse_exception_fatal_semantic_error( obj + "."+meth +": "+ obj +" is not a valid SendHandle object.");
             }
             if (!mis_send) {
-                ret = ops->produce( meth, args, peerparser.peer()->engine() ); // assumes peerparser.reset() has been called.
+                ret = ops->produce( meth, args, mcaller->engine() );
                 mhandle.reset();
             } else {
-                ret = ops->produceSend( meth, args, peerparser.peer()->engine() );
+                ret = ops->produceSend( meth, args, mcaller->engine() );
                 mhandle.reset( new SendHandleAlias( meth, ops->produceHandle(meth), ops->getPart(meth)) );
             }
         }
@@ -257,8 +257,8 @@ namespace RTT
         throw_(iter_t(), reason);
     }
 
-  ExpressionParser::ExpressionParser( TaskContext* pc )
-      : datacallparser( *this, pc ),
+  ExpressionParser::ExpressionParser( TaskContext* pc, TaskContext* caller )
+      : datacallparser( *this, pc, caller ),
         valueparser( pc ),
         _invert_time(false),
         opreg( OperatorRepository::Instance() )

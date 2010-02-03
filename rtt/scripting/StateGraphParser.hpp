@@ -60,8 +60,10 @@ namespace RTT { namespace scripting
    */
   class StateGraphParser
   {
-      // Our task we are loaded in :
+      // Our task we are parsing in :
       TaskContext* context;
+      // The task that will execute it:
+      TaskContext* caller;
       // The interface::ServiceProvider of the current StateMachine
       StateMachineTask* curobject ;
       interface::ServiceProvider* peer;
@@ -211,7 +213,7 @@ namespace RTT { namespace scripting
       void seenscvcparamname( iter_t begin, iter_t end );
 #endif
   public:
-    StateGraphParser( iter_t& positer, TaskContext* tc );
+    StateGraphParser( iter_t& positer, TaskContext* tc, TaskContext* caller );
     ~StateGraphParser();
 
     // tries to parse, returns the instantiated root machines.  On all

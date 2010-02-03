@@ -72,7 +72,7 @@ namespace RTT { namespace scripting
     ExpressionParser expressionparser;
 
   public:
-    ConditionParser( TaskContext* );
+    ConditionParser( TaskContext* context, TaskContext* caller );
     ~ConditionParser();
 
     rule_t& parser()

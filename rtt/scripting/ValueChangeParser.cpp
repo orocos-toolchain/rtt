@@ -70,9 +70,9 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc, ServiceProvider* storage )
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, ServiceProvider* storage, TaskContext* caller )
         : type( 0 ), context( pc ), mstore( storage ? storage : pc ),
-          expressionparser( pc ), peerparser( pc ), sizehint(-1),
+          expressionparser( pc, caller ), peerparser( pc ), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
     {
         BOOST_SPIRIT_DEBUG_RULE( constantdefinition );

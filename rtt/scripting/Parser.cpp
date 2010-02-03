@@ -48,6 +48,7 @@ namespace RTT
 {
   using namespace detail;
 
+  Parser::Parser(TaskContext* c) : mcaller(c) {}
 
   Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {
@@ -55,7 +56,7 @@ namespace RTT
     our_pos_iter_t parsebegin( function.begin(), function.end(), filename );
     our_pos_iter_t parseend( function.end(), function.end(), filename );
     // The internal parser.
-    ProgramGraphParser gram( parsebegin, c );
+    ProgramGraphParser gram( parsebegin, c, mcaller );
     ParsedFunctions ret = gram.parseFunction( parsebegin, parseend );
     return ret;
   }
@@ -67,7 +68,7 @@ namespace RTT
     our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
-    ProgramGraphParser gram( parsebegin, c );
+    ProgramGraphParser gram( parsebegin, c, mcaller );
     ParsedPrograms ret = gram.parse( parsebegin, parseend );
 
     return ret;
@@ -82,7 +83,7 @@ namespace RTT
     our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
-    StateGraphParser gram( parsebegin, c );
+    StateGraphParser gram( parsebegin, c, mcaller );
     Parser::ParsedStateMachines ret;
     try {
       ret = gram.parse( parsebegin, parseend );
@@ -103,7 +104,7 @@ namespace RTT
     our_pos_iter_t parsebegin( scopy.begin(), scopy.end(), "teststring" );
     our_pos_iter_t parseend( scopy.end(), scopy.end(), "teststring" );
 
-    ConditionParser parser( tc );
+    ConditionParser parser( tc, mcaller );
     try
     {
       parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
@@ -131,7 +132,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
-    ExpressionParser parser( tc );
+    ExpressionParser parser( tc, mcaller );
     try
     {
         parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
@@ -160,7 +161,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
-    ValueChangeParser parser( tc );
+    ValueChangeParser parser( tc, 0, mcaller );
     try
     {
         parse( parsebegin, parseend, parser.variableChangeParser(), SKIP_PARSER );

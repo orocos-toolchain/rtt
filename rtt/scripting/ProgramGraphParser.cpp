@@ -75,13 +75,13 @@ namespace RTT
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, TaskContext* caller)
       : rootc( t ),context( 0 ), fcontext(0), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
-        conditionparser( rootc ),
-        valuechangeparser( rootc ),
-        expressionparser( rootc ),
+        conditionparser( rootc, caller ),
+        valuechangeparser( rootc, caller ),
+        expressionparser( rootc, caller ),
         argsparser(0),
         peerparser(rootc),
         program_builder( new FunctionGraphBuilder() ),

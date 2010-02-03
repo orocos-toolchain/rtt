@@ -99,8 +99,9 @@ namespace RTT
 
 
     StateGraphParser::StateGraphParser( iter_t& positer,
-                                        TaskContext* tc )
+                                        TaskContext* tc, TaskContext* tcaller )
         : context( tc ),
+          caller( tcaller ),
           curobject( 0 ),
           mpositer( positer ),
           ln_offset(0),
@@ -117,10 +118,10 @@ namespace RTT
           isroot(false),
           selectln(0),
           evname(""),
-          conditionparser( new ConditionParser( context ) ),
+          conditionparser( new ConditionParser( context, caller ) ),
           commonparser( new CommonParser ),
-          valuechangeparser( new ValueChangeParser(context) ),
-          expressionparser( new ExpressionParser(context) ),
+          valuechangeparser( new ValueChangeParser(context, caller) ),
+          expressionparser( new ExpressionParser(context, caller) ),
           argsparser(0),
           peerparser( new PeerParser(context, true) ) // full-path peer parser for events.
     {
@@ -800,7 +801,7 @@ namespace RTT
 
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
-        progParser = new ProgramGraphParser(mpositer, context);
+        progParser = new ProgramGraphParser(mpositer, context, caller);
 
         // set the 'type' name :
         curtemplate->setName( curmachinename, false );
