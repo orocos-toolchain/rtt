@@ -163,7 +163,7 @@ namespace RTT
                 typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
-                    cout << typeid(DataSource<arg_type>).name() << endl;
+                    //cout << typeid(DataSource<arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
                     //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
                 }
@@ -257,7 +257,7 @@ namespace RTT
                 typename DataSource<arg_type>::shared_ptr a =
                     AdaptDataSource<arg_type>()( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
-                    cout << typeid(DataSource<arg_type>).name() << endl;
+                    //cout << typeid(DataSource<arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
                 }
 
