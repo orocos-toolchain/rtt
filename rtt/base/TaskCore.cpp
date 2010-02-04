@@ -197,6 +197,11 @@ namespace RTT {
         return this->engine()->getActivity() ? this->engine()->getActivity()->getPeriod() : -1.0;
     }
 
+    bool TaskCore::setPeriod(Seconds s)
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->setPeriod(s) : false;
+    }
+
     bool TaskCore::configureHook() {
         return true;
     }

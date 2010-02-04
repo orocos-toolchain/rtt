@@ -42,6 +42,7 @@
 #include <string>
 #include "../rtt-fwd.hpp"
 #include "../rtt-config.h"
+#include "../Time.hpp"
 
 namespace RTT
 { namespace base {
@@ -235,7 +236,15 @@ namespace RTT
          * @todo: add a bool setPeriod(double) function to allow changing
          * the period at run-time.
          */
-        virtual double getPeriod() const;
+        virtual Seconds getPeriod() const;
+
+        /**
+         * Sets the period of this component. You may call this at any time,
+         * it is simply forwarded to the component's activity object.
+         * @return false if not allowed by the component's activity.
+         * @see ActivityInterface::setPeriod()
+         */
+        virtual bool setPeriod(Seconds s);
 
         /**
          * Inspect if the component is in the FatalError state.

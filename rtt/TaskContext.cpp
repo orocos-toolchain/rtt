@@ -109,6 +109,7 @@ namespace RTT
         this->addOperation("stop", &TaskContext::stop, this, ClientThread).doc("Stop the Execution Engine of this TaskContext.");
         this->addOperation("isRunning", &TaskContext::isRunning, this, ClientThread).doc("Is the Execution Engine executing this TaskContext ?");
         this->addOperation("getPeriod", &TaskContext::getPeriod, this, ClientThread).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
+        this->addOperation("setPeriod", &TaskContext::setPeriod, this, ClientThread).doc("Set the execution period in seconds.").arg("s", "Period in seconds.");
         this->addOperation("isActive", &TaskContext::isActive, this, ClientThread).doc("Is the Execution Engine of this TaskContext processing events and commands ?");
         this->addOperation("inFatalError", &TaskContext::inFatalError, this, ClientThread).doc("Check if this TaskContext is in the FatalError state.");
         this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state.");
