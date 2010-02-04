@@ -27,7 +27,7 @@ namespace RTT
             log(Error) << "Method with name '" + isb.getName() + "' already present." << endlog();
             return false;
         }
-        mmethods.insert(make_pair<std::string, MethodBaseInvoker&> (isb.getName(), isb));
+        mmethods.insert(make_pair<std::string, MethodBaseInvoker*> (isb.getName(), &isb));
         return true;
     }
 
@@ -43,15 +43,15 @@ namespace RTT
 
     MethodBaseInvoker& ServiceRequester::getMethod(const std::string& name)
     {
-        return mmethods.find(name)->second;
+        return *mmethods.find(name)->second;
     }
 
     bool ServiceRequester::connectTo( ServiceProvider* sp) {
         for (Methods::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
-            if ( !it->second.ready() ) {
+            if ( !it->second->ready() ) {
                 if (sp->hasOperation( it->first )) {
-                    it->second.setImplementation( sp->getLocalOperation( it->first ), mrowner ? mrowner->engine() : 0 );
-                    if ( it->second.ready() ) {
+                    it->second->setImplementation( sp->getLocalOperation( it->first ), mrowner ? mrowner->engine() : 0 );
+                    if ( it->second->ready() ) {
                         if (mrowner)
                             log(Debug) << "Successfully set up Method " << it->first <<endlog();
                         else
@@ -69,7 +69,7 @@ namespace RTT
     bool ServiceRequester::ready() const
     {
         for (Methods::const_iterator it = mmethods.begin(); it != mmethods.end(); ++it)
-            if ( !it->second.ready() ) {
+            if ( !it->second->ready() ) {
                 log(Debug) << "ServiceRequeste: "<< it->first << " not set up." <<endlog();
                 return false;
             }

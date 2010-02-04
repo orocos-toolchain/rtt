@@ -92,7 +92,7 @@ namespace RTT
             Requests mrequests;
 
             /// Our methods
-            typedef std::map<std::string, base::MethodBaseInvoker&> Methods;
+            typedef std::map<std::string, base::MethodBaseInvoker*> Methods;
             Methods mmethods;
 
             std::string mrname;
