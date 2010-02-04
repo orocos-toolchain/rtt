@@ -34,6 +34,8 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
+              typedef boost::function<Signature> call_type;
+              typedef typename SequenceFactory::data_type arg_type;
               boost::function<Signature> ff;
               DataSourceSequence args;
               mutable RStore<result_type> ret;
@@ -61,8 +63,13 @@ namespace RTT
               value_t get() const
               {
                   // forward invoke to ret object, which stores return value.
-                  ret.exec( boost::bind(&bf::invoke<boost::function<Signature>,typename SequenceFactory::data_type>, boost::ref(ff), SequenceFactory::data(args)));
-                  // TODO: XXX do updated() on all datasources that need it ?
+                  // this foo pointer dance is because older compilers don't handle using
+                  // &bf::invoke<call_type,arg_type> directly.
+                  typedef typename bf::result_of::invoke<call_type,arg_type>::type iret;
+                  typedef iret(*IType)(call_type, arg_type const&);
+                  IType foo = &bf::invoke<call_type,arg_type>;
+                  ret.exec( boost::bind(foo, boost::ref(ff), SequenceFactory::data(args)));
+                  SequenceFactory::update(args);
                   return ret.result();
               }
 
@@ -121,11 +128,15 @@ namespace RTT
               value_t get() const
               {
                   // put the member's object as first since SequenceFactory does not know about the MethodBase type.
-                  typedef bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type> full_type;
+                  typedef bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type> arg_type;
                   typedef typename AddMember<Signature,base::MethodBase<Signature>* >::type call_type;
+                  // this foo pointer dance is because older compilers don't handle using
+                  // &bf::invoke<call_type,arg_type> directly.
+                  typedef typename bf::result_of::invoke<call_type,arg_type>::type iret;
+                  typedef iret(*IType)(call_type, arg_type const&);
+                  IType foo = &bf::invoke<call_type,arg_type>;
                   // we need to store the ret value ourselves.
-                  ret.exec( boost::bind(&bf::invoke<call_type,full_type>, &base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args))) );
-                  //bf::invoke(&base::MethodBase<Signature>::call, full_type(ff.get(), SequenceFactory::data(args)));
+                  ret.exec( boost::bind(foo, &base::MethodBase<Signature>::call, arg_type(ff.get(), SequenceFactory::data(args))) );
                   SequenceFactory::update(args);
                   return ret.result();
               }
