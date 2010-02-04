@@ -1021,183 +1021,7 @@ Printing Interface of 'the_input_port' :
       </section>
     </section>
     <section>
-      <title>A TaskContext's Error states</title>
-      <para>
-	In addition to the <function>PreOperational</function>,
-	<function>Stopped</function> and <function>Running</function>
-	TaskContext states, you can use two additional states for more
-	advanced component behaviour: the <function>FatalError</function>
-	and the <function>RunTimeError</function> states, as in 
-	<xref linkend="fig-ext-component-states" />
-      </para>
-      <figure id="fig-ext-component-states">
-	<title>
-	  Extended TaskContext State Diagram
-	</title>
-	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="images/ComponentStatesExtended" />
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/ComponentStatesExtended"  width="100%" scalefit="1"/>
-	  </imageobject>
-	  <caption>
-	    <para>
-	      This figure shows the complete state diagram of a
-	      TaskContext.  This is <xref linkend="fig-component-states" />
-	      extended with two more states: <function>RunTimeError</function>
-	      and <function>FatalError</function>.
-	    </para>
-	  </caption>
-	</mediaobject>
-      </figure>
-      <para>
-	The <function>FatalError</function> state is entered whenever
-	the TaskContext's <function>fatal()</function> function is
-	called, and indicates that an unrecoverable error occured,
-	possibly in the <function>updateHook()</function> or in any
-	other component function. The ExecutionEngine is immediately
-	stopped and <function>stopHook()</function> is called when
-	this state is entered.
-      </para>
-      <para>
-	In order to leave the <function>FatalError</function> state,
-	one needs to call <function>resetError()</function> which calls
-	<function>resetHook()</function>, the user function, in turn.
-	When <function>resetHook()</function> returns true, error
-	recovery was possible and the component becomes
-	<function>Stopped</function> again. In case
-	<function>resetHook()</function> returns false, the
-	TaskContext becomes <function>PreOperational</function> and
-	requires configuration.
-      </para>
-      <para>
-	It is possible that non-fatal run-time errors occur which
-	may require user action on one hand, but do not prevent
-	the component from performing it's task, or allow degraded
-	performance.
-	Therefor, in the <function>Running</function> state, one can
-	make a transition to the<function>RunTimeError</function>
-	sub-state by calling <function>error()</function>. See
-	<xref linkend="fig-ext-runtime-states" />
-      </para>
-      <figure id="fig-ext-runtime-states">
-	<title>
-	  Possible Run-Time failure.
-	</title>
-	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="images/RunTimeStates" />
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/RunTimeStates" />
-	  </imageobject>
-	  <caption>
-	    <para>
-	      This figure shows the error sub-state of the Running state
-	      as a UML state chart.
-	    </para>
-	  </caption>
-	</mediaobject>
-      </figure>
-      <para>
-	When the application code calls <function>error()</function>,
-	the RunTimeError state is entered and
-	<function>errorHook()</function> is executed instead of
-	<function>updateHook()</function>.  If at some moment the
-	component detects that it can resume normal operation, it
-	calls the <function>recovered()</function> function, which
-	leads to the Running state again and in the next iteration,
-	<function>updateHook()</function> is called again.
-      </para>
-    </section>
-    <section>
-      <title>Error States Example</title>
-      <para>
-	Here is a very simple use case, a TaskContext communicates over
-	a socket with a remote device. Normally, we get a data packet
-	every 10ms, but sometimes one may be missing.  When we don't
-	receive 5 packets in a row, we signal this as a run time
-	error. From the moment packets come in again we go back to the run
-	state. Now if the data we get is corrupt, we go into
-	fatal error mode, as we have no idea what the current state of
-	the remote device is, and shouldn't be updating our state, as
-	no one can rely on the correct functioning of the TaskContext.
-      </para>
-      <para>
-	Here's the pseudo code:
-	<programlisting> class MyComponent : public TaskContext
- {
-       int faults;
- public:
-       MyComponent(const std::string &amp;name) 
-         : TaskContext(name), faults(0) 
-       {}
-
- protected:
-       // Read data from a buffer.
-       // If ok, process data. When to many faults occur,
-       // trigger a runtime error.
-       void updateHook()
-       {
-            Data_t data;
-            FlowStatus rv = input.read( data );
-            if ( rv == NewData ) {
-               this->stateUpdate(data);
-               faults = 0;
-	       this->recovered(); // may be an external supervisor calls this instead.
-            } else {
-               faults++;
-               if (faults > 4)
-                   this->error();
-            }
-
-       }
-
-       // Called instead of updateHook() when in runtime error state.
-       void errorHook()
-       {
-            this->updateHook(); // just call updateHook anyway.
-       }
-
-       // Called by updateHook()
-       void stateUpdate(Data_t data)
-       {
-            // Check for corrupt data
-            if ( checkData(data) == -1 ) {
-                 this->fatalError(); // we will enter the FatalError state.
-            } else {
-                 // data is ok: update internal state...
-            }
-       }
- };</programlisting>
-      </para>
-      <para>
-	When you want to discard the 'error' state of the component,
-	call mycomp.recovered().  If your component went into
-	FatalError, call mycomp.reset() and mycomp.start() again for
-	processing updateHook() again.
-      </para>
-    </section>
-    <section>
-      <title>Interfacing the TaskContext</title>
-      <para>
-	During development of your TaskContext, it is handy to connect
-	the <classname>OCL::TaskBrowser</classname> to your
-	task such that you can interactively manipulate it and it's 
-	properties:
-	<programlisting>  #include &lt;ocl/TaskBrowser.hpp>
-  // ... see above
-  <classname>OCL::TaskBrowser</classname> browser(a_task);
-
-  // Start the interactive console:
-  browser.loop();</programlisting>
-        In which you can start/stop the task and manipulate every
-	aspect of it's interface, as was seen in the previous section.
-      </para>
-    </section>
-    <section>
-      <title>Introducing the TaskContext's Interface</title>
+      <title>Introducing the Orocos Component Interface</title>
     <figure id="fig-a-task-context-interface">
       <title>
 	TaskContext Interface
@@ -1222,13 +1046,13 @@ Printing Interface of 'the_input_port' :
     </figure>
     </section>
     <section>
-      <title>The Data Flow Interface</title>
+      <title>The Port Interface</title>
       <note><title>Purpose</title>
-	<para>The 'Data Flow' is a 'stream of data' between tasks
+	<para>Ports define a 'Data Flow' which is a 'stream of data'
+	  from one's output port to another's input port, 
 	  which are used to perform calculations. A classical control
-	  loop can be implemented using the Data Flow interface.  The
-	  data is passed buffered or unbuffered from one task to
-	  others. A Task can be woken up if data arrives at one or
+	  loop can be implemented using ports. Ports can buffer
+	  data. A Task can be woken up if data arrives at one or
 	  more ports or it can 'poll' for new data on its ports.
 	</para>
 	<para>
@@ -1909,7 +1733,6 @@ Printing Interface of 'the_input_port' :
 	   (to be completed).
 	 </para>
       </section>
-    </section>
     <section id="method-args-types">
       <title>Operation Argument and Return Types</title>
       <para>
@@ -1952,6 +1775,7 @@ Printing Interface of 'the_input_port' :
 	and every class type is best passed by const reference. The parser
 	does handle references (&amp;) in the arguments or return type as well.
       </para>
+    </section>
   </section>
   <section id="task-attr-rep">
     <title>The Attributes and Properties Interface</title>
@@ -2098,6 +1922,165 @@ Printing Interface of 'the_input_port' :
       </para>
     </section>
   </section>
+    <section>
+      <title>A TaskContext's Error states</title>
+      <para>
+	In addition to the <function>PreOperational</function>,
+	<function>Stopped</function> and <function>Running</function>
+	TaskContext states, you can use two additional states for more
+	advanced component behaviour: the <function>FatalError</function>
+	and the <function>RunTimeError</function> states, as in 
+	<xref linkend="fig-ext-component-states" />
+      </para>
+      <figure id="fig-ext-component-states">
+	<title>
+	  Extended TaskContext State Diagram
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/ComponentStatesExtended" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/ComponentStatesExtended"  width="100%" scalefit="1"/>
+	  </imageobject>
+	  <caption>
+	    <para>
+	      This figure shows the complete state diagram of a
+	      TaskContext.  This is <xref linkend="fig-component-states" />
+	      extended with two more states: <function>RunTimeError</function>
+	      and <function>FatalError</function>.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	The <function>FatalError</function> state is entered whenever
+	the TaskContext's <function>fatal()</function> function is
+	called, and indicates that an unrecoverable error occured,
+	possibly in the <function>updateHook()</function> or in any
+	other component function. The ExecutionEngine is immediately
+	stopped and <function>stopHook()</function> is called when
+	this state is entered.
+      </para>
+      <para>
+	In order to leave the <function>FatalError</function> state,
+	one needs to call <function>resetError()</function> which calls
+	<function>resetHook()</function>, the user function, in turn.
+	When <function>resetHook()</function> returns true, error
+	recovery was possible and the component becomes
+	<function>Stopped</function> again. In case
+	<function>resetHook()</function> returns false, the
+	TaskContext becomes <function>PreOperational</function> and
+	requires configuration.
+      </para>
+      <para>
+	It is possible that non-fatal run-time errors occur which
+	may require user action on one hand, but do not prevent
+	the component from performing it's task, or allow degraded
+	performance.
+	Therefor, in the <function>Running</function> state, one can
+	make a transition to the<function>RunTimeError</function>
+	sub-state by calling <function>error()</function>. See
+	<xref linkend="fig-ext-runtime-states" />
+      </para>
+      <figure id="fig-ext-runtime-states">
+	<title>
+	  Possible Run-Time failure.
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/RunTimeStates" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/RunTimeStates" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      This figure shows the error sub-state of the Running state
+	      as a UML state chart.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	When the application code calls <function>error()</function>,
+	the RunTimeError state is entered and
+	<function>errorHook()</function> is executed instead of
+	<function>updateHook()</function>.  If at some moment the
+	component detects that it can resume normal operation, it
+	calls the <function>recovered()</function> function, which
+	leads to the Running state again and in the next iteration,
+	<function>updateHook()</function> is called again.
+      </para>
+      <section>
+      <title>Error States Example</title>
+      <para>
+	Here is a very simple use case, a TaskContext communicates over
+	a socket with a remote device. Normally, we get a data packet
+	every 10ms, but sometimes one may be missing.  When we don't
+	receive 5 packets in a row, we signal this as a run time
+	error. From the moment packets come in again we go back to the run
+	state. Now if the data we get is corrupt, we go into
+	fatal error mode, as we have no idea what the current state of
+	the remote device is, and shouldn't be updating our state, as
+	no one can rely on the correct functioning of the TaskContext.
+      </para>
+      <para>
+	Here's the pseudo code:
+	<programlisting> class MyComponent : public TaskContext
+ {
+       int faults;
+ public:
+       MyComponent(const std::string &amp;name) 
+         : TaskContext(name), faults(0) 
+       {}
+
+ protected:
+       // Read data from a buffer.
+       // If ok, process data. When to many faults occur,
+       // trigger a runtime error.
+       void updateHook()
+       {
+            Data_t data;
+            FlowStatus rv = input.read( data );
+            if ( rv == NewData ) {
+               this->stateUpdate(data);
+               faults = 0;
+	       this->recovered(); // may be an external supervisor calls this instead.
+            } else {
+               faults++;
+               if (faults > 4)
+                   this->error();
+            }
+
+       }
+
+       // Called instead of updateHook() when in runtime error state.
+       void errorHook()
+       {
+            this->updateHook(); // just call updateHook anyway.
+       }
+
+       // Called by updateHook()
+       void stateUpdate(Data_t data)
+       {
+            // Check for corrupt data
+            if ( checkData(data) == -1 ) {
+                 this->fatalError(); // we will enter the FatalError state.
+            } else {
+                 // data is ok: update internal state...
+            }
+       }
+ };</programlisting>
+      </para>
+      <para>
+	When you want to discard the 'error' state of the component,
+	call mycomp.recovered().  If your component went into
+	FatalError, call mycomp.reset() and mycomp.start() again for
+	processing updateHook() again.
+      </para>
+    </section>
+    </section>
 <!--
   <section>
     <title>Signals: Adding callback functions</title>
