@@ -956,7 +956,7 @@ Printing Interface of 'the_input_port' :
 
   };</programlisting></para>
        <para>You can find more detailed information in
-       <xref linkend="corelib-activity" /> in the CoreLib
+       <xref linkend="corelib-activities" /> in the CoreLib
        reference.</para>
     </section>
     <section><title>Default Component Execution Semantics</title>
@@ -1016,7 +1016,7 @@ Printing Interface of 'the_input_port' :
 	</para>
       </warning>
        <para>You can find more detailed information in
-       <xref linkend="corelib-activity" /> in the CoreLib
+       <xref linkend="corelib-activities" /> in the CoreLib
        reference.</para>
       </section>
     </section>
@@ -1529,10 +1529,11 @@ Printing Interface of 'the_input_port' :
       </section>
     </section>
     <section>
-      <title>The Operation Interface</title>
+      <title>The Method/Operation Interface</title>
       <note><title>Purpose</title><para>A task's operations
-      define which functions a component offers. Operations are grouped
-      in 'services', much like C++ class methods are grouped in classes.
+        define which functions a component offers. Operations are grouped
+        in 'services', much like C++ class methods are grouped in classes.
+        Methods are helper objects for calling operations.
       </para>
       </note>
       <mediaobject>
@@ -1544,16 +1545,16 @@ Printing Interface of 'the_input_port' :
 	</imageobject>
       </mediaobject>
       <para>
-	Opreations resemble very much normal C
-	or C++ functions, but they have the advantage to be
-	usable in scripting or can be called over a network
-	connection. They take arguments and return a value.
+	Operations are C/C++ functions that can be used
+	in scripting or can be called from another process or accross a network.
+	They take arguments and return a value.
 	The return value can in return be used as an argument
 	for other Operations or stored in a variable.
       </para>
       <para>
-	To add a TaskContext's function to the operation interface, you
-	only need to register it as an operation.
+	To add a C/C++ function to the operation interface, you
+	only need to register it with <function>addOperation()</function>,
+	defined in <classname>RTT::interface::ServiceProvider</classname>.
       </para>
       <para>
 	<programlisting>
@@ -1573,9 +1574,11 @@ Printing Interface of 'the_input_port' :
       : <classname>RTT::TaskContext</classname>(name),
     {
        // Add the method objects to the method interface:
-       this->addOperation( "reset",  &amp;MyTask::reset, this).doc(&quot;Reset the system.&quot;);
-       this->addOperation( "getName", &amp;MyTask::getName, this).doc(&quot;Read out the name of the system.&quot;);
-       this->addOperation( "changeParameter", &amp;MyTask::changeParameter, this)
+       this->addOperation( "reset",  &amp;MyTask::reset, this, <emphasis>OwnThread</emphasis>)
+                                   .doc(&quot;Reset the system.&quot;);
+       this->addOperation( "getName", &amp;MyTask::getName, this, <emphasis>ClientThread</emphasis>)
+                                   .doc(&quot;Read out the name of the system.&quot;);
+       this->addOperation( "changeParameter", &amp;MyTask::changeParameter, this, <emphasis>OwnThread</emphasis>)
                                    .doc(&quot;Change a parameter, return the old value.&quot;)
 	                           .arg(&quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
@@ -1595,61 +1598,183 @@ Printing Interface of 'the_input_port' :
       <para>
 	Using this mechanism, any method of <emphasis>any</emphasis>
 	class can be added to a task's method interface, not just functions of a TaskContext 
-	You can also add plain C functions, just omit the this pointer.
+	You can also add plain C functions, just omit the <emphasis>this</emphasis> pointer.
       </para>
-      <section>
-	<title>Calling a Component's Operations in C++</title>
-	<para>
-	  Operations are added to the TaskContext's inteface. To call such an
-	  operation from another component, you need a Method object to do the
-	  work for you. The Method object is templated with the function signature
-	  of the operation you wish to call.
-	  For example '<programlisting>void(int, double)</programlisting>'
-	  which is the signature of a function returning 'void' and
-	  having two arguments: an 'int' and a 'double'.
+      <para>
+        As the last argument to addOperation, a flag can be passed which can be <emphasis>OwnThread</emphasis>
+	or <emphasis>ClientThread</emphasis>. This allows the component implementer to choose
+	if the operation, when called, is executed in the thread of the ExecutionEngine,
+	or in the thread of the caller (i.e. the Client). This choice is hidden from the user
+	of our operations. It allows us to choose who gets the burden of the execution of the
+	function, but also allows to synchronize operation calls with the execution of
+	updateHook(). Summarized in a table:
       </para>
-	<para>
-	  You only need a pointer to a TaskContext object, for example
-	  using the 'getPeer()' class function. You only need to provide the
-	  name with which the operation was registered during 'addOperation':
+	<table id="execution-types-table">
+	  <title>Execution Types</title>
+	  <tgroup cols="4">
+	    <thead>
+	      <row>
+		<entry>ExecutionType</entry>
+		<entry>Requires locks in your component?</entry>
+		<entry>Executed at priority of</entry>
+		<entry>Examples</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>ClientThread</entry>
+		<entry>Yes. For any data shared between the ClientThread-tagged operation and updateHook() or other operations.</entry>
+		<entry>Caller thread</entry>
+		<entry><itemizedlist>
+		  <listitem><para>Stateless algorithms that get all data through parameters.</para></listitem>
+		  <listitem><para>Operations of real-time components that are not real-time.</para></listitem>
+		  <listitem><para>getName(), loadProperties("file.xml"), ... </para></listitem>
+		</itemizedlist>
+		</entry>
+	      </row>
+	      <row>
+		<entry>OwnThread</entry>
+		<entry>No. Every OwnThread-tagged operation and updateHook() is executed in the thread of the component.</entry>
+		<entry>Component thread.</entry>
+		<entry><itemizedlist>
+		  <listitem><para>Operations that do a lot of setup work in the component.</para></listitem>
+		  <listitem><para>Operations which are called from several places at the same time.</para></listitem>
+		  <listitem><para>moveToPosition(pos, time), setParameter("name", value),...</para></listitem>
+		</itemizedlist>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+        <para>
+	  The choice of this type is completely up to the implementor
+	  of the component and can be made independently of how it
+	  will be used by its clients. Clients can indicate the same
+	  choice indepenently: they can Call or Send an
+	  operation. This is explained in the next two sections.
+	</para>
+	<section>
+	  <title>Call versus Send: the Method object</title>
+	  <para>
+	    Operations are added to the TaskContext's inteface. To
+	    call an operation from another component, you need a
+	    Method object to do the work for you. It allows to modes:
+	    <itemizedlist>
+	      <listitem><para>calling the operation, in which case you block until the
+	    operation returns its value</para></listitem>
+	      <listitem><para>sending the operation, in which case you get a SendHandle
+	    back which allows you to follow its status and collect the results.</para></listitem>
+	    </itemizedlist>
+	    One Method object always offers both choices, and they can
+	    be used both interweaved, as far as the allocation scheme
+	    allows it. See <xref linkend="method-allocation" />. 
+	    Calling is used by default if you don't specify which mode
+	    you want to use.
+	  </para>
+	  <para>
+	    Each Method object is
+	    templated with the function signature of the operation you
+	    wish to call.  For example 
+	    <programlisting>void(int,double)</programlisting>
+	    which is the signature of a
+	    function returning 'void' and having two arguments: an
+	    'int' and a 'double', for example, <function>void foo(int
+	    i, double d);</function>.
+	  </para>
+	  <para>
+	    To setup a Method object, you need a pointer to a TaskContext object, for example
+	    using the 'getPeer()' class function. Then you provide the
+	    name with which the operation was registered during 'addOperation':
 	</para>
 	<programlisting>  // create a method:
-  TaskContext* a_task_ptr;
+  TaskContext* a_task_ptr = getPeer("ATask");
   Method&lt;void(void)&gt; my_reset_meth 
-       = a_task_ptr->getOperation&lt;void(void)&gt;("reset");
+       = a_task_ptr->getOperation&lt;void(void)&gt;("reset"); // void reset(void)
 
   // Call 'reset' of a_task:
   reset_meth();  </programlisting>
       <para>
-	Methods can also be given arguments and collect return values. Both constant
-	arguments and variable arguments are supported. 
+	If you wanted to send the same reset operation, you had written:
       </para>
-      <programlisting>  // used to hold the return value:
+	<programlisting>  // Send 'reset' of a_task:
+  SendHandle&lt;void(void)&gt; handle = reset_meth.send();  </programlisting>
+      <para>A send() always returns a SendHandle object which offers three
+        methods: <function>collect()</function>, 
+	<function>collectIfDone()</function> and <function>ret()</function>.
+	All three come in two forms: with arguments or without arguments.
+	The form without arguments can be used if you are only interested in
+	the return values of these functions. collect() and collectIfDone
+	return a SendStatus, ret() returns the return value of the operation.
+	SendStatus is an enum of SendSuccess, SendNotReady or SendFailure.
+	Code says it all:
+      </para>
+	<programlisting>  // Send 'reset' of a_task:
+  SendHandle&lt;void(void)&gt; handle = reset_meth.send();  
+
+  // polling for reset() to complete:
+  while (handle.collectIfDone() == SendNotReady )
+      sleep(1);
+
+  // blocking for reset() to complete:
+  handle = reset_meth.send();
+  SendStatus ss = handle.collect();
+  if (ss != SendSuccess) {
+      cout &lt;&lt; "Execution of reset failed." &lt;&lt; endl;
+  }
+
+  // retrieving the return value is not possible for a void(void) method. </programlisting>
+      <para>
+	Next we move on to methods with arguments and return values by using
+	the getName and changeParameter operations:
+      </para>
+      <programlisting>  // used to hold the return value of getName:
   string name;
   Method&lt;string(void)> name_meth = 
-    a_task_ptr->getOperation&lt;string(void)>("getName");
+    a_task_ptr->getOperation&lt;string(void)>("getName"); // string getName(void)
 
-  // Call 'name' of a_task:
-  name = name_meth(); 
+  // Call 'getName' of a_task:
+  name = name_meth();
+  // Equivalent to:
+  name = name_meth.call();
 
   cout &lt;&lt; "Name was: " &lt;&lt; name &lt;&lt; endl; 
 
-  // hold return value.
+  // Send 'getName' to a_task:
+  SendHandle&lt;string(void)> nhandle = name.send();
+
+  // collect takes the return value of getName() as first argument and fills it in:
+  SendStatus ss = nhandle.collect(name);
+  if (ss == SendSuccess) {
+    cout &lt;&lt; "Name was: " &lt;&lt; name &lt;&lt; endl; 
+  }
+
+  assert( name == nhandle.ret() ); // ret() returns the same as getName() returned. 
+
+  // hold return value of changeParameter:
   double oldvalue;
-  Method&lt;double(double)> mychange_1 =
-      a_task.methods()->create("changeParameter");
+  Method&lt;double(double)> mychange =
+      a_task_ptr->getOperation&lt;double(double)>("changeParameter"); // double changeParameter(double)
 
   // Call 'changeParameter' of a_task with argument '1.0'
-  oldvalue = mychange_1( 1.0 );
-  // oldvalue now contains previous value.</programlisting>
+  oldvalue = mychange( 1.0 );
+  // Equivalent to:
+  oldvalue = mychange.call( 1.0 );
+
+  // Send 'changeParameter' to a_task:
+  SendHandle&lt;double(double)> chandle = changeParameter.send( 2.0 )
+
+  SendStatus ss = chandle.collectIfDone( oldvalue );
+  if (ss == SendSuccess) {
+      cout &lt;&lt; "Oldvalue was: " &lt;&lt; oldvalue &lt;&lt; endl;
+  }  </programlisting>
        <para>
-	 Up to 4 arguments can be given. If the signature was
-	 not correct, the method invocation will be ignored.
+	 Up to 4 arguments can be given to send or call. If the signature of the Method was
+	 not correct, the method invocation will be throw.
 	 One can check validity of a method object with the
 	 'ready()' function:
        </para>
-       <programlisting>  Method&lt;double(double)> mychange_1 = ...;
-  assert( mychange_1.ready() );</programlisting>
+       <programlisting>  Method&lt;double(double)> mychange = ...;
+  assert( mychange.ready() );</programlisting>
 <!--- MethodC must go to -devel manual.
       <para>
 	However, the return value
@@ -1691,14 +1816,98 @@ Printing Interface of 'the_input_port' :
        -->
       </section>
       <section>
-	<title>Calling Operations in Scripts</title>
+	<title>Calling/Sending Operations in Scripts</title>
 	<para>
-	  To invoke operations from a script, you can simply write :</para>
+	  The syntax in scripts is the same as in C++:</para>
 	<para>
-	<programlisting>
+	<programlisting> // call:
+  var double oldvalue
   ATask.changeParameter( 0.1 )
   // or :
-  set result = ATask.changeParameter( 0.1 ) // store return value </programlisting></para>
+  set oldvalue = ATask.changeParameter( 0.1 ) // store return value 
+
+  // send:
+  var SendHandle handle;
+  var SendStatus ss;
+  handle = ATask.changeParameter.send( 2.0 );
+
+  // collect non-blocking:
+  while ( handle.collectIfDone( oldvalue ) ) 
+     yield // see text below.
+   
+  // collect blocking:
+  handle.collect( oldvalue ); // see text below.
+</programlisting></para>
+         <para> There is an important difference between collect()
+	   and collectIfDone in scripts. collect() will block your
+	   whole script, so also other scripts executed in the ExecutionEngine
+	   and updateHook. The only exception is that incomming
+	   operations are still processed, such that call-backs are allowed.
+	   For example: if ATask.changeParameter does in turn a send on your component,
+	   this will be processed such that no dead-lock occurs.</para>
+	 <para>
+	   If you do not wish to block unconditionally on the completion
+	   of changeParameter, you can poll with collectIfDone. Each time
+	   the poll fails, you issue a yield (in RTT 1.x this was 'do nothing').
+	   Yield causes temporary suspension of your script, the processing
+	   of the ExecutionEngine and updateHook. In the next trigger
+	   of your component, the program resumes and the while loop checks
+	   the collectIfDone() statement again.
+	 </para>
+      </section>
+      <section>
+	<title>Overview: Who's executing the operation ?</title>
+	 <para>
+	   Considering all the combinations above, 4 cases can occur:   
+	 </para>
+	<table id="calling-combination-table">
+	  <title>Call/Send and ClientThread/OwnThread Combinations</title>
+	  <tgroup cols="3">
+	    <thead>
+	      <row>
+		<entry>Method-v \ Operation-></entry>
+		<entry>ClientThread</entry>
+		<entry>OwnThread</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Call</entry>
+		<entry>Executed directly by the thread that does the call()</entry>
+		<entry>Executed by the ExecutionEngine of the receiving component.</entry>
+	      </row>
+	      <row>
+		<entry>Send</entry>
+		<entry>Executed by the GlobalExecutionEngine. See text below.</entry>
+		<entry>Executed by the ExecutionEngine of the receiving component.</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	<para>
+	  This matrix shows a special case: when the client does a send() and 
+	  the component defined the operation as 'ClientThread', someone else
+	  needs to execute it. That's the job of the GlobalExecutionEngine.
+	  Since no thread wishes to carry the burden of executing this function,
+	  the GlobalExecutionEngine, which runs with the lowest priority thread in the system, 
+	  picks it up.
+	</para>
+      </section>
+      <section id="method-allocation">
+	<title>Executing methods in real-time.</title>
+	 <para>
+	   Calling or sending a method has a cost in terms of memory.
+	   The implementations needs to allocate memory to collect the 
+	   return values when a send or call is done. There are two ways
+	   to claim memory: by using a real-time memory allocator or by
+	   setting a fixed amount in the Method object in advance. The
+	   default is using the real-time memory allocator. For mission
+	   critical code, you can override this with a reserved amount,
+	   which will be guaranteed always available for that object.
+	 </para>
+	 <para>
+	   (to be completed).
+	 </para>
       </section>
     </section>
     <section id="method-args-types">
@@ -1780,7 +1989,7 @@ Printing Interface of 'the_input_port' :
       <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's interface
-	(<classname>RTT::AttributeRepository</classname>) like this :</para>
+	(<classname>RTT::interface::AttributeRepository</classname>) like this :</para>
       <para>
 	<programlisting>  #include &lt;rtt/Property.hpp>
   #include &lt;rtt/Attribute.hpp>
@@ -2239,6 +2448,112 @@ Printing Interface of 'the_input_port' :
     </para>
     </section>
   </section>
+  <section id="task-services">
+    <title>Providing and Requiring Services</title>
+    <para>
+      In the previous sections, we saw that you could add an operation to a
+      TaskContext, and retrieve it for use in a Method object. This manual
+      registration and connection process can be automated by using the
+      service objects. There are two major players: <classname>RTT::interface::ServiceProvider</classname>
+      and <classname>RTT::interface::ServiceRequester</classname>. The
+      first manages operations, the second methods. We say that the
+      ServiceProvider <emphasis>provides</emphasis> operations, while
+      the ServiceRequester <emphasis>requires</emphasis> them. The first
+      expresses what it can do, the second what it needs from others to do.
+    </para>
+    <para>
+      Here's a simple use case for two components:
+    </para>
+    <example><title>Setting up a Service</title>
+    <para>The only difference between setting up a service and
+      adding an operation, is by adding provides("servicename")
+      in front of addOperation.
+    </para>
+    <programlisting>   #include &lt;rtt/TaskContext.hpp>
+  #include &lt;iostream>
+
+  class MyServer : public RTT::TaskContext {
+  public:
+    MyServer() : TaskContext("server") {
+       this-><emphasis>provides("display")</emphasis>
+             ->addOperation("showErrorMsg", &amp;MyServer::showErrorMsg, this, RTT::OwnThread)
+                   .doc("Shows an error on the display.")
+                   .arg("code", "The error code")
+                   .arg("msg","An error message");
+       this-><emphasis>provides("display")</emphasis>
+             ->addOperation("clearErrors", &amp;MyServer::clearErrors, this, RTT::OwnThread)
+                   .doc("Clears any error on the display.");
+    }
+    void showErrorMsg(int code, std::string msg) {
+       std::cout &lt;&lt; "Code: "&lt;&lt;code&lt;&lt;" - Message: "&lt;&lt; msg &lt;&lt;std::endl;
+    }
+    void clearErrors() {
+       std::cout &lt;&lt; "No errors present." &lt;&lt; std::endl;
+    }
+  };
+    </programlisting>
+    </example>
+    <para>
+       What the above code does is grouping operations in an interface that is provided
+       by this component. We give this interface a name, 'display' in order to allow
+       another component to find it by name. Here's an example on how to use this service:
+    </para>
+    <example><title>Using a Service</title>
+    <para>The only difference between setting up a service and
+      adding a Method object, is by adding requires("servicename")
+      in front of addMethod.
+    </para>
+    <programlisting>   #include &lt;rtt/TaskContext.hpp>
+  #include &lt;iostream>
+
+  class MyClient : public RTT::TaskContext {
+  public:
+    int counter;
+    Method&lt;void(int,std::string)> showErrorMsg;
+    Method&lt;void(void)> clearErrors;
+
+    MyClient() : TaskContext("client"), counter(0),
+       showErrorMsg("showErrorMsg"), clearErrors("clearErrors")
+    {
+       this-><emphasis>requires("display")</emphasis>
+             ->addMethod(showErrorMsg);
+       this-><emphasis>requires("display")</emphasis>
+             ->addMethod(clearErrors);
+       this->setPeriod(0.1);
+    }
+    bool configureHook() {
+       return this->requires("display")->ready();
+    }
+
+    void updateHook() {
+        if (counter == 10) {
+           showErrorMsg.send(101, "Counter too large!");
+        }
+        if (counter == 20) {
+           clearErrors.send();
+           counter = 0;
+        }
+        ++counter;
+     }
+  };</programlisting>
+    </example>
+    <para> What you're seeing is this: the client has 2 Method objects
+      for calling the functions in the "display" service. The method objects
+      must have the same name as defined in the 'provides' lines in the previous
+      listing. We check in configureHook if this interface is ready to be called.
+      Update hook then calls these methods.</para>
+    <para> The remaining question is now: how is the connection done from client to
+      server ? The <classname>RTT::interface::ServiceRequester</classname> has a method 
+      <function>connectTo(ServiceProvider*)</function> which does this connection from
+      Method object to operation. If you wanted to hardcode this, it would look like:
+      <programlisting>  bool configureHook() {
+     requires("display")->connectTo( getPeer("server")->provides("display") );
+     return requires("display")->ready();
+  }</programlisting>
+      In practice, you will use the deployer application to do the connection for
+      you at run-time. See the DeploymentComponent documentation for the syntax.
+    </para>
+  </section>
   <section id="run-tasks">
     <title>Using Tasks</title>
     <para>
@@ -2258,6 +2573,8 @@ Printing Interface of 'the_input_port' :
       </para>
       <programlisting>  // ...
   <classname>RTT::TaskContext</classname>* a_task = ...
+            mname = ab->getName();
+            mname = ab->getName();
   a_task->getProvider&lt;Marshalling&gt;("marshalling")->readProperties( "PropertyFile.cpf" );
   // ...
   a_task->getProvider&lt;Marshalling&gt;("marshalling")->writeProperties( "PropertyFile.cpf" ); </programlisting>
