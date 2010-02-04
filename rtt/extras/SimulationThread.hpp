@@ -50,10 +50,7 @@ namespace RTT
 
     /**
      * This thread is the simulated real-time periodic thread in the
-     * Orocos system. It behaves (to the SimulationActivity) like a
-     * perfect scheduler by executing all activities one after the
-     * other in a continuous loop and updating the system time, such
-     * that it appears to the activities as they are executed periodically.
+     * Orocos system.
      *
      * All your activities in the same program must be a SimulationActivity for this
      * to work, since the os::TimeService global time is updated when this thread runs.
@@ -61,7 +58,8 @@ namespace RTT
      * By default, the update period is 0.001 seconds. If you want to run
      * with a finer or coarser grained time step, use the Instance() method and
      * supply another period before SimulationActivities are created.
-     * @see TimerThread
+     * @note This implementation has lost the capability to run SimulationActivity
+     * objects of different periods.
      */
     class RTT_API SimulationThread
         : public TimerThread

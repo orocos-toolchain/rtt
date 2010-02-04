@@ -155,6 +155,10 @@ namespace RTT {
         return thread_->getPeriod();
     }
 
+    bool PeriodicActivity::setPeriod(Seconds s) {
+        return false;
+    }
+
     bool PeriodicActivity::initialize() {
         if (runner != 0)
             return runner->initialize();

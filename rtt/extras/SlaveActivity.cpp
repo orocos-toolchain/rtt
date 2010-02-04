@@ -64,7 +64,16 @@ namespace RTT {
 
     Seconds SlaveActivity::getPeriod() const
     {
+        if (mmaster)
+            return mmaster->getPeriod(); // master can change period.
         return mperiod;
+    }
+
+    bool SlaveActivity::setPeriod(Seconds s) {
+        if (mmaster)
+            return false; // refuse to set period if master is involved.
+        mperiod = s;
+        return true;
     }
 
     os::ThreadInterface* SlaveActivity::thread()

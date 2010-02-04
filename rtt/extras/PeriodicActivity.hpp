@@ -165,6 +165,8 @@ namespace RTT
 
         virtual Seconds getPeriod() const;
 
+        virtual bool setPeriod(Seconds s);
+
         virtual os::ThreadInterface* thread();
 
         /**

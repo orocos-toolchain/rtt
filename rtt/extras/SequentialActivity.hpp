@@ -85,6 +85,8 @@ namespace RTT
 
         Seconds getPeriod() const;
 
+        bool setPeriod(Seconds s);
+
         os::ThreadInterface* thread();
 
         bool initialize();

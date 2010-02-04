@@ -153,6 +153,15 @@ namespace RTT
         virtual bool isPeriodic() const = 0;
 
         /**
+         * Set the periodicity of this activity in Seconds.
+         * Note that not all activity implementation support periods. A period
+         * of s == 0 indicates non periodic. A non supported setting returns false.
+         *
+         * @return true if it could be updated, false otherwise.
+         */
+        virtual bool setPeriod(Seconds s)  = 0;
+
+        /**
          * Execute this activity such that it \a executes a step or loop of the RunnableInterface.
          * When you invoke execute() you intend to call the step() or loop() methods.
          * Some activity implementations allow a user controlled execute, others ignore it,

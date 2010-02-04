@@ -48,12 +48,12 @@ namespace RTT
      * @brief A SimulationActivity is a PeriodicActivity which is used
      * for simulation.
      *
-     * They all run in the same thread, which updates the
+     * They all run in the same thread at the same period, which updates the
      * the system clock such that the SimulationActivity appears to run
      * in realtime, while it runs 'as fast as possible'.
      *
-     * They will run in the SimulationThread. See SimulationThread::Instance
-     * for setting the smallest activity period in the system.
+     * @note The period is fixed by the SimulationThread, which runs all
+     * SimulationActivities at the same period.
      * @ingroup CoreLibActivities
      */
     class RTT_API SimulationActivity
@@ -63,11 +63,13 @@ namespace RTT
         /**
          * Construct a SimulationActivity with a periodicity \a period
          * Seconds
+         * @note period is ignored.
          */
         SimulationActivity(Seconds period, base::RunnableInterface* r=0 );
         /**
          * Construct a SimulationActivity with a periodicity of
          * \a s seconds and \a ns nanoseconds
+         * @note s and ns are ignored.
          */
         SimulationActivity(secs s, nsecs ns, base::RunnableInterface* r=0 );
 

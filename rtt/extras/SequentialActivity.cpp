@@ -59,6 +59,12 @@ namespace RTT {
         return 0.0;
     }
 
+    bool SequentialActivity::setPeriod(Seconds s) {
+        if ( s == 0.0)
+            return true;
+        return false;
+    }
+
     os::ThreadInterface* SequentialActivity::thread()
     {
         return os::MainThread::Instance();
@@ -129,7 +135,7 @@ namespace RTT {
     bool SequentialActivity::trigger()
     {
         // This function may recurse, in which case it returns true.
-        // We could also rely on the MutexTryLock to fail, but in 
+        // We could also rely on the MutexTryLock to fail, but in
         // case an OS only has recursive mutexes, we'd need to
         // check running anyway before calling runner->step(). So
         // we moved that piece of code up front.
