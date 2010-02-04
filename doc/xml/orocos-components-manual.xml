@@ -16,8 +16,11 @@
     </subtitle>
     <subtitle>&oversion;</subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006,2007</year>
+      <year>2002,2003,2004,2005,2006,2007,2008,2009,2010</year>
       <holder>Peter Soetens</holder>
+    </copyright>
+    <copyright>
+      <year>2006,2007,2008</year>
       <holder>FMTC</holder>
     </copyright>
 
@@ -52,7 +55,7 @@
       own software components using the Orocos Real-Time Toolkit.
       There is also a CoreLib Reference Chapter at the end to find out
       the precise semantics of our communication primitives and other
-      important classes.  The Orocos hardware abstraction is included
+      important classes.  The Orocos hardware and OS abstraction is included
       as well. The HTML version of this manual links to the 
       API documentation of all classes.
     </para>
