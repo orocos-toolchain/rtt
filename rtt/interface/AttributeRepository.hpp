@@ -206,7 +206,7 @@ namespace RTT
         /**
          * Get a pointer to the attribute with name \a name.  If no such value exists, this method
          * returns 0. It can be used to retrieve added constants,
-         * attributes or data objects. Both Attribute and Constant
+         * attributes or data objects. Both Attribute, Constant and Alias
          * can work with this function.
          * @example
            Attribute<double> d_attr = getValue("Xval");
