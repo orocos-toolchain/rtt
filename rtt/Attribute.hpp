@@ -149,10 +149,12 @@ namespace RTT
                 data = 0;
                 return *this;
             }
-            mname = ab->getName();
-            Attribute<T>* a = dynamic_cast<Attribute<T>*>(ab);
-            if (a)
-                data = a->getAssignableDataSource();
+            typename internal::AssignableDataSource<T>::shared_ptr a
+                = boost::dynamic_pointer_cast<internal::AssignableDataSource<T> >( ab->getDataSource() );
+            if (a) {
+                data = a;
+                mname = ab->getName();
+            }
             return *this;
         }
 
