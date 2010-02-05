@@ -44,7 +44,8 @@
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
 #include "../Logger.hpp"
-#include "../marsh/PropertyBagIntrospector.hpp"
+#include "../TaskContext.hpp"
+#include "PropertyBagIntrospector.hpp"
 #include <fstream>
 
 using namespace std;
