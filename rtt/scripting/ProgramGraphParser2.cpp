@@ -58,7 +58,7 @@ namespace RTT
   {
     // a function statement : "call functionname"
     funcstatement = (
-      str_p( "call" )
+      lexeme_d[str_p( "call " )]
       >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
       >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
       )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];

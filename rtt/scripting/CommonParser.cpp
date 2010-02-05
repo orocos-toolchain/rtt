@@ -59,7 +59,7 @@ namespace RTT {
         : identchar( "a-zA-Z_0-9" )
     {
         // we reserve a few words
-        keywords =
+        keywordstable =
             "do",
             "until",
             "done",
@@ -98,9 +98,11 @@ namespace RTT {
         BOOST_SPIRIT_DEBUG_RULE( idlr );
         BOOST_SPIRIT_DEBUG_RULE( eos );
         BOOST_SPIRIT_DEBUG_RULE( leos );
+        BOOST_SPIRIT_DEBUG_RULE( endofkeyword );
         BOOST_SPIRIT_DEBUG_RULE( keywords );
         BOOST_SPIRIT_DEBUG_RULE( keyword );
         BOOST_SPIRIT_DEBUG_RULE( identifier );
+        BOOST_SPIRIT_DEBUG_RULE( identchar );
         BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
@@ -110,7 +112,9 @@ namespace RTT {
         // to start with a letter, followed by any number of letters,
         // numbers, dashes, underscores or letters.  The keywords we
         // reserved above are excluded..
-        keyword = keywords >>eps_p(~identchar | eol_p | end_p);
+        keywords = keywordstable;
+        endofkeyword = (~identchar) | eol_p | end_p;
+        keyword = lexeme_d[keywords >> eps_p(endofkeyword)];
 
         // if a rule is going to be used inside a lexeme_d, then it
         // needs to be of a different type..  Since identifier is used

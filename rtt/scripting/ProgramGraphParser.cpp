@@ -190,7 +190,7 @@ namespace RTT
 
     valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    dostatement = !str_p("do") >>
+    dostatement = !lexeme_d[str_p("do ")] >>
             (
               ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
@@ -198,7 +198,7 @@ namespace RTT
 
     // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
-        str_p("try")
+        lexeme_d[str_p("try ")]
          >> expect_command ( expressionparser.parser()[ bind( &ProgramGraphParser::seentrystatement, this ) ] )
          >> !catchpart;
 

@@ -98,7 +98,7 @@ namespace RTT
             | variableassignment;
 
         constantdefinition =
-            "const"
+            lexeme_d[str_p("const ")]
             // the type
                 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )]
@@ -106,7 +106,7 @@ namespace RTT
 
 
         aliasdefinition =
-            "alias"
+            lexeme_d[str_p("alias ")]
             // the type
                 >> expect_type(type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
             // next the name for the alias
@@ -116,13 +116,14 @@ namespace RTT
                 >> expect_init( expressionparser.parser() )[ bind( &ValueChangeParser::seenaliasdefinition, this ) ];
 
         variabledefinition =
-            "var"
+            lexeme_d[str_p("var ")]
                 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ]
                 >> *(ch_p(',') >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
 
         variableassignment =
-            "set" >> expect_change(variablechange);
+              lexeme_d[str_p("set ")] >> expect_change(variablechange);
+            //eps_p(commonparser.keyword) >> str_p("set") >> expect_change(variablechange);
 
         /**
          * One of the most important parsers in the ValueChangeParser. Variable assignment

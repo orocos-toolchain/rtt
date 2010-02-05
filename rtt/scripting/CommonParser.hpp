@@ -55,9 +55,9 @@ namespace RTT { namespace scripting
       // The characters of an identifier after the first char.
       chset<> identchar;
 
-      symbols<nil_t> keywords;
+      symbols<nil_t> keywordstable;
       // parses any reserved keyword
-      rule_t keyword;
+      rule_t keyword,keywords,endofkeyword;
 
       // the normal identifier throws an error if it fails to match
       // because a keyword was used.  Normally this is no problem, but
