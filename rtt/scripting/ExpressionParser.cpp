@@ -199,7 +199,7 @@ namespace RTT
                         if (meth == "collect")
                             ret = sha->getFactory()->produceCollect(args, true);// blocking
                         else
-                            ret = sha->getFactory()->produceCollect(args, true);// blocking
+                            ret = sha->getFactory()->produceCollect(args, false);// non-blocking
                         return;
                     }
                 }
