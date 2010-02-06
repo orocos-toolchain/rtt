@@ -46,8 +46,6 @@ namespace RTT {
     using namespace boost;
 
     void EventService::clear() {
-        for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it )
-            delete it->second;
     }
 
 
