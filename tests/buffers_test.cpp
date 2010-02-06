@@ -18,68 +18,140 @@
 
 
 
-#include "buffers_test.hpp"
-
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 #include <Activity.hpp>
 
-using namespace std;
-
 #include <boost/test/unit_test.hpp>
 
+#include <RTT.hpp>
+#include <internal/AtomicQueue.hpp>
+#include <base/Buffer.hpp>
+#include <internal/ListLockFree.hpp>
+#include <base/DataObject.hpp>
+#include <internal/MemoryPool.hpp>
+//#include <internal/SortedList.hpp>
+
+#include <os/Thread.hpp>
+#include <rtt-config.h>
+
+using namespace std;
 using namespace RTT;
+using namespace RTT::detail;
+
+class Dummy {
+public:
+    Dummy(double a = 0.0, double b =1.0, double c=2.0)
+        :d1(a), d2(b), d3(c) {}
+    double d1;
+    double d2;
+    double d3;
+    bool operator==(const Dummy& d) const
+    {
+        return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
+    }
+
+    bool operator!=(const Dummy& d) const
+    {
+        return d.d1 != d1 || d.d2 != d2 || d.d3 != d3;
+    }
+
+    bool operator<(const Dummy& d) const
+    {
+        return d1+d2+d3 < d.d1 + d.d2 + d.d3;
+    }
+/*
+     volatile Dummy& operator=(const Dummy& d) volatile
+     {
+         d1 = d.d1;
+         d2 = d.d2;
+         d3 = d.d3;
+         return *this;
+     }
+*/
+};
+
+
+typedef AtomicQueue<Dummy*> QueueType;
+
+#define QS 10
+
+class BuffersAQueueTest
+{
+public:
+    AtomicQueue<Dummy*>* aqueue;
+    ThreadInterface* athread;
+    ThreadInterface* bthread;
+    ListLockFree<Dummy>* listlockfree;
+
+    BuffersAQueueTest()
+    {
+        aqueue = new AtomicQueue<Dummy*>(QS);
+        listlockfree = new ListLockFree<Dummy>(10, 4);
+    }
+    ~BuffersAQueueTest(){
+        aqueue->clear();
+        delete aqueue;
+        delete listlockfree;
+    }
+};
+
+class BuffersDataFlowTest
+{
+public:
+    BufferLockFree<Dummy>* lockfree;
+    DataObjectLockFree<Dummy>* dataobj;
+
+    ThreadInterface* athread;
+    ThreadInterface* bthread;
+
+    BuffersDataFlowTest()
+    {
+        lockfree = new BufferLockFree<Dummy>(QS);
+
+        dataobj  = new DataObjectLockFree<Dummy>();
+    }
+
+    ~BuffersDataFlowTest(){
+        delete lockfree;
+        delete dataobj;
+    }
+};
+
+class BuffersMPoolTest
+{
+public:
+
+    ThreadInterface* athread;
+    ThreadInterface* bthread;
+
+    MemoryPool<Dummy>* mpool;
+    MemoryPool<std::vector<Dummy> >* vpool;
+    FixedSizeMemoryPool<Dummy>* fmpool;
+    FixedSizeMemoryPool<std::vector<Dummy> >* fvpool;
+
+    BuffersMPoolTest()
+    {
+        mpool = new MemoryPool<Dummy>(QS);
+        vpool = new MemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS) );
+
+        fmpool = new FixedSizeMemoryPool<Dummy>(QS);
+        fvpool = new FixedSizeMemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS));
+    }
+
+    ~BuffersMPoolTest(){
+        delete mpool;
+        delete vpool;
+        delete fmpool;
+        delete fvpool;
+    }
+};
 
 
 std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
 	os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
 	return os;
 }
-
-#define QS 10
-
-void
-BuffersTest::setUp()
-{
-    aqueue = new AtomicQueue<Dummy*>(QS);
-
-    lockfree = new BufferLockFree<Dummy>(QS);
-
-    dataobj  = new DataObjectLockFree<Dummy>();
-
-    //mslist =  new SortedList<Dummy>();
-
-    listlockfree = new ListLockFree<Dummy>(10, 4);
-
-    mpool = new MemoryPool<Dummy>(QS);
-    vpool = new MemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS) );
-
-    fmpool = new FixedSizeMemoryPool<Dummy>(QS);
-    fvpool = new FixedSizeMemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS));
-}
-
-
-void
-BuffersTest::tearDown()
-{
-    aqueue->clear();
-    delete aqueue;
-
-    delete lockfree;
-
-    delete dataobj;
-
-    //delete mslist;
-
-    delete listlockfree;
-
-    delete mpool;
-    delete vpool;
-    delete fmpool;
-    delete fvpool;
-}
-
-
 void addOne(Dummy& d)
 {
     ++d.d1;
@@ -219,7 +291,8 @@ struct AQGrower : public RunnableInterface
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE( BuffersTestSuite, BuffersTest )
+
+BOOST_FIXTURE_TEST_SUITE( BuffersAtomicTestSuite, BuffersAQueueTest )
 
 BOOST_AUTO_TEST_CASE( testAtomic )
 {
@@ -304,6 +377,9 @@ BOOST_AUTO_TEST_CASE( testAtomicCounted )
     delete e;
     delete d;
 }
+
+BOOST_AUTO_TEST_SUITE_END()
+BOOST_FIXTURE_TEST_SUITE( BuffersDataFlowTestSuite, BuffersDataFlowTest )
 
 BOOST_AUTO_TEST_CASE( testBufLockFree )
 {
@@ -502,6 +578,9 @@ BOOST_AUTO_TEST_CASE( testDObjLockFree )
     delete c;
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+BOOST_FIXTURE_TEST_SUITE( BuffersMPoolTestSuite, BuffersMPoolTest )
+
 BOOST_AUTO_TEST_CASE( testMemoryPool )
 {
     // Test initial conditions.
@@ -676,6 +755,9 @@ BOOST_AUTO_TEST_CASE( testSortedList )
 #endif
 
 #ifdef OROPKG_OS_GNULINUX
+
+BOOST_AUTO_TEST_SUITE_END()
+BOOST_FIXTURE_TEST_SUITE( BuffersStressLockFreeTestSuite, BuffersAQueueTest )
 
 BOOST_AUTO_TEST_CASE( testListLockFree )
 {
