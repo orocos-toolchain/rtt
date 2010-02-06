@@ -190,6 +190,7 @@ namespace RTT
         vector<string> myreqs = this->getRequestNames();
         vector<string> peerreqs = peer->getRequestNames();
 
+        this->requires()->connectTo( peer->provides() );
         for (vector<string>::iterator it = myreqs.begin();
              it != myreqs.end();
              ++it) {
@@ -202,6 +203,8 @@ namespace RTT
                 }
             }
         }
+
+        peer->requires()->connectTo( this->provides() );
         for (vector<string>::iterator it = peerreqs.begin();
                 it != peerreqs.end();
                 ++it) {
