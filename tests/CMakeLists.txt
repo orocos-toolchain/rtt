@@ -246,10 +246,10 @@ IF (BUILD_TESTING)
       
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
     
-    ADD_UNIT_TEST(method_test EXTRA_TESTS ${TEST_LIBRARIES})
-    ADD_UNIT_TEST(functors_test EXTRA_TESTS ${TEST_LIBRARIES})
-    ADD_UNIT_TEST(scripting_test EXTRA_TESTS ${TEST_LIBRARIES} operations_fixture.cpp )
-    ADD_UNIT_TEST(marshalling_test EXTRA_TESTS ${TEST_LIBRARIES} operations_fixture.cpp )
+    ADD_UNIT_TEST(method_test EXTRA_TESTS "${TEST_LIBRARIES}")
+    ADD_UNIT_TEST(functors_test EXTRA_TESTS "${TEST_LIBRARIES}")
+    ADD_UNIT_TEST(scripting_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+    ADD_UNIT_TEST(marshalling_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
 
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
