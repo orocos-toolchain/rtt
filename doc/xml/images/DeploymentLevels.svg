@@ -1,25 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="297mm"
    height="210mm"
    id="svg3778"
    sodipodi:version="0.32"
-   inkscape:version="0.43"
-   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/xml/images"
+   inkscape:version="0.47pre4 r22446"
    sodipodi:docname="DeploymentLevels.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/vdw-distributie/CoreVsContext.png"
    inkscape:export-xdpi="200"
-   inkscape:export-ydpi="200">
+   inkscape:export-ydpi="200"
+   version="1.1">
   <defs
      id="defs3780">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 372.04724 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1052.3622 : 372.04724 : 1"
+       inkscape:persp3d-origin="526.18109 : 248.03149 : 1"
+       id="perspective15997" />
     <marker
        inkscape:stockid="Dot_s"
        orient="auto"
@@ -111,12 +119,14 @@
      inkscape:cy="317.52938"
      inkscape:current-layer="layer1"
      id="namedview3782"
-     inkscape:window-width="965"
-     inkscape:window-height="706"
-     inkscape:window-x="51"
-     inkscape:window-y="0"
+     inkscape:window-width="1680"
+     inkscape:window-height="1000"
+     inkscape:window-x="-4"
+     inkscape:window-y="-3"
      showguides="true"
-     inkscape:guide-bbox="true" />
+     inkscape:guide-bbox="true"
+     showgrid="false"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata3784">
     <rdf:RDF>
@@ -216,25 +226,7 @@
          y="503.95197" />
       <g
          transform="translate(2,2.018861)"
-         id="g2271">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path2259"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path2269" />
-      </g>
+         id="g2271" />
       <g
          transform="translate(61.05017,2.018861)"
          id="g2275">
@@ -246,7 +238,7 @@
            sodipodi:cy="591.29926"
            sodipodi:rx="13.890476"
            sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
+           d="m 138.24332,577.40878 c 7.6715,0 13.89047,6.21898 13.89047,13.89048 0,7.67149 -6.21898,13.89047 -13.89047,13.89047 -7.6715,0 -13.89048,-6.21898 -13.89048,-13.89047 0,-7.6715 6.21898,-13.89048 13.89047,-13.89048"
            sodipodi:start="4.712389"
            sodipodi:end="10.995574"
            sodipodi:open="true"
@@ -267,7 +259,7 @@
            sodipodi:cy="591.29926"
            sodipodi:rx="13.890476"
            sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
+           d="m 138.24332,577.40878 c 7.6715,0 13.89047,6.21898 13.89047,13.89048 0,7.67149 -6.21898,13.89047 -13.89047,13.89047 -7.6715,0 -13.89048,-6.21898 -13.89048,-13.89047 0,-7.6715 6.21898,-13.89048 13.89047,-13.89048"
            sodipodi:start="4.712389"
            sodipodi:end="10.995574"
            sodipodi:open="true"
@@ -279,46 +271,10 @@
       </g>
       <g
          transform="translate(179.1505,2.018861)"
-         id="g2287">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path2289"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path2291" />
-      </g>
+         id="g2287" />
       <g
          transform="translate(238.2006,2.018861)"
-         id="g2293">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path2295"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path2297" />
-      </g>
+         id="g2293" />
       <path
          id="path2299"
          d="M 355.86077,474.22237 L 447.14104,474.22237 L 447.14104,565.50265"
@@ -363,7 +319,7 @@
            sodipodi:cy="591.29926"
            sodipodi:rx="13.890476"
            sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
+           d="m 138.24332,577.40878 c 7.6715,0 13.89047,6.21898 13.89047,13.89048 0,7.67149 -6.21898,13.89047 -13.89047,13.89047 -7.6715,0 -13.89048,-6.21898 -13.89048,-13.89047 0,-7.6715 6.21898,-13.89048 13.89047,-13.89048"
            sodipodi:start="4.712389"
            sodipodi:end="10.995574"
            sodipodi:open="true"
@@ -451,15 +407,15 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
-       x="412.05597"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
+       x="382.05597"
        y="30.512833"
        id="text3368"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3370"
-         x="412.05597"
-         y="30.512833">addCommand(c)</tspan></text>
+         x="382.05597"
+         y="30.512833">addLocalOperation(op)</tspan></text>
     <g
        id="g3372"
        transform="translate(410.4973,-387.2776)">
@@ -497,25 +453,7 @@
          y="503.95197" />
       <g
          transform="translate(2,2.018861)"
-         id="g3384">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path3386"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path3388" />
-      </g>
+         id="g3384" />
       <g
          transform="translate(61.05017,2.018861)"
          id="g3390">
@@ -527,7 +465,7 @@
            sodipodi:cy="591.29926"
            sodipodi:rx="13.890476"
            sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
+           d="m 138.24332,577.40878 c 7.6715,0 13.89047,6.21898 13.89047,13.89048 0,7.67149 -6.21898,13.89047 -13.89047,13.89047 -7.6715,0 -13.89048,-6.21898 -13.89048,-13.89047 0,-7.6715 6.21898,-13.89048 13.89047,-13.89048"
            sodipodi:start="4.712389"
            sodipodi:end="10.995574"
            sodipodi:open="true"
@@ -548,7 +486,7 @@
            sodipodi:cy="591.29926"
            sodipodi:rx="13.890476"
            sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
+           d="m 138.24332,577.40878 c 7.6715,0 13.89047,6.21898 13.89047,13.89048 0,7.67149 -6.21898,13.89047 -13.89047,13.89047 -7.6715,0 -13.89048,-6.21898 -13.89048,-13.89047 0,-7.6715 6.21898,-13.89048 13.89047,-13.89048"
            sodipodi:start="4.712389"
            sodipodi:end="10.995574"
            sodipodi:open="true"
@@ -560,46 +498,10 @@
       </g>
       <g
          transform="translate(179.1505,2.018861)"
-         id="g3402">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path3404"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path3406" />
-      </g>
+         id="g3402" />
       <g
          transform="translate(238.2006,2.018861)"
-         id="g3408">
-        <path
-           sodipodi:type="arc"
-           style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
-           id="path3410"
-           sodipodi:cx="138.24332"
-           sodipodi:cy="591.29926"
-           sodipodi:rx="13.890476"
-           sodipodi:ry="13.890476"
-           d="M 138.24332,577.40878 A 13.890476,13.890476 0 1 1 138.24331,577.40878"
-           sodipodi:start="4.712389"
-           sodipodi:end="10.995574"
-           sodipodi:open="true"
-           transform="translate(187.7896,9.55975)" />
-        <path
-           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="M 326.75692,586.66909 L 326.75692,568.14845"
-           id="path3412" />
-      </g>
+         id="g3408" />
       <path
          id="path3414"
          d="M 355.86077,474.22237 L 447.14104,474.22237 L 447.14104,565.50265"
@@ -696,7 +598,7 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
        x="697.54706"
        y="30.512833"
        id="text4368"
@@ -704,7 +606,7 @@
          sodipodi:role="line"
          id="tspan4370"
          x="697.54706"
-         y="30.512833">addCommand(c, &quot;Description&quot;)</tspan></text>
+         y="30.512833">addOperation(op)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
@@ -802,7 +704,7 @@
          y="589.61664" />
       <text
          xml:space="preserve"
-         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
          x="385.43887"
          y="620.07465"
          id="text4454"
@@ -810,27 +712,31 @@
            sodipodi:role="line"
            x="385.43887"
            y="620.07465"
-           id="tspan4468">- Manual proxy setup</tspan><tspan
+           id="tspan4468">- User writes Distribution Library</tspan><tspan
+           sodipodi:role="line"
+           x="385.43887"
+           y="642.57465"
+           id="tspan15999">- Manual proxy setup</tspan><tspan
            id="tspan4550"
            sodipodi:role="line"
            x="385.43887"
-           y="642.57465">- Limited interface browsing</tspan><tspan
+           y="665.07465">- Limited interface browsing</tspan><tspan
            id="tspan4552"
            sodipodi:role="line"
            x="385.43887"
-           y="665.07465">- No scripting support</tspan><tspan
+           y="687.57465">- No scripting support</tspan><tspan
            id="tspan4554"
            sodipodi:role="line"
            x="385.43887"
-           y="687.57465">- No user defined types</tspan><tspan
+           y="710.07465">- No user defined types</tspan><tspan
            id="tspan4558"
            sodipodi:role="line"
            x="385.43887"
-           y="710.07465">- Library supports pre-defined</tspan><tspan
+           y="732.57465">- Library only supports pre-defined</tspan><tspan
            id="tspan4562"
            sodipodi:role="line"
            x="385.43887"
-           y="732.57465">  set of data types</tspan></text>
+           y="755.07465">  set of data types</tspan></text>
     </g>
     <g
        id="g4583"

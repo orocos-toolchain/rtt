@@ -11,7 +11,7 @@
   <articleinfo>
     <title>Orocos Operating System Abstraction</title>
     <copyright>
-      <year>2003, 2004, 2005, 2006, 2007</year>
+      <year>2003-2010</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -68,6 +68,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Small updates in porting section, spelling fixes.</revremark>
       </revision>
+      <revision>
+	<revnumber>2.0</revnumber>
+	<date>Feb 6, 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Cleanups for RTT 2.0</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -89,21 +95,15 @@
     <section>
       <title>Real-time OS Abstraction</title>
       <para>
-	The OS package makes an abstraction of the operating system on
+	The OS layer makes an abstraction of the operating system on
 	which it runs. It provides C++ interfaces to only the
 	<emphasis>minimal set</emphasis> of operating system
-	primitives that it needs: mutexes, semaphores and
-	threads. This is in accordance with the general developers
-	requirements of the project: a minimalistic approach is much
-	easier to scale, to maintain, and to port. The abstraction
+	primitives that it needs: time reading, mutexes, semaphores, condition variables and
+	threads. The abstraction
 	also allows &orocos; users to build their software on all
 	supported systems with only a recompilation step. The OS
 	Abstraction layer is not directly being used by the
-	application writer. Basic OS primitives are leading
-	programmers to often to pitfalls which can be avoided using
-	well known solutions. These solutions are implemented in the
-	CoreLib classes and allow the programmer to think in a more
-	natural way about the problem.
+	application writer.
       </para>
       <para>
 	The abstractions cause (almost) no execution overhead, because
@@ -122,16 +122,13 @@
 	example, a thread can be created, started, paused, scheduled,
 	etc., but each OS uses other function calls to do this.
 	&orocos; prefers C++ interfaces, which led to the
-	<classname>RTT::OS::ThreadInterface</classname> which allows
+	<classname>RTT::os::ThreadInterface</classname> which allows
 	control and provides information about a thread in &orocos;.
       </para>
       <para>
-	Three thread classes are available in &orocos;:
-	<classname>RTT::OS::PeriodicThread</classname> houses
-	a periodic thread and 
-	<classname>RTT::OS::SingleThread</classname> is a non periodic thread
-	which executes the functionality once each time it is started.
-	The <classname>RTT::OS::MainThread</classname> is a special case as
+	Two thread classes are available in &orocos;:
+	<classname>RTT::os::Thread</classname> houses our thread implementation.
+	The <classname>RTT::os::MainThread</classname> is a special case as
 	only one such object exists and represents the thread that
 	executes the main() function.
       </para>
@@ -287,18 +284,17 @@
       </note>
     </section>
     <section>
-      <title>The Orocos Thread System</title>
+      <title>The Orocos Thread</title>
       <section>
-	<title>Periodic Threads</title>
+	<title>Threads</title>
 	<para>
-	  An &orocos; thread, which must execute a task periodically,
-	  is defined by the
-	  <classname>RTT::OS::PeriodicThread</classname>. The most
+	  An &orocos; thread by the
+	  <classname>RTT::os::Thread</classname> class. The most
 	  common operations are <methodname>start()</methodname>,
 	  <methodname>stop()</methodname> and setting the periodicity.
 	  What is executed is defined in an user object which
 	  implements the
-	  <classname>RTT::OS::RunnableInterface</classname>. It
+	  <classname>RTT::os::RunnableInterface</classname>. It
 	  contains three methods :
 	  <methodname>initialize()</methodname>,
 	  <methodname>step()</methodname> and
@@ -312,7 +308,7 @@
 	</para>
 	<para>
 	  However, you are encouraged <emphasis>NOT</emphasis> to use
-	  the OS classes! The CoreLib uses these classes as a basis to provide a more
+	  the OS classes! The Core Primitives use these classes as a basis to provide a more
 	  fundamental activity-based (as opposite to thread based)
 	  execution mechanism which will insert your periodic activities in
 	  a periodic thread.
@@ -331,37 +327,27 @@
 	  </listitem>
 	</itemizedlist>
 	</para>
-      </section>
-      <section>
-	<title>Non Periodic Threads</title>
 	<para>
-	  For non-periodic threads, which block or do lengthy
-	  calculations, the <classname>RTT::OS::SingleThread</classname> class
-	  can be used.  The RTT uses the SingleThread
-	  for the <classname>RTT::NonPeriodicActivity</classname>.  Porting applications to Orocos
-	  might benefit this class in a first adaptation step. It
-	  has a start() method, which will invoke one single call to
-	  the user's loop() function ( in contrast to step() above). It can be
-	  re-started each time the loop() function returns. The
-	  initialise() functions is called when the
-	  SingleThread is started the first time. When stopped,
-	  the finalise() function is called after loop() returns.
+	  A special function is forseen when the Thread executes
+	  non periodically (ie getPeriod() == 0): loop(), which is 
+	  executed instead of step and in which it is allowed to
+	  not return (for a long time).
 	</para>
 	<para>
 	  The user himself is responsible for providing a mechanism to
-	  return from the loop() function. The SingleThread expects
+	  return from the loop() function. The Thread expects
 	  this mechanism to be implemented in the
-	  RunnableInterface::breakLoop() function, which must return
+	  breakLoop() function, which must return
 	  true if the loop() function could be signaled to
-	  return. SingleThread will call breakLoop() in its stop()
+	  return. Thread will call breakLoop() in its stop()
 	  method if loop() is still being executed and, if successful,
 	  will wait until loop() returns.  The
-	  <function>SingleThread::isRunning()</function> function can
+	  <function>Thread::isRunning()</function> function can
 	  be used to check if loop() is being executed or not.
 	</para>
 	<note>
-	  <para>The <classname>RTT::NonPeriodicActivity</classname> in
-	  CoreLib provides a better integrated implementation for
+	  <para>The <classname>RTT::Activity</classname> 
+	  provides a better integrated implementation for
 	  SingleThread and should be favourably used.</para>
 	</note>
 	<para>
@@ -384,10 +370,6 @@
 	  </listitem>
 	</itemizedlist>
 	</para>
-	<para>
-	  The user of this class must be aware that he must provide himself
-	  the locking primitives (like RTT::OS::Mutex) to provide thread safety.
-	</para>
       </section>
       <section>
 	<title>Setting the Scheduler and Priorities.</title>
@@ -397,9 +379,9 @@
 	  <function>setPriority</function>. Priorities are integer
 	  numbers which are passed directly to the underlying OS. One
 	  can use priorities portably by using the
-	  <classname>RTT::OS::LowestPriority</classname>,
-	  <classname>RTT::OS::HighestPriority</classname> and
-	  <classname>RTT::OS::IncreasePriority</classname> variables
+	  <classname>RTT::os::LowestPriority</classname>,
+	  <classname>RTT::os::HighestPriority</classname> and
+	  <classname>RTT::os::IncreasePriority</classname> variables
 	  which are defined for each OS.
 	</para>
 	<para>
@@ -427,7 +409,7 @@
 	  Orocos program as root.
 	</para>
 	<para>
-	  If the CoreLib Logger is active, it will log the mapping of
+	  If the Logger is active, it will log the mapping of
 	  Threads to the device's output pins to the <filename>orocos.log</filename>
 	  file. Just before step() is entered, the pin will be set
 	  high, and when step() is left, the pin is set low again.
@@ -454,15 +436,15 @@ if ( pp )
       <section>
 	<title>Mutexes</title>
 	<para>
-	  There are two kinds of Mutexes : <classname>RTT::OS::Mutex</classname>
-	  and <classname>RTT::OS::MutexRecursive</classname>. To lock a mutex, it
+	  There are two kinds of Mutexes : <classname>RTT::os::Mutex</classname>
+	  and <classname>RTT::os::MutexRecursive</classname>. To lock a mutex, it
 	  has a method <methodname>lock()</methodname>, to unlock, the method is <methodname>unlock()</methodname> and to
 	  try to lock, it is <methodname>trylock()</methodname>.
 	  A lock() and trylock() on a recursive mutex from the same
 	  thread will always succeed, otherwise, it blocks.
 	</para>
 	<para>
-	  For ease of use, there is a <classname>RTT::OS::MutexLock</classname> which
+	  For ease of use, there is a <classname>RTT::os::MutexLock</classname> which
 	  gets a Mutex as argument in the constructor. As long as the
 	  MutexLock object exists, the given Mutex is locked. This is
 	  called a scoped lock.
@@ -470,10 +452,10 @@ if ( pp )
 	<example>
 	  <title>Locking a Mutex</title>
 	  <para>The first listing shows a complete lock over a function :</para>
-	  <programlisting>  <classname>RTT::OS::Mutex</classname> m;
+	  <programlisting>  <classname>RTT::os::Mutex</classname> m;
   void foo() {
      int i;
-     <classname>RTT::OS::MutexLock</classname> lock(m);
+     <classname>RTT::os::MutexLock</classname> lock(m);
      // m is locked.
      // ...
   } // when leaving foo(), m is unlocked.  </programlisting>
@@ -481,12 +463,12 @@ if ( pp )
 	    Any scope is valid, so if the critical section is smaller than
 	    the size of the function, you can :
 	  </para>
-	  <programlisting>  <classname>RTT::OS::Mutex</classname> m;
+	  <programlisting>  <classname>RTT::os::Mutex</classname> m;
   void bar() {
      int i;
      // non critical section
      {
-        <classname>RTT::OS::MutexLock</classname> lock(m);
+        <classname>RTT::os::MutexLock</classname> lock(m);
         // m is locked.
         // critical section
      } //  m is unlocked.
@@ -499,12 +481,12 @@ if ( pp )
 	<title>Signals and Semaphores</title>
 	<para>
 	  Orocos provides a C++ semaphore abstraction class
-	  <classname>RTT::OS::Semaphore</classname>. It is used mainly for 
+	  <classname>RTT::os::Semaphore</classname>. It is used mainly for 
 	  non periodic, blocking tasks or threads. The higher level
 	  Event implementation in CoreLib can be used for thread safe
 	  signalling and data exchange in periodic tasks.
 	</para>
-	  <programlisting>  <classname>RTT::OS::Semaphore</classname> sem(0); // initial value is zero.
+	  <programlisting>  <classname>RTT::os::Semaphore</classname> sem(0); // initial value is zero.
   void foo() {
      // Wait on sem, decrement value (blocking ):
      sem.wait()

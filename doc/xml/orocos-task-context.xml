@@ -119,34 +119,6 @@
       The Scripting chapter gives more details about script syntax
       for state machines and programs.
     </para>
-    <figure id="fig-a-task-context">
-      <title>
-	Schematic Overview of a TaskContext
-      </title>
-      <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/ATaskContext" />
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ATaskContext" width="100%" scalefit="1"/>
-	</imageobject>
-	<caption>
-	  <para>The Execution Flow is formed by Programs and
-	    State Machines calling operations of Peer Tasks. The Data Flow
-	    is the propagation of new data events from one task to another, where
-	    one producer can have multiple consumers and vice verse.
-	  </para>
-	</caption>
-      </mediaobject>
-    </figure>
-    <para>
-      A component's interface consists of: Attributes and Properties, Operations,
-      and Data Flow ports which are all public.
-      The class <classname>RTT::TaskContext</classname> 
-      groups all these interfaces and serves as the basic building
-      block of applications. A component developer 'builds'
-      these interfaces using the instructions found in this manual.
-    </para>
   </section>
   <section>
     <title>Hello World !</title>
@@ -154,8 +126,16 @@
       This section introduces tasks through the "hello world"
       application, which is included in the Orocos Component Library.
       It contains one TaskContext component,
-      <classname>OCL::HelloWorld</classname>, which has one instance
+      <classname>OCL::HelloWorld</classname>, which interface has one instance
       of each communication primitive.
+    </para>
+    <para>
+      A component's interface consists of: Attributes and Properties, Operations,
+      and Data Flow ports which are all public.
+      The class <classname>RTT::TaskContext</classname> 
+      groups all these interfaces and serves as the basic building
+      block of applications. A component developer 'builds'
+      these interfaces using the instructions found in this manual.
     </para>
     <figure id="fig-hello-world">
       <title>
@@ -391,7 +371,7 @@ In Task Hello[R]
       </para>
       <screen>
  In Task Hello[R]
- (type 'ls' for context info) :this
+ (type 'ls' for context info) :<command>this</command>
       Got :this
 
 Printing Interface of 'Hello' :
@@ -419,7 +399,7 @@ Printing Interface of 'Hello' :
     <section>
       <title>Calling a Method</title>
       <screen>
- In Task Hello. (Status of last Command : none )
+ In Task Hello[R]
  (type 'ls' for context info) :<command>the_method()</command>
       Got :the_method()
  = <command>Hello World</command>
@@ -441,7 +421,7 @@ Printing Interface of 'Hello' :
       </para>
       <screen>
  In Task Hello[R]
- (type 'ls' for context info) :<emphasis>the_command.send("_World_")</emphasis>
+ (type 'ls' for context info) :<command>the_command.send("_World_")</command>
       Got :the_command.send("_World_")
 <emphasis>Saying Hello '_World_' in own thread.</emphasis>
  = (unknown_t)
@@ -452,22 +432,22 @@ Printing Interface of 'Hello' :
       </para>
       <screen>
  In Task Hello[R]
- (type 'ls' for context info) :<emphasis>var SendHandle sh</emphasis>
+ (type 'ls' for context info) :<command>var SendHandle sh</command>
       Got :var SendHandle sh
 
  In Task Hello[R]
- (type 'ls' for context info) :<emphasis>sh = the_command.send("_World_")</emphasis>
+ (type 'ls' for context info) :<command>sh = the_command.send("_World_")</command>
       Got :sh = the_command.send("_World_")
 <emphasis>Saying Hello '_World_' in own thread.</emphasis>
  = true
 
  In Task Hello[R]
- (type 'ls' for context info) :<emphasis>sh.collectIfDone( ret )</emphasis>
+ (type 'ls' for context info) :<command>sh.collectIfDone( ret )</command>
       Got :sh.collectIfDone( ret )
  = SendSuccess
 
  In Task Hello[R]
- (type 'ls' for context info) :<emphasis>ret</emphasis>
+ (type 'ls' for context info) :<command>ret</command>
       Got : ret 
  = true
       </screen>
@@ -481,16 +461,16 @@ Printing Interface of 'Hello' :
 	'true' or 'false' :
       </para>
       <screen>
- In Task Hello. (Status of last Command : none )
+ In Task Hello[R]
  (type 'ls' for context info) :<command>the_attribute</command>
       Got :the_attribute
  = <command>Hello World</command>
- In Task Hello. (Status of last Command : none )
+ In Task Hello[R]
  (type 'ls' for context info) :<command>the_attribute = "Veni Vidi Vici !"</command>
       Got :the_attribute = "Veni Vidi Vici !"
  = <command>true</command>
 
- In Task Hello. (Status of last Command : none )
+ In Task Hello[R]
  (type 'ls' for context info) :<command>the_attribute</command>
       Got :the_attribute
  = <command>Veni Vidi Vici !</command>
@@ -618,7 +598,7 @@ Printing Interface of 'the_input_port' :
 	In order to quit the TaskBrowser, enter <command>quit</command>:
       </para>
       <screen>
- In Task Hello. (Status of last Command : none )
+ In Task Hello[R]
  (type 'ls' for context info) :<command>quit</command>
 
 1575.720 [ Info   ][ExecutionEngine::setActivity] Hello is disconnected from its activity.
@@ -691,10 +671,10 @@ Printing Interface of 'the_input_port' :
       </title>
       <mediaobject>
 	<imageobject role="html">
-	  <imagedata fileref="images/ComponentArch-2" />
+	  <imagedata fileref="images/ComponentArch-4" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentArch-2"  width="100%" scalefit="1"/>
+	  <imagedata fileref="images/hires/ComponentArch-4"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -1061,14 +1041,6 @@ Printing Interface of 'the_input_port' :
 	  (i.e. your operator=() ) is as well.
 	</para>
       </note>
-      <mediaobject>
-	<imageobject role="fo">
-	  <imagedata width="5cm" fileref="images/DataFlowInterface" />
-	</imageobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/DataFlowInterface" />
-	</imageobject>
-      </mediaobject>
       <para>
 	The Orocos Data Flow is implemented with the
 	<emphasis>Port-Connector</emphasis> software pattern. Each
@@ -1360,14 +1332,6 @@ Printing Interface of 'the_input_port' :
         Methods are helper objects for calling operations.
       </para>
       </note>
-      <mediaobject>
-	<imageobject role="fo">
-	  <imagedata width="5cm" fileref="images/MethodInterface" />
-	</imageobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/MethodInterface" />
-	</imageobject>
-      </mediaobject>
       <para>
 	Operations are C/C++ functions that can be used
 	in scripting or can be called from another process or accross a network.
@@ -1793,14 +1757,6 @@ Printing Interface of 'the_input_port' :
 	component be limited to the task's own activity.
       </para>
       </note>
-      <mediaobject>
-	<imageobject role="fo">
-	  <imagedata width="5cm" fileref="images/PropertyInterface" />
-	</imageobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/PropertyInterface" />
-	</imageobject>
-      </mediaobject>
     <para>
       A TaskContext may have any number of attributes or properties,
       of any type. They can be used by programs in the
@@ -2306,38 +2262,30 @@ Printing Interface of 'the_input_port' :
 -->
   </section>
   <section id="connect-tasks">
-    <title>Connecting TaskContexts</title>
+    <title>Connecting Services</title>
     <para>
       A Real-Time system exists of multiple concurrent
       tasks which must communicate to each other.
       TaskContext can be connected to each other
-      such that they can communicate Real-Time data.
+      such that they can use each other's Services.
     </para>
     <section>
-      <title>Setting up the Execution Flow</title>
-      <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/ConnectPeers" />
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ConnectPeers"  width="100%" scalefit="1"/>
-	</imageobject>
-	<caption>
+      <title>Connecting Peer Components</title>
+      <note>
 	  <para>
 	    The <function>addPeer</function> and <function>connectPeers</function>
 	    functions are used to connect TaskContexts and allow them
 	    to use each other's interface. The <function>connectPorts</function>
 	    function sets up the data flow between tasks.
 	  </para>
-	</caption>
-      </mediaobject>
+      </note>
       <para>
-	We call connected TaskContexts &quot;Peers&quot; as there is no fixed
+	We call connected TaskContexts &quot;Peers&quot; because there is no implied
 	hierarchy. A connection from one TaskContext to its
 	Peer can be uni- or bi-directional. In a uni-directional connection (<function>addPeer</function> ),
-	only one peer can use the interface of the other, while
+	only one peer can use the services of the other, while
 	in a bi-directional connection (<function>connectPeers</function>), both can use
-	each others interface.
+	each others services.
 	This allows to build strictly hierarchical topological
 	networks as well as complete flat or circular networks or any
 	kind of mixed network. 
@@ -2350,13 +2298,14 @@ Printing Interface of 'the_input_port' :
   connectPeers( &amp;a_task, &amp;b_task );
   assert( a_task.hasPeer( &amp;b_task.getName() ) 
           &amp; b_task.hasPeer( &amp;a_task.getName() ) );
+
   // uni-directional :
   a_task.addPeer( &amp;c_task );
   assert( a_task.hasPeer( &amp;c_task.getName() ) 
           &amp; ! c_task.hasPeer( &amp;a_task.getName() ) );
 
   // Access the interface of a Peer:
-  Method&lt;bool(void) m = a_task.getPeer( "CTask" )->getOperation&lt;bool(void)>("aMethod");
+  Method&lt;bool(void)> m = a_task.getPeer( "CTask" )->getOperation&lt;bool(void)>("aMethod");
   // etc. See interface usage in previous sections.
 </programlisting></para>
     <para>
@@ -2370,7 +2319,7 @@ Printing Interface of 'the_input_port' :
       access. A program <emphasis>within</emphasis> &quot;ATask&quot; could
       access its peers as such :</para>
     <para>
-      <programlisting>
+      <programlisting> // Script:
   var bool result = CTask.aMethod() </programlisting></para>
     <para>
       The peer connection graph can be traversed at arbitrary
