@@ -51,6 +51,7 @@ public:
     Attribute<int> var_i;
     Constant<int>* const_i;
 
+    bool assertEqual(int a, int b) { if (a != b) { cout << "Not Equal a!=b ("<<a<<" != "<< b<<")"<<endl; return false;} return true;}
     bool assertBool( bool b) { return b; }
     bool assertMsg( bool b, const std::string& msg) {
         if ( b == false )
@@ -107,8 +108,10 @@ ServiceProvider* ProgramTest::createObject(ServiceProvider* dat)
     // Add the data of the EE:
     dat->addOperation("assert", &ProgramTest::assertBool, this).doc("Assert").arg("bool", "");
     dat->addOperation("increase", &ProgramTest::increase, this).doc("Return increasing i");
+    dat->addOperation("increaseCmd", &ProgramTest::increase, this, OwnThread).doc("Return increasing i");
     dat->addOperation("resetI", &ProgramTest::resetI, this).doc("ResetI i");
     dat->addOperation("assertMsg", &ProgramTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+    dat->addOperation("assertEqual", &ProgramTest::assertEqual, this);
     dat->addOperation("isTrue", &ProgramTest::assertBool, this).doc("Identity function").arg("bool", "");
     dat->addOperation("i", &ProgramTest::getI, this).doc("Return the current number");
     dat->addOperation("instantDone", &ProgramTest::true_genCom, this).doc("returns immediately");
@@ -408,18 +411,22 @@ BOOST_AUTO_TEST_CASE(testSend)
     // see if modifying an attribute works.
     string prog = string("")
         + "program x { \n"
-        + "increase.send() \n"
-        //+ "assert( i == 0 )\n"
+        + "assertEqual( i, 0 )\n"
+        + "increaseCmd.send() \n"
         + "yield \n"
-        + "assert( i == +1 )\n"
+        + "assertEqual( i, 1 )\n"
         + "var SendHandle sh\n"
-        + "set sh = increase.send()\n"
+        + "set sh = increaseCmd.send()\n"
         + "var int r = 0\n"
-        + "sh.collect(tvar_i)\n"
-        //+ "assert( r == 2 )\n"
-        + "set sh = increase.send()\n"
-        + "sh.collect(tvar_i)\n"
-        + "assert( tvar_i == 3 )\n" // i is 3 but r isn't.
+        //+ "sh.collect(r)\n" // hangs
+        + "while (sh.collectIfDone(r) != SendSuccess)\n"
+        + "yield \n"
+        + "assertEqual( r , 2 )\n"
+        + "set sh = increaseCmd.send()\n"
+        //+ "sh.collect(tvar_i)\n" // hangs
+        + "while (sh.collectIfDone(tvar_i) != SendSuccess)\n"
+        + "yield \n"
+        + "assertEqual( tvar_i, 3 )\n" // i is 3 but r isn't.
         + "}";
     this->doProgram( prog, &gtc );
     BOOST_REQUIRE_EQUAL( i, 3 );
@@ -454,7 +461,7 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     if (test ) {
         stringstream errormsg;
         errormsg << " on line " << pi->getLineNumber() <<"."<<endl;
-        BOOST_CHECK_MESSAGE( pi->getStatus() != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
+        BOOST_REQUIRE_MESSAGE( pi->getStatus() != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
         BOOST_CHECK_MESSAGE( pi->getStatus() == ProgramInterface::Status::stopped , "Program stalled " + errormsg.str());
 
         // Xtra test, only do it if all previous went ok :
