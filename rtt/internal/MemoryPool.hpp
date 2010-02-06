@@ -361,6 +361,7 @@ namespace RTT
             void* result;
             // iterate over the whole pool and try to get a free slot.
             if ( mpool.dequeue( result ) ) {
+                assert(result);
                 Item* it = static_cast<Item*>(result);
                 oro_atomic_inc( &(it->rc) );
                 return (&it->content);
