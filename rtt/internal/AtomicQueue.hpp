@@ -70,7 +70,7 @@ namespace RTT
             do {
             	oldval._value = _indxes._value; /*Points to a free writable pointer.*/
                 newval._value = oldval._value; /*Points to the next writable pointer.*/
-                // check for full :
+                // check for full on a *Copy* of oldval:
                 if ( (newval._index[0] == newval._index[1] - 1) || (newval._index[0] == newval._index[1] + _size - 1) )
                 {
                     return 0;
@@ -78,6 +78,10 @@ namespace RTT
                 newval._index[0]++;
                 if ( newval._index[0] >= _size )
                 	newval._index[0] = 0;
+
+                // detect read which did advance but not free yet.
+                if ( _buf[oldval._index[0] ].first != 0)
+                    return 0;
                 // if ptr is unchanged, replace it with newval.
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
             // frome here on :
@@ -99,7 +103,7 @@ namespace RTT
             do {
             	oldval._value = _indxes._value;
             	newval._value = oldval._value;
-                // check for empty :
+                // check for empty on a *Copy* of oldval:
                 if ( newval._index[0] == newval._index[1] )
                 {
                 	//EnableIrq(ic);
@@ -109,6 +113,12 @@ namespace RTT
                 newval._index[1]++;
                 if ( newval._index[1] >= _size )
                 	newval._index[1] = 0;
+
+                // catch case where we preempt an enqueue, where w has advanced,
+                // but not yet written it's value.
+                if ( _buf[oldval._index[1]].first == 0)
+                    return 0;
+                // what happens if preempted here ?
                 // if indexes are unchanged, replace them with newval.
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
             // frome here on :
