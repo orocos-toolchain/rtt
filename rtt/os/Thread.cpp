@@ -526,6 +526,9 @@ namespace RTT {
                 // note for RTAI: the fosi_internal layer must detect if this is called from
                 // within rtos_task or outside the thread.
                 rtos_task_make_periodic(&rtos_task, nsperiod);
+                // jump from non periodic into periodic: first sample.
+                if ( period == 0)
+                    rtos_sem_signal(&sem);
             }
             period = nsperiod;
 
