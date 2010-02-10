@@ -190,7 +190,7 @@
 	  <listitem>
 	    <para>
 	      Implementing the
-	      <classname>RTT::RunnableInterface</classname> in
+	      <classname>RTT::base::RunnableInterface</classname> in
 	      another class ( functions initialize(), step() or
 	      loop()/breakLoop() and finalize() ). The
 	      RunnableInterface object (i.e. run_impl) can be assigned
@@ -204,7 +204,7 @@
   #include &lt;rtt/Activity.hpp>
 
   class MyPeriodicFunction
-	: public <classname>RTT::RunnableInterface</classname>
+	: public <classname>RTT::base::RunnableInterface</classname>
   {
   public:
     // ...
@@ -300,14 +300,14 @@
 	Activity, the user can implement
 	<function>initialize()</function>, <function>loop()</function>
 	and <function>finalize()</function> functions in a
-	<classname>RTT::RunnableInterface</classname> which will be used by
+	<classname>RTT::base::RunnableInterface</classname> which will be used by
 	the activity for executing the user's functions. Alternatively,
 	you can reimplement said functions in a derived class of
 	Activity.
       </para>
       <programlisting>  int priority = 5;
   
-  <classname>RTT::RunnableInterface</classname>* blocking_activity = ...
+  <classname>RTT::base::RunnableInterface</classname>* blocking_activity = ...
   <classname>RTT::Activity</classname> activity( priority, blocking_activity );
   activity.start(); // calls blocking_activity->initialize()
 
@@ -364,7 +364,7 @@
       <title>Custom or Slave Activities</title>
       <para>
 	If none of the above activity schemes fit you, you can always fall back on
-	the <classname>RTT::SlaveActivity</classname>, which lets the user
+	the <classname>RTT::extras::SlaveActivity</classname>, which lets the user
 	control when the activity is executed. A special function <function>bool execute()</function>
 	is implemented which will execute <function>RunnableInterface::step()</function>
 	or <function>RunnableInterface::loop()</function> when called by the user.
@@ -375,7 +375,7 @@
   // a 'master', any ActivityInterface (even SlaveActivity):
   <classname>RTT::Activity</classname> master_one(9, 0.001 );
   // a 'slave', takes over properties (period,...) of 'master_one':
-  <classname>RTT::SlaveActivity</classname> slave_one( &amp;master_one );
+  <classname>RTT::extras::SlaveActivity</classname> slave_one( &amp;master_one );
 
   slave_one.start();   // fail: master not running.
   slave_one.execute(); // fail: slave not running.
@@ -386,9 +386,9 @@
   
   // <emphasis>Without master</emphasis>
   // a 'slave' without explicit master, with period of 1KHz.
-  <classname>RTT::SlaveActivity</classname> slave_two( 0.001 );
+  <classname>RTT::extras::SlaveActivity</classname> slave_two( 0.001 );
   // a 'slave' without explicit master, not periodic.
-  <classname>RTT::SlaveActivity</classname> slave_three;
+  <classname>RTT::extras::SlaveActivity</classname> slave_three;
 
   slave_two.start();   // ok: start periodic without master
   slave_two.execute(); // ok, calls 'step()', repeat...
@@ -423,13 +423,13 @@
 	Each Orocos Activity (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
 	interface which gives a non-zero pointer to a
-	<classname>RTT::OS::ThreadInterface</classname> object which provides
+	<classname>RTT::os::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
 	control the real-timeness of the thread which runs this activity. A
 	non periodic activity's thread will return a period of zero.
       </para>
       <para>
-	A <classname>RTT::RunnableInterface</classname> can get the same information
+	A <classname>RTT::base::RunnableInterface</classname> can get the same information
 	through the <function>this->getActivity()->thread()</function> method calls.
       </para>
       <para>
@@ -446,7 +446,7 @@ ORO_main( int argc, char** argv)
 {
   // ... create any kind of Activity like above.
 
-  <classname>RTT::ActivityInterface</classname>* act = ...
+  <classname>RTT::base::ActivityInterface</classname>* act = ...
 
   // stop the thread and all its activities:
   act->thread()->stop();
@@ -554,7 +554,7 @@ ORO_main( int argc, char** argv)
     <para>
       You must choose the type of <classname>RTT::internal::Signal</classname> upon
       construction. This can no longer be changed once the
-      <classname>RTT::Signal</classname> is created. If the type changes,
+      <classname>RTT::internal::Signal</classname> is created. If the type changes,
       the event() method must given other arguments. For example :
       <example>
 	<title>Signal Types</title>
@@ -806,21 +806,21 @@ ORO_main( int argc, char** argv)
 	Marshalling is converting a property C++ object to a format
 	suitable for transportation or storage, like XML. Demarshalling
 	reconstructs the property again from the stored format. In
-	Orocos, the <classname>RTT::Marshaller</classname>
+	Orocos, the <classname>RTT::marsh::Marshaller</classname>
 	interface defines how properties can be marshalled.  The
 	available marshallers (property to file) in Orocos are the
-	<classname>RTT::TinyMarshaller</classname>,
-	<classname>RTT::XMLMarshaller</classname>,
-	<classname>RTT::XMLRPCMarshaller</classname>,
-	<classname>RTT::INIMarshaller</classname> and the
-	RTT::CPFMarshaller (only if Xerces is available).  
+	<classname>RTT::marsh::TinyMarshaller</classname>,
+	<classname>RTT::marsh::XMLMarshaller</classname>,
+	<classname>RTT::marsh::XMLRPCMarshaller</classname>,
+	<classname>RTT::marsh::INIMarshaller</classname> and the
+	RTT::marsh::CPFMarshaller (only if Xerces is available).  
       </para>
       <para>
 	The inverse operation (file to property) is currently
 	supported by two demarshallers:
-	<classname>RTT::TinyDemarshaller</classname> and the
-	RTT::CPFDemarshaller (only if Xerces is available).  They
-	implement the <classname>RTT::Demarshaller</classname>
+	<classname>RTT::marsh::TinyDemarshaller</classname> and the
+	RTT::marsh::CPFDemarshaller (only if Xerces is available).  They
+	implement the <classname>RTT::marsh::Demarshaller</classname>
 	interface.
       </para>
       <para>
@@ -831,8 +831,8 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	In order to read/write portably (XML) files, use the
-	<classname>RTT::PropertyMarshaller</classname> and
-	<classname>RTT::PropertyDemarshaller</classname> classes which
+	<classname>RTT::marsh::PropertyMarshaller</classname> and
+	<classname>RTT::marsh::PropertyDemarshaller</classname> classes which
 	use the default marshaller behind the scenes.
       </para>
     </section>
@@ -849,7 +849,7 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	The local object server is called
-	<classname>RTT::NameServer</classname>.  The most
+	<classname>RTT::dev::NameServer</classname>.  The most
 	common usage syntax is given below.
       </para>
       <note><para>
@@ -858,7 +858,7 @@ ORO_main( int argc, char** argv)
 	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>  // A NameServer collecting pointers to ClassA objects
-  <classname>RTT::NameServer</classname>&lt; ClassA* &gt; nameserver;
+  <classname>RTT::dev::NameServer</classname>&lt; ClassA* &gt; nameserver;
   ClassA my_a;
   nameserver.registerObject( &amp;my_a, "ATeam" );
   // ...
@@ -891,7 +891,7 @@ ORO_main( int argc, char** argv)
       The difference between Buffers and DataObjects is that DataObjects
       always contain a single value, while buffers may be empty, full or contain
       a number of values.
-      Thus a <classname>RTT::DataObject</classname> always returns the last value written (and a
+      Thus a <classname>RTT::internal::DataObject</classname> always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
@@ -913,8 +913,8 @@ ORO_main( int argc, char** argv)
     <section id="corelib-buffers">
       <title>Buffers</title>
       <para>
-	The <classname>RTT::BufferInterface</classname>&lt;T&gt; provides
-	the interface for Orocos buffers. Currently the <classname>RTT::BufferLockFree</classname>&lt;T&gt;
+	The <classname>RTT::base::BufferInterface</classname>&lt;T&gt; provides
+	the interface for Orocos buffers. Currently the <classname>RTT::base::BufferLockFree</classname>&lt;T&gt;
 	is a typed buffer of type <emphasis>T</emphasis> and works as
 	a FIFO queue for storing elements of type T.
 	It is lock-free, non blocking and read and writes
@@ -927,7 +927,7 @@ ORO_main( int argc, char** argv)
   // A Buffer may also contain a class, instead of the simple
   // double in this example
   // A buffer with size 10:
-  <classname>RTT::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
+  <classname>RTT::base::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
   if ( my_Buf.Push( 3.14 ) ) {
      // ok. not full.
   }
@@ -944,7 +944,7 @@ ORO_main( int argc, char** argv)
     <section id="corelib-data-objects">
       <title>DataObjects</title>
       <para>
-	The data inside the <classname>RTT::DataObject</classname>s can be any valid C++ type,
+	The data inside the <classname>RTT::base::DataObject</classname>s can be any valid C++ type,
 	so mostly people use classes or structs, because these carry
 	more semantics than just (vectors of) doubles. The default
 	constructor of the data is called when the DataObject is
@@ -956,7 +956,7 @@ ORO_main( int argc, char** argv)
 
   // A DataObject may also contain a class, instead of the simple
   // double in this example
-  <classname>RTT::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
+  <classname>RTT::base::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
   my_Do.Set( 3.14 ); 
   double  contents; 
   my_Do.Get( contents );   // contents == 3.14
@@ -964,7 +964,7 @@ ORO_main( int argc, char** argv)
 	</example>
       </para>
       <para>
-	The virtual <classname>RTT::DataObjectInterface</classname> interface
+	The virtual <classname>RTT::base::DataObjectInterface</classname> interface
 	provides the <function>Get()</function> and
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and

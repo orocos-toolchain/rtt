@@ -848,9 +848,9 @@ Printing Interface of 'the_input_port' :
 	The functionality of a component, i.e. its algorithm, is executed
 	by its internal Execution Engine.  To run a TaskContext, you
 	need to use one of the
-	<classname>RTT::ActivityInterface</classname> classes from the
+	<classname>RTT::base::ActivityInterface</classname> classes from the
 	RTT, most likely <classname>RTT::Activity</classname>
-	or <classname>RTT::SlaveActivity</classname> create a threaded
+	or <classname>RTT::extras::SlaveActivity</classname> create a threaded
 	or non-threaded activity respectively which executes your task.  This
 	relation is shown in <xref linkend="fig-task-execution" />.
 	The Activity class allocates a thread which executes the
@@ -2822,7 +2822,7 @@ Printing Interface of 'the_input_port' :
       </figure>
       <para>
 	If your application will not use distributed components and
-	requires a very small footprint, the <classname>RTT::TaskCore</classname>
+	requires a very small footprint, the <classname>RTT::base::TaskCore</classname>
 	can be used. The Orocos primitives appear publicly in the interface
 	and are called upon in a hard-coded way.
       </para>
