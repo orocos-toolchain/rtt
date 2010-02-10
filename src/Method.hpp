@@ -222,6 +222,36 @@ namespace RTT
         void setMethodImpl( MethodBasePtr new_impl) const {
             this->impl = new_impl;
         }
+
+        /**
+         * Assign a class member pointer and an object of that class to
+         * the Method. Does not change the Method's name.
+         *
+         * Use getMethodImpl() to retrieve the resulting implementation.
+         *
+         * @param meth A pointer to a class member function
+         * @param object An object of the class which has \a meth as member function.
+         */
+        template<class M, class ObjectType>
+        void setMethod(M meth, ObjectType object)
+        {
+            this->impl = MethodBasePtr(new detail::LocalMethod<Signature>(meth, object) );
+        }
+
+        /**
+         * Assign a function pointer or function object to
+         * the Method. Does not change the Method's name.
+         *
+         * Use getMethodImpl() to retrieve the resulting implementation.
+         *
+         * @param meth A pointer to a class member function
+         * @param object An object of the class which has \a meth as member function.
+         */
+        template<class M>
+        void setMethod(M meth)
+        {
+            this->impl = MethodBasePtr(new detail::LocalMethod<Signature>(meth) );
+        }
     };
 
     /**
