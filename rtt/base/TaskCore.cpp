@@ -142,13 +142,10 @@ namespace RTT {
     }
 
     bool TaskCore::start() {
-        if ( mTaskState < Running ) {
+        if ( mTaskState == Stopped ) {
             if ( startHook() ) {
                 mTaskState = Running;
                 return true;
-            } else {
-                mTaskState = Stopped;
-                return false;
             }
         }
         return false;
