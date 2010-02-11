@@ -42,6 +42,8 @@ IF (BUILD_TESTING)
     # Copy over CPF files.
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf
                    ${RUNTIME_OUTPUT_DIRECTORY}/property_test_vect.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/property_loading.cpf COPYONLY)
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-dynamic_${OROCOS_TARGET})
@@ -250,6 +252,7 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(functors_test EXTRA_TESTS "${TEST_LIBRARIES}")
     ADD_UNIT_TEST(scripting_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     ADD_UNIT_TEST(marshalling_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+    ADD_UNIT_TEST(property_loader_test EXTRA_TESTS "${TEST_LIBRARIES}" )
 
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
