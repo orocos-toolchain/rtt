@@ -96,6 +96,60 @@ namespace RTT
             }
         };
 
+        template<class F>
+        struct MethodBinderImpl<5,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<6,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5, _6 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<7,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5, _6, _7 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<8,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5, _6, _7, _8 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<9,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5, _6, _7, _8, _9 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<10,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10 );
+            }
+        };
+
         /**
          * Very simple \b factory class to bind a member function to an
          * object pointer and leave the arguments open. The operator()
