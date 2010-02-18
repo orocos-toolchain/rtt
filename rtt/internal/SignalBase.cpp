@@ -227,6 +227,9 @@ namespace RTT {
 
         SignalBase::~SignalBase(){
             // call destroy on all connections.
+        }
+
+        void SignalBase::disconnect() {
             while ( !mconnections.empty() ) {
                 if ( mconnections.front() )
                     mconnections.front()->destroy(); // this calls-back conn_disconnect.

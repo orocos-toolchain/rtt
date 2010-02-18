@@ -171,6 +171,11 @@ namespace RTT
             virtual ~SignalBase();
 
             /**
+             * Removes all connections.
+             */
+            void disconnect();
+
+            /**
              * Reserves memory for a number of connections.
              * Use this method to efficiently reserve memory for
              * possible connections. If not used, the event will
