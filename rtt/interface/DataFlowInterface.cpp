@@ -56,63 +56,52 @@ namespace RTT
         return mparent;
     }
 
-    bool DataFlowInterface::addPort(PortInterface* port) {
-        for ( PortStore::iterator it(mports.begin());
-              it != mports.end();
-              ++it)
-            if ( it->first->getName() == port->getName() ) {
-                log(Error) <<"Can not 'addPort' "<< port->getName() << ": name already in use." <<endlog();
-                return false;
-            }
-        // This code belongs in addPort below, but in order to support
-        // backwards compatible code, the PortObject is always created
-        //
-        if (mparent && mparent->provides()->hasService( port->getName()) != 0) {
-            log(Error) <<"Can not 'addPort' "<< port->getName() << ": name already in use as TaskObject." <<endlog();
-            return false;
+    PortInterface& DataFlowInterface::addPort(PortInterface& port) {
+        this->addLocalPort(port);
+        if (mparent && mparent->provides()->hasService( port.getName()) != 0) {
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
+            mparent->provides()->removeService(port.getName());
         }
 
-        mports.push_back( std::make_pair(port,std::string()) );
-        port->setInterface( this );
-        // NOTE: the API says this is not done, but for backwards compatibility
-        // we leave it anyway inhere. :-(
-        ServiceProvider::shared_ptr ms( this->createPortObject( port->getName()) );
+        if (!mparent) {
+            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
+            return port;
+        }
+        ServiceProvider::shared_ptr ms( this->createPortObject( port.getName()) );
         if ( ms )
             mparent->provides()->addService( ms );
         // END NOTE.
-        return true;
+        return port;
     }
 
-    bool DataFlowInterface::addEventPort(InputPortInterface* port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
-        if (this->addPort(port)) {
-            if (callback)
-                port->getNewDataOnPortEvent()->connect(callback );
-            eports.push_back(port);
-            return true;
-        }
-        return false;
+    PortInterface& DataFlowInterface::addLocalPort(PortInterface& port) {
+        for ( Ports::iterator it(mports.begin());
+              it != mports.end();
+              ++it)
+            if ( (*it)->getName() == port.getName() ) {
+                log(Warning) <<"'addPort' "<< port.getName() << ": name already in use. Replacing old instance." <<endlog();
+            }
+
+        mports.push_back( &port );
+        port.setInterface( this );
+        return port;
     }
 
-    bool DataFlowInterface::addPort(PortInterface* port, std::string description) {
-        if (this->addPort(port) == false)
-            return false;
-        mports.back().second = description;
-        ServiceProvider::shared_ptr ms( this->createPortObject( port->getName()) );
-        if ( ms ) {
-            mparent->provides()->removeService( ms->getName() ); // See NOTE above.
-            mparent->provides()->addService( ms );
-        }
-        return true;
+
+    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        this->addPort(port);
+        if (callback)
+            port.getNewDataOnPortEvent()->connect(callback );
+        eports.push_back(&port);
+        return port;
     }
 
-    bool DataFlowInterface::addEventPort(InputPortInterface* port, std::string description, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
-        if (this->addPort(port, description)) {
-            if (callback)
-                port->getNewDataOnPortEvent()->connect(callback);
-            eports.push_back(port);
-            return true;
-        }
-        return false;
+    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        this->addLocalPort(port);
+        if (callback)
+            port.getNewDataOnPortEvent()->connect(callback );
+        eports.push_back(&port);
+        return port;
     }
 
     const DataFlowInterface::Ports& DataFlowInterface::getEventPorts() const
@@ -121,13 +110,13 @@ namespace RTT
     }
 
     void DataFlowInterface::removePort(const std::string& name) {
-        for ( PortStore::iterator it(mports.begin());
+        for ( Ports::iterator it(mports.begin());
               it != mports.end();
               ++it)
-            if ( it->first->getName() == name ) {
+            if ( (*it)->getName() == name ) {
                 if (mparent)
                     mparent->provides()->removeService( name );
-                Ports::iterator ep = find(eports.begin(), eports.end(),it->first);
+                Ports::iterator ep = find(eports.begin(), eports.end(),*it);
                 if ( ep!= eports.end() )
                     eports.erase( ep );
                 mports.erase(it);
@@ -136,12 +125,7 @@ namespace RTT
     }
 
     DataFlowInterface::Ports DataFlowInterface::getPorts() const {
-        std::vector<PortInterface*> res;
-        for ( PortStore::const_iterator it(mports.begin());
-              it != mports.end();
-              ++it)
-            res.push_back( it->first );
-        return res;
+        return mports;
     }
 
     DataFlowInterface::PortNames DataFlowInterface::getPortNames() const {
@@ -150,28 +134,28 @@ namespace RTT
 
     DataFlowInterface::PortNames DataFlowInterface::getNames() const {
         std::vector<std::string> res;
-        for ( PortStore::const_iterator it(mports.begin());
+        for ( Ports::const_iterator it(mports.begin());
               it != mports.end();
               ++it)
-            res.push_back( it->first->getName() );
+            res.push_back( (*it)->getName() );
         return res;
     }
 
     PortInterface* DataFlowInterface::getPort(const std::string& name) const {
-        for ( PortStore::const_iterator it(mports.begin());
+        for ( Ports::const_iterator it(mports.begin());
               it != mports.end();
               ++it)
-            if ( it->first->getName() == name )
-                return it->first;
+            if ( (*it)->getName() == name )
+                return *it;
         return 0;
     }
 
     std::string DataFlowInterface::getPortDescription(const std::string& name) const {
-        for ( PortStore::const_iterator it(mports.begin());
+        for ( Ports::const_iterator it(mports.begin());
               it != mports.end();
               ++it)
-            if ( it->first->getName() == name )
-                return it->second;
+            if ( (*it)->getName() == name )
+                return (*it)->getDescription();
         return "";
     }
 
@@ -185,7 +169,7 @@ namespace RTT
             if ( !d.empty() )
                 to->doc( d );
             else
-                to->doc("(No description set for this Port)");
+                to->doc("No description set for this Port. Use .doc() to document it.");
         }
         return to;
     }
@@ -193,11 +177,11 @@ namespace RTT
     void DataFlowInterface::clear()
     {
         // remove TaskObjects:
-        for ( PortStore::iterator it(mports.begin());
+        for ( Ports::iterator it(mports.begin());
               it != mports.end();
               ++it) {
             if (mparent)
-                mparent->provides()->removeService( it->first->getName() );
+                mparent->provides()->removeService( (*it)->getName() );
         }
         mports.clear();
     }

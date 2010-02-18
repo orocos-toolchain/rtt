@@ -267,7 +267,7 @@ namespace RTT
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
                 // notify input that the connection is now complete.
                 if ( input_port.channelReady( channel_input->getOutputEndPoint() ) == false ) {
-                    output_port.disconnect( input_port );
+                    output_port.disconnect( &input_port );
                     log(Error) << "The input port "<< input_port.getName()
                                << " could not successfully read from the connection from output port " << output_port.getName() <<endlog();
 
@@ -305,7 +305,7 @@ namespace RTT
                 log(Warning) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
             }
             RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
-            
+
             chan = buildChannelInput( output_port, new StreamConnID(policy.name_id), chan);
 
             if ( !chan ) {
@@ -344,7 +344,7 @@ namespace RTT
                 log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
                 return false;
             }
-            
+
             // In stream mode, a buffer is always installed at input side.
             //
             ConnPolicy policy2 = policy;

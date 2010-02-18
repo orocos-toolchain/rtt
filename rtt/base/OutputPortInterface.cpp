@@ -57,7 +57,7 @@ OutputPortInterface::~OutputPortInterface()
 bool OutputPortInterface::connected() const
 { return cmanager.connected(); }
 
-void OutputPortInterface::disconnect(PortInterface& port)
+void OutputPortInterface::disconnect(PortInterface* port)
 {
     cmanager.disconnect(port);
 }
@@ -95,17 +95,17 @@ bool OutputPortInterface::createBufferConnection( InputPortInterface& input, int
 bool OutputPortInterface::createConnection( InputPortInterface& input )
 { return createConnection(input, input.getDefaultPolicy()); }
 
-bool OutputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+bool OutputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
-    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(&other);
+    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(other);
     if (! input)
         return false;
     return createConnection(*input, policy);
 }
 
-bool OutputPortInterface::connectTo(PortInterface& other)
+bool OutputPortInterface::connectTo(PortInterface* other)
 {
-    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(&other);
+    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(other);
     if (! input)
         return false;
     return createConnection(*input);

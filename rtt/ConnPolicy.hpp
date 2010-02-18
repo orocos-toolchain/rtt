@@ -84,6 +84,7 @@ namespace RTT {
      *       You only need to provide a name_id if you're using out-of-band transports
      *       without supervisor, for example, when using MQueues without Corba.
      * </ul>
+     * @ingroup Ports
      */
     class ConnPolicy
     {

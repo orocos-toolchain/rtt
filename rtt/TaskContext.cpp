@@ -173,7 +173,7 @@ namespace RTT
             }
 
             // Try to find a way to connect them
-            if ( !(*it)->connectTo(*peerport) ) {
+            if ( !(*it)->connectTo( peerport ) ) {
                 log(Debug)<< "Data flow incompatible between ports "
                           << getName() << "." << (*it)->getName() << " and "
                           << peer->getName() << "." << (*it)->getName() << endlog();

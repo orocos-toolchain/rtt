@@ -125,16 +125,16 @@ namespace RTT
         virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
 
         /** Removes the channel that connects this port to \c port */
-        virtual void disconnect(PortInterface& port);
+        virtual void disconnect(PortInterface* port);
 
         /** Removes the connection associated with this channel, and the channel
          * as well
          */
         virtual void removeConnection(internal::ConnID* cid);
 
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
-        virtual bool connectTo(PortInterface& other);
+        virtual bool connectTo(PortInterface* other);
     };
 }}
 

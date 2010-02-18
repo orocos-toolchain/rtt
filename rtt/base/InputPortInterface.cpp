@@ -69,17 +69,17 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
     return new_data_on_port_event;
 }
 
-bool InputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+bool InputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
-    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
+    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(other);
     if (! output) {
-        log(Error) << "InputPort "<< getName() <<" could not connect to "<< other.getName() << ": not an Output port." <<endlog();
+        log(Error) << "InputPort "<< getName() <<" could not connect to "<< other->getName() << ": not an Output port." <<endlog();
         return false;
     }
     return output->createConnection(*this, policy);
 }
 
-bool InputPortInterface::connectTo(PortInterface& other)
+bool InputPortInterface::connectTo(PortInterface* other)
 {
     return connectTo(other, default_policy);
 }
@@ -129,7 +129,7 @@ void InputPortInterface::disconnect()
     cmanager.disconnect();
 }
 
-void InputPortInterface::disconnect(PortInterface& port)
+void InputPortInterface::disconnect(PortInterface* port)
 {
     cmanager.disconnect(port);
 }

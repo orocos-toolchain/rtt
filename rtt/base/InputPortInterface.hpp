@@ -102,7 +102,7 @@ namespace RTT
         virtual void disconnect();
 
         /** Removes the channel that connects this port to \c port */
-        virtual void disconnect(PortInterface& port);
+        virtual void disconnect(PortInterface* port);
 
 
         /** Returns true if this port is connected */
@@ -123,9 +123,9 @@ namespace RTT
          */
         NewDataOnPortEvent* getNewDataOnPortEvent();
 
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy);
+        virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
-        virtual bool connectTo(PortInterface& other);
+        virtual bool connectTo(PortInterface* other);
 };
 
 }}

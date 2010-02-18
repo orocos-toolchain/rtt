@@ -81,24 +81,21 @@ namespace RTT
         TaskContext* getParent();
 
         /**
-         * Add a Port to this task. It is only added to the C++
-         * interface and can not be used in scripting.
-         * @param port The port to add.
-         * @return true if the port could be added, false if already added.
-         *
+         * Add a Port to this task without registering a service for it.
+         * @return
          */
-        bool addPort(base::PortInterface* port);
+        base::PortInterface& addLocalPort(base::PortInterface& port);
 
         /**
-         * Add an Event triggering Port to this task. It is only added to the C++
-         * interface and can not be used in scripting.
+         * Add an Event triggering Port to this task without
+         * registering a service for it.
          * @param port The port to add.
          * @return true if the port could be added, false if already added.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(base::InputPortInterface* port,
+        base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
                 base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
@@ -108,23 +105,21 @@ namespace RTT
         const Ports& getEventPorts() const;
 
         /**
-         * Add a Port to the interface of this task. It is added to
-         * both the C++ interface and the scripting interface.
+         * Add a Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
-         * @param description A user readable description of this port.
          */
-        bool addPort(base::PortInterface* port, std::string description);
+        base::PortInterface& addPort(base::PortInterface& port);
 
         /**
-         * Add an Event triggering Port to the interface of this task. It is added to
-         * both the C++ interface and the scripting interface.
+         * Add an Event triggering Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
-         * @param description A user readable description of this port.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(base::InputPortInterface* port, std::string description, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Remove a Port from this interface.
@@ -190,9 +185,8 @@ namespace RTT
          */
         void clear();
     protected:
-        typedef std::vector<std::pair<base::PortInterface*,std::string> > PortStore;
         Ports eports;
-        PortStore mports;
+        Ports mports;
         TaskContext* mparent;
 
     };

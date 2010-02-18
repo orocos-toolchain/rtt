@@ -460,6 +460,37 @@ namespace RTT
          * @{
          */
         /**
+         * Add a Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * @param port The port to add.
+         */
+        base::PortInterface& addPort(base::PortInterface& port) {
+            return ports()->addPort(port);
+        }
+
+        /**
+         * Add an Event triggering Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * @param port The port to add.
+         * @param callback (Optional) provide a function which will be called asynchronously
+         * when new data arrives on this port. You can add more functions by using the port
+         * directly using base::PortInterface::getNewDataOnPort().
+         */
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+            return ports()->addEventPort(port,callback);
+        }
+
+        /**
+         * Get a port of this Component.
+         * @param name The port name
+         * @return a pointer to a port or null if it does not exist.
+         */
+        base::PortInterface* getPort(const std::string& name) const {
+            return ports()->getPort(name);
+        }
+
+
+        /**
          * Get the Data flow ports of this task.
          */
         interface::DataFlowInterface* ports() {

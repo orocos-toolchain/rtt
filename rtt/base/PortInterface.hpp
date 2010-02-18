@@ -52,10 +52,12 @@ namespace RTT
 
     /**
      * The base class of every data flow port.
+     * @ingroup Ports
      */
     class RTT_API PortInterface
     {
         std::string name;
+        std::string mdesc;
         interface::DataFlowInterface* iface;
     protected:
         PortInterface(const std::string& name);
@@ -80,6 +82,20 @@ namespace RTT
          * @retval false if this->connected(), the name has not been changed.
          */
         bool setName(const std::string& name);
+
+        /**
+         * Get the documentation of this port.
+         * @return A description.
+         */
+        const std::string& getDescription() const { return mdesc; }
+
+        /**
+         * Set the documentation of this port.
+         * @param desc The description of the port
+         * @return a reference to this object.
+         */
+        PortInterface& doc(const std::string& desc);
+
 
         /** Returns true if this port is connected */
         virtual bool connected() const = 0;
@@ -134,7 +150,7 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other, ConnPolicy const& policy) = 0;
+        virtual bool connectTo(PortInterface* other, ConnPolicy const& policy) = 0;
 
         /** Connects this port with \a other, using the default policy of the input. Unlike
          * OutputPortInterface::createConnection, \a other can be the write port
@@ -142,7 +158,7 @@ namespace RTT
          *
          * @returns true on success, false on failure
          */
-        virtual bool connectTo(PortInterface& other) = 0;
+        virtual bool connectTo(PortInterface* other) = 0;
 
         /**
          * Creates a data stream from or to this port using connection-less transports.

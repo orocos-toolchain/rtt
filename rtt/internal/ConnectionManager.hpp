@@ -100,7 +100,7 @@ namespace RTT
             bool connected() const;
 
             /** Removes the channel that connects this port to \c port */
-            void disconnect(base::PortInterface& port);
+            void disconnect(base::PortInterface* port);
 
             template<typename Pred>
             bool delete_if(Pred pred) {

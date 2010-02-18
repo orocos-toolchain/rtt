@@ -92,16 +92,16 @@ public:
         // ltc has a test object
         gtc.provides()->addService(this->createObject("test") );
 
-        gtc.ports()->addPort( &d_event );
-        gtc.ports()->addPort( &b_event );
-        gtc.ports()->addPort( &t_event );
-        gtc.ports()->addPort( &d_event_source );
-        gtc.ports()->addPort( &b_event_source );
-        gtc.ports()->addPort( &t_event_source );
+        gtc.ports()->addPort( d_event );
+        gtc.ports()->addPort( b_event );
+        gtc.ports()->addPort( t_event );
+        gtc.ports()->addPort( d_event_source );
+        gtc.ports()->addPort( b_event_source );
+        gtc.ports()->addPort( t_event_source );
 
-        d_event_source.connectTo( d_event );
-        b_event_source.connectTo( b_event );
-        t_event_source.connectTo( t_event );
+        d_event_source.connectTo( &d_event );
+        b_event_source.connectTo( &b_event );
+        t_event_source.connectTo( &t_event );
         gtc.start();
         i = 0;
         SimulationThread::Instance()->stop();

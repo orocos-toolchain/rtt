@@ -57,6 +57,7 @@ namespace RTT
      * Ideally, your algorithm should not assume a certain connection policy
      * being used from output to input. So it should work on data connections
      * and buffer connections.
+     * @ingroup Ports
      */
     template<typename T>
     class InputPort : public base::InputPortInterface

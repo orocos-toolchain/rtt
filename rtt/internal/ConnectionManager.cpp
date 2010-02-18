@@ -59,7 +59,7 @@ namespace RTT
     {
 
         ConnectionManager::ConnectionManager(PortInterface* port)
-            : connections(0), mport(port)
+            : mport(port), connections(0)
         {
         }
 
@@ -127,9 +127,9 @@ namespace RTT
             }
         }
 
-        void ConnectionManager::disconnect(PortInterface& port)
+        void ConnectionManager::disconnect(PortInterface* port)
         {
-            boost::scoped_ptr<ConnID> conn_id( port.getPortID() );
+            boost::scoped_ptr<ConnID> conn_id( port->getPortID() );
             this->removeConnection(conn_id.get());
         }
 

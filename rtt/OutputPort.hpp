@@ -63,6 +63,7 @@ namespace RTT
      * to register your data class with the RTT type system.
      *
      * @see RTT::types::TemplateTypeInfo for adding custom data classes to the RTT.
+     * @ingroup Ports
      */
     template<typename T>
     class OutputPort : public base::OutputPortInterface
