@@ -37,8 +37,18 @@ namespace RTT
             OperationBase(const std::string& name);
             virtual ~OperationBase();
 
+            /**
+             * Returns the name of this operation.
+             * @return The name.
+             */
             const std::string& getName() { return mname; }
 
+            /**
+             * Returns all the descriptions of this operation, as a single list,
+             * starting with the operation's description, followed by the name,
+             * description pairs of each argument.
+             * @return A vector with all descriptions.
+             */
             const std::vector<std::string>& getDescriptions() { return descriptions; }
 
             /**
@@ -52,12 +62,16 @@ namespace RTT
             /**
              * An operation is ready if it has an implementation and is
              * present in a TaskContext.
-             * @return
+             * @return true if ready.
              */
             bool ready() const {
                 return mowner && getImplementation();
             }
 
+            /**
+             * Updates the owning ExecutionEngine that might execute this operation.
+             * @param ee
+             */
             void setOwner(ExecutionEngine* ee) {
                 mowner = ee;
                 // inform Operation<T> to update the implementation.

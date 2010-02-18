@@ -263,48 +263,9 @@ namespace RTT
         }
 
         /**
-         * Returns the properties of this TaskContext as a PropertyBag.
+         * Connects all requires/provides services of this component to these of a peer.
          */
-        PropertyBag* properties() { return this->provides()->properties(); }
-
-        /**
-         * Add an operation object to the interface. This version
-         * of addOperation exports an Operation object to the
-         * public interface of this component.
-         *
-         * @param op The operation object to add.
-         *
-         * @return true if it could be added.
-         */
-        template<class Signature>
-        Operation<Signature>& addOperation( Operation<Signature>& op )
-        {
-            return tcservice->addOperation(op);
-        }
-
-        template<class Func, class Service>
-        Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
-        {
-            return tcservice->addOperation(name,func, serv,et);
-        }
-
-        /**
-         * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<\a Signature> object.
-         *
-         * @param name The name of the operation to retrieve.
-         * @param Signature The function signature of the operation, for
-         * example: getOperation<int(double)>("name");
-         *
-         * @return true if it could be found, false otherwise.
-         */
-        template<class Signature>
-        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
-        {
-            return tcservice->getOperation<Signature>(name);
-        }
+        virtual bool connectServices( TaskContext* peer);
 
         /**
          * Use this method to be able to make Method calls to services provided by this component.
@@ -328,11 +289,167 @@ namespace RTT
             localservs[name] = st;
             return st;
         }
+        /** @} */
 
         /**
-         * Connects all requires/provides services of this component to these of a peer.
+         * Adding and getting operations from the TaskContext interface.
+         * These functions all forward to the service provider representing
+         * this TaskContext.
+         * @name Operations
+         * @{ */
+        /**
+         * Add an operation object to the interface. This version
+         * of addOperation exports an Operation object to the
+         * public interface of this component.
+         *
+         * @param op The operation object to add.
+         *
+         * @return true if it could be added.
          */
-        virtual bool connectServices( TaskContext* peer);
+        template<class Signature>
+        Operation<Signature>& addOperation( Operation<Signature>& op )
+        {
+            return tcservice->addOperation(op);
+        }
+
+        template<class Func, class Service>
+        Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
+        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        {
+            return tcservice->addOperation(name,func, serv, et);
+        }
+
+        /**
+         * Get a previously added operation for
+         * use in a C++ Method object. Store the result of this
+         * function in a Method<\a Signature> object.
+         *
+         * @param name The name of the operation to retrieve.
+         * @param Signature The function signature of the operation, for
+         * example: getOperation<int(double)>("name");
+         *
+         * @return true if it could be found, false otherwise.
+         */
+        template<class Signature>
+        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
+        {
+            return tcservice->getOperation<Signature>(name);
+        }
+        /** @} */
+
+        /**
+         * Adding and getting attributes from the TaskContext interface.
+         * These functions all forward to the service provider representing
+         * this TaskContext.
+         * @name Attributes
+         * @{ */
+        /**
+         * Adds a variable of any type as read/write attribute to the attribute interface.
+         * An Alias is created which causes contents of the \a attr
+         * variable always to be in sync
+         * with the contents of the attribute object in the interface.
+         * @param name The name of this attribute
+         * @param attr The variable that will be aliased.
+         */
+        template<class T>
+        bool addAttribute( const std::string& name, T& attr) {
+            return tcservice->addAttribute(name, attr);
+        }
+
+        /**
+         * Adds a variable of any type as read-only attribute to the attribute interface.
+         * An Alias is created which causes contents of the
+         * attribute always to be in sync
+         * with the contents of \a attr, but it can only be read through the interface.
+         * @param name The name of this attribute
+         * @param attr The variable that will be aliased.
+         */
+        template<class T>
+        bool addConstant( const std::string& name, const T& attr) {
+            return tcservice->addConstant(name, attr);
+        }
+
+        /**
+         * Add an base::AttributeBase which remains owned by the
+         * user. This is a low-level function that can be used
+         * if you already created an Attribute object that does
+         * not belong yet to a service.
+         *
+         * @param a remains owned by the user, and becomes
+         * served by the repository.
+         */
+        bool addAttribute( base::AttributeBase* a )
+        {
+            return tcservice->addAttribute(a);
+        }
+
+        /**
+         * Retrieve a Attribute by name. Returns zero if
+         * no Attribute<T> by that name exists.
+         * @example
+           Attribute<double> d_attr = getAttribute<double>("Xval");
+           @endexample
+         * @see addAttribute to add an Attribute.
+         * @see getValue for a template-less variant of this function,
+         * which also works.
+         */
+        template<class T>
+        Attribute<T>* getAttribute( const std::string& name ) const
+        {
+            return tcservice->getAttribute<T>(name);
+        }
+
+        /**
+         * Returns the attributes of this TaskContext as an AttributeRepository.
+         */
+        interface::AttributeRepository* attributes() { return this->provides().get(); }
+
+        /** @} */
+
+        /**
+         * Adding and getting properties from the TaskContext interface.
+         * These functions all forward to the service provider representing
+         * this TaskContext.
+         * @name Properties
+         * @{ */
+        /**
+         * Adds a variable of any type as a property to the attribute interface.
+         * A Property is created which causes contents of the
+         * property always to be in sync
+         * with the contents of \a attr.
+         * @param name The name of this property
+         * @param attr The variable that will be aliased.
+         * @return the Property object by reference, which you can further query or document.
+         */
+        template<class T>
+        Property<T>& addProperty( const std::string& name, T& attr) {
+            return tcservice->addProperty(name, attr);
+        }
+
+        /**
+         * Add an base::PropertyBase as a property.
+         * @return false if a property with the same name already exists.
+         */
+        bool addProperty( base::PropertyBase* pb );
+
+        /**
+         * Get a Property<T> with name \a name.
+         *
+         * @param  T The type of which this property is.
+         * @param  name The name of the property to search for.
+         * @return The Property<T> with this name, zero
+         *         if it does not exist ( no such \a T or no such \a name )
+         */
+        template<class T>
+        Property<T>* getProperty(const std::string& name) const
+        {
+            return tcservice->getProperty<T>("name");
+        }
+
+        /**
+         * Returns the properties of this TaskContext as a PropertyBag.
+         */
+        PropertyBag* properties() { return this->provides()->properties(); }
 
         /** @} */
 

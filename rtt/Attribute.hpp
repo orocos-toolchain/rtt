@@ -48,6 +48,8 @@ namespace RTT
 {
     /**
      * An Attribute has a name and contains data which can be set and get.
+     * It is used to expose a C/C++ variable to the interface of a TaskContext
+     * in order to allow plugins or external tools to read and write it.
      * @param T The type of data this attribute holds.
      * @ingroup CoreLib
      */
@@ -70,7 +72,7 @@ namespace RTT
          *
          * @param name The name of this instance.
          */
-        Attribute(const std::string& name)
+        explicit Attribute(const std::string& name)
             : base::AttributeBase(name),
               data( types::BuildType<T>::Value( T() ) )
         {}
@@ -81,10 +83,27 @@ namespace RTT
          * @param name The name of this instance.
          * @param t The value for initialisation.
          */
-        explicit Attribute(const std::string& name, T t)
+        Attribute(const std::string& name, T t)
             : base::AttributeBase(name),
               data( types::BuildType<T>::Value( t ) )
         {
+        }
+
+        /**
+         * Create an Attribute with a name, a given value \a t and an owner.
+         * The owner is used to register this attribute to and is supposed
+         * to be a pointer (or shared pointer).
+         *
+         * @param name The name of this instance.
+         * @param t The value for initialisation.
+         * @param o The owner, which has a function 'addAttribute(AttributeBase*)'.
+         */
+        template<class Owner>
+        Attribute(const std::string& name, T t, Owner o)
+            : base::AttributeBase(name),
+              data( types::BuildType<T>::Value( t ) )
+        {
+            o->addAttribute(this);
         }
 
         /**
@@ -225,11 +244,30 @@ namespace RTT
 
         /**
          * Create a constant with a fixed value \a t.
+         * @param name The name of this instance.
+         * @param t The value for initialisation.
          */
         Constant(const std::string& name, T t)
             : base::AttributeBase(name),
               data( new internal::ConstantDataSource<T>( t ) )
         {
+        }
+
+        /**
+         * Create a constant with a fixed value \a t and an owner.
+         * The owner is used to register this attribute to and is supposed
+         * to be a pointer (or shared pointer).
+         *
+         * @param name The name of this instance.
+         * @param t The value for initialisation.
+         * @param o The owner, which has a function 'addAttribute(AttributeBase*)'.
+         */
+        template<class Owner>
+        Constant(const std::string& name, T t, Owner owner)
+            : base::AttributeBase(name),
+              data( new internal::ConstantDataSource<T>( t ) )
+        {
+            owner->addAttribute( this );
         }
 
         /**
@@ -245,7 +283,6 @@ namespace RTT
          * Create a constant which mirrors an Attribute.
          * If successful, this constant will always have the same
          * value as \a ab.
-         * In case \a ab is non constant, it is not accepted.
          * @see ready() to check if ab was accepted.
          */
         Constant( base::AttributeBase* ab )
@@ -253,9 +290,7 @@ namespace RTT
         {
             if ( !ab )
                 return;
-            Constant<T>* c = dynamic_cast<Constant<T>*>(ab);
-            if (c)
-                data = c->getDataSource();
+            data = ab->getDataSource();
         }
 
         /**
@@ -271,10 +306,10 @@ namespace RTT
                 data = 0;
                 return *this;
             }
+            if ( ab == this)
+                return *this;
             mname = ab->getName();
-            Constant<T>* c = dynamic_cast<Constant<T>*>(ab);
-            if (c)
-                data = c->getDataSource();
+            data = ab->getDataSource();
         }
 
         /**
@@ -317,6 +352,23 @@ namespace RTT
         base::DataSourceBase::shared_ptr data;
     public:
         Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
+
+        /**
+         * Create an alias from a datasource with an owner.
+         * The owner is used to register this attribute to and is supposed
+         * to be a pointer (or shared pointer).
+         *
+         * @param name The name of this instance.
+         * @param d The aliased data source.
+         * @param o The owner, which has a function 'addAttribute(AttributeBase*)'.
+         */
+        template<class Owner>
+        Alias(const std::string& name, base::DataSourceBase::shared_ptr d, Owner owner)
+            : base::AttributeBase(name),
+              data( d )
+        {
+            owner->addAttribute( this );
+        }
 
         base::DataSourceBase::shared_ptr getDataSource() const;
 

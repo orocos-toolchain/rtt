@@ -110,6 +110,26 @@ namespace RTT
         }
 
         /**
+         * Create a property with a name, description, value with a given owner.
+         * The owner is used to register this property to and is supposed
+         * to be a pointer (or shared pointer).
+         *
+         * @param name The name which will be used to refer to the
+         * property.
+         * @param description The description of the property.
+         * @param value The initial value of the property (optional).
+         * @param o The owner, which has a function 'addProperty(PropertyBase*)'.
+         *
+         * @post ready() will always be true.
+         */
+        template<class Owner>
+        Property(const std::string& name, const std::string& description, param_t value, Owner o)
+            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
+        {
+            o->addProperty(this);
+        }
+
+        /**
          * Copy constructors copies the name, description and value
          * as \b deep copies.
          * @post ready() will be true if orig.ready() is true.
