@@ -196,7 +196,8 @@ namespace RTT
          * @param Signature The function signature of the operation, for
          * example: getOperation<int(double)>("name");
          *
-         * @return true if it could be found, false otherwise.
+         * @return A pointer to an operation implementation object or a null pointer if
+         * \a name was not found.
          */
         template<class Signature>
         boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
@@ -221,12 +222,12 @@ namespace RTT
 
         /**
          * Add an operation object to the interface. This version
-         * of addOperation exports an Operation object to the
+         * of addOperation exports an existing Operation object to the
          * public interface of this component.
          *
          * @param op The operation object to add.
          *
-         * @return true if it could be added.
+         * @return The given parameter \a op
          */
         template<class Signature>
         Operation<Signature>& addOperation( Operation<Signature>& op )
@@ -238,14 +239,28 @@ namespace RTT
         }
 
         /**
-         * Returns a function signature from a C++ member function
+         * Returns a function signature from a C++ member function.
+         * This is a public helper struct for addOperation.
          */
         template<class FunctionT>
         struct GetSignature {
             typedef typename internal::UnMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
         };
 
-        // UnMember serves to remove the member function pointer from the signature of func.
+        /**
+         * Add an operation to the interface by means of a function.
+         * The function \a func may be a \a free function (a 'C' function) or
+         * an object member function, in which case serv may not be null
+         *
+         * @param name The name of the new operation
+         * @param func A pointer to a function, for example, &foo ('C' function) or &Bar::foo (C++ class function).
+         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
+         * or zero ('0') in case of a 'C' function.
+         * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
+         * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
+         *
+         * @return A newly created operation object, which you may further document or query.
+         */
         template<class Func, class Service>
         Operation< typename GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
@@ -266,6 +281,7 @@ namespace RTT
         /**
          * Returns a function signature from a C++ member function
          * suitable for DS operations
+         * This is a public helper struct for addOperationDS.
          */
         template<class FunctionT>
         struct GetSignatureDS {

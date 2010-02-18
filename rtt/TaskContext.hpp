@@ -282,7 +282,6 @@ namespace RTT
             return tcservice->addOperation(op);
         }
 
-        // UnMember serves to remove the member function pointer from the signature of func.
         template<class Func, class Service>
         Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
