@@ -13,8 +13,8 @@ using namespace RTT::detail;
 OperationsFixture::OperationsFixture()
 {
     tc = new TaskContext("root");
-    tc->addService(this->createMethodFactory());
-    tc->addAlias("ret", ret );
+    tc->provides()->addService(this->createMethodFactory());
+    tc->provides()->addAlias("ret", ret );
     caller = new TaskContext("caller");
     caller->start();
     tc->start();
@@ -27,9 +27,9 @@ OperationsFixture::~OperationsFixture()
     delete caller;
 }
 
-ServiceProvider* OperationsFixture::createMethodFactory()
+ServiceProvider::shared_ptr OperationsFixture::createMethodFactory()
 {
-    ServiceProvider* to = new ServiceProvider("methods");
+    ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
 
     to->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
 

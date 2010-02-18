@@ -57,19 +57,24 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
+    ServiceProvider::shared_ptr ScriptingAccess::Create(TaskContext* parent){
+        shared_ptr sp(new ScriptingAccess(parent));
+        parent->provides()->addService( sp );
+        return sp;
+    }
+
     ScriptingAccess::ScriptingAccess( TaskContext* parent )
         : ServiceProvider("scripting", parent),
-        mparent(parent),sproc(0)
+          sproc(0)
     {
-        this->doc("Access to the Scripting interface. \
-                Use this object in order to load or query programs or state machines.");
+        this->doc("Orocos Scripting service. Use this service in order to load or query programs or state machines.");
         this->createInterface();
-        mparent->addService(this);
     }
 
     ScriptingAccess::~ScriptingAccess()
     {
-        mparent->removeService("scripting");
+        // since we are refcounted, we don't need to inform the owner
+        // that we're being deleted.
         this->clear();
         delete sproc;
     }
@@ -111,6 +116,7 @@ namespace RTT {
             }
 #endif
         }
+        ServiceProvider::clear();
     }
 
      StateMachine::Status::StateMachineStatus ScriptingAccess::getStateMachineStatus(const string& name) const
@@ -208,7 +214,7 @@ namespace RTT {
 
         // first load parent.
         states[sc->getName()] = sc;
-        mparent->engine()->runFunction( sc.get() );
+        mowner->engine()->runFunction( sc.get() );
 
         // then load children.
         for (it = sc->getChildren().begin(); it != sc->getChildren().end(); ++it)
@@ -275,7 +281,7 @@ namespace RTT {
 
         // lastly, unload the parent.
         states.erase(it);
-        mparent->engine()->removeFunction( sc.get() );
+        mowner->engine()->removeFunction( sc.get() );
     }
 
     bool ScriptingAccess::deleteStateMachine(const string& name)
@@ -340,7 +346,7 @@ namespace RTT {
        }
        programs[pi->getName()] = pi;
        pi->reset();
-       if ( mparent->engine()->runFunction( pi.get() ) == false) {
+       if ( mowner->engine()->runFunction( pi.get() ) == false) {
            programs.erase(pi->getName());
            log(Error) << "Could not load Program "<< pi->getName() << " in ExecutionEngine."<<endlog();
            return false;
@@ -354,7 +360,7 @@ namespace RTT {
 
        if ( it != programs.end() )
            {
-               mparent->engine()->removeFunction( it->second.get() );
+               mowner->engine()->removeFunction( it->second.get() );
                programs.erase( it );
                return true;
            }
@@ -479,7 +485,7 @@ namespace RTT {
 
     int ScriptingAccess::execute(const string& code ){
         if (sproc == 0)
-            sproc = new StatementProcessor(mparent);
+            sproc = new StatementProcessor(mowner);
         return sproc->execute( code );
     }
 
@@ -508,7 +514,7 @@ namespace RTT {
       Functions ret;
       try {
           Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
-          ret = p.parseFunction(code, mparent, filename);
+          ret = p.parseFunction(code, mowner, filename);
       }
       catch( const file_parse_exception& exc )
           {
@@ -528,7 +534,7 @@ namespace RTT {
               // Load all listed functions in the TaskContext's Processor:
               for( Parser::ParsedFunctions::iterator it = ret.begin(); it != ret.end(); ++it) {
                   Logger::log() << "Queueing Function "<< (*it)->getName() << Logger::endl;
-                  if ( mparent->engine()->runFunction( it->get() ) == false) {
+                  if ( mowner->engine()->runFunction( it->get() ) == false) {
                       Logger::log() << Logger::Error << "Could not run Function '"<< (*it)->getName() <<"' :" << Logger::nl;
                       Logger::log() << "Processor not accepting or function queue is full." << Logger::endl;
                   } else
@@ -562,7 +568,7 @@ namespace RTT {
       Parser::ParsedPrograms pg_list;
       try {
           Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
-          pg_list = parser.parseProgram(code, mparent, filename );
+          pg_list = parser.parseProgram(code, mowner, filename );
       }
       catch( const file_parse_exception& exc )
           {
@@ -647,7 +653,7 @@ namespace RTT {
         Parser::ParsedStateMachines pg_list;
         try {
             Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
-            pg_list = parser.parseStateMachine( code, mparent, filename );
+            pg_list = parser.parseStateMachine( code, mowner, filename );
         }
         catch( const file_parse_exception& exc )
             {

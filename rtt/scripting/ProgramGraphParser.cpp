@@ -76,11 +76,11 @@ namespace RTT
 
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, TaskContext* caller)
-      : rootc( t ),context( 0 ), fcontext(0), mpositer( positer ),
+      : rootc( t ),context(), fcontext(0), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         conditionparser( rootc, caller ),
-        valuechangeparser( rootc, caller ),
+        valuechangeparser( rootc, caller->provides() ),
         expressionparser( rootc, caller ),
         argsparser(0),
         peerparser(rootc),
@@ -204,7 +204,7 @@ namespace RTT
 
   }
 
-    void ProgramGraphParser::initBodyParser(const std::string& name, ServiceProvider* stck, int offset) {
+    void ProgramGraphParser::initBodyParser(const std::string& name, ServiceProvider::shared_ptr stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );
         program_builder->startFunction(name);
@@ -228,7 +228,7 @@ namespace RTT
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
 
-    void ProgramGraphParser::setStack(ServiceProvider* st) {
+    void ProgramGraphParser::setStack(ServiceProvider::shared_ptr st) {
         context = st;
     }
 
@@ -242,15 +242,15 @@ namespace RTT
 
       std::string def(begin, end);
 
-      if ( rootc->hasService( def ) )
+      if ( rootc->provides()->hasService( def ) )
           throw parse_exception_semantic_error("Service with name '" + def + "' already present in task '"+rootc->getName()+"'.");
 
       FunctionGraphPtr pi(program_builder->startFunction( def ));
       // ptsk becomes the owner of pi.
-      ProgramTask* ptsk(new ProgramTask( pi, rootc ));
+      ProgramTaskPtr ptsk(new ProgramTask( pi, rootc ));
       pi->setProgramTask(ptsk);
       context = ptsk;
-      rootc->addService( ptsk );
+      rootc->provides()->addService( ptsk );
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -279,14 +279,15 @@ namespace RTT
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->hasMember( funcdef ))
+      if ( exportf && rootc->provides()->hasMember( funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      context = fcontext = new TaskContext(funcdef, rootc->engine() );
+      fcontext = new TaskContext(funcdef, rootc->engine() );
+      context = fcontext->provides();
   }
 
   void ProgramGraphParser::seenfunctionarg()
@@ -309,12 +310,13 @@ namespace RTT
       if (exportf) {
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
-          rootc->add(mfunc->getName(), cfi );
+          rootc->provides()->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 
       delete fcontext;
-      context = fcontext = 0;
+      fcontext = 0;
+      context.reset();
 
       // reset
       exportf = false;
@@ -363,7 +365,7 @@ namespace RTT
       mcallfunc = mfuncs[ fname ];
 
       // Parse the function's args in the programs context.
-      argsparser = new ArgumentsParser( expressionparser, rootc, rootc,
+      argsparser = new ArgumentsParser( expressionparser, rootc, rootc->provides(),
                                         "this", fname );
       arguments = argsparser->parser();
 
@@ -682,7 +684,7 @@ namespace RTT
       while ( ! mfuncs.empty() ) {
           mfuncs.erase( mfuncs.begin() );
       }
-      context = 0;
+      context.reset();
 
       valuechangeparser.reset();
       conditionparser.reset();

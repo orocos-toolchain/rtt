@@ -199,8 +199,8 @@ namespace RTT
         // if both the object and attribute with that name exist. the if
         // statement after this one would return and not give the expr parser
         // time to evaluate 'comm'.
-        if ( taskcontext->getValue( comm ) ) {
-                d->printResult( taskcontext->getValue( comm )->getDataSource().get(), true );
+        if ( taskcontext->provides()->getValue( comm ) ) {
+                d->printResult( taskcontext->provides()->getValue( comm )->getDataSource().get(), true );
                 return 0;
         }
 

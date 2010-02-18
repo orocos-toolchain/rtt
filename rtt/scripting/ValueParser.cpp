@@ -112,7 +112,7 @@ namespace RTT
         // inform propparser of new peer :
         //std::cerr << "ValueParser: seenpeer : "<< peerparser.peer()->getName()
         //          <<" has props :" << (peerparser.peer()->properties() != 0) << std::endl;
-        propparser.setPropertyBag( peerparser.peer()->properties() );
+        propparser.setPropertyBag( peerparser.peer()->provides()->properties() );
     }
 
   void ValueParser::seenboolconstant( iter_t begin, iter_t end )
@@ -131,12 +131,12 @@ namespace RTT
   {
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
-    ServiceProvider* task = peerparser.taskObject();
+    ServiceProvider::shared_ptr task = peerparser.taskObject();
     peerparser.reset();
     //std::cerr << "ValueParser: seenvar : "<< name
     //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
     // in case our task is a taskcontext:
-    if ( task == peer && propparser.bag() && propparser.property() ) {
+    if ( task == peer->provides() && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
             //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
@@ -152,8 +152,8 @@ namespace RTT
       ret = task->getValue(name)->getDataSource();
       return;
     }
-    if ( peer==task && peer->hasProperty( name ) ) {
-        ret = peer->properties()->find(name)->getDataSource();
+    if ( peer->provides() == task && peer->provides()->hasProperty( name ) ) {
+        ret = peer->provides()->properties()->find(name)->getDataSource();
         return;
     }
 

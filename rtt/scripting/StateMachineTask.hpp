@@ -63,7 +63,7 @@ namespace RTT
         void createMethodFactory();
 
     public:
-        StateMachineTask* copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );
+        StateMachineTaskPtr copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext
@@ -76,9 +76,9 @@ namespace RTT
         /**
          * Returns the StateMachine of this task.
          */
-        StateMachinePtr getStateMachine() const { return _this->get(); }
+        //StateMachinePtr getStateMachine() const { return _this->get(); }
 
-        ExecutionEngine* engine() const;
+        //ExecutionEngine* engine() const;
     };
 }}
 

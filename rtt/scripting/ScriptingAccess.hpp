@@ -62,6 +62,17 @@ namespace RTT
         : public interface::ServiceProvider
     {
     public:
+        /**
+         * Creates a ScriptingAccess object and registers
+         * the service to \a parent.
+         */
+        static shared_ptr Create(TaskContext* parent);
+
+        /**
+         * Creates a ScriptingAccess object.
+         * You need to add the service to \a parent yourself,
+         * or use Create().
+         */
         ScriptingAccess( TaskContext* parent );
 
         virtual ~ScriptingAccess();
@@ -497,7 +508,6 @@ namespace RTT
          *@}
          */
     protected:
-        TaskContext* mparent;
         StatementProcessor* sproc;
         bool doExecute(const std::string& code);
 

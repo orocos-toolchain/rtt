@@ -77,7 +77,7 @@ namespace RTT
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
         FunctionGraphPtr prog = function;
         if ( prog ) {
-            prog->setProgramTask(0);
+            prog->setProgramTask( ProgramTaskPtr() );
         }
     }
 }

@@ -57,7 +57,7 @@ namespace RTT {
 
 
     FunctionGraph::FunctionGraph(const std::string& _name)
-        : myName(_name), pausing(false), mstep(false), context(0)
+        : myName(_name), pausing(false), mstep(false)
     {
         // the start vertex of our function graph
         startv = add_vertex( program );
@@ -119,24 +119,21 @@ namespace RTT {
             delete *it;
     }
 
-    void FunctionGraph::setProgramTask(ServiceProvider* mytask)
+    void FunctionGraph::setProgramTask(ServiceProvider::shared_ptr mytask)
     {
         context = mytask;
     }
 
     void FunctionGraph::unloading()
     {
-        if (context == 0)
+        // The case for plain functions in the operations interface
+        if ( !context )
             return;
-        // just kill off the interface.
+        // The case for program scripts
         if (context->getParent() ) {
             context->getParent()->removeService(context->getName());
-        } else {
-            // no parent, delete it ourselves.
-            delete context;
         }
-
-        context = 0;
+        context.reset();
     }
 
 

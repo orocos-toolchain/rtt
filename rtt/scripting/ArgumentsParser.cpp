@@ -50,7 +50,7 @@ namespace RTT
     }
 
   ArgumentsParser::ArgumentsParser(
-    ExpressionParser& p,  TaskContext* peer, ServiceProvider* tobject, const std::string& o,
+    ExpressionParser& p,  TaskContext* peer, ServiceProvider::shared_ptr tobject, const std::string& o,
     const std::string& m )
     : mparsed( false ), expressionparser( p ),
       mobject( o ), mmethod( m ), _peer(peer), mtobject(tobject)

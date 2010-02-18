@@ -56,7 +56,7 @@ public:
     OutputPort<int>    t_event_source;
     ScriptingAccess* sa;
     //Event<void(void)> t_event;
-    ServiceProvider* createObject(std::string);
+    ServiceProvider::shared_ptr createObject(std::string);
     bool assertBool( bool b) { return b; }
     bool assertMsg( bool b, const std::string& msg) {
         if ( b == false )
@@ -90,7 +90,7 @@ public:
         gtc.setActivity( new SimulationActivity(0.001) );
 
         // ltc has a test object
-        gtc.addService(this->createObject("test") );
+        gtc.provides()->addService(this->createObject("test") );
 
         gtc.ports()->addPort( &d_event );
         gtc.ports()->addPort( &b_event );
@@ -112,9 +112,9 @@ public:
     }
 };
 
-ServiceProvider* StateTest::createObject(string a)
+ServiceProvider::shared_ptr StateTest::createObject(string a)
 {
-    ServiceProvider* dat = new ServiceProvider(a);
+    ServiceProvider::shared_ptr dat = ServiceProvider::Create(a);
 
     dat->addOperation("assert", &StateTest::assertBool, this).doc("Assert").arg("bool", "");
     dat->addOperation("increase", &StateTest::increase, this).doc("Return increasing i");
@@ -930,7 +930,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
         errormsg <<"here  > " << sline << endl;
         if ( sm->inError() ) {
-            RTT::detail::DumpObject( tc );
+            RTT::scripting::DumpObject( tc->provides() );
         }
         BOOST_CHECK_MESSAGE( sm->inError() == false, "Runtime error (inError() == true) encountered" + errormsg.str() );
         // check error status of all children:

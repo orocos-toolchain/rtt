@@ -47,7 +47,7 @@ public:
     Parser parser;
     TaskContext gtc;
     ScriptingAccess* sa;
-    ServiceProvider* createObject( ServiceProvider*);
+    ServiceProvider::shared_ptr createObject( ServiceProvider::shared_ptr);
     Attribute<int> var_i;
     Constant<int>* const_i;
 
@@ -84,13 +84,13 @@ public:
         var_i = &init_var;
         const_i = new Constant<int>("tconst_i",-1);
         // ltc has a test object
-        gtc.addService( this->createObject(new ServiceProvider("test") ) );
+        gtc.provides()->addService( this->createObject(ServiceProvider::Create("test") ) );
 
         // also this functions
-        this->createObject( &gtc );
+        this->createObject( gtc.provides() );
 
-        gtc.addAttribute( &var_i );
-        gtc.addConstant( const_i );
+        gtc.provides()->addAttribute( &var_i );
+        gtc.provides()->addConstant( const_i );
         var_i.set(-1);
         i = 0;
         SimulationThread::Instance()->stop();
@@ -103,7 +103,7 @@ public:
 
 };
 
-ServiceProvider* ProgramTest::createObject(ServiceProvider* dat)
+ServiceProvider::shared_ptr ProgramTest::createObject(ServiceProvider::shared_ptr dat)
 {
     // Add the data of the EE:
     dat->addOperation("assert", &ProgramTest::assertBool, this).doc("Assert").arg("bool", "");
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(testProgramCallFoo)
         + "call foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    BOOST_REQUIRE_EQUAL( 4, gtc.getAttribute<int>("tvar_i")->get() );
+    BOOST_REQUIRE_EQUAL( 4, gtc.provides()->getAttribute<int>("tvar_i")->get() );
     this->finishProgram( &gtc, "x");
 }
 
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(testProgramDoFoo)
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    BOOST_REQUIRE_EQUAL( 4, gtc.getAttribute<int>("tvar_i")->get() );
+    BOOST_REQUIRE_EQUAL( 4, gtc.provides()->getAttribute<int>("tvar_i")->get() );
     this->finishProgram( &gtc, "x");
 }
 

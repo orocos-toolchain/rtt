@@ -60,7 +60,7 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
         return false;
 
 #else
-    if ( target->properties() == 0) {
+    if ( target->provides()->properties() == 0) {
         log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
@@ -84,15 +84,15 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
         {
             // take restore-copy;
             PropertyBag backup;
-            copyProperties( backup, *target->properties() );
+            copyProperties( backup, *target->provides()->properties() );
             // First test if the updateProperties will succeed:
-            if ( refreshProperties(  *target->properties(), propbag, false) ) { // not strict
+            if ( refreshProperties(  *target->provides()->properties(), propbag, false) ) { // not strict
                 // this just adds the new properties, *should* never fail, but
                 // let's record failure to be sure.
-                failure = !updateProperties( *target->properties(), propbag );
+                failure = !updateProperties( *target->provides()->properties(), propbag );
             } else {
                 // restore backup in case of failure:
-                refreshProperties( *target->properties(), backup, false ); // not strict
+                refreshProperties( *target->provides()->properties(), backup, false ); // not strict
                 failure = true;
             }
             // cleanup
@@ -123,7 +123,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
 
 #else
-    if ( target->properties() == 0) {
+    if ( target->provides()->properties() == 0) {
         log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
@@ -148,10 +148,10 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
             // Lookup props vs attrs :
             // take restore-copy;
             PropertyBag backup;
-            copyProperties( backup, *target->properties() );
-            if ( refreshProperties( *target->properties(), propbag, all ) == false ) {
+            copyProperties( backup, *target->provides()->properties() );
+            if ( refreshProperties( *target->provides()->properties(), propbag, all ) == false ) {
                 // restore backup:
-                refreshProperties( *target->properties(), backup );
+                refreshProperties( *target->provides()->properties(), backup );
                 failure = true;
                 }
             // cleanup
@@ -182,7 +182,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
         return false;
 
 #else
-    if ( target->properties() == 0 ) {
+    if ( target->provides()->properties() == 0 ) {
         log(Error) << "TaskContext "<< target->getName()
                       << " does not have Properties to save." << endlog();
         return false;
@@ -209,7 +209,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
     }
 
     // Write results
-    PropertyBag* compProps = target->properties();
+    PropertyBag* compProps = target->provides()->properties();
 
     // decompose repos into primitive property types.
     PropertyBag  decompProps;
@@ -277,7 +277,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
         PropertyBag propbag;
         if ( demarshaller->deserialize( propbag ) )
         {
-            failure = !refreshProperty( *(task->properties()), propbag, name );
+            failure = !refreshProperty( *(task->provides()->properties()), propbag, name );
         }
         else
             {
@@ -326,7 +326,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
     // decompose task properties into primitive property types.
     PropertyBag  taskProps;
     PropertyBagIntrospector pbi( taskProps );
-    pbi.introspect( *(task->properties()) );
+    pbi.introspect( *(task->provides()->properties()) );
 
     bool failure;
     failure = ! updateProperty( fileProps, taskProps, name );

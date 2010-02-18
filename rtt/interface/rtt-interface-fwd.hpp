@@ -39,17 +39,18 @@
 #ifndef ORO_RTT_interface_FWD_HPP
 #define ORO_RTT_interface_FWD_HPP
 
+#include <boost/shared_ptr.hpp>
+
 namespace RTT {
     namespace interface {
         struct ArgumentDescription;
         class AttributeRepository;
         class DataFlowInterface;
-        class EventService;
-        class ExecutionAccess;
         class OperationRepository;
         class OperationRepositoryPart;
         class ServiceProvider;
         class ServiceRequester;
+        typedef boost::shared_ptr<ServiceProvider> ServiceProviderPtr;
     }
     namespace detail {
         using namespace interface;

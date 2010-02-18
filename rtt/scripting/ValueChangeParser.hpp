@@ -105,7 +105,7 @@ namespace RTT { namespace scripting
         valuechange_parsers;
 
       TaskContext* context;
-      interface::ServiceProvider* mstore;
+      interface::ServiceProvider::shared_ptr mstore;
       ExpressionParser expressionparser;
       PeerParser peerparser;
       PropertyParser propparser;
@@ -130,7 +130,9 @@ namespace RTT { namespace scripting
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc, interface::ServiceProvider* storage= 0, TaskContext* caller = 0);
+      ValueChangeParser( TaskContext* tc,
+                         interface::ServiceProvider::shared_ptr storage = interface::ServiceProviderPtr(),
+                         TaskContext* caller = 0);
 
       /**
        * Clear assignCommands(), definedValues() and
@@ -141,7 +143,7 @@ namespace RTT { namespace scripting
       /**
        * Store allDefinedNames() in an additional TaskContext.
        */
-      void store( interface::ServiceProvider* other );
+      void store( interface::ServiceProvider::shared_ptr other );
 
     /**
      * This base::ActionInterface holds the command assigning a value to

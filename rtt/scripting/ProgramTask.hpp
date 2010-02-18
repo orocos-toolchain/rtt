@@ -47,6 +47,8 @@
 namespace RTT
 { namespace scripting {
 
+    typedef boost::shared_ptr<ProgramTask> ProgramTaskPtr;
+
     /**
      * @brief This class represents a program as an interface::ServiceProvider in
      * the Orocos TaskContext system.

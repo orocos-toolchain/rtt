@@ -246,7 +246,7 @@ namespace RTT
             return ready();
         }
 
-        bool setImplementation(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
+        bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
 #ifdef ORO_REMOTING
             this->mcaller = caller;
             *this = new RemoteMethod<Signature>( orp, caller);

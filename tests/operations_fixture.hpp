@@ -40,5 +40,5 @@ public:
 
     ~OperationsFixture();
 
-    ServiceProvider* createMethodFactory();
+    ServiceProvider::shared_ptr createMethodFactory();
 };

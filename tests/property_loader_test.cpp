@@ -16,9 +16,9 @@ BOOST_AUTO_TEST_CASE( testPropLoading )
     std::string filename = "property_loading.cpf";
     BOOST_CHECK( pl.load(filename, &tc) );
 
-    BOOST_CHECK( tc.hasProperty("load1") );
-    BOOST_CHECK( tc.hasProperty("load2") );
-    BOOST_CHECK( tc.hasProperty("bag1"));
+    BOOST_CHECK( tc.provides()->hasProperty("load1") );
+    BOOST_CHECK( tc.provides()->hasProperty("load2") );
+    BOOST_CHECK( tc.provides()->hasProperty("bag1"));
     Property<PropertyBag> bag1 = tc.properties()->getProperty<PropertyBag>("bag1");
     BOOST_CHECK( bag1.ready() );
     BOOST_CHECK( bag1.getDescription() == "Bag1");

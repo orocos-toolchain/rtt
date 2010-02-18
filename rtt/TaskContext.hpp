@@ -92,9 +92,7 @@ namespace RTT
      * and an XML file or script.
      */
     class RTT_API TaskContext
-        : public base::TaskCore,
-          public interface::ServiceProvider,
-          public interface::ServiceRequester
+        : public base::TaskCore
     {
     public:
         /**
@@ -199,6 +197,81 @@ namespace RTT
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
         /**
+         * @begingroup tc-serv TaskContext Service Interface
+         */
+
+        virtual const std::string& getName() { return tcservice->getName(); }
+
+        /**
+         * Returns this ServiceProvider.
+         * @return a shared pointer from this.
+         */
+        interface::ServiceProvider::shared_ptr provides() { return tcservice; }
+
+        /**
+         * Returns a sub-service provider which resorts under
+         * this service provider.
+         * @param service_name The name of the sub-service.
+         */
+        interface::ServiceProvider::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
+
+        interface::ServiceRequester* requires() { return tcrequests; }
+
+        interface::ServiceRequester* requires(const std::string& service_name) {
+            return tcrequests->requires(service_name);
+        }
+
+        PropertyBag* properties() { return this->provides()->properties(); }
+
+        /**
+         * Add an operation object to the interface. This version
+         * of addOperation exports an Operation object to the
+         * public interface of this component.
+         *
+         * @param op The operation object to add.
+         *
+         * @return true if it could be added.
+         */
+        template<class Signature>
+        Operation<Signature>& addOperation( Operation<Signature>& op )
+        {
+            return tcservice->addOperation(op);
+        }
+
+        /**
+         * Returns a function signature from a C++ member function
+         */
+        template<class FunctionT>
+        struct GetSignature {
+            typedef typename internal::UnMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
+        };
+
+        // UnMember serves to remove the member function pointer from the signature of func.
+        template<class Func, class Service>
+        Operation< typename GetSignature<Func>::Signature >&
+        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        {
+            return tcservice->addOperation(name,func, serv,et);
+        }
+
+        /**
+         * Get a previously added operation for
+         * use in a C++ Method object. Store the result of this
+         * function in a Method<\a Signature> object.
+         *
+         * @param name The name of the operation to retrieve.
+         * @param Signature The function signature of the operation, for
+         * example: getOperation<int(double)>("name");
+         *
+         * @return true if it could be found, false otherwise.
+         */
+        template<class Signature>
+        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
+        {
+            return tcservice->getOperation<Signature>(name);
+        }
+
+        /**
          * Sets the activity of this TaskContext. The
          * activity is owned by the TaskContext and you should
          * not hold a pointer to it after this call. Use
@@ -237,6 +310,7 @@ namespace RTT
         virtual bool ready();
 
         bool start();
+    protected:
 
         /**
          * Hook called in the Running state.
@@ -291,7 +365,7 @@ namespace RTT
          */
         template<class ServiceType>
         boost::shared_ptr<ServiceType> getProvider(const std::string& name) {
-            if (!hasService(name)) return boost::shared_ptr<ServiceType>();
+            if (!provides()->hasService(name)) return boost::shared_ptr<ServiceType>();
             LocalServices::iterator it = localservs.find(name);
             if (  it != localservs.end() ) {
                 return boost::dynamic_pointer_cast<ServiceType>(it->second);
@@ -339,8 +413,11 @@ namespace RTT
          */
         void dataOnPort(base::PortInterface*);
 
-        typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
+        typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;
         LocalServices localservs;
+
+        interface::ServiceProvider::shared_ptr tcservice;
+        interface::ServiceRequester*           tcrequests;
     private:
         /**
          * The task-local ports.

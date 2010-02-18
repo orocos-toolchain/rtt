@@ -89,13 +89,6 @@ namespace RTT
         typedef std::vector< boost::tuple<base::ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<base::ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<base::ConditionInterface*, int> > PreConditionMap;
-        typedef std::vector< boost::tuple<interface::EventService*,
-                                          std::string, std::vector<base::DataSourceBase::shared_ptr>,
-                                          StateInterface*,
-                                          base::ConditionInterface*, boost::shared_ptr<base::ProgramInterface>,
-                                          Handle,
-                                          StateInterface*, boost::shared_ptr<base::ProgramInterface> > > EventList;
-        typedef std::map< StateInterface*, EventList > EventMap;
         std::vector<StateMachinePtr> _children;
         typedef boost::weak_ptr<StateMachine> StateMachineParentPtr;
         StateMachineParentPtr _parent;
@@ -460,32 +453,6 @@ namespace RTT
                             int priority, int line);
 
         /**
-         * Express a possible transition from one state to another
-         * when an Event is fired under a certain condition (guard).
-         *
-         * @param ename
-         *        The name of the Event under which a transition should be made
-         * @param args
-         *        The arguments which the event handler must set upon occurence.
-         * @param from
-         *        The state which should be left
-         * @param to
-         *        The state which should be entered
-         * @param guard
-         *        The Condition under which the transition may succeed
-         * @param transprog
-         *        The program to be executed between exit of \a from and entry of \a to.
-         * @param es
-         *        The interface::EventService in which \a ename can be found.
-         */
-        bool createEventTransition( interface::EventService* es,
-                                    const std::string& ename, std::vector<base::DataSourceBase::shared_ptr> args,
-                                    StateInterface* from, StateInterface* to,
-                                    base::ConditionInterface* guard, boost::shared_ptr<base::ProgramInterface> transprog,
-                                    StateInterface* elseto = 0, boost::shared_ptr<base::ProgramInterface> elseprog =
-                                    boost::shared_ptr<base::ProgramInterface>() );
-
-        /**
          * Set the initial state of this StateMachine.
          */
         void setInitialState( StateInterface* s );
@@ -610,13 +577,6 @@ namespace RTT
          * all states need to be present as a \em key in this map.
          */
         PreConditionMap precondMap;
-
-        /**
-         * A map keeping track of all events of a state. Not all
-         * states need to be present as a \em key in this map.
-         */
-        EventMap eventMap;
-
 
         void changeState( StateInterface* s, base::ProgramInterface* tprog, bool stepping = false );
 

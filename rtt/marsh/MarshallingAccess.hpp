@@ -43,6 +43,7 @@
 #include <string>
 #include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
+#include "../interface/ServiceProvider.hpp"
 
 namespace RTT
 { namespace marsh {
@@ -51,10 +52,19 @@ namespace RTT
      * Service which loads and saves properties of a TaskContext.
      */
     class RTT_API MarshallingAccess
+        : public interface::ServiceProvider
     {
-        TaskContext* mparent;
     public:
         /**
+         * Creates a MarshallingAccess object and registers
+         * the service to \a parent.
+         */
+        static shared_ptr Create(TaskContext* parent);
+
+        /**
+         * Creates a MarshallingAccess object.
+         * You need to add the service to \a parent yourself,
+         * or use Create().
          * This object is normally created by a TaskContext.
          */
         MarshallingAccess(TaskContext* parent);

@@ -17,6 +17,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function_types/components.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace RTT
 { namespace interface {
@@ -25,37 +26,75 @@ namespace RTT
      * This class allows storage and retrieval of operations,
      * attributes and properties provided by a component.
      *
+     * Services can be nested in sub-services, although this is rare.
+     *
      * @ingroup Services
      */
     class RTT_API ServiceProvider
         : public OperationRepository,
-          public AttributeRepository
+          public AttributeRepository,
+          public boost::enable_shared_from_this<ServiceProvider>
     {
     public:
         typedef OperationRepository Factory;
+        typedef boost::shared_ptr<ServiceProvider> shared_ptr;
 
+        /**
+         * Creates a service provider with a name and an owner.  Each
+         * service must be owned by a TaskContext and the owner can be
+         * set afterwards with setOwner.
+         * @param name The name of this service.
+         * @param owner The TaskContext that will execute the operations of this service.
+         */
+        static ServiceProvider::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
+
+        /**
+         * Creates a service provider with a name and an owner.  Each
+         * service must be owned by a TaskContext and the owner can be
+         * set afterwards with setOwner.
+         * @param name The name of this service.
+         * @param owner The TaskContext that will execute the operations of this service.
+         */
         ServiceProvider(const std::string& name, TaskContext* owner = 0);
 
         virtual ~ServiceProvider();
 
+        /**
+         * Returns the name of this service instance.
+         */
         const std::string& getName() const { return mname; }
 
-        using OperationRepository::getDescription;
-        const std::string& getDescription() const { return mdescription; }
+        /**
+         * Returns a descriptive text for this service.
+         */
+        const std::string& doc() const { return mdescription; }
 
-        void setDescription(const std::string& d) { mdescription = d;}
+        /**
+         * Sets the descriptive text for this service.
+         */
+        void doc(const std::string& description) { mdescription = description; }
 
-        void doc(const std::string& d) { mdescription = d; }
+        /**
+         * Changes the name of this service.
+         */
+        void setName(const std::string& name) { mname = name;}
 
-        void setName(const std::string& n) { mname = n;}
-
+        /**
+         * Sets the owning TaskContext that will execute the
+         * operations in this service.
+         */
         void setOwner(TaskContext* new_owner);
 
-        void setParent(ServiceProvider* new_parent);
+        /**
+         * Sets the parent service in case this service is
+         * a sub-service.
+         */
+        void setParent(shared_ptr new_parent);
+
         /**
          * The parent is the direct parent of this service.
          */
-        ServiceProvider* getParent() const { return parent; }
+        shared_ptr getParent() const { return parent; }
 
         /**
          * Return a standard container which contains all the sub-service names
@@ -77,49 +116,37 @@ namespace RTT
          * @return true if it could be added, false if such
          * service already exists.
          */
-        virtual bool addService( interface::ServiceProvider *obj );
+        virtual bool addService( shared_ptr obj );
 
         /**
-         * Remove and destroy a previously added sub-service.
+         * Remove a previously added sub-service.
          * @param the name of the service to remove.
          */
         virtual void removeService( std::string const& service_name );
 
         /**
-         * Unmount a sub-service from this service, without destroying it.
-         * @param the name of the service to unmount.
-         * @return The unmounted service object, or null if name was not known.
+         * Returns this ServiceProvider.
+         * @return a shared pointer from this.
          */
-        virtual ServiceProvider* unmountService( string const& name);
+        ServiceProvider::shared_ptr provides() { return shared_from_this(); }
 
-        ServiceProvider* provides() { return this; }
+        /**
+         * Returns a sub-service provider which resorts under
+         * this service provider.
+         * @param service_name The name of the sub-service.
+         */
+        ServiceProvider::shared_ptr provides(const std::string& service_name);
+        /**
+         * Returns a shared pointer to strictly a sub-service.
+         * This method will not return the this pointer when
+         * service_name equals "this".
+         */
+        shared_ptr getService(const std::string& service_name);
 
-        ServiceProvider* provides(const std::string& service_name) {
-            if (service_name == "this")
-                return this;
-            ServiceProvider* sp = services[service_name];
-            if (sp)
-                return sp;
-            sp = new ServiceProvider(service_name, mowner);
-            services[service_name] = sp;
-            return sp;
-        }
-
-        ServiceProvider* getService(const std::string& service_name) {
-            if (service_name == "this")
-                return this;
-            Services::iterator it = services.find(service_name);
-            if (it != services.end() )
-                return it->second;
-            return 0;
-        }
-
-        bool hasService(const std::string& service_name) {
-            if (service_name == "this")
-                return true;
-            return services.find(service_name) != services.end();
-        }
-
+        /**
+         * Check if this service has the sub-service \a service_name.
+         */
+        bool hasService(const std::string& service_name);
 
         /**
          * Clear all added operations from the repository, saving memory space.
@@ -323,7 +350,7 @@ namespace RTT
             return true;
         }
     protected:
-        typedef std::map< std::string, interface::ServiceProvider* > Services;
+        typedef std::map< std::string, shared_ptr > Services;
         /// the services we implement.
         Services services;
 
@@ -335,7 +362,7 @@ namespace RTT
         std::string mname;
         std::string mdescription;
         TaskContext* mowner;
-        ServiceProvider* parent;
+        shared_ptr parent;
     };
 }}
 

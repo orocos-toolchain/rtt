@@ -70,8 +70,8 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc, ServiceProvider* storage, TaskContext* caller )
-        : type( 0 ), context( pc ), mstore( storage ? storage : pc ),
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, ServiceProvider::shared_ptr storage, TaskContext* caller )
+        : type( 0 ), context( pc ), mstore( storage ? storage : pc->provides() ),
           expressionparser( pc, caller ), peerparser( pc ), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
     {
@@ -287,7 +287,7 @@ namespace RTT
         // the peerparser.object() should contain "this"
         //peerparser.reset();
         // reset the Property parser to traverse this peers bag :
-        propparser.setPropertyBag( peerparser.peer()->properties() ); // may be null. ok.
+        propparser.setPropertyBag( peerparser.peer()->provides()->properties() ); // may be null. ok.
     }
 
     void ValueChangeParser::seenvariabledefinition()
@@ -337,7 +337,7 @@ namespace RTT
         AttributeBase* var = 0;
         PropertyBase*     prop = 0;
 
-        ServiceProvider* peername = peerparser.taskObject();
+        ServiceProvider::shared_ptr peername = peerparser.taskObject();
         peerparser.reset();
 
         // if bag is non-null, 'valuename' must be one of its properties :
@@ -464,7 +464,7 @@ namespace RTT
         //assert( !expressionparser.hasResult() );
     }
 
-    void ValueChangeParser::store(ServiceProvider* o)
+    void ValueChangeParser::store(ServiceProvider::shared_ptr o)
     {
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {

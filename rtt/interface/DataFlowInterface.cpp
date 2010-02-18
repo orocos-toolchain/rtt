@@ -67,7 +67,7 @@ namespace RTT
         // This code belongs in addPort below, but in order to support
         // backwards compatible code, the PortObject is always created
         //
-        if (mparent && mparent->hasService( port->getName()) != 0) {
+        if (mparent && mparent->provides()->hasService( port->getName()) != 0) {
             log(Error) <<"Can not 'addPort' "<< port->getName() << ": name already in use as TaskObject." <<endlog();
             return false;
         }
@@ -76,9 +76,9 @@ namespace RTT
         port->setInterface( this );
         // NOTE: the API says this is not done, but for backwards compatibility
         // we leave it anyway inhere. :-(
-        ServiceProvider* ms = this->createPortObject( port->getName());
+        ServiceProvider::shared_ptr ms( this->createPortObject( port->getName()) );
         if ( ms )
-            mparent->addService( ms );
+            mparent->provides()->addService( ms );
         // END NOTE.
         return true;
     }
@@ -97,10 +97,10 @@ namespace RTT
         if (this->addPort(port) == false)
             return false;
         mports.back().second = description;
-        ServiceProvider* ms = this->createPortObject( port->getName());
+        ServiceProvider::shared_ptr ms( this->createPortObject( port->getName()) );
         if ( ms ) {
-            mparent->removeService( ms->getName() ); // See NOTE above.
-            mparent->addService( ms );
+            mparent->provides()->removeService( ms->getName() ); // See NOTE above.
+            mparent->provides()->addService( ms );
         }
         return true;
     }
@@ -126,7 +126,7 @@ namespace RTT
               ++it)
             if ( it->first->getName() == name ) {
                 if (mparent)
-                    mparent->removeService( name );
+                    mparent->provides()->removeService( name );
                 Ports::iterator ep = find(eports.begin(), eports.end(),it->first);
                 if ( ep!= eports.end() )
                     eports.erase( ep );
@@ -183,9 +183,9 @@ namespace RTT
         if (to) {
             std::string d = this->getPortDescription(name);
             if ( !d.empty() )
-                to->setDescription( d );
+                to->doc( d );
             else
-                to->setDescription("(No description set for this Port)");
+                to->doc("(No description set for this Port)");
         }
         return to;
     }
@@ -197,7 +197,7 @@ namespace RTT
               it != mports.end();
               ++it) {
             if (mparent)
-                mparent->removeService( it->first->getName() );
+                mparent->provides()->removeService( it->first->getName() );
         }
         mports.clear();
     }

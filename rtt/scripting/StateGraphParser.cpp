@@ -102,7 +102,6 @@ namespace RTT
                                         TaskContext* tc, TaskContext* tcaller )
         : context( tc ),
           caller( tcaller ),
-          curobject( 0 ),
           mpositer( positer ),
           ln_offset(0),
           curtemplate(),
@@ -120,7 +119,7 @@ namespace RTT
           evname(""),
           conditionparser( new ConditionParser( context, caller ) ),
           commonparser( new CommonParser ),
-          valuechangeparser( new ValueChangeParser(context, caller) ),
+          valuechangeparser( new ValueChangeParser(context, context->provides(), caller) ),
           expressionparser( new ExpressionParser(context, caller) ),
           argsparser(0),
           peerparser( new PeerParser(context, true) ) // full-path peer parser for events.
@@ -635,8 +634,8 @@ namespace RTT
              it != curtemplate->getChildren().end(); ++it ) {
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
             if (psc) {
-                // since context is not the parent of psc, it may not delete it -> unmount.
-                context->unmountService( psc->getServiceProvider()->getName() );
+                // remove from parent
+                context->provides()->removeService( psc->getServiceProvider()->getName() );
             }
 
         }
@@ -651,7 +650,7 @@ namespace RTT
         machinebuilders[curmachinename] = scb;
 
         // save curmachinename for saveText.
-        curobject = 0;
+        curobject.reset();
         curtemplate.reset();
     }
 
@@ -759,7 +758,7 @@ namespace RTT
                it != curtemplate->getChildren().end(); ++it ) {
               ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
               if (psc && psc->getServiceProvider() ) {
-                  context->unmountService( psc->getServiceProvider()->getName() );
+                  context->provides()->removeService( psc->getServiceProvider()->getName() );
               }
           }
           // remove all 'this' data factories
@@ -795,7 +794,7 @@ namespace RTT
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant machines.
         // 'sc' acts as a stack for storing variables.
-        curobject = new StateMachineTask(curtemplate, context );
+        curobject.reset( new StateMachineTask(curtemplate, context ) );
         curobject->setName( curmachinename );
         curtemplate->setServiceProvider( curobject ); // store.
 
@@ -856,11 +855,11 @@ namespace RTT
         curinstantiatedmachine->setName( curinstmachinename, true );
 
         // check if the type exists already :
-        if ( context->hasService( curinstmachinename ) )
+        if ( context->provides()->hasService( curinstmachinename ) )
             ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already a Service named '" + curinstmachinename + "' ."));
 
         // Transfer ownership to the owning task.
-        context->addService( curinstantiatedmachine->getServiceProvider() );
+        context->provides()->addService( curinstantiatedmachine->getServiceProvider() );
 
         curinstantiatedmachine.reset();
         curinstmachinename.clear();
@@ -877,7 +876,7 @@ namespace RTT
         // its methods.
 
         // Warning: use context->unmountService() since curinstantiatedmachine must owns it.
-        if ( !context->addService( curinstantiatedmachine->getServiceProvider() ) )
+        if ( !context->provides()->addService( curinstantiatedmachine->getServiceProvider() ) )
             ORO_THROW( parse_exception_semantic_error(
                 "Name clash: name of instantiated machine \"" + curinstmachinename +
                 "\"  already used as object name in task '"+context->getName()+"'." ));

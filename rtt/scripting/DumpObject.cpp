@@ -51,7 +51,7 @@ using namespace RTT::detail;
 
 namespace RTT { namespace scripting {
 
-void DumpObject(ServiceProvider* peer)
+void DumpObject(ServiceProvider::shared_ptr peer)
 {
     if (!peer) { cerr << "Not dumping null task!"<<endl; return;}
 

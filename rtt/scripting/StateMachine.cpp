@@ -36,8 +36,6 @@
  ***************************************************************************/
 #include "StateMachine.hpp"
 #include "../ExecutionEngine.hpp"
-#include "../interface/EventService.hpp"
-
 #include "../internal/DataSource.hpp"
 #include <Logger.hpp>
 #include <functional>
@@ -90,15 +88,6 @@ namespace RTT {
            for(TransList::iterator tlit= it->second.begin(); tlit != it->second.end(); ++tlit ) {
                if ( get<4>(*tlit) )
                    get<4>(*tlit)->loaded( this->getEngine() );
-           }
-       }
-       // inform all event transitions.
-       for (EventMap::iterator it= eventMap.begin(); it != eventMap.end(); ++it) {
-           for(EventList::iterator evit= it->second.begin(); evit != it->second.end(); ++evit ) {
-               if (get<5>(*evit))
-                   get<5>(*evit)->loaded(this->getEngine());
-               if (get<8>(*evit))
-                   get<8>(*evit)->loaded(this->getEngine());
            }
        }
    }
@@ -474,12 +463,6 @@ namespace RTT {
 //            TRACE("Enabling events for state '"+s->getName()+"'.");
 //        } else
 //            TRACE("Enabling global events.");
-        EventMap::mapped_type& hlist = eventMap[s];
-        for (EventList::iterator eit = hlist.begin();
-             eit != hlist.end();
-             ++eit) {
-            get<6>(*eit).connect();
-        }
     }
     void StateMachine::disableEvents( StateInterface* s )
     {
@@ -488,12 +471,6 @@ namespace RTT {
 //            TRACE("Disabling events for state '"+s->getName()+"'.");
 //        } else
 //            TRACE("Disabling global events.");
-        EventMap::mapped_type& hlist = eventMap[s];
-        for (EventList::iterator eit = hlist.begin();
-             eit != hlist.end();
-             ++eit) {
-            get<6>(*eit).disconnect();
-        }
     }
 
 
@@ -791,120 +768,6 @@ namespace RTT {
         stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line, transprog ) );
         stateMap[to]; // insert empty vector for 'to' state.
     }
-
-    bool StateMachine::createEventTransition( EventService* es,
-                                              const std::string& ename, vector<DataSourceBase::shared_ptr> args,
-                                              StateInterface* from, StateInterface* to,
-                                              ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
-                                              StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
-    {
-        Logger::In in("StateMachine::createEventTransition");
-        assert(false);
-
-        if ( !( es && guard ) ) {
-            Logger::log() << Logger::Error << "Invalid arguments for event '"<< ename <<"'. ";
-            if (!es)
-                Logger::log() <<"EventService was null. ";
-            if (!guard)
-                Logger::log() <<"Guard Condition was null. ";
-            Logger::log()<<Logger::endl;
-            return false;
-        }
-
-        if ( to == 0 )
-            to = from;
-
-        // get ename from event service, provide args as arguments
-        // event should be activated upon entry of 'from'
-        // guard is evaluated to get final 'ok'.
-        // event does a requestStateChange( to );
-        // if 'ok', execute transprog during transition.
-
-        // Store guard and transprog for copy/clone semantics.
-        // upon SM copy, recreate the handles for the copy SM with a copy of guard/transprog.
-        // Same for args. I guess we need to store all arguments of this function to allow
-        // proper copy semantics, such that the event handle can be created for each new SM
-        // instance. Ownership of guard and transprog is to be determined, but seems to ly
-        // with the SM. handle.destroy() can be called upon SM destruction.
-        Handle handle;
-        log(Error) << "Creating SYNCHRONOUS handler for '"<< ename <<"'."<< endlog();
-        log(Debug) << "From '"<< (from ? from->getName() : "(0)") <<"' to '"<< (to ? to->getName() : "(0)") <<"' else: "<< (elseto ? elseto->getName() : "(0)") << endlog();
-        handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args
-                                    );
-
-        if ( !handle.ready() ) {
-            Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
-            return false; // event does not exist...
-        }
-        // BIG NOTE : we MUST store handle otherwise, the connection is destroyed (cfr setup vs connect).
-        // Off course, we also need it to connect/disconnect the event.
-        eventMap[from].push_back( boost::make_tuple( es, ename, args, to, guard, transprog, handle, elseto, elseprog) );
-        // add the states to the statemap.
-        stateMap[from];
-        stateMap[to];
-        return true;
-    }
-
-    void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
-    {
-        assert(false); // this function was meant to be executed in the own thread, is now in caller thread.
-        // called by event to begin Transition to 'to'.
-        // This interrupts the current run program at an interruption point ?
-        // the transition and/or exit program can cleanup...
-
-        // this will never be called if the event connection is destroyed, unless called from the
-        // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
-        // only transition if this event was meant for this state and we are not
-        // in transition already.
-        // If condition fails, check precondition 'else' state (if present) and
-        // execute else program (may be null).
-        if ( !current)
-            return;
-        if (from == 0)
-            from  = current;
-        if (to == 0)
-            to = current;
-        if (elseto == 0 && elsep != 0) // user gave else program but no destination.
-            elseto = current;
-        if ( from == current && !this->inTransition() ) {
-            if ( c->evaluate() && checkConditions(to, false) == 1 ) {
-//                 log(Debug) <<"Valid 'select' transition from "<<from->getName()
-//                            <<" to "<<to->getName()<<"."<<Logger::endl;
-                changeState( to, p );              //  valid transition to 'to'.
-            }
-            else if ( elseto && checkConditions(elseto, false) == 1 ) {
-//                 log(Debug) <<"Valid 'else' transition from "<<from->getName()
-//                            <<" to "<<elseto->getName()<<"."<<Logger::endl;
-                changeState( elseto, elsep );      //  valid transition to 'elseto'.
-            }
-            else {
-//                 log(Debug) <<"Rejected transition from "<<from->getName()
-//                            <<" within "<<current->getName()<<": guards failed."<<Logger::endl;
-            }
-        }
-#if 0
-        else {
-            if (this->inTransition() )
-                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-                              <<" within "<<current->getName()<<": in transition."<<Logger::endl;
-            else
-                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-                              <<" within "<<current->getName()<<": wrong state."<<Logger::endl;
-        }
-#endif
-    }
-
-#if 0
-    bool StateMachine::setHandle( Handle h,
-                                  StateInterface* state )
-    {
-        // handle.connect() is called after entry program of 'from'.
-        // and handle.disconnect() is called before exit program of 'from'.
-        // guard is evaled by event to get final 'ok' to switch to 'to' from 'state'.
-        // event does a sm->eventTransition( transprog, to );
-        return false;
-    }
-#endif
 
     StateInterface* StateMachine::currentState() const
     {

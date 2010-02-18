@@ -91,12 +91,12 @@ namespace RTT
             addOperationDS("inTransition", &StateMachine::inTransition,ptr).doc("Is this StateMachine executing a entry|handle|exit program ?");
         }
 
-        StateMachineTask* StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+        StateMachineTaskPtr StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
         {
             // if this gets copied, all created methods will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future methods for the copy will also call the new instance
             // while future methods for the original will still call the original.
-            StateMachineTask* tmp = new StateMachineTask( newsc, this->mtc );
+            StateMachineTaskPtr tmp( new StateMachineTask( newsc, this->mtc ) );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
             AttributeRepository* dummy = AttributeRepository::copy( replacements, instantiate );
@@ -120,10 +120,10 @@ namespace RTT
     {
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
         if ( statemachine ) {
-            statemachine->setServiceProvider(0);
+            statemachine->setServiceProvider( StateMachineTaskPtr() );
         }
     }
-    ExecutionEngine* StateMachineTask::engine() const { return mtc->engine(); }
+    //ExecutionEngine* StateMachineTask::engine() const { return mtc->engine(); }
 
 }
 

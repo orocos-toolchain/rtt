@@ -123,7 +123,7 @@ namespace RTT
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
-      ServiceProvider* ops  = peerparser.taskObject();
+      ServiceProvider::shared_ptr ops  = peerparser.taskObject();
       peerparser.reset();
 
       // Check if it is a constructor
@@ -172,7 +172,7 @@ namespace RTT
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
     std::vector<DataSourceBase::shared_ptr> args = argspar->result();
-    ServiceProvider* peer = argspar->object();
+    ServiceProvider::shared_ptr peer = argspar->object();
     delete argspar;
     assert(peer && "peer may never be null.");
     // separate track if we are handling a constructor:
@@ -184,7 +184,7 @@ namespace RTT
     } else {
         // plain method or collect/collectIfDone
 
-        ServiceProvider* ops = peer;
+        ServiceProvider::shared_ptr ops = peer;
         // we already checked for the existence of this object and method
         // in seendataname()..
         peerparser.reset();

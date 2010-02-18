@@ -40,8 +40,8 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    sa = new ScriptingAccess(tc);
-    tc->addService( this->createMethodFactory() );
+    sa = dynamic_cast<scripting::ScriptingAccess*>( tc->provides()->getService("scripting").get() );
+    tc->provides()->addService( this->createMethodFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
     SimulationThread::Instance()->stop();
 }
@@ -66,9 +66,9 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-    ServiceProvider* TypesTest::createMethodFactory()
+    ServiceProvider::shared_ptr TypesTest::createMethodFactory()
     {
-        ServiceProvider* to = new ServiceProvider("test");
+        ServiceProvider::shared_ptr to = ServiceProvider::Create("test");
         to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
         to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
         //to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");

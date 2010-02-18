@@ -83,9 +83,9 @@ namespace RTT
 
         void setText( std::string text);
 
-        StateMachineTask* getServiceProvider() const;
+        boost::shared_ptr<StateMachineTask> getServiceProvider() const;
 
-        void setServiceProvider(StateMachineTask* tc);
+        void setServiceProvider(boost::shared_ptr<StateMachineTask> tc);
 
         bool inState( const std::string& name );
         /**
@@ -97,7 +97,7 @@ namespace RTT
 
         boost::shared_ptr<std::string> _text;
 
-        StateMachineTask* object;
+        boost::shared_ptr<StateMachineTask> object;
     };
 }}
 

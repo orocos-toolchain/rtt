@@ -15,7 +15,7 @@ namespace RTT
         {
             virtual bool ready() const = 0;
             virtual bool setImplementation(boost::shared_ptr<base::DisposableInterface> impl, ExecutionEngine* caller = 0) = 0;
-            virtual bool setImplementation(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) = 0;
+            virtual bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) = 0;
             virtual const std::string& getName() const = 0;
         };
 

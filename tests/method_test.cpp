@@ -23,7 +23,7 @@ public:
     MethodTest()
     {
         tc =  new TaskContext( "root" );
-        tc->addService( this->createMethodFactory() );
+        tc->provides()->addService( this->createMethodFactory() );
         caller = new TaskContext("caller");
         caller->start();
         tc->start();
@@ -61,9 +61,9 @@ public:
         delete  caller;
     }
 
-    ServiceProvider* createMethodFactory()
+    ServiceProvider::shared_ptr createMethodFactory()
         {
-        ServiceProvider* to = new ServiceProvider("methods");
+        ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
 
         to->addOperation("assert", &MethodTest::assertBool, this).doc("assert").arg("b", "bd");
 

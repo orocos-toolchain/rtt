@@ -60,7 +60,7 @@ namespace RTT
         CommonParser commonparser;
         rule_t peerpath, peerlocator;
         std::queue<std::string> callqueue;
-        interface::ServiceProvider* mcurobject;
+        interface::ServiceProviderPtr mcurobject;
         std::string mlastobject;
         TaskContext* context;
         TaskContext* _peer;
@@ -115,7 +115,7 @@ namespace RTT
         /**
          * Returns the last matching interface::ServiceProvider or zero if not found.
          */
-        interface::ServiceProvider* taskObject();
+        interface::ServiceProviderPtr taskObject();
     };
 }}
 

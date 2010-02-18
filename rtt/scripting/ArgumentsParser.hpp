@@ -79,14 +79,14 @@ namespace RTT  { namespace scripting
     std::string mobject;
     std::string mmethod;
     TaskContext* _peer;
-    interface::ServiceProvider* mtobject;
+    interface::ServiceProvider::shared_ptr mtobject;
   public:
     /**
      * Construct a new ArgumentsParser.  The object and method
      * parameters are for use in its error messages, and will
      * otherwise not be used..
      */
-      ArgumentsParser( ExpressionParser& p, TaskContext* peer, interface::ServiceProvider* tobject,
+      ArgumentsParser( ExpressionParser& p, TaskContext* peer, interface::ServiceProvider::shared_ptr tobject,
                        const std::string& object, const std::string& method );
 
       ~ArgumentsParser();
@@ -96,7 +96,7 @@ namespace RTT  { namespace scripting
           return _peer;
       }
 
-      interface::ServiceProvider* object()
+      interface::ServiceProvider::shared_ptr object()
       {
           return mtobject;
       }

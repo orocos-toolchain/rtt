@@ -51,6 +51,7 @@
 #include "MethodBinder.hpp"
 #include "GlobalEngine.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
+#include "../os/tlsf/tlsf.h"
 
 #include <iostream>
 // For doing I/O
@@ -455,7 +456,8 @@ namespace RTT
 
             LocalMethodImpl<Signature>* cloneRT() const
             {
-                return new LocalMethod<Signature>(*this);
+                void* obj = oro_rt_malloc(sizeof(LocalMethodImpl<Signature>));
+                return new(obj) LocalMethod<Signature>(*this);
             }
 };
     }

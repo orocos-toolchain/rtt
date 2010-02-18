@@ -3,11 +3,13 @@
 #include "../internal/mystd.hpp"
 #include "../Logger.hpp"
 #include "../TaskContext.hpp"
+#include <boost/bind.hpp>
 
 #include <utility>
 
 namespace RTT
 {
+    using namespace boost;
     using namespace detail;
     using namespace std;
 
@@ -46,7 +48,7 @@ namespace RTT
         return *mmethods.find(name)->second;
     }
 
-    bool ServiceRequester::connectTo( ServiceProvider* sp) {
+    bool ServiceRequester::connectTo( ServiceProvider::shared_ptr sp) {
         for (Methods::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
             if ( !it->second->ready() ) {
                 if (sp->hasOperation( it->first )) {
@@ -60,10 +62,22 @@ namespace RTT
                 }
             }
         }
-        if (ready())
+        if (ready()) {
+            if (!mprovider)
+                mprovider = sp;
             log(Info) << "Found complete interface of requested service '" << mrname <<"'"<< endlog();
+            return true;
+        }
 
-        return ready();
+        return false;
+    }
+
+    void ServiceRequester::disconnect()
+    {
+        ExecutionEngine* ee(0);
+        for_each(mmethods.begin(), mmethods.end(),
+                 bind(&MethodBaseInvoker::setImplementation, bind(&Methods::value_type::second, _1), boost::shared_ptr<base::DisposableInterface>(), ee )
+                 );
     }
 
     bool ServiceRequester::ready() const

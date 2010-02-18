@@ -68,8 +68,9 @@ namespace RTT
     using namespace detail;
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
-        :  TaskCore( initial_state), ServiceProvider(name, this), ServiceRequester(name, this)
+        :  TaskCore( initial_state)
            ,portqueue(64)
+           ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
@@ -81,8 +82,9 @@ namespace RTT
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
-        :  TaskCore(parent, initial_state), ServiceProvider(name, this), ServiceRequester(name, this)
+        :  TaskCore(parent, initial_state)
            ,portqueue(64)
+           ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
@@ -96,11 +98,11 @@ namespace RTT
     void TaskContext::setup()
     {
         // Temporarily until plugins are implemented:
-        new ScriptingAccess(this);
-        new MarshallingAccess(this);
+        ScriptingAccess::Create(this);
+        MarshallingAccess::Create(this);
 
         // from ServiceProvider
-        mdescription = "The interface of this TaskContext.";
+        provides()->doc("The interface of this TaskContext.");
 
         this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (read properties etc).");
         this->addOperation("isConfigured", &TaskContext::isConfigured, this, ClientThread).doc("Is this TaskContext configured ?");
@@ -135,7 +137,7 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
-            AttributeRepository::clear();
+            tcservice->clear();
 
             // remove from all users.
             while( !musers.empty() ) {
@@ -187,8 +189,8 @@ namespace RTT
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
 
-        vector<string> myreqs = this->getRequestNames();
-        vector<string> peerreqs = peer->getRequestNames();
+        vector<string> myreqs = this->requires()->getRequestNames();
+        vector<string> peerreqs = peer->requires()->getRequestNames();
 
         this->requires()->connectTo( peer->provides() );
         for (vector<string>::iterator it = myreqs.begin();
@@ -196,7 +198,7 @@ namespace RTT
              ++it) {
             ServiceRequester* sr = this->requires(*it);
             if ( !sr->ready() ) {
-                if (peer->hasService( *it ))
+                if (peer->provides()->hasService( *it ))
                     sr->connectTo( peer->provides(*it) );
                 else {
                     log(Debug)<< "Peer Task "<<peer->getName() <<" provides no Service " << *it << endlog();
@@ -210,7 +212,7 @@ namespace RTT
                 ++it) {
             ServiceRequester* sr = peer->requires(*it);
             if ( !sr->ready() ) {
-                if (this->hasService(*it))
+                if (this->provides()->hasService(*it))
                     sr->connectTo( this->provides(*it) );
                 else
                     log(Debug)<< "This Task provides no Service " << *it << " for peer Task "<<peer->getName() <<"."<< endlog();
@@ -264,7 +266,7 @@ namespace RTT
         bool TaskContext::connectPeers( TaskContext* peer )
         {
             if ( _task_map.count( peer->getName() ) != 0
-                 || peer->hasPeer( mname ) )
+                 || peer->hasPeer( this->getName() ) )
                 return false;
             this->addPeer ( peer );
             peer->addPeer ( this );
@@ -367,7 +369,7 @@ namespace RTT
 
     void TaskContext::clear()
     {
-        ServiceProvider::clear();
+        tcservice->clear();
         this->ports()->clear();
     }
 

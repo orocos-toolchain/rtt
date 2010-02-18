@@ -93,14 +93,14 @@ namespace RTT
             // BC: user uses 'states.' or 'programs'.
             if ( !callqueue.empty() ) {
                 std::string name = callqueue.front();
-                if ( (name == "states" || name == "programs") && _peer->hasService(name) == 0) {
+                if ( (name == "states" || name == "programs") && _peer->provides()->hasService(name) == 0) {
                     log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
                     log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
                     callqueue.pop();
                 }
             }
 
-            mcurobject = _peer;
+            mcurobject = _peer->provides();
 
             // all peers done, traverse objects:
             while ( callqueue.size() > 0 && mcurobject->hasService( callqueue.front() ) ) {
@@ -123,7 +123,7 @@ namespace RTT
         }
 
         PeerParser::PeerParser(TaskContext* c, bool fullpath)
-            : mcurobject(c), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
+            : mcurobject(c->provides()), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
@@ -141,7 +141,7 @@ namespace RTT
     void PeerParser::reset()
     {
         _peer = context;
-        mcurobject = context;
+        mcurobject = context->provides();
         mlastobject = "this";
         advance_on_error = 0;
         while( !callqueue.empty() )
@@ -161,13 +161,13 @@ namespace RTT
         std::string name( begin, end );
         name.erase( name.length() -1  ); // compensate for extra "."
 
-        if ( mcurobject == _peer && _peer->hasPeer( name ) ) {
+        if ( mcurobject == _peer->provides() && _peer->hasPeer( name ) ) {
             _peer = _peer->getPeer( name );
             if ( _peer->ready() == false ) {
                 throw parse_exception_semantic_error
                                 ("Attempt to use TaskContext "+name+" which is not ready to use." );
             }
-            mcurobject = _peer;
+            mcurobject = _peer->provides();
             advance_on_error += end.base() - begin.base();
 
             //cout << "PP located "<<name <<endl;
@@ -189,7 +189,7 @@ namespace RTT
             //cout << std::string(begin, end)<<endl;
             mlastobject = name;
             if (mfullpath)
-                mcurobject = 0; //when partial paths are OK, leave curobject pointing to last valid object.
+                mcurobject.reset(); //when partial paths are OK, leave curobject pointing to last valid object.
             throw_(begin, peer_not_found );
         }
     }
@@ -209,7 +209,7 @@ namespace RTT
         return _peer;
     }
 
-    ServiceProvider* PeerParser::taskObject()
+    ServiceProvider::shared_ptr PeerParser::taskObject()
     {
         return mcurobject;
     }

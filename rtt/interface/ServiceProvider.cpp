@@ -7,8 +7,12 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
+    ServiceProvider::shared_ptr ServiceProvider::Create(const std::string& name, TaskContext* owner) {
+        return shared_ptr(new ServiceProvider(name,owner));
+    }
+
     ServiceProvider::ServiceProvider(const std::string& name, TaskContext* owner)
-    : mname(name), mowner(owner), parent(0)
+    : mname(name), mowner(owner), parent()
     {
     }
 
@@ -21,37 +25,51 @@ namespace RTT {
         return keys(services);
     }
 
-    bool ServiceProvider::addService( ServiceProvider* obj ) {
+    bool ServiceProvider::addService( ServiceProvider::shared_ptr obj ) {
         if ( services.find( obj->getName() ) != services.end() ) {
             log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
         }
         if ( obj->getParent() == 0) {
             obj->setOwner( mowner );
-            obj->setParent( this );
+            obj->setParent( shared_from_this() );
         }
         services[obj->getName()] = obj;
         return true;
     }
 
     void ServiceProvider::removeService( string const& name) {
-        delete unmountService(name);
-    }
-
-    ServiceProvider* ServiceProvider::unmountService( string const& name) {
         // carefully written to avoid destructor to call back on us when called from removeService.
         if ( services.count(name) ) {
-            ServiceProvider* sp = services.find(name)->second;
+            shared_ptr sp = services.find(name)->second;
             services.erase(name);
-            if (sp->getParent() == this) {
-                sp->setParent( 0 ); // orphan.
-                sp->setOwner( 0 );
-            }
-            return sp;
+            sp.reset(); // this possibly deletes.
         }
-        return 0;
     }
 
+    ServiceProvider::shared_ptr ServiceProvider::provides(const std::string& service_name) {
+        if (service_name == "this")
+            return shared_from_this();
+        shared_ptr sp = services[service_name];
+        if (sp)
+            return sp;
+        sp = boost::make_shared<ServiceProvider>(service_name, mowner);
+        services[service_name] = sp;
+        return sp;
+    }
+
+    ServiceProvider::shared_ptr ServiceProvider::getService(const std::string& service_name) {
+        Services::iterator it = services.find(service_name);
+        if (it != services.end() )
+            return it->second;
+        return shared_ptr();
+    }
+
+    bool ServiceProvider::hasService(const std::string& service_name) {
+        if (service_name == "this")
+            return true;
+        return services.find(service_name) != services.end();
+    }
 
     bool ServiceProvider::addLocalOperation( OperationBase& op )
     {
@@ -85,10 +103,8 @@ namespace RTT {
         }
         OperationRepository::clear();
         while ( !services.empty() ) {
-            if ( services.begin()->second->getParent() == this )
+            if ( services.begin()->second->getParent() == shared_from_this() )
                 this->removeService( services.begin()->first );
-            else
-                this->unmountService( services.begin()->first );
         }
     }
 
@@ -123,7 +139,7 @@ namespace RTT {
             it->second->setOwner( new_owner );
     }
 
-    void ServiceProvider::setParent( ServiceProvider* p) {
+    void ServiceProvider::setParent( ServiceProvider::shared_ptr p) {
         parent = p;
     }
 
