@@ -606,9 +606,9 @@
      inkscape:current-layer="layer1"
      id="namedview3782"
      inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="false"
@@ -1089,7 +1089,7 @@
          sodipodi:role="line"
          x="117.19776"
          y="481.59787"
-         id="tspan3363">processes incomming messages,</tspan><tspan
+         id="tspan3363">processes incomming operations,</tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="504.09787"
@@ -1167,7 +1167,7 @@
          sodipodi:role="line"
          id="tspan2288"
          x="646.33673"
-         y="247.3027">Messages</tspan></text>
+         y="247.3027">Asynchr. Operations</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.4165349;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 535.52114,287.37744 L 618.71968,287.37744"
@@ -1200,7 +1200,7 @@
          sodipodi:role="line"
          id="tspan2310"
          x="646.33673"
-         y="292.72235">Functions</tspan></text>
+         y="292.72235">Plugin Functions</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.4165349;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 535.52114,332.7971 L 618.71968,332.7971"
