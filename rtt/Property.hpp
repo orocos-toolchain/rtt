@@ -213,6 +213,16 @@ namespace RTT
         }
 
         /**
+         * Documents this property.
+         * @param descr The description of this property
+         * @return A reference to this object.
+         */
+        Property<T>& doc(const std::string& descr) {
+            setDescription(descr);
+            return *this;
+        }
+
+        /**
          * Get a copy of the value of the property.
          * @return A copy of the value of the property.
          */
