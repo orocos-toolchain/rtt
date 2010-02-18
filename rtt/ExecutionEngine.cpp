@@ -262,18 +262,11 @@ namespace RTT
     }
 
     void ExecutionEngine::finalize() {
-        // call all children, but only if they are not in the error state !
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
             (*rit)->stop();
-            if ((*rit)->mTaskState != TaskCore::FatalError ) {
-                (*rit)->mTaskState = TaskCore::Stopped;
-            }
-
         }
         if (taskc ) {
             taskc->stop();
-            if ( taskc->mTaskState != TaskCore::FatalError)
-                taskc->mTaskState = TaskCore::Stopped;
         }
     }
 
