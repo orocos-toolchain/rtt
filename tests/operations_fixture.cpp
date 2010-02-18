@@ -14,7 +14,7 @@ OperationsFixture::OperationsFixture()
 {
     tc = new TaskContext("root");
     tc->provides()->addService(this->createMethodFactory());
-    tc->provides()->addAlias("ret", ret );
+    tc->provides()->addAttribute("ret", ret );
     caller = new TaskContext("caller");
     caller->start();
     tc->start();
