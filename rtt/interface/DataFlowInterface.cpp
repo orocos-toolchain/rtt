@@ -92,21 +92,41 @@ namespace RTT
         this->addPort(port);
         if (callback)
             port.getNewDataOnPortEvent()->connect(callback );
-        eports.push_back(&port);
         return port;
+    }
+
+    void DataFlowInterface::setupHandles() {
+        for_each(handles.begin(), handles.end(), bind(&Handle::connect, _1));
+    }
+
+    void DataFlowInterface::cleanupHandles() {
+        for_each(handles.begin(), handles.end(), bind(&Handle::disconnect, _1));
     }
 
     InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addLocalPort(port);
-        if (callback)
-            port.getNewDataOnPortEvent()->connect(callback );
-        eports.push_back(&port);
-        return port;
-    }
 
-    const DataFlowInterface::Ports& DataFlowInterface::getEventPorts() const
-    {
-        return eports;
+        if (mparent == 0) {
+            log(Error) << "addLocalEventPort "<< port.getName() <<": DataFlowInterface not part of a TaskContext. Will not trigger any TaskContext nor register callback." <<endlog();
+            return port;
+        }
+        bool running = mparent->stop();
+        // setup synchronous callback, only purpose is to register that port fired and trigger the TC's engine.
+        Handle h = port.getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mparent, _1) );
+        if (h) {
+            log(Info) << mparent->getName() << " will be triggered when new data is available on InputPort " << port.getName() << endlog();
+            handles.push_back(h);
+        } else {
+            log(Error) << mparent->getName() << " can't connect to event of InputPort " << port.getName() << endlog();
+            return port;
+        }
+
+        mparent->dataOnPortSize(handles.size());
+        if (callback)
+            mparent->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+        if (running)
+            mparent->start();
+        return port;
     }
 
     void DataFlowInterface::removePort(const std::string& name) {
@@ -114,11 +134,11 @@ namespace RTT
               it != mports.end();
               ++it)
             if ( (*it)->getName() == name ) {
-                if (mparent)
+                if (mparent) {
                     mparent->provides()->removeService( name );
-                Ports::iterator ep = find(eports.begin(), eports.end(),*it);
-                if ( ep!= eports.end() )
-                    eports.erase( ep );
+                    mparent->dataOnPortRemoved( *it );
+                }
+                (*it)->disconnect(); // remove all connections and callbacks.
                 mports.erase(it);
                 return;
             }

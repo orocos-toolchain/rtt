@@ -126,6 +126,12 @@ void InputPortInterface::clear()
 
 void InputPortInterface::disconnect()
 {
+    if ( new_data_on_port_event) {
+        new_data_on_port_event->disconnect();
+        delete new_data_on_port_event;
+        new_data_on_port_event = 0;
+    }
+
     cmanager.disconnect();
 }
 

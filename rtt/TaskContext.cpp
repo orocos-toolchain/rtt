@@ -370,35 +370,18 @@ namespace RTT
 
     bool TaskContext::start()
     {
-        size_t port_count = 0;
         if ( this->isRunning() )
             return false;
-        // Workaround for multiple registrations in 1.8.x:
-        if ( updated_ports.capacity() != 0) {
-            // do not register event handles a second time.
-            // This belongs more during the configure() step than during the start() step.
-            // should addEventPort cause the TC to drop back to Unconfigured or should
-            // the code below be executed during addEventPort ?
-            return TaskCore::start();
-        }
-        const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
-        for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
-            {
-                InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(*it);
-                if (read_port)
-                    {
-                        Handle h = read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1) );
-                        if (h) {
-                            port_count++;
-                            log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
-                        } else {
-                            log(Error) << getName() << " can't connect to event of " << (*it)->getName() << endlog();
-                            return false;
-                        }
-                    }
-            }
-        updated_ports.reserve(port_count);
+        ports()->setupHandles();
         return TaskCore::start(); // calls startHook()
+    }
+
+    bool TaskContext::stop()
+    {
+        if ( !this->isRunning() )
+            return false;
+        ports()->cleanupHandles();
+        return TaskCore::stop(); // calls stopHook()
     }
 
     void TaskContext::dataOnPort(PortInterface* port)
@@ -407,14 +390,40 @@ namespace RTT
         this->getActivity()->trigger();
     }
 
+    void TaskContext::dataOnPortSize(unsigned int max) {
+        updated_ports.reserve(max);
+    }
+
+    void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {
+        // creates a Signal that holds the connection for callback.
+        // user_callbacks will only be emitted from updateHook().
+
+        UserCallbacks::iterator it = user_callbacks.find(port);
+        if (it != user_callbacks.end() ) {
+            user_callbacks[port] = boost::make_shared<InputPortInterface::NewDataOnPortEvent>();
+        }
+        user_callbacks[port]->connect(callback);
+    }
+
+    void TaskContext::dataOnPortRemoved(PortInterface* port) {
+        UserCallbacks::iterator it = user_callbacks.find(port);
+        if (it != user_callbacks.end() ) {
+            user_callbacks[port]->disconnect();
+            user_callbacks.erase(port);
+        }
+    }
+
     void TaskContext::updateHook()
     {
-        // When the user overrides this method, this code will never be called, so the portqueue will fill up
+        // When the user overrides this method, this code will never be called, so in the case of EventPorts, the portqueue will fill up
         // and remain as such.
         PortInterface* port = 0;
         while ( portqueue.dequeue( port ) == true ) {
             if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
                 updated_ports.push_back(port);
+            UserCallbacks::iterator it = user_callbacks.find(port);
+            if (it != user_callbacks.end() )
+                it->second->emit(port); // fire the user callbacks.
         }
         updateHook(updated_ports);
         updated_ports.clear();

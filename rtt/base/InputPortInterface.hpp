@@ -59,6 +59,7 @@ namespace RTT
     {
     public:
         typedef internal::Signal<void(PortInterface*)> NewDataOnPortEvent;
+        typedef NewDataOnPortEvent::SlotFunction SlotFunction;
 
     protected:
         internal::ConnectionManager cmanager;
@@ -66,6 +67,7 @@ namespace RTT
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
+
         InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
         ~InputPortInterface();
 
@@ -98,10 +100,14 @@ namespace RTT
          */
         virtual FlowStatus read(DataSourceBase::shared_ptr source);
 
-        /** Removes any connection that either go to or come from this port */
+        /** Removes any connection that either go to or come from this port
+         *  *and* removes all callbacks and cleans up the NewDataOnPortEvent.
+         */
         virtual void disconnect();
 
-        /** Removes the channel that connects this port to \c port */
+        /** Removes the channel that connects this port to \c port.
+         *  All other ports or callbacks remain unaffected.
+         */
         virtual void disconnect(PortInterface* port);
 
 

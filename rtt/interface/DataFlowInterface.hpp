@@ -99,12 +99,6 @@ namespace RTT
                 base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
-         * Returns the list of all ports emitting events when new
-         * data arrives.
-         */
-        const Ports& getEventPorts() const;
-
-        /**
          * Add a Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
@@ -123,6 +117,8 @@ namespace RTT
 
         /**
          * Remove a Port from this interface.
+         * This will remove all connections and callbacks
+         * assosiated with this port.
          * @param port The port to remove.
          */
         void removePort(const std::string& name);
@@ -184,10 +180,31 @@ namespace RTT
          * all associated TaskObjects.
          */
         void clear();
+
+        /**
+         * Called by TaskContext::start() to setup all triggers of EventPorts.
+         */
+        void setupHandles();
+        /**
+         * Called by TaskContext::stop() to remove all triggers of EventPorts.
+         */
+        void cleanupHandles();
     protected:
-        Ports eports;
+        /**
+         * All our ports.
+         */
         Ports mports;
+        /**
+         * The parent TaskContext. May be null in exceptional cases.
+         */
         TaskContext* mparent;
+        /**
+         * These handles contain the links from an event port's signal to
+         * the TaskContext::dataOnPort method.
+         */
+        typedef std::vector< Handle > Handles;
+        Handles handles;
+
 
     };
 

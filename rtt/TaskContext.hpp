@@ -166,6 +166,7 @@ namespace RTT
         virtual bool ready();
 
         bool start();
+        bool stop();
 
         /**
          * These functions are used to setup and manage peer-to-peer networks
@@ -229,8 +230,9 @@ namespace RTT
         /** @} */
 
         /**
-         * These functions are used to create and manage services and
-         * their operations, attributes or properties.
+         * These functions are used to create and manage services.
+         * Use provides() or requires() to access the ServiceProvider
+         * or ServiceRequester objects that contain all service related functions.
          * @name Services
          * @{
          */
@@ -294,7 +296,8 @@ namespace RTT
         /**
          * Adding and getting operations from the TaskContext interface.
          * These functions all forward to the service provider representing
-         * this TaskContext.
+         * this TaskContext. Use operations() to access the complete OperationRepository
+         * interface of this TaskContext.
          * @name Operations
          * @{ */
         /**
@@ -335,12 +338,19 @@ namespace RTT
         {
             return tcservice->getOperation<Signature>(name);
         }
+
+        /**
+         * Returns the operations of this TaskContext as an OperationRepository.
+         */
+        interface::OperationRepository* operations() { return this->provides().get(); }
+
         /** @} */
 
         /**
          * Adding and getting attributes from the TaskContext interface.
          * These functions all forward to the service provider representing
-         * this TaskContext.
+         * this TaskContext. Use attributes() to access the complete
+         * AttributeRepository interface of this TaskContext.
          * @name Attributes
          * @{ */
         /**
@@ -409,7 +419,8 @@ namespace RTT
         /**
          * Adding and getting properties from the TaskContext interface.
          * These functions all forward to the service provider representing
-         * this TaskContext.
+         * this TaskContext. Use properties() to access the complete PropertyBag
+         * interface of this TaskContext.
          * @name Properties
          * @{ */
         /**
@@ -455,7 +466,8 @@ namespace RTT
 
         /**
          * These functions serve to manage ports and data flow
-         * connections.
+         * connections. Use ports() to access the complete
+         * DataFlowInterface functionality of this TaskContext.
          * @name Ports
          * @{
          */
@@ -563,15 +575,21 @@ namespace RTT
          */
         void setup();
 
+        friend class interface::DataFlowInterface;
         typedef std::vector< base::PortInterface* > PortList;
         PortList updated_ports;
         internal::AtomicQueue<base::PortInterface*> portqueue;
+        typedef std::map<base::PortInterface*, boost::shared_ptr<base::InputPortInterface::NewDataOnPortEvent> > UserCallbacks;
+        UserCallbacks user_callbacks;
 
         /**
          * This callback is called each time data arrived on an
          * event port.
          */
-        void dataOnPort(base::PortInterface*);
+        void dataOnPort(base::PortInterface* port);
+        void dataOnPortSize(unsigned int max);
+        void dataOnPortCallback(base::InputPortInterface* port, base::InputPortInterface::SlotFunction callback);
+        void dataOnPortRemoved(base::PortInterface* port);
 
         typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;
         LocalServices localservs;
