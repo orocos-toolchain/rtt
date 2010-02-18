@@ -58,13 +58,6 @@ namespace RTT
      */
     class RTT_API AttributeRepository
     {
-        typedef std::vector<base::AttributeBase*> map_t;
-        map_t values;
-        /**
-         * The bag is only constructed if queried for.
-         */
-        mutable PropertyBag* bag;
-
     public:
 
         /**
@@ -97,14 +90,14 @@ namespace RTT
 
         /**
          * Adds a variable of any type as read/write attribute to the attribute interface.
-         * An Alias is created which causes contents of this
+         * An Alias is created which causes contents of the \a attr
          * variable always to be in sync
-         * with the contents of the attribute.
+         * with the contents of the attribute object in the interface.
          * @param name The name of this attribute
          * @param attr The variable that will be aliased.
          */
         template<class T>
-        bool addAlias( const std::string& name, T& attr) {
+        bool addAttribute( const std::string& name, T& attr) {
             Alias a(name, new internal::ReferenceDataSource<T>(attr));
             return this->addAttribute( &a );
         }
@@ -118,20 +111,39 @@ namespace RTT
          * @param attr The variable that will be aliased.
          */
         template<class T>
-        bool addConstAlias( const std::string& name, const T& attr) {
+        bool addConstant( const std::string& name, const T& attr) {
             Alias a(name, new internal::ConstReferenceDataSource<T>(attr));
             return this->addAttribute( &a );
         }
 
         /**
+         * Adds a variable of any type as a property to the attribute interface.
+         * A Property is created which causes contents of the
+         * property always to be in sync
+         * with the contents of \a attr.
+         * @param name The name of this property
+         * @param attr The variable that will be aliased.
+         * @return the Property object by reference, which you can further query or document.
+         */
+        template<class T>
+        Property<T>& addProperty( const std::string& name, T& attr) {
+            Property<T>* p = new Property<T>(name,"", new internal::ReferenceDataSource<T>(attr));
+            this->properties()->ownProperty( p );
+            return *p;
+        }
+
+        /**
          * Add an base::AttributeBase which remains owned by the
-         * user.
+         * user. This is a low-level function that can be used
+         * if you already created an Attribute object that does
+         * not belong yet to a service.
+         *
          * @param a remains owned by the user, and becomes
          * served by the repository.
          */
         bool addAttribute( base::AttributeBase* a )
         {
-            return a->getDataSource() && setValue( a->clone() );
+            return a ? (a->getDataSource() && setValue( a->clone() )) : false;
         }
 
         /**
@@ -197,6 +209,22 @@ namespace RTT
         bool removeProperty( base::PropertyBase* p );
 
         /**
+         * Get a Property<T> with name \a name.
+         *
+         * @param  T The type of which this property is.
+         * @param  name The name of the property to search for.
+         * @return The Property<T> with this name, zero
+         *         if it does not exist ( no such \a T or no such \a name )
+         */
+        template<class T>
+        Property<T>* getProperty(const std::string& name) const
+        {
+            if (bag == 0)
+                return 0;
+            return bag->getProperty<T>("name");
+        }
+
+        /**
          * Transfer the ownership of an attribute to the repository.
          * @param ab The attribute which becomes owned by this repository.
          * @return false if an Attribute with the same \a name already present.
@@ -255,6 +283,13 @@ namespace RTT
          */
         PropertyBag* properties() const;
 
+    protected:
+        typedef std::vector<base::AttributeBase*> map_t;
+        map_t values;
+        /**
+         * The bag is only constructed if queried for.
+         */
+        mutable PropertyBag* bag;
     };
 }}
 
