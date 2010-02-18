@@ -85,14 +85,6 @@ IF (BUILD_TESTING)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     ADD_TEST( task-test ${RUNTIME_OUTPUT_DIRECTORY}/task-test )
 
-    #ADD_EXECUTABLE( event-test test-runner.cpp event_test.cpp eventservice_test.cpp )
-    #TARGET_LINK_LIBRARIES( event-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    #SET_TARGET_PROPERTIES( event-test PROPERTIES
-    #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    #ADD_TEST( event-test ${RUNTIME_OUTPUT_DIRECTORY}/event-test )
-
     #ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
     #TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     #SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
@@ -253,6 +245,8 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(scripting_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     ADD_UNIT_TEST(marshalling_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     ADD_UNIT_TEST(property_loader_test EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(event_test EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(taskstates_test EXTRA_TESTS "${TEST_LIBRARIES}" )
 
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
