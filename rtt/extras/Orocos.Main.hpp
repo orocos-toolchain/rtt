@@ -50,22 +50,22 @@
  *
  * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
  *
- * @section corelib Real-Time types::Toolkit classes (RTT)
+ * @section corelib Real-Time Toolkit classes (RTT)
  *
- * The classes in the RTT namespace form the application independent
- * control services which defines the portable framework for
- * defining software components.
+ * The classes in the RTT namespace are the only classes that a
+ * beginning user needs. All less commonly used classes or internal
+ * functions are moved into sub-namespaces of the RTT namespace.
  *
  * A component is implemented using the RTT::TaskContext class. The
- * Component interface consits of five parts: events: RTT::Event, commands:
- * RTT::Command, methods: RTT::Method, properties: RTT::Property,
+ * Component interface consits of these parts: operations:
+ * RTT::Operation, properties: RTT::Property, attributes:
  * RTT::Attribute and data ports: RTT::InputPort, RTT::OutputPort.
  *
- * A Component is run by an RTT::Activity 
- * which attaches a thread to the component's private Execution Engine.
+ * A Component is run by an RTT::Activity
+ * which attaches a thread to the component's internal Execution Engine.
  * The RTT::ExecutionEngine is the beating heart of each
- * component which executes the the application code, reacts to
- * events, processes commands etc.  Scripting is enabled by the
+ * component which executes the the application code, reacts to events,
+ * executes plugin functionality etc.  Scripting is enabled by the
  * scripting::ScriptingAccess, XML can be read by the
  * interface::MarshallingAccess. Many other classes are available as well.
  *
@@ -78,7 +78,7 @@
  * represents a remote TaskContext (located using the name or IOR) and allows
  * local TaskContexts to communicate with the remote instance.
  *
- * The RTT must be compiled with the --enable-corba flag in order to
+ * The RTT must be compiled with the ENABLE_CORBA=ON flag in order to
  * enable this extension.
  *
  * @section devdrivers Hardware Access and Device Interface
