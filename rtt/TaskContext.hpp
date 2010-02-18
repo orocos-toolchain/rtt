@@ -66,8 +66,7 @@ namespace RTT
      *
      * @par TaskContext state behaviour
      * When a TaskContext is created it defaults to the 'Stopped' state or
-     * the 'PreOperational' state. If it is 'Stopped', it can be start()'ed as
-     * soon as an activity object is attached to it. If it is 'PreOperational',
+     * the 'PreOperational' state. If it is 'Stopped', it can be start()'ed. If it is 'PreOperational',
      * it must first be configure()'d before it can be started. You can choose
      * between both using the constructor.
      * @see TaskState (in base::TaskCore) for a detailed explanation.
@@ -76,7 +75,7 @@ namespace RTT
      * In order to run the ExecutionEngine, the ExecutionEngine must
      * be run by an base::ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
-     * TaskContext will not accept any asynchronous invocations, nor process events,
+     * TaskContext will not accept any asynchronous invocations,
      * nor execute programs or state machines.
      *
      * @par Connecting TaskContexts
@@ -99,9 +98,6 @@ namespace RTT
          * A list of Peer TaskContext names.
          */
         typedef std::vector< std::string > PeerList;
-        /**
-         * A list of internal internal::TaskObject names.
-         */
 
         /**
          * Create a TaskContext.
@@ -127,149 +123,9 @@ namespace RTT
         virtual ~TaskContext();
 
         /**
-         * Add a one-way connection from this task to a peer task.
-         * @param peer The peer to add.
-         * @param alias An optional alias (another name) for the peer.
-         * defaults to \a peer->getName()
+         * Returns the name of this TaskContext.
          */
-        virtual bool addPeer( TaskContext* peer, std::string alias = "" );
-
-        /**
-         * Remove a one-way connection from this task to a peer task.
-         */
-        virtual void removePeer( const std::string& name );
-
-        /**
-         * Remove a one-way connection from this task to a peer task.
-         */
-        virtual void removePeer( TaskContext* peer );
-
-        /**
-         * Add a two-way connection from this task to a peer task.
-         */
-        virtual bool connectPeers( TaskContext* peer );
-
-        /**
-         * Add a data flow connection from this task's ports to a peer's ports.
-         */
-        virtual bool connectPorts( TaskContext* peer );
-
-        /**
-         * Connects all requires/provides services of this component to these of a peer.
-         */
-        virtual bool connectServices( TaskContext* peer);
-
-        /**
-         * Disconnect this TaskContext from it's peers.
-         * All its Data Flow Ports are disconnected from the connections but
-         * the connections themselves may continue to exist to serve other TaskContexts.
-         * This method invokes removePeer() as well on the peers listed in this->getPeerList().
-         */
-        virtual void disconnect();
-
-        /**
-         * Reconnect the data ports of this task, without
-         * removing the peer relationship. Use this if you
-         * changed a port name of an already connected task.
-         */
-        virtual void reconnect();
-
-        /**
-         * Remove a two-way connection from this task to a peer task.
-         */
-        virtual void disconnectPeers( const std::string& name );
-
-        /**
-         * Return a standard container which contains all the Peer names
-         * of this TaskContext.
-         */
-        virtual PeerList getPeerList() const;
-
-        /**
-         * Return true if it knows a peer by that name.
-         */
-        virtual bool hasPeer( const std::string& peer_name ) const;
-
-        /**
-         * Get a pointer to a peer of this task.
-         * @return null if no such peer.
-         */
-        virtual TaskContext* getPeer(const std::string& peer_name ) const;
-
-        /**
-         * @begingroup tc-serv TaskContext Service Interface
-         */
-
         virtual const std::string& getName() { return tcservice->getName(); }
-
-        /**
-         * Returns this ServiceProvider.
-         * @return a shared pointer from this.
-         */
-        interface::ServiceProvider::shared_ptr provides() { return tcservice; }
-
-        /**
-         * Returns a sub-service provider which resorts under
-         * this service provider.
-         * @param service_name The name of the sub-service.
-         */
-        interface::ServiceProvider::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
-
-        interface::ServiceRequester* requires() { return tcrequests; }
-
-        interface::ServiceRequester* requires(const std::string& service_name) {
-            return tcrequests->requires(service_name);
-        }
-
-        PropertyBag* properties() { return this->provides()->properties(); }
-
-        /**
-         * Add an operation object to the interface. This version
-         * of addOperation exports an Operation object to the
-         * public interface of this component.
-         *
-         * @param op The operation object to add.
-         *
-         * @return true if it could be added.
-         */
-        template<class Signature>
-        Operation<Signature>& addOperation( Operation<Signature>& op )
-        {
-            return tcservice->addOperation(op);
-        }
-
-        /**
-         * Returns a function signature from a C++ member function
-         */
-        template<class FunctionT>
-        struct GetSignature {
-            typedef typename internal::UnMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
-        };
-
-        // UnMember serves to remove the member function pointer from the signature of func.
-        template<class Func, class Service>
-        Operation< typename GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
-        {
-            return tcservice->addOperation(name,func, serv,et);
-        }
-
-        /**
-         * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<\a Signature> object.
-         *
-         * @param name The name of the operation to retrieve.
-         * @param Signature The function signature of the operation, for
-         * example: getOperation<int(double)>("name");
-         *
-         * @return true if it could be found, false otherwise.
-         */
-        template<class Signature>
-        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
-        {
-            return tcservice->getOperation<Signature>(name);
-        }
 
         /**
          * Sets the activity of this TaskContext. The
@@ -310,47 +166,145 @@ namespace RTT
         virtual bool ready();
 
         bool start();
-    protected:
 
         /**
-         * Hook called in the Running state.
+         * These functions are used to setup and manage peer-to-peer networks
+         * of TaskContext objects.
          *
-         * This default implementation calls updateHook(updated_ports)
+         * @name Peer-to-Peer functions
+         * @{
          */
-        void updateHook();
 
         /**
-         * This method gets called when new data is available on some input ports. The ports
-         * are listed as argument to the method
-         *
-         * The default implementation does nothing;
+         * Add a one-way connection from this task to a peer task.
+         * @param peer The peer to add.
+         * @param alias An optional alias (another name) for the peer.
+         * defaults to \a peer->getName()
          */
-        virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
+        virtual bool addPeer( TaskContext* peer, std::string alias = "" );
 
-    protected:
         /**
-         * This method allows to test in updateHook() if a specific port has
-         * triggered this particular update.
-         *
-         * This works only in updateHook(), and allows only to test ports that
-         * have been added to the data flow interface using
-         * DataFlowInterface::addEventPort.
+         * Remove a one-way connection from this task to a peer task.
          */
-        bool isPortUpdated(base::PortInterface const& port) const;
+        virtual void removePeer( const std::string& name );
 
-    public:
         /**
-         * Get the Data flow ports of this task.
+         * Remove a one-way connection from this task to a peer task.
          */
-        interface::DataFlowInterface* ports() {
-            return &dataPorts;
+        virtual void removePeer( TaskContext* peer );
+
+        /**
+         * Add a two-way connection from this task to a peer task.
+         */
+        virtual bool connectPeers( TaskContext* peer );
+
+        /**
+         * Disconnect this TaskContext from it's peers and ports.
+         * All its Data Flow Ports are disconnected as well.
+         * This method invokes removePeer() as well on the peers listed in this->getPeerList().
+         */
+        virtual void disconnect();
+
+        /**
+         * Remove a two-way connection from this task to a peer task.
+         */
+        virtual void disconnectPeers( const std::string& name );
+
+        /**
+         * Return a standard container which contains all the Peer names
+         * of this TaskContext.
+         */
+        virtual PeerList getPeerList() const;
+
+        /**
+         * Return true if it knows a peer by that name.
+         */
+        virtual bool hasPeer( const std::string& peer_name ) const;
+
+        /**
+         * Get a pointer to a peer of this task.
+         * @return null if no such peer.
+         */
+        virtual TaskContext* getPeer(const std::string& peer_name ) const;
+        /** @} */
+
+        /**
+         * These functions are used to create and manage services and
+         * their operations, attributes or properties.
+         * @name Services
+         * @{
+         */
+
+        /**
+         * Returns this ServiceProvider.
+         * @return a shared pointer from this.
+         */
+        interface::ServiceProvider::shared_ptr provides() { return tcservice; }
+
+        /**
+         * Returns a sub-service provider which resorts under
+         * this service provider.
+         * @param service_name The name of the sub-service.
+         */
+        interface::ServiceProvider::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
+
+        /**
+         * Returns the object that manages which methods this Task
+         * requires to be implemented by another task.
+         */
+        interface::ServiceRequester* requires() { return tcrequests; }
+
+        /**
+         * Returns the object that manages which methods this Task
+         * requires to be implemented by another service.
+         */
+        interface::ServiceRequester* requires(const std::string& service_name) {
+            return tcrequests->requires(service_name);
         }
 
         /**
-         * Get the Data flow ports of this task.
+         * Returns the properties of this TaskContext as a PropertyBag.
          */
-        const interface::DataFlowInterface* ports() const {
-            return &dataPorts;
+        PropertyBag* properties() { return this->provides()->properties(); }
+
+        /**
+         * Add an operation object to the interface. This version
+         * of addOperation exports an Operation object to the
+         * public interface of this component.
+         *
+         * @param op The operation object to add.
+         *
+         * @return true if it could be added.
+         */
+        template<class Signature>
+        Operation<Signature>& addOperation( Operation<Signature>& op )
+        {
+            return tcservice->addOperation(op);
+        }
+
+        // UnMember serves to remove the member function pointer from the signature of func.
+        template<class Func, class Service>
+        Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
+        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        {
+            return tcservice->addOperation(name,func, serv,et);
+        }
+
+        /**
+         * Get a previously added operation for
+         * use in a C++ Method object. Store the result of this
+         * function in a Method<\a Signature> object.
+         *
+         * @param name The name of the operation to retrieve.
+         * @param Signature The function signature of the operation, for
+         * example: getOperation<int(double)>("name");
+         *
+         * @return true if it could be found, false otherwise.
+         */
+        template<class Signature>
+        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
+        {
+            return tcservice->getOperation<Signature>(name);
         }
 
         /**
@@ -376,9 +330,66 @@ namespace RTT
             return st;
         }
 
-    private:
-        // non copyable
-        TaskContext( TaskContext& );
+        /**
+         * Connects all requires/provides services of this component to these of a peer.
+         */
+        virtual bool connectServices( TaskContext* peer);
+
+        /** @} */
+
+        /**
+         * These functions serve to manage ports and data flow
+         * connections.
+         * @name Ports
+         * @{
+         */
+        /**
+         * Get the Data flow ports of this task.
+         */
+        interface::DataFlowInterface* ports() {
+            return &dataPorts;
+        }
+
+        /**
+         * Get the Data flow ports of this task.
+         */
+        const interface::DataFlowInterface* ports() const {
+            return &dataPorts;
+        }
+
+        /**
+         * Add a data flow connection from this task's ports to a peer's ports.
+         */
+        virtual bool connectPorts( TaskContext* peer );
+        /** @} */
+
+    protected:
+
+        /**
+         * Hook called in the Running state.
+         *
+         * This default implementation calls updateHook(updated_ports)
+         */
+        void updateHook();
+
+        /**
+         * This method gets called when new data is available on some input ports. The ports
+         * are listed as argument to the method
+         *
+         * The default implementation does nothing;
+         */
+        virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
+
+        /**
+         * This method allows to test in updateHook() if a specific port has
+         * triggered this particular update.
+         *
+         * This works only in updateHook(), and allows only to test ports that
+         * have been added to the data flow interface using
+         * DataFlowInterface::addEventPort.
+         */
+        bool isPortUpdated(base::PortInterface const& port) const;
+
     protected:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
@@ -400,9 +411,11 @@ namespace RTT
          */
         void removeUser(TaskContext* user);
 
+        /**
+         * Internal function to setup the 'this' service and activity.
+         */
         void setup();
 
-    protected:
         typedef std::vector< base::PortInterface* > PortList;
         PortList updated_ports;
         internal::AtomicQueue<base::PortInterface*> portqueue;
@@ -419,6 +432,8 @@ namespace RTT
         interface::ServiceProvider::shared_ptr tcservice;
         interface::ServiceRequester*           tcrequests;
     private:
+        // non copyable
+        TaskContext( TaskContext& );
         /**
          * The task-local ports.
          */

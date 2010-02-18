@@ -273,24 +273,6 @@ namespace RTT
             return true;
         }
 
-    void TaskContext::reconnect()
-    {
-        Logger::In in( this->getName().c_str()  );
-        log(Info) << "Starting reconnection..."<<endlog();
-        // first disconnect all our ports
-        DataFlowInterface::Ports myports = this->ports()->getPorts();
-        for (DataFlowInterface::Ports::iterator it = myports.begin();
-             it != myports.end();
-             ++it) {
-            (*it)->disconnect();
-        }
-        // reconnect again to our peers and ask our 'users' to reconnect as well.
-        for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
-            this->connectPorts(it->second);
-
-        log(Info) << "Reconnection done."<<endlog();
-    }
-
     void TaskContext::disconnect() {
         Logger::In in( this->getName().c_str()  );
         // disconnect all our ports
