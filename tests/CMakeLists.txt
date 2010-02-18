@@ -247,6 +247,8 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(property_loader_test EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(event_test EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(taskstates_test EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(ports_test EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(attributes_test EXTRA_TESTS "${TEST_LIBRARIES}" )
 
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
