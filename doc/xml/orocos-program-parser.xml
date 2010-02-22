@@ -816,6 +816,17 @@
 	  </para>
       </section>
       <section>
+       <title>Setting Task Attributes/Properties</title>
+         <para>
+           Task attributes/Properties are set in the same way as ordinary script variables.
+         </para>
+           <programlisting>  // Setting a property named MyProp of type double
+  var double d
+  set TC.MyProp = d </programlisting>
+         <para>
+         </para>
+      </section>
+      <section>
 	<title><symbol>function</symbol></title>
 	<para>Statements
 	can be grouped in functions. A function can only call a function
