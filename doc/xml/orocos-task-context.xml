@@ -2733,9 +2733,10 @@ the_data_port.     cd            ls
        this->properties()->addProperty( &amp;sub_bag );
 
        // we need to call addProperty on the PropertyBag object
-       // contained within the Property object, hence rvalue() is used.
-       sub_bag.rvalue().addProperty( &amp;s_param );
-       sub_bag.rvalue().addProperty( &amp;b_param );
+       // contained within the Property object, hence value(),
+       // which returns a reference, is used.
+       sub_bag.value().addProperty( &amp;s_param );
+       sub_bag.value().addProperty( &amp;b_param );
      }
      // ...
   };
