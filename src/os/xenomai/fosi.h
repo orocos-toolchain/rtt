@@ -81,8 +81,8 @@ extern "C" {
 #include <native/mutex.h>
 #include <native/sem.h>
 
-// BC: support Xenomai < 2.4.50
-#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2450
+// BC: support Xenomai < 2.3.0
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2300
 #define rt_mutex_acquire rt_mutex_lock
 #define rt_mutex_release rt_mutex_unlock
 #endif
