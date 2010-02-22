@@ -77,6 +77,7 @@ namespace RTT
         typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
         static ActivityInterface* orbrunner;
+        static bool is_shutdown;
 
         /**
          * Private constructor which creates a new servant.
@@ -153,6 +154,12 @@ namespace RTT
          * @return A new or previously created CORBA server for \a tc.
          */
         static ControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
+
+        /**
+         * Deletes a ControlTask server for a given taskcontext.
+         * If no such server exists, this method silently does nothing.
+         */
+        static void CleanupServer( TaskContext* tc );
 
         /**
          * Get the Corba Object of this ControlTask.

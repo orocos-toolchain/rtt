@@ -69,6 +69,8 @@ namespace RTT
 
     ActivityInterface* ControlTaskServer::orbrunner = 0;
 
+    bool ControlTaskServer::is_shutdown = false;
+
   ControlTaskServer::~ControlTaskServer()
   {
 
@@ -146,7 +148,7 @@ namespace RTT
                     rootObj = orb->resolve_initial_references("NameService");
                     rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
                 } catch (...) {}
-            
+
                 if (CORBA::is_nil( rootNC ) ) {
                     std::string  err("ControlTask '" + taskc->getName() + "' could not find CORBA Naming Service.");
                     if (require_name_service) {
@@ -228,13 +230,25 @@ namespace RTT
     }
 
     void ControlTaskServer::CleanupServers() {
-        if ( !CORBA::is_nil(orb) ) {
+        if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
             ServerMap::iterator it = servers.begin();
             while ( !servers.empty() ){
                 delete servers.begin()->second;
+                // note: destructor will self-erase from map !
             }
             log() << "Cleanup done."<<endlog();
+        }
+    }
+
+    void ControlTaskServer::CleanupServer(TaskContext* c) {
+        if ( !CORBA::is_nil(orb) ) {
+            ServerMap::iterator it = servers.find(c);
+            if ( it != servers.end() ){
+                log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
+                delete it->second; // destructor will do the rest.
+                // note: destructor will self-erase from map !
+            }
         }
     }
 
@@ -246,13 +260,19 @@ namespace RTT
 
     void ControlTaskServer::DoShutdownOrb(bool wait_for_completion)
     {
+        if (is_shutdown) {
+            log(Info) << "Orb already down..."<<endlog();
+            return;
+        }
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Orb Shutdown...failed! Orb is nil." << endlog();
             return;
         }
 
         try {
+            CleanupServers(); // can't do this after an orb->shutdown().
             log(Info) << "Orb Shutdown...";
+            is_shutdown = true;
             if (wait_for_completion)
                 log(Info)<<"waiting..."<<endlog();
             orb->shutdown( wait_for_completion );
