@@ -75,6 +75,7 @@ namespace RTT
         typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
         static base::ActivityInterface* orbrunner;
+        static bool is_shutdown;
 
         PortableServer::POA_var mpoa;
 
@@ -158,8 +159,18 @@ namespace RTT
         static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
+<<<<<<< HEAD:src/transports/corba/ControlTaskServer.hpp
          * Get the Corba Object of this CControlTask.
          * If you want to store this reference, you must \b _duplicate it.
+=======
+         * Deletes a ControlTask server for a given taskcontext.
+         * If no such server exists, this method silently does nothing.
+         */
+        static void CleanupServer( TaskContext* tc );
+
+        /**
+         * Get the Corba Object of this ControlTask.
+>>>>>>> 71aed95... corba: Added CleanupServer to give deployment a function to cleanup corba servers.:src/corba/ControlTaskServer.hpp
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
