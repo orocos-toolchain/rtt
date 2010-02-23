@@ -56,43 +56,43 @@ namespace RTT
         return mparent;
     }
 
-    PortInterface& DataFlowInterface::addPort(PortInterface& port) {
+    PortInterface& DataFlowInterface::addPort(PortInterface* port) {
         this->addLocalPort(port);
-        if (mparent && mparent->provides()->hasService( port.getName()) != 0) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
-            mparent->provides()->removeService(port.getName());
+        if (mparent && mparent->provides()->hasService( port->getName()) != 0) {
+            log(Warning) <<"'addPort' "<< port->getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
+            mparent->provides()->removeService(port->getName());
         }
 
         if (!mparent) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
-            return port;
+            log(Warning) <<"'addPort' "<< port->getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
+            return *port;
         }
-        ServiceProvider::shared_ptr ms( this->createPortObject( port.getName()) );
+        ServiceProvider::shared_ptr ms( this->createPortObject( port->getName()) );
         if ( ms )
             mparent->provides()->addService( ms );
         // END NOTE.
-        return port;
+        return *port;
     }
 
-    PortInterface& DataFlowInterface::addLocalPort(PortInterface& port) {
+    PortInterface& DataFlowInterface::addLocalPort(PortInterface* port) {
         for ( Ports::iterator it(mports.begin());
               it != mports.end();
               ++it)
-            if ( (*it)->getName() == port.getName() ) {
-                log(Warning) <<"'addPort' "<< port.getName() << ": name already in use. Replacing old instance." <<endlog();
+            if ( (*it)->getName() == port->getName() ) {
+                log(Warning) <<"'addPort' "<< port->getName() << ": name already in use. Replacing old instance." <<endlog();
             }
 
-        mports.push_back( &port );
-        port.setInterface( this );
-        return port;
+        mports.push_back( port );
+        port->setInterface( this );
+        return *port;
     }
 
 
-    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface* port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addPort(port);
         if (callback)
-            port.getNewDataOnPortEvent()->connect(callback );
-        return port;
+            port->getNewDataOnPortEvent()->connect(callback );
+        return *port;
     }
 
     void DataFlowInterface::setupHandles() {
@@ -103,30 +103,30 @@ namespace RTT
         for_each(handles.begin(), handles.end(), bind(&Handle::disconnect, _1));
     }
 
-    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface* port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addLocalPort(port);
 
         if (mparent == 0) {
-            log(Error) << "addLocalEventPort "<< port.getName() <<": DataFlowInterface not part of a TaskContext. Will not trigger any TaskContext nor register callback." <<endlog();
-            return port;
+            log(Error) << "addLocalEventPort "<< port->getName() <<": DataFlowInterface not part of a TaskContext. Will not trigger any TaskContext nor register callback." <<endlog();
+            return *port;
         }
         bool running = mparent->stop();
         // setup synchronous callback, only purpose is to register that port fired and trigger the TC's engine.
-        Handle h = port.getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mparent, _1) );
+        Handle h = port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mparent, _1) );
         if (h) {
-            log(Info) << mparent->getName() << " will be triggered when new data is available on InputPort " << port.getName() << endlog();
+            log(Info) << mparent->getName() << " will be triggered when new data is available on InputPort " << port->getName() << endlog();
             handles.push_back(h);
         } else {
-            log(Error) << mparent->getName() << " can't connect to event of InputPort " << port.getName() << endlog();
-            return port;
+            log(Error) << mparent->getName() << " can't connect to event of InputPort " << port->getName() << endlog();
+            return *port;
         }
 
         mparent->dataOnPortSize(handles.size());
         if (callback)
-            mparent->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+            mparent->dataOnPortCallback(port,callback); // the handle will be deleted when the port is removed.
         if (running)
             mparent->start();
-        return port;
+        return *port;
     }
 
     void DataFlowInterface::removePort(const std::string& name) {
