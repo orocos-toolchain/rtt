@@ -65,11 +65,7 @@ IF (BUILD_TESTING)
     endif()
 
     # repeat for each test
-    if( TESTS_OS_NO_ASM )
-    else()
-      SET(BUFFERS_TEST buffers_test.cpp)
-    endif()
-    ADD_EXECUTABLE( core-test test-runner.cpp ${BUFFERS_TEST} logger_test.cpp property_test.cpp time_test.cpp ptr_test.cpp )
+    ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp property_test.cpp time_test.cpp ptr_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -239,7 +235,12 @@ IF (BUILD_TESTING)
 
       
     ENDIF(ENABLE_MQ AND ENABLE_CORBA)
-    
+
+    if( TESTS_OS_NO_ASM )
+    else()
+        ADD_UNIT_TEST(buffers_test EXTRA_TESTS "${TEST_LIBRARIES}")
+    endif()
+        
     ADD_UNIT_TEST(method_test EXTRA_TESTS "${TEST_LIBRARIES}")
     ADD_UNIT_TEST(functors_test EXTRA_TESTS "${TEST_LIBRARIES}")
     ADD_UNIT_TEST(scripting_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
