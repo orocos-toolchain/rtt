@@ -10,29 +10,30 @@ namespace RTT
     namespace internal {
     /**
      * Create an atomic, non-blocking single ended queue (FIFO) for storing
-     * a pointer \a T by value. It is a
+     * a \b pointer to \a T. It is a
      * Many Readers, Many Writers implementation
      * based on the atomic Compare And Swap instruction. Any number of threads
      * may access the queue concurrently.
+     *
+     * This queue tries to obey strict ordering, but under high contention
+     * of reads interfering writes, one or more elements may be dequeued out of order.
+     * For this reason, size() is expensive to accurately calculate the size.
+     *
+     * Due to the same limitations, it is possible that the full capacity of the
+     * queue is not used (simulations show seldomly an off by one element if capacity==10) and
+     * that isFull() returns true, while size() < capacity().
+     *
      * @warning You can not store null pointers.
      * @param T The pointer type to be stored in the Queue.
      * Example : AtomicQueue< A* > is a queue of pointers to A.
-     * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
-     * This does not influence partial filled queue behaviour.
-     * @param WritePolicy The Policy to block (wait) on \a full (during enqueue),
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
-     * This does not influence partial filled buffer behaviour.
+     *
      * @ingroup CoreLibBuffers
      */
     template<class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
     class AtomicQueue
     {
-        //typedef _T* T;
         const int _size;
-        typedef std::pair<T, int>  C;
-//        typedef volatile C* volatile WriteType;
-//        typedef volatile C* volatile const ReadType;
+        typedef T C;
         typedef volatile C* CachePtrType;
         typedef C* volatile CacheObjType;
         typedef C  ValueType;
@@ -60,44 +61,66 @@ namespace RTT
         ReadPolicy read_policy;
 
         /**
+         * The loose ordering may cause missed items in our
+         * queue which are not pointed at by the read pointer.
+         * This function recovers such items from _buf.
+         * @return zero if nothing to recover, the location of
+         * a lost item otherwise.
+         */
+        CachePtrType recover_r() const
+        {
+            // The implementation starts from the read pointer,
+            // and wraps around until all fields were scanned.
+            // As such, the out-of-order elements will at least
+            // be returned in their relative order.
+            SIndexes start;
+            start._value = _indxes._value;
+            unsigned short r = start._index[1];
+            while( r != _size) {
+                if (_buf[r])
+                    return &_buf[r];
+                ++r;
+            }
+            r = 0;
+            while( r != start._index[1]) {
+                if (_buf[r])
+                    return &_buf[r];
+                ++r;
+            }
+            return 0;
+        }
+
+        /**
          * Atomic advance and wrap of the Write pointer.
          * Return the old position or zero if queue is full.
          */
-        CachePtrType advance_w()
+        CachePtrType propose_w()
         {
         	SIndexes oldval, newval;
-        	bool full=false;
             do {
             	oldval._value = _indxes._value; /*Points to a free writable pointer.*/
                 newval._value = oldval._value; /*Points to the next writable pointer.*/
                 // check for full on a *Copy* of oldval:
                 if ( (newval._index[0] == newval._index[1] - 1) || (newval._index[0] == newval._index[1] + _size - 1) )
                 {
+                    // note: in case of high contention, there might be existing empty fields
+                    // in _buf that aren't used.
                     return 0;
                 }
                 newval._index[0]++;
                 if ( newval._index[0] >= _size )
                 	newval._index[0] = 0;
-
-                // detect read which did advance but not free yet.
-                if ( _buf[oldval._index[0] ].first != 0)
-                    return 0;
                 // if ptr is unchanged, replace it with newval.
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
-            // frome here on :
-            // oldval is 'unique', other preempting threads
-            // will have a different value for oldval, as
-            // _wptr advances.
-            if(full==true)
-            	return 0;
-            // return the old position to write to :
-            return &_buf[oldval._index[0] ];
+
+            // the returned field may contain data, in that case, the caller needs to retry.
+            return &_buf[ oldval._index[0] ];
         }
         /**
          * Atomic advance and wrap of the Read pointer.
          * Return the data position or zero if queue is empty.
          */
-        CachePtrType advance_r()
+        CachePtrType propose_r()
         {
         	SIndexes oldval, newval;
             do {
@@ -106,27 +129,18 @@ namespace RTT
                 // check for empty on a *Copy* of oldval:
                 if ( newval._index[0] == newval._index[1] )
                 {
-                	//EnableIrq(ic);
-                    return 0;
-                	//empty=true;
+                    // seldom: R and W are indicating empty, but 'lost' fields
+                    // are to be picked up. Return these
+                    // that would have been read eventually after some writes.
+                    return recover_r();
                 }
                 newval._index[1]++;
                 if ( newval._index[1] >= _size )
                 	newval._index[1] = 0;
 
-                // catch case where we preempt an enqueue, where w has advanced,
-                // but not yet written it's value.
-                if ( _buf[oldval._index[1]].first == 0)
-                    return 0;
-                // what happens if preempted here ?
-                // if indexes are unchanged, replace them with newval.
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
-            // frome here on :
-            // oldval is 'unique', other preempting threads
-            // will have a different value for oldval, as
-            // _rptr advances.
-
-            // return the old position to read from :
+            // the returned field may contain *no* data, in that case, the caller needs to retry.
+            // as such r will advance until it hits a data sample or write pointer.
             return &_buf[oldval._index[1] ];
         }
 
@@ -170,7 +184,7 @@ namespace RTT
         bool isEmpty() const
         {
             // empty if nothing to read.
-            return _indxes._index[0] == _indxes._index[1];
+            return _indxes._index[0] == _indxes._index[1] && recover_r() == 0;
         }
 
         /**
@@ -182,48 +196,42 @@ namespace RTT
         }
 
         /**
-         * Return the number of elements in the queue.
+         * Return the exact number of elements in the queue.
+         * This is slow because it scans the whole
+         * queue.
          */
         size_type size() const
         {
-            int c = (_indxes._index[0] - _indxes._index[1]);
-            return c >= 0 ? c : c + _size;
+            int c = 0, ret = 0;
+            while (c != _size ) {
+                if (_buf[c++] )
+                    ++ret;
+            }
+            return ret;
+            //int c = (_indxes._index[0] - _indxes._index[1]);
+            //return c >= 0 ? c : c + _size;
         }
 
         /**
          * Enqueue an item.
-         * @param value The value to enqueue.
-         * @return false if queue is full, true if queued.
+         * @param value The value to enqueue, not zero.
+         * @return false if queue is full or value is zero, true if queued.
          */
         bool enqueue(const T& value)
         {
             if ( value == 0 )
                 return false;
             write_policy.pop();
-            CachePtrType loc = advance_w();
-            if ( loc == 0 )
-                return false;
-            loc->first = value;
+            CachePtrType loc;
+            C null = 0;
+            do {
+                loc = propose_w();
+                if ( loc == 0 )
+                    return false; //full
+                // if loc contains a zero, write it, otherwise, re-try.
+            } while( !os::CAS(loc, null, value));
             read_policy.push();
             return true;
-        }
-
-        /**
-         * Enqueue an item and return its 'ticket' number.
-         * @param value The value to enqueue.
-         * @return zero if the queue is full, the 'ticket' number otherwise.
-         */
-        int enqueueCounted(const T& value)
-        {
-            if ( value == 0 )
-                return 0;
-            write_policy.pop();
-            CachePtrType loc = advance_w();
-            if ( loc == 0 )
-                return 0;
-            loc->first = value;
-            read_policy.push();
-            return loc->second;
         }
 
         /**
@@ -234,13 +242,17 @@ namespace RTT
         bool dequeue( T& result )
         {
             read_policy.pop();
-            CachePtrType loc = advance_r();
-            if ( loc == 0 )
-                return false;
-            result = loc->first;
-            loc->second += _size; // give the cell a new number.
-            loc->first   = 0; // this releases the cell to write to.
+            CachePtrType loc;
+            C null = 0;
+            do {
+                loc = propose_r();
+                if ( loc == 0 )
+                    return false; // empty
+                result = *loc;
+                // if loc still contains result, clear it, otherwise, re-try.
+            } while( result == 0 || !os::CAS(loc, result, null) );
             write_policy.push();
+            assert(result);
             return true;
         }
 
@@ -265,33 +277,14 @@ namespace RTT
             bool was_locked = false;
             do {
                 if (was_locked)
-                    mp.unlock(loc->first);
+                    mp.unlock(*loc);
                 loc = &_buf[_indxes._index[1] ];
-                if (loc->first == 0)
+                if (*loc == 0)
                     return 0;
-                was_locked = mp.lock(loc->first);
+                was_locked = mp.lock(*loc);
                 // retry if lock failed or read moved.
             } while( !was_locked || loc != &_buf[_indxes._index[1] ] ); // obstruction detection.
-            return loc->first;
-        }
-
-        /**
-         * Dequeue an item and return the same 'ticket' number when it was queued.
-         * @param value The value dequeued.
-         * @return zero if the queue is empty, the 'ticket' number otherwise.
-         */
-        int dequeueCounted( T& result )
-        {
-            read_policy.pop();
-            CachePtrType loc = advance_r();
-            if ( loc == 0 )
-                return 0;
-            result = loc->first;
-            int nr = loc->second;
-            loc->second += _size; // give the cell a new number.
-            loc->first = 0; // this releases the cell to write to.
-            write_policy.push();
-            return nr;
+            return *loc;
         }
 
         /**
@@ -300,10 +293,7 @@ namespace RTT
         void clear()
         {
             for(int i = 0 ; i != _size; ++i) {
-                if ( _buf[i].first != 0 ) {
-                    _buf[i].first  = 0;
-                }
-                _buf[i].second = i+1; // init the counters
+                _buf[i] = 0;
             }
             _indxes._value = 0;
             write_policy.reset( _size - 1 );
