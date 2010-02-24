@@ -188,6 +188,7 @@ namespace RTT
         if (cc) {
             if ( cc->done() )
                 this->reset();
+            cc->readArguments();
             return cc->dispatch();
         } else {
             Logger::log() <<Logger::Error << "execute() called on incomplete CommandC."<<Logger::endl;
