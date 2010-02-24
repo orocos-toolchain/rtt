@@ -466,14 +466,14 @@
 	    <programlisting>  var string s1 = "abcdef"
 
   // retrieve size and capacity of a string :
-  var int size = s1.size()
-  var int cap  = s1.capacity()</programlisting>
+  var int size = s1.size
+  var int cap  = s1.capacity</programlisting>
 	    <programlisting>  var array a1( 10 )
   var array a2(20) = a1
 
   // retrieve size and capacity of a array :
-  var int size = a2.size()      // 10
-  var int cap  = a2.capacity()  // 20</programlisting>
+  var int size = a2.size      // 10
+  var int cap  = a2.capacity  // 20</programlisting>
 	  </para>
 	</section>
       </section>
