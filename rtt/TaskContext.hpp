@@ -385,7 +385,7 @@ namespace RTT
          * @param a remains owned by the user, and becomes
          * served by the repository.
          */
-        bool addAttribute( base::AttributeBase* a )
+        bool addAttribute( base::AttributeBase& a )
         {
             return tcservice->addAttribute(a);
         }
@@ -435,7 +435,9 @@ namespace RTT
          * Add an base::PropertyBase as a property.
          * @return false if a property with the same name already exists.
          */
-        bool addProperty( base::PropertyBase* pb );
+        bool addProperty( base::PropertyBase& pb ) {
+            return tcservice->addProperty(pb);
+        }
 
         /**
          * Get a Property with name \a name.

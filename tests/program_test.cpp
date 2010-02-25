@@ -89,8 +89,8 @@ public:
         // also this functions
         this->createObject( gtc.provides() );
 
-        gtc.provides()->addAttribute( &var_i );
-        gtc.provides()->addConstant( const_i );
+        gtc.provides()->addAttribute( var_i );
+        gtc.provides()->addConstant( *const_i );
         var_i.set(-1);
         i = 0;
         SimulationThread::Instance()->stop();

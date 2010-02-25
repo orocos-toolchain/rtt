@@ -99,7 +99,7 @@ namespace RTT
         template<class T>
         bool addAttribute( const std::string& name, T& attr) {
             Alias a(name, new internal::ReferenceDataSource<T>(attr));
-            return this->addAttribute( &a );
+            return this->addAttribute( a );
         }
 
         /**
@@ -113,7 +113,7 @@ namespace RTT
         template<class T>
         bool addConstant( const std::string& name, const T& attr) {
             Alias a(name, new internal::ConstReferenceDataSource<T>(attr));
-            return this->addAttribute( &a );
+            return this->addAttribute( a );
         }
 
         /**
@@ -141,9 +141,9 @@ namespace RTT
          * @param a remains owned by the user, and becomes
          * served by the repository.
          */
-        bool addAttribute( base::AttributeBase* a )
+        bool addAttribute( base::AttributeBase& a )
         {
-            return a ? (a->getDataSource() && setValue( a->clone() )) : false;
+            return a.getDataSource() ? setValue( a.clone() ) : false;
         }
 
         /**
@@ -168,9 +168,9 @@ namespace RTT
          * Add a Constant with a given value.
          * @see getConstant
          */
-        bool addConstant( base::AttributeBase* c)
+        bool addConstant( base::AttributeBase& c)
         {
-            return c->getDataSource() && setValue( c->clone() );
+            return c.getDataSource() ? setValue( c.clone() ) :  false;
         }
 
         /**
@@ -196,13 +196,13 @@ namespace RTT
          * @return false if a property with the same name already exists.
          * @see removeProperty
          */
-        bool addProperty( base::PropertyBase* pb );
+        bool addProperty( base::PropertyBase& pb );
 
         /**
          * Remove a previously added Property and associated attribute.
-         * @return false if no such property by that name exists.
+         * @return false if no such property exists.
          */
-        bool removeProperty( base::PropertyBase* p );
+        bool removeProperty( base::PropertyBase& p );
 
         /**
          * Get a Property with name \a name.

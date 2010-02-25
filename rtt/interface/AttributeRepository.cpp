@@ -90,12 +90,12 @@ namespace RTT {
       return true;
   }
 
-    bool AttributeRepository::addProperty( PropertyBase* pb ) {
-        if ( bag && bag->find( pb->getName() ) )
+    bool AttributeRepository::addProperty( PropertyBase& pb ) {
+        if ( bag && bag->find( pb.getName() ) )
             return false;
         if ( bag == 0 )
             bag = new PropertyBag();
-        bag->add( pb );
+        bag->add( &pb );
         return true;
     }
     void AttributeRepository::removeAttribute( const std::string& name ) {
@@ -131,11 +131,10 @@ namespace RTT {
       return (bag && bag->find(name) != 0);
   }
 
-    bool AttributeRepository::removeProperty( PropertyBase* p )
+    bool AttributeRepository::removeProperty( PropertyBase& p )
     {
-        if ( bag && bag->find( p->getName() ) ) {
-            bag->remove(p);
-            removeValue( p->getName() );
+        if ( bag && bag->find( p.getName() ) ) {
+            bag->remove(&p);
             return true;
         }
         return false;

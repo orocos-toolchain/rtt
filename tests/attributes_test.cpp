@@ -109,8 +109,8 @@ BOOST_AUTO_TEST_CASE( testAttributes)
     Attribute<double> d1("d1", 1.234);
     BOOST_CHECK( i1.ready() );
     BOOST_CHECK( d1.ready() );
-    BOOST_CHECK(tc->addAttribute( &d1 ));
-    BOOST_CHECK(tc->addAttribute( &i1 ));
+    BOOST_CHECK(tc->addAttribute( d1 ));
+    BOOST_CHECK(tc->addAttribute( i1 ));
 
     i1.set( 3 );
     BOOST_CHECK_EQUAL( double(1.234), d1.get() );
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE( testAttributes)
     Attribute<string> s2("hello","world");
     BOOST_CHECK( s2.ready() );
 
-    BOOST_CHECK(tc->addAttribute( &s1 ) == false);
-    BOOST_CHECK(tc->addAttribute( &s2 ) );
+    BOOST_CHECK(tc->addAttribute( s1 ) == false);
+    BOOST_CHECK(tc->addAttribute( s2 ) );
     s1 = tc->getAttribute("hello");
     BOOST_CHECK( s1.ready() );
 
