@@ -1,7 +1,7 @@
 
 #include "operations_fixture.hpp"
 #include <scripting/Scripting.hpp>
-#include <scripting/ScriptingAccess.hpp>
+#include <scripting/ScriptingService.hpp>
 
 using namespace std;
 using namespace boost;
@@ -18,7 +18,7 @@ BOOST_FIXTURE_TEST_SUITE(  ScriptingTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(TestGetProvider)
 {
-    //ScriptingAccess* sa = new ScriptingAccess( tc ); // done by TC or plugin.
+    //ScriptingService* sa = new ScriptingService( tc ); // done by TC or plugin.
 
     boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
     BOOST_REQUIRE( sc );

@@ -21,7 +21,7 @@
 #define TYPESTEST_H
 
 #include <scripting/Parser.hpp>
-#include <scripting/ScriptingAccess.hpp>
+#include <scripting/ScriptingService.hpp>
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>
@@ -35,7 +35,7 @@ class TypesTest
 public:
     Parser parser;
     TaskContext* tc;
-    ScriptingAccess* sa;
+    ScriptingService* sa;
     ServiceProvider::shared_ptr createMethodFactory();
     bool assertBool( bool );
     bool assertEqual( double, double );

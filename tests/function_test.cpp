@@ -23,7 +23,7 @@
 
 #include <scripting/Parser.hpp>
 #include <scripting/FunctionGraph.hpp>
-#include <scripting/ScriptingAccess.hpp>
+#include <scripting/ScriptingService.hpp>
 #include <extras/SimulationThread.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <interface/ServiceProvider.hpp>
@@ -45,7 +45,7 @@ class FunctionTest
 public:
     Parser parser;
     TaskContext gtc;
-    ScriptingAccess* sa;
+    ScriptingService* sa;
     ServiceProvider::shared_ptr createObject( ServiceProvider::shared_ptr );
     Attribute<int> var_i;
     Constant<int>* const_i;
@@ -75,7 +75,7 @@ public:
 
     FunctionTest()
     : gtc("root"),
-      sa( new ScriptingAccess(&gtc) )
+      sa( new ScriptingService(&gtc) )
     {
         gtc.setActivity(new SimulationActivity(0.01));
         Attribute<int> init_var("tvar_i");

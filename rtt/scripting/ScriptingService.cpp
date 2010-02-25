@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingAccess.cxx
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingService.cxx
 
-                        ScriptingAccess.cxx -  description
+                        ScriptingService.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -37,7 +37,7 @@
 
 
 
-#include "ScriptingAccess.hpp"
+#include "ScriptingService.hpp"
 #include "../Logger.hpp"
 #include "../TaskContext.hpp"
 #include <algorithm>
@@ -57,13 +57,13 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    ServiceProvider::shared_ptr ScriptingAccess::Create(TaskContext* parent){
-        shared_ptr sp(new ScriptingAccess(parent));
+    ServiceProvider::shared_ptr ScriptingService::Create(TaskContext* parent){
+        shared_ptr sp(new ScriptingService(parent));
         parent->provides()->addService( sp );
         return sp;
     }
 
-    ScriptingAccess::ScriptingAccess( TaskContext* parent )
+    ScriptingService::ScriptingService( TaskContext* parent )
         : ServiceProvider("scripting", parent),
           sproc(0)
     {
@@ -71,7 +71,7 @@ namespace RTT {
         this->createInterface();
     }
 
-    ScriptingAccess::~ScriptingAccess()
+    ScriptingService::~ScriptingService()
     {
         // since we are refcounted, we don't need to inform the owner
         // that we're being deleted.
@@ -79,10 +79,10 @@ namespace RTT {
         delete sproc;
     }
 
-    void ScriptingAccess::clear() {
+    void ScriptingService::clear() {
         while ( !states.empty() ) {
             // try to unload all
-            Logger::log() << Logger::Info << "ScriptingAccess unloads StateMachine "<< states.begin()->first << "..."<<Logger::endl;
+            Logger::log() << Logger::Info << "ScriptingService unloads StateMachine "<< states.begin()->first << "..."<<Logger::endl;
 #ifndef ORO_EMBEDDED
             try {
                 this->unloadStateMachine( states.begin()->first );
@@ -100,7 +100,7 @@ namespace RTT {
         }
         while ( !programs.empty() ) {
             // try to unload all
-            Logger::log() << Logger::Info << "ScriptingAccess unloads Program "<< programs.begin()->first << "..."<<Logger::endl;
+            Logger::log() << Logger::Info << "ScriptingService unloads Program "<< programs.begin()->first << "..."<<Logger::endl;
 #ifndef ORO_EMBEDDED
             try {
                 this->unloadProgram( programs.begin()->first );
@@ -119,7 +119,7 @@ namespace RTT {
         ServiceProvider::clear();
     }
 
-     StateMachine::Status::StateMachineStatus ScriptingAccess::getStateMachineStatus(const string& name) const
+     StateMachine::Status::StateMachineStatus ScriptingService::getStateMachineStatus(const string& name) const
      {
          StateMapIt it = states.find(name);
          if ( it != states.end() ) {
@@ -128,7 +128,7 @@ namespace RTT {
          return StateMachineStatus::unloaded;
      }
 
-     string ScriptingAccess::getStateMachineStatusStr(const string& name) const
+     string ScriptingService::getStateMachineStatusStr(const string& name) const
      {
         switch ( getStateMachineStatus( name ))
             {
@@ -172,7 +172,7 @@ namespace RTT {
         return "na";
      }
 
-    bool ScriptingAccess::loadStateMachine( StateMachinePtr sc )
+    bool ScriptingService::loadStateMachine( StateMachinePtr sc )
     {
         // test if parent ...
         if ( sc->getParent() ) {
@@ -188,7 +188,7 @@ namespace RTT {
         return true;
     }
 
-    bool ScriptingAccess::recursiveCheckLoadStateMachine( StateMachinePtr sc )
+    bool ScriptingService::recursiveCheckLoadStateMachine( StateMachinePtr sc )
     {
         // test if already present..., this cannot detect corrupt
         // trees with double names...
@@ -208,7 +208,7 @@ namespace RTT {
         return true;
     }
 
-    void ScriptingAccess::recursiveLoadStateMachine( StateMachinePtr sc )
+    void ScriptingService::recursiveLoadStateMachine( StateMachinePtr sc )
     {
         vector<StateMachinePtr>::const_iterator it;
 
@@ -224,7 +224,7 @@ namespace RTT {
 
     }
 
-    bool ScriptingAccess::unloadStateMachine( const string& name )
+    bool ScriptingService::unloadStateMachine( const string& name )
     {
         StateMapIt it = states.find(name);
 
@@ -244,7 +244,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::recursiveCheckUnloadStateMachine(StateMachinePtr si)
+    bool ScriptingService::recursiveCheckUnloadStateMachine(StateMachinePtr si)
     {
         // check children
         vector<StateMachinePtr>::const_iterator it2;
@@ -266,7 +266,7 @@ namespace RTT {
         return true;
     }
 
-    void ScriptingAccess::recursiveUnloadStateMachine(StateMachinePtr sc) {
+    void ScriptingService::recursiveUnloadStateMachine(StateMachinePtr sc) {
         // first erase children
         for (vector<StateMachinePtr>::const_iterator it = sc->getChildren().begin();
              it != sc->getChildren().end(); ++it)
@@ -284,29 +284,29 @@ namespace RTT {
         mowner->engine()->removeFunction( sc.get() );
     }
 
-    bool ScriptingAccess::deleteStateMachine(const string& name)
+    bool ScriptingService::deleteStateMachine(const string& name)
     {
         return this->unloadStateMachine(name);
     }
 
-    const StateMachinePtr ScriptingAccess::getStateMachine(const string& name) const
+    const StateMachinePtr ScriptingService::getStateMachine(const string& name) const
     {
         StateMapIt it = states.find(name);
         return it == states.end() ? StateMachinePtr() : it->second;
     }
 
-    StateMachinePtr ScriptingAccess::getStateMachine(const string& name)
+    StateMachinePtr ScriptingService::getStateMachine(const string& name)
     {
         StateMapIt it = states.find(name);
         return it == states.end() ? StateMachinePtr() : it->second;
     }
 
-    vector<string> ScriptingAccess::getStateMachineList() const
+    vector<string> ScriptingService::getStateMachineList() const
     {
         return keys(states);
     }
 
-    ProgramInterface::Status::ProgramStatus ScriptingAccess::getProgramStatus(const string& name) const
+    ProgramInterface::Status::ProgramStatus ScriptingService::getProgramStatus(const string& name) const
     {
         ProgMapIt it = programs.find(name);
 
@@ -315,7 +315,7 @@ namespace RTT {
         return ProgramStatus::unknown;
     }
 
-    string ScriptingAccess::getProgramStatusStr(const string& name) const
+    string ScriptingService::getProgramStatusStr(const string& name) const
     {
        switch ( getProgramStatus( name ))
            {
@@ -338,10 +338,10 @@ namespace RTT {
        return "na";
     }
 
-   bool ScriptingAccess::loadProgram(ProgramInterfacePtr pi)
+   bool ScriptingService::loadProgram(ProgramInterfacePtr pi)
    {
        if ( programs.find(pi->getName()) != programs.end() ) {
-           log(Error) << "Could not load Program "<< pi->getName() << " in ScriptingAccess: name already in use."<<endlog();
+           log(Error) << "Could not load Program "<< pi->getName() << " in ScriptingService: name already in use."<<endlog();
            return false;
        }
        programs[pi->getName()] = pi;
@@ -354,7 +354,7 @@ namespace RTT {
        return true;
    }
 
-   bool ScriptingAccess::unloadProgram(const string& name)
+   bool ScriptingService::unloadProgram(const string& name)
    {
        ProgMap::iterator it = programs.find(name);
 
@@ -369,131 +369,131 @@ namespace RTT {
        ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
    }
 
-   vector<string> ScriptingAccess::getProgramList() const
+   vector<string> ScriptingService::getProgramList() const
    {
        return keys(programs);
    }
 
-   const ProgramInterfacePtr ScriptingAccess::getProgram(const string& name) const
+   const ProgramInterfacePtr ScriptingService::getProgram(const string& name) const
    {
        ProgMapIt it = programs.find(name);
        return it == programs.end() ? ProgramInterfacePtr() : it->second;
    }
 
-   ProgramInterfacePtr ScriptingAccess::getProgram(const string& name)
+   ProgramInterfacePtr ScriptingService::getProgram(const string& name)
    {
        ProgMapIt it = programs.find(name);
        return it == programs.end() ? ProgramInterfacePtr() : it->second;
    }
 
 
-    bool ScriptingAccess::doExecute(const string& code)
+    bool ScriptingService::doExecute(const string& code)
     {
         return this->execute(code) >= 0;
     }
 
-    bool ScriptingAccess::doLoadPrograms( const string& filename )
+    bool ScriptingService::doLoadPrograms( const string& filename )
     {
         return this->loadPrograms(filename, false);
     }
 
-    bool ScriptingAccess::doLoadProgramText( const string& code )
+    bool ScriptingService::doLoadProgramText( const string& code )
     {
         return this->loadPrograms(code, "string", false);
     }
-    bool ScriptingAccess::doUnloadProgram( const string& name )
+    bool ScriptingService::doUnloadProgram( const string& name )
     {
         return this->unloadProgram(name, false);
     }
 
-    bool ScriptingAccess::doLoadStateMachines( const string& filename )
+    bool ScriptingService::doLoadStateMachines( const string& filename )
     {
         return this->loadStateMachines(filename, false);
     }
-    bool ScriptingAccess::doLoadStateMachineText( const string& code )
+    bool ScriptingService::doLoadStateMachineText( const string& code )
     {
         return this->loadStateMachines(code, "string", false);
     }
-    bool ScriptingAccess::doUnloadStateMachine( const string& name )
+    bool ScriptingService::doUnloadStateMachine( const string& name )
     {
         return this->unloadStateMachine(name, false);
     }
 
-    void ScriptingAccess::createInterface()
+    void ScriptingService::createInterface()
     {
-        addOperation("execute", &ScriptingAccess::execute, this).doc("Execute a line of code.").arg("Code", "A single statement.");
+        addOperation("execute", &ScriptingService::execute, this).doc("Execute a line of code.").arg("Code", "A single statement.");
         // Methods for loading programs
-        addOperation("loadPrograms", &ScriptingAccess::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
-        addOperation("loadProgramText", &ScriptingAccess::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
-        addOperation("unloadProgram", &ScriptingAccess::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
+        addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
+        addOperation("unloadProgram", &ScriptingService::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
         // Query Methods for programs
-        addOperation("getProgramList", &ScriptingAccess::getProgramList, this).doc("Get a list of all loaded program scripts.");
-        addOperation("getProgramStatus", &ScriptingAccess::getProgramStatus, this).doc("Get the status of a program?").arg("Name", "The Name of the loaded Program");
-        addOperation("getProgramStatusStr", &ScriptingAccess::getProgramStatusStr, this).doc("Get the status of a program as a human readable string.").arg("Name", "The Name of the loaded Program");
-        addOperation("getProgramLine", &ScriptingAccess::getProgramLine, this).doc("Get the current line of execution of a program?").arg("Name", "The Name of the loaded Program");
-        addOperation("getProgramText", &ScriptingAccess::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramList", &ScriptingService::getProgramList, this).doc("Get a list of all loaded program scripts.");
+        addOperation("getProgramStatus", &ScriptingService::getProgramStatus, this).doc("Get the status of a program?").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramStatusStr", &ScriptingService::getProgramStatusStr, this).doc("Get the status of a program as a human readable string.").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramLine", &ScriptingService::getProgramLine, this).doc("Get the current line of execution of a program?").arg("Name", "The Name of the loaded Program");
+        addOperation("getProgramText", &ScriptingService::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
 
         // Methods for loading state machines
-        addOperation("loadStateMachines", &ScriptingAccess::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
-        addOperation("loadStateMachineText", &ScriptingAccess::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
-        addOperation("unloadStateMachine", &ScriptingAccess::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
+        addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
+        addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
+        addOperation("unloadStateMachine", &ScriptingService::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
         // Query Methods for state machines
-        addOperation("getStateMachineList", &ScriptingAccess::getStateMachineList, this).doc("Get a list of all loaded state machines");
-        addOperation("getStateMachineStatus", &ScriptingAccess::getStateMachineStatus, this).doc("Get the status of a state machine?").arg("Name", "The Name of the loaded State Machine");
-        addOperation("getStateMachineStatusStr", &ScriptingAccess::getStateMachineStatusStr, this).doc("Get the status of a state machine as a human readable string.");
-        addOperation("getStateMachineLine", &ScriptingAccess::getStateMachineLine, this).doc("Get the current line of execution of a state machine?").arg("Name", "The Name of the loaded State Machine");
-        addOperation("getStateMachineText", &ScriptingAccess::getStateMachineText, this).doc("Get the script of a StateMachine.").arg("Name", "The Name of the loaded StateMachine");
+        addOperation("getStateMachineList", &ScriptingService::getStateMachineList, this).doc("Get a list of all loaded state machines");
+        addOperation("getStateMachineStatus", &ScriptingService::getStateMachineStatus, this).doc("Get the status of a state machine?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("getStateMachineStatusStr", &ScriptingService::getStateMachineStatusStr, this).doc("Get the status of a state machine as a human readable string.");
+        addOperation("getStateMachineLine", &ScriptingService::getStateMachineLine, this).doc("Get the current line of execution of a state machine?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("getStateMachineText", &ScriptingService::getStateMachineText, this).doc("Get the script of a StateMachine.").arg("Name", "The Name of the loaded StateMachine");
 
         // Query Methods for programs
-        addOperation("hasProgram", &ScriptingAccess::hasProgram, this).doc("Is a program loaded?").arg("Name", "The Name of the loaded Program");
-        addOperation("isProgramRunning", &ScriptingAccess::isProgramRunning, this).doc("Is a program running ?").arg("Name", "The Name of the Loaded Program");
-        addOperation("isProgramPaused", &ScriptingAccess::isProgramPaused, this).doc("Is a program paused ?").arg("Name", "The Name of the Loaded Program");
-        addOperation("inProgramError", &ScriptingAccess::inProgramError, this).doc("Is a program in error ?").arg("Name", "The Name of the Loaded Program");
+        addOperation("hasProgram", &ScriptingService::hasProgram, this).doc("Is a program loaded?").arg("Name", "The Name of the loaded Program");
+        addOperation("isProgramRunning", &ScriptingService::isProgramRunning, this).doc("Is a program running ?").arg("Name", "The Name of the Loaded Program");
+        addOperation("isProgramPaused", &ScriptingService::isProgramPaused, this).doc("Is a program paused ?").arg("Name", "The Name of the Loaded Program");
+        addOperation("inProgramError", &ScriptingService::inProgramError, this).doc("Is a program in error ?").arg("Name", "The Name of the Loaded Program");
 
         // Query Methods for state machines
-        addOperation("hasStateMachine", &ScriptingAccess::hasStateMachine, this).doc("Is a state machine loaded?").arg("Name", "The Name of the loaded State Machine");
-        addOperation("isStateMachineActive", &ScriptingAccess::isStateMachineActive, this).doc("Is a state machine active ?").arg("Name", "The Name of the Loaded StateMachine");
-        addOperation("isStateMachineRunning", &ScriptingAccess::isStateMachineRunning, this).doc("Is a state machine running ?").arg("Name", "The Name of the Loaded StateMachine");
-        addOperation("isStateMachinePaused", &ScriptingAccess::isStateMachinePaused, this).doc("Is a state machine paused ?").arg("Name", "The Name of the Loaded StateMachine");
-        addOperation("inStateMachineError", &ScriptingAccess::inStateMachineError, this).doc("Is a state machine in error ?").arg("Name", "The Name of the Loaded StateMachine");
-        addOperation("inStateMachineState", &ScriptingAccess::inStateMachineState, this).doc("Is a state machine in a given state ?").arg("Name", "The Name of the Loaded StateMachine").arg("State", "The name of the state in which it could be.");
-        addOperation("getStateMachineState", &ScriptingAccess::getStateMachineState, this).doc("Get the current state name of a state machine.").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("hasStateMachine", &ScriptingService::hasStateMachine, this).doc("Is a state machine loaded?").arg("Name", "The Name of the loaded State Machine");
+        addOperation("isStateMachineActive", &ScriptingService::isStateMachineActive, this).doc("Is a state machine active ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("isStateMachineRunning", &ScriptingService::isStateMachineRunning, this).doc("Is a state machine running ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("isStateMachinePaused", &ScriptingService::isStateMachinePaused, this).doc("Is a state machine paused ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("inStateMachineError", &ScriptingService::inStateMachineError, this).doc("Is a state machine in error ?").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("inStateMachineState", &ScriptingService::inStateMachineState, this).doc("Is a state machine in a given state ?").arg("Name", "The Name of the Loaded StateMachine").arg("State", "The name of the state in which it could be.");
+        addOperation("getStateMachineState", &ScriptingService::getStateMachineState, this).doc("Get the current state name of a state machine.").arg("Name", "The Name of the Loaded StateMachine");
 
         // Methods for programs
-        addOperation("startProgram", &ScriptingAccess::startProgram, this).doc("Start a program").arg("Name", "The Name of the Loaded Program");
-        addOperation("stopProgram", &ScriptingAccess::stopProgram , this).doc("Stop a program").arg("Name", "The Name of the Started Program");
+        addOperation("startProgram", &ScriptingService::startProgram, this).doc("Start a program").arg("Name", "The Name of the Loaded Program");
+        addOperation("stopProgram", &ScriptingService::stopProgram , this).doc("Stop a program").arg("Name", "The Name of the Started Program");
 
-        addOperation("stepProgram", &ScriptingAccess::stepProgram , this).doc("Step a single program instruction").arg("Name", "The Name of the Paused Program");
-        addOperation("pauseProgram", &ScriptingAccess::pauseProgram , this).doc("Pause a program").arg("Name", "The Name of the Started Program");
+        addOperation("stepProgram", &ScriptingService::stepProgram , this).doc("Step a single program instruction").arg("Name", "The Name of the Paused Program");
+        addOperation("pauseProgram", &ScriptingService::pauseProgram , this).doc("Pause a program").arg("Name", "The Name of the Started Program");
 
         // Methods for state machines
         // Activate/deactivate:
-        addOperation("activateStateMachine", &ScriptingAccess::activateStateMachine , this).doc("Activate a StateMachine").arg("Name", "The Name of the Loaded StateMachine");
-        addOperation("deactivateStateMachine", &ScriptingAccess::deactivateStateMachine , this).doc("Deactivate a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
+        addOperation("activateStateMachine", &ScriptingService::activateStateMachine , this).doc("Activate a StateMachine").arg("Name", "The Name of the Loaded StateMachine");
+        addOperation("deactivateStateMachine", &ScriptingService::deactivateStateMachine , this).doc("Deactivate a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
 
         // start/stop/pause:
-        addOperation("startStateMachine", &ScriptingAccess::startStateMachine , this).doc("Start a StateMachine").arg("Name", "The Name of the Activated/Paused StateMachine");
-        addOperation("pauseStateMachine", &ScriptingAccess::pauseStateMachine , this).doc("Pause a StateMachine").arg("Name", "The Name of a Started StateMachine");
-        addOperation("stopStateMachine", &ScriptingAccess::stopStateMachine , this).doc("Stop a StateMachine").arg("Name", "The Name of the Started/Paused StateMachine");
-        addOperation("resetStateMachine", &ScriptingAccess::resetStateMachine , this).doc("Reset a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
+        addOperation("startStateMachine", &ScriptingService::startStateMachine , this).doc("Start a StateMachine").arg("Name", "The Name of the Activated/Paused StateMachine");
+        addOperation("pauseStateMachine", &ScriptingService::pauseStateMachine , this).doc("Pause a StateMachine").arg("Name", "The Name of a Started StateMachine");
+        addOperation("stopStateMachine", &ScriptingService::stopStateMachine , this).doc("Stop a StateMachine").arg("Name", "The Name of the Started/Paused StateMachine");
+        addOperation("resetStateMachine", &ScriptingService::resetStateMachine , this).doc("Reset a StateMachine").arg("Name", "The Name of the Stopped StateMachine");
 
         // request states
-        addOperation("requestStateMachineState", &ScriptingAccess::requestStateMachineState , this).doc("Request a State change").arg("Name", "The Name of the StateMachine").arg("StateName", "The Name of the State to change to");
+        addOperation("requestStateMachineState", &ScriptingService::requestStateMachineState , this).doc("Request a State change").arg("Name", "The Name of the StateMachine").arg("StateName", "The Name of the State to change to");
     }
 
-    int ScriptingAccess::execute(const string& code ){
+    int ScriptingService::execute(const string& code ){
         if (sproc == 0)
             sproc = new StatementProcessor(mowner);
         return sproc->execute( code );
     }
 
-    ScriptingAccess::Functions  ScriptingAccess::loadFunctions( const string& file, bool do_throw/* = false*/ )
+    ScriptingService::Functions  ScriptingService::loadFunctions( const string& file, bool do_throw/* = false*/ )
     {
       ifstream inputfile(file.c_str());
       if ( !inputfile ) {
-          Logger::In in("ScriptingAccess::loadFunctions");
+          Logger::In in("ScriptingService::loadFunctions");
           Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
           return Functions();
       }
@@ -505,10 +505,10 @@ namespace RTT {
       return this->loadFunctions( text, file, do_throw );
     }
 
-    ScriptingAccess::Functions  ScriptingAccess::loadFunctions( const string& code, const string& filename, bool mrethrow )
+    ScriptingService::Functions  ScriptingService::loadFunctions( const string& code, const string& filename, bool mrethrow )
     {
 
-      Logger::In in("ScriptingAccess::loadFunctions");
+      Logger::In in("ScriptingService::loadFunctions");
       Parser p;
       Functions exec;
       Functions ret;
@@ -545,11 +545,11 @@ namespace RTT {
 
     }
 
-    bool ScriptingAccess::loadPrograms( const string& file, bool do_throw /*= false*/ )
+    bool ScriptingService::loadPrograms( const string& file, bool do_throw /*= false*/ )
     {
         ifstream inputfile(file.c_str());
         if ( !inputfile ) {
-            Logger::In in("ScriptingAccess::loadProgram");
+            Logger::In in("ScriptingService::loadProgram");
             Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
             return false;
         }
@@ -561,7 +561,7 @@ namespace RTT {
         return this->loadPrograms( text, file, do_throw );
     }
 
-    bool ScriptingAccess::loadPrograms( const string& code, const string& filename, bool mrethrow ){
+    bool ScriptingService::loadPrograms( const string& code, const string& filename, bool mrethrow ){
 
       Logger::In in("ProgramLoader::loadProgram");
       Parser parser;
@@ -611,8 +611,8 @@ namespace RTT {
       // never reached
     }
 
-    bool ScriptingAccess::unloadProgram( const string& name, bool do_throw ){
-        Logger::In in("ScriptingAccess::unloadProgram");
+    bool ScriptingService::unloadProgram( const string& name, bool do_throw ){
+        Logger::In in("ScriptingService::unloadProgram");
         try {
             Logger::log() << Logger::Info << "Unloading Program '"<< name <<"'"<< Logger::endl;
             if (this->unloadProgram(name) == false)
@@ -630,11 +630,11 @@ namespace RTT {
     }
 
 
-    bool ScriptingAccess::loadStateMachines( const string& file, bool do_throw /*= false*/  )
+    bool ScriptingService::loadStateMachines( const string& file, bool do_throw /*= false*/  )
     {
         ifstream inputfile(file.c_str());
         if ( !inputfile ) {
-            Logger::In in("ScriptingAccess::loadStateMachine");
+            Logger::In in("ScriptingService::loadStateMachine");
           Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
           return false;
         }
@@ -646,9 +646,9 @@ namespace RTT {
       return this->loadStateMachines( text, file, do_throw );
     }
 
-    bool ScriptingAccess::loadStateMachines( const string& code, const string& filename, bool mrethrow )
+    bool ScriptingService::loadStateMachines( const string& code, const string& filename, bool mrethrow )
     {
-        Logger::In in("ScriptingAccess::loadStateMachine");
+        Logger::In in("ScriptingService::loadStateMachine");
         Parser parser;
         Parser::ParsedStateMachines pg_list;
         try {
@@ -697,8 +697,8 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::unloadStateMachine( const string& name, bool do_throw ) {
-        Logger::In in("ScriptingAccess::unloadStateMachine");
+    bool ScriptingService::unloadStateMachine( const string& name, bool do_throw ) {
+        Logger::In in("ScriptingService::unloadStateMachine");
         try {
             Logger::log() << Logger::Info << "Unloading StateMachine '"<< name <<"'"<< Logger::endl;
             if (this->unloadStateMachine(name) == false)
@@ -715,35 +715,35 @@ namespace RTT {
         return true;
     }
 
-    bool ScriptingAccess::hasProgram(const string& name) const {
+    bool ScriptingService::hasProgram(const string& name) const {
         return programs.find(name) != programs.end();
     }
 
-    int ScriptingAccess::getProgramLine(const string& name) const {
+    int ScriptingService::getProgramLine(const string& name) const {
         const ProgramInterfacePtr pi = getProgram(name);
         return pi ? pi->getLineNumber() : -1;
     }
 
-    string ScriptingAccess::getProgramText(const string& name ) const {
+    string ScriptingService::getProgramText(const string& name ) const {
         const ProgramInterfacePtr pi = getProgram(name);
         return pi ? pi->getText() : "";
     }
 
-    bool ScriptingAccess::hasStateMachine(const string& name) const {
+    bool ScriptingService::hasStateMachine(const string& name) const {
         return states.find(name) != states.end();
     }
 
-    string ScriptingAccess::getStateMachineText(const string& name ) const {
+    string ScriptingService::getStateMachineText(const string& name ) const {
         const StateMachinePtr sm = getStateMachine(name);
         return sm ? sm->getText() : "";
     }
 
-    int ScriptingAccess::getStateMachineLine(const string& name ) const {
+    int ScriptingService::getStateMachineLine(const string& name ) const {
         const StateMachinePtr sm = getStateMachine(name);
         return sm ? sm->getLineNumber() : -1;
     }
 
-    bool ScriptingAccess::startProgram(const string& name)
+    bool ScriptingService::startProgram(const string& name)
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -751,7 +751,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::isProgramRunning(const string& name) const
+    bool ScriptingService::isProgramRunning(const string& name) const
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -759,7 +759,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::isProgramPaused(const string& name) const
+    bool ScriptingService::isProgramPaused(const string& name) const
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -767,7 +767,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::inProgramError(const string& name) const
+    bool ScriptingService::inProgramError(const string& name) const
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -775,7 +775,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::stopProgram(const string& name)
+    bool ScriptingService::stopProgram(const string& name)
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -783,7 +783,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::pauseProgram(const string& name)
+    bool ScriptingService::pauseProgram(const string& name)
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -791,7 +791,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::stepProgram(const string& name)
+    bool ScriptingService::stepProgram(const string& name)
     {
         ProgramInterfacePtr pi = getProgram(name);
         if (pi)
@@ -799,7 +799,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::activateStateMachine(const string& name)
+    bool ScriptingService::activateStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -807,7 +807,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::deactivateStateMachine(const string& name)
+    bool ScriptingService::deactivateStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -815,7 +815,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::startStateMachine(const string& name)
+    bool ScriptingService::startStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -823,7 +823,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::pauseStateMachine(const string& name)
+    bool ScriptingService::pauseStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -831,7 +831,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::stopStateMachine(const string& name)
+    bool ScriptingService::stopStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -839,7 +839,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::isStateMachinePaused(const string& name) const
+    bool ScriptingService::isStateMachinePaused(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -847,7 +847,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::isStateMachineActive(const string& name) const
+    bool ScriptingService::isStateMachineActive(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -855,7 +855,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::isStateMachineRunning(const string& name) const
+    bool ScriptingService::isStateMachineRunning(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -863,7 +863,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::inStateMachineError(const string& name) const
+    bool ScriptingService::inStateMachineError(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -871,7 +871,7 @@ namespace RTT {
         return false;
     }
 
-    string ScriptingAccess::getStateMachineState(const string& name) const
+    string ScriptingService::getStateMachineState(const string& name) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -879,7 +879,7 @@ namespace RTT {
         return "";
     }
 
-    bool ScriptingAccess::requestStateMachineState(const string& name, const string& state)
+    bool ScriptingService::requestStateMachineState(const string& name, const string& state)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -887,7 +887,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::inStateMachineState(const string& name, const string& state) const
+    bool ScriptingService::inStateMachineState(const string& name, const string& state) const
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)
@@ -895,7 +895,7 @@ namespace RTT {
         return false;
     }
 
-    bool ScriptingAccess::resetStateMachine(const string& name)
+    bool ScriptingService::resetStateMachine(const string& name)
     {
         StateMachinePtr sm = getStateMachine(name);
         if (sm)

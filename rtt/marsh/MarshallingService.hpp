@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  MarshallingAccess.hpp
+  tag: FMTC  do nov 2 13:06:11 CET 2006  MarshallingService.hpp
 
-                        MarshallingAccess.hpp -  description
+                        MarshallingService.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -51,23 +51,23 @@ namespace RTT
     /**
      * Service which loads and saves properties of a TaskContext.
      */
-    class RTT_API MarshallingAccess
+    class RTT_API MarshallingService
         : public interface::ServiceProvider
     {
     public:
         /**
-         * Creates a MarshallingAccess object and registers
+         * Creates a MarshallingService object and registers
          * the service to \a parent.
          */
         static shared_ptr Create(TaskContext* parent);
 
         /**
-         * Creates a MarshallingAccess object.
+         * Creates a MarshallingService object.
          * You need to add the service to \a parent yourself,
          * or use Create().
          * This object is normally created by a TaskContext.
          */
-        MarshallingAccess(TaskContext* parent);
+        MarshallingService(TaskContext* parent);
 
         /**
          * Read a property file and update (or create any missing) properties in the

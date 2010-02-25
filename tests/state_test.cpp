@@ -30,7 +30,7 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Port.hpp>
-#include <scripting/ScriptingAccess.hpp>
+#include <scripting/ScriptingService.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -54,7 +54,7 @@ public:
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
-    ScriptingAccess* sa;
+    ScriptingService* sa;
     //Event<void(void)> t_event;
     ServiceProvider::shared_ptr createObject(std::string);
     bool assertBool( bool b) { return b; }
@@ -85,7 +85,7 @@ public:
         :gtc("root"),
          d_event("d_event"), b_event("b_event"), t_event("t_event"),
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
-         sa( new ScriptingAccess(&gtc) )
+         sa( new ScriptingService(&gtc) )
     {
         gtc.setActivity( new SimulationActivity(0.001) );
 
@@ -879,7 +879,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
 
-    // Alternative way: test ScriptingAccess as well.
+    // Alternative way: test ScriptingService as well.
     try {
         sa->loadStateMachines( prog, std::string("state_test.cpp"), true );
     }

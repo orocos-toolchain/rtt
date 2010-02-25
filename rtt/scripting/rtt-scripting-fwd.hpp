@@ -81,8 +81,6 @@ namespace RTT {
         class FunctionGraphBuilder;
         class ParsedStateMachine;
         class Parser;
-        class ParserExecutionAccess;
-        class ParserScriptingAccess;
         class PeerParser;
         class ProgramGraphParser;
         class ProgramInterface;
@@ -90,7 +88,7 @@ namespace RTT {
         class ProgramProcessor;
         class ProgramTask;
         class PropertyParser;
-        class ScriptingAccess;
+        class ScriptingService;
         class StateDescription;
         class StateGraphParser;
         class StateInterface;

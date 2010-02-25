@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingAccess.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingService.hpp
 
-                        ScriptingAccess.hpp -  description
+                        ScriptingService.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -58,24 +58,24 @@ namespace RTT
      * It keeps track of all loaded scripts of the parent component.
      * It can be found as the \a scripting object of a TaskContext.
      */
-    class RTT_API ScriptingAccess
+    class RTT_API ScriptingService
         : public interface::ServiceProvider
     {
     public:
         /**
-         * Creates a ScriptingAccess object and registers
+         * Creates a ScriptingService object and registers
          * the service to \a parent.
          */
         static shared_ptr Create(TaskContext* parent);
 
         /**
-         * Creates a ScriptingAccess object.
+         * Creates a ScriptingService object.
          * You need to add the service to \a parent yourself,
          * or use Create().
          */
-        ScriptingAccess( TaskContext* parent );
+        ScriptingService( TaskContext* parent );
 
-        virtual ~ScriptingAccess();
+        virtual ~ScriptingService();
 
         typedef ProgramInterface::Status ProgramStatus;
         typedef scripting::StateMachine::Status StateMachineStatus;

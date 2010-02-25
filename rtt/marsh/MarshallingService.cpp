@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:27 CET 2008  MarshallingAccess.cpp
+  tag: FMTC  Tue Mar 11 21:49:27 CET 2008  MarshallingService.cpp
 
-                        MarshallingAccess.cpp -  description
+                        MarshallingService.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
@@ -37,7 +37,7 @@
 
 
 
-#include "MarshallingAccess.hpp"
+#include "MarshallingService.hpp"
 #include "../TaskContext.hpp"
 
 #include "rtt-config.h"
@@ -49,61 +49,61 @@
 namespace RTT {
     using namespace detail;
 
-    ServiceProvider::shared_ptr MarshallingAccess::Create(TaskContext* parent){
-        shared_ptr sp(new MarshallingAccess(parent));
+    ServiceProvider::shared_ptr MarshallingService::Create(TaskContext* parent){
+        shared_ptr sp(new MarshallingService(parent));
         parent->provides()->addService( sp );
         return sp;
     }
 
-    MarshallingAccess::MarshallingAccess(TaskContext* parent)
+    MarshallingService::MarshallingService(TaskContext* parent)
         : ServiceProvider("marshalling", parent)
     {
         this->doc("Property marshalling interface. Use this service to read and write properties from/to a file.");
-        this->addOperation("loadProperties",&MarshallingAccess::loadProperties, this).doc(
+        this->addOperation("loadProperties",&MarshallingService::loadProperties, this).doc(
                                   "Read, and create if necessary, Properties from a file.").arg(
                                   "Filename","The file to read the (new) Properties from.");
-        this->addOperation("updateProperties", &MarshallingAccess::updateProperties, this).doc("Read some Properties from a file.").arg("Filename", "The file to read the Properties from.");
-        this->addOperation("readProperties", &MarshallingAccess::readProperties, this).doc("Read all Properties from a file.").arg("Filename", "The file to read the Properties from.");
-        this->addOperation("readProperty", &MarshallingAccess::readProperty, this).doc("Read a single Property from a file.").arg("Name", "The name of (or the path to) the property to read.").arg("Filename", "The file to read the Properties from.");
+        this->addOperation("updateProperties", &MarshallingService::updateProperties, this).doc("Read some Properties from a file.").arg("Filename", "The file to read the Properties from.");
+        this->addOperation("readProperties", &MarshallingService::readProperties, this).doc("Read all Properties from a file.").arg("Filename", "The file to read the Properties from.");
+        this->addOperation("readProperty", &MarshallingService::readProperty, this).doc("Read a single Property from a file.").arg("Name", "The name of (or the path to) the property to read.").arg("Filename", "The file to read the Properties from.");
 
-        this->addOperation("updateFile", &MarshallingAccess::updateFile, this).doc("Write some Properties to a file.").arg("Filename", "The file to write the Properties to.");
-        this->addOperation("writeProperties", &MarshallingAccess::writeProperties, this).doc("Write all Properties to a file.").arg("Filename", "The file to write the Properties to.");
-        this->addOperation("writeProperty", &MarshallingAccess::writeProperty, this).doc("Write a single Properties to a file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
+        this->addOperation("updateFile", &MarshallingService::updateFile, this).doc("Write some Properties to a file.").arg("Filename", "The file to write the Properties to.");
+        this->addOperation("writeProperties", &MarshallingService::writeProperties, this).doc("Write all Properties to a file.").arg("Filename", "The file to write the Properties to.");
+        this->addOperation("writeProperty", &MarshallingService::writeProperty, this).doc("Write a single Properties to a file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
     }
 
-    bool MarshallingAccess::loadProperties(const std::string& filename) const
+    bool MarshallingService::loadProperties(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.load( filename, mowner );
     }
 
-    bool MarshallingAccess::readProperties(const std::string& filename) const
+    bool MarshallingService::readProperties(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.configure( filename, mowner, true); // all
     }
-    bool MarshallingAccess::updateProperties(const std::string& filename) const
+    bool MarshallingService::updateProperties(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.configure( filename, mowner, false); // not all
     }
-    bool MarshallingAccess::writeProperties(const std::string& filename) const
+    bool MarshallingService::writeProperties(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.save( filename, mowner, true);
     }
-    bool MarshallingAccess::updateFile(const std::string& filename) const
+    bool MarshallingService::updateFile(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.save( filename, mowner, false);
     }
 
-    bool MarshallingAccess::readProperty(const std::string& name, const std::string& filename) {
+    bool MarshallingService::readProperty(const std::string& name, const std::string& filename) {
         PropertyLoader p;
         return p.configure(filename, mowner, name);
     }
 
-    bool MarshallingAccess::writeProperty(const std::string& name, const std::string& filename) {
+    bool MarshallingService::writeProperty(const std::string& name, const std::string& filename) {
         PropertyLoader p;
         return p.save(filename, mowner, name);
     }

@@ -40,7 +40,7 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    sa = dynamic_cast<scripting::ScriptingAccess*>( tc->provides()->getService("scripting").get() );
+    sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
     tc->provides()->addService( this->createMethodFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
     SimulationThread::Instance()->stop();

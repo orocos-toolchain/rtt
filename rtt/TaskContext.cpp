@@ -51,8 +51,8 @@
 #include "Method.hpp"
 
 #include "rtt-config.h"
-#include "marsh/MarshallingAccess.hpp"
-#include "scripting/ScriptingAccess.hpp"
+#include "marsh/MarshallingService.hpp"
+#include "scripting/ScriptingService.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
 #include "extras/SequentialActivity.hpp"
@@ -98,8 +98,8 @@ namespace RTT
     void TaskContext::setup()
     {
         // Temporarily until plugins are implemented:
-        ScriptingAccess::Create(this);
-        MarshallingAccess::Create(this);
+        ScriptingService::Create(this);
+        MarshallingService::Create(this);
 
         // from ServiceProvider
         provides()->doc("The interface of this TaskContext.");
