@@ -5,7 +5,9 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
+#ifdef ORO_REMOTING
 #include <internal/RemoteMethod.hpp>
+#endif
 #include <interface/ServiceProvider.hpp>
 
 #include <extras/SimulationActivity.hpp>
@@ -216,7 +218,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
 }
 
-#if 0
+#ifdef ORO_REMOTING
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
     Method<double(void)> m0;
@@ -394,7 +396,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    ServiceProvider to("task", tc);
+    ServiceProviderPtr to (new ServiceProvider("task", tc) );
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,
@@ -414,17 +416,17 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
     boost::shared_ptr<MethodTest> ptr( new MethodTest() );
     ValueDataSource<boost::shared_ptr<MethodTest> >::shared_ptr wp = new ValueDataSource<boost::shared_ptr<MethodTest> >( ptr );
-    BOOST_CHECK( to.addOperationDS( wp.get(), meth0).doc("desc" ).ready() );
-    BOOST_CHECK( to.addOperationDS( wp.get(), meth1).doc("desc").arg("a1", "d1" ).ready() );
+    BOOST_CHECK( to->addOperationDS( wp.get(), meth0).doc("desc" ).ready() );
+    BOOST_CHECK( to->addOperationDS( wp.get(), meth1).doc("desc").arg("a1", "d1" ).ready() );
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
 
     double ret;
-    MethodC c0  = to.create("m0", tc->engine()).ret(ret);
+    MethodC c0  = to->create("m0", tc->engine()).ret(ret);
     BOOST_CHECK( c0.call() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to.create("m1", tc->engine()).argC(1).ret(ret);
+    MethodC c1  = to->create("m1", tc->engine()).argC(1).ret(ret);
     BOOST_CHECK( c1.call() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 
