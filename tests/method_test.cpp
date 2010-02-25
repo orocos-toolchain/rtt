@@ -1,93 +1,25 @@
 
 #define ORO_TEST_METHOD
 
-#include <iostream>
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
-#ifdef ORO_REMOTING
-#include <internal/RemoteMethod.hpp>
-#endif
 #include <interface/ServiceProvider.hpp>
 
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-
-using namespace std;
-using namespace RTT;
-using namespace RTT::detail;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-class MethodTest {
-public:
-    MethodTest()
-    {
-        tc =  new TaskContext( "root" );
-        tc->provides()->addService( this->createMethodFactory() );
-        caller = new TaskContext("caller");
-        caller->start();
-        tc->start();
-    }
-
-    TaskContext* tc, *caller;
-
-    // ref/const-ref tests:
-    double ret;
-    double& m0r() { return ret; }
-    const double& m0cr() { return ret; }
-
-    // test const std::string& argument for command_ds
-    bool comstr(const std::string& cs) { return !cs.empty(); }
-
-    double m1r(double& a) { a = 2*a; return a; }
-    double m1cr(const double& a) { return a; }
-
-    // plain argument tests:
-    double m0() { return -1.0; }
-    double m1(int i) { if (i ==1) return -2.0; cout <<"i: "<< i <<endl; return 2.0; }
-    double m2(int i, double d) { if ( i == 1 && d == 2.0 ) return -3.0; else return 3.0; }
-    double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }
-    double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
-
-    bool assertBool(bool b) { return b; }
-
-    ~MethodTest()
-    {
-        //     if ( tc->getPeer("programs") )
-        //         delete tc->getPeer("programs");
-        tc->stop();
-        SimulationThread::Instance()->stop();
-        delete tc;
-        delete  caller;
-    }
-
-    ServiceProvider::shared_ptr createMethodFactory()
-        {
-        ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
-
-        to->addOperation("assert", &MethodTest::assertBool, this).doc("assert").arg("b", "bd");
-
-        to->addOperation("m0", &MethodTest::m0, this).doc("M0");
-        to->addOperation("m1", &MethodTest::m1, this).doc("M1").arg("a", "ad");
-        to->addOperation("m2", &MethodTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
-        to->addOperation("m3", &MethodTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        to->addOperation("m4", &MethodTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        return to;
-        }
-};
+#include "unit.hpp"
+#include "operations_fixture.hpp"
 
 // Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  MethodTestSuite,  MethodTest )
+BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testClientThreadMethod)
 {
-    Method<double(void)> m0("m0", &MethodTest::m0, this);
-    Method<double(int)> m1("m1", &MethodTest::m1, this);
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this);
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
+    // Tests using no caller, no sender
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this);
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this);
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this);
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this);
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -98,11 +30,12 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethod)
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
 {
-    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
-    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, tc->engine(), caller->engine());
+    // Tests using caller and sender
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine());
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine());
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine());
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -116,11 +49,11 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
 BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
 {
     // we set the owner engine to zero and our caller engine to be able to send.
-    Method<double(void)> m0("m0", &MethodTest::m0, this, 0, caller->engine());
-    Method<double(int)> m1("m1", &MethodTest::m1, this, 0, caller->engine());
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this, 0, caller->engine());
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, 0, caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, 0, caller->engine());
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this, 0, caller->engine());
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this, 0, caller->engine());
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, 0, caller->engine());
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, 0, caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, 0, caller->engine());
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -168,11 +101,11 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 {
-    Method<double(void)> m0("m0", &MethodTest::m0, this, tc->engine(), caller->engine());
-    Method<double(int)> m1("m1", &MethodTest::m1, this, tc->engine(), caller->engine());
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this, tc->engine(), caller->engine());
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine());
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine());
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine());
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine());
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -218,65 +151,17 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
 }
 
-#ifdef ORO_REMOTING
-BOOST_AUTO_TEST_CASE(testRemoteMethod)
-{
-    Method<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
-    m0 = implementation;
-    BOOST_CHECK( m0.ready() );
-
-    Method<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
-    m1 = implementation;
-    BOOST_CHECK( m1.ready() );
-
-    BOOST_CHECK_EQUAL( -2.0, m1(1) );
-    BOOST_CHECK_EQUAL( -1.0, m0() );
-}
-
-BOOST_AUTO_TEST_CASE(testMethodsC)
-{
-    MethodC mc;
-    double r = 0.0;
-    mc = tc->provides("methods")->create("m0", tc->engine()).ret( r );
-    BOOST_CHECK( mc.call() );
-    BOOST_CHECK( r == -1.0 );
-
-    mc = tc->provides("methods")->create("m2", tc->engine()).argC(1).argC(1.0).ret( r );
-    BOOST_CHECK( mc.call() );
-    BOOST_CHECK( r == -3.0 );
-
-//    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-//    BOOST_CHECK( mc.call() );
-//    BOOST_CHECK( r == -4.0 );
-
-#if 0
-        +" set r = methods.m0()\n"
-        +" do methods.assert( r == -1.0 )\n"
-        +" set r = methods.m1(1)\n"
-        +" do methods.assert( r == -2.0 )\n"
-        +" set r = methods.m2(1, 1.0)\n"
-        +" do methods.assert( r == -3.0 )\n"
-        +" set r = methods.m3(1, 1.0, true)\n"
-        +" do methods.assert( r == -4.0 )\n"
-        +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
-        +" do methods.assert( r == -5.0 )\n"
-#endif
-}
-#endif
-
 BOOST_AUTO_TEST_CASE(testMethodFactory)
 {
     // Test the addition of 'simple' methods to the operation interface,
     // and retrieving it back in a new Method object.
 
     Operation<double(void)> m0("m0");
-    m0.calls(&MethodTest::m0, this);
+    m0.calls(&OperationsFixture::m0, this);
     Operation<double(int)> m1("m1");
-    m1.calls(&MethodTest::m1, this);
+    m1.calls(&OperationsFixture::m1, this);
     Operation<double(int,double)> m2("m2");
-    m2.calls(&MethodTest::m2, this);
+    m2.calls(&OperationsFixture::m2, this);
 
     ServiceProvider to("task");
 
@@ -337,11 +222,11 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &MethodTest::m0r, this);
-    Method<const double&(void)> m0cr("m0cr", &MethodTest::m0cr, this);
+    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this);
+    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this);
 
-    Method<double(double&)> m1r("m1r", &MethodTest::m1r, this);
-    Method<double(const double&)> m1cr("m1cr", &MethodTest::m1cr, this);
+    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this);
+    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this);
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );
@@ -352,48 +237,6 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
     BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
-#if 0
-BOOST_AUTO_TEST_CASE(testMethodFromDS)
-{
-    ServiceProvider to("task");
-
-    Method<double(void)> m0("m0", &MethodTest::m0, this);
-    Method<double(int)> m1("m1", &MethodTest::m1, this);
-    Method<double(int,double)> m2("m2", &MethodTest::m2, this);
-    Method<double(int,double,bool)> m3("m3", &MethodTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &MethodTest::m4, this);
-
-    to.addOperation( &m0, "desc");
-    to.addOperation( &m1, "desc", "a1", "d1");
-    to.addOperation( &m2, "desc", "a1", "d1", "a2","d2");
-    to.addOperation( &m3, "desc", "a1", "d1", "a2","d2","a3","d3");
-    to.addOperation( &m4, "desc", "a1", "d1", "a2","d2","a3","d3", "a4","d4");
-
-    double ret;
-    MethodC mc0( to.methods(), "m0");
-    mc0.ret(ret);
-    MethodC mc1( to.methods(), "m1");
-    mc1.argC(1).ret(ret);
-    MethodC mc2( to.methods(), "m2");
-    mc2.argC(1).argC(2.0).ret(ret);
-    MethodC mc3( to.methods(), "m3");
-    mc3.argC(1).argC(2.0).argC(false).ret(ret);
-    MethodC mc4( to.methods(), "m4");
-    mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
-
-    BOOST_CHECK( mc0.call() );
-    BOOST_CHECK_EQUAL(-1.0, ret);
-    BOOST_CHECK( mc1.call() );
-    BOOST_CHECK_EQUAL(-2.0, ret);
-    BOOST_CHECK( mc2.call() );
-    BOOST_CHECK_EQUAL(-3.0, ret);
-    BOOST_CHECK( mc3.call() );
-    BOOST_CHECK_EQUAL(-4.0, ret);
-    BOOST_CHECK( mc4.call() );
-    BOOST_CHECK_EQUAL(-5.0, ret);
-}
-#endif
-
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
     ServiceProviderPtr to (new ServiceProvider("task", tc) );
@@ -403,19 +246,19 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
     // requires this for copying state machines.
 
-    Operation<double(MethodTest*)> meth0("m0");
-    meth0.calls( boost::bind(&MethodTest::m0, _1));
+    Operation<double(OperationsFixture*)> meth0("m0");
+    meth0.calls( boost::bind(&OperationsFixture::m0, _1));
 
-    //method_ds("m0", &MethodTest::m0);
+    //method_ds("m0", &OperationsFixture::m0);
 
-    Operation<double(MethodTest*,int)> meth1("m1");
-    meth1.calls(boost::bind(&MethodTest::m1, _1,_2));
+    Operation<double(OperationsFixture*,int)> meth1("m1");
+    meth1.calls(boost::bind(&OperationsFixture::m1, _1,_2));
 
-    //method_ds("m1", &MethodTest::m1);
-    //method_ds("ms",&MethodTest::comstr );
+    //method_ds("m1", &OperationsFixture::m1);
+    //method_ds("ms",&OperationsFixture::comstr );
 
-    boost::shared_ptr<MethodTest> ptr( new MethodTest() );
-    ValueDataSource<boost::shared_ptr<MethodTest> >::shared_ptr wp = new ValueDataSource<boost::shared_ptr<MethodTest> >( ptr );
+    boost::shared_ptr<OperationsFixture> ptr( new OperationsFixture() );
+    ValueDataSource<boost::shared_ptr<OperationsFixture> >::shared_ptr wp = new ValueDataSource<boost::shared_ptr<OperationsFixture> >( ptr );
     BOOST_CHECK( to->addOperationDS( wp.get(), meth0).doc("desc" ).ready() );
     BOOST_CHECK( to->addOperationDS( wp.get(), meth1).doc("desc").arg("a1", "d1" ).ready() );
 
@@ -431,23 +274,5 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     BOOST_CHECK_EQUAL( -2.0, ret );
 
 }
-
-#if 0
-BOOST_AUTO_TEST_CASE(testAddMethod)
-{
-    Method<double(void)> m0 = method("m0", &MethodTest::m0, this);
-
-    Method<double(int)> m1 = method("m1", &MethodTest::m1, this);
-    Method<double(int,double)> m2 = method("m2", &MethodTest::m2, this);
-    Method<double(int,double,bool)> m3 = method("m3", &MethodTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4 = method("m4", &MethodTest::m4, this);
-
-    BOOST_CHECK_EQUAL( -1.0, m0() );
-    BOOST_CHECK_EQUAL( -2.0, m1(1) );
-    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
-}
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()

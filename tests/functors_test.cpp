@@ -9,96 +9,11 @@
 #include <interface/ServiceProvider.hpp>
 #include <internal/DataSourceGenerator.hpp>
 
-#include <extras/SimulationActivity.hpp>
-#include <extras/SimulationThread.hpp>
-
-using namespace std;
-using namespace boost;
-using namespace RTT;
-using namespace RTT::detail;
-
-#include <boost/shared_ptr.hpp>
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-class FunctorsTest {
-public:
-    FunctorsTest()
-    {
-        tc =  new TaskContext( "root" );
-        tc->provides()->addService( this->createMethodFactory() );
-        caller = new TaskContext("caller");
-        caller->start();
-        tc->start();
-    }
-
-    TaskContext* tc, *caller;
-
-    // ref/const-ref tests:
-    double ret;
-    double& m0r() { return ret; }
-    const double& m0cr() { return ret; }
-
-    // test const std::string& argument for command_ds
-    bool comstr(const std::string& cs) { return !cs.empty(); }
-
-    double m1r(double& a) { a = 2*a; return a; }
-    double m1cr(const double& a) { return a; }
-
-    // plain argument tests:
-    double m0() { return -1.0; }
-    double m1(int i) { if (i ==1) return -2.0; else return 2.0; }
-    double m2(int i, double d) { if ( i == 1 && d == 2.0 ) return -3.0; else return 3.0; }
-    double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }
-    double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
-
-    bool assertBool(bool b) { return b; }
-
-    ~FunctorsTest()
-    {
-        //     if ( tc->getPeer("programs") )
-        //         delete tc->getPeer("programs");
-        tc->stop();
-        SimulationThread::Instance()->stop();
-        delete tc;
-        delete  caller;
-    }
-
-    ServiceProvider::shared_ptr createMethodFactory()
-        {
-        ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
-
-        to->addOperation("assert", &FunctorsTest::assertBool, this).doc("assert").arg("b", "bd");
-
-        // ClientThread
-        to->addOperation("m0r", &FunctorsTest::m0r, this).doc("M0r");
-        to->addOperation("m0cr", &FunctorsTest::m0cr, this).doc("M0cr");
-        to->addOperation("m1r", &FunctorsTest::m1r, this).doc("M1r");
-        to->addOperation("m1cr", &FunctorsTest::m1cr, this).doc("M1cr");
-
-        to->addOperation("m0", &FunctorsTest::m0, this).doc("M0");
-        to->addOperation("m1", &FunctorsTest::m1, this).doc("M1").arg("a", "ad");
-        to->addOperation("m2", &FunctorsTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
-        to->addOperation("m3", &FunctorsTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        to->addOperation("m4", &FunctorsTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-
-        // OwnThread
-        to->addOperation("o0r", &FunctorsTest::m0r, this,OwnThread).doc("M0r");
-        to->addOperation("o0cr", &FunctorsTest::m0cr, this,OwnThread).doc("M0cr");
-        to->addOperation("o1r", &FunctorsTest::m1r, this,OwnThread).doc("M1r");
-        to->addOperation("o1cr", &FunctorsTest::m1cr, this,OwnThread).doc("M1cr");
-
-        to->addOperation("o0", &FunctorsTest::m0, this,OwnThread).doc("M0");
-        to->addOperation("o1", &FunctorsTest::m1, this,OwnThread).doc("M1").arg("a", "ad");
-        to->addOperation("o2", &FunctorsTest::m2, this,OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
-        to->addOperation("o3", &FunctorsTest::m3, this,OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        to->addOperation("o4", &FunctorsTest::m4, this,OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-        return to;
-        }
-};
+#include "unit.hpp"
+#include "operations_fixture.hpp"
 
 // Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  FunctorsTestSuite,  FunctorsTest )
+BOOST_FIXTURE_TEST_SUITE(  FunctorsTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testClientThreadFunctor)
 {
