@@ -85,7 +85,7 @@ namespace RTT
             ExecutionThread met;
 
         public:
-            LocalMethodImpl() : myengine(0), caller(0) {}
+            LocalMethodImpl() : myengine(GlobalEngine::Instance()), caller(GlobalEngine::Instance()) {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
@@ -99,7 +99,10 @@ namespace RTT
             }
 
             virtual void setCaller(ExecutionEngine* ee) {
-                caller = ee;
+                if (ee)
+                    caller = ee;
+                else
+                    caller = GlobalEngine::Instance();
             }
 
             void executeAndDispose() {

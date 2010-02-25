@@ -326,6 +326,12 @@ namespace RTT
         void setMethodImpl( MethodBasePtr new_impl) const {
             this->impl = new_impl;
         }
+
+        void setCaller(ExecutionEngine* caller) {
+            this->mcaller = caller;
+            if (this->impl)
+                this->impl->setCaller(caller);
+        }
     };
 
 #ifdef ORO_TEST_METHOD
