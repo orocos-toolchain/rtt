@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  PropertyMarshaller.hpp
+  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  PropertyMarshallInterface.hpp
 
-                        PropertyMarshaller.hpp -  description
+                        PropertyMarshallInterface.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
@@ -40,7 +40,7 @@
 #define PROPERTY_MARSHALLER_HPP
 
 #include <string>
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 
 namespace RTT
 { namespace marsh {
@@ -51,9 +51,9 @@ namespace RTT
      * @see PropertyDemarshaller for reading the result back in.
      */
     class RTT_API PropertyMarshaller
-        : public Marshaller
+        : public MarshallInterface
     {
-        Marshaller* m;
+        MarshallInterface* m;
         PropertyMarshaller(const PropertyMarshaller&);
     public:
         /**

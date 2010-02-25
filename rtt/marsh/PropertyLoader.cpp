@@ -56,7 +56,7 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
 {
     Logger::In in("PropertyLoader:load");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        log(Error) << "No Property Demarshaller configured !" << endlog();
+        log(Error) << "No Property DemarshallInterface configured !" << endlog();
         return false;
 
 #else
@@ -119,7 +119,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 {
     Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        log(Error) << "No Property Demarshaller configured !" << endlog();
+        log(Error) << "No Property DemarshallInterface configured !" << endlog();
         return false;
 
 #else
@@ -178,7 +178,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
 {
     Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        log(Error) << "No Property Marshaller configured !" << endlog();
+        log(Error) << "No Property MarshallInterface configured !" << endlog();
         return false;
 
 #else
@@ -258,7 +258,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
 {
     Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-    log(Error) << "No Property Demarshaller configured !" << endlog();
+    log(Error) << "No Property DemarshallInterface configured !" << endlog();
     return false;
 
 #else
@@ -298,7 +298,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
 {
     Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        log(Error) << "No Property Marshaller configured !" << endlog();
+        log(Error) << "No Property MarshallInterface configured !" << endlog();
         return false;
 
 #else

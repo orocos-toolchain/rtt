@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  CPFMarshaller.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  CPFMarshallInterface.hpp
 
-                        CPFMarshaller.hpp -  description
+                        CPFMarshallInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -41,7 +41,7 @@
 #include <ostream>
 #include <fstream>
 #include <string>
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 #include "../Property.hpp"
 #include "../base/PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
@@ -60,7 +60,7 @@ namespace RTT
      */
     template<>
     class CPFMarshaller<std::ostream>
-        : public Marshaller,
+        : public MarshallInterface,
           protected base::PropertyIntrospection,
           public StreamProcessor<std::ostream>
     {

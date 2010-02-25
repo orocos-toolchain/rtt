@@ -39,7 +39,7 @@
 #ifndef PROPERTIES_TINY_DEMARSHALLER
 #define PROPERTIES_TINY_DEMARSHALLER
 
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 #include <string>
 
 namespace RTT
@@ -51,7 +51,7 @@ namespace RTT
      * @see CPFMarshaller to create CPF files.
      */
     class RTT_API TinyDemarshaller
-        : public Demarshaller
+        : public DemarshallInterface
     {
         class D;
         D* d;

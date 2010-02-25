@@ -44,7 +44,7 @@
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax/InputSource.hpp>
 
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 
 namespace RTT
 { namespace marsh {
@@ -59,7 +59,7 @@ namespace RTT
      * @see CPFMarshaller to create CPF files.
      */
     class RTT_API CPFDemarshaller
-        : public Demarshaller
+        : public DemarshallInterface
     {
 #ifdef XERCES_CPP_NAMESPACE
         typedef XERCES_CPP_NAMESPACE::InputSource InputSource;

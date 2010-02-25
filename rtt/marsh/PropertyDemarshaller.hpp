@@ -40,7 +40,7 @@
 #ifndef PROPERTY_DEMARSHALLER
 #define PROPERTY_DEMARSHALLER
 
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 #include <string>
 
 namespace RTT
@@ -52,9 +52,9 @@ namespace RTT
      * @see PropertyMarshaller to create property files.
      */
     class RTT_API PropertyDemarshaller
-        : public Demarshaller
+        : public DemarshallInterface
     {
-        Demarshaller* d;
+        DemarshallInterface* d;
         PropertyDemarshaller(const PropertyDemarshaller& );
     public:
         PropertyDemarshaller( const std::string& filename );

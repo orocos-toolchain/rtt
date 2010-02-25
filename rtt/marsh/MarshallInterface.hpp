@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  Marshaller.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  MarshallInterface.hpp
 
-                        Marshaller.hpp -  description
+                        MarshallInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -46,17 +46,17 @@ namespace RTT
 { namespace marsh {
 
 	/**
-     * @brief A Marshaller converts Property objects to a (file/text) format.
+     * @brief A MarshallInterface converts Property objects to a (file/text) format.
 	 *
-	 * @see Demarshaller
+	 * @see DemarshallInterface
 	 * @see Property
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-    class RTT_API Marshaller
+    class RTT_API MarshallInterface
     {
         public:
-        virtual ~Marshaller() {}
+        virtual ~MarshallInterface() {}
 
         /**
          * Serialize a property.
@@ -74,7 +74,7 @@ namespace RTT
 
         /**
          * Flush all buffers, write footers.
-         * Instructs the Marshaller to flush any remaining buffered
+         * Instructs the MarshallInterface to flush any remaining buffered
          * data and write a footer to indicate that serialization is
          * done. A marshaller may choose to write nothing until this
          * function is called, or print a summary, or anything else.
@@ -85,15 +85,15 @@ namespace RTT
 	/**
      * @brief An interface for extracting properties from a format.
 	 *
-	 * @see Marshaller
+	 * @see MarshallInterface
 	 * @see Property
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-	class RTT_API Demarshaller
+	class RTT_API DemarshallInterface
 	{
 		public:
-        virtual ~Demarshaller() {}
+        virtual ~DemarshallInterface() {}
         /**
          * Deserialize data to a property bag.
          * @param v The property bag which will contain the results

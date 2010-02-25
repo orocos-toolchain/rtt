@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLRPCMarshaller.hpp
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLRPCMarshallInterface.hpp
 
-                        XMLRPCMarshaller.hpp -  description
+                        XMLRPCMarshallInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -44,7 +44,7 @@
 #include <string>
 #include "../Property.hpp"
 #include "../base/PropertyIntrospection.hpp"
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 #include "StreamProcessor.hpp"
 
 
@@ -59,7 +59,7 @@ namespace RTT
      */
     template<typename output_stream>
     class XMLRPCMarshaller
-        : public Marshaller, public base::PropertyIntrospection,
+        : public MarshallInterface, public base::PropertyIntrospection,
         public StreamProcessor<output_stream>
     {
         public:

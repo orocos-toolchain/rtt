@@ -42,8 +42,8 @@
 namespace RTT {
     namespace marsh {
         class CPFDemarshaller;
-        class Demarshaller;
-        class Marshaller;
+        class DemarshallInterface;
+        class MarshallInterface;
         class PropertyBagIntrospector;
         class PropertyDemarshaller;
         class PropertyMarshaller;

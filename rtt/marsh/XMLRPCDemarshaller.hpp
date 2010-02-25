@@ -56,7 +56,7 @@
 #include <string>
 #include "../Property.hpp"
 #include "StreamProcessor.hpp"
-#include "Marshaller.hpp"
+#include "MarshallInterface.hpp"
 #include <istream>
 
 namespace RTT
@@ -221,11 +221,11 @@ namespace RTT
 
 
     /**
-     * A Demarshaller for the XMLRPC Protocol.
+     * A DemarshallInterface for the XMLRPC Protocol.
      * Similar to the CPFDemarshaller, but less well tested.
      */
     class RTT_API XMLRPCDemarshaller
-        : public Demarshaller
+        : public DemarshallInterface
     {
         typedef unsigned short XMLCh;
 
