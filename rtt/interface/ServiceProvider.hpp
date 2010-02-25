@@ -351,9 +351,7 @@ namespace RTT
          *
          * @return An object which can invoke a operation.
          */
-        internal::MethodC create(std::string name, ExecutionEngine* caller) {
-            return internal::MethodC( this, name, caller );
-        }
+        internal::MethodC create(std::string name, ExecutionEngine* caller);
 
         /**
          * Reset the implementation of a operation.

@@ -49,6 +49,7 @@
 #include "internal/InvokerSignature.hpp"
 #include "base/MethodBaseInvoker.hpp"
 #include "Logger.hpp"
+#include "interface/ServiceProvider.hpp"
 #ifdef ORO_REMOTING
 #include "interface/OperationRepository.hpp"
 #include "internal/RemoteMethod.hpp"
@@ -142,13 +143,51 @@ namespace RTT
          *
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
+         * @param caller The ExecutionEngine which will be used to call us
+         * back in case of asynchronous communication. If zero, the global Engine is used.
          */
         Method(boost::shared_ptr<base::DisposableInterface> implementation, ExecutionEngine* caller = 0)
             : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) ),
               mname(), mcaller(caller)
         {
             if ( !this->impl && implementation ) {
-                log(Error) << "Tried to construct Method from incompatible type."<< endlog();
+                log(Error) << "Tried to construct Method from incompatible implementation."<< endlog();
+            } else
+                this->impl->setCaller(mcaller);
+        }
+
+        /**
+         * Initialise a named Method object from a Service.
+         *
+         * @param name The name of the operation to look for.
+         * @param service The ServiceProvider where the operation will be looked up.
+         * @param caller The ExecutionEngine which will be used to call us
+         * back in case of asynchronous communication. If zero, the global Engine is used.
+         */
+        Method(const std::string& name, interface::ServiceProviderPtr service, ExecutionEngine* caller = 0)
+            : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >( service->getOperation<Signature>(name) ) ),
+              mname(name), mcaller(caller)
+        {
+
+            if ( !this->impl ) {
+#ifdef ORO_REMOTING
+                // try differently
+                this->impl.reset( new RemoteMethod<Signature>( service, name));
+                if (this->impl->ready())
+                    this->impl->setCaller(mcaller);
+                else {
+                    this->impl.reset();
+                    if (service->hasMember(name)
+                        log(Error) << "Tried to construct Method from incompatible operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
+                    else
+                        log(Error) << "Tried to construct remote Method from unknown operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
+                }
+#else
+                if ( service->hasMember(name) )
+                    log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();
+                else
+                    log(Error) << "Tried to construct remote Method from unknown operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
+#endif
             } else
                 this->impl->setCaller(mcaller);
         }
@@ -165,12 +204,28 @@ namespace RTT
         {
             if (this->impl && this->impl == implementation)
                 return *this;
-            this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation);
-            if ( !this->impl && implementation ) {
-                log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
+            Method<Signature> tmp(implementation);
+            if (tmp.ready())
+                *this = tmp;
+            return *this;
+        }
+
+        /**
+         * Named Method objects may be looked up in a Service.
+         *
+         * @param service The ServiceProvider where the operation will be looked up.
+         *
+         * @return *this
+         */
+        Method& operator=(interface::ServiceProviderPtr service)
+        {
+            if (this->mname.empty()) {
+                log(Error) << "Can't initialise unnamed Method from service '"<<service->getName() <<"'."<<endlog();
+                return *this;
             }
-            if (this->impl)
-                this->impl->setCaller(mcaller);
+            Method<Signature> tmp(mname,service);
+            if (tmp.ready())
+                *this = tmp;
             return *this;
         }
 

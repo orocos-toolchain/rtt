@@ -42,7 +42,8 @@
 #include <string>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../interface/OperationRepository.hpp"
+#include "../interface/rtt-interface-fwd.hpp"
+#include "../SendStatus.hpp"
 
 namespace RTT
 { namespace internal {
@@ -71,7 +72,7 @@ namespace RTT
          * The constructor.
          * @see interface::MethodRepository
          */
-        MethodC( const interface::OperationRepository* mr, const std::string& name, ExecutionEngine* caller);
+        MethodC( const interface::ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A MethodC is copyable by value.
@@ -154,7 +155,12 @@ namespace RTT
         /**
          * Collect the contained method.
          */
-        bool collect();
+        SendStatus collect();
+
+        /**
+         * Collect the contained method.
+         */
+        SendStatus collectIfDone();
 
         /**
          * Returns true if this method is ready for execution.
@@ -169,6 +175,10 @@ namespace RTT
          * Get the contained data source for 'send'.
          */
         base::DataSourceBase::shared_ptr getSendDataSource();
+        /**
+         * Get the contained data source for send handle.
+         */
+        base::DataSourceBase::shared_ptr getSendHandleDataSource();
     };
 }}
 

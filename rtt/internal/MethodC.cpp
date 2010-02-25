@@ -51,7 +51,7 @@ namespace RTT {
     class MethodC::D
     {
     public:
-        const ServiceProvider::Factory* mmr;
+        const ServiceProviderPtr mmr;
         ExecutionEngine* caller;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
@@ -96,7 +96,7 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( const ServiceProvider::Factory* mr, const std::string& name, ExecutionEngine* caller)
+        D( const ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller)
             : mmr(mr), caller(caller), mname(name), rta(), m()
         {
             this->checkAndCreate();
@@ -119,7 +119,7 @@ namespace RTT {
     {
     }
 
-    MethodC::MethodC(const OperationRepository* mr, const std::string& name, ExecutionEngine* caller)
+    MethodC::MethodC(const ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m()
     {
         if ( d->m ) {
