@@ -3,7 +3,9 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
+#ifdef ORO_REMOTING
 #include <internal/RemoteMethod.hpp>
+#endif
 #include <interface/ServiceProvider.hpp>
 #include <internal/DataSourceGenerator.hpp>
 
@@ -334,8 +336,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
     BOOST_CHECK_EQUAL( 20.0, h1r.ret() );
 }
-#if 0
-#if 0
+#ifdef ORO_REMOTING
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
     Method<double(void)> m0;
@@ -351,7 +352,6 @@ BOOST_AUTO_TEST_CASE(testRemoteMethod)
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(testMethodsC)
 {
@@ -469,7 +469,6 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
     BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
-#if 0
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
     ServiceProvider to("task");
@@ -509,7 +508,6 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     BOOST_CHECK( mc4.execute() );
     BOOST_CHECK_EQUAL(-5.0, ret);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
@@ -548,6 +546,6 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     BOOST_CHECK_EQUAL( -2.0, ret );
 
 }
-#endif
+#endif // defined(ORO_REMOTING)
 
 BOOST_AUTO_TEST_SUITE_END()
