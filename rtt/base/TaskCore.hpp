@@ -193,18 +193,6 @@ namespace RTT
         virtual bool cleanup();
 
         /**
-         * If the component entered the \a FatalError state, call this method
-         * to recover. It will call the user function \a resetHook(): if
-         * it returns false, the \a PreOperational state is entered, if
-         * it returns true, the \a Stopped state is entered.
-         * You can not use this method to recover from the RunTimeWarning or
-         * RunTimeError states, use recover() instead.
-         * @retval true if the component is in the Stopped or PreOperational state.
-         * @retval false if the component was not in the FatalError state.
-         */
-        virtual bool resetError();
-
-        /**
          * Inspect if the component is configured, i.e. in
          * the Stopped, Active or Running state.
          */
@@ -248,6 +236,8 @@ namespace RTT
 
         /**
          * Inspect if the component is in the FatalError state.
+         * There is no possibility to recover from this state.
+         * You need to destroy and recreate your component.
          */
         virtual bool inFatalError() const;
 
@@ -271,6 +261,22 @@ namespace RTT
          * @retval true otherwise.
          */
         virtual bool trigger();
+
+        /**
+         * Call this method in a Running state to indicate a
+         * run-time error condition. errorHook() will be called
+         * instead of updateHook(). If the error condition is solved,
+         * call recovered().
+         */
+        virtual void error();
+
+        /**
+         * Call this method in a Running state to indicate that the
+         * run-time warning or error conditions are gone and nominal
+         * operation is resumed.
+         */
+        virtual void recovered();
+
         /**
          *@}
          */
@@ -373,36 +379,12 @@ namespace RTT
         virtual void stopHook();
 
         /**
-         * Implement this method to recover from the FatalError state.
-         * Return false if no recovery was possible and the
-         * \a PreOperational state must be entered. Return true
-         * to allow transition to the \a Stopped state.
-         */
-        virtual bool resetHook();
-
-        /**
-         * Call this method in a Running state to indicate a
-         * run-time error condition. errorHook() will be called
-         * instead of updateHook(). If the warning condition is solved,
-         * call recovered().
-         */
-        virtual void error();
-
-        /**
          * Call this method from any place to indicate that this
-         * component encountered a fatal error.  The ExecutionEngine
-         * is stopped, stopHook() is called and the component waits
-         * for a resetError().
+         * component encountered a fatal error.  It
+         * calls stopHook() and cleanupHook, the ExecutionEngine is stopped and the component waits
+         * destruction.
          */
         virtual void fatal();
-
-        /**
-         * Call this method in a Running state to indicate that the
-         * run-time warning or error conditions are gone and nominal
-         * operation is resumed. You can not use this method to
-         * recover from a fatal() error. Use resetError() instead.
-         */
-        virtual void recovered();
 
         // Required to set mTaskState to Running or Stopped.
         // As an alternative, one could query the EE.

@@ -117,7 +117,6 @@ namespace RTT
         this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state.");
         this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this, ClientThread).doc("Check if this TaskContext is in the RunTimeError state.");
         this->addOperation("cleanup", &TaskContext::cleanup, this, ClientThread).doc("Reset this TaskContext to the PreOperational state (write properties etc).");
-        this->addOperation("resetError", &TaskContext::resetError, this, ClientThread).doc("Reset this TaskContext from the FatalError state.");
         this->addOperation("update", &TaskContext::update, this, ClientThread).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");

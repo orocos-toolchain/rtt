@@ -221,13 +221,22 @@ namespace RTT
     }
 
     void ExecutionEngine::processChildren() {
-        // XXX this code belongs in TaskCore.
         // only call updateHook in the Running state.
         if ( taskc ) {
-            if ( taskc->mTaskState == TaskCore::Running )
-                taskc->updateHook();
-            if (  taskc->mTaskState == TaskCore::RunTimeError )
-                taskc->errorHook();
+            if ( taskc->mTaskState == TaskCore::Running ) {
+                try {
+                    taskc->updateHook();
+                } catch(...){
+                    taskc->error();
+                }
+            }
+            if (  taskc->mTaskState == TaskCore::RunTimeError ) {
+                try {
+                    taskc->errorHook();
+                } catch(...) {
+                    taskc->fatal(); // calls stopHook,cleanupHook
+                }
+            }
             // If an error occured (Running=>FatalError state), abort all !
             if ( taskc->mTaskState == TaskCore::FatalError) {
                 this->getActivity()->stop(); // calls finalize()
@@ -239,9 +248,17 @@ namespace RTT
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             if ( (*it)->mTaskState == TaskCore::Running )
-                (*it)->updateHook();
+                try {
+                    taskc->updateHook();
+                } catch(...){
+                    taskc->error();
+                }
             if (  (*it)->mTaskState == TaskCore::RunTimeError )
-                (*it)->errorHook();
+                try {
+                    taskc->errorHook();
+                } catch(...) {
+                    taskc->fatal(); // calls stopHook,cleanupHook
+                }
             // If an error occured (Running=>FatalError state), abort all !
             if ( (*it)->mTaskState == TaskCore::FatalError) {
                 this->getActivity()->stop(); // calls finalize()

@@ -93,7 +93,7 @@ namespace RTT {
     }
 
     bool TaskCore::configure() {
-        if ( mTaskState <= Stopped ) {
+        if ( mTaskState == Stopped || mTaskState == PreOperational) {
             if (configureHook() ) {
                 mTaskState = Stopped;
                 return true;
@@ -116,6 +116,8 @@ namespace RTT {
 
     void TaskCore::fatal() {
         mTaskState = FatalError;
+        stopHook();
+        cleanupHook();
     }
 
     void TaskCore::error() {
@@ -128,17 +130,6 @@ namespace RTT {
         if (mTaskState <= Running )
             return;
         mTaskState = Running;
-    }
-
-    bool TaskCore::resetError() {
-        if (mTaskState == FatalError ) {
-            if ( resetHook() == true )
-                mTaskState = Stopped;
-            else
-                mTaskState = PreOperational;
-            return true;
-        }
-        return false;
     }
 
     bool TaskCore::start() {
@@ -203,17 +194,12 @@ namespace RTT {
         return true;
     }
 
-    void TaskCore::errorHook() {
-    }
-
     bool TaskCore::startHook()
     {
         return true;
     }
 
-    bool TaskCore::resetHook()
-    {
-        return true;
+    void TaskCore::errorHook() {
     }
 
     void TaskCore::updateHook()
