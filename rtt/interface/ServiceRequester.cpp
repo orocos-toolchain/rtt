@@ -57,7 +57,16 @@ namespace RTT
                         if (mrowner)
                             log(Debug) << "Successfully set up Method " << it->first <<endlog();
                         else
-                            log(Warning) << "Method "<< it->first << " only setup of synchronous calls (no owner was set)."<<endlog();
+                            log(Warning) << "Method "<< it->first << " has no caller set."<<endlog();
+                    }
+                }
+                if (sp->hasMember( it->first )) {
+                    it->second->setImplementationPart( sp->getOperation( it->first ), mrowner ? mrowner->engine() : 0 );
+                    if ( it->second->ready() ) {
+                        if (mrowner)
+                            log(Debug) << "Successfully set up Method " << it->first <<endlog();
+                        else
+                            log(Warning) << "Method "<< it->first << " has no caller set."<<endlog();
                     }
                 }
             }

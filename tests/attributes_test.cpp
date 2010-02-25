@@ -116,8 +116,10 @@ BOOST_AUTO_TEST_CASE( testAttributes)
     BOOST_CHECK_EQUAL( double(1.234), d1.get() );
     BOOST_CHECK_EQUAL( int(3), i1.get() );
 
-    BOOST_CHECK_EQUAL( double(1.234), tc->getAttribute<double>("d1")->get() );
-    BOOST_CHECK_EQUAL( int(3),        tc->getAttribute<int>("i1")->get() );
+    d1 = tc->getAttribute("d1");
+    BOOST_CHECK_EQUAL( double(1.234), d1.get() );
+    Attribute<int> i2 = tc->getAttribute("i1");
+    BOOST_CHECK_EQUAL( int(3),        i2.get() );
 
     // test setup of mirror:
     Attribute<string> s1;
@@ -127,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testAttributes)
 
     BOOST_CHECK(tc->addAttribute( &s1 ) == false);
     BOOST_CHECK(tc->addAttribute( &s2 ) );
-    s1 = tc->getAttribute<string>("hello");
+    s1 = tc->getAttribute("hello");
     BOOST_CHECK( s1.ready() );
 
     BOOST_CHECK_EQUAL(std::string("hello"), s1.getName() );

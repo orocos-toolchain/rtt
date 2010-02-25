@@ -328,15 +328,12 @@ namespace RTT
          * function in a Method<\a Signature> object.
          *
          * @param name The name of the operation to retrieve.
-         * @param Signature The function signature of the operation, for
-         * example: getOperation<int(double)>("name");
          *
          * @return true if it could be found, false otherwise.
          */
-        template<class Signature>
-        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
+        interface::OperationRepositoryPart* getOperation( std::string name )
         {
-            return tcservice->getOperation<Signature>(name);
+            return tcservice->getOperation(name);
         }
 
         /**
@@ -395,18 +392,15 @@ namespace RTT
 
         /**
          * Retrieve a Attribute by name. Returns zero if
-         * no Attribute<T> by that name exists.
+         * no Attribute by that name exists.
          * @example
-           Attribute<double> d_attr = getAttribute<double>("Xval");
+           Attribute<double> d_attr = getAttribute("Xval");
            @endexample
          * @see addAttribute to add an Attribute.
-         * @see getValue for a template-less variant of this function,
-         * which also works.
          */
-        template<class T>
-        Attribute<T>* getAttribute( const std::string& name ) const
+        base::AttributeBase* getAttribute( const std::string& name ) const
         {
-            return tcservice->getAttribute<T>(name);
+            return tcservice->getAttribute(name);
         }
 
         /**
@@ -444,17 +438,15 @@ namespace RTT
         bool addProperty( base::PropertyBase* pb );
 
         /**
-         * Get a Property<T> with name \a name.
+         * Get a Property with name \a name.
          *
-         * @param  T The type of which this property is.
          * @param  name The name of the property to search for.
-         * @return The Property<T> with this name, zero
-         *         if it does not exist ( no such \a T or no such \a name )
+         * @return The Property with this name, zero
+         *         if it does not exist
          */
-        template<class T>
-        Property<T>* getProperty(const std::string& name) const
+        base::PropertyBase* getProperty(const std::string& name) const
         {
-            return tcservice->getProperty<T>("name");
+            return tcservice->getProperty("name");
         }
 
         /**

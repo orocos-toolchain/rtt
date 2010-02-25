@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "}";
 
     this->doFunction( prog, &gtc );
-    BOOST_CHECK( gtc.getOperation<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getOperation("foo") );
     this->finishFunction( &gtc, "x");
 }
 
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testRemoveFunction)
         + "}";
 
     this->doFunction( prog, &gtc, false );
-    BOOST_CHECK( gtc.getOperation<bool(void)>("foo") );
+    BOOST_CHECK( gtc.getOperation("foo") );
     // removing the program should lead to removal of the function from the PP.
     this->finishFunction( &gtc, "x");
 }

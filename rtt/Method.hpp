@@ -72,7 +72,8 @@ namespace RTT
      * it wishes to call.
      *
      * Asynchronous methods need a caller's ExecutionEngine to be able to process
-     * the completion message.
+     * the completion message. In case the caller has no ExecutionEngine, the
+     * GlobalExecutionEngine is used instead.
      *
      * @ingroup RTTComponentInterface
      * @ingroup Methods
@@ -139,10 +140,10 @@ namespace RTT
         }
 
         /**
-         * Initialise a nameless Method object from an implementation.
+         * Initialise a nameless Method object from a local Operation.
          *
-         * @param implementation The implementation which is acquired
-         * by the Method object. If it has the wrong type, it is freed.
+         * @param implementation The implementation of the operation which is to be used
+         * by the Method object.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
@@ -151,10 +152,28 @@ namespace RTT
               mname(), mcaller(caller)
         {
             if ( !this->impl && implementation ) {
-                log(Error) << "Tried to construct Method from incompatible implementation."<< endlog();
+                log(Error) << "Tried to construct Method from incompatible local operation."<< endlog();
             } else
                 if (this->impl)
                     this->impl->setCaller(mcaller);
+        }
+
+        /**
+         * Initialise a nameless Method object from an operation factory.
+         *
+         * @param part The OperationRepositoryPart which is used
+         * by the Method object to get the implementation.
+         * @param caller The ExecutionEngine which will be used to call us
+         * back in case of asynchronous communication. If zero, the global Engine is used.
+         */
+        Method(interface::OperationRepositoryPart* part, ExecutionEngine* caller = 0)
+            : Base(),
+              mname(), mcaller(caller)
+        {
+            if (part) {
+                 this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >( part->getLocalOperation() );
+                 setupMethod( part );
+            }
         }
 
         /**
@@ -166,38 +185,20 @@ namespace RTT
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
         Method(const std::string& name, interface::ServiceProviderPtr service, ExecutionEngine* caller = 0)
-            : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >( service->getOperation<Signature>(name) ) ),
+            : Base(),
               mname(name), mcaller(caller)
         {
-
-            if ( !this->impl ) {
-#ifdef ORO_REMOTING
-                // try differently
-                this->impl.reset( new RemoteMethod<Signature>( service, name));
-                if (this->impl->ready())
-                    this->impl->setCaller(mcaller);
-                else {
-                    this->impl.reset();
-                    if (service->hasMember(name)
-                        log(Error) << "Tried to construct Method from incompatible operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
-                    else
-                        log(Error) << "Tried to construct remote Method from unknown operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
-                }
-#else
-                if ( service->hasMember(name) )
-                    log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();
-                else
-                    log(Error) << "Tried to construct remote Method from unknown operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
-#endif
-            } else
-                this->impl->setCaller(mcaller);
+            if (service) {
+                 this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >( service->getLocalOperation(name) );
+                 if (service->hasMember(name))
+                     setupMethod( service->getOperation(name) );
+            }
         }
 
         /**
          * Method objects may be assigned to an implementation.
          *
-         * @param implementation the implementation, if it is not suitable,
-         * it is freed.
+         * @param implementation the implementation.
          *
          * @return *this
          */
@@ -206,6 +207,24 @@ namespace RTT
             if (this->impl && this->impl == implementation)
                 return *this;
             Method<Signature> tmp(implementation);
+            if (tmp.ready())
+                *this = tmp;
+            return *this;
+        }
+
+        /**
+         * Method objects may be assigned to a part responsible for production
+         * of an implementation.
+         *
+         * @param part The part used by the Method to produce an implementation.
+         *
+         * @return *this
+         */
+        Method& operator=(interface::OperationRepositoryPart* part)
+        {
+            if (this->impl && this->impl == part->getLocalOperation() )
+                return *this;
+            Method<Signature> tmp(part);
             if (tmp.ready())
                 *this = tmp;
             return *this;
@@ -303,14 +322,10 @@ namespace RTT
         }
 
         bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
-#ifdef ORO_REMOTING
-            this->mcaller = caller;
-            *this = new RemoteMethod<Signature>( orp, caller);
-            return ready();
-#else
-            log(Error) <<"Could not set implementation of Method "<< mname <<": ORO_REMOTING disabled at compile time."<<endlog();
-            return false;
-#endif
+            Method<Signature> tmp(orp, caller);
+            if (tmp.ready())
+                *this = tmp;
+            return tmp.ready();
         }
 
         /**
@@ -332,6 +347,30 @@ namespace RTT
             if (this->impl)
                 this->impl->setCaller(caller);
         }
+    protected:
+        /**
+         * If no local implementation of an operation could be found,
+         * this method tries it using the operationrepository factories.
+         * @param part
+         */
+        void setupMethod(interface::OperationRepositoryPart* part) {
+            if ( !this->impl ) {
+#ifdef ORO_REMOTING
+                // try differently
+                this->impl.reset( new RemoteMethod<Signature>( part ));
+                if (this->impl->ready())
+                    this->impl->setCaller(mcaller);
+                else {
+                    this->impl.reset(); // clean up.
+                    log(Error) << "Tried to construct Method from incompatible operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
+                }
+#else
+                log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();
+#endif
+            } else
+                this->impl->setCaller(mcaller);
+        }
+
     };
 
 #ifdef ORO_TEST_METHOD

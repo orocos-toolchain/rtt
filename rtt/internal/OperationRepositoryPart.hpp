@@ -87,6 +87,10 @@ namespace RTT
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
             }
+
+            boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
+                return op->getImplementation();
+            }
         };
 
             /**
@@ -166,6 +170,10 @@ namespace RTT
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
+                }
+
+                boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
+                    return op->getImplementation();
                 }
             };
     }

@@ -148,18 +148,15 @@ namespace RTT
 
         /**
          * Retrieve a Attribute by name. Returns zero if
-         * no Attribute<T> by that name exists.
+         * no Attribute by that name exists.
          * @example
-           Attribute<double> d_attr = getAttribute<double>("Xval");
+           Attribute<double> d_attr = getAttribute("Xval");
            @endexample
          * @see addAttribute to add an Attribute.
-         * @see getValue for a template-less variant of this function,
-         * which also works.
          */
-        template<class T>
-        Attribute<T>* getAttribute( const std::string& name ) const
+        base::AttributeBase* getAttribute( const std::string& name ) const
         {
-            return dynamic_cast<Attribute<T>*>( this->getValue( name ) );
+            return this->getValue( name );
         }
 
         /**
@@ -178,16 +175,15 @@ namespace RTT
 
         /**
          * Retrieve a Constant by name. Returns zero if
-         * no Constant<T> by that name exists.
+         * no Constant by that name exists.
          * @example
-           Constant<double> d_const = getConstant<double>("Xconst");
+           Constant<double> d_const = getConstant("Xconst");
            @endexample
          * @see addConstant
          */
-        template<class T>
-        Constant<T>* getConstant( const std::string& name ) const
+        base::AttributeBase* getConstant( const std::string& name ) const
         {
-            return dynamic_cast<Constant<T>*>( this->getValue( name ) );
+            return this->getValue( name );
         }
 
         /**
@@ -209,19 +205,17 @@ namespace RTT
         bool removeProperty( base::PropertyBase* p );
 
         /**
-         * Get a Property<T> with name \a name.
+         * Get a Property with name \a name.
          *
-         * @param  T The type of which this property is.
          * @param  name The name of the property to search for.
-         * @return The Property<T> with this name, zero
-         *         if it does not exist ( no such \a T or no such \a name )
+         * @return The PropertyBase with this name, zero
+         *         if it does not exist.
          */
-        template<class T>
-        Property<T>* getProperty(const std::string& name) const
+        base::PropertyBase* getProperty(const std::string& name) const
         {
             if (bag == 0)
                 return 0;
-            return bag->getProperty<T>("name");
+            return bag->find("name");
         }
 
         /**
@@ -233,8 +227,8 @@ namespace RTT
 
         /**
          * Get a pointer to the attribute with name \a name.  If no such value exists, this method
-         * returns 0. It can be used to retrieve added constants,
-         * attributes or data objects. Both Attribute, Constant and Alias
+         * returns 0. It can be used to retrieve added constants or
+         * attributes. Both Attribute and Constant
          * can work with this function.
          * @example
            Attribute<double> d_attr = getValue("Xval");

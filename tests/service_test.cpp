@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(testClientThreadCall)
     Method<double(void)> m0("m0");
     m0 = tc->provides("methods");
     Method<double(int)> m1("m1", tc->provides("methods"));
-    Method<double(int,double)> m2( tc->provides("methods")->getOperation<double(int,double)>("m2") );
+    Method<double(int,double)> m2( tc->provides("methods")->getOperation("m2") );
     Method<double(int,double,bool)> m3("m3", tc->provides("methods"));
     Method<double(int,double,bool,std::string)> m4("m4", tc->provides("methods"));
 
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
     Method<double(void)> m0("o0");
     m0 = tc->provides("methods");
     Method<double(int)> m1("o1", tc->provides("methods"));
-    Method<double(int,double)> m2( tc->provides("methods")->getOperation<double(int,double)>("o2") );
+    Method<double(int,double)> m2( tc->provides("methods")->getOperation("o2") );
     Method<double(int,double,bool)> m3("o3", tc->provides("methods"));
     Method<double(int,double,bool,std::string)> m4("o4", tc->provides("methods"));
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     Method<double(void)> m0("m0");
     m0 = tc->provides("methods");
     Method<double(int)> m1("m1", tc->provides("methods"));
-    Method<double(int,double)> m2( tc->provides("methods")->getOperation<double(int,double)>("m2") );
+    Method<double(int,double)> m2( tc->provides("methods")->getOperation("m2") );
     Method<double(int,double,bool)> m3("m3", tc->provides("methods"));
     Method<double(int,double,bool,std::string)> m4("m4", tc->provides("methods"));
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     Method<double(void)> m0("o0");
     m0 = tc->provides("methods");
     Method<double(int)> m1("o1", tc->provides("methods"));
-    Method<double(int,double)> m2( tc->provides("methods")->getOperation<double(int,double)>("o2") );
+    Method<double(int,double)> m2( tc->provides("methods")->getOperation("o2") );
     Method<double(int,double,bool)> m3("o3", tc->provides("methods"));
     Method<double(int,double,bool,std::string)> m4("o4", tc->provides("methods"));
 

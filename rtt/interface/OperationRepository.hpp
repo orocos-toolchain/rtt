@@ -8,6 +8,7 @@
 #include "../base/DataSourceBase.hpp"
 #include "ArgumentDescription.hpp"
 #include "FactoryExceptions.hpp"
+#include "../base/DisposableInterface.hpp"
 
 namespace RTT
 {
@@ -104,6 +105,13 @@ namespace RTT
              * @throw name_not_found_exception
              */
             virtual base::DataSourceBase* produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking) const = 0;
+
+            /**
+             * Returns any local operation associated with this part.
+             * @return null if no such operation exists, the operation's implementation
+             * otherwise.
+             */
+            virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
         };
         /**
          * @}

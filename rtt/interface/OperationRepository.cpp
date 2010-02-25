@@ -11,6 +11,11 @@ OperationRepositoryPart::~OperationRepositoryPart()
 {
 }
 
+boost::shared_ptr<base::DisposableInterface> OperationRepositoryPart::getLocalOperation() const
+{
+    return boost::shared_ptr<base::DisposableInterface>();
+}
+
 void OperationRepository::clear()
 {
     for (map_t::iterator i = data.begin(); i != data.end(); ++i)

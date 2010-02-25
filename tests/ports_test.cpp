@@ -467,10 +467,10 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     Method<void(double const&)> mset;
     Method<FlowStatus(double&)> mget;
 
-    mset = tc->provides("Write")->getOperation<void(double const&)>("write");
+    mset = tc->provides("Write")->getOperation("write");
     BOOST_CHECK( mset.ready() );
 
-    mget = tc->provides("Read")->getOperation<FlowStatus(double&)>("read");
+    mget = tc->provides("Read")->getOperation("read");
     BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );

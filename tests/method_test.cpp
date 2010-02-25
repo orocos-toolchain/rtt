@@ -173,17 +173,17 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     BOOST_CHECK( to.addOperation(m2).ready() );
 
     // test constructor
-    Method<double(void)> mm0 = to.getOperation<double(void)>("m0");
+    Method<double(void)> mm0 = to.getOperation("m0");
     BOOST_CHECK( mm0.getMethodImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
     Method<double(int)> mm1;
-    mm1 = to.getOperation<double(int)>("m1");
+    mm1 = to.getOperation("m1");
     BOOST_CHECK( mm1.getMethodImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.getOperation<double(int,double)>("m2");
+    Method<double(int,double)> mm2 = to.getOperation("m2");
     BOOST_CHECK( mm2.getMethodImpl() );
     BOOST_CHECK( mm2.ready() );
 
@@ -202,15 +202,15 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
 
     // wrong type 1:
     Method<void(void)> mvoid;
-    mvoid = to.getOperation<void(void)>("m1");
+    mvoid = to.getOperation("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
-    mvoid = to.getOperation<void(bool)>("m1");
+    mvoid = to.getOperation("m1");
     // wrong type 3:
-    mvoid = to.getOperation<double(void)>("m0");
+    mvoid = to.getOperation("m0");
     BOOST_CHECK( mvoid.ready() == false );
     // non existing
-    mvoid = to.getOperation<void(void)>("voidm");
+    mvoid = to.getOperation("voidm");
     BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:

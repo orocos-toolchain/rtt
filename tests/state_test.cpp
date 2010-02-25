@@ -902,8 +902,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     StateMachinePtr sm = sa->getStateMachine("x");
     BOOST_REQUIRE( sm );
     sm->trace(true);
-    Method<bool(StateMachine*)> act = tc->provides("x")->getOperation<bool(StateMachine*)>("activate");
-    Method<bool(StateMachine*)> autom = tc->provides("x")->getOperation<bool(StateMachine*)>("automatic");
+    Method<bool(StateMachine*)> act = tc->provides("x")->getOperation("activate");
+    Method<bool(StateMachine*)> autom = tc->provides("x")->getOperation("automatic");
     BOOST_CHECK( act(sm.get()) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );

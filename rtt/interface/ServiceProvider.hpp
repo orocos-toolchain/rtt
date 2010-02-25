@@ -190,29 +190,21 @@ namespace RTT
         /**
          * Get a previously added operation for
          * use in a C++ Method object. Store the result of this
-         * function in a Method<\a Signature> object.
+         * function in a Method<Signature> object.
          *
          * @param name The name of the operation to retrieve.
-         * @param Signature The function signature of the operation, for
-         * example: getOperation<int(double)>("name");
          *
-         * @return A pointer to an operation implementation object or a null pointer if
+         * @return A pointer to an operation repository part or a null pointer if
          * \a name was not found.
          */
-        template<class Signature>
-        boost::shared_ptr<base::DisposableInterface> getOperation( std::string name )
+        OperationRepositoryPart* getOperation( std::string name )
         {
             Logger::In in("ServiceProvider::getOperation");
-            boost::shared_ptr<base::DisposableInterface> r = getLocalOperation(name);;
-            if ( r ) return r;
-
-#ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {
-                return boost::shared_ptr<base::DisposableInterface>(new internal::RemoteOperation<Signature>(this, name));
+                return this->getPart(name);
             }
-#endif
-            log(Warning) << "No such operation: "<< name <<endlog();
-            return boost::shared_ptr<base::DisposableInterface>();
+            log(Warning) << "No such operation in service '"<< getName() <<"': "<< name <<endlog();
+            return 0;
         }
 
         /**

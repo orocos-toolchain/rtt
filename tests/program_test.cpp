@@ -381,7 +381,8 @@ BOOST_AUTO_TEST_CASE(testProgramCallFoo)
         + "call foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    BOOST_REQUIRE_EQUAL( 4, gtc.provides()->getAttribute<int>("tvar_i")->get() );
+    Attribute<int> i = gtc.provides()->getAttribute("tvar_i");
+    BOOST_REQUIRE_EQUAL( 4, i.get() );
     this->finishProgram( &gtc, "x");
 }
 
@@ -402,7 +403,8 @@ BOOST_AUTO_TEST_CASE(testProgramDoFoo)
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    BOOST_REQUIRE_EQUAL( 4, gtc.provides()->getAttribute<int>("tvar_i")->get() );
+    Attribute<int> i = gtc.provides()->getAttribute("tvar_i");
+    BOOST_REQUIRE_EQUAL( 4, i.get() );
     this->finishProgram( &gtc, "x");
 }
 
