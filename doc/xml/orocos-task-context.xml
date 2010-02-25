@@ -308,7 +308,7 @@ In Task Hello[R]
 
  Services:
   <emphasis>marshalling</emphasis>    ( Read and write Properties to a file. )
-  <emphasis>scripting</emphasis>      ( Access to the Scripting interface. Use this object in order to load or query programs or state machines. )
+  <emphasis>scripting</emphasis>      ( Serves the Scripting interface. Use this object in order to load or query programs or state machines. )
   <emphasis>the_input_port</emphasis> ( (No description set for this Port) )
   <emphasis>the_results</emphasis>    ( (No description set for this Port) )
 
@@ -556,7 +556,7 @@ Printing Interface of 'the_input_port' :
 
  Services:
   marshalling    ( Read and write Properties to a file. )
-  scripting      ( Access to the Scripting interface.                 Use this object in order to load or query programs or state machines. )
+  scripting      ( Services the Scripting interface. Use this object in order to load or query programs or state machines. )
   the_buffer_port ( (No description set for this Port) )
   the_results    ( (No description set for this Port) )
 
@@ -2723,14 +2723,14 @@ Printing Interface of 'the_input_port' :
 	</screen>
 	<para>
 	  Program scripts can also be controlled in C++, but only from the
-	  component having them, because we need access to the <classname>RTT::scripting::ScriptingAccess</classname>
+	  component having them, because we need access to the <classname>RTT::scripting::ScriptingService</classname>
 	  object, which is only available locally to the component.
 	  Take a look at the
 	  <classname>RTT::scripting::ProgramInterface</classname> class
 	  reference for more program related functions. One can
 	  get a pointer to a program by calling:
 	</para>
-	<programlisting>  scripting::ScriptingAccess* sa = dynamic_cast&lt;scripting::ScriptingAccess*&gt;(this->getService("scripting"));
+	<programlisting>  scripting::ScriptingService* sa = dynamic_cast&lt;scripting::ScriptingService*&gt;(this->getService("scripting"));
   scripting::ProgramInterface* foo = sa->getProgram("foo");
   if (foo != 0) {
     bool result = foo->start(); // try to start the program !
