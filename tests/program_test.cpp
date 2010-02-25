@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testParseProgram)
         + " if increase() + increase() + increase() != 6  then \n "
         + "    do assert( false )\n"
         + " if true then\n"
-        + "    return\n"
+        + "    return;\n"
         + " do test.assert(false)"  // do not reach
         + "}";
 

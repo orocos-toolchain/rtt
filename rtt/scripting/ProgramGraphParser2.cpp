@@ -65,7 +65,7 @@ namespace RTT
 
     // a return statement : "return"
     returnstatement =
-        str_p( "return" )[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
+        (str_p( "return" ) >> !expressionparser.parser()[bind( &ProgramGraphParser::seenreturnvalue, this ) ] )[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
 
     // break from a while or for loop,...
     breakstatement =

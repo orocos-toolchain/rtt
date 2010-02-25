@@ -130,9 +130,24 @@ BOOST_AUTO_TEST_CASE( testSimpleFunction)
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
         + "program x { \n"
-        //        + "   do test.assert( true )\n"
         + "   call foo\n"
-        //+ "   do test.assert( true )\n"
+        + "}";
+
+    this->doFunction( prog, &gtc );
+    this->finishFunction( &gtc, "x");
+}
+
+BOOST_AUTO_TEST_CASE( testSimpleReturnFunction)
+{
+    string prog = string("int foo { \n")
+        + " test.assert( test.isTrue( true ) )\n"
+        + " return 3\n"
+        + "}\n"
+        + "\n"
+        + "program x { \n"
+        + "   test.assert(true);\n"
+        + "   call foo\n"
+        + "   test.assert(true);\n"
         + "}";
 
     this->doFunction( prog, &gtc );
@@ -150,6 +165,62 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "program x { \n"
         + "   do this.foo()\n"
         + "   do this.foo_args()\n"
+        + "}";
+
+    this->doFunction( prog, &gtc );
+    BOOST_CHECK( gtc.getOperation("foo") );
+    this->finishFunction( &gtc, "x");
+}
+
+/**
+ * Exports foo and foo_args and calls them from C++
+ */
+BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
+{
+    string prog = string("export function foo { \n")
+        + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
+        + "export int foo_args(double d, int v) { \n"
+        + " if ( d == 3.0 && v == 6) then\n"
+        + "     return +1\n"
+        + " else\n"
+        + "     return +1\n"
+        + "}\n";
+
+    this->doFunction( prog, &gtc );
+    BOOST_CHECK( gtc.getOperation("foo") );
+    Method<void(void)> foo = gtc.getOperation("foo");
+    BOOST_CHECK( foo.ready() );
+
+    foo();
+
+    BOOST_CHECK( gtc.getOperation("foo_args") );
+    Method<int(double,int)> foo_args = gtc.getOperation("foo_args");
+    BOOST_CHECK( foo_args.ready() );
+
+    int i = 0;
+    i = foo_args(3.0, 6);
+    BOOST_CHECK_EQUAL( i, +1);
+
+    i = foo_args(0, 0);
+    BOOST_CHECK_EQUAL( i, -1);
+}
+
+BOOST_AUTO_TEST_CASE( testReturnExportFunction)
+{
+    string prog = string("export int foo { \n")
+        + " test.assert( test.isTrue( true ) )\n"
+        + " return 3\n"
+        + "}\n"
+        + "export int foo_args() { \n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + " return 4\n"
+        + "}\n"
+        + "program x { \n"
+        + "   this.foo()\n"
+        + "   this.foo_args()\n"
+        + "   test.assert(this.foo() == 3 )\n"
+        + "   test.assert(this.foo_args() == 4)\n"
         + "}";
 
     this->doFunction( prog, &gtc );
@@ -210,7 +281,7 @@ BOOST_AUTO_TEST_CASE( testCallFunction)
     string prog = string("function foo(int a, string b, bool c) { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + " if true then\n"
-        + "    return\n"
+        + "    return;\n"
         + " do test.assert(false)\n"  // do not reach
         + "}\n"
         + "program x { \n"
@@ -344,13 +415,18 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
         pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
-        {
-            BOOST_REQUIRE_MESSAGE( false , exc.what() );
-        }
+    {
+        BOOST_REQUIRE_MESSAGE( false , exc.what() );
+    }
+    catch( ... ) {
+        BOOST_REQUIRE_MESSAGE( false, "Unknown exception thrown by Parser.");
+    }
     if ( pg_list.empty() )
-        {
-            BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
-        }
+    {
+        // no program necessary here.
+        //BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
+        return;
+    }
 
     BOOST_REQUIRE( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( sa->getProgram( (*pg_list.begin())->getName() )->start() );
@@ -359,9 +435,9 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << sa->getProgram("x")->getLineNumber() <<"."<<endl;
-        BOOST_CHECK_MESSAGE( sa->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
-        BOOST_CHECK_MESSAGE( sa->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
+        errormsg << " on line " << sa->getProgram("x")->getLineNumber() <<" of program 'x' (or of a function 'called' by x)."<<endl;
+        BOOST_REQUIRE_MESSAGE( sa->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error Status encountered" + errormsg.str());
+        BOOST_REQUIRE_MESSAGE( sa->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
 }
 

@@ -147,14 +147,12 @@ namespace RTT
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = (functions >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
-
-    functions = *function;
+    production = *( program | function )[bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
 
     // a function is very similar to a program, but it also has a name
     function = (
        !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
-       >> str_p( "function" )
+       >> (str_p( "function" ) | commonparser.identifier[bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
@@ -262,6 +260,11 @@ namespace RTT
   {
       exportf = true;
   }
+
+  void ProgramGraphParser::seenreturntype( iter_t begin, iter_t end )
+  {
+      rettype = std::string(begin, end);
+  }
   void ProgramGraphParser::functiondef( iter_t begin, iter_t end )
   {
       // store the function in our map for later
@@ -282,7 +285,19 @@ namespace RTT
       if ( exportf && rootc->provides()->hasMember( funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
+      AttributeBase* retarg = 0;
+      if ( !rettype.empty() ) {
+          TypeInfo* type = TypeInfoRepository::Instance()->type( rettype );
+          if ( type == 0 )
+              throw parse_exception_semantic_error( "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
+          if (rettype != "void")
+              retarg = type->buildAttribute("result");
+      }
+
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
+      program_builder->getFunction()->setResult( retarg );
+
+      rettype.clear();
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
@@ -342,6 +357,26 @@ namespace RTT
       // return statement can happen in program and in a function
       program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
       program_builder->proceedToNext(  mpositer.get_position().line - ln_offset );
+  }
+
+  void ProgramGraphParser::seenreturnvalue()
+  {
+      AttributeBase* ar =program_builder->getFunction()->getResult();
+      if ( ar == 0) {
+          throw parse_exception_syntactic_error("Returning a value in a function returning (void).");
+      }
+      DataSourceBase::shared_ptr expr  = expressionparser.getResult().get();
+      expressionparser.dropResult();
+      try {
+          ActionInterface* assigncomm = ar->getDataSource()->updateCommand( expr.get() );
+          // assign the return value to the return argument.
+          program_builder->setCommand( assigncomm );
+          program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
+      }
+      catch(...) {
+          // catch exception from updateCommand.
+          throw parse_exception_syntactic_error("Could not convert '" + expr->getType() + "' to '"+ ar->getDataSource()->getType() +"' in return statement.");
+      }
   }
 
   void ProgramGraphParser::seenbreakstatement()

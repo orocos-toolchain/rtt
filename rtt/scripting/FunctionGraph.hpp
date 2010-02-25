@@ -106,6 +106,8 @@ namespace RTT
          */
         std::vector<base::AttributeBase*> args;
 
+        base::AttributeBase* retn;
+
         bool pausing;
         bool mstep;
 
@@ -202,9 +204,18 @@ namespace RTT
             return args;
         }
 
+        base::AttributeBase* getResult() const {
+            return retn;
+        }
+
         void addArgument( base::AttributeBase* a) {
             args.push_back(a);
         }
+
+        /**
+         * Will store the result in this attribute.
+         */
+        void setResult( base::AttributeBase* r) { retn = r; }
 
         /**
          * Clear the arguments vector and release all base::AttributeBase resources.

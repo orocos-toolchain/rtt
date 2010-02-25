@@ -116,6 +116,9 @@ namespace RTT { namespace scripting
       // statement.  If this is empty, then no label is necessary..
       std::string mcurlabel;
 
+      // The return type of the current function.
+      std::string rettype;
+
       // The implicit termination condition we just got for the
       // current command from the CommandParser..
       base::ConditionInterface* implcond;
@@ -154,6 +157,8 @@ namespace RTT { namespace scripting
 
       void seenreturnstatement();
       void seenreturnlabel();
+      void seenreturnvalue();
+      void seenreturntype( iter_t begin, iter_t end );
 
       void seenifstatement();
       void endifblock();

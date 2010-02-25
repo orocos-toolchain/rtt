@@ -54,8 +54,8 @@ namespace RTT
 
 
     /**
-     * A CommandFactory which delivers commands which execute
-     * a FunctionGraph in a Processor.
+     * A Factory which delivers operations which execute
+     * a FunctionGraph in an engine..
      */
     class FunctionFactory
         : public interface::OperationRepositoryPart

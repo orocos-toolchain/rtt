@@ -165,6 +165,11 @@ namespace RTT
         virtual std::vector<base::AttributeBase*> getArguments() const = 0;
 
         /**
+         * Get the return value of this program.
+         */
+        virtual base::AttributeBase* getResult() const = 0;
+
+        /**
          * Clone this Program.  This will produce a completely
          * new instance, that has nothing in common with this one.
          * It takes care to properly map identical DataSources to
