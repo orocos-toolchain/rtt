@@ -1100,7 +1100,7 @@ Printing Interface of 'the_input_port' :
 	<para>
 	  Any kind of data can be exchanged (also user defined C/C++ types)
 	  but for readability, only the 'double' C type is used here.
-	  <programlisting>  #include &lt;rtt/Ports.hpp&gt;
+	  <programlisting>  #include &lt;rtt/Port.hpp&gt;
   using namespace RTT;
 
   class MyTask
@@ -1121,11 +1121,11 @@ Printing Interface of 'the_input_port' :
 	outdatPort("my_output")
     {
        // an 'EventPort' is an InputPort which wakes our task up when data arrives.
-       this->ports()->addEventPort( &amp;evPort, "Input Port that raises an event." );
+       this->ports()->addEventPort( evPort ).doc( "Input Port that raises an event." );
 
        // These ports do not wake up our task
-       this->ports()->addPort( &amp;evPort, "Input Port that raises an event." );
-       this->ports()->addPort( &amp;outPort, "Output Port" );
+       this->ports()->addPort( evPort ).doc( "Input Port that raises an event." );
+       this->ports()->addPort( outPort ).doc( "Output Port" );
 
        // more additions to follow, see below
      }
@@ -1225,7 +1225,7 @@ Printing Interface of 'the_input_port' :
 	  method. Logically the script or method reads the inbound
 	  data, calculates something and writes the outbound data.
 	</para>
-	<programlisting>  #include &lt;rtt/Ports.hpp&gt;
+	<programlisting>  #include &lt;rtt/Port.hpp&gt;
   using namespace RTT;
 
   class MyTask
@@ -1477,7 +1477,7 @@ Printing Interface of 'the_input_port' :
 	<programlisting>  // create a method:
   TaskContext* a_task_ptr = getPeer("ATask");
   Method&lt;void(void)&gt; my_reset_meth 
-       = a_task_ptr->getOperation&lt;void(void)&gt;("reset"); // void reset(void)
+       = a_task_ptr->getOperation("reset"); // void reset(void)
 
   // Call 'reset' of a_task:
   reset_meth();  </programlisting>
@@ -1518,7 +1518,7 @@ Printing Interface of 'the_input_port' :
       <programlisting>  // used to hold the return value of getName:
   string name;
   Method&lt;string(void)> name_meth = 
-    a_task_ptr->getOperation&lt;string(void)>("getName"); // string getName(void)
+    a_task_ptr->getOperation("getName"); // string getName(void)
 
   // Call 'getName' of a_task:
   name = name_meth();
@@ -1541,7 +1541,7 @@ Printing Interface of 'the_input_port' :
   // hold return value of changeParameter:
   double oldvalue;
   Method&lt;double(double)> mychange =
-      a_task_ptr->getOperation&lt;double(double)>("changeParameter"); // double changeParameter(double)
+      a_task_ptr->getOperation("changeParameter"); // double changeParameter(double)
 
   // Call 'changeParameter' of a_task with argument '1.0'
   oldvalue = mychange( 1.0 );
@@ -1783,25 +1783,26 @@ Printing Interface of 'the_input_port' :
 
      double pi;
 
-     <classname>RTT::Property</classname>&lt;std::string&gt; param;
-     <classname>RTT::Property</classname>&lt;double&gt; value;
+     std::string param;
+     double value;
   public:
     // ...
     MyTask(std::string name)
       : <classname>RTT::TaskContext</classname>(name),
-        param("Param","Param Description","The String"),
-	value("Value","Value Description", 1.23 ),
+        param("The String"),
+	value( 1.23 ),
         aflag(false), max(5), pi(3.14)
     {
        // other code here...
 
-       this->addAlias( "aflag", aflag );
-       this->addAlias( "max", max );
+       // attributes and constants don't take a .doc() description.
+       this->addAttribute( "aflag", aflag );
+       this->addAttribute( "max", max );
       
-       this->addConstAlias("pi", pi );
+       this->addConstant( "pi", pi );
 
-       this->addProperty( &amp;param );
-       this->addProperty( &amp;value );
+       this->addProperty( "Param", param ).doc("Param Description");
+       this->addProperty( "Palue", value ).doc("Value Description");
      }
      // ...
   };
@@ -1828,7 +1829,7 @@ Printing Interface of 'the_input_port' :
   bool result = the_flag.get();
   assert( result == false );
 
-  Attribute&lt;int> the_max = a_task->attributes()->getAttribute&lt;int>("max");
+  Attribute&lt;int> the_max = a_task->attributes()->getAttribute("max");
   assert( the_max.ready() );
   the_max.set( 10 );
   assert( the_max.get() == 10 );</programlisting>
@@ -2305,7 +2306,7 @@ Printing Interface of 'the_input_port' :
           &amp; ! c_task.hasPeer( &amp;a_task.getName() ) );
 
   // Access the interface of a Peer:
-  Method&lt;bool(void)> m = a_task.getPeer( "CTask" )->getOperation&lt;bool(void)>("aMethod");
+  Method&lt;bool(void)> m = a_task.getPeer( "CTask" )->getOperation("aMethod");
   // etc. See interface usage in previous sections.
 </programlisting></para>
     <para>
@@ -2354,16 +2355,16 @@ Printing Interface of 'the_input_port' :
 	 connections are made as follows:
 	<programlisting>  // Create a connection with a buffer of size 10:
   <classname>RTT::ConnPolicy</classname> policy = RTT::ConnPolicy::buffer(10);
-  a_port.connectTo( b_port, policy );
+  a_port.connectTo( &amp;b_port, policy );
   // Create an unbuffered 'shared data' connection:
   policy = RTT::ConnPolicy::data();
-  a_port.connectTo( b_port, policy );</programlisting>
+  a_port.connectTo( &amp;b_port, policy );</programlisting>
 	The order of connections does not matter; the following would also work:
-	<programlisting>  b_port.connectTo( a_port, policy ); // ok...
-  c_port.connectTo( a_port, policy ); // fine too.</programlisting>
+	<programlisting>  b_port.connectTo( &amp;a_port, policy ); // ok...
+  c_port.connectTo( &amp;a_port, policy ); // fine too.</programlisting>
         Note that you can not see from this example which port is input and which
 	is output. For readability, it is recommended to write it as:
-	<programlisting>output_port.connectTo( input_port );</programlisting>
+	<programlisting>output_port.connectTo( &amp;input_port );</programlisting>
       </para>
       <para>
 	<classname>RTT::ConnPolicy</classname> are powerful objects that allow you to
