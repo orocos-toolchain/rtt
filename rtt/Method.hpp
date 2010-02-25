@@ -153,7 +153,8 @@ namespace RTT
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to construct Method from incompatible implementation."<< endlog();
             } else
-                this->impl->setCaller(mcaller);
+                if (this->impl)
+                    this->impl->setCaller(mcaller);
         }
 
         /**
