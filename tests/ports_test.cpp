@@ -112,25 +112,25 @@ BOOST_AUTO_TEST_CASE( testPortTaskInterface )
     InputPort<int> rp2("Port2");
     OutputPort<int> wp2("Port2");
 
-    tc->ports()->addPort( &wp1 );
-    tc->ports()->addPort( &rp2 );
+    tc->ports()->addPort( wp1 );
+    tc->ports()->addPort( rp2 );
 
     // check adding same port twice.
-    tc->ports()->addPort( &wp1 );
+    tc->ports()->addPort( wp1 );
     {
         // also check adding different port with same name.
         InputPort<double> other_rp("Port1");
-        tc->ports()->addPort( &other_rp );
+        tc->ports()->addPort( other_rp );
     }
 
     {
         auto_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
         auto_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
 
-        tc1->ports()->addPort( &rp1 );
-        tc1->ports()->addPort( &wp2 );
-        tc2->ports()->addPort( &rp2 );
-        tc2->ports()->addPort( &wp1 );
+        tc1->ports()->addPort( rp1 );
+        tc1->ports()->addPort( wp2 );
+        tc2->ports()->addPort( rp2 );
+        tc2->ports()->addPort( wp1 );
 
         BOOST_CHECK( tc1->connectPorts(tc2.get()) );
         BOOST_CHECK( wp1.connected() );
@@ -450,8 +450,8 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     OutputPort<double> wp1("Write");
     InputPort<double>  rp1("Read");
 
-    tc->ports()->addPort( &wp1 );
-    tc->ports()->addPort( &rp1 );
+    tc->ports()->addPort( wp1 );
+    tc->ports()->addPort( rp1 );
 
     // Check if ports were added as objects as well
     BOOST_CHECK( tc->provides("Write") != 0 );

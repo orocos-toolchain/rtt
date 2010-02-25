@@ -84,7 +84,7 @@ namespace RTT
          * Add a Port to this task without registering a service for it.
          * @return
          */
-        base::PortInterface& addLocalPort(base::PortInterface* port);
+        base::PortInterface& addLocalPort(base::PortInterface& port);
 
         /**
          * Add an Event triggering Port to this task without
@@ -95,7 +95,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        base::InputPortInterface& addLocalEventPort(base::InputPortInterface* port,
+        base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
                 base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
@@ -103,7 +103,7 @@ namespace RTT
          * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
          */
-        base::PortInterface& addPort(base::PortInterface* port);
+        base::PortInterface& addPort(base::PortInterface& port);
 
         /**
          * Add an Event triggering Port to the interface of this task and
@@ -113,7 +113,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        base::InputPortInterface& addEventPort(base::InputPortInterface* port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Remove a Port from this interface.
