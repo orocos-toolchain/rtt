@@ -35,21 +35,21 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef PROGRAMINTERFACE_HPP
-#define	PROGRAMINTERFACE_HPP
+#ifndef ORO_PROGRAMINTERFACE_HPP
+#define	ORO_PROGRAMINTERFACE_HPP
 
 #include <string>
 #include <vector>
-#include "DataSourceBase.hpp"
-#include "AttributeBase.hpp"
-#include "ExecutableInterface.hpp"
 #include <boost/shared_ptr.hpp>
+#include "../base/DataSourceBase.hpp"
+#include "../base/AttributeBase.hpp"
+#include "../base/ExecutableInterface.hpp"
 #include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
-#include "../scripting/rtt-scripting-fwd.hpp"
+#include "rtt-scripting-fwd.hpp"
 
 namespace RTT
-{ namespace base {
+{ namespace scripting {
     typedef boost::shared_ptr<ProgramInterface> ProgramInterfacePtr;
     typedef boost::weak_ptr<ProgramInterface> ProgramInterfaceWPtr;
 
@@ -58,7 +58,7 @@ namespace RTT
 	 * instructions that can be stepwise executed.
 	 */
 	class RTT_API ProgramInterface
-        : public ExecutableInterface
+        : public base::ExecutableInterface
 	{
     public:
         /**
@@ -162,7 +162,7 @@ namespace RTT
         /**
          * Get the argument list of this program.
          */
-        virtual std::vector<AttributeBase*> getArguments() const = 0;
+        virtual std::vector<base::AttributeBase*> getArguments() const = 0;
 
         /**
          * Clone this Program.  This will produce a completely
@@ -181,7 +181,7 @@ namespace RTT
          *   by allowing it to map some datasources itself, and simply
          *   provide us a list of its mappings.
          */
-        virtual ProgramInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const = 0;
+        virtual ProgramInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const = 0;
 
         virtual ProgramInterface* clone() const = 0;
 	};

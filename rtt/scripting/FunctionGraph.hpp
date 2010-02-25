@@ -43,7 +43,7 @@
 #include "CommandNOP.hpp"
 #include "../rtt-config.h"
 #include "../base/AttributeBase.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -57,7 +57,7 @@ namespace RTT
      * used for storing a Graph.
      */
     class RTT_API FunctionGraph
-        :public base::ProgramInterface
+        :public ProgramInterface
     {
     public:
         typedef EdgeCondition::EdgeProperty EdgeProperty;

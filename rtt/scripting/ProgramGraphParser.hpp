@@ -208,13 +208,13 @@ namespace RTT { namespace scripting
        * @brief Tries to parse programs, returns the generated programs on success.
        * @throw file_parse_exception The parser found an error.
        */
-      std::vector<base::ProgramInterfacePtr> parse( iter_t& begin, iter_t end );
+      std::vector<ProgramInterfacePtr> parse( iter_t& begin, iter_t end );
 
-      std::vector<base::ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
+      std::vector<ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
 
       void initBodyParser(const std::string& name, interface::ServiceProvider::shared_ptr stck, int offset);
       rule_t& bodyParser();
-      base::ProgramInterfacePtr bodyParserResult();
+      ProgramInterfacePtr bodyParserResult();
 
   };
 }}

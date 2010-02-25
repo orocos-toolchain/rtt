@@ -43,7 +43,7 @@
 #include <map>
 #include <string>
 #include "../rtt-config.h"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "../interface/ServiceProvider.hpp"
@@ -77,7 +77,7 @@ namespace RTT
 
         virtual ~ScriptingAccess();
 
-        typedef base::ProgramInterface::Status ProgramStatus;
+        typedef ProgramInterface::Status ProgramStatus;
         typedef scripting::StateMachine::Status StateMachineStatus;
 
         /**
@@ -85,7 +85,7 @@ namespace RTT
          * delete it upon destruction.
          * @throw program_load_exception if a program with the same name already exists.
          */
-        bool loadProgram( base::ProgramInterfacePtr pi );
+        bool loadProgram( ProgramInterfacePtr pi );
 
         /**
          * Completely discard a loaded Program.
@@ -126,9 +126,9 @@ namespace RTT
         /**
          * Get a pointer to a loaded Program.
          */
-        const base::ProgramInterfacePtr getProgram(const std::string& name) const;
+        const ProgramInterfacePtr getProgram(const std::string& name) const;
 
-        base::ProgramInterfacePtr getProgram(const std::string& name);
+        ProgramInterfacePtr getProgram(const std::string& name);
 
         /**
          * Load a new State Machine and all its children.
@@ -190,7 +190,7 @@ namespace RTT
         /**
          * List of executed functions.
          */
-        typedef std::vector< base::ProgramInterfacePtr > Functions;
+        typedef std::vector< ProgramInterfacePtr > Functions;
 
         /**
          * Load and execute a set of functions into the Program Processor for execution
@@ -530,7 +530,7 @@ namespace RTT
         StateMap   states;
         typedef StateMap::const_iterator StateMapIt;
 
-        typedef std::map<std::string,base::ProgramInterfacePtr> ProgMap;
+        typedef std::map<std::string,ProgramInterfacePtr> ProgMap;
         ProgMap programs;
         typedef ProgMap::const_iterator ProgMapIt;
 

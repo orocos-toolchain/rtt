@@ -42,12 +42,12 @@ using namespace RTT;
 using namespace detail;
 
 CommandExecFunction::CommandExecFunction( base::ActionInterface* init_com,
-		                                  boost::shared_ptr<base::ProgramInterface> foo, ExecutionEngine* p,
-									      internal::AssignableDataSource<base::ProgramInterface*>* v,
+		                                  boost::shared_ptr<ProgramInterface> foo, ExecutionEngine* p,
+									      internal::AssignableDataSource<ProgramInterface*>* v,
 									      internal::AssignableDataSource<bool>* a )
 : minit(init_com),
 _proc(p),
-_v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<base::ProgramInterface*> >(foo.get()) : v ),
+_v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
 _foo( foo ), isqueued(false), maccept( a ? a : new internal::UnboundDataSource<internal::ValueDataSource<bool> >(false) )
 {
 }

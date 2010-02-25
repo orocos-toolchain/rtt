@@ -85,6 +85,7 @@ namespace RTT {
         class ParserScriptingAccess;
         class PeerParser;
         class ProgramGraphParser;
+        class ProgramInterface;
         class ProgramLoader;
         class ProgramProcessor;
         class ProgramTask;

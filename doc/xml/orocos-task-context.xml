@@ -2725,12 +2725,12 @@ Printing Interface of 'the_input_port' :
 	  component having them, because we need access to the <classname>RTT::scripting::ScriptingAccess</classname>
 	  object, which is only available locally to the component.
 	  Take a look at the
-	  <classname>RTT::base::ProgramInterface</classname> class
+	  <classname>RTT::scripting::ProgramInterface</classname> class
 	  reference for more program related functions. One can
 	  get a pointer to a program by calling:
 	</para>
 	<programlisting>  scripting::ScriptingAccess* sa = dynamic_cast&lt;scripting::ScriptingAccess*&gt;(this->getService("scripting"));
-  base::ProgramInterface* foo = sa->getProgram("foo");
+  scripting::ProgramInterface* foo = sa->getProgram("foo");
   if (foo != 0) {
     bool result = foo->start(); // try to start the program !
     if (result == false) {

@@ -42,7 +42,7 @@
 #include "../interface/ArgumentDescription.hpp"
 #include "../interface/OperationRepository.hpp"
 #include "../Property.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 
 #include <map>
 #include <string>
@@ -60,10 +60,10 @@ namespace RTT
     class FunctionFactory
         : public interface::OperationRepositoryPart
     {
-        base::ProgramInterfacePtr func;
+        ProgramInterfacePtr func;
         ExecutionEngine* proc;
     public:
-        FunctionFactory(base::ProgramInterfacePtr func, ExecutionEngine* procs);
+        FunctionFactory(ProgramInterfacePtr func, ExecutionEngine* procs);
 
         std::string resultType() const;
 

@@ -56,7 +56,7 @@ namespace RTT
     class ProgramTask
         : public interface::ServiceProvider
     {
-        internal::ValueDataSource<base::ProgramInterfacePtr>::shared_ptr program;
+        internal::ValueDataSource<ProgramInterfacePtr>::shared_ptr program;
         // Pointer to FunctionGraph needed to unload self.
         FunctionGraphPtr function;
     public:
@@ -71,7 +71,7 @@ namespace RTT
         /**
          * Returns the Program of this task.
          */
-        base::ProgramInterfacePtr getProgram() const { return program->get(); }
+        ProgramInterfacePtr getProgram() const { return program->get(); }
 
     };
 }}

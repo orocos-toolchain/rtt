@@ -86,7 +86,7 @@ namespace RTT
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int), on a line (int), with a transition program
          */
-        typedef std::vector< boost::tuple<base::ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<base::ProgramInterface> > > TransList;
+        typedef std::vector< boost::tuple<base::ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<base::ConditionInterface*, int> > PreConditionMap;
         std::vector<StateMachinePtr> _children;
@@ -449,7 +449,7 @@ namespace RTT
          *        condition \a cnd
          */
         void transitionSet( StateInterface* from, StateInterface* to,
-                            base::ConditionInterface* cnd, boost::shared_ptr<base::ProgramInterface> transprog,
+                            base::ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                             int priority, int line);
 
         /**
@@ -472,7 +472,7 @@ namespace RTT
          * Retrieve the current program in execution. Returns null if
          * the StateMachine is not active or no programs are being run.
          */
-        base::ProgramInterface* currentProgram() const;
+        ProgramInterface* currentProgram() const;
 
         /**
          * Retrieve the initial state of the state machine.
@@ -578,7 +578,7 @@ namespace RTT
          */
         PreConditionMap precondMap;
 
-        void changeState( StateInterface* s, base::ProgramInterface* tprog, bool stepping = false );
+        void changeState( StateInterface* s, ProgramInterface* tprog, bool stepping = false );
 
         void leaveState( StateInterface* s );
 
@@ -588,7 +588,7 @@ namespace RTT
 
         void handleState( StateInterface* s );
 
-        bool executeProgram(base::ProgramInterface*& cp, bool stepping);
+        bool executeProgram(ProgramInterface*& cp, bool stepping);
 
         int checkConditions( StateInterface* state, bool stepping = false );
 
@@ -603,8 +603,8 @@ namespace RTT
          * if from != current or in transition already, discard transition.
          */
         void eventTransition( StateInterface* from, base::ConditionInterface* c,
-                              base::ProgramInterface* p, StateInterface* to,
-                              base::ProgramInterface* elsep, StateInterface* elseto );
+                              ProgramInterface* p, StateInterface* to,
+                              ProgramInterface* elsep, StateInterface* elseto );
 
         /**
          * The Initial State.
@@ -629,12 +629,12 @@ namespace RTT
 
         base::ActionInterface* initc;
 
-        base::ProgramInterface* currentProg;
-        base::ProgramInterface* currentExit;
-        base::ProgramInterface* currentHandle;
-        base::ProgramInterface* currentEntry;
-        base::ProgramInterface* currentRun;
-        base::ProgramInterface* currentTrans;
+        ProgramInterface* currentProg;
+        ProgramInterface* currentExit;
+        ProgramInterface* currentHandle;
+        ProgramInterface* currentEntry;
+        ProgramInterface* currentRun;
+        ProgramInterface* currentTrans;
 
         TransList::iterator reqstep;
         TransList::iterator reqend;

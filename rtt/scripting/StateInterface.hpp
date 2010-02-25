@@ -46,7 +46,7 @@
 
 #include <string>
 #include "../rtt-fwd.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
@@ -94,22 +94,22 @@ namespace RTT
         /**
          * Get the entry program of this State.
          */
-        virtual base::ProgramInterface* getEntryProgram() const = 0;
+        virtual ProgramInterface* getEntryProgram() const = 0;
 
         /**
          * Get the run program of this State.
          */
-        virtual base::ProgramInterface* getRunProgram() const = 0;
+        virtual ProgramInterface* getRunProgram() const = 0;
 
         /**
          * Get the handle program of this State.
          */
-        virtual base::ProgramInterface* getHandleProgram() const = 0;
+        virtual ProgramInterface* getHandleProgram() const = 0;
 
         /**
          * Get the exit program of this State.
          */
-        virtual base::ProgramInterface* getExitProgram() const = 0;
+        virtual ProgramInterface* getExitProgram() const = 0;
 
         /**
          * Get the beginning definition of this State.

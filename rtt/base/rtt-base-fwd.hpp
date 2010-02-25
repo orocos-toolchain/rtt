@@ -52,7 +52,6 @@ namespace RTT {
         class InputPortInterface;
         class OutputPortInterface;
         class PortInterface;
-        class ProgramInterface;
         class PropertyBagVisitor;
         class PropertyBase;
         class PropertyIntrospection;

@@ -518,7 +518,7 @@
       </para>
       <para>
         In case you wish to have a pointer to a program script object
-	(<classname>RTT::base::ProgramInterface</classname>),
+	(<classname>RTT::scripting::ProgramInterface</classname>),
 	you can have so only from within the owner TaskContext by
 	writing:
       </para>

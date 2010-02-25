@@ -42,7 +42,7 @@
 #include "../base/ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
 #include "../internal/DataSources.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 #include "../base/DispatchInterface.hpp"
 #include "../internal/DataSource.hpp"
 #include "../ExecutionEngine.hpp"
@@ -58,9 +58,9 @@ namespace RTT
     class RTT_API ConditionExecFunction
         : public base::ConditionInterface
     {
-        internal::DataSource<base::ProgramInterface*>::shared_ptr _v;
+        internal::DataSource<ProgramInterface*>::shared_ptr _v;
     public:
-        ConditionExecFunction( internal::DataSource<base::ProgramInterface*>* v)
+        ConditionExecFunction( internal::DataSource<ProgramInterface*>* v)
             : _v( v )
         {}
 
@@ -96,12 +96,12 @@ namespace RTT
         /**
          * _v is only necessary for the copy/clone semantics.
          */
-        internal::AssignableDataSource<base::ProgramInterface*>::shared_ptr _v;
+        internal::AssignableDataSource<ProgramInterface*>::shared_ptr _v;
         /**
          * _foo contains the exact same pointer as _v->get(), but also serves
          * as a shared_ptr handle for cleanup after clone().
          */
-        boost::shared_ptr<base::ProgramInterface> _foo;
+        boost::shared_ptr<ProgramInterface> _foo;
         bool isqueued;
         internal::AssignableDataSource<bool>::shared_ptr maccept;
     public:
@@ -113,7 +113,7 @@ namespace RTT
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<base::ProgramInterface> foo, ExecutionEngine* p, internal::AssignableDataSource<base::ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
+        CommandExecFunction( base::ActionInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ExecutionEngine* p, internal::AssignableDataSource<ProgramInterface*>* v = 0 , internal::AssignableDataSource<bool>* a = 0 );
 
         ~CommandExecFunction();
 
@@ -203,8 +203,8 @@ namespace RTT
         {
             // this may seem strange, but :
             // make a copy of foo (a function), make a copy of _v (a datasource), store pointer to new foo in _v !
-            boost::shared_ptr<base::ProgramInterface> fcpy( _foo->copy(alreadyCloned) );
-            internal::AssignableDataSource<base::ProgramInterface*>* vcpy = _v->copy(alreadyCloned);
+            boost::shared_ptr<ProgramInterface> fcpy( _foo->copy(alreadyCloned) );
+            internal::AssignableDataSource<ProgramInterface*>* vcpy = _v->copy(alreadyCloned);
             vcpy->set( fcpy.get() ); // since we own _foo, we may manipulate the copy of _v
             internal::AssignableDataSource<bool>* acpy = maccept->copy(alreadyCloned);
             return new CommandExecFunction( minit->copy(alreadyCloned), fcpy , _proc, vcpy, acpy );

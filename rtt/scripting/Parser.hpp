@@ -46,7 +46,7 @@
 #include <vector>
 #include "parse_exception.hpp"
 #include "../internal/DataSource.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 #include "../rtt-config.h"
 
@@ -75,7 +75,7 @@ namespace RTT
         /**
          * List of parsed functions.
          */
-        typedef std::vector< base::ProgramInterfacePtr > ParsedFunctions;
+        typedef std::vector< ProgramInterfacePtr > ParsedFunctions;
 
         /**
          * @brief Reads out the string, parses it, and returns a new @ref
@@ -87,7 +87,7 @@ namespace RTT
         /**
          * List of parsed programs.
          */
-        typedef std::vector< base::ProgramInterfacePtr > ParsedPrograms;
+        typedef std::vector< ProgramInterfacePtr > ParsedPrograms;
 
         /**
          * @brief Reads out the string, parses it, and returns a new @ref

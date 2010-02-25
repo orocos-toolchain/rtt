@@ -95,9 +95,9 @@ namespace RTT { namespace scripting
       StateDescription* curstate;
       StateDescription* curnonprecstate;
       ProgramGraphParser* progParser;
-      boost::shared_ptr<base::ProgramInterface> transProgram;
+      boost::shared_ptr<ProgramInterface> transProgram;
       StateDescription* elsestate;
-      boost::shared_ptr<base::ProgramInterface> elseProgram;
+      boost::shared_ptr<ProgramInterface> elseProgram;
       base::ConditionInterface* curcondition;
 #if 0
       std::string curscvcmachinename;
@@ -173,7 +173,7 @@ namespace RTT { namespace scripting
       void seenexit();
       void seenhandle();
       void seenrun();
-      boost::shared_ptr<base::ProgramInterface> finishProgram();
+      boost::shared_ptr<ProgramInterface> finishProgram();
 
       void seencondition();
       void seenendcondition();

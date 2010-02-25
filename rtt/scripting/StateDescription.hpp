@@ -39,7 +39,7 @@
 #define STATE_DESCRIPTION_HPP
 
 #include "StateInterface.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -51,10 +51,10 @@ namespace RTT
     class RTT_API StateDescription
         : public StateInterface
     {
-        base::ProgramInterfacePtr mentry;
-        base::ProgramInterfacePtr mexit;
-        base::ProgramInterfacePtr mhandle;
-        base::ProgramInterfacePtr mrun;
+        ProgramInterfacePtr mentry;
+        ProgramInterfacePtr mexit;
+        ProgramInterfacePtr mhandle;
+        ProgramInterfacePtr mrun;
         std::string name;
         int entrypoint;
         bool inited;
@@ -90,35 +90,35 @@ namespace RTT
          */
         StateDescription* postponeState();
 
-        base::ProgramInterface* getEntryProgram() const {
+        ProgramInterface* getEntryProgram() const {
             return mentry.get();
         }
 
-        base::ProgramInterface* getRunProgram() const {
+        ProgramInterface* getRunProgram() const {
             return mrun.get();
         }
 
-        base::ProgramInterface* getHandleProgram() const {
+        ProgramInterface* getHandleProgram() const {
             return mhandle.get();
         }
 
-        base::ProgramInterface* getExitProgram() const {
+        ProgramInterface* getExitProgram() const {
             return mexit.get();
         }
 
-        void setEntryProgram( base::ProgramInterfacePtr entry ) {
+        void setEntryProgram( ProgramInterfacePtr entry ) {
             mentry = entry;
         }
 
-        void setRunProgram( base::ProgramInterfacePtr run ) {
+        void setRunProgram( ProgramInterfacePtr run ) {
             mrun = run;
         }
 
-        void setHandleProgram( base::ProgramInterfacePtr handle ) {
+        void setHandleProgram( ProgramInterfacePtr handle ) {
             mhandle = handle;
         }
 
-        void setExitProgram( base::ProgramInterfacePtr exit ) {
+        void setExitProgram( ProgramInterfacePtr exit ) {
             mexit = exit;
         }
 

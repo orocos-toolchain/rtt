@@ -2,7 +2,7 @@
 #define ORO_SCRIPTING_HPP_
 
 #include "../interface/ServiceRequester.hpp"
-#include "../base/ProgramInterface.hpp"
+#include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
 #include "../Method.hpp"
 #include <string>
@@ -19,7 +19,7 @@ namespace RTT
     public:
         Scripting(TaskContext* owner);
         ~Scripting();
-        typedef base::ProgramInterface::Status ProgramStatus;
+        typedef scripting::ProgramInterface::Status ProgramStatus;
         typedef scripting::StateMachine::Status StateMachineStatus;
 
         Method<bool (const std::string& )> unloadProgram;
