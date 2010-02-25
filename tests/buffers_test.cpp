@@ -882,7 +882,6 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
 #ifdef OROPKG_OS_GNULINUX
 BOOST_AUTO_TEST_CASE( testAtomicQueue )
 {
-    do {
     QueueType* qt = new QueueType(QS);
     AQWorker* aworker = new AQWorker( qt );
     AQWorker* bworker = new AQWorker( qt );
@@ -957,7 +956,6 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
     delete cworker;
     delete grower;
     delete eater;
-    } while(true);
 }
 #endif
 BOOST_AUTO_TEST_SUITE_END()
