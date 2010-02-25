@@ -65,7 +65,7 @@ namespace RTT { namespace scripting
       // The task that will execute it:
       TaskContext* caller;
       // The interface::ServiceProvider of the current StateMachine
-      boost::shared_ptr<StateMachineTask> curobject ;
+      boost::shared_ptr<StateMachineService> curobject ;
       interface::ServiceProviderPtr peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;

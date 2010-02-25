@@ -126,7 +126,7 @@ namespace RTT
 
         ~FunctionGraph();
 
-        void setProgramTask(interface::ServiceProviderPtr mytask);
+        void setProgramService(interface::ServiceProviderPtr myservice);
 
         /**
          * To be called after a function is constructed.

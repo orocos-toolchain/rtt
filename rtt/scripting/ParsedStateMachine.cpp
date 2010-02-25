@@ -31,7 +31,7 @@
 #include "StateDescription.hpp"
 
 #include "../interface/ServiceProvider.hpp"
-#include "StateMachineTask.hpp"
+#include "StateMachineService.hpp"
 #include "../TaskContext.hpp"
 #include "../internal/mystd.hpp"
 
@@ -248,10 +248,10 @@ namespace RTT {
         *_text = text;
     }
 
-    StateMachineTaskPtr ParsedStateMachine::getServiceProvider() const {
+    StateMachineServicePtr ParsedStateMachine::getServiceProvider() const {
         return object;
     }
-    void ParsedStateMachine::setServiceProvider(StateMachineTaskPtr tc) {
+    void ParsedStateMachine::setServiceProvider(StateMachineServicePtr tc) {
         object = tc;
     }
 

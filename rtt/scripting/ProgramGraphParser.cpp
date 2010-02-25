@@ -247,8 +247,8 @@ namespace RTT
 
       FunctionGraphPtr pi(program_builder->startFunction( def ));
       // ptsk becomes the owner of pi.
-      ProgramTaskPtr ptsk(new ProgramTask( pi, rootc ));
-      pi->setProgramTask(ptsk);
+      ProgramServicePtr ptsk(new ProgramService( pi, rootc ));
+      pi->setProgramService(ptsk);
       context = ptsk;
       rootc->provides()->addService( ptsk );
   }

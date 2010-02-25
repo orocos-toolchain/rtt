@@ -86,7 +86,7 @@ namespace RTT {
         class ProgramInterface;
         class ProgramLoader;
         class ProgramProcessor;
-        class ProgramTask;
+        class ProgramService;
         class PropertyParser;
         class ScriptingService;
         class StateDescription;
@@ -95,7 +95,7 @@ namespace RTT {
         class StateMachine;
         class StateMachineBuilder;
         class StateMachineProcessor;
-        class StateMachineTask;
+        class StateMachineService;
         class StatementProcessor;
         class TryCommand;
         class TryCommandResult;

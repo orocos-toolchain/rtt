@@ -40,7 +40,7 @@
 #include "ArgumentsParser.hpp"
 #include "StateMachineBuilder.hpp"
 #include "../TaskContext.hpp"
-#include "StateMachineTask.hpp"
+#include "StateMachineService.hpp"
 
 #include "CommandComposite.hpp"
 #include "../internal/Exceptions.hpp"
@@ -794,7 +794,7 @@ namespace RTT
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant machines.
         // 'sc' acts as a stack for storing variables.
-        curobject.reset( new StateMachineTask(curtemplate, context ) );
+        curobject.reset( new StateMachineService(curtemplate, context ) );
         curobject->setName( curmachinename );
         curtemplate->setServiceProvider( curobject ); // store.
 

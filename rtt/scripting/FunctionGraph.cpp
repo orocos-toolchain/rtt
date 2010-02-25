@@ -39,7 +39,7 @@
 #include "FunctionGraph.hpp"
 #include "GraphCopier.hpp"
 #include "../base/AttributeBase.hpp"
-#include "ProgramTask.hpp"
+#include "ProgramService.hpp"
 #include "TaskContext.hpp"
 #include "../interface/ServiceProvider.hpp"
 
@@ -119,9 +119,9 @@ namespace RTT {
             delete *it;
     }
 
-    void FunctionGraph::setProgramTask(ServiceProvider::shared_ptr mytask)
+    void FunctionGraph::setProgramService(ServiceProvider::shared_ptr myservice)
     {
-        context = mytask;
+        context = myservice;
     }
 
     void FunctionGraph::unloading()

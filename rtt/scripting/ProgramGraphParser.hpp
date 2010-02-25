@@ -53,9 +53,9 @@
 #include <string>
 
 
-#include "ProgramTask.hpp"
+#include "ProgramService.hpp"
 //namespace RTT {
-//    class ProgramTask;
+//    class ProgramService;
 //}
 
 namespace RTT { namespace scripting

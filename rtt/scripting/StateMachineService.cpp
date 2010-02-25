@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  StateMachineTask.cpp
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  StateMachineService.cpp
 
-                        StateMachineTask.cpp -  description
+                        StateMachineService.cpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -37,7 +37,7 @@
 
 
 
-#include "StateMachineTask.hpp"
+#include "StateMachineService.hpp"
 
 #include "../Attribute.hpp"
 #include "../interface/FactoryExceptions.hpp"
@@ -49,7 +49,7 @@ namespace RTT
 
     using namespace detail;
 
-        void StateMachineTask::createMethodFactory() {
+        void StateMachineService::createMethodFactory() {
             // Add the state specific methods :
             // Special trick : we store the 'this' pointer in a DataSource, such that when
             // the created commands are copied, they also get the new this pointer.
@@ -91,12 +91,12 @@ namespace RTT
             addOperationDS("inTransition", &StateMachine::inTransition,ptr).doc("Is this StateMachine executing a entry|handle|exit program ?");
         }
 
-        StateMachineTaskPtr StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+        StateMachineServicePtr StateMachineService::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
         {
-            // if this gets copied, all created methods will use the new instance of StateMachineTask to
+            // if this gets copied, all created methods will use the new instance of StateMachineService to
             // call the member functions. Further more, all future methods for the copy will also call the new instance
             // while future methods for the original will still call the original.
-            StateMachineTaskPtr tmp( new StateMachineTask( newsc, this->mtc ) );
+            StateMachineServicePtr tmp( new StateMachineService( newsc, this->mtc ) );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
             AttributeRepository* dummy = AttributeRepository::copy( replacements, instantiate );
@@ -106,7 +106,7 @@ namespace RTT
             return tmp;
         }
 
-        StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, TaskContext* tc)
+        StateMachineService::StateMachineService(ParsedStateMachinePtr statem, TaskContext* tc)
             : ServiceProvider( statem->getName() ),
               _this( new ValueDataSource<StateMachinePtr>( statem ) ),
               statemachine(statem),
@@ -116,14 +116,14 @@ namespace RTT
             this->setOwner( tc );
         }
 
-    StateMachineTask::~StateMachineTask()
+    StateMachineService::~StateMachineService()
     {
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
         if ( statemachine ) {
-            statemachine->setServiceProvider( StateMachineTaskPtr() );
+            statemachine->setServiceProvider( StateMachineServicePtr() );
         }
     }
-    //ExecutionEngine* StateMachineTask::engine() const { return mtc->engine(); }
+    //ExecutionEngine* StateMachineService::engine() const { return mtc->engine(); }
 
 }
 

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramTask.hpp
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  StateMachineService.hpp
 
-                        ProgramTask.hpp -  description
+                        StateMachineService.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -37,42 +37,48 @@
 
 
 
-#ifndef PROGRAM_TASK_HPP
-#define PROGRAM_TASK_HPP
+#ifndef STATEMACHINE_SERVICE_HPP
+#define STATEMACHINE_SERVICE_HPP
 
 #include "../interface/ServiceProvider.hpp"
-#include "FunctionGraph.hpp"
-#include "../internal/DataSources.hpp"
+#include "ParsedStateMachine.hpp"
 
 namespace RTT
 { namespace scripting {
-
-    typedef boost::shared_ptr<ProgramTask> ProgramTaskPtr;
+    typedef boost::shared_ptr<StateMachineService> StateMachineServicePtr;
 
     /**
-     * @brief This class represents a program as an interface::ServiceProvider in
+     * @brief This class represents a stateMachine as a interface::ServiceProvider in
      * the Orocos TaskContext system.
      */
-    class ProgramTask
+    class StateMachineService
         : public interface::ServiceProvider
     {
-        internal::ValueDataSource<ProgramInterfacePtr>::shared_ptr program;
-        // Pointer to FunctionGraph needed to unload self.
-        FunctionGraphPtr function;
+        // used when state machines are copied.
+        // functions have a similar mechanism
+        internal::ValueDataSource< StateMachinePtr >::shared_ptr _this;
+        ParsedStateMachinePtr statemachine;
+        TaskContext* mtc;
+
+        void createMethodFactory();
+
     public:
-        /**
-         * By constructing this object, a program is added to a taskcontext
-         * as a TaskContext, with its commands and methods.
-         */
-        ProgramTask( FunctionGraphPtr prog, TaskContext* tc = 0 );
-
-        ~ProgramTask();
+        StateMachineServicePtr copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );
 
         /**
-         * Returns the Program of this task.
+         * By constructing this object, a stateMachine is added to a taskcontext
+         * as a interface::ServiceProvider, with its commands and methods.
          */
-        ProgramInterfacePtr getProgram() const { return program->get(); }
+        StateMachineService(ParsedStateMachinePtr statemachine, TaskContext* tc=0);
 
+        ~StateMachineService();
+
+        /**
+         * Returns the StateMachine of this service.
+         */
+        //StateMachinePtr getStateMachine() const { return _this->get(); }
+
+        //ExecutionEngine* engine() const;
     };
 }}
 

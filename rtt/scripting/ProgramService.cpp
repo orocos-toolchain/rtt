@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramTask.cpp
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramService.cpp
 
-                        ProgramTask.cpp -  description
+                        ProgramService.cpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -37,7 +37,7 @@
 
 
 
-#include "ProgramTask.hpp"
+#include "ProgramService.hpp"
 
 #include "../Method.hpp"
 #include "../interface/FactoryExceptions.hpp"
@@ -49,7 +49,7 @@ namespace RTT
 
     using namespace detail;
 
-    ProgramTask::ProgramTask(FunctionGraphPtr prog, TaskContext* tc)
+    ProgramService::ProgramService(FunctionGraphPtr prog, TaskContext* tc)
         : ServiceProvider( prog->getName(), tc),
           program( new ValueDataSource<ProgramInterfacePtr>(prog) ),
           function(prog)
@@ -73,11 +73,11 @@ namespace RTT
         addOperationDS("isPaused", &ProgramInterface::isPaused,ptr).doc("Is this program running but paused ?");
     }
 
-    ProgramTask::~ProgramTask() {
+    ProgramService::~ProgramService() {
         // When the this ServiceProvider is deleted, make sure the program does not reference us.
         FunctionGraphPtr prog = function;
         if ( prog ) {
-            prog->setProgramTask( ProgramTaskPtr() );
+            prog->setProgramService( ProgramServicePtr() );
         }
     }
 }
