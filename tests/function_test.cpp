@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( testCallFunction)
     string prog = string("function foo(int a, string b, bool c) { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + " if true then\n"
-        + "    return;\n"
+        + "    return\n"
         + " do test.assert(false)\n"  // do not reach
         + "}\n"
         + "program x { \n"
