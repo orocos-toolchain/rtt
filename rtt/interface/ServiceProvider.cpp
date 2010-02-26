@@ -2,10 +2,14 @@
 #include "../TaskContext.hpp"
 #include <algorithm>
 #include "../internal/mystd.hpp"
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/construct.hpp>
+#include <algorithm>
 
 namespace RTT {
     using namespace detail;
     using namespace std;
+    using namespace boost;
 
     ServiceProvider::shared_ptr ServiceProvider::Create(const std::string& name, TaskContext* owner) {
         return shared_ptr(new ServiceProvider(name,owner));
@@ -101,6 +105,10 @@ namespace RTT {
         {
             simpleoperations.erase(simpleoperations.begin() );
         }
+
+        for_each(ownedoperations.begin(),ownedoperations.end(), lambda::delete_ptr() );
+        ownedoperations.clear();
+
         OperationRepository::clear();
         while ( !services.empty() ) {
             if ( services.begin()->second->getParent() == shared_from_this() )

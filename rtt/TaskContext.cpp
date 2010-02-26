@@ -131,12 +131,15 @@ namespace RTT
 
         TaskContext::~TaskContext()
         {
+            our_act->stop();
             // We don't call stop() or cleanup() here since this is
             // the responsibility of the subclass. Calling these functions
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
             tcservice->clear();
+
+            delete tcrequests;
 
             // remove from all users.
             while( !musers.empty() ) {

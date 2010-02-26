@@ -87,7 +87,7 @@ namespace RTT
             if (f_queue->dequeue( foo ) )
                 foo->unloaded();
         }
-
+        delete f_queue;
     }
 
     TaskCore* ExecutionEngine::getParent() {

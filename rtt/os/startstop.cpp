@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  startstop.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  startstop.cxx
 
                         startstop.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -46,6 +46,7 @@
 #include <os/startstop.h>
 #include "os/MainThread.hpp"
 #include "os/StartStopManager.hpp"
+#include "../internal/GlobalEngine.hpp"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
@@ -59,7 +60,7 @@ using namespace std;
 #else
 #include <cstdio>
 #endif
-    
+
 #include "../Logger.hpp"
 #include "TimeService.hpp"
 
@@ -141,7 +142,7 @@ int __os_checkException(int& argc, char** argv)
                 --argc;
             dotry = false;
         }
-    
+
     return dotry;
 }
 
@@ -151,6 +152,8 @@ void __os_exit(void)
         if (d)
             d->switchOff(bit);
 #endif
+
+    internal::GlobalEngine::Release();
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
     initM->stop();
