@@ -148,10 +148,10 @@ namespace RTT
     {
         if (this->getActivity() && this->getActivity()->isActive() && f) {
             f->loaded(this);
-            int result = f_queue->enqueue( f );
+            bool result = f_queue->enqueue( f );
             // signal work is to be done:
             this->getActivity()->trigger();
-            return result != 0;
+            return result;
         }
         return false;
     }
