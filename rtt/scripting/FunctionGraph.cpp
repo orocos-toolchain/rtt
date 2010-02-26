@@ -57,7 +57,7 @@ namespace RTT {
 
 
     FunctionGraph::FunctionGraph(const std::string& _name)
-        : myName(_name), pausing(false), mstep(false)
+        : myName(_name), retn(0), pausing(false), mstep(false)
     {
         // the start vertex of our function graph
         startv = add_vertex( program );
@@ -86,6 +86,8 @@ namespace RTT {
         std::vector<AttributeBase*>::iterator ita = argsvect.begin();
         for ( ; ita != argsvect.end(); ++ita)
             this->args.push_back( (*ita)->clone() );
+        if (orig.retn)
+            retn = orig.retn->clone();
         this->finish();
     }
 
@@ -359,6 +361,8 @@ namespace RTT {
         // func args are never instantiated, so that we can keep making copies.
         for (unsigned int i=0; i < args.size(); ++i)
             ret->addArgument( args[i]->copy( replacementdss, false ) );
+        if (retn)
+            ret->setResult( retn->copy(replacementdss, false) );
 
         boost::copy_graph( program, ret->program,
                            boost::vertex_copy( GraphVertexCopier( program, ret->program, replacementdss ) ).

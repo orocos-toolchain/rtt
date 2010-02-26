@@ -50,9 +50,6 @@
 namespace RTT
 { namespace scripting {
 
-
-
-
     /**
      * A Factory which delivers operations which execute
      * a FunctionGraph in an engine..
@@ -73,13 +70,13 @@ namespace RTT
 
         std::vector< interface::ArgumentDescription > getArgumentList() const;
 
-        base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
+        base::DataSourceBase::shared_ptr produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
                                    ) const;
-        base::DataSourceBase* produceHandle() const { return 0; }
-        base::DataSourceBase* produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
-                                   ) const { return 0; }
-        base::DataSourceBase* produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
-                                   ) const { return 0; }
+        base::DataSourceBase::shared_ptr produceHandle() const;
+        base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
+                                   ) const;
+        base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
+                                   ) const;
     };
 }}
 

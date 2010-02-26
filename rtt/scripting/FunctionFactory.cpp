@@ -41,7 +41,7 @@
 #include "../ExecutionEngine.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
-#include "CommandExecFunction.hpp"
+#include "CallFunction.hpp"
 #include "ConditionComposite.hpp"
 #include "TryCommand.hpp"
 #include <sstream>
@@ -63,7 +63,7 @@ namespace RTT {
             : func(pi), proc(procs) {}
 
         std::string FunctionFactory::resultType() const {
-            return std::string("bool");
+            return func->getResult() ? func->getResult()->getDataSource()->getTypeName() : "void";
         }
 
         std::string FunctionFactory::description() const {
@@ -85,7 +85,7 @@ namespace RTT {
             return func->getArguments().size();
         }
 
-        DataSourceBase* FunctionFactory::produce(
+        DataSourceBase::shared_ptr FunctionFactory::produce(
                       const std::vector<DataSourceBase::shared_ptr>& args
                       , ExecutionEngine* caller
                       ) const {
@@ -136,8 +136,29 @@ namespace RTT {
 
             // the command gets ownership of the new function :
             // this command is a DataSourceBase...
-            return new DataSourceCommand( new CommandExecFunction( icom, fcopy, proc ));
+            AttributeBase* ar= fcopy->getResult();
+            if (ar)
+                return ar->getDataSource()->getTypeInfo()->buildActionAlias( new CallFunction( icom, fcopy, proc, caller ), ar->getDataSource()).get();
+            else // void case, returns result of runFunction (backwards compatibility).
+                return new DataSourceCommand( new CallFunction( icom, fcopy, proc, caller ) );
         }
+
+        base::DataSourceBase::shared_ptr FunctionFactory::produceHandle() const {
+            AttributeBase* ar = func->getResult();
+            return ar->getDataSource().get();
+        }
+        base::DataSourceBase::shared_ptr FunctionFactory::produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
+                                   ) const {
+            return 0;
+        }
+        base::DataSourceBase::shared_ptr FunctionFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
+                                   ) const {
+            if (args.size() != 2) {
+                log(Error) <<"Invalid number of arguments. Script functions can only collect the return value." <<endlog();
+            }
+            return 0;
+        }
+
 }
 
 

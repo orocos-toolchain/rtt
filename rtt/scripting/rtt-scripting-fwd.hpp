@@ -43,10 +43,10 @@ namespace RTT {
     namespace scripting {
         class ArgumentsParser;
         class AsynchCommandDecorator;
+        class CallFunction;
         class CommandComposite;
         class CommandCounter;
         class CommandDispatch;
-        class CommandExecFunction;
         class CommandIllegal;
         class CommandNOP;
         class CommandParser;
