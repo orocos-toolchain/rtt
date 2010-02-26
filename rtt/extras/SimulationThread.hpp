@@ -113,6 +113,10 @@ namespace RTT
          */
         virtual bool run(unsigned int maxsteps);
 
+        /**
+         * Always returns the MainThread.
+         */
+        virtual os::ThreadInterface* simthread();
     protected:
         bool initialize();
         void step();

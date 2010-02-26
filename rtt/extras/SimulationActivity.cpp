@@ -58,6 +58,10 @@ namespace RTT {
         stop();
     }
 
+    os::ThreadInterface* SimulationActivity::thread() {
+        return SimulationThread::Instance()->simthread();
+    }
+
     bool SimulationActivity::execute()
     {
         if ( this->isRunning() ) {

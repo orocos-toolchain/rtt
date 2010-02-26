@@ -92,6 +92,8 @@ namespace RTT
          */
         virtual  ~SimulationActivity();
 
+        virtual os::ThreadInterface* thread();
+
     };
 
 }}
