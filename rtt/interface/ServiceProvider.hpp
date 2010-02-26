@@ -329,7 +329,7 @@ namespace RTT
          *
          * @return A internal::DataSource which, when evaluated, invokes the operation.
          */
-        base::DataSourceBase* getOperation( std::string name,
+        base::DataSourceBase::shared_ptr getOperation( std::string name,
                                    const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
         {
             return this->produce(name, args, caller);

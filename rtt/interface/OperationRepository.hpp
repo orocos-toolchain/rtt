@@ -65,7 +65,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            virtual base::DataSourceBase* produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const = 0;
+            virtual base::DataSourceBase::shared_ptr produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const = 0;
 
             /**
              * Create a DataSource for a given send operation.
@@ -80,7 +80,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            virtual base::DataSourceBase* produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const = 0;
+            virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const = 0;
 
             /**
              * Create an empty SendHandle object for this operation.
@@ -89,7 +89,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            virtual base::DataSourceBase* produceHandle() const = 0;
+            virtual base::DataSourceBase::shared_ptr produceHandle() const = 0;
 
             /**
              * Create a DataSource for collecting the results of a Send.
@@ -104,7 +104,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            virtual base::DataSourceBase* produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking) const = 0;
+            virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking) const = 0;
 
             /**
              * Returns any local operation associated with this part.
@@ -168,7 +168,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase* produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
+            base::DataSourceBase::shared_ptr produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
 
             /**
              * Produce a DataSource that send()s an operation.
@@ -182,7 +182,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase* produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
+            base::DataSourceBase::shared_ptr produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
 
             /**
              * Produce an AssignableDataSource that contains a SendHandle,
@@ -197,7 +197,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase* produceHandle(const std::string& name) const;
+            base::DataSourceBase::shared_ptr produceHandle(const std::string& name) const;
 
             /**
              * Produce a DataSource that collects a sent operation,
@@ -214,7 +214,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase* produceCollect(const std::string& name, const Arguments& args, bool blocking) const;
+            base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, bool blocking) const;
 
             /**
              * The descriptions of an argumentlist.

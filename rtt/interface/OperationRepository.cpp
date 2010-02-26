@@ -43,7 +43,7 @@ int OperationRepository::getArity(const std::string& name) const
     return i->second->arity();
 }
 
-base::DataSourceBase* OperationRepository::produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
+base::DataSourceBase::shared_ptr OperationRepository::produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
@@ -51,7 +51,7 @@ base::DataSourceBase* OperationRepository::produce(const std::string& name, cons
     return i->second->produce(args, caller);
 }
 
-base::DataSourceBase* OperationRepository::produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
+base::DataSourceBase::shared_ptr OperationRepository::produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
@@ -59,7 +59,7 @@ base::DataSourceBase* OperationRepository::produceSend(const std::string& name, 
     return i->second->produceSend(args, caller);
 }
 
-base::DataSourceBase* OperationRepository::produceHandle(const std::string& name) const
+base::DataSourceBase::shared_ptr OperationRepository::produceHandle(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
@@ -67,7 +67,7 @@ base::DataSourceBase* OperationRepository::produceHandle(const std::string& name
     return i->second->produceHandle();
 }
 
-base::DataSourceBase* OperationRepository::produceCollect(const std::string& name, const Arguments& args, bool blocking) const
+base::DataSourceBase::shared_ptr OperationRepository::produceCollect(const std::string& name, const Arguments& args, bool blocking) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)

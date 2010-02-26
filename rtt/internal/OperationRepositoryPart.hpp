@@ -62,7 +62,7 @@ namespace RTT
 
             unsigned int arity() const { return boost::function_traits<Signature>::arity; }
 
-            base::DataSourceBase* produce(
+            base::DataSourceBase::shared_ptr produce(
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
@@ -70,18 +70,18 @@ namespace RTT
                 return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
-            virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
+            virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                 return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
             }
 
-            virtual base::DataSourceBase* produceHandle() const {
+            virtual base::DataSourceBase::shared_ptr produceHandle() const {
                 // Because of copy/clone,program script variables ('var') must begin unbound.
                 return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
             }
 
-            virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+            virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
                 const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                 if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
@@ -137,7 +137,7 @@ namespace RTT
                     return ret;
                 }
 
-                base::DataSourceBase* produce(ArgList const& args, ExecutionEngine* caller) const
+                base::DataSourceBase::shared_ptr produce(ArgList const& args, ExecutionEngine* caller) const
                 {
                     if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
@@ -149,7 +149,7 @@ namespace RTT
                     return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
                 }
 
-                virtual base::DataSourceBase* produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
+                virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                     if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
@@ -160,12 +160,12 @@ namespace RTT
                     return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
                 }
 
-                virtual base::DataSourceBase* produceHandle() const {
+                virtual base::DataSourceBase::shared_ptr produceHandle() const {
                     // Because of copy/clone,value objects must begin unbound.
                     return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature>& > >();
                 }
 
-                virtual base::DataSourceBase* produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
                     const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.

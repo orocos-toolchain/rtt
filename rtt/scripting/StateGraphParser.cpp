@@ -518,8 +518,8 @@ namespace RTT
                     evcondition = new ConditionBoolDataSource( cur_port_events[evname]->getResult().get() );
                 } else {
                     // combine the implicit 'read(arg) == NewData' with the guard, if any.
-                    DataSourceBase* read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
-                    DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb);
+                    DataSourceBase::shared_ptr read_dsb = peer->provides(evname)->produce("read", evargs, context->engine() );
+                    DataSource<FlowStatus>* read_ds = dynamic_cast<DataSource<FlowStatus>*>(read_dsb.get());
                     assert(read_ds);
                     evcondition = new ConditionCompare<FlowStatus,std::equal_to<FlowStatus> >( new ConstantDataSource<FlowStatus>(NewData), read_ds );
                     if (curstate) {
