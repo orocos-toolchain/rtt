@@ -75,6 +75,7 @@ namespace RTT { namespace scripting
        * in Orocos scripting.
        */
       rule_t eos;
+      rule_t notassertingeos;
       lexeme_rule_t leos;
       //@}
 

@@ -97,6 +97,7 @@ namespace RTT {
         BOOST_SPIRIT_DEBUG_RULE( idr );
         BOOST_SPIRIT_DEBUG_RULE( idlr );
         BOOST_SPIRIT_DEBUG_RULE( eos );
+        BOOST_SPIRIT_DEBUG_RULE( notassertingeos );
         BOOST_SPIRIT_DEBUG_RULE( leos );
         BOOST_SPIRIT_DEBUG_RULE( endofkeyword );
         BOOST_SPIRIT_DEBUG_RULE( keywords );
@@ -134,7 +135,8 @@ namespace RTT {
 
         // end of statement is on a newline or a ';'
         //eos = lexeme_d[ *(space_p - eol_p) >> (eol_p | ch_p(';')) ];
-        eos = expect_eos( eol_p | ch_p(';') | eps_p(ch_p('}')) ); // detect } as eos, but do not consume.
+        eos = expect_eos( notassertingeos ); // detect } as eos, but do not consume.
+        notassertingeos = eol_p | ch_p(';') | eps_p(ch_p('}')); // detect } as eos, but do not consume.
         leos = *(space_p - eol_p) >> (eol_p | ch_p(';') | eps_p(ch_p('}')));
     }
 
