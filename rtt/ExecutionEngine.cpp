@@ -44,7 +44,9 @@
 #include "os/MutexLock.hpp"
 
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 #include <functional>
 #include <algorithm>
 
@@ -65,7 +67,6 @@ namespace RTT
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
         : taskc(owner), mqueue(ORONUM_EE_MQUEUE_SIZE),
-          funcs( ORONUM_EE_MQUEUE_SIZE),
           f_queue( new Queue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
     {
     }
@@ -81,19 +82,10 @@ namespace RTT
         }
         assert( children.empty() );
 
-        // empty executable interface list.
-        ExecutableInterface* foo = 0;
-        for(std::vector<ExecutableInterface*>::iterator it = funcs.begin();
-                it != funcs.end(); ++it ) {
-            foo = *it;
-            if ( foo ) {
-                foo->unloaded();
-                (*it) = 0;
-            }
-        }
+        ExecutableInterface* foo;
         while ( !f_queue->isEmpty() ) {
-            f_queue->dequeue( foo );
-            foo->unloaded();
+            if (f_queue->dequeue( foo ) )
+                foo->unloaded();
         }
 
     }
@@ -116,31 +108,17 @@ namespace RTT
     {
         // Execute all loaded Functions :
         ExecutableInterface* foo = 0;
+        int nbr = f_queue->size(); // nbr to process.
         // 1. Fetch new ones from queue.
         while ( !f_queue->isEmpty() ) {
-            // 0. find an empty spot to store :
-            std::vector<ExecutableInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), foo );
-            if ( f_it == funcs.end() )
-                break; // no spot found, leave in queue.
             f_queue->dequeue( foo );
-            *f_it = foo;
-            // stored successfully, now reset for next item from queue.
-            foo = 0;
-        }
-        assert(foo == 0);
-        // 2. execute all present (if any):
-        if ( find_if( funcs.begin(), funcs.end(), lambda::_1 != foo) != funcs.end() ) {
-            MutexLock ml( syncer ); // we block until removeFunction finished.
-            for(std::vector<ExecutableInterface*>::iterator it = funcs.begin();
-                    it != funcs.end(); ++it ) {
-                foo = *it;
-                if ( foo ) {
-                    if ( foo->execute() == false ){
-                        foo->unloaded();
-                        (*it) = 0;
-                    }
-                }
+            if ( foo->execute() == false ){
+                foo->unloaded();
+            } else {
+                f_queue->enqueue( foo );
             }
+            if ( --nbr == 0) // we did a round-trip
+                break;
         }
     }
 
@@ -156,19 +134,59 @@ namespace RTT
         return false;
     }
 
+    struct RemoveMsg : public DisposableInterface {
+        ExecutableInterface* mf;
+        ExecutionEngine* mee;
+        bool found;
+        RemoveMsg(ExecutableInterface* f, ExecutionEngine* ee)
+        : mf(f),mee(ee), found(false) {}
+        virtual void executeAndDispose() {
+            mee->removeSelfFunction( mf );
+            found = true; // always true in order to be able to quit waitForMessages.
+        }
+        virtual void dispose() {}
+
+    };
+
     bool ExecutionEngine::removeFunction( ExecutableInterface* f )
     {
         // Remove from the queue.
-        std::vector<ExecutableInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), f );
-        if ( f_it != funcs.end() ) {
-            {
-                MutexLock ml(syncer);
-                f->unloaded();
-                *f_it = 0;
-            }
+        if ( !f )
+            return false;
+
+        if ( !f->isLoaded() )
             return true;
+
+        // When not running, just remove.
+        if ( getActivity() == 0 || !this->getActivity()->isActive() ) {
+            return removeSelfFunction( f );
         }
-        return false;
+
+        // Running: create message on stack.
+        RemoveMsg rmsg(f,this);
+        if ( this->process(&rmsg) )
+            this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
+        return rmsg.found;
+    }
+
+    bool ExecutionEngine::removeSelfFunction(ExecutableInterface* f  )
+    {
+        // since this function is executed in process messages, it is always safe to execute.
+        if ( !f )
+            return false;
+        int nbr = f_queue->size();
+        while (nbr != 0) {
+            ExecutableInterface* foo = 0;
+            if ( !f_queue->dequeue(foo) )
+                return false;
+            if ( f  == foo) {
+                f->unloaded();
+                return true;
+            }
+            f_queue->enqueue(foo);
+            --nbr;
+        }
+        return true;
     }
 
     bool ExecutionEngine::initialize() {
@@ -205,13 +223,79 @@ namespace RTT
 
     bool ExecutionEngine::process( DisposableInterface* c )
     {
-        if ( c ) {
+        if ( c && this->getActivity() && this->getActivity()->isActive() ) {
             bool result = mqueue.enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
         }
         return false;
+    }
+
+    void ExecutionEngine::waitForMessages(const boost::function<bool(void)>& pred)
+    {
+        if (this->getActivity()->thread()->isSelf())
+            waitAndProcessMessages(pred);
+        else
+            waitForMessagesInternal(pred);
+    }
+
+
+    void ExecutionEngine::waitForFunctions(const boost::function<bool(void)>& pred)
+    {
+        if (this->getActivity()->thread()->isSelf())
+            waitAndProcessFunctions(pred);
+        else
+            waitForMessagesInternal(pred); // same as for messages.
+    }
+
+
+    void ExecutionEngine::waitForMessagesInternal(boost::function<bool(void)> const& pred)
+    {
+        if ( pred() )
+            return;
+        // only to be called from the thread not executing step().
+        os::MutexLock lock(msg_lock);
+        while (!pred()) { // the mutex guards that processMessages can not run between !pred and the wait().
+            msg_cond.wait(msg_lock); // now processMessages may run.
+        }
+    }
+
+
+    void ExecutionEngine::waitAndProcessMessages(boost::function<bool(void)> const& pred)
+    {
+        while ( !pred() ){
+            // may not be called while holding the msg_lock !!!
+            this->processMessages();
+            {
+                // only to be called from the thread executing step().
+                // We must lock because the cond variable will unlock msg_lock.
+                os::MutexLock lock(msg_lock);
+                if (!pred()) {
+                    msg_cond.wait(msg_lock); // now processMessages may run.
+                } else {
+                    return; // do not process messages when pred() == true;
+                }
+            }
+        }
+    }
+
+    void ExecutionEngine::waitAndProcessFunctions(boost::function<bool(void)> const& pred)
+    {
+        while ( !pred() ){
+            // may not be called while holding the msg_lock !!!
+            this->processFunctions();
+            {
+                // only to be called from the thread executing step().
+                // We must lock because the cond variable will unlock msg_lock.
+                os::MutexLock lock(msg_lock);
+                if (!pred()) {
+                    msg_cond.wait(msg_lock); // now processMessages may run.
+                } else {
+                    return; // do not process messages when pred() == true;
+                }
+            }
+        }
     }
 
     void ExecutionEngine::step() {

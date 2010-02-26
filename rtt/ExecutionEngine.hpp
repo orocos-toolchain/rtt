@@ -49,6 +49,7 @@
 #include "internal/Queue.hpp"
 #include "internal/List.hpp"
 #include <vector>
+#include <boost/function.hpp>
 
 #include "rtt-config.h"
 #include "internal/rtt-internal-fwd.hpp"
@@ -139,22 +140,33 @@ namespace RTT
         virtual bool removeFunction(base::ExecutableInterface* f);
 
         /**
+         * Self-removal for a running function added with runFunction.
+         * You must call this variant in case you want yourself to be
+         * removed. Equivalent to returning false in ExecutableInterface::execute().
+         */
+        virtual bool removeSelfFunction(base::ExecutableInterface* f);
+
+        /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
          * Each time one or more messages are processed, waitForMessages will return
          * when pred() returns true.
          * @param pred As long as !pred() blocks the calling thread. If pred() == true
-         * when entering this function, the returns immediately.
+         * when entering this function, returns immediately.
          *
          * This function is for internal use only and is required for asynchronous method invocations.
          */
-        template<class Predicate>
-        void waitForMessages(const Predicate& pred)
-        {
-            if (this->getActivity()->thread()->isSelf())
-                waitAndProcessMessages(pred);
-            else
-                waitForMessagesInternal(pred);
-        }
+        void waitForMessages(const boost::function<bool(void)>& pred);
+
+        /**
+         * Call this if you wish to block on a function completing in the Execution Engine.
+         * Each time a function completes, waitForFunctions will return
+         * when pred() returns true.
+         * @param pred As long as !pred() blocks the calling thread. If pred() == true
+         * when entering this function, returns immediately.
+         *
+         * This function is for internal use only and is required for asynchronous function invocations.
+         */
+        void waitForFunctions(const boost::function<bool(void)>& pred);
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
@@ -169,48 +181,35 @@ namespace RTT
          * and may therefor not be called from within the component's Thread. Use
          * waitAndProcessMessages() instead.
          */
-        template<class Predicate>
-        void waitForMessagesInternal(Predicate& pred)
-        {
-            if ( pred() )
-                return;
-            // only to be called from the thread not executing step().
-            os::MutexLock lock(msg_lock);
-            while (!pred()) { // the mutex guards that processMessages can not run between !pred and the wait().
-                msg_cond.wait(msg_lock); // now processMessages may run.
-            }
-        }
+        void waitForMessagesInternal( boost::function<bool(void)> const& pred);
 
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine
          * and execute it.
          * @param pred As long as !pred() waits and processes messages. If pred() == true
          * when entering this function, then no messages will be processed and this function
-         * return immediately.
+         * returns immediately.
          *
          * This function is for internal use only and is required for asynchronous method invocations.
          *
          * @note waitAndProcessMessages will call in turn this->processMessages() and may as a consequence
          * recurse if we get an asynchronous call-back.
          */
-        template<class Predicate>
-        void waitAndProcessMessages(Predicate& pred)
-        {
-            while ( !pred() ){
-                {
-                    // only to be called from the thread executing step().
-                    // We must lock because the cond variable will unlock msg_lock.
-                    os::MutexLock lock(msg_lock);
-                    if (!pred()) {
-                        msg_cond.wait(msg_lock); // now processMessages may run.
-                    } else {
-                        return; // do not process messages when pred() == true;
-                    }
-                }
-                // may not be called while holding the msg_lock !!!
-                this->processMessages();
-            }
-        }
+        void waitAndProcessMessages(boost::function<bool(void)> const& pred);
+
+        /**
+         * Call this if you wish to block on a function completing in the Execution Engine
+         * and execute it.
+         * @param pred As long as !pred() waits and processes functions. If pred() == true
+         * when entering this function, then no functions will be processed and this function
+         * returns immediately.
+         *
+         * This function is for internal use only and is required for asynchronous function invocations.
+         *
+         * @note waitAndProcessFunctions will call in turn this->processFunctions() and may as a consequence
+         * recurse if we get an asynchronous call-back.
+         */
+        void waitAndProcessFunctions(boost::function<bool(void)> const& pred);
 
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
@@ -222,18 +221,12 @@ namespace RTT
          */
         internal::Queue<base::DisposableInterface*> mqueue;
 
-        /**
-         * All functions which execute in this ExecutionEngine.
-         */
-        //internal::List<base::ExecutableInterface*> equeue;
-
         std::vector<base::TaskCore*> children;
 
-        std::vector<base::ExecutableInterface*> funcs;
-
+        /**
+         * Stores all functions we're executing.
+         */
         internal::Queue<base::ExecutableInterface*>* f_queue;
-
-        os::Mutex syncer;
 
         os::Mutex msg_lock;
         os::Condition msg_cond;
@@ -244,8 +237,8 @@ namespace RTT
         virtual bool initialize();
 
         /**
-         * Executes (in that order) programs, state machines, commands,
-         * events and the base::TaskCore's update() function.
+         * Executes (in that order) Messages, Functions and updateHook()
+         * functions of this TaskContext and its children.
          */
         virtual void step();
 
