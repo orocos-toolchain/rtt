@@ -24,7 +24,7 @@ namespace RTT
                                             internal::CollectBase<Signature>* >,
           public internal::InvokerSignature<boost::function_traits<Signature>::arity,
                                           Signature,
-                                          base::MethodBase<Signature>* >
+                                          typename base::MethodBase<Signature>::shared_ptr >
 	{
 	public:
         typedef internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
@@ -32,13 +32,13 @@ namespace RTT
                                            internal::CollectBase<Signature>* >      CBase;
         typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
                                            Signature,
-                                           base::MethodBase<Signature>* >      IBase;
+                                           typename base::MethodBase<Signature>::shared_ptr >      IBase;
         /**
          * Create an empty SendHandle.
          */
 		SendHandle() {}
 
-        SendHandle(base::MethodBase<Signature>* coll) : CBase(coll), IBase(coll) {}
+        SendHandle(typename base::MethodBase<Signature>::shared_ptr coll) : CBase( coll.get() ), IBase(coll) {}
 
         /**
          * Create a copy-equivalent SendHandle.
@@ -56,7 +56,7 @@ namespace RTT
         {
             if (this->IBase::impl && this->IBase::impl == implementation)
                 return *this;
-            this->IBase::impl = dynamic_cast< base::MethodBase<Signature>* >(implementation);
+            this->IBase::impl.reset( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) );
             if ( !this->IBase::impl && implementation ) {
                 log(Error) << "Tried to assign SendHandle from incompatible type."<< endlog();
             }
@@ -77,7 +77,7 @@ namespace RTT
          * Inspect if this SendHandle is pointing to valid (existing) invocation.
          * @return false if no invocation is associated with this handle.
          */
-        bool ready() const { return this->CBase::cimpl != 0 && this->IBase::impl != 0;}
+        bool ready() const { return this->CBase::cimpl && this->IBase::impl ;}
 
         using CBase::collect;
 

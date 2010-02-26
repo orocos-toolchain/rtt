@@ -40,6 +40,8 @@
 #define ORO_LOCAL_METHOD_HPP
 
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <string>
 #include "Invoker.hpp"
 #include "../base/MethodBase.hpp"
@@ -51,7 +53,7 @@
 #include "MethodBinder.hpp"
 #include "GlobalEngine.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
-#include "../os/tlsf/tlsf.h"
+#include "../os/oro_allocator.hpp"
 
 #include <iostream>
 // For doing I/O
@@ -78,18 +80,14 @@ namespace RTT
             : public base::MethodBase<FunctionT>,
               protected BindStorage<FunctionT>
         {
-        protected:
-            ExecutionEngine* myengine;
-            ExecutionEngine* caller;
-            typedef BindStorage<FunctionT> Store;
-            ExecutionThread met;
-
         public:
             LocalMethodImpl() : myengine(GlobalEngine::Instance()), caller(GlobalEngine::Instance()) {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
             typedef boost::function_traits<Signature> traits;
+
+            typedef boost::shared_ptr<LocalMethodImpl> shared_ptr;
 
             virtual void setExecutor(ExecutionEngine* ee) {
                 if (met == OwnThread)
@@ -110,31 +108,46 @@ namespace RTT
                 if (!this->retn.isExecuted()) {
                     this->exec(); // calls BindStorage.
                     //cout << "executed method"<<endl;
+                    bool result = false;
                     if (caller){
-                        caller->process(this);
+                        result = caller->process(this);
                     }
+                    if (!result)
+                        dispose();
+
                 } else {
                     //cout << "received method done msg."<<endl;
                     // Already executed, are in caller.
                     // nop, we will check ret in collect()
                     // This is the place to call call-back functions,
                     // since we're in the caller's (or proxy's) EE.
+                    dispose();
                 }
                 return;
             }
 
+            /**
+             * As long as dispose (or executeAndDispose() ) is
+             * not called, this object will not be destroyed.
+             */
             void dispose() {
+                //this->~LocalMethodImpl();
+                //oro_rt_free(this);
+                self.reset();
             }
 
             ExecutionEngine* getMessageProcessor() const { return myengine; }
 
-            SendHandle<Signature> do_send(base::MethodBase<Signature>* cl) {
+            SendHandle<Signature> do_send(typename base::MethodBase<Signature>::shared_ptr cl) {
                 assert(myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
                 //std::cout << "Sending clone..."<<std::endl;
-                if ( myengine->process( cl ) )
+                if ( myengine->process( cl.get() ) ) {
+                    self = cl;
                     return SendHandle<Signature>( cl );
-                else {
-                    delete cl;
+                } else {
+                    // cleanup. Done by shared_ptr.
+                    //cl->~MethodBase();
+                    //oro_rt_free(cl);
                     return SendHandle<Signature>();
                 }
             }
@@ -146,7 +159,7 @@ namespace RTT
             template<class T1>
             SendHandle<Signature> send_impl( T1 a1 ) {
                 // bind types from Storage<Function>
-                LocalMethodImpl* cl = this->cloneRT();
+                shared_ptr cl = this->cloneRT();
                 cl->store( a1 );
                 return do_send(cl);
             }
@@ -154,7 +167,7 @@ namespace RTT
             template<class T1, class T2>
             SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 // bind types from Storage<Function>
-                LocalMethodImpl* cl = this->cloneRT();
+                shared_ptr cl = this->cloneRT();
                 cl->store( a1,a2 );
                 return do_send(cl);
             }
@@ -162,7 +175,7 @@ namespace RTT
             template<class T1, class T2, class T3>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 // bind types from Storage<Function>
-                LocalMethodImpl* cl = this->cloneRT();
+                shared_ptr cl = this->cloneRT();
                 cl->store( a1,a2,a3 );
                 return do_send(cl);
             }
@@ -170,7 +183,7 @@ namespace RTT
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 // bind types from Storage<Function>
-                LocalMethodImpl* cl = this->cloneRT();
+                shared_ptr cl = this->cloneRT();
                 cl->store( a1,a2,a3,a4 );
                 return do_send(cl);
             }
@@ -374,7 +387,19 @@ namespace RTT
                 return this->retn.result(); // may return void.
             }
 
-            virtual LocalMethodImpl<Signature>* cloneRT() const = 0;
+            virtual shared_ptr cloneRT() const = 0;
+
+        protected:
+            ExecutionEngine* myengine;
+            ExecutionEngine* caller;
+            typedef BindStorage<FunctionT> Store;
+            ExecutionThread met;
+            /**
+             * Used to refcount self as long as dispose() is not called.
+             * This refcount is real-time since both shared_ptr and object
+             * were allocated with the rt_allocator class.
+             */
+            typename base::MethodBase<FunctionT>::shared_ptr self;
         };
 
         /**
@@ -457,12 +482,13 @@ namespace RTT
                 return ret;
             }
 
-            LocalMethodImpl<Signature>* cloneRT() const
+            typename LocalMethodImpl<Signature>::shared_ptr cloneRT() const
             {
-                void* obj = oro_rt_malloc(sizeof(LocalMethodImpl<Signature>));
-                return new(obj) LocalMethod<Signature>(*this);
+                //void* obj = oro_rt_malloc(sizeof(LocalMethodImpl<Signature>));
+                //return new(obj) LocalMethod<Signature>(*this);
+                return boost::allocate_shared<LocalMethod<Signature> >(os::rt_allocator<LocalMethod<Signature> >(), *this);
             }
-};
+        };
     }
 }
 

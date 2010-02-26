@@ -65,7 +65,7 @@ namespace RTT { namespace os {
      * \a Alloc for each allocation request,
      * also if the pool is empty. The pool works on a per-type
      * basis globally (static !). The pool is thus _not_ per-object.
-     * A per-object allocator is allowed by the standard.
+     * A per-object allocator is not allowed by the standard.
      * The pool is deallocated upon global destruction.
      *
      * @param T the type to allocate memory for
