@@ -717,40 +717,84 @@
 	<title><symbol>function</symbol></title>
 	<para>
 	  Statements can be grouped in functions. A function can only
-	  call a function which is earlier defined. Thus recursive
+	  call another function which is earlier defined. Thus recursive
 	  function calling is not allowed in this language.
 	</para>
-	<programlisting>  function func_name( int arg1, double arg2 ) {
+	<programlisting>  // A function only known in the current script
+  void func_name( int arg1, double arg2 ) {
     // an arbitrary number of statements
   }
   
-  export function func_nameN(bool arg) {
+  // A function put in the interface of the component
+  export double func_name(bool arg) {
     // ...
+    if ( arg ) then return +10.0; else return -10.0;
   }</programlisting>
         <para>
-	  A function can have any number of arguments, which are passed
-  	  by value, but it returns no value.
-  	  A function can be exported, in which case it becomes a public
-	  available operation, which will fail if one of its
-	  statements fails. Hence, this allows to extend the operation interface
+	  A function can have any number of arguments, which are
+	  passed by value, and may return a value. By default, a function
+	  is only known in the current script and can only be called by the 'call'
+	  statement, as shown below.
+	</para>
+	<para>
+	  A function can be
+	  exported using the <emphasis>export</emphasis> keyword, in
+	  which case it becomes a public available operation.
+	</para>
+	<para>
+	  Functions allow to extend the operations of a TaskContext
 	  with exported functions of a task at runtime.
 	</para>
       </section>
       <section>
 	<title>Calling functions</title>
 	<para>
-	  A function can be called by writing :
+	  A function can be called in two fashions :
 	</para>
 	  <programlisting>
-  foo(arg)   // see 'exported' functions
-  call foo(arg) // local functions</programlisting>
+  foo(arg)      // only 'exported' functions
+  call foo(arg) // functions defined in the same file</programlisting>
 	<para>
-	  The arguments are passed by value and no return value
-	  is possible. If one of the commands of the functions
-	  returns error, the calling program goes in error.
-	  A function may also be called in a completion 
-	  clause. If the function returns, the next statement
-	  of the calling function or program is executed.
+	  The call keyword causes the function to be inlined in the
+	  current location. Omitting the call keyword is only allowed
+	  for exported function. In that case, the normal operation
+	  is invoked, just like any other operation.
+	</para>
+	<para>
+	  If one of the statements of the exported function
+	  returns error, an exception is thrown and the calling
+	  program goes into the error state.
+	</para>
+      </section>
+      <section>
+	<title><symbol>return</symbol></title>
+	<para>
+	  The return statement behaves like in traditional languages.
+	  For programs and functions that do not return a value, the
+	  return statement is written like:
+	</para>
+	  <programlisting>
+  export void foo(int i) {
+     // ...
+     if ( i &lt; 0 )
+        return
+     // use i...
+  }</programlisting>
+	<para>
+	  When the return statement returns a value, it must be on the
+	  same line as the return word:
+	</para>
+	  <programlisting>
+  export int foo(int i) {
+     // ...
+     if ( i &lt; 0 )
+        return -1  // returned value on same line.
+     // use i...
+     return i*10
+  }</programlisting>
+	<para>
+	  As the examples show, you can return from a function
+	  from multiple places.
 	</para>
       </section>
       <section>
@@ -1886,9 +1930,8 @@
   
   	// We actually wait here until a 
   	// Trajectory is present in the HMI.
-  	nothing until {
-  	   if HMI.trajectoryPresent() then continue
-  	}
+  	while ( !HMI.trajectoryPresent() )
+	   yield;
   
   	while HMI.cycle() {
   	    HMI.display("Cycle nr: %d.\n", cycle )
