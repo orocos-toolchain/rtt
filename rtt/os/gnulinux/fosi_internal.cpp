@@ -56,7 +56,7 @@ namespace RTT
 	{
         const char* name = "main";
 	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-        main_task->thread = 0;
+        main_task->thread = pthread_self();
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
 	    sp.sched_priority=0;
