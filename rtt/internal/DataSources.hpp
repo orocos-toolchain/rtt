@@ -234,6 +234,46 @@ namespace RTT
         virtual ReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
+        /**
+         * A DataSource which is used to execute an action
+         * and then return the value of another DataSource.
+         * @param T The result data type of get().
+         */
+        template<typename T>
+        class ActionAliasDataSource
+            : public DataSource<T>
+        {
+            base::ActionInterface* action;
+            typename DataSource<T>::shared_ptr alias;
+        public:
+            typedef boost::intrusive_ptr<ActionAliasDataSource<T> > shared_ptr;
+
+            ActionAliasDataSource(base::ActionInterface* act, DataSource<T>* ds)
+            : action(act), alias(ds)
+              {}
+
+            ~ActionAliasDataSource() {}
+
+            typename DataSource<T>::result_t get() const
+            {
+                action->execute();
+                return alias->get();
+            }
+
+            typename DataSource<T>::result_t value() const
+            {
+                return alias->value();
+            }
+
+            virtual ActionAliasDataSource<T>* clone() const {
+                return new ActionAliasDataSource(action, alias.get());
+            }
+            virtual ActionAliasDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                return new ActionAliasDataSource( action->copy(alreadyCloned), alias->copy(alreadyCloned) );
+            }
+        };
+
+
     /**
      * A ValueDataSource of which individual parts can be updated
      * using an index.

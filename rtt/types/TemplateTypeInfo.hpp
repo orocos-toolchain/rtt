@@ -236,6 +236,14 @@ namespace RTT
             return new Alias( name, ds );
         }
 
+        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
+        {
+            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            if ( ! ds )
+                return 0;
+            return new internal::ActionAliasDataSource<T>(action, ds.get());
+        }
+
         virtual const std::string& getTypeName() const { return tname; }
 
         virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {

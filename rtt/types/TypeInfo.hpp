@@ -129,6 +129,10 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
 
+        /**
+         * Returns a DataSource that first executes an action and returns the result of another data source.
+         */
+        virtual base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr source) const = 0;
         /** @} */
 
         /**

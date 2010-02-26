@@ -91,6 +91,13 @@ namespace RTT
             return 0;
         }
 
+        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* act, base::DataSourceBase::shared_ptr in ) const
+        {
+            Logger::In loc("TypeInfoName");
+            Logger::log() << Logger::Error << "Can not build ActionAlias of "<<tname<<"."<<Logger::endl;
+            return 0;
+        }
+
         virtual const std::string& getTypeName() const { return tname; }
 
         virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
@@ -144,7 +151,7 @@ namespace RTT
             Logger::log() << Logger::Error << "Can not compose "<<tname<<"."<<Logger::endl;
             return false;
         }
-		
+
 		virtual std::string getTypeIdName() const { return ""; }
 
         virtual base::InputPortInterface* inputPort(std::string const& name) const
