@@ -24,6 +24,7 @@
 #cmakedefine OS_HAVE_IOSTREAM
 #cmakedefine OS_HAVE_STREAMS
 #cmakedefine OS_THREAD_SCOPE
+#cmakedefine OS_RT_MALLOC
 #ifdef OS_THREAD_SCOPE
 #define OROPKG_OS_THREAD_SCOPE
 #endif
