@@ -612,13 +612,15 @@
 	  to simulate an empty condition).
 	  The second statement changes a variable or is empty.
 	  <programlisting>
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
-        <emphasis>statement</emphasis>
-  // or :
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
-        <emphasis>statement</emphasis>
+  for ( <emphasis>var int i = 0</emphasis>; <emphasis>i != 10</emphasis>; <emphasis>set i = i + 1</emphasis> )
+        <emphasis>log("Hello World")</emphasis>
+  // or group:
+  for ( <emphasis>i = 0</emphasis>; <emphasis>i < b</emphasis>; <emphasis>set i = i + 1</emphasis> ) {
+        <emphasis>log("In the loop"</emphasis>
         // ...
   }  </programlisting>
+	  Note that Orocos scripting does not support the postfix
+	  or prefix increment/decrement operators like ++ and --.
 	</para>
       </section>
       <section>
@@ -626,18 +628,23 @@
 	<para>
 	  The while statement is another looping primitive in 
 	  the Orocos script language. A <symbol>do</symbol> statement is not
-	  ( yet ) implemented</para>
+	  implemented</para>
 	  <programlisting>
-  while <emphasis>condition</emphasis> 
-      <emphasis>statement</emphasis>
-  // or :
-  while <emphasis>condition</emphasis> {
-      <emphasis>statement</emphasis>
+  var int i = 0;
+  while <emphasis>i < 10</emphasis> 
+      <emphasis>set i = i +1</emphasis>
+  // or group:
+  set i = 0;
+  while <emphasis>i < 10</emphasis> {
+      <emphasis>log("In while")</emphasis>
+      <emphasis>set i = i + 1</emphasis>
       // ...
   }  </programlisting>
 	<para>
 	  As with the if statement, you can optionally put
-	  parentheses around the condition.
+	  parentheses around the condition 'i < 10'.
+	  Note that Orocos scripting does not support the postfix
+	  or prefix increment/decrement operators like ++ and --.
 	</para>
       </section>
       <section>
@@ -666,28 +673,28 @@
 	  arguments and return a value immediately. They can be
 	  used in expressions or stand alone :</para>
 	  <programlisting>
+  // var int arg1 = 3, arg2 = 4
   // ignore the return value :
-  comp.method( args )
+  peer.method( arg1, arg2 )
   
   // this will only work if the method returns a boolean :
-  if ( comp.method( args ) ) {
+  if ( peer.method( arg1, arg2 ) ) {
   	    // ...
   }
   
   // use another method in an expression :
-  set data = comp.getResult( args ) * 20. / comp.dataValue 
+  set data = comp.getResult( arg1 ) * 20. / comp.value
 	  </programlisting>
 	<para>
 	  Methods are executed directly one after the other.
 	</para>
 	<warning>
 	  <para>
-	    A method returning a boolean result, will
-	    cause a run-time program error if
-	    it returns false. If this is not wanted, use 'try'
-	    . If the method returns
-	    nothing or something else than bool, 
-	    the result will be ignored statement.
+	    A method returning a boolean result, will cause a run-time
+	    program error if it returns false. If this is not wanted,
+	    put 'try' in front of the method call statement, as shown
+	    in the next section. If the method returns nothing or
+	    something else than bool, the result will be ignored.
 	  </para>
 	</warning>
       </section>
