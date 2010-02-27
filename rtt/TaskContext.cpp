@@ -131,7 +131,8 @@ namespace RTT
 
         TaskContext::~TaskContext()
         {
-            our_act->stop();
+            if (our_act)
+                our_act->stop();
             // We don't call stop() or cleanup() here since this is
             // the responsibility of the subclass. Calling these functions
             // here would only lead to calling invalid virtual functions.
