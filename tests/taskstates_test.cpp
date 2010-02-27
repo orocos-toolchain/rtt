@@ -53,6 +53,7 @@ public:
         validconfig = true;
         validstart = true;
         do_error = false;
+        do_fatal = false;
         do_throw=false;
         do_throw2=false;
     }
@@ -136,7 +137,7 @@ public:
         tc->setActivity( new SimulationActivity(0.001) );
         stc->setActivity( new SimulationActivity(0.001) );
         tsim = tc->getActivity();
-        stsim = tc->getActivity();
+        stsim = stc->getActivity();
         SimulationThread::Instance()->stop();
     }
 
