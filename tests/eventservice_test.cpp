@@ -175,11 +175,11 @@ BOOST_AUTO_TEST_CASE(  testSetupSyn )
     Handle h;
     h = es->setupSyn("t_event0", bind(&EventServiceTest::listener0,this), vector<DataSourceBase::shared_ptr>() );
     BOOST_CHECK( h );
-    h = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string)));
+    h = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string)));
     BOOST_CHECK( h );
-    h = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)));
+    h = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string), boost::ref(t_listener_double)));
     BOOST_CHECK( h );
-    h = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double),ref(t_listener_bool)));
+    h = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string), boost::ref(t_listener_double),boost::ref(t_listener_bool)));
     BOOST_CHECK( h );
 
     this->cleanup();
@@ -191,11 +191,11 @@ BOOST_AUTO_TEST_CASE( testSetupAsyn)
     Handle h;
     h = es->setupAsyn("t_event0", bind(&EventServiceTest::completer0,this), vector<DataSourceBase::shared_ptr>(),event_proc );
     BOOST_CHECK( h );
-    h = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string)),event_proc);
+    h = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string)),event_proc);
     BOOST_CHECK( h );
-    h = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double)),event_proc);
+    h = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string), boost::ref(t_completer_double)),event_proc);
     BOOST_CHECK( h );
-    h = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double), ref(t_completer_bool) ),event_proc);
+    h = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string), boost::ref(t_completer_double), boost::ref(t_completer_bool) ),event_proc);
     BOOST_CHECK( h );
 
     this->cleanup();
@@ -252,8 +252,8 @@ BOOST_AUTO_TEST_CASE( testEmit1)
     Handle h1, h2;
     ActionInterface::shared_ptr r;
 
-    h1 = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string)));
-    h2 = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string)),event_proc);
+    h1 = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string)));
+    h2 = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string)),event_proc);
     r.reset( es->getEvent("t_event1", GenerateDataSource()(std::string("hello")) ) );
 
     BOOST_CHECK( h1.connect() );
@@ -280,8 +280,8 @@ BOOST_AUTO_TEST_CASE( testEmit2)
     Handle h1, h2;
     ActionInterface::shared_ptr r;
 
-    h1 = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)));
-    h2 = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double)),event_proc);
+    h1 = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string), boost::ref(t_listener_double)));
+    h2 = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string), boost::ref(t_completer_double)),event_proc);
 
     r.reset( es->getEvent("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
 
@@ -313,8 +313,8 @@ BOOST_AUTO_TEST_CASE( testEmit3)
     Handle h1, h2;
     ActionInterface::shared_ptr r;
 
-    h1 = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double),ref(t_listener_bool)));
-    h2 = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double), ref(t_completer_bool) ),event_proc);
+    h1 = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(boost::ref(t_listener_string), boost::ref(t_listener_double),boost::ref(t_listener_bool)));
+    h2 = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(boost::ref(t_completer_string), boost::ref(t_completer_double), boost::ref(t_completer_bool) ),event_proc);
     r.reset( es->getEvent("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
 
 

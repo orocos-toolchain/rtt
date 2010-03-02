@@ -253,7 +253,9 @@ namespace RTT
     std::vector<std::string> ProgramProcessor::getProgramList() const
     {
         std::vector<string> sret;
-        programs->apply( bind( &vector<string>::push_back, ref(sret), bind( &ProgramInterface::getName, _1) ) );
+        typedef void (vector<string>::*push_back_t)(const vector<string>::value_type& );
+        push_back_t push_back = &vector<string>::push_back;
+        programs->apply( bind( push_back, boost::ref(sret), bind( &ProgramInterface::getName, _1) ) );
         return sret;
     }
 

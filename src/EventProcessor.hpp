@@ -255,7 +255,7 @@ namespace RTT
                             typename Function::arg2_type a2 ) {
                 if ( !this->enabled )
                     return detail::NA<Result>::na();
-                args = make_tuple( a1, a2 );
+                args = boost::make_tuple( a1, a2 );
                 if ( mep )
                     signalWork();
                 return detail::NA<Result>::na();
@@ -298,7 +298,7 @@ namespace RTT
                             typename Function::arg3_type a3 ) {
                 if ( !this->enabled )
                     return detail::NA<Result>::na();
-                args = make_tuple( a1, a2, a3 );
+                args = boost::make_tuple( a1, a2, a3 );
                 if ( mep )
                     signalWork();
                 return detail::NA<Result>::na();

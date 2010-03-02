@@ -318,7 +318,9 @@ namespace RTT
     std::vector<std::string> StateMachineProcessor::getStateMachineList() const
     {
         std::vector<string> sret;
-        states->apply( bind( &vector<string>::push_back, ref(sret), bind( &StateMachine::getName, _1) ) );
+        typedef void (vector<string>::*push_back_t)(const vector<string>::value_type& );
+        push_back_t push_back = &vector<string>::push_back;
+        states->apply( bind( push_back, boost::ref(sret), bind( &StateMachine::getName, _1) ) );
         return sret;
     }
 }

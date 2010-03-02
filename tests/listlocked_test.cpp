@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( test_instatiation )
 
     ListLocked<double> lld(10);
 
-    typedef shared_ptr<double*> dsp;
+    typedef boost::shared_ptr<double*> dsp;
 
     ListLocked<dsp> lldsp(10);
 }
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( test_apply )
 #if 1
     ListLocked<double> lld(10);
 
-    typedef shared_ptr<double*> dsp;
+    typedef boost::shared_ptr<double*> dsp;
 
     ListLocked<dsp> lldsp(10);
 

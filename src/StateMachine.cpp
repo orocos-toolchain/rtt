@@ -396,7 +396,7 @@ namespace RTT
         do {
             if ( get<0>(*reqstep)->evaluate() ) {
                 // evaluate() might call stop() or other sm functions:
-                if (reqstep == reqend ) 
+                if (reqstep == reqend )
                     return current;
                 // check preconds of target state :
                 int cres = checkConditions( get<1>(*reqstep), stepping );
@@ -623,7 +623,7 @@ namespace RTT
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
-        this->transitionSet( from, to, cnd, shared_ptr<ProgramInterface>(), priority, line);
+        this->transitionSet( from, to, cnd, ProgramInterfacePtr(), priority, line);
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to,
