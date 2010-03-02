@@ -93,6 +93,7 @@ string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 if(OROCOS_TARGET STREQUAL "lxrt")
   set(OROPKG_OS_LXRT TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "Path to Linux source dir (required for lxrt target)" FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(RTAI REQUIRED)
   find_package(Pthread REQUIRED)
@@ -110,6 +111,7 @@ endif()
 # Setup flags for Xenomai
 if(OROCOS_TARGET STREQUAL "xenomai")
   set(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
   find_package(Pthread REQUIRED)
@@ -127,6 +129,7 @@ endif()
 # Setup flags for GNU/Linux
 if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Pthread REQUIRED)
 
@@ -142,6 +145,7 @@ endif()
 # Setup flags for Mac-OSX
 if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Boost 1.33 COMPONENTS thread REQUIRED)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_thread_INCLUDE_DIRS} )
@@ -159,6 +163,7 @@ endif()
 # Setup flags for ecos
 if(OROCOS_TARGET STREQUAL "ecos")
   set(OROPKG_OS_ECOS TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF FALSE)
 
   # We can't really use 'UseEcos.cmake' because we're building a library
   # and not a final application
@@ -182,6 +187,8 @@ endif()
 
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  message("Forcing OS_HAS_TLSF to OFF for WIN32")
+  set(OS_HAS_TLSF TRUE)
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
