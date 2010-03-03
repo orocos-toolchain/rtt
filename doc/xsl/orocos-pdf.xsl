@@ -15,7 +15,7 @@
  -->
   <xsl:param name="draft.mode" select="'no'"/>
   <xsl:param name="paper.type" select="'A4'"/>
-  <!--<xsl:param name="fop.extensions" select="1"/>-->
+  <xsl:param name="fop1.extensions" select="1"/>
   <xsl:param name="chapter.autolabel" select="1"></xsl:param>
   <xsl:param name="appendix.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel" select="1"></xsl:param>
@@ -41,7 +41,7 @@
 
 <!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
-  <xsl:param name="admon.graphics.path" select="'images/icons/'"/>
+  <xsl:param name="admon.graphics.path" select="'images/icons/hires/'"/>
   <xsl:param name="admon.graphics.extension" select="'.png'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
@@ -62,10 +62,14 @@
   <xsl:attribute name="space-after.maximum">0.6em</xsl:attribute>
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
   <xsl:attribute name="hyphenation-character">\</xsl:attribute>
-  <xsl:attribute name="font-size">11pt</xsl:attribute>
+  <xsl:attribute name="font-size">10pt</xsl:attribute>
 </xsl:attribute-set>
 
   <xsl:param name="monospace.font.family" select="'Times'"/>
+  <xsl:param name="dingbat.font.family" select="'Times'"/>
+  <xsl:param name="body.font.family" select="'Times'"/>
+  <xsl:param name="title.font.family" select="'Arial'"/>
+  <xsl:param name="sans.font.family" select="'Arial'"/>
 
 <!-- convert classname to to doxygen filenames
      xsltproc does not support fn:replace, so needed the nwalsh 'string.subst' template
@@ -116,7 +120,7 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:param name="body.font.master" select="12" />
+  <xsl:param name="body.font.master" select="11" />
   <!-- the middle field (of three) gets 80% of the width -->
   <xsl:param name="header.column.widths">1 8 1</xsl:param>
 
