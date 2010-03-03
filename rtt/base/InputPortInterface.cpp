@@ -4,8 +4,8 @@
                         InputPortInterface.cpp -  description
                            -------------------
     begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
+    copyright            : (C) 2009 Sylvain Joyeux
+    email                : sylvain.joyeux@m4x.org
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
