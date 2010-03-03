@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  ReadWritePointer.hpp
+  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  ReadOnlyPointer.hpp
 
-                        ReadWritePointer.hpp -  description
+                        ReadOnlyPointer.hpp -  description
                            -------------------
     begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
+    copyright            : (C) 2009 Sylvain Joyeux
+    email                : Sylvain Joyeux <sylvain.joyeux@m4x.org>
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
