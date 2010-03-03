@@ -32,10 +32,6 @@ extern "C"
 {
 #endif
 
-#define _XOPEN_SOURCE 600   // use all Posix features.
-#include <windows.h>
-#undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
-
 #ifdef _MSC_VER
 #include <cstdio>
 #include <cstdlib>
@@ -107,14 +103,6 @@ extern "C"
 	// hrt is in ticks
 	inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 	{
-		/*LARGE_INTEGER freq;
-		if(!QueryPerformanceFrequency(&freq) )
-			assert(false);
-
-		TIME_SPEC timevl;
-		timevl.tv_sec = hrt / freq.QuadPart;
-		timevl.tv_nsec = hrt*( 1000000000LL / freq.QuadPart );
-*/
 		TIME_SPEC timevl;
 		timevl.tv_sec = (long)(hrt / 1000000000LL);
 		timevl.tv_nsec = (long)(hrt % 1000000000LL);
@@ -123,7 +111,12 @@ extern "C"
 
     inline NANO_TIME rtos_get_time_ns( void )
     {
-    	return GetTickCount() * 1000000LL;
+		LARGE_INTEGER freq;
+		LARGE_INTEGER ticks;
+		QueryPerformanceFrequency(&freq);
+		QueryPerformanceCounter(&ticks);
+
+		return(NANO_TIME)(((double)ticks.QuadPart * 1000000000LL) / (double)freq.QuadPart);
     }
 
     /**
@@ -132,20 +125,22 @@ extern "C"
      */
     inline TICK_TIME rtos_get_time_ticks()
     {
-    	/*LARGE_INTEGER ticks;
-    	if( !QueryPerformanceCounter(&ticks) ){
-    		assert(false);
-    	}
-    	return (TICK_TIME) ticks.QuadPart;
-    	*/
     	return rtos_get_time_ns();
+    }
+
+    inline int win32_nanosleep(long long nano)
+    {
+		NANO_TIME start = rtos_get_time_ns();
+        timeBeginPeriod(1);
+		if (nano > 3000000L) Sleep((DWORD)(nano/1000000L) - 1);
+		timeEndPeriod(1);
+		while(rtos_get_time_ns() - start < nano) Sleep(0);
+        return 0;
     }
 
     inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
-    	// printf("rtos_nanosleep %li ", (rqtp->tv_sec * 1000L + rqtp->tv_nsec/1000000L));
-        Sleep(DWORD(rqtp->tv_sec * 1000L) + rqtp->tv_nsec/1000000L);
-        return 0;
+		return win32_nanosleep((NANO_TIME)rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec);
     }
 
     /**
@@ -323,30 +318,19 @@ extern "C"
 
     // Mutex functions
 
-    //typedef pthread_mutex_t rt_mutex_t;
-    //typedef pthread_mutex_t rt_rec_mutex_t;
-    typedef HANDLE rt_mutex_t;
-    typedef HANDLE rt_rec_mutex_t;
-
-    static inline void printMutex(rt_mutex_t* m){
-    	DWORD tid = GetCurrentThreadId();
-    	printf("T:%u -> S:%p  ", (unsigned int)tid,m);
-    }
+    typedef CRITICAL_SECTION rt_mutex_t;
+    typedef CRITICAL_SECTION rt_rec_mutex_t;
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
-        assert(m != NULL);
-        *m = CreateMutex(NULL, FALSE, NULL);
-    	// printMutex(m);
-    	// printf(" rtos_mutex_init \n" );
-        return *m == NULL;
+		InitializeCriticalSection(m);
+        return 0;
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
     {
-    	// printMutex(m);
-    	// printf(" rtos_mutex_destroy \n" );
-        return !CloseHandle(*m);
+		DeleteCriticalSection(m);
+        return 0;
     }
 
     static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
@@ -361,29 +345,20 @@ extern "C"
 
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
-    	// printMutex(m);
-    	// printf(" rtos_mutex_lock \n" );
-    	if( WaitForSingleObject(*m, INFINITE) == WAIT_OBJECT_0 )
-    		return 0;
-        return -1;
+		EnterCriticalSection(m);
+    	return 0;
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
-    	// printMutex(m);
-    	// printf(" rtos_mutex_unlock \n" );
-    	if( ReleaseMutex(*m) == 0)
-    		return -1;
-        return 0;
+    	LeaveCriticalSection(m);
+		return 0;
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
-    	// printMutex(m);
-    	// printf(" rtos_mutex_trylock \n" );
-    	if( WaitForSingleObject(*m, 0) == WAIT_OBJECT_0 )
-    		return 0;
-        return -1;
+		if(TryEnterCriticalSection(m) != 0) return 0;
+		return -1;
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
@@ -393,9 +368,9 @@ extern "C"
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
-    	if( WaitForSingleObject(*m, (DWORD)((abs_time - rtos_get_time_ns())/1000000LL) ) == WAIT_OBJECT_0 )
-    		return 0;
-        return -1;
+		while (ticks2nano(rtos_get_time_ticks()) < abs_time) 
+			if (rtos_mutex_trylock(m) == 0) return 0;
+		return -1;
     }
 
     static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)

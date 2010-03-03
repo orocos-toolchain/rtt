@@ -43,7 +43,7 @@ typedef volatile long oro_atomic_t;
  */
 static __forceinline void oro_atomic_add(int i, oro_atomic_t *v)
 {
-	InterlockedAdd((long *)v, i);
+	_InterlockedExchangeAdd((long *)v, i);
 }
 
 /**
@@ -69,7 +69,7 @@ static __forceinline void oro_atomic_sub(int i, oro_atomic_t *v)
  */
 static __forceinline int oro_atomic_sub_and_test(int i, oro_atomic_t *v)
 {
-	return (_InterlockedAdd((long *)v, -i) == 0);
+	return ((_InterlockedExchangeAdd((long *)v, -i) - i) == 0);
 }
 
 /**
@@ -131,7 +131,7 @@ static __forceinline int oro_atomic_inc_and_test(oro_atomic_t *v)
  */
 static __forceinline int oro_atomic_add_negative(int i, oro_atomic_t *v)
 {
-	return (_InterlockedAdd((long *)v, i) < 0);
+	return ((_InterlockedExchangeAdd((long *)v, i) + i) < 0);
 }
 
 /**
@@ -143,7 +143,7 @@ static __forceinline int oro_atomic_add_negative(int i, oro_atomic_t *v)
  */
 static __forceinline int oro_atomic_add_return(int i, oro_atomic_t *v)
 {
-	return _InterlockedAdd((long *)v, i);
+	return _InterlockedExchangeAdd((long *)v, i) + i;
 }
 
 static __forceinline int oro_atomic_sub_return(int i, oro_atomic_t *v)

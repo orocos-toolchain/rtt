@@ -92,14 +92,14 @@ RTT::internal::ConnID* RemotePort<BaseClass>::getPortID() const
 { return new RemoteConnID(dataflow, this->getName()); }
 
 template<typename BaseClass>
-bool RemotePort<BaseClass>::createStream( const ConnPolicy& policy )
+bool RemotePort<BaseClass>::createStream( const RTT::ConnPolicy& policy )
 {
     log(Error) << "Can't create a data stream on a remote port !" <<endlog();
     return false;
 }
 
 template<typename BaseClass>
-bool RemotePort<BaseClass>::addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+bool RemotePort<BaseClass>::addConnection(RTT::internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, RTT::ConnPolicy const& policy)
 {
     assert(false && "Can/Should not add connection to remote port object !");
     return false;
@@ -116,7 +116,7 @@ RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 { throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
 RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
-        base::OutputPortInterface& output_port,
+        RTT::base::OutputPortInterface& output_port,
         RTT::types::TypeInfo const* type,
         RTT::base::InputPortInterface& reader_,
         RTT::ConnPolicy const& policy)
@@ -200,7 +200,7 @@ RTT::base::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->outputPort(getName()); }
 
 
-bool RemoteInputPort::channelReady(base::ChannelElementBase::shared_ptr channel) {
+bool RemoteInputPort::channelReady(RTT::base::ChannelElementBase::shared_ptr channel) {
     if (! channel_map.count( channel.get() ) ) {
         log(Error) <<"No such channel found in "<< getName() <<".channelReady( channel ): aborting connection."<<endlog();
         return false;
@@ -235,7 +235,7 @@ DataSourceBase::shared_ptr RemoteOutputPort::getDataSource() const
     return DataSourceBase::shared_ptr();
 }
 
-bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::ConnPolicy const& policy )
+bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RTT::ConnPolicy const& policy )
 {
     try {
         CConnPolicy cpolicy = toCORBA(policy);
@@ -251,6 +251,7 @@ bool RemoteOutputPort::createConnection( base::InputPortInterface& sink, RTT::Co
         log(Error) << CORBA_EXCEPTION_INFO( e ) <<endlog();
         return false;
     }
+	return false;
 }
 
 RTT::base::PortInterface* RemoteOutputPort::clone() const
