@@ -16,11 +16,6 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
-
-
-
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <marsh/PropertyBagIntrospector.hpp>
@@ -28,19 +23,8 @@
 #include <marsh/PropertyMarshaller.hpp>
 #include <marsh/PropertyDemarshaller.hpp>
 #include <internal/DataSourceTypeInfo.hpp>
-#include <rtt-config.h>
-#include <iostream>
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-// Registers the fixture into the 'registry'
-//CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
-
-using namespace RTT;
-using namespace RTT::detail;
-using namespace boost;
-using namespace std;
+#include "unit.hpp"
 
 void
 PropertyTest::setUp()
@@ -313,6 +297,7 @@ BOOST_AUTO_TEST_CASE( testUpdate )
     BOOST_CHECK( res->get() == -1 );
 
 }
+
 
 // This test does not yet test all types !
 BOOST_AUTO_TEST_CASE( testPropMarsh )

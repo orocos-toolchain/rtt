@@ -25,11 +25,9 @@
 #include <Method.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <TaskContext.hpp>
-#include <scripting/ProgramProcessor.hpp>
-#include <scripting/StateMachineProcessor.hpp>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <types/GlobalsRepository.hpp>
 
 using namespace std;
@@ -42,8 +40,9 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
-    tsim = new SimulationActivity( 0.001, tc->engine() );
+    sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
+    tc->provides()->addService( this->createMethodFactory() );
+    tc->setActivity( new SimulationActivity( 0.001 ));
     SimulationThread::Instance()->stop();
 }
 
@@ -51,9 +50,7 @@ TypesTest::setUp()
 void
 TypesTest::tearDown()
 {
-    tsim->stop();
     delete tc;
-    delete tsim;
 }
 
 
@@ -69,17 +66,15 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-    TaskObject* TypesTest::createMethodFactory()
+    ServiceProvider::shared_ptr TypesTest::createMethodFactory()
     {
-        TaskObject* to = new TaskObject("test");
-        to->methods()->addMethod( method("assert", &TypesTest::assertBool, this),
-                                  "Assert", "bool", "");
-        to->methods()->addMethod( method("assertEqual", &TypesTest::assertEqual, this),
-                                  "Assert", "a1", "", "a2","");
-        to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
-                                     "Assert message", "bool", "", "text", "text" );
-        to->methods()->addMethod( method("print",&TypesTest::print,this ),
-                                  "print","v","v");
+        ServiceProvider::shared_ptr to = ServiceProvider::Create("test");
+        to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
+        to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
+        //to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+        to->addOperation("print", &TypesTest::print, this ).doc("print").arg("v", "v");
+        to->addOperation("printb", &TypesTest::printb, this ).doc("printb").arg("v", "v");
+        to->addOperation("pass",&TypesTest::pass, this);
         return to;
     }
 
@@ -127,6 +122,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
+        "do test.print(ar1[11])\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
@@ -146,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "var string str(10) = \"hello\"\n"+
         // 50:
         "do test.assert( str.size == 5)\n"+
-        "do test.assert( str.capacity >= 10)\n"+
+        "do test.assert( str.capacity >= 10)\n"+ // fails: check assignment & constructor stuff.
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+
@@ -218,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
 //         "do test.assert( d == 10.0 )\n" +
-        "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
+        "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
         "do test.assert( a1.size == 2 )\n" +
@@ -318,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 3*(2+1) == 9 )\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_CASE( testGlobals )
@@ -328,13 +324,13 @@ BOOST_AUTO_TEST_CASE( testGlobals )
     GlobalsRepository::Instance()->setValue( new Attribute<double>("d_num", 3.33));
     string prog = string("program x {\n") +
         "do test.assert( cd_num == 3.33 )\n" +
-        "do test.assert( cd_num == d_num )\n" +  
-        "do test.assert( c_string == \"Hello World!\")\n" + 
+        "do test.assert( cd_num == d_num )\n" +
+        "do test.assert( c_string == \"Hello World!\")\n" +
         "set d_num = 6.66\n" +
         "do test.assert( d_num == 6.66 )\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_CASE( testFlowStatus )
@@ -344,25 +340,25 @@ BOOST_AUTO_TEST_CASE( testFlowStatus )
     BOOST_CHECK (GlobalsRepository::Instance()->getValue("NoData") );
     string prog = string("program x {\n") +
         "do test.assert( NewData )\n" +
-        "do test.assert( OldData )\n" +  
-        "do test.assert( !bool(NoData) )\n" +  
-        "do test.assert( NewData > NoData )\n" + 
-        "do test.assert( NewData > OldData )\n" + 
-        "do test.assert( OldData > NoData )\n" + 
-        "do test.assert( OldData == OldData )\n" + 
+        "do test.assert( OldData )\n" +
+        "do test.assert( !bool(NoData) )\n" +
+        "do test.assert( NewData > NoData )\n" +
+        "do test.assert( NewData > OldData )\n" +
+        "do test.assert( OldData > NoData )\n" +
+        "do test.assert( OldData == OldData )\n" +
         "if ( bool(NewData) && OldData ) then {\n" +
         "} else {\n" +
         "   do test.assert(false)\n" +
         "}\n" +
         "if ( bool(NoData) ) then {\n" +
         "   do test.assert(false)\n" +
-        "}\n" + 
+        "}\n" +
         "if ( !bool(NoData) ) then {} else {\n" +
         "   do test.assert(false)\n" +
-        "}\n" + 
+        "}\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -370,7 +366,6 @@ BOOST_AUTO_TEST_SUITE_END()
 void TypesTest::executePrograms(const std::string& prog )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->programs());
 
     Parser::ParsedPrograms pg_list;
     try {
@@ -385,8 +380,7 @@ void TypesTest::executePrograms(const std::string& prog )
             BOOST_REQUIRE( false && "Got empty test program." );
         }
 
-    BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
-    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( sa->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
@@ -409,14 +403,12 @@ void TypesTest::executePrograms(const std::string& prog )
         BOOST_CHECK_MESSAGE( false , errormsg.str() );
     }
     BOOST_CHECK( (*pg_list.begin())->stop() );
-    tsim->stop();
-    tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
+    sa->unloadProgram( (*pg_list.begin())->getName() );
 }
 
 void TypesTest::executeStates(const std::string& state )
 {
     BOOST_CHECK( tc->engine() );
-    BOOST_CHECK( tc->engine()->states());
     Parser::ParsedStateMachines pg_list;
     try {
         pg_list = parser.parseStateMachine( state, tc );
@@ -430,8 +422,7 @@ void TypesTest::executeStates(const std::string& state )
             BOOST_CHECK( false );
         }
 
-    BOOST_CHECK( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
-    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( sa->loadStateMachine( *pg_list.begin() ) );
     BOOST_CHECK( (*pg_list.begin())->activate() );
     BOOST_CHECK( (*pg_list.begin())->start() );
 
@@ -446,6 +437,5 @@ void TypesTest::executeStates(const std::string& state )
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( (*pg_list.begin())->deactivate() );
 
-    tsim->stop();
-    tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
+    sa->unloadStateMachine( (*pg_list.begin())->getName() );
 }

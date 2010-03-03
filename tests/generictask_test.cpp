@@ -23,16 +23,16 @@
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
 #include <Method.hpp>
-#include <interface/OperationInterface.hpp>
+#include <interface/ServiceProvider.hpp>
 #include <internal/RemoteMethod.hpp>
 
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 
-#include <boost/function_types/function_type_signature.hpp>
+#include <boost/function_types/function_type.hpp>
 
 #include <rtt-config.h>
-#include <internal/TaskObject.hpp>
+#include <interface/ServiceProvider.hpp>
 
 using namespace std;
 
@@ -43,7 +43,7 @@ void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
+    tc->addService( this->createMethodFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
 }
 
@@ -63,17 +63,17 @@ bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
-TaskObject* Generic_TaskTest::createMethodFactory()
+ServiceProvider* Generic_TaskTest::createMethodFactory()
 {
-    TaskObject* to = new TaskObject("methods");
+    ServiceProvider* to = new ServiceProvider("methods");
 
-    to->methods()->addMethod( method("assert",  &Generic_TaskTest::assertBool, this), "assert","b","bd");
+    to->addOperation("assert", &Generic_TaskTest::assertBool, this).doc("assert").arg("b", "bd");
 
-    to->methods()->addMethod( method("m0",  &Generic_TaskTest::m0, this), "M0");
-    to->methods()->addMethod( method("m1",  &Generic_TaskTest::m1, this), "M1","a","ad");
-    to->methods()->addMethod( method("m2",  &Generic_TaskTest::m2, this), "M2","a","ad","a","ad");
-    to->methods()->addMethod( method("m3",  &Generic_TaskTest::m3, this), "M3","a","ad","a","ad","a","ad");
-    to->methods()->addMethod( method("m4",  &Generic_TaskTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    to->addOperation("m0", &Generic_TaskTest::m0, this).doc("M0");
+    to->addOperation("m1", &Generic_TaskTest::m1, this).doc("M1").arg("a", "ad");
+    to->addOperation("m2", &Generic_TaskTest::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m3", &Generic_TaskTest::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m4", &Generic_TaskTest::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     return to;
 }
 
@@ -83,13 +83,13 @@ BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTestSuite,  Generic_TaskTest )
 
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
-    Method<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->getObject("methods")->methods(),"m0") );
+    Operation<double(void)> m0;
+    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
-    Method<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->getObject("methods")->methods(),"m1") );
+    Operation<double(int)> m1;
+    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
 
@@ -101,15 +101,15 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
 {
     MethodC mc;
     double r = 0.0;
-    mc = tc->getObject("methods")->methods()->create("m0").ret( r );
+    mc = tc->provides("methods")->create("m0").ret( r );
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -1.0 );
 
-    mc = tc->getObject("methods")->methods()->create("m2").argC(1).argC(1.0).ret( r );
+    mc = tc->provides("methods")->create("m2").argC(1).argC(1.0).ret( r );
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -3.0 );
 
-    mc = tc->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
+    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
     BOOST_CHECK( mc.execute() );
     BOOST_CHECK( r == -4.0 );
 
@@ -129,11 +129,11 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
 
 BOOST_AUTO_TEST_CASE(testMethod)
 {
-    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
-    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
-    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
-    Method<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
+    Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Operation<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+    Operation<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
+    Operation<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -147,29 +147,29 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     // Test the addition of 'simple' methods to the operation interface,
     // and retrieving it back in a new Method object.
 
-    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
-    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
-    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+    Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Operation<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
 
-    TaskObject to("task");
+    ServiceProvider to("task");
 
-    BOOST_CHECK( to.methods()->addMethod(&m0) );
-    BOOST_CHECK( ! to.methods()->addMethod(&m0) );
-    BOOST_CHECK( to.methods()->addMethod(&m1) );
-    BOOST_CHECK( to.methods()->addMethod(&m2) );
+    BOOST_CHECK( to.addMethod(&m0) );
+    BOOST_CHECK( ! to.addMethod(&m0) );
+    BOOST_CHECK( to.addMethod(&m1) );
+    BOOST_CHECK( to.addMethod(&m2) );
 
     // test constructor
-    Method<double(void)> mm0 = to.methods()->getMethod<double(void)>("m0");
+    Operation<double(void)> mm0 = to.getMethod<double(void)>("m0");
     BOOST_CHECK( mm0.getMethodImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
-    Method<double(int)> mm1;
-    mm1 = to.methods()->getMethod<double(int)>("m1");
+    Operation<double(int)> mm1;
+    mm1 = to.getMethod<double(int)>("m1");
     BOOST_CHECK( mm1.getMethodImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.methods()->getMethod<double(int,double)>("m2");
+    Operation<double(int,double)> mm2 = to.getMethod<double(int,double)>("m2");
     BOOST_CHECK( mm2.getMethodImpl() );
     BOOST_CHECK( mm2.ready() );
 
@@ -183,21 +183,21 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
 
     // test error cases:
     // Add uninitialised method:
-    Method<void(void)> mvoid;
-    BOOST_CHECK(to.methods()->addMethod( &mvoid ) == false);
-    mvoid = Method<void(void)>("voidm");
-    BOOST_CHECK(to.methods()->addMethod( &mvoid ) == false);
+    Operation<void(void)> mvoid;
+    BOOST_CHECK(to.addMethod( &mvoid ) == false);
+    mvoid = Operation<void(void)>("voidm");
+    BOOST_CHECK(to.addMethod( &mvoid ) == false);
 
     // wrong type 1:
-    mvoid = to.methods()->getMethod<void(void)>("m1");
+    mvoid = to.getMethod<void(void)>("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
-    mvoid = to.methods()->getMethod<void(bool)>("m1");
+    mvoid = to.getMethod<void(bool)>("m1");
     // wrong type 3:
-    mvoid = to.methods()->getMethod<double(void)>("m0");
+    mvoid = to.getMethod<double(void)>("m0");
     BOOST_CHECK( mvoid.ready() == false );
     // non existing
-    mvoid = to.methods()->getMethod<void(void)>("voidm");
+    mvoid = to.getMethod<void(void)>("voidm");
     BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:
@@ -209,11 +209,11 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &Generic_TaskTest::m0r, this);
-    Method<const double&(void)> m0cr("m0cr", &Generic_TaskTest::m0cr, this);
+    Operation<double&(void)> m0r("m0r", &Generic_TaskTest::m0r, this);
+    Operation<const double&(void)> m0cr("m0cr", &Generic_TaskTest::m0cr, this);
 
-    Method<double(double&)> m1r("m1r", &Generic_TaskTest::m1r, this);
-    Method<double(const double&)> m1cr("m1cr", &Generic_TaskTest::m1cr, this);
+    Operation<double(double&)> m1r("m1r", &Generic_TaskTest::m1r, this);
+    Operation<double(const double&)> m1cr("m1cr", &Generic_TaskTest::m1cr, this);
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );
@@ -227,19 +227,19 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
-    TaskObject to("task");
+    ServiceProvider to("task");
 
-    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
-    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
-    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
-    Method<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
+    Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Operation<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+    Operation<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
+    Operation<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
 
-    to.methods()->addMethod( &m0, "desc");
-    to.methods()->addMethod( &m1, "desc", "a1", "d1");
-    to.methods()->addMethod( &m2, "desc", "a1", "d1", "a2","d2");
-    to.methods()->addMethod( &m3, "desc", "a1", "d1", "a2","d2","a3","d3");
-    to.methods()->addMethod( &m4, "desc", "a1", "d1", "a2","d2","a3","d3", "a4","d4");
+    to.addOperation( &m0 ).doc("desc");
+    to.addOperation( &m1 ).doc("desc").arg("a1", "d1");
+    to.addOperation( &m2 ).doc("desc").arg("a1", "d1").arg("a2", "d2");
+    to.addOperation( &m3 ).doc("desc").arg("a1", "d1").arg("a2", "d2").arg("a3", "d3");
+    to.addOperation( &m4 ).doc("desc").arg("a1", "d1").arg("a2", "d2").arg("a3", "d3").arg("a4", "d4");
 
     double ret;
     MethodC mc0( to.methods(), "m0");
@@ -267,19 +267,19 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    TaskObject to("task");
+    ServiceProvider to("task");
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,
     // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
     // requires this for copying state machines.
 
-    Method<double(Generic_TaskTest*)> meth0("m0",
+    Operation<double(Generic_TaskTest*)> meth0("m0",
                                           &Generic_TaskTest::m0);
 
     method_ds("m0", &Generic_TaskTest::m0);
 
-    Method<double(Generic_TaskTest*,int)> meth1("m1",
+    Operation<double(Generic_TaskTest*,int)> meth1("m1",
                                           &Generic_TaskTest::m1);
 
     method_ds("m1", &Generic_TaskTest::m1);
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
     boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
-    BOOST_CHECK( to.methods()->addMethodDS( wp.get(), meth0, "desc" ) );
-    BOOST_CHECK( to.methods()->addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
+    BOOST_CHECK( to.addMethodDS( wp.get(), meth0, "desc" ) );
+    BOOST_CHECK( to.addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     BOOST_CHECK( tsim->start()) ;
 
     double ret;
-    MethodC c0  = to.methods()->create("m0").ret(ret);
+    MethodC c0  = to.create("m0").ret(ret);
     BOOST_CHECK( c0.execute() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to.methods()->create("m1").argC(1).ret(ret);
+    MethodC c1  = to.create("m1").argC(1).ret(ret);
     BOOST_CHECK( c1.execute() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 
@@ -309,12 +309,12 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
 BOOST_AUTO_TEST_CASE(testAddMethod)
 {
-    Method<double(void)> m0 = method("m0", &Generic_TaskTest::m0, this);
+    Operation<double(void)> m0 = method("m0", &Generic_TaskTest::m0, this);
 
-    Method<double(int)> m1 = method("m1", &Generic_TaskTest::m1, this);
-    Method<double(int,double)> m2 = method("m2", &Generic_TaskTest::m2, this);
-    Method<double(int,double,bool)> m3 = method("m3", &Generic_TaskTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4 = method("m4", &Generic_TaskTest::m4, this);
+    Operation<double(int)> m1 = method("m1", &Generic_TaskTest::m1, this);
+    Operation<double(int,double)> m2 = method("m2", &Generic_TaskTest::m2, this);
+    Operation<double(int,double,bool)> m3 = method("m3", &Generic_TaskTest::m3, this);
+    Operation<double(int,double,bool,std::string)> m4 = method("m4", &Generic_TaskTest::m4, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );

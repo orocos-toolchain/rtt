@@ -32,7 +32,7 @@ class Generic_TaskTest
 public:
     TaskContext* tc;
     ActivityInterface* tsim;
-    TaskObject* createMethodFactory();
+    ServiceProvider* createMethodFactory();
 
     // ref/const-ref tests:
     double ret;

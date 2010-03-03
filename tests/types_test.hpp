@@ -21,6 +21,7 @@
 #define TYPESTEST_H
 
 #include <scripting/Parser.hpp>
+#include <scripting/ScriptingService.hpp>
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>
@@ -34,12 +35,14 @@ class TypesTest
 public:
     Parser parser;
     TaskContext* tc;
-    ActivityInterface* tsim;
-    TaskObject* createMethodFactory();
+    ScriptingService* sa;
+    ServiceProvider::shared_ptr createMethodFactory();
     bool assertBool( bool );
     bool assertEqual( double, double );
     bool assertMsg( bool, const std::string& msg);
     void print(int i) { std::cout<<"print:"<<i<<std::endl;}
+    void printb(bool i) { std::cout<<"printb:"<<i<<std::endl;}
+    int pass(int i) { return i; }
     void executePrograms(const std::string& prog);
     void executeStates(const std::string& state);
 public:

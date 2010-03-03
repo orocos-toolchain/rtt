@@ -14,7 +14,7 @@
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <copyright>
-      <year>2003,2004,2005,2006,2007</year>
+      <year>2003,2004,2005,2006,2007,2008,2009,2010</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
     
@@ -107,6 +107,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Added 'global' transitions. Rewrote 'transitions' statement to 'transition' statements</revremark>
       </revision> 
+      <revision>
+	<revnumber>2.0.0</revnumber>
+	<date>4 Feb 2010</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Reviewed for RTT 2.0</revremark>
+      </revision> 
    </revhistory>
 
     <legalnotice>
@@ -188,7 +194,6 @@
 	    <member>const</member>
 	    <member>define</member>
 	    <member>do</member>
-	    <member>done</member>
 	    <member>double</member>
 	    <member>else</member>
 	    <member>end</member>
@@ -200,7 +205,6 @@
 	    <member>int</member>
 	    <member>next</member>
 	    <member>not</member>
-	    <member>nothing</member>
 	    <member>or</member>
 	    <member>return</member>
 	    <member>set</member>
@@ -438,7 +442,7 @@
   for (int i=0; i &lt; 20; set i = i+1)
        set sum = sum + values[i]  </programlisting>
 	  <para>
-	    If an assignment tries to set an item out of range, the command will fail,
+	    If an assignment tries to set an item out of range, the assignment will fail,
 	    if you try to read an item out of range, the result will return 0.0, or for
 	    strings, the null character.
 	  </para>
@@ -466,14 +470,14 @@
 	    <programlisting>  var string s1 = "abcdef"
 
   // retrieve size and capacity of a string :
-  var int size = s1.size()
-  var int cap  = s1.capacity()</programlisting>
+  var int size = s1.size
+  var int cap  = s1.capacity</programlisting>
 	    <programlisting>  var array a1( 10 )
   var array a2(20) = a1
 
   // retrieve size and capacity of a array :
-  var int size = a2.size()      // 10
-  var int cap  = a2.capacity()  // 20</programlisting>
+  var int size = a2.size      // 10
+  var int cap  = a2.capacity  // 20</programlisting>
 	  </para>
 	</section>
       </section>
@@ -494,6 +498,7 @@
       <programlisting>
   #include &lt;rtt/Activity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;rtt/scripting/Scripting.hpp&gt;
 
   using namespace RTT;
 
@@ -501,20 +506,27 @@
   tc.setActivity( new <classname>RTT::Activity</classname>(5, 0.01) );
 
   // Watch Logger output for errors :
-  tc.scripting()->loadPrograms("program.ops");
-
-  // start the task :
-  tc.start();
+  tc.getProvider&lt;<classname>RTT::Scripting</classname>>("scripting")->loadPrograms("program.ops");
 
   // start a program :
-  tc.engine()->programs()->getProgram("progname")->start();
+  tc.getProvider&lt;Scripting>("scripting")->startProgram("progname");
 </programlisting>
       <para>
-	The loader will load all programs and functions into 'tc'. Next
-	we start the task's execution engine and finally, the program
-	"progname" is started. Programs can also be started from
-	within other scripts.
+	The Scripting service will load all programs and functions
+	into 'tc'.The program "progname" is then started. Programs can also
+	be started from within other scripts.
       </para>
+      <para>
+        In case you wish to have a pointer to a program script object
+	(<classname>RTT::scripting::ProgramInterface</classname>),
+	you can have so only from within the owner TaskContext by
+	writing:
+      </para>
+      <programlisting>
+  ProgramInterfacePtr p = dynamic_cast&lt;<classname>RTT::scripting::ScriptingAccess</classname>*&gt;(this->getService("scripting"))->getProgram("progname");
+
+  // start a program :
+  p->start();</programlisting>
     </section>
   </section>
   <section id="program-syntax">
@@ -532,9 +544,9 @@
 	the other. However, when the program needs to wait for a result,
 	the Execution Engine temporarily postpones program execution and
 	will try again in the next execution period. This
-	happens typically when the statement was a Task Command. Task Methods
+	happens typically when yield was called. Task Methods
 	and expressions on the other hand typically do not impose a
-	wait, and thus are executed immediately after each other.
+	yield, and thus are executed immediately after each other.
       </para>
     </section>
     <section id="program-syntax-specifics">
@@ -600,13 +612,15 @@
 	  to simulate an empty condition).
 	  The second statement changes a variable or is empty.
 	  <programlisting>
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
-        <emphasis>statement</emphasis>
-  // or :
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
-        <emphasis>statement</emphasis>
+  for ( <emphasis>var int i = 0</emphasis>; <emphasis>i != 10</emphasis>; <emphasis>set i = i + 1</emphasis> )
+        <emphasis>log("Hello World")</emphasis>
+  // or group:
+  for ( <emphasis>i = 0</emphasis>; <emphasis>i < b</emphasis>; <emphasis>set i = i + 1</emphasis> ) {
+        <emphasis>log("In the loop"</emphasis>
         // ...
   }  </programlisting>
+	  Note that Orocos scripting does not support the postfix
+	  or prefix increment/decrement operators like ++ and --.
 	</para>
       </section>
       <section>
@@ -614,18 +628,23 @@
 	<para>
 	  The while statement is another looping primitive in 
 	  the Orocos script language. A <symbol>do</symbol> statement is not
-	  ( yet ) implemented</para>
+	  implemented</para>
 	  <programlisting>
-  while <emphasis>condition</emphasis> 
-      <emphasis>statement</emphasis>
-  // or :
-  while <emphasis>condition</emphasis> {
-      <emphasis>statement</emphasis>
+  var int i = 0;
+  while <emphasis>i < 10</emphasis> 
+      <emphasis>set i = i +1</emphasis>
+  // or group:
+  set i = 0;
+  while <emphasis>i < 10</emphasis> {
+      <emphasis>log("In while")</emphasis>
+      <emphasis>set i = i + 1</emphasis>
       // ...
   }  </programlisting>
 	<para>
 	  As with the if statement, you can optionally put
-	  parentheses around the condition.
+	  parentheses around the condition 'i < 10'.
+	  Note that Orocos scripting does not support the postfix
+	  or prefix increment/decrement operators like ++ and --.
 	</para>
       </section>
       <section>
@@ -648,113 +667,47 @@
 	</para>
       </section>
       <section>
-	<title>Invoking Task Methods</title>
+	<title>Invoking Task Operations</title>
 	<para>
 	  Methods behave like calling C functions. They take
 	  arguments and return a value immediately. They can be
 	  used in expressions or stand alone :</para>
 	  <programlisting>
+  // var int arg1 = 3, arg2 = 4
   // ignore the return value :
-  do comp.method( args )
+  peer.method( arg1, arg2 )
   
   // this will only work if the method returns a boolean :
-  if ( comp.method( args ) ) {
+  if ( peer.method( arg1, arg2 ) ) {
   	    // ...
   }
   
   // use another method in an expression :
-  set data = comp.getResult( args ) * 20. / comp.dataValue 
+  set data = comp.getResult( arg1 ) * 20. / comp.value
 	  </programlisting>
 	<para>
 	  Methods are executed directly one after the other.
 	</para>
 	<warning>
 	  <para>
-	    A method returning a boolean result, will
-	    cause a run-time program error if
-	    it returns false. If this is not wanted, use 'try'
-	    instead of 'do'. If the method returns
-	    nothing or something else than bool, 
-	    the result will be ignored in a do
-	    statement.
+	    A method returning a boolean result, will cause a run-time
+	    program error if it returns false. If this is not wanted,
+	    put 'try' in front of the method call statement, as shown
+	    in the next section. If the method returns nothing or
+	    something else than bool, the result will be ignored.
 	  </para>
 	</warning>
       </section>
       <section>
-	<title>Invoking Task Commands</title>
+	<title>Try ... Catch statements</title>
 	<para>
-	  A command statement is a statement that calls a certain
-	  command, and defines some reactions. It looks like:
-	  <programlisting>  do comp.action( args ) until {
-    if condition then continue
-    if condition2 then call func()
-    if condition3 then return
-  }  	  </programlisting>
-  	  It calls the command "action", on the task "comp", with
-  	  the comma-separated list of expressions args as the
-  	  arguments.  The Program Processor executes the command once, and
-  	  then checks where to go next using the "completion clauses"
-	  in the until part.  If none are true, then it waits another
-	  tick, and checks them again..
-	</para>
-	<note>
-	  <para>
-	    These if .. then clauses are different from the
-	    if/then/else statement later in this text and purely
-	    meant to detect alternative end conditions of a command.
-	  </para>
-	</note>
-	<para>
-	  A completion clause always looks like</para>
-	  <programlisting>  if condition then continue
-  // or
-  if condition then call func_name
-  // or
-  if condition then return  </programlisting>
-	<para>
-	  condition can be any kind of expression, that is of type
-	  boolean.  One special condition is provided, the keyword
-	  "done".  Every command has an associated "implicit
-	  completion condition", and the condition "done" is
-	  equivalent to that condition.  You can also combine the
-	  "done" condition with other expressions, as if it were a
-	  normal boolean expression. "continue" means to go to the
-	  next statement, return means to end the current program
-	  or function.
-	  The "call func_name" statement calls a function and is explained 
-	  in the next section
-	</para>
-	<para>
-	  If a completion list is left out, then an implicit one is
-	  generated.  This means that the two following statements are
-	  equivalent:
-	</para>
-	  <programlisting>  do comp.action( args )
-  // the implicitly generated completion list always looks like
-  // "if done then continue"
-  do comp.action( args ) until { if done then continue }
-	  </programlisting>
-	<section>
-	  <title>Accepting and Rejecting Commands</title>
-	  <para>
-	    A command can be accepted or rejected by a task.
-	    When it returns false, this is seen as a reject and
-	    the program goes into an error state. The user
-	    can then stop the program or try to continue
-	    the program again, which will lead to a re-issuing
-	    of the command, which may lead again to the error state.
-	  </para>
-	</section>
-	<section>
-	  <title>Try ... Catch Commands</title>
-	<para>
-	  When a command is rejected ( the C++ method returns false ),
+	  When a method returns false,
 	  the program goes into an error state and waits for user
 	  intervention. This can be bypassed by using a 
 	  <emphasis>try...catch</emphasis> statement. It tries
-	  to execute the command, and if it is rejected,
+	  to execute the method, and if it fails,
 	  the optional catch clause is executed :</para>
-	    <programlisting>  // just try it :
+	    <programlisting>  // just try ignores the return value of action :
   try comp.action( args )
   
   // When rejected, execute the catch clause :
@@ -762,119 +715,125 @@
       // statements...
   } </programlisting>
 	  <para>
-	    You may place completion conditions between try
-	    and catch :
-	  </para>
-	    <programlisting>
-  try comp.action( args ) 
-  until {
-      if comp.evaluate() then continue
-  }
-  catch { 
-      // statements...
-  }
-  // next statement </programlisting>
-	  <para>
-	    If the command was accepted, the next statement is executed.
-	  </para>
-	</section>
-	<section>
-	  <title>Parallel Commands with 'and'</title>
-	  <para>
-	    When it is desired to execute commands as one command
-	    ( in one time ), they can be combined with an
-	    'and' operator :</para>
-	    <programlisting>
-  do comp.action1() and comp.action2() and comp.action3()
-	    </programlisting>
-	  <para>
-	    The implicit completion condition (i.e. 'done') is when all
-	    listed actions are done. This can be overridden
-	    by defining a completion condition with 'until'.
-	  </para>
-	  <para>
-	    The 'and' operator can also be used with 'try'.
-	    In that case, the catch clause will be executed in
-	    case any of the listed commands fails.
+	    If the method did not return false, the catch clause is not
+	    executed.
 	  </para>
 	</section>
       </section>
       <section>
-	<title>Emitting Task Events</title>
-	  <para>
-	    Events are called as methods and commands.
-	  </para>
-	    <programlisting>  // emitting an event:
-  do sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
-	  <para>
-	    In this case, the task 'sometask' has an event 'eventname'
-	    which takes 'N' arguments. Other tasks subscribed to this
-	    event will receive the event synchronously or asynchronously
-	    with these arguments. More information about events can be
-	    found in the CoreLib manual.  This event must be part of
-	    the task interface.
-	  </para>
-      </section>
       <section>
        <title>Setting Task Attributes/Properties</title>
          <para>
            Task attributes/Properties are set in the same way as ordinary script variables.
          </para>
            <programlisting>  // Setting a property named MyProp of type double
-  var double d
+  var double d = 5.0
   set TC.MyProp = d </programlisting>
          <para>
          </para>
       </section>
       <section>
 	<title><symbol>function</symbol></title>
-	<para>Statements
-	can be grouped in functions. A function can only call a function
-	which is earlier defined. Thus recursive function calling is not allowed.
+	<para>
+	  Statements can be grouped in functions. A function can only
+	  call another function which is earlier defined. Thus recursive
+	  function calling is not allowed in this language.
 	</para>
-	<programlisting>  function func_name( int arg1, double arg2 ) {
+	<programlisting>  // A function only known in the current script
+  void func_name( int arg1, double arg2 ) {
     // an arbitrary number of statements
   }
   
-  export function func_nameN(bool arg) {
+  // A function put in the interface of the component
+  export double func_name(bool arg) {
     // ...
+    if ( arg ) then return +10.0; else return -10.0;
   }</programlisting>
         <para>
-	  A function can have any number of arguments, which are passed
-  	  by value, but it returns no value.
-  	  A function can be exported, in which case it becomes a public
-	  available command, which will fail if one of its
-	  statements fails. Hence, this allows to extend the command interface
+	  A function can have any number of arguments, which are
+	  passed by value, and may return a value. By default, a function
+	  is only known in the current script and can only be called by the 'call'
+	  statement, as shown below.
+	</para>
+	<para>
+	  A function can be
+	  exported using the <emphasis>export</emphasis> keyword, in
+	  which case it becomes a public available operation.
+	</para>
+	<para>
+	  Functions allow to extend the operations of a TaskContext
 	  with exported functions of a task at runtime.
 	</para>
       </section>
       <section>
 	<title>Calling functions</title>
 	<para>
-	  A function can be called by writing :
+	  A function can be called in two fashions :
 	</para>
 	  <programlisting>
-  do foo(arg)   // see 'exported' functions
-  call foo(arg) // local functions</programlisting>
+  foo(arg)      // only 'exported' functions
+  call foo(arg) // functions defined in the same file</programlisting>
 	<para>
-	  The arguments are passed by value and no return value
-	  is possible. If one of the commands of the functions
-	  returns error, the calling program goes in error.
-	  A function may also be called in a completion 
-	  clause. If the function returns, the next statement
-	  of the calling function or program is executed.
+	  The call keyword causes the function to be inlined in the
+	  current location. Omitting the call keyword is only allowed
+	  for exported function. In that case, the normal operation
+	  is invoked, just like any other operation.
+	</para>
+	<para>
+	  If one of the statements of the exported function
+	  returns error, an exception is thrown and the calling
+	  program goes into the error state.
 	</para>
       </section>
       <section>
-	<title>Waiting : The 'nothing' Command</title>
+	<title><symbol>return</symbol></title>
 	<para>
-	  A special command 'nothing' is provided.  It is useful to
-	  implement statements, where the completion list is really
-	  the only useful thing to do. The nothing command's
-	  completion condition will pause execution exactly one
-	  execution step, it can thus also be inserted between methods
-	  to force execution to pause and resume in the next execution
-	  period.
+	  The return statement behaves like in traditional languages.
+	  For programs and functions that do not return a value, the
+	  return statement is written like:
+	</para>
+	  <programlisting>
+  export void foo(int i) {
+     // ...
+     if ( i &lt; 0 )
+        return
+     // use i...
+  }</programlisting>
+	<para>
+	  When the return statement returns a value, it must be on the
+	  same line as the return word:
+	</para>
+	  <programlisting>
+  export int foo(int i) {
+     // ...
+     if ( i &lt; 0 )
+        return -1  // returned value on same line.
+     // use i...
+     return i*10
+  }</programlisting>
+	<para>
+	  As the examples show, you can return from a function
+	  from multiple places.
+	</para>
+      </section>
+      <section>
+	<title>Waiting : The 'yield' statement</title>
+	<para>
+	  A special statement 'yield' is provided. It temporarily
+	  suspends the execution of the current script and allows
+	  the Execution Engine in which it runs to do something
+	  else. You will need this in an endless while loop, for
+	  example:
+	  <programlisting>  while( true ) { 
+    log("Waiting...")
+    yield
+  }</programlisting>
+          If the yield statement is omitted, the script would never
+	  return and consume all available processor time. Yield
+	  suspends the execution of this script until the 
+	  ExecutionEngine is triggered again, for example, when an
+	  asynchronous operation is received or by the expiration
+	  of the period in a periodically running component.
 	</para>
       </section>
     </section>
@@ -888,11 +847,11 @@
 	  "progname" in task "ATask", you can write
 	</para>
 	<programlisting>
-  do ATask.progname.start()
-  do ATask.progname.pause()
-  do ATask.progname.step()
-  do ATask.progname.step()
-  do ATask.progname.stop()</programlisting>
+  ATask.progname.start()
+  ATask.progname.pause()
+  ATask.progname.step()
+  ATask.progname.step()
+  ATask.progname.stop()</programlisting>
 	<para>The first line starts a program. The second line
 	  pauses it. The next two lines executes one command each of the
 	  program (like stepping in a debugger). The last line stops
@@ -907,13 +866,12 @@
 	<para>
 	  which all return a boolean indicating true or false.</para>
     </section>
-  </section>
   <section>
     <title>Orocos State Descriptions : The Real-Time State Machine</title>
     <section>
       <title>Introduction</title>
       <para>
-	A <classname>RTT::StateMachine</classname> is the state
+	A <classname>RTT::scripting::StateMachine</classname> is the state
 	machine used in the &orocos; system.  It contains a collection
 	of states, and each state defines a Program on entry of the
 	state, when it is run and on exit.  It also defines all
@@ -922,7 +880,7 @@
       </para>
     </section>
       <section>
-	<title>StateMachine Workings</title>
+	<title>StateMachine Mechanism</title>
 	<para>
 	A StateMachine is composed of a set of states.  A running
 	StateMachine is always in exactly one of its states.  One
@@ -980,7 +938,7 @@
 	</mediaobject>
 	</figure>
 	<para> 
-          A state can list to which Orocos (CoreLib) events it reacts,
+          A state can list to which Orocos data flow events it reacts,
           and under which conditions it will make a transition to another
           state. A state only reacts to events when its entry program
           is fully executed (done) and an event may be processed when
@@ -1068,24 +1026,21 @@
       <programlisting>
   #include &lt;rtt/Activity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;rtt/scripting/Scripting.hpp&gt;
 
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
   tc.setActivity( new <classname>RTT::Activity</classname>(5, 0.01) );
 
-  tc.scripting()->loadStateMachines( "state-machine.osd" );
-
-  // start the task's processor :
-  tc.start();
+  tc.getProvider&lt;Scripting>("scripting")->loadStateMachines( "state-machine.osd" );
 
   // activate a state machine :
-  tc.engine()->states()->getStateMachine("MachineInstanceName")->activate();
+  tc.getProvider&lt;<classname>RTT::Scripting</classname>>("scripting")->activateStateMachine("MachineInstanceName");
   // start a state machine (automatic mode) :
-  tc.engine()->states()->getStateMachine("MachineInstanceName")->start();</programlisting>
+  tc.getProvider&lt;Scripting>("scripting")->startStateMachine("MachineInstanceName");</programlisting>
       <para>
-	The loader loads all instantiated state machines in tc.
-	Next we start the task's Execution Engine.
+	The Scripting service loads all instantiated state machines in tc.
 	StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, 
@@ -1093,6 +1048,19 @@
 	transitions to other states can take place. StateMachines
 	can also be manipulated from within other scripts.
       </para>
+      <para>
+        In case you wish to have a pointer to a state machine script object
+	(<classname>RTT::scripting::StateMachine</classname>),
+	you can have so only from within the owner TaskContext by
+	writing:
+      </para>
+      <programlisting>
+  StateMachinePtr sm = dynamic_cast&lt;<classname>RTT::scripting::ScriptingAccess</classname>*&gt;(this->getService("scripting"))
+                          ->getStateMachine("MachineInstanceName");
+
+  // activate and start a StateMachine :
+  sm->activate();
+  sm->start();</programlisting>
     </section>
       <section>
 	<title>Defining StateMachines</title>
@@ -1251,22 +1219,25 @@
 	  </para>
 	</section>
 	<section>
-	  <title>Event Transitions</title>
+	  <title>Data Flow Event Transitions</title>
 	  <para>
 	    An important property of state machines is that they can
-	    react to external (asynchronous) events. Since Orocos
-	    defined an Event framework in the CoreLib, this framework
-	    is used to react to events in this package.
+	    react to external (asynchronous) events. Orocos
+	    components can define reactions to data arriving on
+	    <classname>RTT::InputPort</classname>s. When new data arrives on this port, we speak
+	    of an 'event'.
 	  </para>
+	  <note><para>A StateMachine can only react to InputPorts
+	  which have been added with 'addEventPort' to the TaskContext.
+	  </para></note>
 	  <para>
 	    Event transitions are an extension to the transitions
-	    above and cite an event between the transition and the
+	    above and cite an InputPort name between the transition and the
 	    if statement. They are specified as:
 	  </para>
 	  <programlisting>  state X {
-    var int a, b
     var double d
-    transition othertask.the_event(a, b, d) if (a+b &amp; 10 &amp;&amp; d >1.3) then {
+    transition x_in_port(d) if ( d >1.3 ) then {
        // transition succeeds, transition program:
        // ...
     } select ONE_STATE else {
@@ -1279,22 +1250,38 @@
 	  <para>
             Both the transition programs and the the select statements
             are optional, but at least a program or select statement
-            must be given.  In this example,
-            <function>othertask</function> contains an event
-            <function>the_event</function>.  When the event
-            <function>the_event</function> is emitted, our state
-            machine reacts to it and the event arguments are stored in
-            a, b and d. The <function>if ... then</function> statement
-            may check these variables and any other state variables
-            and methods to evaluate the transition. If it succeeds, an
-            optional transition program may be given and a target
-            state <function>select</function>ed (ONE_STATE).  if the
-            transition fails, an optional failure program may be given
-            and an optional <function>select</function> (OTHER_STATE)
-            statement may be given.  The number of arguments must
-            match the number of arguments of the used event.  The
-            event is processed as an asynchronous callback, thus in
-            the thread or task of the StateMachine's processor.
+            must be given. The <programlisting>  transition x_in_port(d) if (d >1.3) then {
+	    </programlisting> short notation statement is equivalent to writing:
+	    <programlisting>  transition if ( x_in_port(d) == NewData &amp;&amp; d >1.3) then {...
+	    </programlisting>
+	  </para>
+	  <important>
+	    <para>
+	      This short notation differs however from the long form
+	      as such: if multiple transitions are waiting on the same
+	      port, but with a different guard, the short notation
+	      will give all transitions a chance to see the NewData return
+	      value. If a user would use the long form, only the first
+	      transition statement would see NewData, all the others
+	      would see OldData as return value. Hence the short
+	      notation is prefered.
+	    </para>
+	  </important>
+	  <para>
+	    When the input port <function>x_in_port</function>
+	    receives NewData, our state machine reacts to it and the
+	    data is stored in d. The <function>if ... then</function>
+	    statement may check this variable and any other state
+	    variables and methods to evaluate the transition. If it
+	    succeeds, an optional transition program may be given and
+	    a target state <function>select</function>ed (ONE_STATE).
+	    if the transition fails, an optional failure program may
+	    be given and an optional <function>select</function>
+	    (OTHER_STATE) statement may be given.  The number of
+	    arguments must match the number of arguments of the used
+	    event.  The event is processed as an asynchronous
+	    callback, thus in the thread or task of the StateMachine's
+	    processor.
 	  </para>
 	  <para>
 	    Event transitions are enabled after the entry program and
@@ -1377,7 +1364,7 @@
     {
 	entry
         {
-            do someTask.doSomethingWithThisCounter( counter )
+            someTask.doSomethingWithThisCounter( counter )
         }
         // ...
     }
@@ -1469,13 +1456,13 @@
   	entry
           {
 	      // enter initial state :
-  	    do child1.activate()
-  	    do child2.activate()
+  	    child1.activate()
+  	    child2.activate()
           }
           exit
           {
 	      // enter final state :
-              do child2.stop()
+              child2.stop()
           }
       }
   
@@ -1484,7 +1471,7 @@
           entry
           {
 	      // enter final state :
-              do child1.stop()
+              child1.stop()
           }
       }
   } </programlisting>
@@ -1541,8 +1528,8 @@
       {
   	  entry
           {
-  	      do child1.start()
-  	      do child2.start()
+  	      child1.start()
+  	      child2.start()
               // set the subcontext's parameter
               set child1.someValue = 2
           }
@@ -1552,11 +1539,11 @@
               // set the subcontext's parameters
               set child2.someValue = counter
               // use the subcontext's public variables
-              do someTask.doSomethingCool( child1.someValue )
+              someTask.doSomethingCool( child1.someValue )
           }
           exit
           {
-              do child2.stop()
+              child2.stop()
           }
       }
   
@@ -1564,7 +1551,7 @@
       {
           entry
           {
-              do child1.stop()
+              child1.stop()
           }
       }
   }</programlisting>
@@ -1587,19 +1574,19 @@
 	"machine" with subcontexts "axisx" and "axisy"
 	in task "ATask", you can write
       </para>
-      <programlisting>  do ATask.machine.activate()
-  do ATask.machine.axisx.activate()
+      <programlisting>  ATask.machine.activate()
+  ATask.machine.axisx.activate()
   // now in reactive mode...
 
-  do ATask.machine.axisx.start()
-  do ATask.machine.start()
+  ATask.machine.axisx.start()
+  ATask.machine.start()
   // now in automatic mode...
 
-  do ATask.machine.stop()
+  ATask.machine.stop()
   // again in reactive mode, in final state
 
-  do ATask.machine.reset()
-  do ATask.machine.deactivate()
+  ATask.machine.reset()
+  ATask.machine.deactivate()
   // deactivated.
   // etc. </programlisting>
       <para>
@@ -1661,7 +1648,7 @@
 	<programlisting>
    program interact {
        // First activate x :
-       do x.activate()  // activate and wait.
+       x.activate()  // activate and wait.
 
        // Request a state transition :
        try x.requestState("z") catch {
@@ -1669,24 +1656,24 @@
        }
 
        // ok we are in "z" now, try to make a valid transition :
-       do x.step()
+       x.step()
 
        // enter pause mode :
-       do x.pause()
+       x.pause()
        // Different ! Executes a single program statement :
-       do x.step()
+       x.step()
 
        // unpause, by re-entering reactive Mode :
-       do x.reactive()
+       x.reactive()
 
        // we are in ok_1 now, again waiting...
-       do x.stop()      // go to the final state
+       x.stop()      // go to the final state
 
        // we are in "exit" now
-       do reset()
+       reset()
 
        // back in state "y", handle current state :
-       do this.x.requestState( this.x.getState() )
+       this.x.requestState( this.x.getState() )
        // etc.
     } </programlisting>
          <para>
@@ -1760,22 +1747,22 @@
 	<programlisting>
    program interact {
        // First activate x :
-       do x.activate()  // activate and wait.
+       x.activate()  // activate and wait.
 
        // Enter automatic mode :
-       do x.start()
+       x.start()
 
        // pause program execution :
-       do x.pause()
+       x.pause()
 
        // execute a single statement :
-       do x.step()
+       x.step()
 
        // resume automatic mode again :
-       do x.start()
+       x.start()
 
        // stop, enter final state, in request mode again.
-       do x.stop()
+       x.stop()
 
        // etc...
     } </programlisting>
@@ -1835,11 +1822,11 @@
     
       initial state StartRobotState {
         entry {
-          do Robot.prepareForUse()
+          Robot.prepareForUse()
         }
         exit {
-          do Robot.unlockAllAxes()
-          do Robot.startAllAxes()
+          Robot.unlockAllAxes()
+          Robot.startAllAxes()
         }
         transitions {
           select CalibrateOffsetsState
@@ -1853,14 +1840,14 @@
             select MoveToState
         }
         entry {
-          do nAxesGeneratorPos.start()
-          do nAxesControllerPos.start()
-          //do Reporter.start()
-          do CalibrateOffsetsProg.start()
+          nAxesGeneratorPos.start()
+          nAxesControllerPos.start()
+          //Reporter.start()
+          CalibrateOffsetsProg.start()
         }
         exit {
-          do nAxesGeneratorPos.stop()
-          do nAxesControllerPos.stop()
+          nAxesGeneratorPos.stop()
+          nAxesControllerPos.stop()
         }
         transitions {
            if !CalibrateOffsetsProg.isRunning then
@@ -1875,20 +1862,20 @@
             select StopRobotState
         }
         entry {
-          do nAxesGeneratorPos.start()
-          do nAxesControllerPosVel.start() 
+          nAxesGeneratorPos.start()
+          nAxesControllerPosVel.start() 
           set pos = array(6,0.0)
-          do nAxesGeneratorPos.moveTo(pos,0.0)
+          nAxesGeneratorPos.moveTo(pos,0.0)
           set pos[0]=-pi/2.0
           set pos[1]=-pi/2.0
           set pos[2]=pi/2.0
           set pos[4]=-pi/2.0
-          do nAxesGeneratorPos.moveTo(pos,0.0)
+          nAxesGeneratorPos.moveTo(pos,0.0)
         }
         exit {
-           do nAxesControllerPosVel.stop()
-           do nAxesGeneratorPos.stop()
-           //do Reporter.stop()
+           nAxesControllerPosVel.stop()
+           nAxesGeneratorPos.stop()
+           //Reporter.stop()
         }
         transitions {
           if(stop == true) then    
@@ -1899,11 +1886,11 @@
     
       final state StopRobotState {
         entry {
-          do Robot.stopAllAxes()
-          do Robot.lockAllAxes()
+          Robot.stopAllAxes()
+          Robot.lockAllAxes()
         }
         exit {
-          do Robot.prepareForShutdown()
+          Robot.prepareForShutdown()
         }
       }
     }
@@ -1926,24 +1913,24 @@
   export function HMILoadTrajectory() {
   	// request a 'push' of the next
   	// trajectory :
-  	do HMI.requestTrajectory()
+  	HMI.requestTrajectory()
   	// when the HMI is done :
-  	do Generator.loadTrajectory()
+  	Generator.loadTrajectory()
   }
   
   /**
-   * Do a Homing (reset) of the axes.
+   * a Homing (reset) of the axes.
    * This could also be done using a Homing state,
    * without a program.
    */
   export function ResetAxes() {
-  	do HomingGenerator.start()
-  	do HomingGenerator.homeAll()
+  	HomingGenerator.start()
+  	HomingGenerator.homeAll()
   }
   
   export function ResetAxis(int nr) {
-  	do HomingGenerator.start()
-  	do HomingGenerator.homeAxis( nr )
+  	HomingGenerator.start()
+  	HomingGenerator.homeAxis( nr )
   }
   
   /**
@@ -1951,31 +1938,30 @@
    * trajectory.
    */
   function runTrajectory() {
-  	do Generator.startTrajectory()
+  	Generator.startTrajectory()
   	// this function returns when the
   	// trajectory is done.
   }
   
   program DemoRun {
-  	do HMI.display("Program Started\n")
+  	HMI.display("Program Started\n")
   	var int cycle = 0
   
   	// We actually wait here until a 
   	// Trajectory is present in the HMI.
-  	do nothing until {
-  	   if HMI.trajectoryPresent() then continue
-  	}
+  	while ( !HMI.trajectoryPresent() )
+	   yield;
   
   	while HMI.cycle() {
-  	    do HMI.display("Cycle nr: %d.\n", cycle )
-  	    do ResetAxes()
-  	    do HMIRequestTrajectory()
-  	    do runTrajectory()
+  	    HMI.display("Cycle nr: %d.\n", cycle )
+  	    ResetAxes()
+  	    HMIRequestTrajectory()
+  	    runTrajectory()
   
-  	    do Timer.sleep( 5.0 ) // wait 5s
+  	    Timer.sleep( 5.0 ) // wait 5s
   	}
   
-  	do HMI.display("Program Ended\n")
+  	HMI.display("Program Ended\n")
   }  </programlisting>
   </section>
 </article>

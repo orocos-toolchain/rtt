@@ -36,20 +36,6 @@ using namespace RTT::detail;
 
 class StateTest
 {
-	/*
-    CPPUNIT_TEST_SUITE( StateTest );
-    CPPUNIT_TEST( testParseState );
-    //CPPUNIT_TEST( testStateFailure );
-    CPPUNIT_TEST( testStateChildren );
-    CPPUNIT_TEST( testStateEmpty );
-    CPPUNIT_TEST( testStateSubStateVars );
-    CPPUNIT_TEST( testStateSubStateCommands );
-    CPPUNIT_TEST( testStateEvents );
-    CPPUNIT_TEST( testStateTransitions );
-    CPPUNIT_TEST( testStateGlobalTransitions );
-//     CPPUNIT_TEST( testStateUntilFail );
-    CPPUNIT_TEST_SUITE_END();
-*/
 public:
 #ifndef NOPARSER
     Parser parser;
@@ -59,7 +45,7 @@ public:
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
     Event<void(void)> t_event;
-    TaskObject* createObject(std::string);
+    ServiceProvider* createObject(std::string);
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();
@@ -82,19 +68,6 @@ public:
 
     void setUp();
     void tearDown();
-
-    void testParseState();
-    void testStateFailure();
-    void testStateChildren();
-    void testStateEmpty();
-    void testStateSubStateVars();
-    void testStateSubStateCommands();
-    void testStateEvents();
-    void testStateUntil();
-    void testStateUntilFail();
-    void testStateTransitions();
-    void testStateGlobalTransitions();
-
 };
 
 #endif
