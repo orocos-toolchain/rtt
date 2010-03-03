@@ -704,7 +704,7 @@ Printing Interface of 'the_input_port' :
 	  <imagedata fileref="images/ComponentStates" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentStates"  width="100%" scalefit="1"/>
+	  <imagedata fileref="images/hires/ComponentStates"  width="80%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -1293,11 +1293,11 @@ Printing Interface of 'the_input_port' :
     while ( true ) {
       if ( SetPoint_X.read( setp_d ) != NoData ) {   // read Input Port
         var double in_d = 0.0;
-        do Data_R.read( in_d )             // read Input Port
+        Data_R.read( in_d )             // read Input Port
         var double out_d = (setp_d - in_d) * the_K  // Calculate
-        do Data_W.write( out_d )          // write Data Port
+        Data_W.write( out_d )          // write Data Port
       }
-      do nothing       // this is a 'yield' point to avoid inifinite spinning.
+      yield       // this is a 'yield' point to avoid inifinite spinning.
     }
   } </programlisting>
          The program "MyControlProgram" starts with declaring
@@ -1315,7 +1315,7 @@ Printing Interface of 'the_input_port' :
 	<para>
 	  Remark that the program is executed within the thread of the component.
 	  In order to avoid the endless loop, a 'wait' point
-	  must be present. The "do nothing" command inserts such a
+	  must be present. The "yield" command inserts such a
 	  wait point and is part of the Scripting syntax.  If you plan
 	  to use Scripting state machines, such a
 	  <function>while(true)</function> loop (and hence wait point)
@@ -1491,7 +1491,7 @@ Printing Interface of 'the_input_port' :
 	<function>collectIfDone()</function> and <function>ret()</function>.
 	All three come in two forms: with arguments or without arguments.
 	The form without arguments can be used if you are only interested in
-	the return values of these functions. collect() and collectIfDone
+	the return values of these functions. collect() and collectIfDone()
 	return a SendStatus, ret() returns the return value of the operation.
 	SendStatus is an enum of SendSuccess, SendNotReady or SendFailure.
 	Code says it all:
@@ -1627,18 +1627,18 @@ Printing Interface of 'the_input_port' :
   handle.collect( oldvalue ); // see text below.
 </programlisting></para>
          <para> There is an important difference between collect()
-	   and collectIfDone in scripts. collect() will block your
+	   and collectIfDone() in scripts. collect() will block your
 	   whole script, so also other scripts executed in the ExecutionEngine
-	   and updateHook. The only exception is that incomming
+	   and updateHook(). The only exception is that incomming
 	   operations are still processed, such that call-backs are allowed.
-	   For example: if ATask.changeParameter does in turn a send on your component,
+	   For example: if ATask.changeParameter( 0.1 ) does in turn a send on your component,
 	   this will be processed such that no dead-lock occurs.</para>
 	 <para>
 	   If you do not wish to block unconditionally on the completion
-	   of changeParameter, you can poll with collectIfDone. Each time
+	   of changeParameter(), you can poll with collectIfDone(). Each time
 	   the poll fails, you issue a yield (in RTT 1.x this was 'do nothing').
-	   Yield causes temporary suspension of your script, the processing
-	   of the ExecutionEngine and updateHook. In the next trigger
+	   Yield causes temporary suspension of your script, such that other scripts
+	   and updateHook() get a chance to run. In the next trigger
 	   of your component, the program resumes and the while loop checks
 	   the collectIfDone() statement again.
 	 </para>
@@ -1898,7 +1898,7 @@ Printing Interface of 'the_input_port' :
 	    <imagedata fileref="images/ComponentStatesExtended" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/ComponentStatesExtended"  width="100%" scalefit="1"/>
+	    <imagedata fileref="images/hires/ComponentStatesExtended"  width="80%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -1949,7 +1949,7 @@ Printing Interface of 'the_input_port' :
 	    <imagedata fileref="images/RunTimeStates" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/RunTimeStates" />
+	    <imagedata fileref="images/hires/RunTimeStates" width="80%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>
