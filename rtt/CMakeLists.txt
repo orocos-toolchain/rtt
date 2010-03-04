@@ -71,10 +71,10 @@ ELSE (OROPKG_EXECUTION_ADVANCED)
 ENDIF (OROPKG_EXECUTION_ADVANCED)
 
 ### Marshalling
-OPTION(ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
+OPTION(PLUGINS_ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
 
 ### Marshalling
-OPTION(ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
+OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
 
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)

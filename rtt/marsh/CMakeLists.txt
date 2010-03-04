@@ -1,8 +1,8 @@
 
-GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp MarshallInterface.hpp)
-GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp marsh/PropertyBagIntrospector.cpp)
+IF (PLUGINS_ENABLE_MARSHALLING)
+  GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp MarshallInterface.hpp)
+  GLOBAL_ADD_SRC( marsh/PropertyMarshaller.cpp marsh/PropertyDemarshaller.cpp marsh/PropertyBagIntrospector.cpp)
 
-IF (ENABLE_MARSHALLING)
   GLOBAL_ADD_INCLUDE( rtt/marsh CPFMarshaller.hpp
            XMLRPCDemarshaller.hpp XMLRPCMarshaller.hpp CPFDTD.hpp
            StreamProcessor.hpp Marshalling.hpp PropertyLoader.hpp)
@@ -15,4 +15,4 @@ IF (ENABLE_MARSHALLING)
     GLOBAL_ADD_INCLUDE( rtt/marsh TinyDemarshaller.hpp )
     GLOBAL_ADD_SRC( marsh/TinyDemarshaller.cpp marsh/tinyxml.cpp marsh/tinyxmlparser.cpp marsh/tinyxmlerror.cpp marsh/tinystr.cpp )
   ENDIF (XERCES_FOUND AND NOT OS_NOEXCEPTIONS)
-ENDIF(ENABLE_MARSHALLING)
+ENDIF(PLUGINS_ENABLE_MARSHALLING)
