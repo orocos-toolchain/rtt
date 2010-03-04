@@ -51,6 +51,7 @@ namespace RTT
 {
 
     class Activity;
+    class Alias;
     class CleanupHandle;
     class ConnPolicy;
     class ExecutionEngine;
@@ -59,19 +60,16 @@ namespace RTT
     class PropertyBag;
     class ScopedHandle;
     class TaskContext;
-    class Alias;
     template<typename T>
     class Attribute;
     template<typename T>
     class Constant;
-    template<typename CommandT>
-    class Command;
-    template<typename SignatureT>
-    class Event;
     template<typename T>
     class InputPort;
     template<typename FunctionT>
     class Method;
+    template<class Signature>
+    class Operation;
     template<typename T>
     class OutputPort;
     template<typename T>
