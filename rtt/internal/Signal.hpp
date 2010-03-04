@@ -154,6 +154,7 @@ namespace RTT {
                                                   TSlotFunction>::type base_type;
 
     public:
+        typedef boost::shared_ptr<Signal<Signature,TSlotFunction> > shared_ptr;
         Signal() {}
         typedef TSlotFunction SlotFunction;
     };
