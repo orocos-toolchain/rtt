@@ -65,7 +65,7 @@ IF (BUILD_TESTING)
     endif()
 
     # repeat for each test
-    ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp property_test.cpp time_test.cpp ptr_test.cpp )
+    ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp time_test.cpp ptr_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -88,38 +88,6 @@ IF (BUILD_TESTING)
     #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     #ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
-
-    ADD_EXECUTABLE( parser-test test-runner.cpp types_test.cpp ) # dispatch_test.cpp
-    TARGET_LINK_LIBRARIES( parser-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( parser-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( parser-test ${RUNTIME_OUTPUT_DIRECTORY}/parser-test )
-
-    ADD_EXECUTABLE( program-test test-runner.cpp program_test.cpp function_test.cpp )
-    TARGET_LINK_LIBRARIES( program-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( program-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( program-test ${RUNTIME_OUTPUT_DIRECTORY}/program-test )
-
-    ADD_EXECUTABLE( state-test test-runner.cpp state_test.cpp )
-    TARGET_LINK_LIBRARIES( state-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( state-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( state-test ${RUNTIME_OUTPUT_DIRECTORY}/state-test )
-
-    ADD_EXECUTABLE( dev-test test-runner.cpp dev_test.cpp )
-    TARGET_LINK_LIBRARIES( dev-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
-    SET_TARGET_PROPERTIES( dev-test PROPERTIES
-        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-        LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
-    ADD_TEST( dev-test ${RUNTIME_OUTPUT_DIRECTORY}/dev-test )
 
     IF(UNIX AND NOT (OROCOS_TARGET STREQUAL "xenomai"))
       ADD_EXECUTABLE( specactivities-test test-runner.cpp
@@ -245,18 +213,28 @@ IF (BUILD_TESTING)
     if (ORO_REMOTING)
         ADD_UNIT_TEST(remote_method_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     endif()
-    ADD_UNIT_TEST(functors_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-    ADD_UNIT_TEST(service_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-    ADD_UNIT_TEST(scripting_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-    ADD_UNIT_TEST(marshalling_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-    ADD_UNIT_TEST(property_loader_test EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(event_test EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(taskstates_test EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(ports_test EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(attributes_test EXTRA_TESTS "${TEST_LIBRARIES}" )
-
+    ADD_UNIT_TEST(functors_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+    ADD_UNIT_TEST(service_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+    ADD_UNIT_TEST(event_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(operation_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(taskstates_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(ports_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(attributes_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(dev_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    if(PLUGINS_ENABLE_SCRIPTING)
+        ADD_UNIT_TEST(scripting_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(types_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(function_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    endif()
+    if(PLUGINS_ENABLE_MARSHALLING)
+        ADD_UNIT_TEST(marshalling_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(property_loader_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    endif()
     ADD_CUSTOM_TARGET(check ctest -V
-      DEPENDS main-test core-test task-test parser-test dev-test specactivities-test program-test state-test ${ORO_EXTRA_TESTS}  
+      DEPENDS main-test core-test task-test specactivities-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)
