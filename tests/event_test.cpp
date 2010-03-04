@@ -160,7 +160,7 @@ public:
     float float_sum;
 public:
 
-    EventTest(){
+    EventTest(): t_listener_value(false), float_sum(0.0) {
         reset();
     }
 
@@ -189,6 +189,12 @@ public:
     {
         t_listener_value = false;
         t_listener_what = "";
+    }
+
+    void float_reference(float& f) {
+        log(Debug) << "Received f:"<<f<<endlog();
+        f = 10.0;
+        float_sum +=f ;
     }
 };
 
@@ -246,6 +252,25 @@ BOOST_AUTO_TEST_CASE( testSelfRemoval )
     BOOST_CHECK( task.start() );
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( task.stop() );
+}
+
+/**
+ * Tests if we can emit a signal that takes an argument by reference.
+ */
+BOOST_AUTO_TEST_CASE( testReference )
+{
+    Signal<void(float&)> event;
+
+    Handle h = event.connect( boost::bind(&testReference::float_reference, this, _1) );
+
+    float f = 5.0;
+    event.emit( f );
+
+    // Note: we actually don't guarantee that this will succeed.
+    // The current implementation allows it though. This check may
+    // be removed in the future.
+    BOOST_CHECK( f == 10.0 );
+    BOOST_CHECK(float_sum == 10.0 );
 }
 
 BOOST_AUTO_TEST_CASE( testCrossRemoval )
