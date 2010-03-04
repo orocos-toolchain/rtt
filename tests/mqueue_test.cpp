@@ -27,13 +27,15 @@ MQueueTest::setUp()
     mw2 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
-    tc->ports()->addPort( mr1 );
-    tc->ports()->addPort( mw1 );
+    tc->ports()->addEventPort( *mr1 );
+    tc->ports()->addPort( *mw1 );
 
     t2 = new TaskContext("other");
-    t2->ports()->addPort( mr2 );
-    t2->ports()->addPort( mw2 );
+    t2->ports()->addEventPort( *mr2 );
+    t2->ports()->addPort( *mw2 );
 
+    tc->start();
+    t2->start();
 }
 
 
@@ -145,6 +147,7 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     Handle hl( mr2->getNewDataOnPortEvent()->setup(
                 boost::bind(&MQueueTest::new_data_listener, this, _1) ) );
     hl.connect();
+    BOOST_CHECK( hl.connected() );
 
     DataFlowInterface* ports  = tc->ports();
     DataFlowInterface* ports2 = t2->ports();
@@ -339,8 +342,8 @@ BOOST_AUTO_TEST_CASE( testVectorTransport )
     std::vector<double> data(20, 3.33);
     InputPort< std::vector<double> > vin("VIn");
     OutputPort< std::vector<double> > vout("Vout");
-    ports->addPort(&vin, "input port");
-    ports2->addPort(&vout, "output port");
+    ports->addPort(vin).doc("input port");
+    ports2->addPort(vout).doc("output port");
 
     // init the output port with a vector of size 20, values 3.33
     vout.setDataSample( data );
@@ -360,7 +363,7 @@ BOOST_AUTO_TEST_CASE( testVectorTransport )
     // prepare a new data sample, size 10, values 6.66
     data.clear();
     data.resize(10, 6.66);
-    for(int i=0; i != data.size(); ++i)
+    for(unsigned int i=0; i != data.size(); ++i)
         BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
 
     rtos_enable_rt_warning();
@@ -379,7 +382,7 @@ BOOST_AUTO_TEST_CASE( testVectorTransport )
     // check if both size and capacity and values are as expected.
     BOOST_CHECK_EQUAL( data.size(), 10);
     BOOST_CHECK_EQUAL( data.capacity(), 20);
-    for(int i=0; i != data.size(); ++i)
+    for(unsigned int i=0; i != data.size(); ++i)
         BOOST_CHECK_CLOSE( data[i], 6.66, 0.01);
 
     rtos_enable_rt_warning();
