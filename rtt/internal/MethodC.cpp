@@ -38,7 +38,7 @@
 
 #include "MethodC.hpp"
 #include "../interface/FactoryExceptions.hpp"
-#include "../scripting/DataSourceCommand.hpp"
+#include "DataSourceCommand.hpp"
 #include "../interface/ServiceProvider.hpp"
 #include "../Logger.hpp"
 #include "Exceptions.hpp"

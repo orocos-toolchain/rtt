@@ -52,7 +52,7 @@
 #include <Property.hpp>
 #include "../Attribute.hpp"
 #include "parse_exception.hpp"
-#include "DataSourceCommand.hpp"
+#include "../internal/DataSourceCommand.hpp"
 #include "../interface/FactoryExceptions.hpp"
 
 namespace RTT {

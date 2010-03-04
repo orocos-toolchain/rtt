@@ -36,7 +36,7 @@
 #include "ValueChangeParser.hpp"
 #include "ProgramService.hpp"
 #include "StateMachineService.hpp"
-#include "DataSourceCommand.hpp"
+#include "../internal/DataSourceCommand.hpp"
 #include "../base/ConditionInterface.hpp"
 #include "CommandComposite.hpp"
 

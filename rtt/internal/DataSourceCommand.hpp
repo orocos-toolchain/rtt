@@ -43,7 +43,7 @@
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
-{ namespace scripting {
+{ namespace internal {
 
 
   /**
