@@ -6,6 +6,8 @@
 #include <boost/fusion/include/vector.hpp>
 #include "base/OperationBase.hpp"
 #include "internal/LocalMethod.hpp"
+#include "internal/Signal.hpp"
+#include "internal/MethodBinder.hpp"
 
 namespace RTT
 {
@@ -28,10 +30,6 @@ namespace RTT
     class Operation
     : public base::OperationBase
     {
-        typename internal::LocalMethod<Signature>::shared_ptr impl;
-        virtual void ownerUpdated() {
-            impl->setExecutor( this->mowner );
-        }
     public:
         /**
          * Create an operation object with a name.
@@ -134,7 +132,10 @@ namespace RTT
          */
         Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread ) {
             // creates a Local Method
-            impl.reset( new internal::LocalMethod<Signature>(func, this->mowner,0, et) );
+            ExecutionEngine* null_e = 0;
+            impl = boost::make_shared<internal::LocalMethod<Signature> >(func, this->mowner, null_e, et);
+            if (signal)
+                impl->setSignal(signal);
             return *this;
         }
 
@@ -149,7 +150,10 @@ namespace RTT
         template<class Function, class Object>
         Operation& calls(Function func, Object o, ExecutionThread et = ClientThread ) {
             // creates a Local Method or sets function
-            impl.reset( new internal::LocalMethod<Signature>(func,o, this->mowner,0, et) );
+            ExecutionEngine* null_e = 0;
+            impl = boost::make_shared<internal::LocalMethod<Signature> >(func, o, this->mowner, null_e, et);
+            if (signal)
+                impl->setSignal(signal);
             return *this;
         }
 
@@ -158,12 +162,16 @@ namespace RTT
          * @param func The function to call after the operation is executed
          * @return A reference to this object.
          */
-        Operation& signals(boost::function<Signature> func) {
+        Handle signals(boost::function<Signature> func) {
             // attaches a signal to a Local Method
+            ExecutionEngine* null_e = 0;
             if (!impl)
-                impl.reset( new internal::LocalMethod<Signature>() );
-            //impl->signal(func);
-            return *this;
+                impl = boost::make_shared<internal::LocalMethod<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+            if (!signal) {
+                signal = boost::make_shared<internal::Signal<Signature> >();
+                impl->setSignal( signal );
+            }
+            return signal->connect( func );
         }
 
         /**
@@ -173,12 +181,8 @@ namespace RTT
          * @return A reference to this object.
          */
         template<class Function, class Object>
-        Operation& signals(Function func, Object o) {
-            // attaches a signal to a Local Method
-            if (!impl)
-                impl.reset( new internal::LocalMethod<Signature>() );
-            //impl->signal(func, o);
-            return *this;
+        Handle signals(Function func, Object o) {
+            return this->signals( internal::MethodBinder<Signature>()(func, o) );
         }
 
         virtual base::DisposableInterface::shared_ptr getImplementation() { return impl; }
@@ -186,7 +190,20 @@ namespace RTT
 
         virtual typename base::MethodBase<Signature>::shared_ptr getMethod() { return impl; }
         virtual const typename base::MethodBase<Signature>::shared_ptr getMethod() const { return impl; }
-};
+
+        /**
+         * You can signal this operation instead of calling it.
+         * This triggers all attached signal handlers added with signals().
+         * @note Since signal is a shared_ptr, it may be null, so you need
+         * to check it first.
+         */
+        typename internal::Signal<Signature>::shared_ptr signal;
+    private:
+        typename internal::LocalMethod<Signature>::shared_ptr impl;
+        virtual void ownerUpdated() {
+            impl->setExecutor( this->mowner );
+        }
+    };
 
 }
 

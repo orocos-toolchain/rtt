@@ -1,10 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "unit.hpp"
 
 #include <rtt-fwd.hpp>
 #include <rtt/Operation.hpp>
 #include <rtt/interface/ServiceProvider.hpp>
 #include <rtt/Method.hpp>
+#include <rtt/TaskContext.hpp>
 
 using namespace std;
 using namespace RTT::detail;
@@ -23,11 +23,11 @@ public:
         tc.provides()->addOperation("op2", &OperationTest::func2, this);
         tc.provides()->addOperation("op3", &OperationTest::func3, this);
         tc.provides()->addOperation("op4", &OperationTest::func4, this);
-        BOOST_CHECK( s->getOperation<double(void)>("op0") );
-        BOOST_CHECK( s->getOperation<double(int)>("op1") );
-        BOOST_CHECK( s->getOperation<double(int)>("op2") );
-        BOOST_CHECK( s->getOperation<double(int,double)>("op3") );
-        BOOST_CHECK( s->getOperation<double(int,double,bool,string)>("op4") );
+        BOOST_CHECK( tc.provides()->getOperation("op0") );
+        BOOST_CHECK( tc.provides()->getOperation("op1") );
+        BOOST_CHECK( tc.provides()->getOperation("op2") );
+        BOOST_CHECK( tc.provides()->getOperation("op3") );
+        BOOST_CHECK( tc.provides()->getOperation("op4") );
 
         tc.provides()->addOperation("op0r", &OperationTest::func0r, this);
 
@@ -53,11 +53,11 @@ public:
     double func4(int i, double d, bool c, std::string s) { return 5.0; }
 
     // The return values of signals are intentionally distinct than these above.
-    void sig0() { return sig=-1.0; }
+    double sig0() { return sig=-1.0; }
     double sig1(int i) { return (sig=-2.0); }
-    void sig2(int i, double d) { sig=-3.0; }
+    double sig2(int i, double d) { return sig=-3.0; }
     double sig3(int i, double d, bool c) { return (sig=-4.0); }
-    void sig4(int i, double d, bool c, std::string s) { return sig=-5.0; }
+    double sig4(int i, double d, bool c, std::string s) { return sig=-5.0; }
 
     TaskContext tc;
 
@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_SUITE(  OperationTestSuite,  OperationTest )
 BOOST_AUTO_TEST_CASE( testOperationCreate )
 {
     // name
-    BOOST_CHECK( op0.getName() == op0 );
+    BOOST_CHECK( op0.getName() == "op0" );
     // not in interface, not ready.
     BOOST_CHECK( op0.ready() == false);
 
@@ -91,26 +91,26 @@ BOOST_AUTO_TEST_CASE( testOperationCreate )
 // Test adding and calling an operation (internal API)
 BOOST_AUTO_TEST_CASE( testOperationCall )
 {
-    ServiceProvider* s =  new ServiceProvider("Service");
+    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
 
-    tc.provides( s );
+    tc.provides()->addService( s );
 
-    op0.calls( &OperationTest::func0, this, s);
-    op1.calls( &OperationTest::func1, this, s);
-    op2.calls( &OperationTest::func2, this, s);
-    op3.calls( &OperationTest::func3, this, s);
-    op4.calls( &OperationTest::func4, this, s);
+    op0.calls( &OperationTest::func0, this);
+    op1.calls( &OperationTest::func1, this);
+    op2.calls( &OperationTest::func2, this);
+    op3.calls( &OperationTest::func3, this);
+    op4.calls( &OperationTest::func4, this);
 
-    s->provides( op0 );
-    s->provides( op1 );
-    s->provides( op2 );
-    s->provides( op3 );
-    s->provides( op4 );
+    s->addOperation( op0 );
+    s->addOperation( op1 );
+    s->addOperation( op2 );
+    s->addOperation( op3 );
+    s->addOperation( op4 );
 
     // Test calling an operation using a Method.
     Method<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
-    m0 = op0;
+    m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
@@ -118,9 +118,9 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
 // Test calling an operation (user API)
 BOOST_AUTO_TEST_CASE( testOperationCall2 )
 {
-    ServiceProvider* s =  new ServiceProvider("Service");
+    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
 
-    tc.provides( s );
+    tc.provides()->addService( s );
 
     s->addOperation("op0", &OperationTest::func0, this);
     s->addOperation("op1", &OperationTest::func1, this);
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
     // Test calling an operation using a Method.
     Method<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
-    m0 = s->getOperation<double(void)>("op0");
+    m0 = s->getOperation("op0");
     BOOST_CHECK( m0.ready() );
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
@@ -139,10 +139,13 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
 // Test adding an operation to the default service.
 BOOST_AUTO_TEST_CASE( testOperationAdd )
 {
-    tc.provides()->addOperation("top0", &OperationTest::func0, this);
-    tc.provides()->addOperation("top1", &OperationTest::func1, this);
-    BOOST_CHECK( s->getOperation<double(void)>("top0") );
-    BOOST_CHECK( s->getOperation<double(int)>("top1") );
+    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
+
+    tc.provides()->addService( s );
+    s->addOperation("top0", &OperationTest::func0, this);
+    s->addOperation("top1", &OperationTest::func1, this);
+    BOOST_CHECK( s->getOperation("top0") );
+    BOOST_CHECK( s->getOperation("top1") );
 }
 
 // Test calling an operation of the default service.
@@ -151,26 +154,56 @@ BOOST_AUTO_TEST_CASE( testOperationCall0 )
     // Test calling an operation using a Method.
     Method<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
-    m0 = s->getOperation<double(void)>("op0");
+    m0 = tc.getOperation("op0");
     BOOST_CHECK( m0.ready() );
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
 
-// Test adding and signalling an operation to the default service.
+// Test adding and signalling an operation without an implementation
 BOOST_AUTO_TEST_CASE( testOperationSignal )
 {
     // invoke sig0 according to call/thread specification.
-    op0.signals(&OperationTest::sig0, this);
+    Handle h = op0.signals(&OperationTest::sig0, this);
 
-    // Test calling an operation using a Method.
+    BOOST_CHECK( h.connected() );
+    // Test signal when calling a method:
     Method<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
-    m0 = s->getOperation<double(void)>("op0");
+    m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
-    BOOST_CHECK_EQUAL( 1.0, m0.call() );
+
+    m0.call(); // return unspecified number (no implementation!).
+
+    BOOST_CHECK_EQUAL( -1.0, sig );
+
+    // Test direct calling of op.signal
+    sig = 0.0;
+    op0.signal->emit();
     BOOST_CHECK_EQUAL( -1.0, sig );
 }
 
+BOOST_AUTO_TEST_CASE( testOperationCallAndSignal )
+{
+    // invoke sig0 according to call/thread specification.
+    Handle h = op0.signals(&OperationTest::sig0, this);
+    op0.calls(&OperationTest::func0, this);
+
+    BOOST_CHECK( h.connected() );
+    // Test signal when calling a method:
+    Method<double(void)> m0("op0");
+    BOOST_CHECK( m0.ready() == false );
+    m0 = op0.getImplementation();
+    BOOST_CHECK( m0.ready() );
+
+    BOOST_CHECK_EQUAL( 1.0, m0.call() ); // return result of func0().
+
+    BOOST_CHECK_EQUAL( -1.0, sig );
+
+    // Test direct calling of op.signal
+    sig = 0.0;
+    op0.signal->emit();
+    BOOST_CHECK_EQUAL( -1.0, sig );
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

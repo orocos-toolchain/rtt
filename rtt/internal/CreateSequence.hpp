@@ -17,6 +17,7 @@
 #include "DataSourceAdaptor.hpp"
 #include "Exceptions.hpp"
 #include "../interface/FactoryExceptions.hpp"
+#include "mystd.hpp"
 
 #include <iostream>
 using namespace std;
@@ -86,6 +87,12 @@ namespace RTT
          * The mpl sequence is typically obtained from the
          * function_types parameter_types traits class.
          *
+         * assignable() creates a fusion sequence of AssignableDataSource<T>::shared_ptr from an mpl sequence
+         * and a std::vector<DataSourceBase*>. Both must have same length.
+         * The mpl sequence is typically obtained from the
+         * function_types parameter_types traits class. If the mpl sequence elements contain const
+         * qualifiers, these are removed, so T is always a value type.
+         *
          * data() creates a fusion sequence of T,U,V,... from the fusion sequence
          * returned by operator(). It contains the values of the data sources
          * obtained by calling get().
@@ -125,9 +132,19 @@ namespace RTT
             typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
 
             /**
+             * The data source value type of an assignable data source is non-const, non-reference.
+             */
+            typedef typename remove_cr<arg_type>::type assign_arg_type;
+
+            /**
              * The type of a single element of the vector.
              */
             typedef typename DataSource<arg_type>::shared_ptr element_type;
+
+            /**
+             * The assignable type of a single element of the vector.
+             */
+            typedef typename AssignableDataSource< assign_arg_type >::shared_ptr assign_element_type;
 
             /**
              * The type of the tail (List - head) of our sequence. It is recursively formulated
@@ -136,9 +153,20 @@ namespace RTT
             typedef typename tail::type tail_type;
 
             /**
-             * The joint DataSource<T>::shared_ptr type of head and tail, again a fusion view.
+             * The type of the tail (List - head) of our assignable sequence. It is recursively formulated
+             * in terms of create_sequence.
+             */
+            typedef typename tail::assign_type assign_tail_type;
+
+            /**
+             * The joint DataSource<T>::shared_ptr type of head and tail, again a fusion cons.
              */
             typedef bf::cons<element_type, tail_type> type;
+
+            /**
+             * The joint AssignableDataSource<T>::shared_ptr type of head and tail, again a fusion cons.
+             */
+            typedef bf::cons<assign_element_type, assign_tail_type> assign_type;
 
             typedef typename tail::data_type arg_tail_type;
 
@@ -148,7 +176,7 @@ namespace RTT
             typedef bf::cons<bare_type, arg_tail_type> data_type;
 
             /**
-             * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence
+             * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence of DataSources
              * of the types given in List. Will throw if an element of the vector could not
              * be dynamic casted to the respective element type of List.
              * @param args A vector of data sources
@@ -175,6 +203,31 @@ namespace RTT
             }
 
             /**
+             * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence of AssignableDataSources
+             * of the types given in List. Will throw if an element of the vector could not
+             * be dynamic casted to the respective element type of List.
+             * @param args A vector of data sources
+             * @param argnbr Leave as default. Used internally to count recursive calls.
+             * @return a Fusion Sequence of DataSource<T>::shared_ptr objects
+             */
+            static assign_type assignable(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
+            {
+                assert( args.size() == size);
+                base::DataSourceBase::shared_ptr front = args.front();
+
+                typename AssignableDataSource<assign_arg_type>::shared_ptr a =
+                    AdaptAssignableDataSource<assign_arg_type>()( front ); // note: no conversion done, must be same type.
+                if ( ! a ) {
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());
+                }
+
+                args.erase(args.begin());
+                return bf::cons<assign_element_type, assign_tail_type>(
+                        assign_element_type(a),
+                        tail::assignable(args, ++argnbr));
+            }
+
+            /**
              * Returns the data contained in the data sources
              * as a Fusion Sequence.
              * @param seq A Fusion Sequence of DataSource<T> types.
@@ -185,6 +238,21 @@ namespace RTT
                 return data_type( GetPointerWrap<type,bare_type>()(seq), tail::data( bf::pop_front(seq) ) );
             }
 
+            /**
+             * Sets the values of a sequence of AssignableDataSource<T>
+             * data sources ot the values contained in \a in using set().
+             * @param in The values to write.
+             * @param seq The receiving assignable data sources.
+             */
+            static void set(const data_type& in, const assign_type& seq) {
+
+            }
+
+            /**
+             * Calls the DataSourceBase::updated() function for each element
+             * in sequence \a seq, in case the element is a non-const reference type.
+             * @param seq A sequence of DataSource<T> objects
+             */
             static void update(const type&seq) {
                 UpdateHelper<arg_type>::update( bf::front(seq) );
                 return tail::update( bf::pop_front(seq) );
@@ -243,11 +311,14 @@ namespace RTT
         {
             typedef typename mpl::front<List>::type bare_type;
             typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
-
+            typedef typename remove_cr<arg_type>::type assign_arg_type;
             typedef bf::cons<bare_type> data_type;
 
             // the result sequence type is a cons of the last argument in the vector.
             typedef bf::cons<typename DataSource<arg_type>::shared_ptr> type;
+
+            // the result sequence type is a cons of the last argument in the vector.
+            typedef bf::cons<typename AssignableDataSource<assign_arg_type>::shared_ptr> assign_type;
 
             type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
             {
@@ -264,6 +335,21 @@ namespace RTT
                 return type(a);
             }
 
+            static assign_type assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
+            {
+                assert( args.size() == 1);
+                base::DataSourceBase::shared_ptr front = args.front();
+
+                typename AssignableDataSource<assign_arg_type>::shared_ptr a =
+                    AdaptAssignableDataSource<assign_arg_type>()( front );
+                if ( ! a ) {
+                    //cout << typeid(DataSource<arg_type>).name() << endl;
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());
+                }
+
+                return assign_type(a);
+            }
+
             /**
              * Returns the data contained in the data source
              * as a Fusion Sequence.
@@ -277,6 +363,10 @@ namespace RTT
             static void update(const type&seq) {
                 UpdateHelper<arg_type>::update( bf::front(seq) );
                 return;
+            }
+
+            static void set(const data_type& in, const assign_type& seq) {
+
             }
 
             /**
@@ -312,10 +402,18 @@ namespace RTT
             // the result sequence type is a cons of the last argument in the vector.
             typedef bf::vector<> type;
 
+            typedef bf::vector<> assign_type;
+
             type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
             {
                 assert( args.size() == 0);
                 return type();
+            }
+
+            static assign_type assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
+            {
+                assert( args.size() == 0);
+                return assign_type();
             }
 
             /**
@@ -331,6 +429,11 @@ namespace RTT
             static void update(const type&seq) {
                 return;
             }
+
+            static void set(const data_type& in, const assign_type& seq) {
+                return;
+            }
+
 
             /**
              * Copies a sequence of DataSource<T>::shared_ptr according to the

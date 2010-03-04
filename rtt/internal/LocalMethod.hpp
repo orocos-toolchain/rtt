@@ -114,7 +114,6 @@ namespace RTT
                     }
                     if (!result)
                         dispose();
-
                 } else {
                     //cout << "received method done msg."<<endl;
                     // Already executed, are in caller.
@@ -267,8 +266,13 @@ namespace RTT
                         return h.ret();
                     else
                         throw SendFailure;
-                } else
-                    return this->mmeth(); // ClientThread
+                } else {
+                    if (this->msig) this->msig->emit();
+                    if ( this->mmeth )
+                        return this->mmeth(); // ClientThread
+                    else
+                        return NA<result_type>::na();
+                }
             }
 
 
@@ -287,8 +291,13 @@ namespace RTT
                         return h.ret(a1);
                     else
                         throw SendFailure;
-                } else
-                    return this->mmeth(a1);
+                } else{
+                    if (this->msig) this->msig->emit(a1);
+                    if ( this->mmeth )
+                        return this->mmeth(a1);
+                    else
+                        return NA<result_type>::na();
+                }
                 return NA<result_type>::na();
             }
 
@@ -302,8 +311,13 @@ namespace RTT
                         return h.ret(a1,a2);
                     else
                         throw SendFailure;
-                } else
-                    return this->mmeth(a1,a2);
+                } else {
+                    if (this->msig) this->msig->emit(a1,a2);
+                    if ( this->mmeth )
+                        return this->mmeth(a1,a2);
+                    else
+                        return NA<result_type>::na();
+                }
                 return NA<result_type>::na();
             }
 
@@ -317,8 +331,13 @@ namespace RTT
                         return h.ret(a1,a2,a3);
                     else
                         throw SendFailure;
-                } else
-                    return this->mmeth(a1,a2,a3);
+                } else {
+                    if (this->msig) this->msig->emit(a1,a2,a3);
+                    if ( this->mmeth )
+                        return this->mmeth(a1,a2,a3);
+                    else
+                        return NA<result_type>::na();
+                }
                 return NA<result_type>::na();
             }
 
@@ -332,8 +351,13 @@ namespace RTT
                         return h.ret(a1,a2,a3,a4);
                     else
                         throw SendFailure;
-                } else
-                    return this->mmeth(a1,a2,a3,a4);
+                } else {
+                    if (this->msig) this->msig->emit(a1,a2,a3,a4);
+                    if ( this->mmeth )
+                        return this->mmeth(a1,a2,a3,a4);
+                    else
+                        return NA<result_type>::na();
+                }
                 return NA<result_type>::na();
             }
 
@@ -470,6 +494,10 @@ namespace RTT
                 return this->mmeth;
             }
 
+            void setSignal(typename Signal<Signature>::shared_ptr sig) {
+                this->msig = sig;
+            }
+
             base::ActionInterface* clone() const
             {
                 return new LocalMethod<Signature>(*this);
@@ -477,8 +505,9 @@ namespace RTT
 
             base::MethodBase<Signature>* cloneI(ExecutionEngine* caller) const
             {
-                base::MethodBase<Signature>* ret = new LocalMethod<Signature>(*this);
+                LocalMethod<Signature>* ret = new LocalMethod<Signature>(*this);
                 ret->setCaller( caller );
+                ret->setSignal( this->msig );
                 return ret;
             }
 

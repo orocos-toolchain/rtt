@@ -226,7 +226,7 @@ namespace RTT
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
               typedef typename mpl::push_front<arg_types,typename boost::add_reference<SendHandle<Signature> >::type >::type handle_and_arg_types;
-              typedef create_sequence< handle_and_arg_types// @todo XXX use &SendHandle to avoid a copy ???
+              typedef create_sequence< handle_and_arg_types
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
               DataSourceSequence args;
@@ -275,6 +275,49 @@ namespace RTT
                   return new FusedMCollectDataSource<Signature> ( SequenceFactory::copy(args, alreadyCloned), isblocking);
               }
           };
+
+        /**
+         * A Factory that reacts to a Signal by writing the arguments in
+         * data sources and calling an action.
+         */
+        template<typename Signature>
+        struct FusedMSignal
+        {
+            typedef typename boost::function_traits<Signature>::result_type
+                    result_type;
+            typedef result_type value_t;
+            typedef create_sequence<
+                    typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            typedef typename SequenceFactory::assign_type DataSourceSequence;
+            base::ActionInterface* mact;
+            DataSourceSequence args;
+        public:
+              typedef boost::shared_ptr<FusedMSignal<Signature> >
+                      shared_ptr;
+
+              FusedMSignal(base::ActionInterface* act,
+                           const DataSourceSequence& s = DataSourceSequence() ) :
+                  mact(act), args(s)
+              {
+              }
+
+              /**
+               * A Fused function that takes the arguments of the signal,
+               * puts them into the assignable data sources and
+               * executes the associated action.
+               */
+              result_type invoke(typename SequenceFactory::data_type seq) {
+                  SequenceFactory::set( seq, args );
+                  mact->execute();
+                  return NA<result_type>::na();
+              }
+
+              void setArguments(const DataSourceSequence& a1)
+              {
+                  args = a1;
+              }
+          };
+
     }
 }
 

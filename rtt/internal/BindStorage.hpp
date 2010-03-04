@@ -45,6 +45,8 @@
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/filter_if.hpp>
 
+#include "Signal.hpp"
+
 namespace RTT
 {
     namespace internal
@@ -231,6 +233,8 @@ namespace RTT
             boost::function<ToBind> mmeth;
 
             mutable RStore<result_type> retn;
+            typename Signal<ToBind>::shared_ptr msig;
+
             // stores the original function pointer
 
             // the list of all our storage.
@@ -238,7 +242,13 @@ namespace RTT
             BindStorageImpl() :  vStore(boost::ref(retn)) {}
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn) {}
 
-            void exec() { retn.exec( mmeth ); }
+            void exec() {
+                if (msig) msig->emit();
+                if (mmeth)
+                    retn.exec( mmeth );
+                else
+                    retn.executed = true;
+            }
         };
 
         /**
@@ -256,6 +266,7 @@ namespace RTT
             // Store the argument.
             mutable AStore<arg1_type> a1;
             mutable RStore<result_type> retn;
+            typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
@@ -263,7 +274,11 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1) {}
             void store(arg1_type t1) { a1(t1); }
             void exec() {
-                retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
+                if (msig) (*msig)(a1.get());
+                if (mmeth)
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
+                else
+                    retn.executed = true;
             }
 
         };
@@ -282,6 +297,7 @@ namespace RTT
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable RStore<result_type> retn;
+            typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
@@ -290,7 +306,11 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             void exec() {
-                retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
+                if (msig) (*msig)(a1.get(), a2.get());
+                if (mmeth)
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
+                else
+                    retn.executed = true;
             }
 
         };
@@ -311,6 +331,7 @@ namespace RTT
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
             mutable RStore<result_type> retn;
+            typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
@@ -319,7 +340,11 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             void exec() {
-                retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
+                if (msig) (*msig)(a1.get(), a2.get(), a3.get());
+                if (mmeth)
+                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
+                else
+                    retn.executed = true;
             }
         };
 
@@ -341,6 +366,7 @@ namespace RTT
             mutable AStore<arg3_type> a3;
             mutable AStore<arg4_type> a4;
             mutable RStore<result_type> retn;
+            typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
@@ -349,7 +375,11 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             void exec() {
-                retn.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
+                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get());
+                if (mmeth)
+                    retn.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
+                else
+                    retn.executed = true;
             }
         };
 

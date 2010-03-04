@@ -214,6 +214,11 @@ namespace RTT
          * Adapt from non-const reference-type to non-const reference-type, yielding an AssignableDataSource,
          * since references are always assignable.
          * Specialises for example DataSourceAdaptor<int &, int&> (Rare case).
+         *
+         * @note There is no specialisation when calling this with const&, const& and you'll get
+         * compile errors below. In that case, carefully inspect your code if it isn't doing anything
+         * fishy (why would you want an assignable const& ? set() already passes by param_t !)
+         * If it's really a genuine case, you need to add the specialisation for this case below (Extremely rare case :-).
          */
     template<class TFrom>
     struct DataSourceAdaptor<TFrom&, TFrom&>
