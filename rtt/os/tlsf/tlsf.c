@@ -52,9 +52,20 @@
 /*#define USE_SBRK        (0) */
 /*#define USE_MMAP        (0) */
 
+
+// needed for sbrk() and MAP_ANON in 10.6 (at least)
+#ifdef	__APPLE__
+#define _DARWIN_C_SOURCE
+#endif
+
 #include "../fosi.h"
 
+#ifdef	__APPLE__
+// rt_mutex_t not supported in C for macosx (needs boost C++ mutexes)
+#define	TLSF_USE_LOCKS 	(0)
+#else
 #define	TLSF_USE_LOCKS 	(1)
+#endif
 
 #ifndef TLSF_STATISTIC
 #define	TLSF_STATISTIC 	(0)
@@ -99,6 +110,12 @@
 
 #if USE_MMAP
 #include <sys/mman.h>
+
+#ifdef	__APPLE__
+#define	TLSF_MAP	MAP_PRIVATE | MAP_ANON
+#else
+#define	TLSF_MAP	MAP_PRIVATE | MAP_ANONYMOUS
+#endif
 #endif
 
 #define ORO_MEMORY_POOL
@@ -159,7 +176,7 @@
 #define DEFAULT_AREA_SIZE (1024*10)
 
 #if USE_MMAP
-#define PAGE_SIZE (getpagesize())
+#define TLSF_PAGE_SIZE (getpagesize())
 #endif
 
 #define PRINT_MSG(fmt, args...) printf(fmt, ## args)
@@ -397,8 +414,8 @@ static __inline__ void *get_new_area(size_t * size)
 #endif
 
 #if USE_MMAP
-    *size = ROUNDUP(*size, PAGE_SIZE);
-    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) != MAP_FAILED)
+    *size = ROUNDUP(*size, TLSF_PAGE_SIZE);
+    if ((area = mmap(0, *size, PROT_READ | PROT_WRITE, TLSF_MAP, -1, 0)) != MAP_FAILED)
         return area;
 #endif
     return ((void *) ~0);
