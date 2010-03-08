@@ -66,7 +66,6 @@ namespace RTT
      * second one rejected.
      *
      *  @param _ValueType  The type of objects you want to have nameserved( usually a pointer type ).
-     * @ingroup CoreLib
      */
     template < class _ValueType >
     class NameServer
