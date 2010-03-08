@@ -40,7 +40,8 @@
 #ifndef DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 #define DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 
-#include "../../Event.hpp"
+#include "../../rtt-config.h"
+#include "../../internal/Signal.hpp"
 
 namespace RTT
 { namespace dev {
@@ -114,7 +115,7 @@ namespace RTT
         /**
          * Limit the velocity of the drive.
          */
-        virtual void limit(double lower, double higher, const Event<void(std::string)>& ev) = 0;
+        virtual void limit(double lower, double higher, const internal::Signal<void(std::string)>& ev) = 0;
     };
 
 }}

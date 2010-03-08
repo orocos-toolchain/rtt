@@ -53,12 +53,6 @@ namespace RTT {
         struct DataSourceArgStorage;
         template<class DataType>
         struct DataSourceStorage;
-        template<class DataType_>
-        class SingleList;
-        template<class DataType_>
-        class SortedList;
-        template<class EventT>
-        class EventHookGenerator;
         template<class F, class BaseImpl>
         struct Collect;
         template<class F, class BaseImpl>
@@ -123,14 +117,6 @@ namespace RTT {
         struct BindStorage;
         template<typename BoundType>
         class UnboundDataSource;
-        template<typename EventT>
-        struct EventHook0;
-        template<typename EventT>
-        struct EventHook1;
-        template<typename EventT>
-        struct EventHook2;
-        template<typename EventT>
-        struct EventHook3;
         template<typename Signature,typename ObjT>
         class OperationRepositoryPartFusedDS;
         template<typename Signature>

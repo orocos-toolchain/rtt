@@ -3,7 +3,7 @@
 
 #include <string>
 #include "DisposableInterface.hpp"
-#include "../interface/rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 {

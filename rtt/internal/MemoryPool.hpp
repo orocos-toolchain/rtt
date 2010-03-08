@@ -40,6 +40,7 @@
 #define ORO_MEMORY_POOL_HPP
 
 #include "AtomicQueue.hpp"
+#include "../os/oro_atomic.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
 

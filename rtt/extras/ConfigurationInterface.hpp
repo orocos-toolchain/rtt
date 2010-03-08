@@ -38,6 +38,8 @@
 #ifndef CONFIGURATIONINTERFACE_HPP
 #define CONFIGURATIONINTERFACE_HPP
 
+#include "../rtt-config.h"
+
 namespace RTT
 { namespace extras {
 

@@ -54,8 +54,8 @@
  */
 
 #include "../TaskContext.hpp"
-#include "../Command.hpp"
+#include "../Operation.hpp"
 #include "../Method.hpp"
 #include "../Property.hpp"
-#include "../Ports.hpp"
-#include "Events.hpp"
+#include "../Attribute.hpp"
+#include "../Port.hpp"

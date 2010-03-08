@@ -45,8 +45,9 @@
  * process exits.
  */
 #include <string>
-namespace RTT { namespace plugin {
- class TaskContext; }
+namespace RTT {
+    class TaskContext;
+}
 extern "C" {
     /**
      * Instructs this plugin to load itself into the application.
@@ -65,6 +66,6 @@ extern "C" {
      * the same name will be allowed to live in a single process.
      */
     std::string getRTTPluginName();
-}}
+}
 
 #endif

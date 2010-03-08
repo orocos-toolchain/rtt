@@ -3,7 +3,7 @@
 
 #include "../base/AttributeBase.hpp"
 #include "../interface/OperationRepository.hpp"
-#include "rtt-fwd.hpp"
+#include "../rtt-fwd.hpp"
 
 
 namespace RTT {

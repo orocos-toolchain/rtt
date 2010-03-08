@@ -1,5 +1,5 @@
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "Types.hpp"
 #include "TemplateTypeInfo.hpp"
 

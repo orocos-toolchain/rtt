@@ -40,6 +40,7 @@
 #define ORO_CONN_OUTPUT_ENDPOINT_HPP
 
 #include "Channels.hpp"
+#include "ConnID.hpp"
 
 namespace RTT
 { namespace internal {

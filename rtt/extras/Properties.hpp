@@ -54,4 +54,4 @@
 #include "../Property.hpp"
 #include "../PropertyBag.hpp"
 #include "../base/PropertyIntrospection.hpp"
-#include "../marsh/Marshaller.hpp"
+#include "../marsh/MarshallInterface.hpp"
