@@ -11,7 +11,10 @@ IF(ENABLE_MQ)
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
   #MESSAGE("HPPS: ${HPPS}")
   GLOBAL_ADD_INCLUDE( rtt/transports/mqueue ${HPPS})
-  INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/rtt ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} ${PROJ_BINARY_DIR}/rtt/transports/mqueue ${MQ_INCLUDE_DIRS})
+  # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
+  INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
+  INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
+  INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt/transports/mqueue ${MQ_INCLUDE_DIRS})
 
   if(NOT MQ_LDFLAGS)
     set(MQ_LDFLAGS "")

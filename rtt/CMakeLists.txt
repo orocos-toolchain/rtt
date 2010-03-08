@@ -156,10 +156,10 @@ ADD_SUBDIRECTORY( extras )
 ####
 #   Build Libraries:
 #
-# Settings for building a static library (.a)
-#
 
-INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/rtt ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET})
+# Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
+INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
+INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
 
 #SET(COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
 
