@@ -263,15 +263,15 @@ BOOST_AUTO_TEST_CASE( testUpdate )
     Property<int> p1c("p1","",0);
 
     // setup source tree
-    source.addProperty( &b1 );
-    b1.value().addProperty( &b2 );
-    b2.value().addProperty( &p1 );
+    source.addProperty( b1 );
+    b1.value().addProperty( b2 );
+    b2.value().addProperty( p1 );
 
     // update case:
     // setup target tree
-    target.addProperty( &b1c );
-    b1c.value().addProperty( &b2c );
-    b2c.value().addProperty( &p1c );
+    target.addProperty( b1c );
+    b1c.value().addProperty( b2c );
+    b2c.value().addProperty( p1c );
 
     BOOST_CHECK( p1.get() != p1c.get() );
 
@@ -284,14 +284,14 @@ BOOST_AUTO_TEST_CASE( testUpdate )
     target.removeProperty(&b1);
     BOOST_CHECK( updateProperty(target, source, "b1/b2/p1", "/") );
 
-    Property<PropertyBag>* bag = target.getProperty<PropertyBag>("b1");
+    Property<PropertyBag>* bag = target.getPropertyType<PropertyBag>("b1");
     BOOST_CHECK( bag );
     BOOST_CHECK( bag->getName() == "b1" );
-    bag = bag->get().getProperty<PropertyBag>("b2");
+    bag = bag->get().getPropertyType<PropertyBag>("b2");
     BOOST_CHECK( bag );
     BOOST_CHECK( bag->getName() == "b2" );
 
-    Property<int>* res = bag->get().getProperty<int>("p1");
+    Property<int>* res = bag->get().getPropertyType<int>("p1");
     BOOST_CHECK( res );
     BOOST_CHECK( res->getName() == "p1" );
     BOOST_CHECK( res->get() == -1 );
@@ -312,9 +312,9 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
     Property<int> p1("p1","p1d",-1);
 
     // setup source tree
-    source.addProperty( &b1 );
-    b1.value().addProperty( &b2 );
-    b2.value().addProperty( &p1 );
+    source.addProperty( b1 );
+    b1.value().addProperty( b2 );
+    b2.value().addProperty( p1 );
 
     {
         // scope required such that file is closed
@@ -328,15 +328,15 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
         BOOST_REQUIRE( pd.deserialize( target ) );
     }
 
-    Property<PropertyBag> bag = target.getProperty<PropertyBag>("b1");
+    Property<PropertyBag> bag = target.getProperty("b1");
     BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "b1d" );
 
-    bag = bag.rvalue().getProperty<PropertyBag>("b2");
+    bag = bag.rvalue().getProperty("b2");
     BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "b2d" );
 
-    Property<int> pi = bag.rvalue().getProperty<int>("p1");
+    Property<int> pi = bag.rvalue().getProperty("p1");
     BOOST_REQUIRE( pi.ready() );
     BOOST_CHECK( pi.get() == -1 );
     BOOST_CHECK( pi.getDescription() == "p1d" );
@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     Property<std::vector<double> >* p1 =  new Property<std::vector<double> >("p1","p1d", std::vector<double>(7, 1.234) );
 
     // setup source tree
-    source.addProperty( p1 );
+    source.addProperty( *p1 );
 
     {
         // scope required such that file is closed
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     }
 
     // check bag:
-    Property<PropertyBag> bag = target.getProperty<PropertyBag>("p1");
+    Property<PropertyBag> bag = target.getProperty("p1");
     BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "p1d" );
     BOOST_CHECK( bag.rvalue().size() == 7 );
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     // update bag -> array.
     BOOST_CHECK( updateProperties( source, target) );
 
-    //p1 = source.getProperty< std::vector<double> >("p1");
+    //p1 = source.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
     BOOST_CHECK( p1->rvalue().size() == 7 );
     BOOST_CHECK( p1->rvalue()[0] == 1.234 );
@@ -390,14 +390,14 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
         PropertyDemarshaller pd( "property_test_vect.cpf" );
         BOOST_REQUIRE( pd.deserialize( target ) );
     }
-    bag = target.getProperty<PropertyBag>("driveLimits");
+    bag = target.getProperty("driveLimits");
     BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.rvalue().size() == 7 );
 
     // update bag -> array.
     BOOST_CHECK( updateProperties( source, target) );
 
-    //p1 = source.getProperty< std::vector<double> >("p1");
+    //p1 = source.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
     //cout << p1 << endl;
     BOOST_CHECK( p1->rvalue().size() == 6 );

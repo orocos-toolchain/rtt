@@ -156,9 +156,9 @@ namespace RTT
         /**
          * Add a valid property to the container.
          * @param p Pointer to the property to be added.
-         * @return false if ! p->ready(), true otherwise.
+         * @return false if !p || !p->ready(), true otherwise.
          */
-        bool addProperty(base::PropertyBase *p);
+        bool addProperty(base::PropertyBase& p);
 
         /**
          * Remove a property from the container.
@@ -204,19 +204,34 @@ namespace RTT
         }
 
         /**
-         * Get a Property<T> with name \a name.
+         * Get a Property with name \a name.
          *
-         * @param  T The type of which this property is.
          * @param  name The name of the property to search for.
-         * @return The Property<T> with this name, zero
-         *         if it does not exist ( no such \a T or no such \a name )
+         * @return The PropertyBase with this name, zero
+         *         if it does not exist.
          */
-        template<class T>
-        Property<T>* getProperty(const std::string& name) const
+        base::PropertyBase* getProperty(const std::string& name) const
         {
             const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindProp(), name ) ) );
             if ( i != mproperties.end() )
-                return dynamic_cast< Property<T>* >( *i );
+                return *i;
+            return 0;
+        }
+
+        /**
+         * Get the first Property with name \a name of a given type T
+         *
+         * @param  name The name of the property to search for.
+         * @param  T    The data type of the property.
+         * @return The Property<T>* with this name, zero
+         *         if it does not exist with the given type.
+         */
+        template<class T>
+        Property<T>* getPropertyType(const std::string& name) const
+        {
+            const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindPropType<T>(), name ) ) );
+            if ( i != mproperties.end() )
+                return dynamic_cast<Property<T>* >(*i);
             return 0;
         }
 
@@ -336,6 +351,15 @@ namespace RTT
             bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
         };
 
+        /**
+         * A function object for finding a Property by name and type.
+         */
+        template<class T>
+        struct FindPropType : public std::binary_function<const base::PropertyBase*,const std::string, bool>
+        {
+            bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2 && dynamic_cast<const Property<T>* >(b1) != 0; }
+        };
+
         std::string type;
     };
 
@@ -443,7 +467,9 @@ namespace RTT
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
-     * it without recursion.
+     * it without recursion. This function respects ownership, that is, it deletes
+     * the properties that are not owned by \a target and simply removes properties 
+     * which \a are owned by target, such that target can do the cleanup.
      *
      * @post All objects in this bag are deleted and no elements reside in the bag
      *       anymore.
@@ -453,6 +479,9 @@ namespace RTT
 
     /**
      * This function iterates over a PropertyBag and recursively deletes all Property objects.
+     * This function respects ownership, that is, it deletes
+     * the properties that are not owned by \a target and simply removes properties 
+     * which \a are owned by target, such that target can do the cleanup.
      *
      * @post All objects in this bag (and possible subbags) are deleted and no elements reside in the bag
      *       anymore.

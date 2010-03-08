@@ -59,35 +59,35 @@ namespace RTT
         if ( bag.getType() != "ConnPolicy")
             return false;
         log(Debug) <<"Composing ConnPolicy..." <<endlog();
-        i = bag.getProperty<int>("type");
+        i = bag.getProperty("type");
         if ( i.ready() )
             result.type = i.get();
         else if ( bag.find("type") ){
             log(Error) <<"ConnPolicy: wrong property type of 'type'."<<endlog();
             return false;
         }
-        i = bag.getProperty<int>("lock_policy");
+        i = bag.getProperty("lock_policy");
         if ( i.ready() )
             result.lock_policy = i.get();
         else if ( bag.find("lock_policy") ){
             log(Error) <<"ConnPolicy: wrong property type of 'lock_policy'."<<endlog();
             return false;
         }
-        i = bag.getProperty<int>("size");
+        i = bag.getProperty("size");
         if ( i.ready() )
             result.size = i.get();
         else if ( bag.find("size") ){
             log(Error) <<"ConnPolicy: wrong property type of 'size'."<<endlog();
             return false;
         }
-        i = bag.getProperty<int>("data_size");
+        i = bag.getProperty("data_size");
         if ( i.ready() )
             result.data_size = i.get();
         else if ( bag.find("data_size") ){
             log(Error) <<"ConnPolicy: wrong property type of 'data_size'."<<endlog();
             return false;
         }
-        i = bag.getProperty<int>("transport");
+        i = bag.getProperty("transport");
         if ( i.ready() )
             result.transport = i.get();
         else if ( bag.find("transport") ){
@@ -95,14 +95,14 @@ namespace RTT
             return false;
         }
 
-        b = bag.getProperty<bool>("init");
+        b = bag.getProperty("init");
         if ( b.ready() )
             result.init = b.get();
         else if ( bag.find("init") ){
             log(Error) <<"ConnPolicy: wrong property type of 'init'."<<endlog();
             return false;
         }
-        b = bag.getProperty<bool>("pull");
+        b = bag.getProperty("pull");
         if ( b.ready() )
             result.pull = b.get();
         else if ( bag.find("pull") ){
@@ -110,7 +110,7 @@ namespace RTT
             return false;
         }
 
-        s = bag.getProperty<string>("name_id");
+        s = bag.getProperty("name_id");
         if ( s.ready() )
             result.name_id = s.get();
         else if ( bag.find("name_id") ){
@@ -121,17 +121,17 @@ namespace RTT
     }
     void decomposeProperty(const ConnPolicy& cp, PropertyBag& targetbag)
     {
-        log(Debug) <<"Deomposing ConnPolicy..." <<endlog();
+        log(Debug) <<"Decomposing ConnPolicy..." <<endlog();
         assert( targetbag.empty() );
         targetbag.setType("ConnPolicy");
-        targetbag.addProperty( new Property<int>("type","Data type", cp.type));
-        targetbag.addProperty( new Property<bool>("init","Initialize flag", cp.init));
-        targetbag.addProperty( new Property<int>("lock_policy","Locking Policy", cp.lock_policy));
-        targetbag.addProperty( new Property<bool>("pull","Fetch data over network", cp.pull));
-        targetbag.addProperty( new Property<int>("size","The size of a buffered connection", cp.size));
-        targetbag.addProperty( new Property<int>("transport","The prefered transport. Set to zero if unsure.", cp.transport));
-        targetbag.addProperty( new Property<int>("data_size","A hint about the data size of a single data sample. Set to zero if unsure.", cp.transport));
-        targetbag.addProperty( new Property<string>("name_id","The name of the connection to be formed.",cp.name_id));
+        targetbag.ownProperty( new Property<int>("type","Data type", cp.type));
+        targetbag.ownProperty( new Property<bool>("init","Initialize flag", cp.init));
+        targetbag.ownProperty( new Property<int>("lock_policy","Locking Policy", cp.lock_policy));
+        targetbag.ownProperty( new Property<bool>("pull","Fetch data over network", cp.pull));
+        targetbag.ownProperty( new Property<int>("size","The size of a buffered connection", cp.size));
+        targetbag.ownProperty( new Property<int>("transport","The prefered transport. Set to zero if unsure.", cp.transport));
+        targetbag.ownProperty( new Property<int>("data_size","A hint about the data size of a single data sample. Set to zero if unsure.", cp.transport));
+        targetbag.ownProperty( new Property<string>("name_id","The name of the connection to be formed.",cp.name_id));
     }
 
 }

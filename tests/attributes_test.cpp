@@ -72,10 +72,10 @@ BOOST_FIXTURE_TEST_SUITE(  AttributesSuite,  AttributesFixture )
 BOOST_AUTO_TEST_CASE( testProperties)
 {
     Property<double> d1("d1", "desc1", 1.234);
-    tc->properties()->addProperty( &d1);
+    tc->properties()->addProperty( d1 );
 
     BOOST_CHECK_EQUAL( double(1.234), d1.get() );
-    BOOST_CHECK_EQUAL( double(1.234), tc->properties()->getProperty<double>("d1")->get() );
+    BOOST_CHECK_EQUAL( double(1.234), tc->properties()->getPropertyType<double>("d1")->get() );
 
     // test setup of mirror:
     Property<string> s1;
@@ -83,9 +83,9 @@ BOOST_AUTO_TEST_CASE( testProperties)
     Property<string> s2("hello","description", "world");
     BOOST_CHECK( s2.ready() );
 
-    BOOST_CHECK(tc->properties()->addProperty( &s1 ) == false);
-    BOOST_CHECK(tc->properties()->addProperty( &s2 ) );
-    s1 = tc->properties()->getProperty<string>("hello");
+    BOOST_CHECK(tc->properties()->addProperty( s1 ) == false);
+    BOOST_CHECK(tc->properties()->addProperty( s2 ) );
+    s1 = tc->properties()->getProperty("hello");
     BOOST_CHECK( s1.ready() );
 
     BOOST_CHECK_EQUAL(std::string("hello"), s1.getName() );

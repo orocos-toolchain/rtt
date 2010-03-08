@@ -68,7 +68,7 @@ namespace RTT
 
     void PropertyBag::add(PropertyBase *p)
     {
-        this->addProperty(p);
+        this->addProperty(*p);
     }
 
     void PropertyBag::remove(PropertyBase *p)
@@ -98,13 +98,13 @@ namespace RTT
         return false;
     }
 
-    bool PropertyBag::addProperty(PropertyBase *p)
+    bool PropertyBag::addProperty(PropertyBase& p)
     {
-        if (p == 0)
+        if (&p == 0)
             return false;
-        if ( ! p->ready() )
+        if ( ! p.ready() )
             return false;
-        mproperties.push_back(p);
+        mproperties.push_back(&p);
         return true;
     }
 
@@ -464,7 +464,7 @@ namespace RTT
             if ( target_walker == 0 ) {
                 // if not present in target, create it !
                 target_walker = source_walker->create();
-                target.addProperty( target_walker );
+                target.ownProperty( target_walker );
             }
             Property<PropertyBag>*  source_walker_bag;
             Property<PropertyBag>*  target_walker_bag;
@@ -569,6 +569,7 @@ namespace RTT
         PropertyBag::const_iterator it( target.getProperties().begin() );
         while ( it != target.getProperties().end() )
         {
+            // This loop is solely for deleting not owned properties.
             if (!target.ownsProperty( *it ))
                 delete (*it);
             ++it;
@@ -582,6 +583,7 @@ namespace RTT
         PropertyBag::const_iterator it( target.getProperties().begin() );
         while ( it != target.getProperties().end() )
         {
+            // This loop is solely for deleting not owned properties and recursing
             Property<PropertyBag>* result = dynamic_cast< Property<PropertyBag>* >( *it );
             if ( result != 0 )
                 deletePropertyBag( result->value() );
@@ -589,6 +591,7 @@ namespace RTT
                 delete (*it);
             ++it;
         }
+        // deletes owned properties.
         target.clear();
     }
 

@@ -19,15 +19,15 @@ BOOST_AUTO_TEST_CASE( testPropLoading )
     BOOST_CHECK( tc.provides()->hasProperty("load1") );
     BOOST_CHECK( tc.provides()->hasProperty("load2") );
     BOOST_CHECK( tc.provides()->hasProperty("bag1"));
-    Property<PropertyBag> bag1 = tc.properties()->getProperty<PropertyBag>("bag1");
+    Property<PropertyBag> bag1 = tc.properties()->getProperty("bag1");
     BOOST_CHECK( bag1.ready() );
     BOOST_CHECK( bag1.getDescription() == "Bag1");
     PropertyBag& bag = bag1.value();
     BOOST_CHECK_EQUAL( bag.size(), 2);
     BOOST_CHECK( bag.find("bagload1"));
     BOOST_CHECK( bag.find("bagload2"));
-    Property<int> bagload1 = bag.getProperty<int>("bagload1");
-    Property<string> bagload2 = bag.getProperty<string>("bagload2");
+    Property<int> bagload1 = bag.getProperty("bagload1");
+    Property<string> bagload2 = bag.getProperty("bagload2");
 
     BOOST_CHECK(bagload1.ready());
     BOOST_CHECK_EQUAL(bagload1.get(), 3);

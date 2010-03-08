@@ -68,7 +68,7 @@ namespace RTT
             out << i+1;
             str = out.str();
 
-            Property<PropertyBag>* el_bag = new Property<PropertyBag>("Element" + str, str +"th element of list"); 
+            Property<PropertyBag>* el_bag = new Property<PropertyBag>("Element" + str, str +"th element of list");
             Property<T> el("Element" + str, str +"th element of list",vec[i])  ;
             if(    el.getTypeInfo()->decomposeType(el.getDataSource(),el_bag->value()) )
             {
@@ -92,7 +92,7 @@ namespace RTT
     bool composeProperty(const PropertyBag& bag, std::vector<T>& result)
     {
         std::string tname = internal::DataSourceTypeInfo<T>::getType();
-        
+
         if ( bag.getType() == tname+"s" ) {
             int dimension = bag.size();
             Logger::log() << Logger::Info << "bag size " << dimension <<Logger::endl;
@@ -103,9 +103,9 @@ namespace RTT
                 std::stringstream out;
                 out << "Element";
                 out << i + 1;
-                Property<PropertyBag>* el_bag =  bag.getProperty<PropertyBag>(out.str());
+                Property<PropertyBag> el_bag =  bag.getProperty(out.str());
 
-                if(el_bag==NULL){
+                if( !el_bag.ready() ){
                     // Works for properties in vector
                     base::PropertyBase* element = bag.getItem( i );
                     log(Debug)<<element->getName()<<", "<< element->getDescription()<<endlog();
@@ -122,9 +122,9 @@ namespace RTT
                 }
                 else{
                     // Works for propertybags in vector
-                    const std::string el_bagType = el_bag->getType();
-                    Property<T > el_p(el_bag->getName(),el_bag->getDescription());
-                    if(!(el_p.getDataSource()->composeType(el_bag->getDataSource()))){
+                    const std::string el_bagType = el_bag.getType();
+                    Property<T > el_p(el_bag.getName(),el_bag.getDescription());
+                    if(!(el_p.getDataSource()->composeType(el_bag.getDataSource()))){
                         log(Error)<<"Could not compose element "<<i<<endlog();
                         return false;
                     }
@@ -177,10 +177,10 @@ namespace RTT
                 os<<',';
             os<<vec[i]<<' ';
         }
-        
+
         return os << ']';
     };
-    
+
     template<typename T>
     std::istream& operator >> (std::istream& is,std::vector<T>& vec)
     {
@@ -201,7 +201,7 @@ namespace RTT
             return *(ptr);
         }
     };
-    
+
     /**
      * See internal::NArityDataSource which requires a function object like
      * this one.
@@ -216,7 +216,7 @@ namespace RTT
             return args;
         }
     };
-    
+
     /**
      * Constructs an array with \a n elements, which are given upon
      * construction time.
@@ -266,7 +266,7 @@ namespace RTT
                 return T();
             return v[index];
         }
-    };    
+    };
 
     template<class T>
     struct get_size

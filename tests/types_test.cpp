@@ -280,15 +280,15 @@ BOOST_AUTO_TEST_CASE( testProperties )
 
     Property< std::vector<double> > pv("V","",std::vector<double>(4, 4.0) );
 
-    pb.value().add( &pd1 );
-    pb.value().add( &pd3 );
-    pb.value().add( &pb ); // yep, recursive !
+    pb.value().addProperty( pd1 );
+    pb.value().addProperty( pd3 );
+    pb.value().addProperty( pb ); // yep, recursive !
 
-    tc->properties()->addProperty( &pd1 );
-    tc->properties()->addProperty( &pd2 );
-    tc->properties()->addProperty( &pd3 );
-    tc->properties()->addProperty( &pb );
-    tc->properties()->addProperty( &pv );
+    tc->properties()->addProperty( pd1 );
+    tc->properties()->addProperty( pd2 );
+    tc->properties()->addProperty( pd3 );
+    tc->properties()->addProperty( pb );
+    tc->properties()->addProperty( pv );
 
     // execute
     executePrograms(prog);
