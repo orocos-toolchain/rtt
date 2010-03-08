@@ -615,7 +615,7 @@
   for ( <emphasis>var int i = 0</emphasis>; <emphasis>i != 10</emphasis>; <emphasis>set i = i + 1</emphasis> )
         <emphasis>log("Hello World")</emphasis>
   // or group:
-  for ( <emphasis>i = 0</emphasis>; <emphasis>i < b</emphasis>; <emphasis>set i = i + 1</emphasis> ) {
+  for ( <emphasis>i = 0</emphasis>; <emphasis>i &lt; b</emphasis>; <emphasis>set i = i + 1</emphasis> ) {
         <emphasis>log("In the loop"</emphasis>
         // ...
   }  </programlisting>
@@ -631,18 +631,18 @@
 	  implemented</para>
 	  <programlisting>
   var int i = 0;
-  while <emphasis>i < 10</emphasis> 
+  while <emphasis>i &lt; 10</emphasis> 
       <emphasis>set i = i +1</emphasis>
   // or group:
   set i = 0;
-  while <emphasis>i < 10</emphasis> {
+  while <emphasis>i &lt; 10</emphasis> {
       <emphasis>log("In while")</emphasis>
       <emphasis>set i = i + 1</emphasis>
       // ...
   }  </programlisting>
 	<para>
 	  As with the if statement, you can optionally put
-	  parentheses around the condition 'i < 10'.
+	  parentheses around the condition 'i &lt; 10'.
 	  Note that Orocos scripting does not support the postfix
 	  or prefix increment/decrement operators like ++ and --.
 	</para>
@@ -720,7 +720,6 @@
 	  </para>
 	</section>
       </section>
-      <section>
       <section>
        <title>Setting Task Attributes/Properties</title>
          <para>
