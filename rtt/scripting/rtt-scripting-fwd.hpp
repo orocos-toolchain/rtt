@@ -28,7 +28,6 @@ namespace RTT {
         class ConditionParser;
         class ConditionTrue;
         class DataCallParser;
-        class DataSourceCommand;
         class DataSourceCondition;
         class DataSourceTime;
         class EdgeCondition;
