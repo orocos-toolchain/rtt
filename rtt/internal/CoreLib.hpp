@@ -42,17 +42,17 @@
  */
 
 /*
- * @defgroup CoreLib The Core Primitives
- * @brief Buffers, DataObjects, Commands, NameServing, Activities, Events, Timing, Properties
+ * @defgroup CoreLib Core Primitives
+ * @brief Buffers, DataObjects, Activities, Timing, Properties
  *
- * The most frequently used Core primitives in Orocos are Logger, Event,
- * extras::PeriodicActivity, NonPeriodicActivity, base::BufferLockFree, base::DataObjectLockFree, os::TimeService, dev::NameServer, Property,
+ * The most frequently used Core primitives in Orocos are Logger,
+ * Activity, base::BufferLockFree, base::DataObjectLockFree, os::TimeService, Property,
  * PropertyBag, Attribute, Toolkit.
  *
+ * On these primitives, the TaskContext is built.
  */
 
 #include "../extras/Properties.hpp"
-#include "../extras/Events.hpp"
 #include "../extras/Activities.hpp"
 #include "../base/Buffers.hpp"
 #include "../os/TimeService.hpp"
