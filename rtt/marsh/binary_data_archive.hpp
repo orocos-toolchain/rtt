@@ -69,6 +69,7 @@
 #include <istream>
 #include <ostream>
 #include <streambuf>
+#include <cstring>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/archive/detail/iserializer.hpp>
@@ -305,7 +306,7 @@ namespace RTT
         /**
          * This archive is capable of saving objects of serialization level 1 and 2
          * in a binary, non-portable format.
-         * @see binary_data_iarchive  
+         * @see binary_data_iarchive
          */
         class binary_data_oarchive
         {
@@ -456,7 +457,7 @@ namespace RTT
 
             /**
              * The optimized save_array dispatches to save_binary
-             */ 
+             */
             template<class ValueType>
             void save_array(boost::serialization::array<ValueType> const& a,
                             unsigned int)
