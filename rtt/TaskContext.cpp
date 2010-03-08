@@ -98,10 +98,10 @@ namespace RTT
     void TaskContext::setup()
     {
         // Temporarily until plugins are implemented:
-#if PLUGINS_ENABLE_SCRIPTING
+#if defined(PLUGINS_ENABLE_SCRIPTING)
         ScriptingService::Create(this);
 #endif
-#if PLUGINS_ENABLE_MARSHALLING
+#if defined(PLUGINS_ENABLE_MARSHALLING)
         MarshallingService::Create(this);
 #endif
 
