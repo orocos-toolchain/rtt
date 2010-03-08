@@ -80,6 +80,7 @@ extern "C" {
 #include <native/timer.h>
 #include <native/mutex.h>
 #include <native/sem.h>
+#include <native/cond.h>
 
 // BC: support Xenomai < 2.3.0
 #if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2300
@@ -108,9 +109,9 @@ extern "C" {
         int sched_type;
     } RTOS_TASK;
 
-    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
-    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
+    static const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
+    static const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+    static const double    InfiniteSeconds = DBL_MAX;
 
 #define SCHED_XENOMAI_HARD 0 /** Hard real-time */
 #define SCHED_XENOMAI_SOFT 1 /** Soft real-time */
@@ -118,7 +119,7 @@ extern "C" {
 #define ORO_SCHED_OTHER 1 /** Soft real-time */
 
 	// hrt is in ticks
-inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 {
 	TIME_SPEC timevl;
 	timevl.tv_sec = rt_timer_tsc2ns(hrt) / 1000000000LL;
@@ -127,7 +128,7 @@ inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 }
 
 	// hrt is in ticks
-inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
+static inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 {
 	return  rt_timer_ns2tsc(ts->tv_nsec + ts->tv_sec*1000000000LL);
 }
@@ -149,21 +150,21 @@ inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 #define CHK_XENO_PTR( a )
 #endif
 
-inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
+static inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
 
-inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
+static inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 
-inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
+static inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
 
 // WARNING: Orocos 'ticks' are 'Xenomai tsc' and Xenomai `ticks' are not
 // used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns',
 // yet Xenomai requires `Xenomai ticks' at the interface
 // ==> do not use nano2ticks to convert to `Xenomai ticks' because it
 // converts to `Xenomai tsc'.
-inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2tsc(t); }
-inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
+static inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2tsc(t); }
+static inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
 
-	inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
+static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 	{
 		CHK_XENO_CALL();
 		RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
@@ -341,9 +342,9 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
         CHK_XENO_CALL();
         // BC: support Xenomai < 2.5.0
 #if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2500
-        return rt_cond_wait(cond->cond, mutex->sem, rt_timer_ns2ticks(abs_time) - rt_timer_read() );
+        return rt_cond_wait(cond, mutex, rt_timer_ns2ticks(abs_time) - rt_timer_read() );
 #else
-        return rt_cond_wait_until(cond->cond, mutex->sem, rt_timer_ns2ticks(abs_time) );
+        return rt_cond_wait_until(cond, mutex, rt_timer_ns2ticks(abs_time) );
 #endif
     }
 
