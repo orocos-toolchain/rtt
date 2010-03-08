@@ -182,9 +182,9 @@
 
   <chapter id="orocos-scripting">
     <title>Orocos Scripting Reference</title>
-    <xi:include  href="orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="orocos-scripting.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-program-parser.xml#xpointer(/article/section[*])"  
+    <xi:include  href="orocos-scripting.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

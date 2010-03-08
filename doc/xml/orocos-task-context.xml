@@ -926,12 +926,12 @@ Printing Interface of 'the_input_port' :
   
        /**
         * This function is periodically called.
-	*/
+        */
        void updateHook() {
           // Your algorithm for periodic execution goes inhere
-	  double result;
-	  if ( inPort.read(result) == NewData )
-	      outPort.write( result * 2.0 ); // only write if new data arrived.
+          double result;
+          if ( inPort.read(result) == NewData )
+              outPort.write( result * 2.0 ); // only write if new data arrived.
        }
 
   };</programlisting></para>
@@ -963,8 +963,8 @@ Printing Interface of 'the_input_port' :
   
        /**
         * This function is only called by the Execution Engine 
-	* when 'trigger()' is called or an event or command arrives.
-	*/
+        * when 'trigger()' is called or an event or command arrives.
+        */
        void updateHook() {
             // Your blocking algorithm goes inhere
             char* data;
@@ -972,7 +972,7 @@ Printing Interface of 'the_input_port' :
             int rv = my_socket_read(data, timeout);
 
             if (rv == 0) {
-	       // process data
+               // process data
                this->stateUpdate(data);
             }
 	    <emphasis>
@@ -1118,7 +1118,7 @@ Printing Interface of 'the_input_port' :
       : <classname>RTT::TaskContext</classname>(name),
         evPort("my_input_1"),
         inPort("my_input_2"),
-	outdatPort("my_output")
+        outdatPort("my_output")
     {
        // an 'EventPort' is an InputPort which wakes our task up when data arrives.
        this->ports()->addEventPort( evPort ).doc( "Input Port that raises an event." );
@@ -1237,11 +1237,11 @@ Printing Interface of 'the_input_port' :
        // Check validity of (all) Ports:
        if ( !inPort.connected() ) {
           // No connection was made, can't do my job !
-	  return false;
+          return false;
        }
        if ( !outPort.connected() ) {
           // ... not necessarily an error, a connection may be
-	  // made while we are running.
+          // made while we are running.
        }
        return true;
      }
@@ -1368,7 +1368,7 @@ Printing Interface of 'the_input_port' :
                                    .doc(&quot;Read out the name of the system.&quot;);
        this->addOperation( "changeParameter", &amp;MyTask::changeParameter, this, <emphasis>OwnThread</emphasis>)
                                    .doc(&quot;Change a parameter, return the old value.&quot;)
-	                           .arg(&quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
+                                   .arg(&quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
        // more additions to follow, see below
      }
@@ -1790,7 +1790,7 @@ Printing Interface of 'the_input_port' :
     MyTask(std::string name)
       : <classname>RTT::TaskContext</classname>(name),
         param("The String"),
-	value( 1.23 ),
+        value( 1.23 ),
         aflag(false), max(5), pi(3.14)
     {
        // other code here...
@@ -2003,7 +2003,7 @@ Printing Interface of 'the_input_port' :
             if ( rv == NewData ) {
                this->stateUpdate(data);
                faults = 0;
-	       this->recovered(); // may be an external supervisor calls this instead.
+               this->recovered(); // may be an external supervisor calls this instead.
             } else {
                faults++;
                if (faults > 4)
@@ -3190,17 +3190,17 @@ Printing Interface of 'the_input_port' :
          // Add client thread operations :
          this->addOperation(&quot;setParameter&quot;,
                     &amp;DeviceInterface::setParameter, this, ClientThread)
-		        .doc(&quot;Set a device parameter.&quot;)
+                        .doc(&quot;Set a device parameter.&quot;)
 	                .arg(&quot;Parameter&quot;, &quot;The number of the parameter.&quot;)
 	                .arg(&quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
          this->addOperation(&quot;getParameter&quot;,
                      &amp;DeviceInterface::getParameter, this, ClientThread)
-	                  .doc(&quot;Get a device parameter.&quot;)
+                          .doc(&quot;Get a device parameter.&quot;)
                           .arg(&quot;Parameter&quot;, &quot;The number of the parameter.&quot;);
          this->addOperation(&quot;getError&quot;,
                      &amp;DeviceInterface::getError, this, ClientThread)
-	                  .doc(&quot;Get device error status.&quot;);
+                          .doc(&quot;Get device error status.&quot;);
 
          // Add own thread operations :
          this->addOperation(&quot;updateData&quot;,
@@ -3280,7 +3280,7 @@ Printing Interface of 'the_input_port' :
 
      while ( device.getError() == 0 ) 
      {
-	if ( this.updateDevice("device") == true )
+        if ( this.updateDevice("device") == true )
            device.updateData()
      }
      this.handleError("device", device.getError() )

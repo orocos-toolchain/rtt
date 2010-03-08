@@ -64,12 +64,14 @@
   <xsl:attribute name="hyphenation-character">\</xsl:attribute>
   <xsl:attribute name="font-size">10pt</xsl:attribute>
 </xsl:attribute-set>
-
+  
   <xsl:param name="monospace.font.family" select="'Times'"/>
   <xsl:param name="dingbat.font.family" select="'Times'"/>
   <xsl:param name="body.font.family" select="'Times'"/>
+  <!--
   <xsl:param name="title.font.family" select="'Arial'"/>
   <xsl:param name="sans.font.family" select="'Arial'"/>
+  -->
 
 <!-- convert classname to to doxygen filenames
      xsltproc does not support fn:replace, so needed the nwalsh 'string.subst' template

@@ -20,7 +20,7 @@
     
     <abstract>
       <para>
-	This document describes the &orocos; Scripting system.
+	This document describes the &orocos; Real-Time Scripting service
       </para>
     </abstract>
     
