@@ -45,10 +45,10 @@ namespace RTT
 {
     /**
      * @brief The Handle holds the information, and allows manipulation, of a connection
-     * between an Event Handler function and the Event itself.
+     * between a internal::Signal Handler function and the Signal itself.
      *
-     * It is returned by the connect() and setup() methods of Event and can
-     * be used to (dis)connect a handler function from the event.
+     * It is returned by the connect() and setup() methods of Signal and can
+     * be used to (dis)connect a handler function from the signal.
      * Handle objects may be assigned to each other and will always point
      * to the same connection. If the last Handle object is destroyed,
      * and is not connected, the connection is destroyed. Thus the
@@ -62,7 +62,7 @@ namespace RTT
         // not valid !
      }
      @endverbatim
-     * @ingroup CoreLibEvents
+     * @ingroup CoreLib
      */
 	class RTT_API Handle
 	{
@@ -130,6 +130,10 @@ namespace RTT
     /**
      * A scoped connection Handle of a (connected) slot which
      * disconnects a slot from a signal in its destructor.
+     *
+     * This does not invalidate the connection if this handle
+     * is shared with another handle object. Meaning, if ScopedHandle
+     * disconnects(), another handle object may re-connect().
      */
 	class RTT_API ScopedHandle
         :public Handle
@@ -141,6 +145,8 @@ namespace RTT
 
         /**
          * If connected, disconnect the slot from the signal.
+         * Calls this->disconnect(), but keeps the connection object
+         * alive.
          */
 		~ScopedHandle();
     };
@@ -148,7 +154,12 @@ namespace RTT
     /**
      * A connection Handle of a (connected) slot which
      * disconnects and cleans up (free all resources)
-     * a slot from a signal in its destructor.
+     * the connection object in its destructor.
+     *
+     * After CleanupHandle was destroyed, the connection is no
+     * longer usable and all associated callbacks have been removed.
+     * If another Handle object shares the same connection, it will
+     * no longer be able to connect().
      */
 	class RTT_API CleanupHandle
         :public Handle
@@ -161,6 +172,7 @@ namespace RTT
         /**
          * Cleanup all signal and slot connection resources.
          * If connected, disconnect the slot from the signal.
+         * Calls connection::destroy() on the connection object.
          */
 		~CleanupHandle();
     };
