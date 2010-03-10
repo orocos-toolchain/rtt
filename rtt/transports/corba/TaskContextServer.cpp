@@ -152,6 +152,7 @@ namespace RTT
                     if (require_name_service) {
                         servers.erase(taskc);
                         log(Error) << err << endlog();
+                        servers.erase(taskc);
                         throw IllegalServer(err);
                     }
                     else
