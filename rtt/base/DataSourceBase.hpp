@@ -102,6 +102,20 @@ namespace RTT
        */
       typedef boost::intrusive_ptr<const DataSourceBase> const_ptr;
 
+      /**
+       * Returns a shared ptr to a DataSourceBase living on the stack.
+       * Make sure that the shared_ptr does not outlive the stacked
+       * element.
+       */
+      static shared_ptr stack_shared_ptr(DataSourceBase* dsb);
+
+      /**
+       * Returns a const shared_ptr to a DataSourceBase living on the stack.
+       * Make sure that the const_ptr does not outlive the stacked
+       * element.
+       */
+      static const_ptr stack_const_ptr(DataSourceBase* dsb);
+
       DataSourceBase();
       /**
        * Increase the reference count by one.

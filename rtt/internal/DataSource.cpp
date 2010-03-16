@@ -51,6 +51,16 @@ namespace RTT {
 
     using namespace detail;
 
+    static DataSourceBase::shared_ptr DataSourceBase::stack_shared_ptr(DataSourceBase* dsb) {
+        dsb->ref();
+        return DataSourceBase::shared_ptr(dsb);
+    }
+
+    static DataSourceBase::const_ptr DataSourceBase::stack_const_ptr(DataSourceBase const* dsb) {
+        dsb->ref();
+        return DataSourceBase::const_ptr(dsb);
+    }
+
     DataSourceBase::DataSourceBase() : refcount(0) {  }
     void DataSourceBase::ref() const { refcount.inc(); }
     void DataSourceBase::deref() const { if ( refcount.dec_and_test() ) delete this; }
