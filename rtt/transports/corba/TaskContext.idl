@@ -18,12 +18,14 @@ module RTT
 
 	/**
 	 * Maps 1-to-1 to RTT::base::TaskCore::TaskState.
+	 * @ingroup CompIDL
 	 */
 	enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeError };
 
 	/**
 	 * A CTaskContext is the main entry point of a distributed
 	 * component and maps to a RTT::TaskContext.
+	 * @ingroup CompIDL
 	 */
 	interface CTaskContext
 	{
