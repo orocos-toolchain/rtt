@@ -131,20 +131,19 @@ namespace RTT
             if (!safe)
                 return 0;
 
-            T* value = 0;
             { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2)
-                { // we're the only owner (don't forget the one just above ...).
+                { // we're the only owner (don't forget +safe+ above).
                   // Just promote the current copy
+                    T* value = 0;
                     std::swap(value, safe->value);
+                    return value;
                 }
                 else
                 { // there are other owners, do a copy
-                    value = new T(*safe->value);
+                    return new T(*safe->value);
                 }
             }
-
-            return value;
         }
     };
 }}
