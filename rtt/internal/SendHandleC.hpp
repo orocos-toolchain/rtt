@@ -2,6 +2,7 @@
 #define ORO_EXECUTION_SENDHANDLEC_HPP
 
 #include <string>
+#include <boost/make_shared.hpp>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
 #include "../interface/rtt-interface-fwd.hpp"

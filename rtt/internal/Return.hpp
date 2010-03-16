@@ -11,10 +11,16 @@ namespace RTT
          * Implementation of ret() which takes the same signature
          * as call().
          */
-        template<int, class F>
+        template<int, class F, class BaseImpl>
         struct ReturnImpl;
 
-        template<class F>
+        template<class F, class BaseImpl>
+        struct Return
+            : public ReturnImpl<boost::function_traits<F>::arity,F,BaseImpl>
+        {};
+
+
+        template<class F, class BaseImpl>
         struct ReturnImpl<0,F, BaseImpl>
             : public Collect<F,BaseImpl>
         {
@@ -22,8 +28,8 @@ namespace RTT
 
         };
 
-        template<class F>
-        struct ReturnImpl<1,F>
+        template<class F, class BaseImpl>
+        struct ReturnImpl<1,F,BaseImpl>
             : public Collect<F,BaseImpl>
         {
             typedef typename boost::function<F>::result_type result_type;
@@ -32,8 +38,8 @@ namespace RTT
 
         };
 
-        template<class F>
-        struct ReturnImpl<2,F>
+        template<class F, class BaseImpl>
+        struct ReturnImpl<2,F,BaseImpl>
             : public Collect<F,BaseImpl>
         {
             typedef typename boost::function<F>::arg1_type arg1_type;
@@ -42,8 +48,8 @@ namespace RTT
 
         };
 
-        template<class F>
-        struct ReturnImpl<3,F>
+        template<class F, class BaseImpl>
+        struct ReturnImpl<3,F,BaseImpl>
             : public Collect<F,BaseImpl>
         {
             typedef typename boost::function<F>::arg1_type arg1_type;
@@ -53,8 +59,8 @@ namespace RTT
 
         };
 
-        template<class F>
-        struct ReturnImpl<4,F>
+        template<class F, class BaseImpl>
+        struct ReturnImpl<4,F,BaseImpl>
             : public Collect<F,BaseImpl>
         {
             typedef typename boost::function<F>::arg1_type arg1_type;

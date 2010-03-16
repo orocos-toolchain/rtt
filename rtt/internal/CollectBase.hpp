@@ -30,7 +30,7 @@ namespace RTT
         template<class F>
         struct CollectBase
             : public CollectBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, typename CollectType<F>::Ft >,
-              public ReturnBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, F>
+              public ReturnBaseImpl< boost::function_traits<F>::arity, F>
         {
             typedef boost::shared_ptr<CollectBase<F> > shared_ptr;
         };

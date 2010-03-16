@@ -5,9 +5,8 @@
 #include "Logger.hpp"
 #include "internal/CollectSignature.hpp"
 #include "internal/CollectBase.hpp"
-#include "internal/InvokerSignature.hpp"
-#include "internal/InvokerBase.hpp"
-#include "base/MethodBase.hpp"
+#include "internal/ReturnSignature.hpp"
+#include "internal/ReturnBase.hpp"
 #include <boost/type_traits.hpp>
 
 namespace RTT
@@ -22,28 +21,28 @@ namespace RTT
         : public internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
                                             typename internal::CollectType<Signature>::Ft,
                                             internal::CollectBase<Signature>* >,
-          public internal::InvokerSignature<boost::function_traits<Signature>::arity,
+          public internal::ReturnSignature<boost::function_traits<Signature>::arity,
                                           Signature,
-                                          typename base::MethodBase<Signature>::shared_ptr >
+                                          typename internal::CollectBase<Signature>::shared_ptr >
 	{
 	public:
         typedef internal::CollectSignature<boost::function_traits<typename internal::CollectType<Signature>::Ft>::arity,
                                            typename internal::CollectType<Signature>::Ft,
                                            internal::CollectBase<Signature>* >      CBase;
-        typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
+        typedef internal::ReturnSignature<boost::function_traits<Signature>::arity,
                                            Signature,
-                                           typename base::MethodBase<Signature>::shared_ptr >      IBase;
+                                           typename internal::CollectBase<Signature>::shared_ptr >      RBase;
         /**
          * Create an empty SendHandle.
          */
 		SendHandle() {}
 
-        SendHandle(typename base::MethodBase<Signature>::shared_ptr coll) : CBase( coll.get() ), IBase(coll) {}
+        SendHandle(typename internal::CollectBase<Signature>::shared_ptr coll) : CBase( coll.get() ), RBase(coll) {}
 
         /**
          * Create a copy-equivalent SendHandle.
          */
-        SendHandle(const SendHandle& hs) : CBase(hs.cimpl), IBase(hs.impl) {}
+        SendHandle(const SendHandle& hs) : CBase(hs.cimpl), RBase(hs.impl) {}
 
         /**
          * No-op destructor, does not change signal/slot state.
@@ -54,10 +53,10 @@ namespace RTT
 
         SendHandle& operator=(base::DisposableInterface* implementation)
         {
-            if (this->IBase::impl && this->IBase::impl == implementation)
+            if (this->RBase::impl && this->RBase::impl == implementation)
                 return *this;
-            this->IBase::impl.reset( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) );
-            if ( !this->IBase::impl && implementation ) {
+            this->RBase::impl.reset( boost::dynamic_pointer_cast< internal::ReturnBase<Signature> >(implementation) );
+            if ( !this->RBase::impl && implementation ) {
                 log(Error) << "Tried to assign SendHandle from incompatible type."<< endlog();
             }
             this->CBase::cimpl = dynamic_cast< internal::CollectBase<Signature>* >(implementation);
@@ -77,7 +76,7 @@ namespace RTT
          * Inspect if this SendHandle is pointing to valid (existing) invocation.
          * @return false if no invocation is associated with this handle.
          */
-        bool ready() const { return this->CBase::cimpl && this->IBase::impl ;}
+        bool ready() const { return this->CBase::cimpl && this->RBase::impl ;}
 
         using CBase::collect;
 

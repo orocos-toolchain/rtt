@@ -201,9 +201,13 @@ namespace RTT {
         return false;
     }
 
-    bool MethodC::send() {
-        if (s)
-            return s->evaluate();
+    SendHandleC MethodC::send() {
+        if (s) {
+            // does the send.
+            s->evaluate();
+            // pass on handle.
+            return SendHandleC( s );
+        }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;
             if (d) {
@@ -213,7 +217,7 @@ namespace RTT {
                 Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
             }
         }
-        return false;
+        return SendHandleC();
     }
 
     bool MethodC::ready() const
