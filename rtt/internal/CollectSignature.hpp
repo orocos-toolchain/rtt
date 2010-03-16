@@ -46,8 +46,8 @@ namespace RTT
             typedef typename mpl::remove_if< basic_sig, tt::is_const< tt::remove_reference<mpl::_1> > >::type no_const_sig;
             // next we need to remove all non-reference values:
             typedef typename mpl::remove_if< no_const_sig, mpl::not_<tt::is_reference<mpl::_1> > >::type no_value_sig;
-            // Finally, add SendStatus as return value (first item in vector):
-            typedef typename mpl::push_front< no_value_sig, SendStatus>::type fttype;
+            // Finally, add ret_type as return value (first item in vector):
+            typedef typename mpl::push_front< no_value_sig, ret_type>::type fttype;
         public:
             // Form function type again from the mpl vector:
             typedef typename ft::function_type<fttype>::type Ft;
@@ -97,6 +97,7 @@ namespace RTT
         template<class F, class ToCollect>
         struct CollectSignature<1,F,ToCollect>
         {
+            typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
 
             CollectSignature() : cimpl() {}

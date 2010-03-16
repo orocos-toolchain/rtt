@@ -43,7 +43,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/type_traits.hpp>
 #include "InvokerBase.hpp"
-#include "Collect.hpp"
+#include "Return.hpp"
 
 namespace RTT
 {
@@ -64,7 +64,7 @@ namespace RTT
 
         template<class F, class BaseImpl>
         struct InvokerImpl<0,F,BaseImpl>
-            : public Collect<F,BaseImpl> // inherits from BaseImpl
+            : public Return<F,BaseImpl> // inherits from BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             /**
@@ -73,11 +73,6 @@ namespace RTT
             result_type call()
             {
                 return BaseImpl::call_impl();
-            }
-
-            result_type ret()
-            {
-                return BaseImpl::ret_impl();
             }
 
             SendHandle<F> send()
@@ -89,7 +84,7 @@ namespace RTT
 
         template<class F, class BaseImpl>
         struct InvokerImpl<1,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+            : public Return<F,BaseImpl>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -116,7 +111,7 @@ namespace RTT
 
         template<class F, class BaseImpl>
         struct InvokerImpl<2,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+            : public Return<F,BaseImpl>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -148,7 +143,7 @@ namespace RTT
 
         template<class F, class BaseImpl>
         struct InvokerImpl<3,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+            : public Return<F,BaseImpl>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -182,7 +177,7 @@ namespace RTT
 
         template<class F, class BaseImpl>
         struct InvokerImpl<4,F,BaseImpl>
-            : public Collect<F,BaseImpl>
+            : public Return<F,BaseImpl>
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;

@@ -22,6 +22,8 @@ namespace RTT
         struct Collect
             : public CollectImpl< boost::function_traits< typename CollectType<F>::Ft >::arity, typename CollectType<F>::Ft, BaseImpl >
         {
+            typedef typename boost::function_traits< F >::result_type result_type;
+
                 SendStatus collect()
                 {
                     return BaseImpl::collect_impl();
@@ -31,6 +33,12 @@ namespace RTT
                 {
                     return BaseImpl::collectIfDone_impl();
                 }
+
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
+            }
+
         };
 
         template<class Ft, class BaseImpl>

@@ -232,22 +232,22 @@ namespace RTT
 
             boost::function<ToBind> mmeth;
 
-            mutable RStore<result_type> retn;
+            mutable RStore<result_type> retv;
             typename Signal<ToBind>::shared_ptr msig;
 
             // stores the original function pointer
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&> vStore;
-            BindStorageImpl() :  vStore(boost::ref(retn)) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn) {}
+            BindStorageImpl() :  vStore(boost::ref(retv)) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv) {}
 
             void exec() {
                 if (msig) msig->emit();
                 if (mmeth)
-                    retn.exec( mmeth );
+                    retv.exec( mmeth );
                 else
-                    retn.executed = true;
+                    retv.executed = true;
             }
         };
 
@@ -265,20 +265,20 @@ namespace RTT
             boost::function<ToBind>  mmeth;
             // Store the argument.
             mutable AStore<arg1_type> a1;
-            mutable RStore<result_type> retn;
+            mutable RStore<result_type> retv;
             typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
-            BindStorageImpl() : vStore(retn,a1) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1) {}
+            BindStorageImpl() : vStore(retv,a1) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1) {}
             void store(arg1_type t1) { a1(t1); }
             void exec() {
                 if (msig) (*msig)(a1.get());
                 if (mmeth)
-                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
+                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
                 else
-                    retn.executed = true;
+                    retv.executed = true;
             }
 
         };
@@ -296,21 +296,21 @@ namespace RTT
             // Store the arguments.
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
-            mutable RStore<result_type> retn;
+            mutable RStore<result_type> retv;
             typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
-            BindStorageImpl() : vStore(retn,a1,a2) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2) {}
+            BindStorageImpl() : vStore(retv,a1,a2) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2) {}
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             void exec() {
                 if (msig) (*msig)(a1.get(), a2.get());
                 if (mmeth)
-                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
+                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
                 else
-                    retn.executed = true;
+                    retv.executed = true;
             }
 
         };
@@ -330,21 +330,21 @@ namespace RTT
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
-            mutable RStore<result_type> retn;
+            mutable RStore<result_type> retv;
             typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
-            BindStorageImpl() : vStore(retn,a1,a2,a3) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3) {}
+            BindStorageImpl() : vStore(retv,a1,a2,a3) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             void exec() {
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get());
                 if (mmeth)
-                    retn.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
+                    retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
                 else
-                    retn.executed = true;
+                    retv.executed = true;
             }
         };
 
@@ -365,21 +365,21 @@ namespace RTT
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
             mutable AStore<arg4_type> a4;
-            mutable RStore<result_type> retn;
+            mutable RStore<result_type> retv;
             typename Signal<ToBind>::shared_ptr msig;
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
-            BindStorageImpl() : vStore(retn,a1,a2,a3,a4) {}
-            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retn,a1,a2,a3,a4) {}
+            BindStorageImpl() : vStore(retv,a1,a2,a3,a4) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4) {}
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             void exec() {
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get());
                 if (mmeth)
-                    retn.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
+                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
                 else
-                    retn.executed = true;
+                    retv.executed = true;
             }
         };
 

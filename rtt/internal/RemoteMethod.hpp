@@ -63,14 +63,23 @@ namespace RTT
         {
         protected:
             MethodC mmeth;
+            SendHandleC mhandle;
         public:
+            typedef MethodT Signature;
             typedef typename boost::function_traits<MethodT>::result_type result_type;
 
             /**
              * The defaults are reset by the constructor.
              */
             RemoteMethodImpl()
-                : mmeth()
+                : mmeth(), mhandle()
+            {}
+
+            /**
+             * Create from a sendhandle.
+             */
+            RemoteMethodImpl(SendHandleC handle)
+                : mmeth(), mhandle(handle)
             {}
 
             /**
@@ -78,74 +87,75 @@ namespace RTT
              *
              * @return true if ready and succesfully sent.
              */
-            result_type invoke() {
+            result_type call_impl() {
                 mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1>
-            result_type invoke( T1 a1 ) {
+            result_type call_impl( T1 a1 ) {
                 this->store( a1 );
                 mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2>
-            result_type invoke( T1 a1, T2 a2 ) {
+            result_type call_impl( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
                 mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3>
-            result_type invoke( T1 a1, T2 a2, T3 a3 ) {
+            result_type call_impl( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
                 mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             template<class T1, class T2, class T3, class T4>
-            result_type invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
                 mmeth.call();
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
             SendHandle<Signature> send_impl() {
-                mmeth.send();
-                return this->DataSourceStorage<MethodT>::sendHandle();
+                mhandle = mmeth.send();
+                // @todo: get remote collect from rt allocation.
+                return SendHandle<Signature>( new RemoteMethodImpl<MethodT>( mhandle );
             }
 
             template<class T1>
             SendHandle<Signature> send_impl( T1 a1 ) {
                 this->store( a1 );
-                mmeth.send();
-                return this->DataSourceStorage<MethodT>::sendHandle();
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( new RemoteMethodImpl<MethodT>( mhandle );
             }
 
             template<class T1, class T2>
             SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
-                mmeth.send();
-                return this->DataSourceStorage<MethodT>::sendHandle();
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( new RemoteMethodImpl<MethodT>( mhandle );
             }
 
             template<class T1, class T2, class T3>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
-                mmeth.send();
-                return this->DataSourceStorage<MethodT>::sendHandle();
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( new RemoteMethodImpl<MethodT>( mhandle );
             }
 
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
-                mmeth.send();
-                return this->DataSourceStorage<MethodT>::sendHandle();
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( new RemoteMethodImpl<MethodT>( mhandle );
             }
 
             SendStatus collectIfDone_impl() {
-                if ( this->DataSourceStorage<MethodT>::isExecuted()) {
+                if ( mhandle.collectIfDone() == SendSuccess ) {
                     return SendSuccess;
                 } else
                     return SendNotReady;
@@ -153,7 +163,7 @@ namespace RTT
 
             template<class T1>
             SendStatus collectIfDone_impl( T1& a1 ) {
-                if ( this->DataSourceStorage<MethodT>::isExecuted() ) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
                     bf::vector_tie(a1) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -162,7 +172,7 @@ namespace RTT
 
             template<class T1, class T2>
             SendStatus collectIfDone_impl( T1& a1, T2& a2 ) {
-                if ( this->retn.isExecuted()) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
                     bf::vector_tie(a1,a2) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 }
@@ -171,7 +181,7 @@ namespace RTT
 
             template<class T1, class T2, class T3>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3 ) {
-                if ( this->retn.isExecuted()) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
                     bf::vector_tie(a1,a2,a3) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -180,7 +190,7 @@ namespace RTT
 
             template<class T1, class T2, class T3, class T4>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
-                if ( this->retn.isExecuted()) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
                     bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -188,108 +198,26 @@ namespace RTT
             }
 
             SendStatus collect_impl() {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
-                return this->collectIfDone_impl();
+                return mhandle.collect();
             }
             template<class T1>
             SendStatus collect_impl( T1& a1 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
+                mhandle.collect();
                 return this->collectIfDone_impl(a1);
             }
 
             template<class T1, class T2>
             SendStatus collect_impl( T1& a1, T2& a2 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
+                mhandle.collect();
                 return this->collectIfDone_impl(a1,a2);
             }
 
             template<class T1, class T2, class T3>
             SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retn)) );
+                mhandle.collect();
                 return this->collectIfDone_impl(a1,a2,a3);
             }
 
-            /**
-             * Invoke this operator if the method has no arguments.
-             */
-            result_type call_impl()
-            {
-
-                if (met == OwnThread && myengine != caller) {
-                    SendHandle<Signature> h = send_impl();
-                    if ( h.collect() == SendSuccess )
-                        return h.ret();
-                    else
-                        throw SendFailure;
-                } else
-                    return this->invoke(); // ClientThread
-            }
-
-
-            /**
-             * Invoke this operator if the method has one argument.
-             */
-            template<class T1>
-            result_type call_impl(T1 a1)
-            {
-                SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1);
-                    // collect_impl may take diff number of arguments than
-                    // call_impl/ret_impl(), so we use generic collect() + ret_impl()
-                    if ( h.collect() == SendSuccess )
-                        return h.ret(a1);
-                    else
-                        throw SendFailure;
-                } else
-                    return this->invoke(a1);
-                return NA<result_type>::na();
-            }
-
-            template<class T1, class T2>
-            result_type call_impl(T1 a1, T2 a2)
-            {
-                SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2);
-                    if ( h.collect() == SendSuccess )
-                        return h.ret(a1,a2);
-                    else
-                        throw SendFailure;
-                } else
-                    return this->invoke(a1,a2);
-                return NA<result_type>::na();
-            }
-
-            template<class T1, class T2, class T3>
-            result_type call_impl(T1 a1, T2 a2, T3 a3)
-            {
-                SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2,a3);
-                    if ( h.collect() == SendSuccess )
-                        return h.ret(a1,a2,a3);
-                    else
-                        throw SendFailure;
-                } else
-                    return this->invoke(a1,a2,a3);
-                return NA<result_type>::na();
-            }
-
-            template<class T1, class T2, class T3, class T4>
-            result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4)
-            {
-                SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2,a3,a4);
-                    if ( h.collect() == SendSuccess )
-                        return h.ret(a1,a2,a3,a4);
-                    else
-                        throw SendFailure;
-                } else
-                    return this->invoke(a1,a2,a3,a4);
-                return NA<result_type>::na();
-            }
 
             result_type ret_impl()
             {
@@ -306,7 +234,7 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1> vArgs( boost::ref(a1) );
-                if ( this->retn.isExecuted())
+                if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->retn.result(); // may return void.
             }
@@ -316,7 +244,7 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
-                if ( this->retn.isExecuted())
+                if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg< boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->retn.result(); // may return void.
             }
@@ -326,7 +254,7 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
-                if ( this->retn.isExecuted())
+                if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->retn.result(); // may return void.
             }
@@ -336,7 +264,7 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
-                if ( this->retn.isExecuted())
+                if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->retn.result(); // may return void.
             }
@@ -363,7 +291,7 @@ namespace RTT
              * @param name The name of this method.
              * @param com The OperationFactory for methods.
              */
-            RemoteMethod(ServiceProviderPtr of, std::string name, ExecutionEngine* caller)
+            RemoteMethod(interface::ServiceProviderPtr of, std::string name, ExecutionEngine* caller)
             {
                 // create the method.
                 this->mmeth = MethodC(of, name, caller);

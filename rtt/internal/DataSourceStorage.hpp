@@ -50,14 +50,17 @@ namespace RTT
 {
     namespace internal
     {
-        // Partial specialisations for storing a void, not a void or reference
+        //! Partial specialisations for storing a void, not a void or reference
+        //! Wraps around RStore.
         template<class R>
         struct DataSourceResultStorage
         {
-            typename ValueDataSource<R>::shared_ptr result;
+            typedef R result_type;
+            RStore<R> retn;
+            typename ReferenceDataSource<R>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result(new ValueDataSource<R>() )
+                : result(boost::make_shared<ReferenceDataSource<R> >(retn.get()) )
             {
             }
 
@@ -67,13 +70,14 @@ namespace RTT
             }
 
             R getResult() {
-                return result->get();
+                return retn.result();
             }
         };
 
         template<>
         struct DataSourceResultStorage<void>
         {
+            typedef void result_type;
             DataSourceResultStorage()
             {
             }
@@ -89,10 +93,12 @@ namespace RTT
         template<class R>
         struct DataSourceResultStorage<R&>
         {
-            typename ValueDataSource<R>::shared_ptr result;
+            typedef R result_type;
+            RStore<R> retn;
+            typename ReferenceDataSource<R>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result(new ValueDataSource<R>() )
+                : result(boost::make_shared<ReferenceDataSource<R> >() )
             {
             }
 
@@ -102,17 +108,19 @@ namespace RTT
             }
 
             R getResult() {
-                return result->get();
+                return retn.result();
             }
         };
 
-        // Partial specialisations for storing a reference or not reference
+        //! Partial specialisations for storing a reference or not reference
+        //! Wraps around AStore
         template<class A>
         struct DataSourceArgStorage
         {
-            typename ValueDataSource<A>::shared_ptr value;
+            AStore<A> arg;
+            typename ReferenceDataSource<A>::shared_ptr value;
             DataSourceArgStorage()
-                : value(new ValueDataSource<A>() )
+                : value(boost::make_shared<ReferenceDataSource<A> >(arg.get()) )
             {}
         };
 
@@ -121,10 +129,11 @@ namespace RTT
         template<class A>
         struct DataSourceArgStorage<A&>
         {
+            AStore<A> arg;
             // strips the reference !
-            typename ValueDataSource<A>::shared_ptr value;
+            typename ReferenceDataSource<A>::shared_ptr value;
             DataSourceArgStorage()
-                : value(new ValueDataSource<A>() )
+                : value(boost::make_shared<ReferenceDataSource<A> >(arg.get()) )
             {}
         };
 
@@ -138,6 +147,10 @@ namespace RTT
         struct DataSourceStorageImpl<0, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
+            bf::vector< RStore<result_type>& > vStore;
+            DataSourceStorageImpl() :  vStore(boost::ref(this->retn)) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn) {}
             template<class ContainerT>
             void initArgs(ContainerT& ) {}
         };
@@ -149,8 +162,14 @@ namespace RTT
         struct DataSourceStorageImpl<1, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             DataSourceArgStorage<arg1_type> ma1;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -166,10 +185,16 @@ namespace RTT
         struct DataSourceStorageImpl<2, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
             DataSourceArgStorage<arg1_type> ma1;
             DataSourceArgStorage<arg2_type> ma2;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -186,12 +211,18 @@ namespace RTT
         struct DataSourceStorageImpl<3, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
             typedef typename boost::function_traits<DataType>::arg3_type   arg3_type;
             DataSourceArgStorage<arg1_type> ma1;
             DataSourceArgStorage<arg2_type> ma2;
             DataSourceArgStorage<arg3_type> ma3;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -210,6 +241,7 @@ namespace RTT
         struct DataSourceStorageImpl<4, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
             typedef typename boost::function_traits<DataType>::arg3_type   arg3_type;
@@ -218,6 +250,11 @@ namespace RTT
             DataSourceArgStorage<arg2_type> ma2;
             DataSourceArgStorage<arg3_type> ma3;
             DataSourceArgStorage<arg4_type> ma4;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {

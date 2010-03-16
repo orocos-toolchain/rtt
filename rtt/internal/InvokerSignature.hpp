@@ -40,7 +40,6 @@
 #define ORO_INVOKER_SIGNATURE_HPP
 
 #include <boost/type_traits.hpp>
-#include "../base/DisposableInterface.hpp"
 #include "NA.hpp"
 #include "../rtt-fwd.hpp"
 
@@ -88,12 +87,6 @@ namespace RTT
                 return SendHandle<F>();
             }
 
-            result_type ret() {
-                if (impl)
-                    return impl->ret();
-                return NA<result_type>::na();
-            }
-
         protected:
             ToInvoke impl;
         };
@@ -121,23 +114,11 @@ namespace RTT
                 return operator()(a1);
             }
 
-            result_type ret(arg1_type a1) {
-                if (impl)
-                    return impl->ret( a1 );
-                return NA<result_type>::na();
-            }
-
             SendHandle<F> send(arg1_type a1)
             {
                 if (impl)
                     return impl->send(a1);
                 return SendHandle<F>();
-            }
-
-            result_type ret() {
-                if (impl)
-                    return impl->ret();
-                return NA<result_type>::na();
             }
 
         protected:
@@ -167,18 +148,6 @@ namespace RTT
 
             result_type call(arg1_type a1, arg2_type a2) {
                 return operator()(a1,a2);
-            }
-
-            result_type ret(arg1_type a1, arg2_type a2) {
-                if (impl)
-                    return impl->ret( a1,a2 );
-                return NA<result_type>::na();
-            }
-
-            result_type ret() {
-                if (impl)
-                    return impl->ret();
-                return NA<result_type>::na();
             }
 
             SendHandle<F> send(arg1_type a1, arg2_type a2)
@@ -215,18 +184,6 @@ namespace RTT
 
             result_type call(arg1_type a1, arg2_type a2, arg3_type a3) {
                 return operator()(a1,a2,a3);
-            }
-
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3) {
-                if (impl)
-                    return impl->ret( a1,a2,a3 );
-                return NA<result_type>::na();
-            }
-
-            result_type ret() {
-                if (impl)
-                    return impl->ret();
-                return NA<result_type>::na();
             }
 
             SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3)
@@ -273,17 +230,6 @@ namespace RTT
                 return SendHandle<F>();
             }
 
-            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
-                if (impl)
-                    return impl->ret( a1,a2,a3,a4 );
-                return NA<result_type>::na();
-            }
-
-            result_type ret() {
-                if (impl)
-                    return impl->ret();
-                return NA<result_type>::na();
-            }
         protected:
             ToInvoke impl;
         };

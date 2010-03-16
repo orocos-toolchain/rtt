@@ -44,12 +44,13 @@
 #include "../Attribute.hpp"
 #include "../interface/rtt-interface-fwd.hpp"
 #include "../SendStatus.hpp"
+#include "SendHandleC.hpp"
 
 namespace RTT
 { namespace internal {
 
     /**
-     * A user friendly method to a TaskContext.
+     * A template-less manager for Method calls.
      */
     class RTT_API MethodC
     {
@@ -70,7 +71,7 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see interface::MethodRepository
+         * @see interface::ServiceProvider
          */
         MethodC( const interface::ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller);
 
@@ -150,17 +151,7 @@ namespace RTT
         /**
          * Send the contained method.
          */
-        bool send();
-
-        /**
-         * Collect the contained method.
-         */
-        SendStatus collect();
-
-        /**
-         * Collect the contained method.
-         */
-        SendStatus collectIfDone();
+        SendHandleC send();
 
         /**
          * Returns true if this method is ready for execution.

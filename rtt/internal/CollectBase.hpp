@@ -3,6 +3,7 @@
 
 #include "CollectSignature.hpp"
 #include "../SendStatus.hpp"
+#include "ReturnBase.hpp"
 #include <boost/function.hpp>
 
 namespace RTT
@@ -28,8 +29,11 @@ namespace RTT
          */
         template<class F>
         struct CollectBase
-            : public CollectBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, typename CollectType<F>::Ft >
-        {};
+            : public CollectBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, typename CollectType<F>::Ft >,
+              public ReturnBaseImpl< boost::function_traits<typename CollectType<F>::Ft>::arity, F>
+        {
+            typedef boost::shared_ptr<CollectBase<F> > shared_ptr;
+        };
 
         template<class Ft>
         struct CollectBaseImpl<0,Ft>
@@ -48,6 +52,7 @@ namespace RTT
         template<class Ft>
         struct CollectBaseImpl<1,Ft>
         {
+            typedef typename boost::function<Ft>::result_type result_type;
             typedef typename boost::function<Ft>::arg1_type arg1_type;
             virtual ~CollectBaseImpl() {}
 
@@ -56,6 +61,7 @@ namespace RTT
              * @return
              */
             virtual SendStatus collect() = 0;
+
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
@@ -78,7 +84,6 @@ namespace RTT
              * @return
              */
             virtual SendStatus collect() = 0;
-            virtual SendStatus collectIfDone() = 0;
             /**
              * Collect a void(arg1_type) F or
              * arg1_type(void) F
