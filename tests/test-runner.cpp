@@ -40,8 +40,8 @@ public:
 #ifndef OROCOS_TARGET_XENOMAI
         __os_exit();
 #else
-        os::StartStopManager::Instance()->stop();
-        os::StartStopManager::Release();
+        OS::StartStopManager::Instance()->stop();
+        OS::StartStopManager::Release();
 #endif
 }
 
