@@ -63,6 +63,8 @@ namespace RTT
 
             unsigned int arity() const { return boost::function_traits<Signature>::arity; }
 
+            unsigned int collectArity() const { return boost::function_traits< typename CollectType<Signature>::type >::arity; }
+
             base::DataSourceBase::shared_ptr produce(
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
@@ -84,6 +86,7 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
                 const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                 if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
@@ -138,6 +141,8 @@ namespace RTT
 
                 unsigned int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
 
+                unsigned int collectArity() const { return boost::function_traits< typename CollectType<Signature>::type >::arity; }
+
                 virtual std::string description() const {
                     return op->getDescriptions().front();
                 }
@@ -180,6 +185,7 @@ namespace RTT
 
                 virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
                     const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
+                    assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );

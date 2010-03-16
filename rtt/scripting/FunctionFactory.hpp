@@ -66,6 +66,8 @@ namespace RTT
 
         unsigned int arity() const;
 
+        unsigned int collectArity() const;
+
         std::string description() const;
 
         std::vector< interface::ArgumentDescription > getArgumentList() const;

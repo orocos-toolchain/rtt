@@ -44,14 +44,21 @@ namespace RTT
             virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
 
             /**
-             * Return the result (return) type of this part.
+             * Return the result (return) type of this operation.
              */
             virtual std::string resultType() const = 0;
 
             /**
-             * Returns the arity (number of arguments) of this part.
+             * Returns the arity (number of arguments) of this operation.
+             * @see produce, produceSend
              */
             virtual unsigned int arity() const = 0;
+
+            /**
+             * Returns the number of collectable arguments of this operation.
+             * @see produceCollect
+             */
+            virtual unsigned int collectArity() const = 0;
 
             /**
              * Create a DataSource for a given callable operation.
@@ -107,7 +114,7 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking) const = 0;
 
             /**
-             * Returns any local operation associated with this part.
+             * Returns any local operation associated with this operation.
              * @return null if no such operation exists, the operation's implementation
              * otherwise.
              */
@@ -118,7 +125,7 @@ namespace RTT
          */
 
         /**
-         * @brief This factory is a template for creating parts.
+         * @brief This factory is a template for creating operations.
          * @todo Rename to interface::OperationRepository.
          */
         class OperationRepository
@@ -148,13 +155,25 @@ namespace RTT
             bool hasMember(const std::string& name) const;
 
             /**
-             * Query the number of arguments of an operation
+             * Query the number of arguments of an operation.
+             * These are the number of function arguments, not counting the return value.
              *
              * @param name The name of the operation
              *
              * @return The arity, or -1 if \a name is not found.
              */
             int getArity(const std::string& name) const;
+
+            /**
+             * Query the collectable number of arguments of an operation.
+             * These are the return value (if non void) and each non-const reference argument
+             * of the operation.
+             *
+             * @param name The name of the operation
+             *
+             * @return The arity, or -1 if \a name is not found.
+             */
+            int getCollectArity(const std::string& name) const;
 
             /**
              * Produce a DataSource that call()s an operation.

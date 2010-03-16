@@ -85,6 +85,11 @@ namespace RTT {
             return func->getArguments().size();
         }
 
+        unsigned int FunctionFactory::collectArity( ) const
+        {
+            return func->getResult() ? 1 : 0;
+        }
+
         DataSourceBase::shared_ptr FunctionFactory::produce(
                       const std::vector<DataSourceBase::shared_ptr>& args
                       , ExecutionEngine* caller

@@ -43,6 +43,14 @@ int OperationRepository::getArity(const std::string& name) const
     return i->second->arity();
 }
 
+int OperationRepository::getCollectArity(const std::string& name) const
+{
+    map_t::const_iterator i = data.find(name);
+    if (i == data.end() || i->second == 0)
+        return -1;
+    return i->second->collectArity();
+}
+
 base::DataSourceBase::shared_ptr OperationRepository::produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
 {
     map_t::const_iterator i = data.find(name);
