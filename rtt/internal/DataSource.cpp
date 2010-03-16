@@ -51,12 +51,12 @@ namespace RTT {
 
     using namespace detail;
 
-    static DataSourceBase::shared_ptr DataSourceBase::stack_shared_ptr(DataSourceBase* dsb) {
+    DataSourceBase::shared_ptr DataSourceBase::stack_shared_ptr(DataSourceBase* dsb) {
         dsb->ref();
         return DataSourceBase::shared_ptr(dsb);
     }
 
-    static DataSourceBase::const_ptr DataSourceBase::stack_const_ptr(DataSourceBase const* dsb) {
+    DataSourceBase::const_ptr DataSourceBase::stack_const_ptr(DataSourceBase const* dsb) {
         dsb->ref();
         return DataSourceBase::const_ptr(dsb);
     }

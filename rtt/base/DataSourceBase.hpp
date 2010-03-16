@@ -114,7 +114,7 @@ namespace RTT
        * Make sure that the const_ptr does not outlive the stacked
        * element.
        */
-      static const_ptr stack_const_ptr(DataSourceBase* dsb);
+      static const_ptr stack_const_ptr(const DataSourceBase* dsb);
 
       DataSourceBase();
       /**
