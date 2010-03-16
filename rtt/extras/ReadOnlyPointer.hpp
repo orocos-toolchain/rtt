@@ -144,7 +144,6 @@ namespace RTT
                 }
             }
 
-            internal = 0; //.reset() only available in later boost versions.
             return value;
         }
     };
