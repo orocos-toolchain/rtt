@@ -13,15 +13,26 @@ namespace RTT
 
     /**
      * A template-less SendHandle manager.
+     * It is created using a SendHandle data source, obtained from
+     * a OperationFactoryPart::produceSend(), the part itself and
+     * any arguments that must be provided to collect the results.
+     *
+     * It is used by MethodC to pass on responsibility to collect
+     * results to a separate object.
      */
     class RTT_API SendHandleC
     {
         /**
          * The 'd' pointer pattern.
+         * It's hiding our factory code.
          */
         class D;
         D* d;
-        base::DataSourceBase::shared_ptr s;
+        /**
+         * This data source will do a collect/collectIfDone when
+         * being evaluated().
+         */
+        internal::DataSource<SendStatus>::shared_ptr s;
     public:
         /**
          * The default constructor.
@@ -31,9 +42,10 @@ namespace RTT
         SendHandleC();
 
         /**
-         * The constructor from a SendHandle data source.
+         * The constructor from a SendHandle data source and an operation part.
+         * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle );
+        SendHandleC( base::DataSourceBase::shared_ptr handle, interface::OperationRepositoryPart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -63,7 +75,7 @@ namespace RTT
         template< class ArgT >
         SendHandleC& arg( ArgT& a )
         {
-            return this->arg(base::DataSourceBase::shared_ptr( boost::make_shared< ReferenceDataSource<ArgT> >( a ) ) );
+            return this->arg(base::DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT>( a ) ) );
         }
 
         /**

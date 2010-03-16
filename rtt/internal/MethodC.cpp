@@ -206,7 +206,7 @@ namespace RTT {
             // does the send.
             s->evaluate();
             // pass on handle.
-            return SendHandleC( s );
+            return SendHandleC( s, d->mmr->getPart(d->mname), d->mname );
         }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;
