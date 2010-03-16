@@ -100,6 +100,28 @@ namespace RTT
 
         void reset(T* ptr)
         {
+            boost::intrusive_ptr<Internal> safe = this->internal;
+            if (!safe)
+            {
+                internal = new Internal(ptr);
+                return;
+            }
+
+
+            { os::MutexLock do_lock(safe->lock);
+                if (safe->readers == 2) // we are sole owner
+                {
+                    safe->value = ptr;
+                    return;
+                }
+            }
+
+            // We must *not* change 'internal' while safe->lock is taken. The
+            // above block returns in case we don't need to reallocate a new
+            // Internal structure.
+            //
+            // In other words, if we are here, it is because we *need* to
+            // reallocate.
             internal = new Internal(ptr);
         }
 
