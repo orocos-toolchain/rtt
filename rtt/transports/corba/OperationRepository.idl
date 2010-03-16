@@ -1,0 +1,141 @@
+#ifndef ORO_SERVICE_PROVIDER_IDL
+#define ORO_SERVICE_PROVIDER_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
+module RTT
+{
+  module corba
+  {
+    typedef sequence<string> COperationList;
+
+    /**
+     * When querying a method or command for
+     * the kinds of arguments it takes, this
+     * structure is returned for each argument.
+     */
+    struct CArgumentDescription
+    {
+      string name;
+      string description;
+      string type;
+    };
+
+    typedef sequence<CArgumentDescription> CDescriptions;
+
+    typedef sequence<any> CAnyArguments;
+
+    exception CWrongNumbArgException
+    {
+      long wanted;
+      long received;
+    };
+
+    exception CWrongTypeArgException
+    {
+      long whicharg;
+      string expected;
+      string received;
+    };
+
+    exception CNoSuchNameException
+    {
+      string name;
+    };
+    
+    enum CSendStatus { CSendFailure, CSendNotReady, CSendSuccess; } 
+
+    /**
+     * Is thrown if the calling or sending of an operation was
+     * interrupted.
+     */    
+    exception CCallInterrupted
+    {
+    };
+    
+    /**
+     * A handler object that allows us to collect the results
+     * of a send. Due to memory restrictions, a server may choose
+     * to cleanup a CSendHandle before or during collect() was called.
+     * This is equivalent to having a SendError.
+     */
+    interface CSendHandle {
+    
+        CSendStatus collect(inout CAnyArguments args) raises ( 
+                                 CWrongNumbArgException,
+                                 CWrongTypeArgException);
+        CSendStatus collectIfDone(inout CAnyArguments args) raises ( 
+                                 CWrongNumbArgException,
+                                 CWrongTypeArgException);
+        
+        /**
+         * Just checks what the status is.
+         */              
+        CSendStatus checkStatus();
+        /**
+         * Returns only the return value, when checkStatus() returns CSendSuccess.
+         * Convenient if the sent method only returns a value.
+         */  
+        any ret();                       
+    }
+
+    /**
+     * Exposes the operations this service offers.
+     * @ingroup CompIDL
+     */
+    interface COperationRepository
+    {
+
+      /**
+       * Get a list of all operations.
+       */
+      COperationList getOperations();
+
+      /**
+       * Get a list of all arguments of a given operation.
+       */
+      CDescriptions getArguments(in string operation) raises (CNoSuchNameException);
+
+      /**
+       * Get a result type of a given operation.
+       */
+      string getResultType(in string operation) raises (CNoSuchNameException);
+
+      /**
+       * Get a description of a given operation.
+       */
+      string getDescription(in string operation) raises (CNoSuchNameException);
+
+      /**
+       * Checks if a given operation accepts the list of arguments.
+       * If no exception is thrown, the arguments and operation name were valid.
+       */
+      void checkOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
+                                 CWrongNumbArgException,
+                                 CWrongTypeArgException);
+
+      /**
+       * Call an operation with a list of arguments.
+       * This method will block until the operation completes and returns its result.
+       */
+      any callOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
+								 CWrongNumbArgException,
+								 CWrongTypeArgException,
+                                 CCallInterrupted);
+
+      /**
+       * Send an operation with a list of arguments.
+       * This method will return immediately and return a CSendHandle.
+       */
+      CSendHandle sendOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
+                                 CWrongNumbArgException,
+                                 CWrongTypeArgException,
+                                 CCallInterrupted);
+    };
+
+  };
+};
+#endif
