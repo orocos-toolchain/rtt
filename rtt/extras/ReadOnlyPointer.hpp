@@ -125,6 +125,27 @@ namespace RTT
             internal = new Internal(ptr);
         }
 
+        T* try_write_access()
+        {
+            boost::intrusive_ptr<Internal> safe = this->internal;
+            if (!safe)
+                return 0;
+
+            { os::MutexLock do_lock(safe->lock);
+                if (safe->readers == 2)
+                { // we're the only owner (don't forget +safe+ above).
+                  // Just promote the current copy
+                    T* value = 0;
+                    std::swap(value, safe->value);
+                    return value;
+                }
+                else
+                { // there are other owners
+                    return NULL;
+                }
+            }
+        }
+
         T* write_access()
         {
             boost::intrusive_ptr<Internal> safe = this->internal;
