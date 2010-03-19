@@ -84,7 +84,7 @@ namespace RTT
                 return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
             }
 
-            virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+            virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                 const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                 assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                 if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
@@ -183,7 +183,7 @@ namespace RTT
                     return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature>& > >();
                 }
 
-                virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking ) const {
+                virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                     const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                     assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );

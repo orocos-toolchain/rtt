@@ -230,14 +230,14 @@ namespace RTT
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
               DataSourceSequence args;
-              bool isblocking;
+              DataSource<bool>::shared_ptr isblocking;
               mutable SendStatus ss; // because of get() const
           public:
               typedef boost::intrusive_ptr<FusedMCollectDataSource<Signature> >
                       shared_ptr;
 
               FusedMCollectDataSource(
-                                     const DataSourceSequence& s = DataSourceSequence(), bool blocking = true ) :
+                                     const DataSourceSequence& s, DataSource<bool>::shared_ptr blocking ) :
                   args(s), isblocking(blocking), ss(SendFailure)
               {
               }
@@ -255,7 +255,7 @@ namespace RTT
               value_t get() const
               {
                   // put the member's object as first since SequenceFactory does not know about the MethodBase type.
-                  if (isblocking)
+                  if (isblocking->get())
                       ss = bf::invoke(&SendHandle<Signature>::CBase::collect, SequenceFactory::data(args));
                   else
                       ss = bf::invoke(&SendHandle<Signature>::CBase::collectIfDone, SequenceFactory::data(args));

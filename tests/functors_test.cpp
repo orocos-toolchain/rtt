@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     args.clear();
     args.push_back( dsh );
     args.push_back( dsr );
-    DataSourceBase::shared_ptr dsc0 = tc->provides("methods")->produceCollect("o0",args,true);
+    DataSourceBase::shared_ptr dsc0 = tc->provides("methods")->produceCollect("o0",args,new ValueDataSource<bool>(true));
 
     // Assign the handle of produceSend to the one of produceHandle:
     update = dsh->updateCommand( dsb.get() );
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     args.clear();
     args.push_back( dsh );
     args.push_back( dsr );
-    DataSourceBase::shared_ptr dsc1 = tc->provides("methods")->produceCollect("o1",args,true);
+    DataSourceBase::shared_ptr dsc1 = tc->provides("methods")->produceCollect("o1",args, new ValueDataSource<bool>(true));
 
     // Assign the handle of produceSend to the one of produceHandle:
     update = dsh->updateCommand( dsb.get() );

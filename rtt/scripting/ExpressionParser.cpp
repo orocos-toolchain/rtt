@@ -197,9 +197,9 @@ namespace RTT
                         // add SendHandle DS for Collect:
                         args.insert( args.begin(), sha->getDataSource() );
                         if (meth == "collect")
-                            ret = sha->getFactory()->produceCollect(args, true);// blocking
+                            ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(true) );// blocking
                         else
-                            ret = sha->getFactory()->produceCollect(args, false);// non-blocking
+                            ret = sha->getFactory()->produceCollect(args, new ValueDataSource<bool>(false) );// non-blocking
                         return;
                     }
                 }

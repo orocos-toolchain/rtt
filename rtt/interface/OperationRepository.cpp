@@ -75,7 +75,7 @@ base::DataSourceBase::shared_ptr OperationRepository::produceHandle(const std::s
     return i->second->produceHandle();
 }
 
-base::DataSourceBase::shared_ptr OperationRepository::produceCollect(const std::string& name, const Arguments& args, bool blocking) const
+base::DataSourceBase::shared_ptr OperationRepository::produceCollect(const std::string& name, const Arguments& args, DataSource<bool>::shared_ptr blocking) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)

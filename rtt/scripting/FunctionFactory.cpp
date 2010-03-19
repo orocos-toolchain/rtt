@@ -156,7 +156,7 @@ namespace RTT {
                                    ) const {
             return 0;
         }
-        base::DataSourceBase::shared_ptr FunctionFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
+        base::DataSourceBase::shared_ptr FunctionFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking
                                    ) const {
             if (args.size() != 2) {
                 log(Error) <<"Invalid number of arguments. Script functions can only collect the return value." <<endlog();

@@ -18,7 +18,7 @@ namespace RTT {
         std::vector<DataSourceBase::shared_ptr> args;
         DataSource<SendStatus>::shared_ptr s;
         DataSourceBase::shared_ptr msh;
-        bool blocking;
+        AssignableDataSource<bool>::shared_ptr blocking;
 
         void checkAndCreate() {
             Logger::In in("SendHandleC");
@@ -45,14 +45,14 @@ namespace RTT {
         }
 
         D( base::DataSourceBase::shared_ptr sh, OperationRepositoryPart* ofp, const string& name)
-            : mofp(ofp), mname(name), s(), msh(sh), blocking(false)
+            : mofp(ofp), mname(name), s(), msh(sh), blocking( new ValueDataSource<bool>(false) )
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
             : mofp(other.mofp), mname(other.mname),
-              args( other.args ), s( other.s ), msh(other.msh), blocking(false)
+              args( other.args ), s( other.s ), msh(other.msh), blocking(new ValueDataSource<bool>(false))
         {
         }
 
@@ -63,22 +63,23 @@ namespace RTT {
     };
 
     SendHandleC::SendHandleC()
-        : d(0), s()
+        : d(0), s(), b()
     {
     }
 
     SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr sh, OperationRepositoryPart* ofp, const string& name )
-        : d( ofp ? new D( sh, ofp, name ) : 0 ), s()
+        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b()
     {
         if ( d->s ) {
             this->s = d->s;
+            this->b = d->blocking;
             delete d;
             d = 0;
         }
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0)
+        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0)
     {
     }
 
@@ -89,6 +90,7 @@ namespace RTT {
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
         s = other.s;
+        b = other.b;
         return *this;
     }
 
@@ -114,6 +116,7 @@ namespace RTT {
 
     SendStatus SendHandleC::collect() {
         if (s) {
+            b->set(true); // blocking
             s->evaluate();
             return SendFailure;
         }
@@ -131,6 +134,7 @@ namespace RTT {
 
     SendStatus SendHandleC::collectIfDone() {
         if (s) {
+            b->set(false); // non blocking
             // does the send.
             s->evaluate();
             // pass on handle.

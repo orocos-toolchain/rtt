@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../base/DataSourceBase.hpp"
+#include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
 #include "FactoryExceptions.hpp"
 #include "../base/DisposableInterface.hpp"
@@ -111,7 +112,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking) const = 0;
+            virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const = 0;
 
             /**
              * Returns any local operation associated with this operation.
@@ -233,7 +234,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, bool blocking) const;
+            base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
 
             /**
              * The descriptions of an argumentlist.

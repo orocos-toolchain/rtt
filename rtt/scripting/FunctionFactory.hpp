@@ -77,7 +77,7 @@ namespace RTT
         base::DataSourceBase::shared_ptr produceHandle() const;
         base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller
                                    ) const;
-        base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, bool blocking
+        base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking
                                    ) const;
     };
 }}

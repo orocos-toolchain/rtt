@@ -33,6 +33,10 @@ namespace RTT
          * being evaluated().
          */
         internal::DataSource<SendStatus>::shared_ptr s;
+        /**
+         * Stores the blocking/non blocking flag for collect/collectIfDone.
+         */
+        internal::AssignableDataSource<bool>::shared_ptr b;
     public:
         /**
          * The default constructor.
