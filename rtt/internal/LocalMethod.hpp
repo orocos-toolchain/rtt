@@ -142,7 +142,7 @@ namespace RTT
                 assert(myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
                 //std::cout << "Sending clone..."<<std::endl;
                 if ( myengine->process( cl.get() ) ) {
-                    self = cl;
+                    cl->self = cl;
                     return SendHandle<Signature>( cl );
                 } else {
                     // cleanup. Done by shared_ptr.
