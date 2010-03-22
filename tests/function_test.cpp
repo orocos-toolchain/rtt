@@ -176,17 +176,23 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
 
 /**
  * Exports foo and foo_args and calls them from C++
+ * Compare with testReturnExportFunction below that does
+ * the same, but in scripting.
+ * This code relies on RemoteMethod and MethodC
  */
 BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 {
     string prog = string("export function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
+        + "export int foo_ret() { \n"
+        + "     return 3\n"
+        + "}\n"
         + "export int foo_args(double d, int v) { \n"
         + " if ( d == 3.0 && v == 6) then\n"
         + "     return +1\n"
         + " else\n"
-        + "     return +1\n"
+        + "     return -1\n"
         + "}\n";
 
     this->doFunction( prog, &gtc );
@@ -196,11 +202,17 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 
     foo();
 
+    Method<int(void)> foo_ret = gtc.getOperation("foo_ret");
+    BOOST_CHECK( foo_ret.ready() );
+
+    int i = 0;
+    i = foo_ret();
+    BOOST_CHECK_EQUAL( i, 3 );
+
     BOOST_CHECK( gtc.getOperation("foo_args") );
     Method<int(double,int)> foo_args = gtc.getOperation("foo_args");
     BOOST_CHECK( foo_args.ready() );
 
-    int i = 0;
     i = foo_args(3.0, 6);
     BOOST_CHECK_EQUAL( i, +1);
 
@@ -208,21 +220,33 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
     BOOST_CHECK_EQUAL( i, -1);
 }
 
+/**
+ * Compare to use case above that does the same,
+ * but in C++
+ */
 BOOST_AUTO_TEST_CASE( testReturnExportFunction)
 {
-    string prog = string("export int foo { \n")
-        + " test.assert( test.isTrue( true ) )\n"
-        + " return 3\n"
-        + "}\n"
-        + "export int foo_args() { \n"
+    string prog = string("export function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
+        + "export int foo_ret() { \n"
+        + "     return 3\n"
+        + "}\n"
+        + "export int foo_args(double d, int v) { \n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + " if ( d == 3.0 && v == 6) then\n"
+        + "     return +1\n" // 10
+        + " else\n"
+        + "     return -1\n"
         + " return 4\n"
         + "}\n"
         + "program x { \n"
-        + "   this.foo()\n"
-        + "   this.foo_args()\n"
-        + "   test.assertEqual(this.foo(), 3 )\n"
-        + "   test.assertEqual(this.foo_args(), 4)\n"
+        + "   this.foo()\n" // a void function
+        + "   this.foo_ret()\n"
+        + "   this.foo_args(3.0,6)\n"
+        + "   test.assertEqual(this.foo_ret(), 3 )\n"
+        + "   test.assertEqual(this.foo_args(3.0,6), 1)\n" // 20
+        + "   test.assertEqual(this.foo_args(0.0,0), -1)\n"
         + "}";
 
     this->doFunction( prog, &gtc );

@@ -65,7 +65,7 @@ namespace RTT
             AStore(T t) : arg(t) {}
             AStore(AStore const& o) : arg(o.arg) {}
 
-            const T& get() const { return arg; }
+            T& get() { return arg; }
             void operator()(T a) { arg = a; }
 
             operator T() { return arg;}
@@ -84,18 +84,7 @@ namespace RTT
 
             operator T&() { return *arg;}
         };
-#if 0
-        template<class T>
-        struct AStore<const T &>
-        {
-            const T* arg;
-            AStore() : arg(0) {}
-            AStore(const T& t) : arg(&t) {}
 
-            const T& operator()() { return *arg; }
-            void operator()(const T& a) { arg = &a; }
-        };
-#endif
         template<class T>
         std::ostream& operator<<(std::ostream& o, AStore<T>& a) { o << "aarg:"<<a.get(); return o;}
 

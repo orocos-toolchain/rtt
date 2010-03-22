@@ -152,7 +152,7 @@ namespace RTT {
     }
 
     internal::MethodC ServiceProvider::create(std::string name, ExecutionEngine* caller) {
-        return internal::MethodC( shared_from_this(), name, caller );
+        return internal::MethodC( getPart(name), name, caller );
     }
 
 }

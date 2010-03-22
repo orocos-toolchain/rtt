@@ -251,52 +251,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
     BOOST_CHECK_EQUAL( 20.0, h1r.ret() );
 }
-#ifdef ORO_REMOTING
-BOOST_AUTO_TEST_CASE(testRemoteMethod)
-{
-    Method<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
-    m0 = implementation;
-    BOOST_CHECK( m0.ready() );
-
-    Method<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
-    m1 = implementation;
-    BOOST_CHECK( m1.ready() );
-
-    BOOST_CHECK_EQUAL( -2.0, m1(1) );
-    BOOST_CHECK_EQUAL( -1.0, m0() );
-}
-
-BOOST_AUTO_TEST_CASE(testMethodsC)
-{
-    MethodC mc;
-    double r = 0.0;
-    mc = tc->provides("methods")->create("m0").ret( r );
-    BOOST_CHECK( mc.execute() );
-    BOOST_CHECK( r == -1.0 );
-
-    mc = tc->provides("methods")->create("m2").argC(1).argC(1.0).ret( r );
-    BOOST_CHECK( mc.execute() );
-    BOOST_CHECK( r == -3.0 );
-
-//    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-//    BOOST_CHECK( mc.execute() );
-//    BOOST_CHECK( r == -4.0 );
-
-#if 0
-        +" set r = methods.m0()\n"
-        +" do methods.assert( r == -1.0 )\n"
-        +" set r = methods.m1(1)\n"
-        +" do methods.assert( r == -2.0 )\n"
-        +" set r = methods.m2(1, 1.0)\n"
-        +" do methods.assert( r == -3.0 )\n"
-        +" set r = methods.m3(1, 1.0, true)\n"
-        +" do methods.assert( r == -4.0 )\n"
-        +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
-        +" do methods.assert( r == -5.0 )\n"
-#endif
-}
+#ifdef ORO_REMOTING_OLD
 
 BOOST_AUTO_TEST_CASE(testMethodFactory)
 {

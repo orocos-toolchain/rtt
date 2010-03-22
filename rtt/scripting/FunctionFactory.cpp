@@ -39,6 +39,7 @@
 #include "FunctionFactory.hpp"
 
 #include "../ExecutionEngine.hpp"
+#include "../internal/GlobalEngine.hpp"
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 #include "CallFunction.hpp"
@@ -142,6 +143,8 @@ namespace RTT {
             // the command gets ownership of the new function :
             // this command is a DataSourceBase...
             AttributeBase* ar= fcopy->getResult();
+            if (!caller)
+                caller = GlobalEngine::Instance();
             if (ar)
                 return ar->getDataSource()->getTypeInfo()->buildActionAlias( new CallFunction( icom, fcopy, proc, caller ), ar->getDataSource()).get();
             else // void case, returns result of runFunction (backwards compatibility).

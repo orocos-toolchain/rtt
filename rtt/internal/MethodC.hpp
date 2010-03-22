@@ -73,7 +73,7 @@ namespace RTT
          * The constructor.
          * @see interface::ServiceProvider
          */
-        MethodC( const interface::ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller);
+        MethodC( interface::OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A MethodC is copyable by value.

@@ -25,7 +25,7 @@ namespace RTT
         : public base::ActionInterface
     {
         base::ActionInterface* minit;
-        ExecutionEngine* _proc;
+        ExecutionEngine* mrunner;
         ExecutionEngine* mcaller;
         /**
          * _v is only necessary for the copy/clone semantics.
@@ -57,7 +57,7 @@ namespace RTT
                       internal::AssignableDataSource<ProgramInterface*>* v = 0 ,
                       internal::AssignableDataSource<bool>* a = 0 )
         : minit(init_com),
-        _proc(p), mcaller(caller),
+        mrunner(p), mcaller(caller),
         _v( v==0 ? new internal::UnboundDataSource< internal::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
         _foo( foo ), isqueued(false), maccept(false)
         {
@@ -71,10 +71,11 @@ namespace RTT
             // this is asyn behaviour :
             if (isqueued == false ) {
                 isqueued = true;
-                maccept = minit->execute() && _proc->runFunction( _foo.get() ) && _foo->start() ;
+                maccept = minit->execute() && mrunner->runFunction( _foo.get() ) && _foo->start() ;
                 if ( maccept ) {
                     // block for the result: foo stopped or in error
-                    mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
+                    //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
+                    mrunner->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
                     return !_foo->inError();
                 }
                 return false;
@@ -83,7 +84,7 @@ namespace RTT
         }
 
         virtual void reset() {
-            _proc->removeFunction( _foo.get() );
+            mrunner->removeFunction( _foo.get() );
             maccept = false;
             isqueued = false;
         }
@@ -100,7 +101,7 @@ namespace RTT
         base::ActionInterface* clone() const
         {
             // _v is shared_ptr, so don't clone.
-            return new CallFunction( minit->clone(), _foo, _proc, mcaller, _v.get() );
+            return new CallFunction( minit->clone(), _foo, mrunner, mcaller, _v.get() );
         }
 
         base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
@@ -110,7 +111,7 @@ namespace RTT
             boost::shared_ptr<ProgramInterface> fcpy( _foo->copy(alreadyCloned) );
             internal::AssignableDataSource<ProgramInterface*>* vcpy = _v->copy(alreadyCloned);
             vcpy->set( fcpy.get() ); // since we own _foo, we may manipulate the copy of _v
-            return new CallFunction( minit->copy(alreadyCloned), fcpy , _proc, mcaller, vcpy );
+            return new CallFunction( minit->copy(alreadyCloned), fcpy , mrunner, mcaller, vcpy );
         }
 
     };

@@ -50,17 +50,57 @@ namespace RTT
 {
     namespace internal
     {
+        /**
+         * Analogous to RStore, but specific for DataSourceStorage.
+         * Lacks the executed check and exec function.
+         * It provides storage for a return value, that will be set
+         * using a ReferenceDataSource and be read in collect/collectIfDone.
+         */
+        template<class T>
+        struct DSRStore {
+            T arg;
+            DSRStore() : arg() {}
+
+            T& result() { return arg; }
+            operator T&() { return arg; }
+        };
+
+        template<class T>
+        struct DSRStore<T&>
+        {
+            typedef typename boost::remove_const<T>::type result_type;
+            result_type arg;
+            DSRStore() : arg() {}
+            result_type& result() { return arg; } // non const return
+            operator result_type&() { return arg; }
+        };
+
+        template<>
+        struct DSRStore<void> {
+            DSRStore() {}
+            void result() { return; }
+        };
+
+        template<>
+        struct is_arg_return<DSRStore<void> > : public mpl::false_
+        {};
+
+        template<class T>
+        struct is_arg_return<DSRStore<T> > : public mpl::true_
+        {};
+
+
         //! Partial specialisations for storing a void, not a void or reference
         //! Wraps around RStore.
         template<class R>
         struct DataSourceResultStorage
         {
             typedef R result_type;
-            RStore<R> retn;
+            DSRStore<R> retn;
             typename ReferenceDataSource<R>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result(boost::make_shared<ReferenceDataSource<R> >(retn.get()) )
+                : result( new ReferenceDataSource<R>(retn.result()) )
             {
             }
 
@@ -78,6 +118,7 @@ namespace RTT
         struct DataSourceResultStorage<void>
         {
             typedef void result_type;
+            DSRStore<void> retn;
             DataSourceResultStorage()
             {
             }
@@ -91,14 +132,14 @@ namespace RTT
         //! @bug return of references are not supported yet in RemoteMethod.
         //! The user receives a reference to a local variable.
         template<class R>
-        struct DataSourceResultStorage<R&>
+        struct DataSourceResultStorage<R const&>
         {
-            typedef R result_type;
-            RStore<R> retn;
-            typename ReferenceDataSource<R>::shared_ptr result;
+            typedef R const& result_type;
+            DSRStore<result_type> retn;
+            typename AssignableDataSource<result_type>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result(boost::make_shared<ReferenceDataSource<R> >() )
+                : result( new ReferenceDataSource<result_type>( retn.result() ) )
             {
             }
 
@@ -107,8 +148,8 @@ namespace RTT
                 cc.ret(base::DataSourceBase::shared_ptr(result));
             }
 
-            R getResult() {
-                return retn.result();
+            result_type getResult() {
+                return result->get();
             }
         };
 
@@ -118,22 +159,21 @@ namespace RTT
         struct DataSourceArgStorage
         {
             AStore<A> arg;
-            typename ReferenceDataSource<A>::shared_ptr value;
+            typedef typename AssignableDataSource<A>::reference_t ref_t;
+            typename ReferenceDataSource<ref_t>::shared_ptr value;
             DataSourceArgStorage()
-                : value(boost::make_shared<ReferenceDataSource<A> >(arg.get()) )
+                : value( new ReferenceDataSource<ref_t>(arg.get()) )
             {}
         };
 
-        //! @bug reference arguments are not supported yet in RemoteMethod and RemoteCommand.
-        //! The result will not be communicated back to user code.
         template<class A>
-        struct DataSourceArgStorage<A&>
+        struct DataSourceArgStorage<A const&>
         {
-            AStore<A> arg;
-            // strips the reference !
-            typename ReferenceDataSource<A>::shared_ptr value;
+            AStore<A const&> arg;
+            typedef typename AssignableDataSource<A>::const_reference_t cref_t;
+            typename ConstReferenceDataSource<cref_t>::shared_ptr value;
             DataSourceArgStorage()
-                : value(boost::make_shared<ReferenceDataSource<A> >(arg.get()) )
+                : value( new ConstReferenceDataSource<cref_t>(arg.get()) )
             {}
         };
 
@@ -148,7 +188,7 @@ namespace RTT
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::result_type result_type;
-            bf::vector< RStore<result_type>& > vStore;
+            bf::vector< DSRStore<result_type>& > vStore;
             DataSourceStorageImpl() :  vStore(boost::ref(this->retn)) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn) {}
             template<class ContainerT>
@@ -167,7 +207,7 @@ namespace RTT
             DataSourceArgStorage<arg1_type> ma1;
 
             // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg) {}
 
@@ -177,7 +217,7 @@ namespace RTT
             }
 
             void store(arg1_type a1) {
-                ma1.value->set(a1);
+                ma1.arg(a1);
             }
         };
 
@@ -192,7 +232,7 @@ namespace RTT
             DataSourceArgStorage<arg2_type> ma2;
 
             // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg) {}
 
@@ -202,8 +242,8 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
             }
             void store(arg1_type a1, arg2_type a2) {
-                ma1.value->set(a1);
-                ma2.value->set(a2);
+                ma1.arg(a1);
+                ma2.arg(a2);
             }
         };
 
@@ -220,7 +260,7 @@ namespace RTT
             DataSourceArgStorage<arg3_type> ma3;
 
             // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
 
@@ -231,9 +271,9 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3) {
-                ma1.value->set(a1);
-                ma2.value->set(a2);
-                ma3.value->set(a3);
+                ma1.arg(a1);
+                ma2.arg(a2);
+                ma3.arg(a3);
             }
         };
 
@@ -252,7 +292,7 @@ namespace RTT
             DataSourceArgStorage<arg4_type> ma4;
 
             // the list of all our storage.
-            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
 
@@ -264,10 +304,10 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
-                ma1.value->set(a1);
-                ma2.value->set(a2);
-                ma3.value->set(a3);
-                ma4.value->set(a4);
+                ma1.arg(a1);
+                ma2.arg(a2);
+                ma3.arg(a3);
+                ma4.arg(a4);
             }
         };
 

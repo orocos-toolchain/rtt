@@ -357,12 +357,12 @@ namespace RTT
             if ( !this->impl ) {
 #ifdef ORO_REMOTING
                 // try differently
-                this->impl.reset( new RemoteMethod<Signature>( part ));
+                this->impl.reset( new internal::RemoteMethod<Signature>( part, mname, mcaller ));
                 if (this->impl->ready())
                     this->impl->setCaller(mcaller);
                 else {
                     this->impl.reset(); // clean up.
-                    log(Error) << "Tried to construct Method from incompatible operation '"<< name<<"' in service '"<< service->getName()<<"'."<< endlog();
+                    log(Error) << "Tried to construct Method from incompatible operation '"<< mname<<"'."<< endlog();
                 }
 #else
                 log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();

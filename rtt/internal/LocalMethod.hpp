@@ -499,11 +499,6 @@ namespace RTT
                 this->msig = sig;
             }
 
-            base::ActionInterface* clone() const
-            {
-                return new LocalMethod<Signature>(*this);
-            }
-
             base::MethodBase<Signature>* cloneI(ExecutionEngine* caller) const
             {
                 LocalMethod<Signature>* ret = new LocalMethod<Signature>(*this);

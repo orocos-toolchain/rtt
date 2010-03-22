@@ -51,7 +51,7 @@ namespace RTT {
     class MethodC::D
     {
     public:
-        const ServiceProviderPtr mmr;
+        OperationRepositoryPart* ofp;
         ExecutionEngine* caller;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
@@ -61,16 +61,12 @@ namespace RTT {
 
         void checkAndCreate() {
             Logger::In in("MethodC");
-            if ( mmr ) {
-                if ( mmr->hasMember(mname) == false ) {
-                    Logger::log() <<Logger::Error << "No '"<<mname<<"' method in this Method Repository."<<Logger::endl;
-                    ORO_THROW(name_not_found_exception(mname));
-                }
-                size_t sz = mmr->getArity(mname);
+            if ( ofp ) {
+                size_t sz = ofp->arity();
                 if ( sz == args.size() ) {
                     // may throw or return nill
-                    m = mmr->produce(mname, args, caller );
-                    s = mmr->produceSend(mname, args, caller );
+                    m = ofp->produce(args, caller );
+                    s = ofp->produceSend(args, caller );
                     args.clear();
                     if ( !m )
                         return;
@@ -96,14 +92,14 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( const ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller)
-            : mmr(mr), caller(caller), mname(name), rta(), m()
+        D( OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
+            : ofp(mr), caller(caller), mname(name), rta(), m()
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
-            : mmr(other.mmr), caller(other.caller), mname(other.mname),
+            : ofp(other.ofp), caller(other.caller), mname(other.mname),
               args( other.args ), rta( other.rta ), m( other.m )
         {
         }
@@ -119,7 +115,7 @@ namespace RTT {
     {
     }
 
-    MethodC::MethodC(const ServiceProviderPtr mr, const std::string& name, ExecutionEngine* caller)
+    MethodC::MethodC(OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m()
     {
         if ( d->m ) {
@@ -193,7 +189,7 @@ namespace RTT {
             Logger::log() <<Logger::Error << "call() called on incomplete MethodC."<<Logger::endl;
             if (d) {
                 size_t sz;
-                sz = d->mmr->getArity( d->mname );
+                sz = d->ofp->arity();
                 Logger::log() <<Logger::Error << "Wrong number of arguments provided for method '"+d->mname+"'"<<Logger::nl;
                 Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
             }
@@ -206,13 +202,13 @@ namespace RTT {
             // does the send.
             s->evaluate();
             // pass on handle.
-            return SendHandleC( s, d->mmr->getPart(d->mname), d->mname );
+            return SendHandleC( s, d->ofp, d->mname );
         }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;
             if (d) {
                 size_t sz;
-                sz = d->mmr->getArity( d->mname );
+                sz = d->ofp->arity();
                 Logger::log() <<Logger::Error << "Wrong number of arguments provided for method '"+d->mname+"'"<<Logger::nl;
                 Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
             }

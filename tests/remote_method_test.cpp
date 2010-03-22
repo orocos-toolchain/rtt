@@ -19,16 +19,17 @@ BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
 #ifdef ORO_REMOTING
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
-    Method<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
+    Method<double(void)> m0("mo");
+    boost::shared_ptr<DisposableInterface> implementation( new RemoteMethod<double(void)>(tc->provides("methods")->getPart("m0"),"m0", caller->engine() ) );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
     Method<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
+    implementation.reset( new RemoteMethod<double(int)>(tc->provides("methods")->getPart("m1"),"m1", caller->engine()) );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
 
+    BOOST_CHECK_EQUAL(  2.0, m1(0) );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
@@ -37,13 +38,13 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
 {
     MethodC mc;
     double r = 0.0;
-    mc = tc->provides("methods")->create("m0", tc->engine()).ret( r );
+    mc = tc->provides("methods")->create("m0", caller->engine()).ret( r );
     BOOST_CHECK( mc.call() );
-    BOOST_CHECK( r == -1.0 );
+    BOOST_CHECK_EQUAL( r, -1.0 );
 
-    mc = tc->provides("methods")->create("m2", tc->engine()).argC(1).argC(1.0).ret( r );
+    mc = tc->provides("methods")->create("m2", caller->engine()).argC(1).argC(2.0).ret( r );
     BOOST_CHECK( mc.call() );
-    BOOST_CHECK( r == -3.0 );
+    BOOST_CHECK_EQUAL( r, -3.0 );
 
 //    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
 //    BOOST_CHECK( mc.call() );
@@ -65,31 +66,19 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
-    ServiceProvider to("task");
-
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this);
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this);
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this);
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this);
-
-    to.addOperation( &m0, "desc");
-    to.addOperation( &m1, "desc", "a1", "d1");
-    to.addOperation( &m2, "desc", "a1", "d1", "a2","d2");
-    to.addOperation( &m3, "desc", "a1", "d1", "a2","d2","a3","d3");
-    to.addOperation( &m4, "desc", "a1", "d1", "a2","d2","a3","d3", "a4","d4");
+    ServiceProviderPtr sp = tc->provides("methods");
 
     double ret;
-    MethodC mc0( to.methods(), "m0");
+    MethodC mc0 = sp->create("m0", caller->engine() );
     mc0.ret(ret);
-    MethodC mc1( to.methods(), "m1");
+    MethodC mc1 = sp->create("m1", caller->engine() );
     mc1.argC(1).ret(ret);
-    MethodC mc2( to.methods(), "m2");
+    MethodC mc2 = sp->create("m2", caller->engine() );
     mc2.argC(1).argC(2.0).ret(ret);
-    MethodC mc3( to.methods(), "m3");
-    mc3.argC(1).argC(2.0).argC(false).ret(ret);
-    MethodC mc4( to.methods(), "m4");
-    mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
+    MethodC mc3 = sp->create("m3", caller->engine() );
+    mc3.argC(1).argC(2.0).argC(true).ret(ret);
+    MethodC mc4 = sp->create("m4", caller->engine() );
+    mc4.argC(1).argC(2.0).argC(true).argC(std::string("hello")).ret(ret);
 
     BOOST_CHECK( mc0.call() );
     BOOST_CHECK_EQUAL(-1.0, ret);

@@ -60,6 +60,10 @@ namespace RTT
             typedef boost::shared_ptr<MethodBase<F> > shared_ptr;
             virtual ~MethodBase() {}
 
+            virtual bool ready() const {
+                return true;
+            }
+
             /**
              * Creates a new clone of this method using operator new().
              * @param caller The ExecutionEngine of the task that wishes
