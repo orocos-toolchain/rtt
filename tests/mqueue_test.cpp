@@ -1,6 +1,4 @@
 
-#include "mqueue_test.hpp"
-
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -16,46 +14,92 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-void
-MQueueTest::setUp()
+#include <InputPort.hpp>
+#include <OutputPort.hpp>
+#include <TaskContext.hpp>
+#include <string>
+
+using namespace RTT;
+using namespace RTT::detail;
+
+class MQueueTest
 {
-    // connect DataPorts
-    mr1 = new InputPort<double>("mr");
-    mw1 = new OutputPort<double>("mw");
+public:
+    MQueueTest()
+    {
+        // connect DataPorts
+        mr1 = new InputPort<double>("mr");
+        mw1 = new OutputPort<double>("mw");
 
-    mr2 = new InputPort<double>("mr");
-    mw2 = new OutputPort<double>("mw");
+        mr2 = new InputPort<double>("mr");
+        mw2 = new OutputPort<double>("mw");
 
-    tc =  new TaskContext( "root" );
-    tc->ports()->addEventPort( *mr1 );
-    tc->ports()->addPort( *mw1 );
+        // both tc's are non periodic
+        tc =  new TaskContext( "root" );
+        tc->ports()->addEventPort( *mr1 );
+        tc->ports()->addPort( *mw1 );
 
-    t2 = new TaskContext("other");
-    t2->ports()->addEventPort( *mr2 );
-    t2->ports()->addPort( *mw2 );
+        t2 = new TaskContext("other");
+        t2->ports()->addEventPort( *mr2 );
+        t2->ports()->addPort( *mw2 );
 
-    tc->start();
-    t2->start();
-}
+        tc->start();
+        t2->start();
+    }
 
+    ~MQueueTest()
+    {
+        delete tc;
+        delete t2;
 
-void
-MQueueTest::tearDown()
+        delete mr1;
+        delete mw1;
+        delete mr2;
+        delete mw2;
+    }
+
+    TaskContext* tc;
+    TaskContext* t2;
+
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface* port)
+    {
+        signalled_port = port;
+    }
+
+    // Ports
+    InputPort<double>*  mr1;
+    OutputPort<double>* mw1;
+    InputPort<double>*  mr2;
+    OutputPort<double>* mw2;
+
+    Handle hl;
+    ConnPolicy policy;
+
+    // helper test functions
+    void testPortDataConnection();
+    void testPortBufferConnection();
+    void testPortDisconnected();
+};
+
+class MQueueFixture : public MQueueTest
 {
-    delete tc;
-    delete t2;
+public:
+    MQueueFixture() {
+        // Create a default policy specification
+        policy.type = ConnPolicy::DATA;
+        policy.init = false;
+        policy.lock_policy = ConnPolicy::LOCK_FREE;
+        policy.size = 0;
+        policy.pull = true;
+        policy.transport = ORO_MQUEUE_PROTOCOL_ID;
 
-    delete mr1;
-    delete mw1;
-    delete mr2;
-    delete mw2;
-}
+        // Set up an event handler to check if signalling works properly as well
+        hl = mr2->getNewDataOnPortEvent()->setup(
+                    boost::bind(&MQueueTest::new_data_listener, this, _1) );
 
-void MQueueTest::new_data_listener(PortInterface* port)
-{
-    signalled_port = port;
-}
-
+    }
+};
 
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
     signalled_port = 0; \
@@ -63,6 +107,7 @@ void MQueueTest::new_data_listener(PortInterface* port)
     rtos_disable_rt_warning(); \
     usleep(100000); \
     rtos_enable_rt_warning(); \
+    BOOST_CHECK( hl.connected() ); \
     BOOST_CHECK( read_port == signalled_port );
 
 void MQueueTest::testPortDataConnection()
@@ -127,7 +172,7 @@ void MQueueTest::testPortDisconnected()
 
 
 // Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  MQueueTestSuite,  MQueueTest )
+BOOST_FIXTURE_TEST_SUITE(  MQueueTestSuite,  MQueueFixture )
 
 /**
  * This unit test checks a manual setup of mqueue data flow,
@@ -135,28 +180,13 @@ BOOST_FIXTURE_TEST_SUITE(  MQueueTestSuite,  MQueueTest )
  */
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    // Create a default policy specification
-    ConnPolicy policy;
-    policy.type = ConnPolicy::DATA;
-    policy.init = false;
-    policy.lock_policy = ConnPolicy::LOCK_FREE;
-    policy.size = 0;
-    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mr2->getNewDataOnPortEvent()->setup(
-                boost::bind(&MQueueTest::new_data_listener, this, _1) ) );
-    hl.connect();
-    BOOST_CHECK( hl.connected() );
-
-    DataFlowInterface* ports  = tc->ports();
-    DataFlowInterface* ports2 = t2->ports();
+    BOOST_CHECK( hl.connect() );
 
 #if 1
     // WARNING: in the following, there is four configuration tested.
     // We need to manually disconnect both sides since mqueue are connection-less.
     policy.type = ConnPolicy::DATA;
-    policy.pull = false;
+    policy.pull = true;
     // test user supplied connection.
     policy.name_id = "/data1";
     BOOST_CHECK( mw1->createConnection(*mr2, policy) );
@@ -204,22 +234,10 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( testPortStreams )
 {
-    // Create a default policy specification
-    ConnPolicy policy;
-    policy.type = ConnPolicy::DATA;
-    policy.init = false;
-    policy.lock_policy = ConnPolicy::LOCK_FREE;
-    policy.size = 0;
-    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mr2->getNewDataOnPortEvent()->setup(
-            boost::bind(&MQueueTest::new_data_listener, this, _1) ) );
-    hl.connect();
+    BOOST_CHECK( hl.connect() );
 
     DataFlowInterface* ports  = tc->ports();
     DataFlowInterface* ports2 = t2->ports();
-
 
     // Test all four configurations of Data/Buffer & push/pull
     policy.type = ConnPolicy::DATA;
@@ -267,14 +285,6 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
 
 BOOST_AUTO_TEST_CASE( testPortStreamsTimeout )
 {
-    // Create a default policy specification
-    ConnPolicy policy;
-    policy.type = ConnPolicy::DATA;
-    policy.init = false;
-    policy.lock_policy = ConnPolicy::LOCK_FREE;
-    policy.size = 0;
-    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
     // Test creating an input stream without an output stream available.
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
@@ -295,14 +305,6 @@ BOOST_AUTO_TEST_CASE( testPortStreamsTimeout )
 
 BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
 {
-    // Create a default policy specification
-    ConnPolicy policy;
-    policy.type = ConnPolicy::DATA;
-    policy.init = false;
-    policy.lock_policy = ConnPolicy::LOCK_FREE;
-    policy.size = 0;
-    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
     // Test creating an input stream without an output stream available.
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
@@ -323,18 +325,7 @@ BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
 // copied from testPortStreams
 BOOST_AUTO_TEST_CASE( testVectorTransport )
 {
-    // Create a default policy specification
-    ConnPolicy policy;
-    policy.type = ConnPolicy::DATA;
-    policy.init = false;
-    policy.lock_policy = ConnPolicy::LOCK_FREE;
-    policy.size = 0;
-    policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mr2->getNewDataOnPortEvent()->setup(
-            boost::bind(&MQueueTest::new_data_listener, this, _1) ) );
-    hl.connect();
+    BOOST_CHECK( hl.connect() );
 
     DataFlowInterface* ports  = tc->ports();
     DataFlowInterface* ports2 = t2->ports();
