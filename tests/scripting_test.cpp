@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(TestGetProvider)
     BOOST_REQUIRE( sc );
     BOOST_CHECK ( sc->ready() );
     bool r;
-    r = sc->loadProgramText("program Foo { do methods.assert(true); set ret = 10.0; }");
+    r = sc->loadProgramText("program Foo { do test.assert(true); set ret = 10.0; }");
     BOOST_REQUIRE( r );
     BOOST_CHECK( sc->hasProgram("Foo") );
     BOOST_REQUIRE( sc->startProgram("Foo") );

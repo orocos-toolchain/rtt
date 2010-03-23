@@ -5,9 +5,7 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
-#ifdef ORO_REMOTING
 #include <internal/RemoteMethod.hpp>
-#endif
 #include <interface/ServiceProvider.hpp>
 
 #include "unit.hpp"
@@ -16,7 +14,6 @@
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
 
-#ifdef ORO_REMOTING
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
     Method<double(void)> m0("mo");
@@ -91,6 +88,74 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     BOOST_CHECK( mc4.call() );
     BOOST_CHECK_EQUAL(-5.0, ret);
 }
-#endif
+
+BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
+{
+    // Test the addition of methods to the operation interface,
+    // and retrieving it back in a new Method object.
+    // these operations may use the remoting facility to adapt
+
+    Operation<double(void)> m0("m0");
+    m0.calls(&OperationsFixture::m0, this);
+    Operation<double(int)> m1("m1");
+    m1.calls(&OperationsFixture::m1, this);
+    Operation<double(int,double)> m2("m2");
+    m2.calls(&OperationsFixture::m2, this);
+
+    ServiceProvider to("task");
+
+    BOOST_CHECK( !to.addOperation(m0).ready() );
+    to.setOwner(tc);
+    BOOST_CHECK( to.addOperation(m0).ready() );
+    BOOST_CHECK( to.addOperation(m0).ready() );
+    BOOST_CHECK( to.addOperation(m1).ready() );
+    BOOST_CHECK( to.addOperation(m2).ready() );
+
+    // test constructor
+    Method<double(void)> mm0 = to.getOperation("m0");
+    BOOST_CHECK( mm0.getMethodImpl() );
+    BOOST_CHECK( mm0.ready() );
+
+    // test operator=()
+    Method<double(int)> mm1;
+    mm1 = to.getOperation("m1");
+    BOOST_CHECK( mm1.getMethodImpl() );
+    BOOST_CHECK( mm1.ready() );
+
+    Method<double(int,double)> mm2 = to.getOperation("m2");
+    BOOST_CHECK( mm2.getMethodImpl() );
+    BOOST_CHECK( mm2.ready() );
+
+    // execute methods and check status:
+    BOOST_CHECK_EQUAL( -1.0, mm0() );
+
+    BOOST_CHECK_EQUAL( -2.0, mm1(1) );
+    BOOST_CHECK_EQUAL( -3.0, mm2(1, 2.0) );
+
+    // test error cases:
+    // Add uninitialised op:
+    Operation<void(void)> ovoid("voidm");
+    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
+    ovoid = Operation<void(void)>("voidm");
+    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
+
+    // wrong type 1:
+    Method<void(void)> mvoid;
+    mvoid = to.getOperation("m1");
+    BOOST_CHECK( mvoid.ready() == false );
+    // wrong type 2:
+    mvoid = to.getOperation("m2");
+    BOOST_CHECK( mvoid.ready() == false );
+    // auto-converts double to void:
+    mvoid = to.getOperation("m0");
+    BOOST_CHECK( mvoid.ready() == true );
+    // non existing
+    mvoid = to.getOperation("voidm");
+    BOOST_CHECK( mvoid.ready() == false );
+
+    // this line may not crash:
+    mvoid();
+
+}
 
 BOOST_AUTO_TEST_SUITE_END()

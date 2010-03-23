@@ -12,8 +12,9 @@ using namespace RTT::detail;
 
 OperationsFixture::OperationsFixture()
 {
+    i = -1;
     tc = new TaskContext("root");
-    tc->provides()->addService(this->createMethodFactory());
+    this->createMethodFactories();
     tc->provides()->addAttribute("ret", ret );
     caller = new TaskContext("caller");
     caller->start();
@@ -27,12 +28,19 @@ OperationsFixture::~OperationsFixture()
     delete caller;
 }
 
-ServiceProvider::shared_ptr OperationsFixture::createMethodFactory()
+void OperationsFixture::createMethodFactories()
 {
+    ServiceProvider::shared_ptr dat = ServiceProvider::Create("test");
+    dat->addOperation("i", &OperationsFixture::getI, this).doc("Return the current number");
+    dat->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
+    dat->addOperation("assertEqual", &OperationsFixture::assertEqual, this);
+    dat->addOperation("increase", &OperationsFixture::increase, this).doc("Return increasing i");
+    dat->addOperation("resetI", &OperationsFixture::resetI, this).doc("ResetI i");
+    dat->addOperation("assertMsg", &OperationsFixture::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+    dat->addOperation("isTrue", &OperationsFixture::assertBool, this).doc("Identity function").arg("bool", "");
+    tc->provides()->addService( dat );
+
     ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
-
-    to->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
-
     // ClientThread
     to->addOperation("m0r", &OperationsFixture::m0r, this).doc("M0r");
     to->addOperation("m0cr", &OperationsFixture::m0cr, this).doc("M0cr");
@@ -56,5 +64,5 @@ ServiceProvider::shared_ptr OperationsFixture::createMethodFactory()
     to->addOperation("o2", &OperationsFixture::m2, this, OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
     to->addOperation("o3", &OperationsFixture::m3, this, OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     to->addOperation("o4", &OperationsFixture::m4, this, OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    return to;
+    tc->provides()->addService( to );
 }

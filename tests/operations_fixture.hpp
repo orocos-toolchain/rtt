@@ -1,7 +1,6 @@
 
 #include <iostream>
 #include <TaskContext.hpp>
-#include <interface/ServiceProvider.hpp>
 
 using namespace std;
 using namespace boost;
@@ -37,8 +36,19 @@ public:
     double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
 
     bool assertBool(bool b) { return b; }
+    bool assertEqual(int a, int b) { if (a != b) cerr <<"AssertEqual failed: a != b "<< a << " != " <<b<<"."<<endl; return a == b; }
+    bool assertMsg( bool b, const std::string& msg) {
+        if ( b == false )
+            cout << "Asserted :" << msg << endl;
+        return true; // allow to continue to check other commands.
+    }
+    int increase() { return ++i;}
+    void resetI() { i = 0; }
+    int getI() const { return i; }
+    int i;
+
 
     ~OperationsFixture();
 
-    ServiceProvider::shared_ptr createMethodFactory();
+    void createMethodFactories();
 };

@@ -151,10 +151,11 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodFactory)
+BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
 {
     // Test the addition of 'simple' methods to the operation interface,
     // and retrieving it back in a new Method object.
+    // local operations do not use the remoting facility.
 
     Operation<double(void)> m0("m0");
     m0.calls(&OperationsFixture::m0, this);
@@ -162,28 +163,36 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     m1.calls(&OperationsFixture::m1, this);
     Operation<double(int,double)> m2("m2");
     m2.calls(&OperationsFixture::m2, this);
+    BOOST_CHECK( !m0.ready() );
+    BOOST_CHECK( !m1.ready() );
+    BOOST_CHECK( !m2.ready() );
 
     ServiceProvider to("task");
 
-    BOOST_CHECK( !to.addOperation(m0).ready() );
+    // allow to add an operation even if no owner is set.
+    BOOST_CHECK( to.addLocalOperation(m0) );
+    BOOST_CHECK( !m0.ready() );
     to.setOwner(tc);
-    BOOST_CHECK( to.addOperation(m0).ready() );
-    BOOST_CHECK( to.addOperation(m0).ready() );
-    BOOST_CHECK( to.addOperation(m1).ready() );
-    BOOST_CHECK( to.addOperation(m2).ready() );
+    BOOST_CHECK( m0.ready() );
+
+    // Overriding and adding:
+    BOOST_CHECK( to.addLocalOperation(m0) );
+    BOOST_CHECK( to.addLocalOperation(m0) );
+    BOOST_CHECK( to.addLocalOperation(m1) );
+    BOOST_CHECK( to.addLocalOperation(m2) );
 
     // test constructor
-    Method<double(void)> mm0 = to.getOperation("m0");
+    Method<double(void)> mm0 = to.getLocalOperation("m0");
     BOOST_CHECK( mm0.getMethodImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
     Method<double(int)> mm1;
-    mm1 = to.getOperation("m1");
+    mm1 = to.getLocalOperation("m1");
     BOOST_CHECK( mm1.getMethodImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.getOperation("m2");
+    Method<double(int,double)> mm2 = to.getLocalOperation("m2");
     BOOST_CHECK( mm2.getMethodImpl() );
     BOOST_CHECK( mm2.ready() );
 
@@ -196,21 +205,22 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     // test error cases:
     // Add uninitialised op:
     Operation<void(void)> ovoid("voidm");
-    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
+    BOOST_CHECK(to.addLocalOperation( ovoid ) == false);
     ovoid = Operation<void(void)>("voidm");
-    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
+    BOOST_CHECK(to.addLocalOperation( ovoid ) == false);
 
     // wrong type 1:
     Method<void(void)> mvoid;
-    mvoid = to.getOperation("m1");
+    mvoid = to.getLocalOperation("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
-    mvoid = to.getOperation("m1");
+    mvoid = to.getLocalOperation("m2");
+    BOOST_CHECK( mvoid.ready() == false );
     // wrong type 3:
-    mvoid = to.getOperation("m0");
+    mvoid = to.getLocalOperation("m0");
     BOOST_CHECK( mvoid.ready() == false );
     // non existing
-    mvoid = to.getOperation("voidm");
+    mvoid = to.getLocalOperation("voidm");
     BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:
