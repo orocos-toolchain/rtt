@@ -222,6 +222,10 @@ namespace RTT
          */
         Method& operator=(interface::OperationRepositoryPart* part)
         {
+            if (part == 0) {
+                log(Warning) << "Assigning Method from null part."<<endlog();
+                this->impl.reset();
+            }
             if (this->impl && this->impl == part->getLocalOperation() )
                 return *this;
             Method<Signature> tmp(part);
@@ -239,6 +243,10 @@ namespace RTT
          */
         Method& operator=(interface::ServiceProviderPtr service)
         {
+            if ( !service ) {
+                log(Warning) << "Assigning Method from null service."<<endlog();
+                this->impl.reset();
+            }
             if (this->mname.empty()) {
                 log(Error) << "Can't initialise unnamed Method from service '"<<service->getName() <<"'."<<endlog();
                 return *this;
@@ -358,9 +366,10 @@ namespace RTT
 #ifdef ORO_REMOTING
                 // try differently
                 this->impl.reset( new internal::RemoteMethod<Signature>( part, mname, mcaller ));
-                if (this->impl->ready())
+                if (this->impl->ready()) {
+                    log(Debug) << "Constructed Method from remote implementation '"<< mname<<"'."<< endlog();
                     this->impl->setCaller(mcaller);
-                else {
+                } else {
                     this->impl.reset(); // clean up.
                     log(Error) << "Tried to construct Method from incompatible operation '"<< mname<<"'."<< endlog();
                 }
