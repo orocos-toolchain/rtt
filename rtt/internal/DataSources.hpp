@@ -256,7 +256,9 @@ namespace RTT
 
             typename DataSource<T>::result_t get() const
             {
+                action->readArguments();
                 action->execute();
+                action->reset();
                 return alias->get();
             }
 
