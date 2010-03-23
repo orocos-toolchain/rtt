@@ -55,8 +55,10 @@ InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const
 InputPortInterface::~InputPortInterface()
 {
     cmanager.disconnect();
-    if (new_data_on_port_event)
+    if ( new_data_on_port_event) {
+        new_data_on_port_event->disconnect();
         delete new_data_on_port_event;
+    }
 }
 
 ConnPolicy InputPortInterface::getDefaultPolicy() const
@@ -126,12 +128,6 @@ void InputPortInterface::clear()
 
 void InputPortInterface::disconnect()
 {
-    if ( new_data_on_port_event) {
-        new_data_on_port_event->disconnect();
-        delete new_data_on_port_event;
-        new_data_on_port_event = 0;
-    }
-
     cmanager.disconnect();
 }
 
