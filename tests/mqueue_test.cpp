@@ -236,9 +236,6 @@ BOOST_AUTO_TEST_CASE( testPortStreams )
 {
     BOOST_CHECK( hl.connect() );
 
-    DataFlowInterface* ports  = tc->ports();
-    DataFlowInterface* ports2 = t2->ports();
-
     // Test all four configurations of Data/Buffer & push/pull
     policy.type = ConnPolicy::DATA;
     policy.pull = false;

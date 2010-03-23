@@ -80,7 +80,7 @@
 
 namespace RTT
 {
-    namespace marsh
+    namespace mqueue
     {
 
         /**
