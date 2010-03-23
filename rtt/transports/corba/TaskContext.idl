@@ -118,13 +118,13 @@ module RTT
 	     * Get a provided service.
 	     * @see RTT::TaskContext::provides()
 	     */
-	    CServiceProvider provides( in string service_name );
+	    CServiceProvider providesService( in string service_name );
       
 	    /**
 	     * Get a required service.
 	     * @see RTT::TaskContext::requires()
 	     */
-	    CServiceRequester requires( in string service_name );
+	    CServiceRequester requiresService( in string service_name );
 	    /** @} */
 
 	    /**

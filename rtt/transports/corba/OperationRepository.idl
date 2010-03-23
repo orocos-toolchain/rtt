@@ -1,5 +1,5 @@
-#ifndef ORO_SERVICE_PROVIDER_IDL
-#define ORO_SERVICE_PROVIDER_IDL
+#ifndef ORO_CORBA_OPERATION_REPOSITORY_IDL
+#define ORO_CORBA_OPERATION_REPOSITORY_IDL
 
 #ifdef CORBA_IS_TAO
 //resolves LNK2005
@@ -46,7 +46,7 @@ module RTT
       string name;
     };
     
-    enum CSendStatus { CSendFailure, CSendNotReady, CSendSuccess; } 
+    enum CSendStatus { CSendFailure, CSendNotReady, CSendSuccess };
 
     /**
      * Is thrown if the calling or sending of an operation was
@@ -80,7 +80,7 @@ module RTT
          * Convenient if the sent method only returns a value.
          */  
         any ret();                       
-    }
+    };
 
     /**
      * Exposes the operations this service offers.

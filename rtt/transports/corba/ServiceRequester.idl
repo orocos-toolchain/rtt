@@ -1,10 +1,11 @@
-#ifndef ORO_SERVICE_REQUESTER_IDL
-#define ORO_SERVICE_REQUESTER_IDL
+#ifndef ORO_CORBA_SERVICE_REQUESTER_IDL
+#define ORO_CORBA_SERVICE_REQUESTER_IDL
 
 #ifdef CORBA_IS_TAO
 //resolves LNK2005
 #include <tao/orb.idl>
 #endif
+#include "ServiceProvider.idl"
 
 module RTT
 {
@@ -39,7 +40,7 @@ module RTT
 	    /**
 	     * Get a child request this request provides.
 	     */
-	    CRequestRequester getRequest( in string name );
+	    CServiceRequester getRequest( in string name );
 
 	    /**
 	     * Has this request a child request with given name ?

@@ -1,5 +1,5 @@
-#ifndef ORO_SERVICE_PROVIDER_IDL
-#define ORO_SERVICE_PROVIDER_IDL
+#ifndef ORO_CORBA_SERVICE_PROVIDER_IDL
+#define ORO_CORBA_SERVICE_PROVIDER_IDL
 
 #ifdef CORBA_IS_TAO
 //resolves LNK2005
@@ -30,7 +30,7 @@ module RTT
 	    /**
 	     * Return the description of this service.
 	     */
-	    string getDescription();
+	    string getServiceDescription();
 
 	    /**
 	     * Get a list of all the child services this service offers.

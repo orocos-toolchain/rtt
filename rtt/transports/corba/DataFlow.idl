@@ -5,7 +5,6 @@
 //resolves LNK2005
 #include <tao/orb.idl>
 #endif
-#include "Operations.idl"
 
 module RTT
 {
