@@ -17,12 +17,12 @@ module RTT
 	 */
 	interface CAttributeRepository
 	{
-	    struct Property {
-		string name;
-		string description;
+	    struct CProperty {
+		  string name;
+		  string description;
 	    };
 
-	    typedef sequence<Property> CPropertyNames;
+	    typedef sequence<CProperty> CPropertyNames;
 	    typedef sequence<string> CAttributeNames;
 
 	    CAttributeNames getAttributeList();
