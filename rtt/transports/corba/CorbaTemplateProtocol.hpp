@@ -44,31 +44,16 @@
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
-#include "ExpressionProxy.hpp"
-#include "ExpressionServer.hpp"
+#include "ServiceProviderC.h"
 #include "DataFlowI.h"
 #include "../../internal/ConnID.hpp"
+#include "DataSourceProxy.hpp"
 
 namespace RTT
 { namespace corba
   {
       /**
        * For each transportable type T, specify the conversion functions.
-       *
-       * @warning
-       * * * * B I G  N O T E * * * *
-       * This class uses the TypeTransport of Orocos which uses (void*) for
-       * passing on data. TAO's CORBA implementation uses virtual inheritance,
-       * which does not work well together with (void*). That is, you must cast
-       * back to the exect same type the (void*) originated from and NOT to a
-       * sub- or super-class. That would have been allowed without virtual inheritance.
-       * @warning
-       * Hence, this class uses always the same base class (CExpression_ptr) to
-       * communicate with the TypeTransport interface. Such that we know that when
-       * we receive a (void*) it came from an (CExpression_ptr) and vice versa.
-       * @warning
-       * Don't obey this and you'll get immediate hard to dissect crashes !
-       * * * * B I G  N O T E * * * *
        */
       template<class T>
       class CorbaTemplateProtocol
@@ -117,68 +102,28 @@ namespace RTT
             return false;
           }
 
-          /**
-           * Create a internal::DataSource which is a proxy for a remote object.
-           */
-          virtual base::DataSourceBase* proxy( void* data ) const
-          {
-            base::DataSourceBase* result = 0;
-            corba::CExpression_ptr e = static_cast<corba::CExpression_ptr>(data);
-
-            // first try as assignable DS, if not possible, try as normal DS.
-            result = corba::ExpressionProxy::NarrowAssignableDataSource<PropertyType>( e );
-            if (!result )
-                result = corba::ExpressionProxy::NarrowDataSource<PropertyType>( e );
-
-            return result;
+          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+              return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, true) );
           }
 
-          virtual void* server(base::DataSourceBase::shared_ptr source, bool assignable, void* arg ) const
-          {
-              PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
-              if (assignable){
-                  return static_cast<CExpression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
-
-              } else {
-                  return corba::ExpressionServer::CreateExpression( source, p );
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+              if ( serv->isAttributeAssignable( CORBA::string_dup(vname.c_str()) ) ) {
+                  return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, false) );
               }
-          }
-
-          virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const
-          {
-              PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
-              return corba::ExpressionServer::CreateMethod( source, orig, p );
+              else {
+                  return base::DataSourceBase::shared_ptr( new DataSourceProxy<PropertyType>( serv, vname, false ) );
+              }
           }
 
           virtual base::DataSourceBase* narrowDataSource(base::DataSourceBase* dsb)
           {
-              // then try to see if it is a CORBA object.
-              //corba::ExpressionProxyInterface* prox = dynamic_cast< corba::ExpressionProxyInterface* >(dsb);
-              // Only try if the names match in the first place.
-              if ( dsb->serverProtocol() == ORO_CORBA_PROTOCOL_ID && dsb->getTypeName() == internal::DataSource<T>::GetTypeName() ) {
-                  Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<Logger::endl;
-                  corba::CExpression_var expr = (corba::CExpression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID, 0) ;
-                  assert( !CORBA::is_nil(expr) );
-                  return corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
-              }
-              Logger::log() << Logger::Debug << "Failed to narrow server "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<Logger::endl;
-
-              // See if the DS contains an Any. This is required for the createMethodAny variants:
-              internal::DataSource<CORBA::Any_var>* aret = dynamic_cast< internal::DataSource<CORBA::Any_var>* >( dsb );
-              if (aret){
-                  return corba::ExpressionProxy::NarrowConstant<T>( aret->get().in() );
-              }
+              log( Error) << "Failed to narrow remote data source "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<endlog();
               return 0;
           }
 
           virtual base::DataSourceBase* narrowAssignableDataSource(base::DataSourceBase* dsb)
           {
-              // then try to see if it is a CORBA object.
-              //corba::ExpressionProxyInterface* prox = dynamic_cast< corba::ExpressionProxyInterface* >(dsb);
-              if ( dsb->serverProtocol() == ( ORO_CORBA_PROTOCOL_ID ) && dsb->getTypeName() == internal::DataSource<T>::GetTypeName() ) {
-                  corba::CExpression_var expr = (corba::CExpression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID,0) ;
-                  return corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
-              }
+              log( Error) << "Failed to narrow remote assignable data source "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<endlog();
               return 0;
           }
 

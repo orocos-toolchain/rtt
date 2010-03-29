@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  ControlTaskServer.cxx
+  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  TaskContextServer.cxx
 
-                        ControlTaskServer.cxx -  description
+                        TaskContextServer.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -37,11 +37,11 @@
 
 
 
-#include "ControlTaskServer.hpp"
-#include "ControlTaskProxy.hpp"
+#include "TaskContextServer.hpp"
+#include "TaskContextProxy.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "ControlTaskS.h"
+#include "TaskContextS.h"
 #include <orbsvcs/CosNamingC.h>
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
@@ -51,8 +51,8 @@
 #else
 #include <omniORB4/Naming.hh>
 #endif
-#include "ControlTaskC.h"
-#include "ControlTaskI.h"
+#include "TaskContextC.h"
+#include "TaskContextI.h"
 #include "POAUtility.h"
 #include <iostream>
 #include <fstream>
@@ -65,15 +65,15 @@ namespace RTT
 {
     using namespace std;
 
-    std::map<TaskContext*, ControlTaskServer*> ControlTaskServer::servers;
+    std::map<TaskContext*, TaskContextServer*> TaskContextServer::servers;
 
-    base::ActivityInterface* ControlTaskServer::orbrunner = 0;
+    base::ActivityInterface* TaskContextServer::orbrunner = 0;
 
-    bool ControlTaskServer::is_shutdown = false;
+    bool TaskContextServer::is_shutdown = false;
 
-  ControlTaskServer::~ControlTaskServer()
+  TaskContextServer::~TaskContextServer()
   {
-    Logger::In in("~ControlTaskServer()");
+    Logger::In in("~TaskContextServer()");
     servers.erase(mtaskcontext);
 
     PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
@@ -85,23 +85,23 @@ namespace RTT
             CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
 
             if (CORBA::is_nil( rootNC.in() ) ) {
-                log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
+                log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
             } else {
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(2);
-                name[0].id = CORBA::string_dup("ControlTasks");
+                name[0].id = CORBA::string_dup("TaskContexts");
                 name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
                 try {
                     rootNC->unbind(name);
-                    log(Info) << "Successfully removed CControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
+                    log(Info) << "Successfully removed CTaskContext '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
                 }
                 catch( ... ) {
-                    log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
+                    log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
                 }
             }
         } catch (...) {
-            log(Warning) << "CControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
+            log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
         }
     }
   }
@@ -109,10 +109,10 @@ namespace RTT
 
 
 
-    ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming, bool require_name_service)
+    TaskContextServer::TaskContextServer(TaskContext* taskc, bool use_naming, bool require_name_service)
       : mtaskcontext(taskc), muse_naming(use_naming)
     {
-        Logger::In in("ControlTaskServer()");
+        Logger::In in("TaskContextServer()");
         servers[taskc] = this;
         try {
             // Each server has its own POA.
@@ -135,8 +135,8 @@ namespace RTT
 //                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
-            Orocos_CControlTask_i* serv;
-            mtask_i = serv = new Orocos_CControlTask_i( taskc, mpoa );
+            RTT_corba_CTaskContext_i* serv;
+            mtask_i = serv = new RTT_corba_CTaskContext_i( taskc, mpoa );
             mtask   = serv->activate_this();
 
             if ( use_naming ) {
@@ -148,7 +148,7 @@ namespace RTT
                 } catch (...) {}
 
                 if (CORBA::is_nil( rootNC ) ) {
-                    std::string  err("CControlTask '" + taskc->getName() + "' could not find CORBA Naming Service.");
+                    std::string  err("CTaskContext '" + taskc->getName() + "' could not find CORBA Naming Service.");
                     if (require_name_service) {
                         servers.erase(taskc);
                         log(Error) << err << endlog();
@@ -172,17 +172,17 @@ namespace RTT
                         return;
                     }
                 }
-                log(Info) << "CControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
+                log(Info) << "CTaskContext '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(1);
-                name[0].id = CORBA::string_dup("ControlTasks");
+                name[0].id = CORBA::string_dup("TaskContexts");
                 CosNaming::NamingContext_var controlNC;
                 try {
                     controlNC = rootNC->bind_new_context(name);
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    log(Debug) << "NamingContext 'ControlTasks' already bound to CORBA Naming Service."<<endlog();
+                    log(Debug) << "NamingContext 'TaskContexts' already bound to CORBA Naming Service."<<endlog();
                     // NOP.
                 }
 
@@ -190,10 +190,10 @@ namespace RTT
                 name[1].id = CORBA::string_dup( taskc->getName().c_str() );
                 try {
                     rootNC->bind(name, mtask );
-                    log(Info) << "Successfully added CControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
+                    log(Info) << "Successfully added CTaskContext '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    log(Warning) << "CControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
+                    log(Warning) << "CTaskContext '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
                     log() <<"Trying to rebind...";
                     try {
                         rootNC->rebind(name, mtask);
@@ -201,11 +201,11 @@ namespace RTT
                         log() << " failed!"<<endlog();
                         return;
                     }
-                    log() << " done. New CControlTask bound to Naming Service."<<endlog();
+                    log() << " done. New CTaskContext bound to Naming Service."<<endlog();
                 }
             } // use_naming
             else {
-                log(Info) <<"CControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
+                log(Info) <<"CTaskContext '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
                 log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                 // this part only publishes the IOR to a file.
@@ -228,9 +228,9 @@ namespace RTT
 
     }
 
-    void ControlTaskServer::CleanupServers() {
+    void TaskContextServer::CleanupServers() {
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
-            log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
+            log(Info) << "Cleaning up TaskContextServers..."<<endlog();
             ServerMap::iterator it = servers.begin();
             while ( !servers.empty() ){
                 delete servers.begin()->second;
@@ -240,24 +240,24 @@ namespace RTT
         }
     }
 
-    void ControlTaskServer::CleanupServer(TaskContext* c) {
+    void TaskContextServer::CleanupServer(TaskContext* c) {
         if ( !CORBA::is_nil(orb) ) {
             ServerMap::iterator it = servers.find(c);
             if ( it != servers.end() ){
-                log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
+                log(Info) << "Cleaning up TaskContextServer for "<< c->getName()<<endlog();
                 delete it->second; // destructor will do the rest.
                 // note: destructor will self-erase from map !
             }
         }
     }
 
-    void ControlTaskServer::ShutdownOrb(bool wait_for_completion)
+    void TaskContextServer::ShutdownOrb(bool wait_for_completion)
     {
         Logger::In in("ShutdownOrb");
         DoShutdownOrb(wait_for_completion);
     }
 
-    void ControlTaskServer::DoShutdownOrb(bool wait_for_completion)
+    void TaskContextServer::DoShutdownOrb(bool wait_for_completion)
     {
         if (is_shutdown) {
             log(Info) << "Orb already down..."<<endlog();
@@ -285,7 +285,7 @@ namespace RTT
     }
 
 
-    void ControlTaskServer::RunOrb()
+    void TaskContextServer::RunOrb()
     {
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "RunOrb...failed! Orb is nil." << endlog();
@@ -314,7 +314,7 @@ namespace RTT
         void loop()
         {
             Logger::In in("OrbRunner");
-            ControlTaskServer::RunOrb();
+            TaskContextServer::RunOrb();
         }
 
         bool breakLoop()
@@ -329,7 +329,7 @@ namespace RTT
         }
     };
 
-    void ControlTaskServer::ThreadOrb()
+    void TaskContextServer::ThreadOrb()
     {
         Logger::In in("ThreadOrb");
         if ( CORBA::is_nil(orb) ) {
@@ -346,7 +346,7 @@ namespace RTT
         }
     }
 
-    void ControlTaskServer::DestroyOrb()
+    void TaskContextServer::DestroyOrb()
     {
         Logger::In in("DestroyOrb");
         if ( CORBA::is_nil(orb) ) {
@@ -374,19 +374,19 @@ namespace RTT
 
     }
 
-    ControlTaskServer* ControlTaskServer::Create(TaskContext* tc, bool use_naming, bool require_name_service) {
+    TaskContextServer* TaskContextServer::Create(TaskContext* tc, bool use_naming, bool require_name_service) {
         if ( CORBA::is_nil(orb) )
             return 0;
 
         if ( servers.count(tc) ) {
-            log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
+            log(Debug) << "Returning existing TaskContextServer for "<<tc->getName()<<endlog();
             return servers.find(tc)->second;
         }
 
         // create new:
-        log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
+        log(Info) << "Creating new TaskContextServer for "<<tc->getName()<<endlog();
         try {
-            ControlTaskServer* cts = new ControlTaskServer(tc, use_naming, require_name_service);
+            TaskContextServer* cts = new TaskContextServer(tc, use_naming, require_name_service);
             return cts;
         }
         catch( IllegalServer& is ) {
@@ -395,35 +395,35 @@ namespace RTT
         return 0;
     }
 
-    CControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming, bool require_name_service) {
+    CTaskContext_ptr TaskContextServer::CreateServer(TaskContext* tc, bool use_naming, bool require_name_service) {
         if ( CORBA::is_nil(orb) )
-            return CControlTask::_nil();
+            return CTaskContext::_nil();
 
         if ( servers.count(tc) ) {
-            log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
+            log(Debug) << "Returning existing TaskContextServer for "<<tc->getName()<<endlog();
             return servers.find(tc)->second->server();
         }
 
-        for (ControlTaskProxy::PMap::iterator it = ControlTaskProxy::proxies.begin(); it != ControlTaskProxy::proxies.end(); ++it)
+        for (TaskContextProxy::PMap::iterator it = TaskContextProxy::proxies.begin(); it != TaskContextProxy::proxies.end(); ++it)
             if ( (it->first) == tc ) {
                 log(Debug) << "Returning server of Proxy for "<<tc->getName()<<endlog();
-                return CControlTask::_duplicate(it->second);
+                return CTaskContext::_duplicate(it->second);
             }
 
         // create new:
-        log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
+        log(Info) << "Creating new TaskContextServer for "<<tc->getName()<<endlog();
         try {
-            ControlTaskServer* cts = new ControlTaskServer(tc, use_naming, require_name_service);
+            TaskContextServer* cts = new TaskContextServer(tc, use_naming, require_name_service);
             return cts->server();
         }
         catch( IllegalServer& is ) {
             cerr << is.what() << endl;
         }
-        return CControlTask::_nil();
+        return CTaskContext::_nil();
     }
 
 
-    corba::CControlTask_ptr ControlTaskServer::server() const
+    corba::CTaskContext_ptr TaskContextServer::server() const
     {
         // we're not a factory function, so we don't _duplicate.
         return mtask.in();

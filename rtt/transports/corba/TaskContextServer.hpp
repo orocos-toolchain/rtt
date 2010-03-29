@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskServer.hpp
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  TaskContextServer.hpp
 
-                        ControlTaskServer.hpp -  description
+                        TaskContextServer.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -44,20 +44,20 @@
 #endif
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "ControlTaskS.h"
+#include "TaskContextS.h"
 #else
-#include "ControlTaskC.h"
+#include "TaskContextC.h"
 #endif
 #include "../../TaskContext.hpp"
 #include "ApplicationServer.hpp"
 #include "../../base/ActivityInterface.hpp"
 
-class Orocos_CControlTask_i;
+class RTT_corba_CTaskContext_i;
 namespace RTT
 {namespace corba
 {
     class OrbRunner;
-    class ControlTaskProxy;
+    class TaskContextProxy;
 
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -65,14 +65,14 @@ namespace RTT
      * The Orb may be run from the main thread or in its own thread.
      * @ingroup CompIDL
      */
-    class RTT_CORBA_API ControlTaskServer
+    class RTT_CORBA_API TaskContextServer
         : public ApplicationServer
     {
     protected:
         friend class OrbRunner;
-        friend class ControlTaskProxy;
+        friend class TaskContextProxy;
 
-        typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
+        typedef std::map<TaskContext*, TaskContextServer*> ServerMap;
         static ServerMap servers;
         static base::ActivityInterface* orbrunner;
         static bool is_shutdown;
@@ -82,10 +82,10 @@ namespace RTT
         /**
          * Private constructor which creates a new servant.
          */
-        ControlTaskServer(TaskContext* taskcontext, bool use_naming, bool require_name_service);
+        TaskContextServer(TaskContext* taskcontext, bool use_naming, bool require_name_service);
 
         PortableServer::ServantBase_var mtask_i;
-        corba::CControlTask_var mtask;
+        corba::CTaskContext_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
 
@@ -97,10 +97,10 @@ namespace RTT
     public:
 
         /**
-        * When a ControlTaskServer is destroyed, the object reference
+        * When a TaskContextServer is destroyed, the object reference
         * is removed from the Naming Service and the servant is deleted.
         */
-        ~ControlTaskServer();
+        ~TaskContextServer();
 
         /**
          * Invoke this method once to shutdown the Orb which is
@@ -110,7 +110,7 @@ namespace RTT
         static void ShutdownOrb(bool wait_for_completion = true);
 
         /**
-         * Destroys all ControlTaskServer objects.
+         * Destroys all TaskContextServer objects.
          */
         static void CleanupServers();
 
@@ -141,12 +141,12 @@ namespace RTT
          * name service was not found
          * @return A new or previously created CORBA server for \a tc.
          */
-        static ControlTaskServer* Create(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
+        static TaskContextServer* Create(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
          * Factory method: create a CORBA server for an existing TaskContext.
          * Same as above, but immediately return the Corba object. Also checks if
-         * \a tc is ControlTaskProxy and returns the server of the proxy if so.
+         * \a tc is TaskContextProxy and returns the server of the proxy if so.
          * @param tc The TaskContext to serve.
          * @param use_naming Set to \a false in order not to use the Corba Naming Service.
          * @param require_naming Set to \a true to require that the Corba Naming Service be found.
@@ -156,25 +156,25 @@ namespace RTT
          * is a factory function, you need to store the object in a _var and don't
          * need to _duplicate it.
          */
-        static CControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
+        static CTaskContext_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
-<<<<<<< HEAD:src/transports/corba/ControlTaskServer.hpp
-         * Get the Corba Object of this CControlTask.
+<<<<<<< HEAD:src/transports/corba/TaskContextServer.hpp
+         * Get the Corba Object of this CTaskContext.
          * If you want to store this reference, you must \b _duplicate it.
 =======
-         * Deletes a ControlTask server for a given taskcontext.
+         * Deletes a TaskContext server for a given taskcontext.
          * If no such server exists, this method silently does nothing.
          */
         static void CleanupServer( TaskContext* tc );
 
         /**
-         * Get the Corba Object of this ControlTask.
->>>>>>> 71aed95... corba: Added CleanupServer to give deployment a function to cleanup corba servers.:src/corba/ControlTaskServer.hpp
-         * This object universally identifies the remote ControlTaskServer
+         * Get the Corba Object of this TaskContext.
+>>>>>>> 71aed95... corba: Added CleanupServer to give deployment a function to cleanup corba servers.:src/corba/TaskContextServer.hpp
+         * This object universally identifies the remote TaskContextServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        CControlTask_ptr server() const;
+        CTaskContext_ptr server() const;
     };
 }}
 #endif

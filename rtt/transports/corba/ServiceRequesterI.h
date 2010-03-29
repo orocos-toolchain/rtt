@@ -28,25 +28,41 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef SERVICEREQUESTERI_H_
-#define SERVICEREQUESTERI_H_
+#ifndef ORO_CORBA_SERVICEREQUESTERI_H_
+#define ORO_CORBA_SERVICEREQUESTERI_H_
 
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "ServiceRequesterS.h"
+#else
+#include "ServiceRequesterC.h"
+#endif
+
+#include "../../interface/ServiceRequester.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 class  RTT_corba_CServiceRequester_i
-  : public virtual POA_RTT::corba::CServiceRequester
+    : public virtual POA_RTT::corba::CServiceRequester, public virtual PortableServer::RefCountServantBase
 {
+protected:
+    RTT::interface::ServiceRequester* mservice;
+    PortableServer::POA_ptr mpoa;
 public:
   // Constructor 
-  RTT_corba_CServiceRequester_i (void);
+    RTT_corba_CServiceRequester_i (RTT::interface::ServiceRequester* service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CServiceRequester_i (void);
   
+  virtual RTT::corba::CServiceRequester_ptr activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      //_remove_ref(); // ref count=1
+      return _this();
+  }
+
   virtual
   char * getRequestName (
       void);

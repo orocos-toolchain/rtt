@@ -30,8 +30,14 @@
 
 #include "ServiceProviderI.h"
 
+using namespace RTT;
+using namespace RTT::detail;
+
 // Implementation skeleton constructor
-RTT_corba_CServiceProvider_i::RTT_corba_CServiceProvider_i (void)
+RTT_corba_CServiceProvider_i::RTT_corba_CServiceProvider_i ( RTT::interface::ServiceProvider::shared_ptr service, PortableServer::POA_ptr poa)
+    : RTT_corba_CAttributeRepository_i( service.get(), PortableServer::POA::_duplicate( poa) ), 
+      RTT_corba_COperationRepository_i( service.get(), PortableServer::POA::_duplicate( poa) ),
+      mpoa(poa), mservice(service)
 {
 }
 
@@ -40,135 +46,52 @@ RTT_corba_CServiceProvider_i::~RTT_corba_CServiceProvider_i (void)
 {
 }
 
+PortableServer::POA_ptr RTT_corba_CServiceProvider_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
+}
+
 char * RTT_corba_CServiceProvider_i::getName (
     void)
 {
-  // Add your implementation here
+    return CORBA::string_dup( mservice->getName().c_str() );
 }
 
 char * RTT_corba_CServiceProvider_i::getServiceDescription (
     void)
 {
-  // Add your implementation here
+    return CORBA::string_dup( mservice->doc().c_str() );
 }
 
-::RTT::corba::CServiceNames * RTT_corba_CServiceProvider_i::getServiceNames (
+::RTT::corba::CServiceProvider::CProviderNames * RTT_corba_CServiceProvider_i::getProviderNames (
     void)
 {
-  // Add your implementation here
+    ServiceProvider::ProviderNames names = mservice->getProviderNames();
+    ::RTT::corba::CServiceProvider::CProviderNames_var result = new ::RTT::corba::CServiceProvider::CProviderNames();
+    result->length( names.size() );
+    for (unsigned int i=0; i != names.size(); ++i )
+        result[i] = CORBA::string_dup( names[i].c_str() );
+
+    return result._retn();
 }
 
 ::RTT::corba::CServiceProvider_ptr RTT_corba_CServiceProvider_i::getService (
-    const char * name)
+    const char * service_name)
 {
-  // Add your implementation here
+    ServiceProvider::shared_ptr provider = mservice->getService(service_name);
+    if ( !provider )
+	return RTT::corba::CServiceProvider::_nil();
+    
+    RTT_corba_CServiceProvider_i* serv_i;
+    RTT::corba::CServiceProvider_var serv;
+    serv_i = new RTT_corba_CServiceProvider_i( provider, mpoa );
+    serv = serv_i->activate_this();
+    //CServiceProvider_i::registerServant(serv, mtask->provides(service_name));
+    return RTT::corba::CServiceProvider::_duplicate( serv.in() );
 }
 
 ::CORBA::Boolean RTT_corba_CServiceProvider_i::hasService (
     const char * name)
 {
-  // Add your implementation here
+    return mservice->hasService( name );
 }
-
-::RTT::corba::COperationList * RTT_corba_CServiceProvider_i::getOperations (
-    void)
-{
-  // Add your implementation here
-}
-
-::RTT::corba::CDescriptions * RTT_corba_CServiceProvider_i::getArguments (
-    const char * operation)
-{
-  // Add your implementation here
-}
-
-char * RTT_corba_CServiceProvider_i::getResultType (
-    const char * operation)
-{
-  // Add your implementation here
-}
-
-char * RTT_corba_CServiceProvider_i::getDescription (
-    const char * operation)
-{
-  // Add your implementation here
-}
-
-void RTT_corba_CServiceProvider_i::checkOperation (
-    const char * operation,
-    ::RTT::corba::CAnyArguments & args)
-{
-  // Add your implementation here
-}
-
-::CORBA::Any * RTT_corba_CServiceProvider_i::callOperation (
-    const char * operation,
-    ::RTT::corba::CAnyArguments & args)
-{
-  // Add your implementation here
-}
-
-::RTT::corba::CSendHandle_ptr RTT_corba_CServiceProvider_i::sendOperation (
-    const char * operation,
-    ::RTT::corba::CAnyArguments & args)
-{
-  // Add your implementation here
-}
-
-::RTT::corba::CAttributeRepository::CAttributeNames * RTT_corba_CServiceProvider_i::getAttributeList (
-    void)
-{
-  // Add your implementation here
-}
-
-::RTT::corba::CAttributeRepository::CPropertyNames * RTT_corba_CServiceProvider_i::getPropertyList (
-    void)
-{
-  // Add your implementation here
-}
-
-::CORBA::Any * RTT_corba_CServiceProvider_i::getAttribute (
-    const char * name)
-{
-  // Add your implementation here
-}
-
-::CORBA::Boolean RTT_corba_CServiceProvider_i::setAttribute (
-    const char * name,
-    const ::CORBA::Any & value)
-{
-  // Add your implementation here
-}
-
-::CORBA::Any * RTT_corba_CServiceProvider_i::getProperty (
-    const char * name)
-{
-  // Add your implementation here
-}
-
-::CORBA::Boolean RTT_corba_CServiceProvider_i::setProperty (
-    const char * name,
-    const ::CORBA::Any & value)
-{
-  // Add your implementation here
-}
-
-char * RTT_corba_CServiceProvider_i::getType (
-    const char * name)
-{
-  // Add your implementation here
-}
-
-char * RTT_corba_CServiceProvider_i::getTypeName (
-    const char * name)
-{
-  // Add your implementation here
-}
-
-char * RTT_corba_CServiceProvider_i::toString (
-    const char * name)
-{
-  // Add your implementation here
-}
-
-

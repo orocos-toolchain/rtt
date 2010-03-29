@@ -32,6 +32,16 @@ module RTT
 	    typedef sequence<string> CTaskContextNames;
 
 	    /**
+	     * Return the instance name of this component.
+	     */
+	    string getName();
+
+	    /**
+	     * Return the description of this component.
+	     */
+	    string getDescription();
+
+	    /**
 	     * @name TaskContext life-cycle
 	     * @{
 	     */

@@ -30,8 +30,12 @@
 
 #include "ServiceRequesterI.h"
 
+using namespace RTT;
+using namespace RTT::detail;
+
 // Implementation skeleton constructor
-RTT_corba_CServiceRequester_i::RTT_corba_CServiceRequester_i (void)
+RTT_corba_CServiceRequester_i::RTT_corba_CServiceRequester_i ( RTT::interface::ServiceRequester* service, PortableServer::POA_ptr poa )
+    : mservice(service), mpoa(poa)
 {
 }
 
@@ -43,49 +47,61 @@ RTT_corba_CServiceRequester_i::~RTT_corba_CServiceRequester_i (void)
 char * RTT_corba_CServiceRequester_i::getRequestName (
     void)
 {
-  // Add your implementation here
+    return CORBA::string_dup( mservice->getRequestName().c_str() );
 }
 
 ::RTT::corba::CRequestNames * RTT_corba_CServiceRequester_i::getRequestNames (
     void)
 {
-  // Add your implementation here
+    ServiceRequester::RequesterNames names = mservice->getRequesterNames();
+    ::RTT::corba::CRequestNames_var result = new ::RTT::corba::CRequestNames();
+    result->length( names.size() );
+    for (unsigned int i=0; i != names.size(); ++i )
+        result[i] = CORBA::string_dup( names[i].c_str() );
+
+    return result._retn();
 }
 
 ::RTT::corba::CMethodNames * RTT_corba_CServiceRequester_i::getMethodNames (
     void)
 {
-  // Add your implementation here
+    ServiceRequester::MethodNames names = mservice->getMethodNames();
+    ::RTT::corba::CMethodNames_var result = new ::RTT::corba::CMethodNames();
+    result->length( names.size() );
+    for (unsigned int i=0; i != names.size(); ++i )
+        result[i] = CORBA::string_dup( names[i].c_str() );
+
+    return result._retn();
 }
 
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CServiceRequester_i::getRequest (
     const char * name)
 {
-  // Add your implementation here
+    return RTT::corba::CServiceRequester::_nil();
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::hasRequest (
     const char * name)
 {
-  // Add your implementation here
+    return mservice->requiresService( name );
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::connectTo (
     ::RTT::corba::CServiceProvider_ptr svc)
 {
-  // Add your implementation here
+    return false;
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::ready (
     void)
 {
-  // Add your implementation here
+    return mservice->ready();
 }
 
 void RTT_corba_CServiceRequester_i::disconnect (
     void)
 {
-  // Add your implementation here
+    mservice->disconnect();
 }
 
 

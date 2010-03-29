@@ -7,15 +7,15 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <transports/corba/DataFlowI.h>
-#include <transports/corba/RemotePorts.hpp>
-#include <transports/mqueue/MQLib.hpp>
-#include <transports/corba/CorbaConnPolicy.hpp>
+#include <rtt/transports/corba/RemotePorts.hpp>
+#include <rtt/transports/mqueue/MQLib.hpp>
+#include <rtt/transports/corba/CorbaConnPolicy.hpp>
 #include <transports/corba/corba.h>
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <TaskContext.hpp>
-#include <transports/corba/ControlTaskServer.hpp>
-#include <transports/corba/ControlTaskProxy.hpp>
+#include <rtt/InputPort.hpp>
+#include <rtt/OutputPort.hpp>
+#include <rtt/TaskContext.hpp>
+#include <transports/corba/TaskContextServer.hpp>
+#include <transports/corba/TaskContextProxy.hpp>
 #include <string>
 #include <cstdlib>
 
@@ -29,11 +29,11 @@ public:
     ~CorbaMQueueIPCTest() { this->tearDown(); }
 
     TaskContext* tc;
-    corba::ControlTaskProxy* tp, *tp2;
-    corba::ControlTaskServer* ts, *ts2;
+    corba::TaskContextProxy* tp, *tp2;
+    corba::TaskContextServer* ts, *ts2;
 
-    PortInterface* signalled_port;
-    void new_data_listener(PortInterface* port);
+    base::PortInterface* signalled_port;
+    void new_data_listener(base::PortInterface* port);
 
     // Ports
     InputPort<double>*  mr1;
@@ -55,7 +55,7 @@ public:
 };
 
 using namespace std;
-using corba::ControlTaskProxy;
+using corba::TaskContextProxy;
 
 void
 CorbaMQueueIPCTest::setUp()
@@ -85,7 +85,7 @@ CorbaMQueueIPCTest::tearDown()
     delete mw1;
 }
 
-void CorbaMQueueIPCTest::new_data_listener(PortInterface* port)
+void CorbaMQueueIPCTest::new_data_listener(base::PortInterface* port)
 {
     signalled_port = port;
 }
@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE( setupServer )
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the different port-to-port connections.
-    ts = corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = corba::ControlTaskProxy::Create("other");
+    ts = corba::TaskContextServer::Create( tc, false ); //no-naming
+    tp = corba::TaskContextProxy::Create("other");
     if (!tp )
-        tp = corba::ControlTaskProxy::CreateFromFile( "other.ior");
+        tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );

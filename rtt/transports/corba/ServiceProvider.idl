@@ -14,14 +14,14 @@ module RTT
     module corba
     {
 
-	typedef sequence<string> CServiceNames;
-
 	/**
 	 * An Orocos Service which hosts operations, attributes and properties.
 	 * @ingroup CompIDL
 	 */
 	interface CServiceProvider : COperationRepository, CAttributeRepository
 	{
+	    typedef sequence<string> CProviderNames;
+
 	    /**
 	     * Return the name of this service.
 	     */
@@ -35,7 +35,7 @@ module RTT
 	    /**
 	     * Get a list of all the child services this service offers.
 	     */
-	    CServiceNames getServiceNames( );
+	    CProviderNames getProviderNames( );
 
 	    /**
 	     * Get a child service this service provides.

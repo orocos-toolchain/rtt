@@ -65,14 +65,21 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
         delete mbag;
 }
 
-::RTT::base::DataSourceBase::shared_ptr RTT_corba_CAttributeRepository_i::getDataSource(const std::string& value_name)
+::RTT::base::DataSourceBase::shared_ptr RTT_corba_CAttributeRepository_i::getPropertyDataSource(const std::string& value_name)
+{
+    if (!mar)
+        return DataSourceBase::shared_ptr();
+    if ( findProperty( mar->properties(), value_name) )
+        return findProperty( mar->properties(), value_name)->getDataSource();
+    return DataSourceBase::shared_ptr();
+}
+
+::RTT::base::DataSourceBase::shared_ptr RTT_corba_CAttributeRepository_i::getAttributeDataSource(const std::string& value_name)
 {
     if (!mar)
         return DataSourceBase::shared_ptr();
     if ( mar->getAttribute(value_name) )
         return mar->getAttribute(value_name)->getDataSource();
-    if ( mar->getProperty(value_name) )
-        return mar->getProperty(value_name)->getDataSource();
     return DataSourceBase::shared_ptr();
 }
 
@@ -92,22 +99,21 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
 ::RTT::corba::CAttributeRepository::CPropertyNames * RTT_corba_CAttributeRepository_i::getPropertyList (
     void)
 {
-    // Add your implementation here
-      ::RTT::corba::CAttributeRepository::CPropertyNames_var ret = new ::RTT::corba::CAttributeRepository::CPropertyNames();
-      if (mar)
-          mbag = mar->properties(); // leave this here to get latest propertybag.
-      if (mbag == 0)
-          return ret._retn();
-      ret->length( mbag->size() );
-      PropertyBag::const_iterator it = mbag->getProperties().begin();
-      size_t index = 0;
-      for( ; it != mbag->getProperties().end(); ++it, ++index) {
-          ::RTT::corba::CAttributeRepository::CProperty prop;
-          prop.name = CORBA::string_dup( (*it)->getName().c_str() );
-          prop.description = CORBA::string_dup( (*it)->getDescription().c_str() );
-          ret[index] = prop;
-      }
-      return ret._retn();
+    ::RTT::corba::CAttributeRepository::CPropertyNames_var ret = new ::RTT::corba::CAttributeRepository::CPropertyNames();
+    if (mar)
+	mbag = mar->properties(); // leave this here to get latest propertybag.
+    if (mbag == 0)
+	return ret._retn();
+    ret->length( mbag->size() );
+    PropertyBag::const_iterator it = mbag->getProperties().begin();
+    size_t index = 0;
+    for( ; it != mbag->getProperties().end(); ++it, ++index) {
+	::RTT::corba::CAttributeRepository::CProperty prop;
+	prop.name = CORBA::string_dup( (*it)->getName().c_str() );
+	prop.description = CORBA::string_dup( (*it)->getDescription().c_str() );
+	ret[index] = prop;
+    }
+    return ret._retn();
 }
 
 ::CORBA::Any * RTT_corba_CAttributeRepository_i::getAttribute (
@@ -164,28 +170,41 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ctt->updateFromAny( &value, ds );
 }
 
-char * RTT_corba_CAttributeRepository_i::getType (
+CORBA::Boolean RTT_corba_CAttributeRepository_i::hasAttribute (
     const char * name)
 {
-    DataSourceBase::shared_ptr ds = getDataSource( name );
+    return mar->hasAttribute( name );
+}
+
+CORBA::Boolean RTT_corba_CAttributeRepository_i::isAttributeAssignable (
+    const char * name)
+{
+    if (mar->getValue(name))
+	return mar->getValue(name)->getDataSource()->isAssignable();
+    return 0;
+}
+char * RTT_corba_CAttributeRepository_i::getAttributeType (
+    const char * name)
+{
+    DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
     if (ds)
         return CORBA::string_dup( ds->getType().c_str() );
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::getTypeName (
+char * RTT_corba_CAttributeRepository_i::getAttributeTypeName (
     const char * name)
 {
-    DataSourceBase::shared_ptr ds = getDataSource( name );
+    DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
     if (ds)
         return CORBA::string_dup( ds->getTypeName().c_str() );
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::toString (
+char * RTT_corba_CAttributeRepository_i::attributeToString (
     const char * name)
 {
-    DataSourceBase::shared_ptr ds = getDataSource( name );
+    DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
     if (ds) {
         std::string result = ds->toString();
         return CORBA::string_dup( result.c_str() );
@@ -193,11 +212,59 @@ char * RTT_corba_CAttributeRepository_i::toString (
     return CORBA::string_dup( "na" );
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::fromString (
+CORBA::Boolean RTT_corba_CAttributeRepository_i::attributeFromString (
     const char* name, const char* value
   )
 {
-    DataSourceBase::shared_ptr ds = getDataSource( name );
+    DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
+    if (!ds)
+        return false;
+    if ( ds->getTypeInfo()->fromString( value, ds ) ) {
+        RTT::log(RTT::Error) << "corba::CAttributeRepository: Could not assign string to "<< ds->getType() <<"." <<RTT::endlog();
+        return false;
+    }
+    return true;
+}
+
+CORBA::Boolean RTT_corba_CAttributeRepository_i::hasProperty (
+    const char * name)
+{
+    return mar->hasProperty( name );
+}
+char * RTT_corba_CAttributeRepository_i::getPropertyType (
+    const char * name)
+{
+    DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
+    if (ds)
+        return CORBA::string_dup( ds->getType().c_str() );
+    return CORBA::string_dup( "na" );
+}
+
+char * RTT_corba_CAttributeRepository_i::getPropertyTypeName (
+    const char * name)
+{
+    DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
+    if (ds)
+        return CORBA::string_dup( ds->getTypeName().c_str() );
+    return CORBA::string_dup( "na" );
+}
+
+char * RTT_corba_CAttributeRepository_i::propertyToString (
+    const char * name)
+{
+    DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
+    if (ds) {
+        std::string result = ds->toString();
+        return CORBA::string_dup( result.c_str() );
+    }
+    return CORBA::string_dup( "na" );
+}
+
+CORBA::Boolean RTT_corba_CAttributeRepository_i::propertyFromString (
+    const char* name, const char* value
+  )
+{
+    DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
     if (!ds)
         return false;
     if ( ds->getTypeInfo()->fromString( value, ds ) ) {

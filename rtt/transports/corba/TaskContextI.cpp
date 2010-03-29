@@ -29,10 +29,27 @@
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
 #include "TaskContextI.h"
+#include "TaskContextServer.hpp"
+#include "TaskContextProxy.hpp"
+#include "ServiceProviderI.h"
+#include "ServiceRequesterI.h"
+#include "ServicesI.h"
+#include "DataFlowI.h"
+#include "../../Method.hpp"
+#include "../../rtt-detail-fwd.hpp"
+
+
+using namespace RTT;
+using namespace RTT::detail;
+using namespace RTT::corba;
 
 // Implementation skeleton constructor
-RTT_corba_CTaskContext_i::RTT_corba_CTaskContext_i (void)
+RTT_corba_CTaskContext_i::RTT_corba_CTaskContext_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa)
+    : mpoa( PortableServer::POA::_duplicate(the_poa) )
+    , mtask( orig ), mRequest_i(0), mService_i(0), mDataFlow_i(0)
 {
+    // Add the corba object to the interface:
+    mtask->addOperation("shutdown", &RTT_corba_CTaskContext_i::shutdownCORBA, this).doc("Shutdown CORBA ORB. This function makes RunOrb() return.");
 }
 
 // Implementation skeleton destructor
@@ -40,143 +57,202 @@ RTT_corba_CTaskContext_i::~RTT_corba_CTaskContext_i (void)
 {
 }
 
+void RTT_corba_CTaskContext_i::shutdownCORBA() {
+    TaskContextServer::ShutdownOrb(false);
+}
+
+char * RTT_corba_CTaskContext_i::getName (
+    void)
+{
+    return CORBA::string_dup( mtask->getName().c_str() );
+}
+
+char * RTT_corba_CTaskContext_i::getDescription (
+    void)
+{
+    return CORBA::string_dup( mtask->provides()->doc().c_str() );
+}
+
 ::RTT::corba::CTaskState RTT_corba_CTaskContext_i::getTaskState (
     void)
 {
-  // Add your implementation here
+    return ::RTT::corba::CTaskState(mtask->getTaskState());
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::configure (
     void)
 {
-  // Add your implementation here
+    return mtask->configure();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::start (
     void)
 {
-  // Add your implementation here
+    return mtask->start();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::activate (
     void)
 {
-  // Add your implementation here
+    return mtask->activate();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::stop (
     void)
 {
-  // Add your implementation here
+    return mtask->stop();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::cleanup (
     void)
 {
-  // Add your implementation here
+    return mtask->cleanup();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::isActive (
     void)
 {
-  // Add your implementation here
+    return mtask->isActive();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::isRunning (
     void)
 {
-  // Add your implementation here
+    return mtask->isRunning();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::isConfigured (
     void)
 {
-  // Add your implementation here
+    return mtask->isConfigured();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::inFatalError (
     void)
 {
-  // Add your implementation here
+    return mtask->inFatalError();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::inRunTimeError (
     void)
 {
-  // Add your implementation here
+    return mtask->inRunTimeError();
 }
 
 ::RTT::corba::CDataFlowInterface_ptr RTT_corba_CTaskContext_i::ports (
     void)
 {
-  // Add your implementation here
+    if ( CORBA::is_nil( mDataFlow ) ) {
+        log(Debug) << "Creating CDataFlowInterface."<<endlog();
+        RTT::corba::CDataFlowInterface_i* mserv;
+        mDataFlow_i = mserv = new RTT::corba::CDataFlowInterface_i( mtask->ports(), mpoa );
+        mDataFlow = mserv->activate_this();
+        CDataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
+    }
+    return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
 }
 
 ::RTT::corba::CServiceProvider_ptr RTT_corba_CTaskContext_i::providesService (
     const char * service_name)
 {
-  // Add your implementation here
+    if ( mtask->provides()->hasService(service_name) == false)
+	return CServiceProvider::_nil();
+    if ( CORBA::is_nil( mService ) ) {
+        log(Debug) << "Creating CServiceProvider for "<< mtask->getName()<<endlog();
+        RTT_corba_CServiceProvider_i* mserv;
+        mService_i = mserv = new RTT_corba_CServiceProvider_i( mtask->provides(), mpoa );
+        mService = mserv->activate_this();
+        //CServiceProvider_i::registerServant(mService, mtask->provides());
+    }
+    // Now the this service is available, check for the service name:
+    string svc(service_name);
+    if ( svc == "this" )
+	return ::RTT::corba::CServiceProvider::_duplicate( mService.in() );
+    return mService->getService( service_name );
 }
 
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CTaskContext_i::requiresService (
     const char * service_name)
 {
-  // Add your implementation here
 }
 
 ::RTT::corba::CTaskContext::CTaskContextNames * RTT_corba_CTaskContext_i::getPeerList (
     void)
 {
-  // Add your implementation here
+    TaskContext::PeerList peers = mtask->getPeerList();
+    ::RTT::corba::CTaskContext::CTaskContextNames_var result = new ::RTT::corba::CTaskContext::CTaskContextNames();
+    result->length( peers.size() );
+    for (unsigned int i=0; i != peers.size(); ++i )
+        result[i] = CORBA::string_dup( peers[i].c_str() );
+
+    return result._retn();
 }
 
 ::RTT::corba::CTaskContext_ptr RTT_corba_CTaskContext_i::getPeer (
     const char * name)
 {
-  // Add your implementation here
+    std::string pname(name);
+    TaskContext* task = mtask->getPeer( pname );
+    if ( task ) {
+        // create or lookup new server for this peer.
+        // do not export it to the naming service.
+        return TaskContextServer::CreateServer( task, false );
+    }
+    return RTT::corba::CTaskContext::_nil();
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::hasPeer (
     const char * name)
 {
-  // Add your implementation here
+    std::string mname(name);
+    return mtask->hasPeer(mname);
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::addPeer (
     ::RTT::corba::CTaskContext_ptr p,
     const char * alias)
 {
-  // Add your implementation here
+    std::string malias(alias);
+    if (mtask->hasPeer(alias) == false )
+        return mtask->addPeer( TaskContextProxy::Create(p), alias );
+    return false;
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::removePeer (
     const char * name)
 {
-  // Add your implementation here
+    std::string mname(name);
+    mtask->removePeer( mname );
+    return true;
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::connectPeers (
     ::RTT::corba::CTaskContext_ptr p)
 {
-  // Add your implementation here
+    TaskContext* t = TaskContextProxy::Create( p );
+    return mtask->connectPeers( t );
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::disconnectPeers (
     const char * name)
 {
-  // Add your implementation here
+    std::string pname(name);
+    mtask->disconnectPeers( pname );
+    return true;
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::connectPorts (
     ::RTT::corba::CTaskContext_ptr p)
 {
-  // Add your implementation here
+    TaskContext* t = TaskContextProxy::Create( p );
+    return mtask->connectPorts( t );
 }
 
 ::CORBA::Boolean RTT_corba_CTaskContext_i::connectServices (
     ::RTT::corba::CTaskContext_ptr p)
 {
-  // Add your implementation here
+    TaskContext* t = TaskContextProxy::Create( p );
+    return mtask->connectServices( t );
 }
 
 

@@ -28,25 +28,47 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef SERVICEPROVIDERI_H_
-#define SERVICEPROVIDERI_H_
+#ifndef ORO_CORBA_SERVICEPROVIDERI_H_
+#define ORO_CORBA_SERVICEPROVIDERI_H_
 
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "ServiceProviderS.h"
+#else
+#include "ServiceProviderC.h"
+#endif
+
+#include "../../interface/ServiceProvider.hpp"
+#include "AttributeRepositoryI.h"
+#include "OperationRepositoryI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 class  RTT_corba_CServiceProvider_i
-  : public virtual POA_RTT::corba::CServiceProvider
+    : public virtual POA_RTT::corba::CServiceProvider, public virtual PortableServer::RefCountServantBase,
+      public virtual RTT_corba_CAttributeRepository_i,
+      public virtual RTT_corba_COperationRepository_i
 {
+protected:
+    PortableServer::POA_var mpoa;
+    RTT::interface::ServiceProvider::shared_ptr mservice;
 public:
   // Constructor 
-  RTT_corba_CServiceProvider_i (void);
+    RTT_corba_CServiceProvider_i ( RTT::interface::ServiceProviderPtr service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CServiceProvider_i (void);
   
+  virtual RTT::corba::CServiceProvider_ptr activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      //_remove_ref(); // ref count=1
+      return _this();
+  }
+
+  PortableServer::POA_ptr _default_POA();
+
   virtual
   char * getName (
       void);
@@ -56,7 +78,7 @@ public:
       void);
   
   virtual
-  ::RTT::corba::CServiceNames * getServiceNames (
+  ::RTT::corba::CServiceProvider::CProviderNames * getProviderNames (
       void);
   
   virtual
@@ -67,74 +89,6 @@ public:
   ::CORBA::Boolean hasService (
       const char * name);
   
-  virtual
-  ::RTT::corba::COperationList * getOperations (
-      void);
-  
-  virtual
-  ::RTT::corba::CDescriptions * getArguments (
-      const char * operation);
-  
-  virtual
-  char * getResultType (
-      const char * operation);
-  
-  virtual
-  char * getDescription (
-      const char * operation);
-  
-  virtual
-  void checkOperation (
-      const char * operation,
-      ::RTT::corba::CAnyArguments & args);
-  
-  virtual
-  ::CORBA::Any * callOperation (
-      const char * operation,
-      ::RTT::corba::CAnyArguments & args);
-  
-  virtual
-  ::RTT::corba::CSendHandle_ptr sendOperation (
-      const char * operation,
-      ::RTT::corba::CAnyArguments & args);
-  
-  virtual
-  ::RTT::corba::CAttributeRepository::CAttributeNames * getAttributeList (
-      void);
-  
-  virtual
-  ::RTT::corba::CAttributeRepository::CPropertyNames * getPropertyList (
-      void);
-  
-  virtual
-  ::CORBA::Any * getAttribute (
-      const char * name);
-  
-  virtual
-  ::CORBA::Boolean setAttribute (
-      const char * name,
-      const ::CORBA::Any & value);
-  
-  virtual
-  ::CORBA::Any * getProperty (
-      const char * name);
-  
-  virtual
-  ::CORBA::Boolean setProperty (
-      const char * name,
-      const ::CORBA::Any & value);
-  
-  virtual
-  char * getType (
-      const char * name);
-  
-  virtual
-  char * getTypeName (
-      const char * name);
-  
-  virtual
-  char * toString (
-      const char * name);
 };
 
 

@@ -38,16 +38,14 @@
 
 #include "CorbaConversion.hpp"
 #include "../../PropertyBag.hpp"
-#include "AttributesC.h"
-#include "AttributesI.h"
-#include "CORBAExpression.hpp"
-#include "ControlTaskProxy.hpp"
+#include "TaskContextProxy.hpp"
 
 
 namespace RTT {
     using namespace detail;
     using namespace std;
 
+#if 0
     bool AnyConversion<PropertyBag>::update(const CORBA::Any& any, StdType& _value) {
         Logger::In in("AnyConversion<PropertyBag>");
         //Logger::In in("AnyConversion");
@@ -103,12 +101,12 @@ namespace RTT {
 
     CORBA::Any_ptr AnyConversion<PropertyBag>::createAny( StdType t ) {
         Logger::log() << Logger::Debug << "Creating PropertyBag Server." <<Logger::endl;
-        Orocos_CAttributeInterface_i* attrs = new Orocos_CAttributeInterface_i( new PropertyBag(t), corba::ControlTaskProxy::ProxyPOA() );
+        Orocos_CAttributeInterface_i* attrs = new Orocos_CAttributeInterface_i( new PropertyBag(t), corba::TaskContextProxy::ProxyPOA() );
         corba::CAttributeInterface_ptr server = attrs->activate_this();
         CORBA::Any_ptr any = new CORBA::Any();
         *any <<= server;
         return any;
     }
-
+#endif
 
 };

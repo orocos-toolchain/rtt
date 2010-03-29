@@ -90,10 +90,10 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
 {
 }
 
-::RTT::corba::COperationList * RTT_corba_COperationRepository_i::getOperations (
+::RTT::corba::COperationRepository::COperationList * RTT_corba_COperationRepository_i::getOperations (
     void)
 {
-    COperationList_var rlist = new COperationList();
+    RTT::corba::COperationRepository::COperationList_var rlist = new RTT::corba::COperationRepository::COperationList();
 
     vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );

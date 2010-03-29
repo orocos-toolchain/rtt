@@ -28,24 +28,63 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef TASKCONTEXTI_H_
-#define TASKCONTEXTI_H_
+#ifndef ORO_CORBA_TASKCONTEXTI_H_
+#define ORO_CORBA_TASKCONTEXTI_H_
 
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "TaskContextS.h"
+#else
+#include "TaskContextC.h"
+#endif
+
+#include "ServiceProviderC.h"
+#include "ServiceRequesterC.h"
+#include "ServicesC.h"
+#include "DataFlowC.h"
+#include "../../TaskContext.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 class  RTT_corba_CTaskContext_i
-  : public virtual POA_RTT::corba::CTaskContext
+  : public virtual POA_RTT::corba::CTaskContext, public virtual PortableServer::RefCountServantBase
 {
+protected:
+    PortableServer::POA_var mpoa;
+    RTT::TaskContext* mtask;
+
+    RTT::corba::CServiceProvider_var mService;
+    RTT::corba::CServiceRequester_var mRequests;
+    RTT::corba::CDataFlowInterface_var mDataFlow;
+
+    PortableServer::ServantBase_var mRequest_i;
+    PortableServer::ServantBase_var mService_i;
+    PortableServer::ServantBase_var mDataFlow_i;
+
 public:
   // Constructor 
-  RTT_corba_CTaskContext_i (void);
+  RTT_corba_CTaskContext_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
   
   // Destructor 
   virtual ~RTT_corba_CTaskContext_i (void);
+  
+  virtual RTT::corba::CTaskContext_ptr activate_this() {
+      PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
+      //_remove_ref(); // ref count=1
+      return _this();
+  }
+
+  void shutdownCORBA();
+
+  virtual
+  char * getName (
+      void);
+  
+  virtual
+  char * getDescription (
+      void);
   
   virtual
   ::RTT::corba::CTaskState getTaskState (

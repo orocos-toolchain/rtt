@@ -46,11 +46,11 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 class  RTT_corba_CAttributeRepository_i
-  : public virtual POA_RTT::corba::CAttributeRepository, public virtual PortableServer::RefCountServantBase
+  : public virtual POA_RTT::corba::CAttributeRepository
 {
-      RTT::interface::AttributeRepository* mar;
+     PortableServer::POA_var mpoa;
+     RTT::interface::AttributeRepository* mar;
       RTT::PropertyBag* mbag;
-      PortableServer::POA_var mpoa;
 
   public:
     //Constructor
@@ -67,7 +67,8 @@ class  RTT_corba_CAttributeRepository_i
 
   PortableServer::POA_ptr _default_POA();
 
-  ::RTT::base::DataSourceBase::shared_ptr getDataSource(const std::string& value_name);
+  ::RTT::base::DataSourceBase::shared_ptr getAttributeDataSource(const std::string& value_name);
+  ::RTT::base::DataSourceBase::shared_ptr getPropertyDataSource(const std::string& value_name);
 
   virtual
   ::RTT::corba::CAttributeRepository::CAttributeNames * getAttributeList (
@@ -95,20 +96,40 @@ class  RTT_corba_CAttributeRepository_i
       const char * name,
       const ::CORBA::Any & value);
 
+    CORBA::Boolean hasAttribute(const char* name);
+    CORBA::Boolean isAttributeAssignable(const char* name);
   virtual
-  char * getType (
+  char * getAttributeType (
       const char * name);
 
   virtual
-  char * getTypeName (
+  char * getAttributeTypeName (
       const char * name);
 
   virtual
-  char * toString (
+  char * attributeToString (
       const char * name);
 
   virtual
-  CORBA::Boolean fromString (
+  CORBA::Boolean attributeFromString (
+      const char* name, const char* value
+    );
+
+    CORBA::Boolean hasProperty(const char* name);
+  virtual
+  char * getPropertyType (
+      const char * name);
+
+  virtual
+  char * getPropertyTypeName (
+      const char * name);
+
+  virtual
+  char * propertyToString (
+      const char * name);
+
+  virtual
+  CORBA::Boolean propertyFromString (
       const char* name, const char* value
     );
 };

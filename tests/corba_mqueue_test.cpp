@@ -7,12 +7,12 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <transports/corba/DataFlowI.h>
-#include <transports/corba/RemotePorts.hpp>
-#include <transports/mqueue/MQLib.hpp>
-#include <transports/corba/CorbaConnPolicy.hpp>
+#include <rtt/transports/corba/RemotePorts.hpp>
+#include <rtt/transports/mqueue/MQLib.hpp>
+#include <rtt/transports/corba/CorbaConnPolicy.hpp>
 
 using namespace std;
-using corba::ControlTaskProxy;
+using corba::TaskContextProxy;
 
 void
 CorbaMQueueTest::setUp()
@@ -53,7 +53,7 @@ CorbaMQueueTest::tearDown()
     delete mw2;
 }
 
-void CorbaMQueueTest::new_data_listener(PortInterface* port)
+void CorbaMQueueTest::new_data_listener(base::PortInterface* port)
 {
     signalled_port = port;
 }
@@ -127,8 +127,8 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueTestSuite,  CorbaMQueueTest )
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
-    ts  = corba::ControlTaskServer::Create( tc, false ); //no-naming
-    ts2 = corba::ControlTaskServer::Create( t2, false ); //no-naming
+    ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    ts2 = corba::TaskContextServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );

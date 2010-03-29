@@ -116,44 +116,6 @@ namespace RTT {
                 return 0;
             }
             /**
-             * Create a DataSource which is a proxy for a remote server object.
-             * Used to read/write remote attributes, properties and general data over a network.
-             */
-            virtual DataSourceBase* proxy(void* data ) const {
-                DataSourceBase* result = 0;
-                corba::CExpression_ptr e = static_cast<corba::CExpression_ptr>(data);
-
-                // return a dumb proxy.
-                result = ExpressionProxy::Create( e ).get();
-                return result;
-            }
-
-            /**
-             * Create a server for a DataSource, which can be picked up by a proxy.
-             * Used to export local data to a network.
-             */
-            virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg) const
-            {
-                // Return a dumb server, it will return empty any's using the methods above.
-                PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
-                if (assignable){
-                    return static_cast<CExpression_ptr>(corba::ExpressionServer::CreateAssignableExpression( source, p ));
-                } else {
-                    return corba::ExpressionServer::CreateExpression( source, p );
-              }
-            }
-
-            /**
-             * Create a server for a local method.
-             * Used to export local methods to a network.
-             */
-            virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const {
-                // Return a dumb method server.
-                PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
-                return corba::ExpressionServer::CreateMethod( source, orig, p );
-            }
-
-            /**
              * Narrows a remote data source object or proxy to this type.
              * Used internally to determine the type of a remote object.
              * @return 0 if \a dsb is not of this type.
@@ -179,6 +141,17 @@ namespace RTT {
                 return 0;
             }
 
+          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+              CORBA::String_var tname = serv->getPropertyTypeName( CORBA::string_dup(vname.c_str()));
+              log(Warning) << "Corba: Remote property '"<< vname << "' has unknown type " << tname.in()  << endlog();
+              return base::DataSourceBase::shared_ptr( );
+          }
+
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+              CORBA::String_var tname = serv->getAttributeTypeName( CORBA::string_dup( vname.c_str()));
+              log(Warning) << "Corba: Remote attribute '"<< vname << "' has unknown type " << tname.in()  << endlog();
+              return base::DataSourceBase::shared_ptr( );
+          }
         };
 
         struct CorbaLibPlugin

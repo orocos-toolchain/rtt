@@ -44,7 +44,7 @@
 #endif
 #include "../../base/PortInterface.hpp"
 #include "../../Logger.hpp"
-#include "ControlTaskProxy.hpp"
+#include "TaskContextProxy.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"

@@ -87,7 +87,7 @@ class  RTT_corba_COperationRepository_i
   virtual ~RTT_corba_COperationRepository_i (void);
 
   virtual
-  ::RTT::corba::COperationList * getOperations (
+  RTT::corba::COperationRepository::COperationList * getOperations (
       void);
 
   virtual

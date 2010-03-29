@@ -1,7 +1,7 @@
 
-#include <transports/corba/ControlTaskServer.hpp>
-#include <transports/corba/ControlTaskProxy.hpp>
-#include <Port.hpp>
+#include <transports/corba/TaskContextServer.hpp>
+#include <transports/corba/TaskContextProxy.hpp>
+#include <rtt/Port.hpp>
 #include <os/main.h>
 
 using namespace std;
@@ -16,10 +16,10 @@ public:
     OutputPort<double> mo1;
 
     TheServer(string name) : TaskContext(name), mi1("mr"), mo1("mw") {
-        ports()->addEventPort( &mi1 );
-        ports()->addPort( &mo1 );
+        ports()->addEventPort( mi1 );
+        ports()->addPort( mo1 );
         this->start();
-        ts = corba::ControlTaskServer::Create( this, true ); //use-naming
+        ts = corba::TaskContextServer::Create( this, true ); //use-naming
     }
     ~TheServer() {
         this->stop();
@@ -31,19 +31,19 @@ public:
         mo1.write(d);
     }
 
-    corba::ControlTaskServer* ts;
+    corba::TaskContextServer* ts;
 
 };
 
 int ORO_main(int argc, char** argv)
 {
-    corba::ControlTaskProxy::InitOrb(argc,argv);
+    corba::TaskContextProxy::InitOrb(argc,argv);
     {
         TheServer cmt("other");
-        corba::ControlTaskServer::RunOrb();
+        corba::TaskContextServer::RunOrb();
     }
-    corba::ControlTaskServer::ShutdownOrb(true);
-    corba::ControlTaskServer::DestroyOrb();
+    corba::TaskContextServer::ShutdownOrb(true);
+    corba::TaskContextServer::DestroyOrb();
     return 0;
 }
 

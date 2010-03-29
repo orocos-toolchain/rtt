@@ -2,11 +2,11 @@
 #define CORBA_TEST_H
 
 #include <transports/corba/corba.h>
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <TaskContext.hpp>
-#include <transports/corba/ControlTaskServer.hpp>
-#include <transports/corba/ControlTaskProxy.hpp>
+#include <rtt/InputPort.hpp>
+#include <rtt/OutputPort.hpp>
+#include <rtt/TaskContext.hpp>
+#include <transports/corba/TaskContextServer.hpp>
+#include <transports/corba/TaskContextProxy.hpp>
 #include <string>
 
 using namespace RTT;
@@ -21,13 +21,13 @@ public:
     TaskContext* tc;
     TaskContext* t2;
     TaskContext* tp;
-    corba::ControlTaskServer* ts;
+    corba::TaskContextServer* ts;
     TaskContext* tp2;
-    corba::ControlTaskServer* ts2;
-    ServiceProvider* createMethodFactory();
+    corba::TaskContextServer* ts2;
+    interface::ServiceProvider* createMethodFactory();
 
-    PortInterface* signalled_port;
-    void new_data_listener(PortInterface* port);
+    base::PortInterface* signalled_port;
+    void new_data_listener(base::PortInterface* port);
 
     // Ports
     InputPort<double>*  mi1;

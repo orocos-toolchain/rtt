@@ -39,7 +39,7 @@
 #include "Services.hpp"
 #include "ApplicationServer.hpp"
 #include "../../Logger.hpp"
-#include "ControlTaskProxy.hpp"
+#include "TaskContextProxy.hpp"
 #include "corba.h"
 
 // See comment below.
@@ -130,7 +130,7 @@ namespace RTT
 #endif
 
         // create a default channel, use the Root POA.
-        TAO_CEC_EventChannel_Attributes attributes(ControlTaskProxy::ProxyPOA(), ControlTaskProxy::ProxyPOA() );
+        TAO_CEC_EventChannel_Attributes attributes(TaskContextProxy::ProxyPOA(), TaskContextProxy::ProxyPOA() );
 
         TAO_CEC_EventChannel* ec = new TAO_CEC_EventChannel( attributes, new TAO_CEC_Default_Factory(), 1 );
 

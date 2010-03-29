@@ -33,6 +33,10 @@ module RTT
 
 	    boolean setAttribute( in string name, in any value );
 
+	    boolean hasAttribute( in string name );
+
+	    boolean hasProperty( in string name );
+
 	    /**
 	     * Get a property by name. You can scope the name for
 	     * entering sub-properties. For example 'controlparameters.gains.k'
@@ -50,18 +54,32 @@ module RTT
 	    /**
 	     * Return the type of the attribute or property.
 	     */
-	    string getType(in string name);
+	    string getPropertyType(in string name);
+	    string getAttributeType(in string name);
 
 	    /**
 	     * Return the type name of the expression as it is known
 	     * to the Orocos Type System.
 	     */
-	    string getTypeName(in string name);
+	    string getPropertyTypeName(in string name);
+	    string getAttributeTypeName(in string name);
 
 	    /**
 	     * Return the result of an attribute or property as a text string.
 	     */
-	    string toString(in string name);
+	    string attributeToString(in string name);
+	    string propertyToString(in string name);
+
+	    /**
+	     * Assign a given property or attribute a stringified value.
+	     * @return true if the assignment could be done.
+	     */
+	    boolean attributeFromString(in string name, in string value);
+	    boolean propertyFromString(in string name, in string value);
+	    /**
+	     * Returns true if the attribute can be changed.
+	     */
+	    boolean isAttributeAssignable(in string name);
 	};
     };
 };

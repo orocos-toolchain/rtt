@@ -40,10 +40,15 @@
 #ifndef ORO_CORBAMETHODFACTORY_HPP
 #define ORO_CORBAMETHODFACTORY_HPP
 
+#include "corba.h"
+#ifdef CORBA_IS_TAO
+#include <tao/PortableServer/PortableServer.h>
+#endif
 #include "../../interface/OperationRepository.hpp"
 #include "../../interface/FactoryExceptions.hpp"
-#include "ExpressionProxy.hpp"
-#include "OperationInterfaceC.h"
+#include "ServiceProviderC.h"
+#include "CorbaConversion.hpp"
+#include "CorbaTypeTransporter.hpp"
 
 namespace RTT
 {namespace corba
@@ -51,85 +56,41 @@ namespace RTT
 
     /**
      * A local factory for creating remote Corba methods.
-     * It connects to an corba::MethodFactory and translates
-     * Corba objects to plain C++ objects.
+     * It connects to an corba::ServiceProvider and translates
+     * C++ calls to corba idl.
      */
     class RTT_CORBA_API CorbaMethodFactory
-        : public RTT::internal::OperationFactoryPart<base::DataSourceBase*>
+        : public RTT::interface::OperationRepositoryPart
     {
-        corba::CMethodInterface_var mfact;
+        corba::CServiceProvider_var mfact;
         PortableServer::POA_var mpoa;
         std::string method;
     public:
         typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
         typedef std::vector<std::string> Members;
-        typedef std::vector< internal::ArgumentDescription > CDescriptions;
+        typedef std::vector< interface::ArgumentDescription > CDescriptions;
 
-        CorbaMethodFactory( const std::string& method_name, corba::CMethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
-            : RTT::internal::OperationFactoryPart<base::DataSourceBase*>("Corba CMethod"),
-              mfact(corba::CMethodInterface::_duplicate(fact) ),
-              mpoa(PortableServer::POA::_duplicate(the_poa)),
-              method(method_name)
-        {}
+        CorbaMethodFactory( const std::string& method_name, corba::CServiceProvider_ptr fact, PortableServer::POA_ptr the_poa );
 
-        virtual ~CorbaMethodFactory() {}
+        virtual ~CorbaMethodFactory();
 
-        virtual int arity()  const {
-            return this->getArgumentList().size();
-        }
+        virtual unsigned int arity() const;
 
-        virtual std::string resultType() const {
-            try {
-                CORBA::String_var result = mfact->getResultType( method.c_str() );
-                return std::string( result.in() );
-            } catch ( corba::CNoSuchNameException& nsn ) {
-                throw internal::name_not_found_exception( nsn.name.in() );
-            }
-            return std::string();
-        }
+        virtual unsigned int collectArity() const;
 
-        virtual std::string description() const {
-            try {
-                CORBA::String_var result = mfact->getDescription( method.c_str() );
-                return std::string( result.in() );
-            } catch ( corba::CNoSuchNameException& nsn ) {
-                throw internal::name_not_found_exception( nsn.name.in() );
-            }
-            return std::string();
-        }
+        virtual std::string resultType() const;
 
-        virtual std::vector< internal::ArgumentDescription > getArgumentList() const {
-            CDescriptions ret;
-            try {
-                corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
-                ret.reserve( result->length() );
-                for (size_t i=0; i!= result->length(); ++i)
-                    ret.push_back( internal::ArgumentDescription(std::string( result[i].name.in() ),
-                                                       std::string( result[i].description.in() ),
-                                                       std::string( result[i].type.in() ) ));
-            } catch ( corba::CNoSuchNameException& nsn ) {
-                throw internal:: name_not_found_exception( nsn.name.in() );
-            }
-            return ret;
-        }
+        virtual std::string description() const;
 
-        virtual base::DataSourceBase* produce( const CArguments& args ) const {
-            corba::CArguments_var nargs = new corba::CArguments();
-            nargs->length( args.size() );
-            for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = (corba::CExpression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
-            try {
-                corba::CExpression_var result = mfact->createMethod( method.c_str(), nargs.in() );
-                return ExpressionProxy::CreateDataSource( result._retn() ).get();
-            } catch ( corba::CNoSuchNameException& nsn ) {
-                throw internal:: name_not_found_exception( nsn.name.in() );
-            } catch ( corba::CWrongNumbArgException& wa ) {
-                throw internal:: wrong_number_of_args_exception( wa.wanted, wa.received );
-            } catch ( corba::CWrongTypeArgException& wta ) {
-                throw internal:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
-            }
-            return 0; // not reached.
-        }
+        virtual std::vector< interface::ArgumentDescription > getArgumentList() const;
+
+        virtual base::DataSourceBase::shared_ptr produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const ;
+        virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const;
+
+        virtual base::DataSourceBase::shared_ptr produceHandle() const;
+
+        virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const;
+
     };
 
 }}

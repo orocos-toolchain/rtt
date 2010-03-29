@@ -47,7 +47,7 @@
 #endif
 
 #include "../../Logger.hpp"
-#include "ControlTaskServer.hpp"
+#include "TaskContextServer.hpp"
 #include <string>
 
 /**
@@ -82,7 +82,7 @@ public:
     {
         if ( RTT::corba::Services::MayShutdown == false)
             return false;
-        RTT::corba::ControlTaskServer::ShutdownOrb(false);
+        RTT::corba::TaskContextServer::ShutdownOrb(false);
         return true;
     }
 

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskProxy.hpp
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  TaskContextProxy.hpp
 
-                        ControlTaskProxy.hpp -  description
+                        TaskContextProxy.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -53,7 +53,7 @@
 #include "../../TaskContext.hpp"
 #include <string>
 #include <map>
-#include "ControlTaskC.h"
+#include "TaskContextC.h"
 #include "ApplicationServer.hpp"
 #include <list>
 
@@ -79,12 +79,12 @@ namespace RTT
      * servers.
      * @ingroup CompIDL
      */
-    class RTT_CORBA_API ControlTaskProxy
+    class RTT_CORBA_API TaskContextProxy
         : public TaskContext,
           public ApplicationServer
     {
     public:
-        typedef std::map<ControlTaskProxy*, corba::CControlTask_ptr> PMap;
+        typedef std::map<TaskContextProxy*, corba::CTaskContext_ptr> PMap;
         static PMap proxies;
 
     protected:
@@ -92,13 +92,13 @@ namespace RTT
          * Private constructor which creates a new connection to
          * a stringified ior or taskname in NameServer.
          */
-        ControlTaskProxy(std::string location, bool is_ior);
+        TaskContextProxy(std::string location, bool is_ior);
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ControlTaskProxy( ::RTT::corba::CControlTask_ptr t );
+        TaskContextProxy( ::RTT::corba::CTaskContext_ptr t );
 
         /** interface::CDataFlowInterface does not delete ports automatically, because they
          * can then be defined as members of the TaskContext classes.
@@ -108,19 +108,18 @@ namespace RTT
          */
         std::list<base::PortInterface*> port_proxies;
 
-        void synchronizeOnce();
         void synchronize();
 
-        mutable corba::CControlTask_var mtask;
+        mutable corba::CTaskContext_var mtask;
 
         /**
          * For now one POA handles all proxies.
          */
         static PortableServer::POA_var proxy_poa;
 
-        void fetchObjects(interface::OperationInterface* parent, CControlObject_ptr mtask);
+        void fetchServices(interface::ServiceProvider::shared_ptr parent, CServiceProvider_ptr mtask);
     public:
-        ~ControlTaskProxy();
+        ~TaskContextProxy();
 
         /**
          * Invoke this method once to cleanup the orb.
@@ -128,24 +127,24 @@ namespace RTT
         static void DestroyOrb();
 
         /**
-         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
-         * @param name The name of the ControlTaskServer to connect to or the Object Reference of the object to connect to
+         * Factory method: create a CORBA Proxy for an existing TaskContextServer.
+         * @param name The name of the TaskContextServer to connect to or the Object Reference of the object to connect to
          * @param is_ior set to \a true if \a name is an IOR. Defaults to false.
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA proxy for \a name.
          */
-        static ControlTaskProxy* Create(std::string name, bool is_ior = false);
+        static TaskContextProxy* Create(std::string name, bool is_ior = false);
 
         /**
-         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
-         * @param filename A file containing an IOR which refers to the existing ControlTaskServer.
+         * Factory method: create a CORBA Proxy for an existing TaskContextServer.
+         * @param filename A file containing an IOR which refers to the existing TaskContextServer.
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA proxy for \a filename.
          */
-        static ControlTaskProxy* CreateFromFile(std::string filename);
+        static TaskContextProxy* CreateFromFile(std::string filename);
 
         /**
-         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
+         * Factory method: create a CORBA Proxy for an existing TaskContextServer.
          * This method may in fact return the real TaskContext in case the servant
          * of \a task is in the same process.
          * @param task The Object to create a proxy for.
@@ -153,14 +152,14 @@ namespace RTT
          * @return A new or previously created CORBA proxy for \a task, or the TaskContext
          * itself.
          */
-        static TaskContext* Create(::RTT::corba::CControlTask_ptr task, bool force_remote = false);
+        static TaskContext* Create(::RTT::corba::CTaskContext_ptr task, bool force_remote = false);
 
         /**
-         * Get the Corba Object of the CControlTask.
-         * This object universally identifies the remote ControlTaskServer
+         * Get the Corba Object of the CTaskContext.
+         * This object universally identifies the remote TaskContextServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        corba::CControlTask_ptr server() const;
+        corba::CTaskContext_ptr server() const;
 
         virtual bool activate();
 
@@ -174,21 +173,13 @@ namespace RTT
 
         virtual bool cleanup();
 
-        virtual bool resetError();
-
         virtual bool isActive() const;
 
         virtual bool isConfigured() const;
 
         virtual bool inFatalError() const;
 
-        virtual bool inRunTimeWarning() const;
-
         virtual bool inRunTimeError() const;
-
-        virtual int getErrorCount() const;
-
-        virtual int getWarningCount() const;
 
         virtual TaskState getTaskState() const;
 
@@ -211,6 +202,8 @@ namespace RTT
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
         virtual bool connectPorts( TaskContext* peer );
+
+        virtual bool connectServices( TaskContext* peer );
 
         virtual bool ready();
         /**

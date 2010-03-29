@@ -41,6 +41,7 @@
 
 #include "corba.h"
 #include "../../types/TypeTransporter.hpp"
+#include "ServiceProviderC.h"
 
 namespace RTT {
 
@@ -78,6 +79,14 @@ namespace RTT {
 	     * @return null
 	     */
         virtual base::ChannelElementBase* createStream( base::PortInterface* /*port*/, const ConnPolicy& /*policy*/, bool /*is_sender*/) const;
+
+        /**
+         * Create a data source for an attribute or property.
+         * Will create an assignable data source when the property or attribute
+         * can be changed, a normal data source otherwise.
+         */
+        virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) = 0;
+        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) = 0;
 	};
     }
 }

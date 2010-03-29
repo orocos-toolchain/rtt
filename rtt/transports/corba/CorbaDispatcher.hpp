@@ -46,6 +46,7 @@
 #include "../../internal/List.hpp"
 #include "DataFlowI.h"
 #include "../../interface/DataFlowInterface.hpp"
+#include "../../TaskContext.hpp"
 
 namespace RTT {
     namespace corba {
