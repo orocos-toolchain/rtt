@@ -29,7 +29,8 @@ public:
     double m1cr(const double& a) { return a; }
 
     // plain argument tests:
-    double m0() { return -1.0; }
+    void   vm0(void) { return; }
+    double m0(void) { return -1.0; }
     double m1(int i) { if (i ==1) return -2.0; else return 2.0; }
     double m2(int i, double d) { if ( i == 1 && d == 2.0 ) return -3.0; else return 3.0; }
     double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }

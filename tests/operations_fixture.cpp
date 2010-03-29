@@ -47,6 +47,7 @@ void OperationsFixture::createMethodFactories()
     to->addOperation("m1r", &OperationsFixture::m1r, this).doc("M1r");
     to->addOperation("m1cr", &OperationsFixture::m1cr, this).doc("M1cr");
 
+    to->addOperation("vm0", &OperationsFixture::vm0, this).doc("VoidM0");
     to->addOperation("m0", &OperationsFixture::m0, this).doc("M0");
     to->addOperation("m1", &OperationsFixture::m1, this).doc("M1").arg("a", "ad");
     to->addOperation("m2", &OperationsFixture::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
