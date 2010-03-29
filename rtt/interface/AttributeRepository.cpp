@@ -48,13 +48,11 @@ namespace RTT {
     using namespace boost;
 
   AttributeRepository::AttributeRepository()
-      :bag(0)
   {
   }
 
   AttributeRepository::~AttributeRepository()
   {
-      delete bag;
       // we do not claim automatically ownership
       // call clear() manually to delete all contents.
   }
@@ -74,8 +72,7 @@ namespace RTT {
     for ( map_t::iterator i = values.begin(); i != values.end(); ++i )
       delete *i;
     values.clear();
-    delete bag;
-    bag = 0;
+    bag.clear();
   }
 
   bool AttributeRepository::setValue( AttributeBase* value )
@@ -91,11 +88,9 @@ namespace RTT {
   }
 
     bool AttributeRepository::addProperty( PropertyBase& pb ) {
-        if ( bag && bag->find( pb.getName() ) )
+        if ( bag.find( pb.getName() ) )
             return false;
-        if ( bag == 0 )
-            bag = new PropertyBag();
-        bag->add( &pb );
+        bag.add( &pb );
         return true;
     }
     void AttributeRepository::removeAttribute( const std::string& name ) {
@@ -128,13 +123,13 @@ namespace RTT {
 
   bool AttributeRepository::hasProperty( const std::string& name ) const
   {
-      return (bag && bag->find(name) != 0);
+      return (bag.find(name) != 0);
   }
 
     bool AttributeRepository::removeProperty( PropertyBase& p )
     {
-        if ( bag && bag->find( p.getName() ) ) {
-            bag->remove(&p);
+        if ( bag.find( p.getName() ) ) {
+            bag.remove(&p);
             return true;
         }
         return false;
@@ -147,10 +142,8 @@ namespace RTT {
         return ret;
     }
 
-    PropertyBag* AttributeRepository::properties() const
+    PropertyBag* AttributeRepository::properties()
     {
-        if ( bag == 0 )
-            bag = new PropertyBag();
-        return bag;
+        return &bag;
     }
 }

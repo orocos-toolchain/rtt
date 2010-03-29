@@ -213,9 +213,7 @@ namespace RTT
          */
         base::PropertyBase* getProperty(const std::string& name) const
         {
-            if (bag == 0)
-                return 0;
-            return bag->find("name");
+            return bag.find("name");
         }
 
         /**
@@ -271,19 +269,13 @@ namespace RTT
 
         /**
          * Return a bag of all properties.
-         * @return null if none present.
-         * @deprecated Properties should no longer be used as a part of the
-         * AttributeRepository, but accessed using TaskContext::properties().
          */
-        PropertyBag* properties() const;
+        PropertyBag* properties();
 
     protected:
         typedef std::vector<base::AttributeBase*> map_t;
         map_t values;
-        /**
-         * The bag is only constructed if queried for.
-         */
-        mutable PropertyBag* bag;
+        PropertyBag bag;
     };
 }}
 
