@@ -196,7 +196,17 @@ namespace RTT
          */
         bool addProtocol(int protocol_id, TypeTransporter* tt);
 
+        /**
+         * Returns this type's transport for a given protocol.
+         * Will print a warning when returning null. Use
+         * hasProtocol() to query without warning.
+         */
         TypeTransporter* getProtocol(int protocol_id) const;
+
+        /**
+         * Check if this type is transporable over a given protocol.
+         */
+        bool hasProtocol(int protocol_id) const;
 
         /**
          * Return a list of protocols that have transporters

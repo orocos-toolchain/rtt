@@ -191,6 +191,18 @@ namespace RTT
         return transporters[protocol_id];
     }
 
+    bool TypeInfo::hasProtocol(int protocol_id) const
+    {
+        // if the protocol is unknown to this type, return the protocol of the 'unknown type'
+        // type, which is a fallback such that we won't have to return zero, but can
+        // gracefully fall-back.
+        // In order to not endlessly recurse, we check if we aren't the UnknownType !
+        if ( protocol_id + 1 > int(transporters.size()) || transporters[protocol_id] == 0) {
+            return false;
+        }
+        return true;
+    }
+
     std::vector<int> TypeInfo::getTransportNames() const
     {
         std::vector<int>    ret;
