@@ -25,12 +25,12 @@ CorbaMQueueTest::setUp()
     mw2 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
-    tc->ports()->addPort( mr1 );
-    tc->ports()->addPort( mw1 );
+    tc->ports()->addPort( *mr1 );
+    tc->ports()->addPort( *mw1 );
 
     t2 = new TaskContext("other");
-    t2->ports()->addPort( mr2 );
-    t2->ports()->addPort( mw2 );
+    t2->ports()->addPort( *mr2 );
+    t2->ports()->addPort( *mw2 );
 
     ts2 = ts = 0;
     tp2 = tp = 0;
