@@ -98,6 +98,10 @@ namespace RTT {
         return mobj->getTypeInfo()->composeType( source, mobj );
     }
 
+    bool DataSourceBase::isAssignable() const {
+        return false;
+    }
+
     bool DataSourceBase::update( DataSourceBase* ) {
         return false;
     }
@@ -128,26 +132,6 @@ namespace RTT {
     int DataSourceBase::serverProtocol() const
     {
         return 0; // default to local DataSource.
-    }
-
-    void* DataSourceBase::server( int protocol, void* arg )
-    {
-#ifndef ORO_EMBEDDED
-        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->server( DataSourceBase::shared_ptr(this), false, arg );
-#endif
-        return 0;
-    }
-
-    void* DataSourceBase::method( int protocol, MethodC* orig, void* arg )
-    {
-#ifndef ORO_EMBEDDED
-        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->method( DataSourceBase::shared_ptr(this), orig, arg );
-#endif
-        return 0;
     }
 
     namespace internal {

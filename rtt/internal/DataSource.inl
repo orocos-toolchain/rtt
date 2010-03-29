@@ -64,18 +64,6 @@ namespace RTT
     AssignableDataSource<T>::~AssignableDataSource()
     {}
 
-    template<typename T>
-    void* AssignableDataSource<T>::server( int protocol, void* arg )
-    {
-#ifndef ORO_EMBEDDED
-        types::TypeTransporter* tt = this->getTypeInfo()->getProtocol(protocol);
-        if ( tt )
-            return tt->server( base::DataSourceBase::shared_ptr(this), true, arg );
-#endif
-        return 0;
-    }
-
-
     template<class T>
     DataSource<T>* DataSource<T>::narrow(base::DataSourceBase* dsb) {
         // first try conventional C++ style cast.

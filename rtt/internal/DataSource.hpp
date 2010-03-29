@@ -187,6 +187,8 @@ namespace RTT
        */
       virtual const_reference_t rvalue() const = 0;
 
+      virtual bool isAssignable() const { return true; }
+
       virtual bool update( base::DataSourceBase* other );
 
       virtual base::ActionInterface* updateCommand( base::DataSourceBase* other);
@@ -194,8 +196,6 @@ namespace RTT
       virtual AssignableDataSource<T>* clone() const = 0;
 
       virtual AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const = 0;
-
-      virtual void* server(int protocol, void* data );
 
       /**
        * This method narrows a base::DataSourceBase to a typeded AssignableDataSource,

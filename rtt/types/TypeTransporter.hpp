@@ -51,36 +51,16 @@ namespace RTT
         /**
          * This interface defines the function a transport protocol
          * must support in order to allow Orocos components to
-         * remotely communicate data.
+         * remotely communicate one data type.
          *
-         * @warning This class requires that you cast objects to (void*).
-         * If your objects use virtual inheritance, you \b must cast to and
-         * from the same type and not to a sub- or super-class. If you fail
-         * to do so, you'll get immediate hard to debug crashes, as objects
-         * appear to be corrupted.
+         * Typically, a transport will have more functions than these
+         * basic functions to implements it's transport-specific
+         * needs for each data type.
          */
         class RTT_API TypeTransporter
         {
 		public:
             virtual ~TypeTransporter() {}
-
-            /**
-             * Create a internal::DataSource which is a proxy for a remote server object.
-             * Used to read/write remote attributes, properties and general data over a network.
-             */
-            virtual base::DataSourceBase* proxy(void* data ) const = 0;
-
-            /**
-             * Create a server for a internal::DataSource, which can be picked up by a proxy.
-             * Used to export local data to a network.
-             */
-            virtual void* server(base::DataSourceBase::shared_ptr source, bool assignable, void* arg) const = 0;
-
-            /**
-             * Create a server for a local method.
-             * Used to export local methods to a network.
-             */
-            virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const = 0;
 
             /**
              * Creates a streaming channel element for reading or writing over this transport.

@@ -139,6 +139,13 @@ namespace RTT
       virtual bool evaluate() const = 0;
 
       /**
+       * Returns true if this object can be cast to an AssignableDataSource.
+       * When this method returns true, all update functions below will return
+       * as well when valid input is given.
+       */
+      virtual bool isAssignable() const;
+
+      /**
        * In case the internal::DataSource returns a 'reference' type,
        * call this method to notify it that the data was updated
        * in the course of an invocation of get().
@@ -149,6 +156,7 @@ namespace RTT
        * Update the value of this internal::DataSource with the value of an \a other DataSource.
        * Update does a full update of the value, adding extra
        * information if necessary.
+       * @pre this->isAssignable() == true
        * @return false if the DataSources are of different type OR if the
        * contents of this internal::DataSource can not be updated.
        */
@@ -157,6 +165,7 @@ namespace RTT
       /**
        * Generate a ActionInterface object which will update this internal::DataSource
        * with the value of another internal::DataSource when execute()'ed.
+       * @pre this->isAssignable() == true
        * @return zero if the internal::DataSource types do not match OR if the
        * contents of this internal::DataSource can not be updated.
        */
@@ -166,6 +175,7 @@ namespace RTT
        * Update \a part of the value of this internal::DataSource with the value of an \a other DataSource.
        * Update does a partial update of the value, according to \a part, which is
        * most likely an index or hash value of some type.
+       * @pre this->isAssignable() == true
        * @return false if the DataSources are of different type OR if the
        * contents of this internal::DataSource can not be partially updated.
        */
@@ -175,6 +185,7 @@ namespace RTT
        * Generate a ActionInterface object which will partially update this internal::DataSource
        * with the value of another internal::DataSource when execute()'ed. \a part is an index or
        * hash value of some type.
+       * @pre this->isAssignable() == true
        * @return zero if the internal::DataSource types do not match OR if the
        * contents of this internal::DataSource can not be partially updated.
        */
@@ -243,26 +254,6 @@ namespace RTT
        * is a proxy for a remove server.
        */
       virtual int serverProtocol() const;
-
-      /**
-       * Create an object server which 'mirrors' this DataSource.
-       * @return The existing server if serverProtocol() == \a protocol, or a
-       * \a new server object reference otherwise.
-       * @see Operations.idl
-       * @deprecated This function is nowhere used or can be replaced by
-       * a call to a type transporter.
-       */
-      virtual void* server( int protocol, void* arg );
-
-      /**
-       * Create an object server which 'mirrors' this DataSource.
-       * @return The existing server if serverProtocol() == \a protocol, or a
-       * \a new method object reference otherwise.
-       * @see Operations.idl
-       * @deprecated This function is nowhere used or can be replaced by
-       * a call to a type transporter.
-       */
-      virtual void* method( int protocol, internal::MethodC* orig, void* arg );
   };
 
     /**
