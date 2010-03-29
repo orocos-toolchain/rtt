@@ -51,8 +51,6 @@ public:
         mi2 = new InputPort<double> ("mi");
         mo2 = new OutputPort<double> ("mo");
 
-        tc = new TaskContext("root");
-
         tc->ports()->addPort(*mi1);
         tc->ports()->addPort(*mo1);
 
@@ -76,7 +74,6 @@ public:
         delete ts;
         delete tp2;
         delete ts2;
-        delete tc;
         delete t2;
 
         delete mi1;
@@ -85,7 +82,6 @@ public:
         delete mo2;
     }
 
-    TaskContext* tc;
     TaskContext* t2;
     TaskContext* tp;
     corba::TaskContextServer* ts;
@@ -293,6 +289,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     any_args[index] <<= (CORBA::Long) 1;
     CORBA::Any_var m1;
     BOOST_CHECK_NO_THROW( m1 = co->callOperation("m1", any_args.inout()));
+    BOOST_REQUIRE( m1 );
     BOOST_CHECK( m1 >>= d );
     BOOST_CHECK_EQUAL(d, -2.0 );
 
