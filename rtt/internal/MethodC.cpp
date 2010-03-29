@@ -118,10 +118,12 @@ namespace RTT {
     MethodC::MethodC(OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m()
     {
-        if ( d->m ) {
+        if ( d && d->m ) {
             this->m = d->m;
             delete d;
             d = 0;
+        } else {
+            log(Error) <<"Can not construct MethodC for '"<<name<<"' from null OperationRepositoryPart."<<endlog();
         }
     }
 
@@ -165,7 +167,10 @@ namespace RTT {
         if (d)
             d->ret( r );
         else {
-            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+            if (m)
+                m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+            else
+                log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
         }
         return *this;
     }
@@ -176,7 +181,10 @@ namespace RTT {
             d->ret( r );
         else {
             // no d, store manually:
-            m = new DataSourceCommand(r->updateCommand( m.get() ) );
+            if (m)
+                m = new DataSourceCommand(r->updateCommand( m.get() ) );
+            else
+                log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
         }
         return *this;
     }
