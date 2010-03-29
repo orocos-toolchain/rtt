@@ -69,8 +69,8 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
 {
     if (!mar)
         return DataSourceBase::shared_ptr();
-    if ( findProperty( mar->properties(), value_name) )
-        return findProperty( mar->properties(), value_name)->getDataSource();
+    if ( findProperty( *mar->properties(), value_name) )
+        return findProperty( *mar->properties(), value_name)->getDataSource();
     return DataSourceBase::shared_ptr();
 }
 
@@ -101,17 +101,20 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
 {
     ::RTT::corba::CAttributeRepository::CPropertyNames_var ret = new ::RTT::corba::CAttributeRepository::CPropertyNames();
     if (mar)
-	mbag = mar->properties(); // leave this here to get latest propertybag.
-    if (mbag == 0)
-	return ret._retn();
-    ret->length( mbag->size() );
-    PropertyBag::const_iterator it = mbag->getProperties().begin();
+        mbag = mar->properties();
+
+    vector<string> allprops = listProperties( *mbag );
+    vector<string> alldescs = listPropertyDescriptions( *mbag );
+
+    ret->length( allprops.size() );
+    vector<string>::iterator it = allprops.begin();
+    vector<string>::iterator dit = alldescs.begin();
     size_t index = 0;
-    for( ; it != mbag->getProperties().end(); ++it, ++index) {
-	::RTT::corba::CAttributeRepository::CProperty prop;
-	prop.name = CORBA::string_dup( (*it)->getName().c_str() );
-	prop.description = CORBA::string_dup( (*it)->getDescription().c_str() );
-	ret[index] = prop;
+    for( ; it != allprops.end(); ++it, ++index, ++dit) {
+        ::RTT::corba::CAttributeRepository::CProperty prop;
+        prop.name = CORBA::string_dup( it->c_str() );
+        prop.description = CORBA::string_dup( dit->c_str() );
+        ret[index] = prop;
     }
     return ret._retn();
 }
@@ -146,9 +149,13 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
 {
     if (mar)
         mbag = mar->properties(); // leave this here to get latest propertybag.
-    if ( mbag ==0 || !mbag->find( string(name) ) )
+    if ( mbag == 0 )
         return new CORBA::Any();
-    DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
+    DataSourceBase::shared_ptr ds = getPropertyDataSource(name);
+    if ( !ds ) {
+        log(Error) <<"CAttributeRepository: no such property: " << name << ". Returning empty CORBA::Any."<<endlog();
+        return new CORBA::Any();
+    }
     const TypeInfo* ti = ds->getTypeInfo();
     CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
     assert( ctt );
@@ -161,9 +168,9 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
 {
     if (mar)
         mbag = mar->properties(); // leave this here to get latest propertybag.
-    if ( mbag ==0 || !mbag->find( string(name) ) )
+    DataSourceBase::shared_ptr ds = getPropertyDataSource(name);
+    if ( !ds )
         return 0;
-    DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
     const TypeInfo* ti = ds->getTypeInfo();
     CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
     assert( ctt );
@@ -180,7 +187,7 @@ CORBA::Boolean RTT_corba_CAttributeRepository_i::isAttributeAssignable (
     const char * name)
 {
     if (mar->getValue(name))
-	return mar->getValue(name)->getDataSource()->isAssignable();
+        return mar->getValue(name)->getDataSource()->isAssignable();
     return 0;
 }
 char * RTT_corba_CAttributeRepository_i::getAttributeType (
@@ -229,7 +236,8 @@ CORBA::Boolean RTT_corba_CAttributeRepository_i::attributeFromString (
 CORBA::Boolean RTT_corba_CAttributeRepository_i::hasProperty (
     const char * name)
 {
-    return mar->hasProperty( name );
+    // converts result to bool.
+    return bool( getPropertyDataSource(name) );
 }
 char * RTT_corba_CAttributeRepository_i::getPropertyType (
     const char * name)

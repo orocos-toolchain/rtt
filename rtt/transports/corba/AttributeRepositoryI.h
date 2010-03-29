@@ -48,9 +48,9 @@
 class  RTT_corba_CAttributeRepository_i
   : public virtual POA_RTT::corba::CAttributeRepository
 {
-     PortableServer::POA_var mpoa;
      RTT::interface::AttributeRepository* mar;
-      RTT::PropertyBag* mbag;
+     RTT::PropertyBag* mbag;
+     PortableServer::POA_var mpoa;
 
   public:
     //Constructor
