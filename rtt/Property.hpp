@@ -149,6 +149,13 @@ namespace RTT
             : base::PropertyBase(source ? source->getName() : "", source ? source->getDescription() : ""),
               _value( source ? internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
         {
+            if ( source && ! _value ) {
+                log(Error) <<"Can not initialize Property from "<<source->getName() <<": ";
+                if ( source->getDataSource() )
+                    log() << "incompatible type ("<< source->getDataSource()->getTypeName() << ")."<<endlog();
+                else
+                    log() << "source Property was not ready."<<endlog();
+            }
         }
 
         /**
