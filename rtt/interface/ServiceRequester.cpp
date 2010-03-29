@@ -38,7 +38,7 @@ namespace RTT
         return keys(mmethods);
     }
 
-    std::vector<std::string> ServiceRequester::getRequestNames() const
+    std::vector<std::string> ServiceRequester::getRequesterNames() const
     {
         return keys(mrequests);
     }

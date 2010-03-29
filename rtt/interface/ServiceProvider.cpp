@@ -25,7 +25,7 @@ namespace RTT {
         clear();
     }
 
-    vector<string> ServiceProvider::getServiceNames() const {
+    vector<string> ServiceProvider::getProviderNames() const {
         return keys(services);
     }
 

@@ -28,12 +28,14 @@ namespace RTT
         class ServiceRequester
         {
         public:
+            typedef std::vector<std::string> RequesterNames;
+            typedef std::vector<std::string> MethodNames;
             ServiceRequester(const std::string& name, TaskContext* owner = 0);
             virtual ~ServiceRequester();
 
             const std::string& getRequestName() const { return mrname; }
 
-            std::vector<std::string> getRequestNames() const;
+            RequesterNames getRequesterNames() const;
 
             /**
              * The owner is the top-level TaskContext owning this service
@@ -51,7 +53,7 @@ namespace RTT
 
             bool addMethod( base::MethodBaseInvoker& mbi);
 
-            std::vector<std::string> getMethodNames() const;
+            MethodNames getMethodNames() const;
 
             base::MethodBaseInvoker& getMethod(const std::string& name);
 

@@ -38,6 +38,7 @@ namespace RTT
     public:
         typedef OperationRepository Factory;
         typedef boost::shared_ptr<ServiceProvider> shared_ptr;
+        typedef std::vector<std::string> ProviderNames;
 
         /**
          * Creates a service provider with a name and an owner.  Each
@@ -100,7 +101,7 @@ namespace RTT
          * Return a standard container which contains all the sub-service names
          * of this Service
          */
-        virtual std::vector<std::string> getServiceNames() const;
+        virtual ProviderNames getProviderNames() const;
 
         /**
          * The owner is the top-level TaskContext owning this service

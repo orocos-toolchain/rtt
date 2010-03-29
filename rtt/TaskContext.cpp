@@ -196,8 +196,8 @@ namespace RTT
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
 
-        vector<string> myreqs = this->requires()->getRequestNames();
-        vector<string> peerreqs = peer->requires()->getRequestNames();
+        vector<string> myreqs = this->requires()->getRequesterNames();
+        vector<string> peerreqs = peer->requires()->getRequesterNames();
 
         this->requires()->connectTo( peer->provides() );
         for (vector<string>::iterator it = myreqs.begin();
