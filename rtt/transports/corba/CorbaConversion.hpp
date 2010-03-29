@@ -196,17 +196,7 @@ namespace RTT
             return new CORBA::Any( t.in() );
         }
     };
-#if 0
-    template<>
-    struct RTT_CORBA_API AnyConversion<PropertyBag>
-    {
-        typedef corba::CAttributeRepository_ptr CorbaType;
-        typedef PropertyBag StdType;
 
-        static bool update(const CORBA::Any& any, StdType& _value);
-        static CORBA::Any_ptr createAny( StdType t );
-    };
-#endif
     template<>
     struct RTT_CORBA_API AnyConversion<bool>
     {
