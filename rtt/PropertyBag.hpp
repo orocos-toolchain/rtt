@@ -386,6 +386,17 @@ namespace RTT
     RTT_API base::PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
 
     /**
+     * List all properties in a PropertyBag in a single list.
+     * The returned list has the form 'item1'...'subbag.subsubbag.itemN',
+     * where item1 is a property in \a bag, subbag is a bag inside \a bag
+     * and subsubbag is a bag in subbag. And so on.
+     * @param bag The bag to list the properties of.
+     * @param separator The token to separate properties in the \a path,
+     * Defaults to ".".
+     * @ingroup CoreLibProperties
+     */
+    RTT_API std::vector<std::string> listProperties( const PropertyBag& bag, const std::string& separator = std::string("."));
+    /**
      * This function refreshes the values of the properties in one PropertyBag with
      * the values of the properties of another PropertyBag.
      * No new properties will be created.

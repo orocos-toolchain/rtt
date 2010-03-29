@@ -47,6 +47,7 @@
 namespace RTT
 {
     using namespace detail;
+    using namespace std;
 
     PropertyBag::PropertyBag( )
         : mproperties(), type("PropertyBag")
@@ -292,6 +293,28 @@ namespace RTT
                 return result; // not a bag, so it is a result.
         }
         return 0; // failure
+    }
+
+    // Recursively reads the names of a bag.
+    void listPropertiesHelper(const PropertyBag& source, const std::string& separator, const string& prefix, vector<string>& result)
+    {
+        PropertyBag::const_iterator it( source.getProperties().begin() );
+        while ( it != source.getProperties().end() ) {
+            Property<PropertyBag>* sub = dynamic_cast<Property<PropertyBag>*>(*it);
+            string itemname = prefix.empty() ? (*it)->getName() : prefix + separator + (*it)->getName();
+            result.push_back( itemname );
+            if ( sub && sub->ready() ) {
+                listPropertiesHelper( sub->value(), separator, itemname, result );
+            }
+            ++it;
+        }
+    }
+
+    vector<string> listProperties(const PropertyBag& source, const std::string& separator)
+    {
+        vector<string> result;
+        listPropertiesHelper( source, separator, "", result);
+        return result;
     }
 
     bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool allprops)
