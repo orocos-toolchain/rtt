@@ -25,7 +25,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
 #include "ServiceRequesterI.h"
@@ -89,6 +89,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::connectTo (
     ::RTT::corba::CServiceProvider_ptr svc)
 {
+    assert(false);
     return false;
 }
 

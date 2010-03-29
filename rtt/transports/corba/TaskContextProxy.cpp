@@ -82,8 +82,7 @@ namespace RTT
     {
         log(Info) << "Terminating TaskContextProxy for " <<  this->getName() <<endlog();
         if ( this->properties() ) {
-            flattenPropertyBag( *this->properties() );
-            deleteProperties( *this->properties() );
+            deletePropertyBag( *this->properties() );
         }
         this->attributes()->clear();
         for (list<PortInterface*>::iterator it = port_proxies.begin(); it != port_proxies.end(); ++it)
@@ -219,33 +218,33 @@ namespace RTT
             }
         }
 
-        CServiceProvider_var serv = mtask->providesService("this");
+        CServiceProvider_var serv = mtask->getProvider("this");
         this->fetchServices(this->provides(), serv.in() );
 
         log(Debug) << "All Done."<<endlog();
     }
 
     // Recursively fetch remote objects and create local proxies.
-    void TaskContextProxy::fetchServices(ServiceProvider::shared_ptr parent, CServiceProvider_ptr mserv)
+    void TaskContextProxy::fetchServices(ServiceProvider::shared_ptr parent, CServiceProvider_ptr serv)
     {
         // load command and method factories.
         // methods:
         log(Debug) << "Fetching Methods."<<endlog();
         COperationRepository::COperationList_var objs;
-        objs = mserv->getOperations();
+        objs = serv->getOperations();
         for ( size_t i=0; i < objs->length(); ++i) {
             if (this->provides()->hasMember( string(objs[i].in() )))
                 continue; // already added.
-            this->provides()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mserv, ProxyPOA() ) );
+            this->provides()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), serv, ProxyPOA() ) );
         }
 
         // first do properties:
         log(Debug) << "Fetching Properties."<<endlog();
-        CServiceProvider_var serv = mserv->getService("this");
+        // a dot-separated list of subbags and items
         CAttributeRepository::CPropertyNames_var props = serv->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
-            if ( this->provides()->hasProperty( string(props[i].name.in()) ) )
+            if ( findProperty( *this->provides()->properties(), string(props[i].name.in()), "." ) )
                 continue; // previously added.
             if ( !serv->hasProperty( CORBA::string_dup(props[i].name.in() ) ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
@@ -264,16 +263,33 @@ namespace RTT
             // If the type is known, immediately build the correct property and datasource.
             CORBA::String_var tn = serv->getPropertyTypeName(props[i].name.in());
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
-            Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
-            if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID)) {
+
+            // decode the prefix and property name from the given name:
+            string pname = string( props[i].name.in() );
+            pname = pname.substr( pname.rfind(".") + 1 );
+            string prefix = string( props[i].name.in() );
+            if ( prefix.rfind(".") == string::npos ) {
+                prefix.clear();
+            }
+            else {
+                prefix = prefix.substr( 0, prefix.rfind(".") );
+            }
+
+            log(Info) << "Looking up Property " << tn.in() << " "<< pname;
+            if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID)) {
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>(ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
                 assert(ctt);
-                DataSourceBase::shared_ptr ds = ctt->createPropertyDataSource( serv.in(), props[i].name.in() );
-                this->provides()->properties()->ownProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), ds));
+                // data source needs full remote path name
+                DataSourceBase::shared_ptr ds = ctt->createPropertyDataSource( serv, props[i].name.in() );
+                storeProperty( *this->provides()->properties(), prefix, ti->buildProperty( pname, props[i].description.in(), ds));
                 log(Info) <<" found!"<<endlog();
             }
             else {
-                log(Info)<<" not found :-("<<endlog();
+                if ( string("PropertyBag") == tn.in() ) {
+                    storeProperty(*this->provides()->properties(), prefix, new Property<PropertyBag>( pname, props[i].description.in()) );
+                    log(Info) <<" created!"<<endlog();
+                } else
+                    log(Info)<<" type not known :-("<<endlog();
             }
         }
 
@@ -282,32 +298,36 @@ namespace RTT
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( this->provides()->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
-            if ( serv->hasAttribute( CORBA::string_dup( attrs[i].in() ) ) ) {
-                log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
+            if ( !serv->hasAttribute( CORBA::string_dup( attrs[i].in() ) ) ) {
+                log(Error) <<"Attribute '"<< string(attrs[i].in()) << "' present in getAttributeList() but not accessible."<<endlog();
                 continue;
             }
             // If the type is known, immediately build the correct attribute and datasource,
             CORBA::String_var tn = serv->getAttributeTypeName( CORBA::string_dup(attrs[i].in()) );
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
             log(Info) << "Looking up Attribute " << tn.in();
-            if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
+            if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                 Logger::log() <<": found!"<<endlog();
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>(ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
                 assert(ctt);
-                DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv.in(), attrs[i].in() );
-                this->provides()->setValue( ti->buildConstant( attrs[i].in(), ds));
+                // this function should check itself for const-ness of the remote Attribute:
+                DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv, attrs[i].in() );
+                if ( serv->isAttributeAssignable( CORBA::string_dup( attrs[i].in() ) ) )
+                    this->provides()->setValue( ti->buildAttribute( attrs[i].in(), ds));
+                else
+                    this->provides()->setValue( ti->buildConstant( attrs[i].in(), ds));
             } else {
-                Logger::log() <<": not found :-("<<endlog();
+                Logger::log() <<": type not known :-("<<endlog();
             }
         }
 
         log(Debug) << "Fetching Services of "<<parent->getName()<<":"<<endlog();
-        CServiceProvider::CProviderNames_var plist = mserv->getProviderNames();
+        CServiceProvider::CProviderNames_var plist = serv->getProviderNames();
 
         for( size_t i =0; i != plist->length(); ++i) {
             if ( string( plist[i] ) == "this")
                 continue;
-            CServiceProvider_var cobj = mserv->getService(plist[i]);
+            CServiceProvider_var cobj = serv->getService(plist[i]);
             CORBA::String_var descr = cobj->getServiceDescription();
 
             ServiceProvider::shared_ptr tobj = this->provides(std::string(plist[i]));
@@ -376,7 +396,7 @@ namespace RTT
                 log(Debug) << "Existing proxy found !" <<endlog();
                 return it->first;
             }
-        
+
         // Check if the CTaskContext is actually a local TaskContext
         if (! force_remote)
         {
@@ -612,7 +632,7 @@ namespace RTT
         TaskContext::PeerList vlist;
         try {
             if (! CORBA::is_nil(mtask) ) {
-                corba::CTaskContext::CTaskContextNames_var plist = mtask->getPeerList();
+                corba::CTaskContext::CPeerNames_var plist = mtask->getPeerList();
                 for( size_t i =0; i != plist->length(); ++i)
                     vlist.push_back( std::string( plist[i] ) );
             }

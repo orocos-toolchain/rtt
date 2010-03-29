@@ -29,7 +29,7 @@ module RTT
 	 */
 	interface CTaskContext
 	{
-	    typedef sequence<string> CTaskContextNames;
+	    typedef sequence<string> CPeerNames;
 
 	    /**
 	     * Return the instance name of this component.
@@ -128,13 +128,13 @@ module RTT
 	     * Get a provided service.
 	     * @see RTT::TaskContext::provides()
 	     */
-	    CServiceProvider providesService( in string service_name );
+	    CServiceProvider getProvider( in string service_name );
       
 	    /**
 	     * Get a required service.
 	     * @see RTT::TaskContext::requires()
 	     */
-	    CServiceRequester requiresService( in string service_name );
+	    CServiceRequester getRequester( in string service_name );
 	    /** @} */
 
 	    /**
@@ -146,7 +146,7 @@ module RTT
 	     * Get a list of all the peers this task is connected to.
 	     * @see RTT::TaskContext::getPeerList()
 	     */
-	    CTaskContextNames getPeerList( );
+	    CPeerNames getPeerList( );
 
 	    /**
 	     * Get a peer this task is connected to.

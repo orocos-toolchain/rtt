@@ -25,7 +25,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
 #ifndef ORO_CORBA_TASKCONTEXTI_H_
@@ -56,7 +56,7 @@ protected:
     RTT::TaskContext* mtask;
 
     RTT::corba::CServiceProvider_var mService;
-    RTT::corba::CServiceRequester_var mRequests;
+    RTT::corba::CServiceRequester_var mRequest;
     RTT::corba::CDataFlowInterface_var mDataFlow;
 
     PortableServer::ServantBase_var mRequest_i;
@@ -64,12 +64,12 @@ protected:
     PortableServer::ServantBase_var mDataFlow_i;
 
 public:
-  // Constructor 
+  // Constructor
   RTT_corba_CTaskContext_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
-  
-  // Destructor 
+
+  // Destructor
   virtual ~RTT_corba_CTaskContext_i (void);
-  
+
   virtual RTT::corba::CTaskContext_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
@@ -81,100 +81,100 @@ public:
   virtual
   char * getName (
       void);
-  
+
   virtual
   char * getDescription (
       void);
-  
+
   virtual
   ::RTT::corba::CTaskState getTaskState (
       void);
-  
+
   virtual
   ::CORBA::Boolean configure (
       void);
-  
+
   virtual
   ::CORBA::Boolean start (
       void);
-  
+
   virtual
   ::CORBA::Boolean activate (
       void);
-  
+
   virtual
   ::CORBA::Boolean stop (
       void);
-  
+
   virtual
   ::CORBA::Boolean cleanup (
       void);
-  
+
   virtual
   ::CORBA::Boolean isActive (
       void);
-  
+
   virtual
   ::CORBA::Boolean isRunning (
       void);
-  
+
   virtual
   ::CORBA::Boolean isConfigured (
       void);
-  
+
   virtual
   ::CORBA::Boolean inFatalError (
       void);
-  
+
   virtual
   ::CORBA::Boolean inRunTimeError (
       void);
-  
+
   virtual
   ::RTT::corba::CDataFlowInterface_ptr ports (
       void);
-  
+
   virtual
-  ::RTT::corba::CServiceProvider_ptr providesService (
+  ::RTT::corba::CServiceProvider_ptr getProvider (
       const char * service_name);
-  
+
   virtual
-  ::RTT::corba::CServiceRequester_ptr requiresService (
+  ::RTT::corba::CServiceRequester_ptr getRequester (
       const char * service_name);
-  
+
   virtual
-  ::RTT::corba::CTaskContext::CTaskContextNames * getPeerList (
+  ::RTT::corba::CTaskContext::CPeerNames * getPeerList (
       void);
-  
+
   virtual
   ::RTT::corba::CTaskContext_ptr getPeer (
       const char * name);
-  
+
   virtual
   ::CORBA::Boolean hasPeer (
       const char * name);
-  
+
   virtual
   ::CORBA::Boolean addPeer (
       ::RTT::corba::CTaskContext_ptr p,
       const char * alias);
-  
+
   virtual
   ::CORBA::Boolean removePeer (
       const char * name);
-  
+
   virtual
   ::CORBA::Boolean connectPeers (
       ::RTT::corba::CTaskContext_ptr p);
-  
+
   virtual
   ::CORBA::Boolean disconnectPeers (
       const char * name);
-  
+
   virtual
   ::CORBA::Boolean connectPorts (
       ::RTT::corba::CTaskContext_ptr p);
-  
+
   virtual
   ::CORBA::Boolean connectServices (
       ::RTT::corba::CTaskContext_ptr p);

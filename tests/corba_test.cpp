@@ -40,38 +40,49 @@ using corba::TaskContextProxy;
 class CorbaTest : public OperationsFixture
 {
 public:
-    CorbaTest() { 
+    CorbaTest() :
+        pint1("pint1", "", 3), pdouble1("pdouble1", "", -3.0),
+        aint1(3), adouble1(-3.0)
+    {
     // connect DataPorts
-    mi1 = new InputPort<double>("mi");
-    mo1 = new OutputPort<double>("mo");
+        mi1 = new InputPort<double> ("mi");
+        mo1 = new OutputPort<double> ("mo");
 
-    mi2 = new InputPort<double>("mi");
-    mo2 = new OutputPort<double>("mo");
+        mi2 = new InputPort<double> ("mi");
+        mo2 = new OutputPort<double> ("mo");
 
-    tc =  new TaskContext( "root" );
+        tc = new TaskContext("root");
 
-    tc->ports()->addPort( *mi1 );
-    tc->ports()->addPort( *mo1 );
+        tc->ports()->addPort(*mi1);
+        tc->ports()->addPort(*mo1);
 
-    t2 = new TaskContext("other");
-    t2->ports()->addPort( *mi2 );
-    t2->ports()->addPort( *mo2 );
+        t2 = new TaskContext("other");
+        t2->ports()->addPort(*mi2);
+        t2->ports()->addPort(*mo2);
 
-    ts2 = ts = 0;
-    tp2 = tp = 0;
+        ts2 = ts = 0;
+        tp2 = tp = 0;
+
+        // store nested properties:
+        tc->provides()->addProperty(pint1);
+        storeProperty(*tc->provides()->properties(), "s1.s2", pdouble1.clone() );
+
+        tc->addAttribute("aint1", aint1);
+        tc->addAttribute("adouble1", adouble1);
     }
-    ~CorbaTest() {
-    delete tp;
-    delete ts;
-    delete tp2;
-    delete ts2;
-    delete tc;
-    delete t2;
+    ~CorbaTest()
+    {
+        delete tp;
+        delete ts;
+        delete tp2;
+        delete ts2;
+        delete tc;
+        delete t2;
 
-    delete mi1;
-    delete mo1;
-    delete mi2;
-    delete mo2;
+        delete mi1;
+        delete mo1;
+        delete mi2;
+        delete mo2;
     }
 
     TaskContext* tc;
@@ -89,6 +100,12 @@ public:
     OutputPort<double>* mo1;
     InputPort<double>*  mi2;
     OutputPort<double>* mo2;
+
+    Property<int> pint1;
+    Property<double> pdouble1;
+
+    int aint1;
+    double adouble1;
 
     // helper test functions
     void testPortDataConnection();
@@ -165,6 +182,41 @@ void CorbaTest::testPortDisconnected()
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 
+BOOST_AUTO_TEST_CASE( testAttributes )
+{
+    ts = corba::TaskContextServer::Create( tc, false ); //no-naming
+    BOOST_CHECK( ts );
+    tp = corba::TaskContextProxy::Create( ts->server(), true );
+    BOOST_CHECK( tp );
+
+    BOOST_CHECK( tp->provides()->hasAttribute("aint1") );
+    Attribute<int> proxy_int = tp->provides()->getAttribute("aint1");
+    BOOST_REQUIRE( proxy_int.ready() );
+    BOOST_CHECK_EQUAL( proxy_int.get(), 3);
+
+    BOOST_CHECK( tp->provides()->hasAttribute("adouble1") );
+    Attribute<double> proxy_double = tp->provides()->getAttribute("adouble1");
+    BOOST_REQUIRE( proxy_double.ready() );
+    BOOST_CHECK_EQUAL( proxy_double.get(), -3.0);
+}
+
+BOOST_AUTO_TEST_CASE( testProperties )
+{
+    ts = corba::TaskContextServer::Create( tc, false ); //no-naming
+    BOOST_CHECK( ts );
+    tp = corba::TaskContextProxy::Create( ts->server(), true );
+    BOOST_CHECK( tp );
+
+    BOOST_CHECK( findProperty( *tp->provides()->properties(), "pint1") );
+    Property<int> proxy_int = findProperty( *tp->provides()->properties(), "pint1");
+    BOOST_REQUIRE( proxy_int.ready() );
+    BOOST_CHECK_EQUAL( proxy_int.value(), 3);
+
+    BOOST_CHECK( findProperty( *tp->provides()->properties(), "s1.s2.pdouble1") );
+    Property<double> proxy_d = findProperty( *tp->provides()->properties(), "s1.s2.pdouble1");
+    BOOST_REQUIRE( proxy_d.ready() );
+    BOOST_CHECK_EQUAL( proxy_d.value(), -3.0);
+}
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
@@ -224,7 +276,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     tp = corba::TaskContextProxy::Create( ts->server() , true);
 
     // This test tests the callOperation() function of the server.
-    corba::CServiceProvider_var co = ts->server()->providesService("methods");
+    corba::CServiceProvider_var co = ts->server()->getProvider("methods");
     BOOST_CHECK( co.in() );
 
     corba::CAnyArguments_var any_args = new corba::CAnyArguments(0);
@@ -389,12 +441,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
     tp2  = corba::TaskContextProxy::Create( ts2->server(), true );
 
     base::PortInterface* untyped_port;
-     
+
     untyped_port = tp->ports()->getPort("mi");
     BOOST_CHECK(untyped_port);
     base::InputPortInterface* read_port = dynamic_cast<base::InputPortInterface*>(tp->ports()->getPort("mi"));
     BOOST_CHECK(read_port);
-     
+
     untyped_port = tp->ports()->getPort("mi");
     BOOST_CHECK(untyped_port);
     base::OutputPortInterface* write_port = dynamic_cast<base::OutputPortInterface*>(tp2->ports()->getPort("mo"));

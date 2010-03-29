@@ -25,7 +25,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
 #include "TaskContextI.h"
@@ -152,11 +152,12 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
 }
 
-::RTT::corba::CServiceProvider_ptr RTT_corba_CTaskContext_i::providesService (
+::RTT::corba::CServiceProvider_ptr RTT_corba_CTaskContext_i::getProvider (
     const char * service_name)
 {
     if ( mtask->provides()->hasService(service_name) == false)
-	return CServiceProvider::_nil();
+        return CServiceProvider::_nil();
+    // Creates service provider for "this"
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating CServiceProvider for "<< mtask->getName()<<endlog();
         RTT_corba_CServiceProvider_i* mserv;
@@ -167,20 +168,35 @@ char * RTT_corba_CTaskContext_i::getDescription (
     // Now the this service is available, check for the service name:
     string svc(service_name);
     if ( svc == "this" )
-	return ::RTT::corba::CServiceProvider::_duplicate( mService.in() );
+        return ::RTT::corba::CServiceProvider::_duplicate( mService.in() );
     return mService->getService( service_name );
 }
 
-::RTT::corba::CServiceRequester_ptr RTT_corba_CTaskContext_i::requiresService (
+::RTT::corba::CServiceRequester_ptr RTT_corba_CTaskContext_i::getRequester (
     const char * service_name)
 {
+    if ( mtask->requires()->requiresService(service_name) == false)
+        return CServiceRequester::_nil();
+    // Creates service requester for "this"
+    if ( CORBA::is_nil( mRequest ) ) {
+        log(Debug) << "Creating CServiceRequester for "<< mtask->getName()<<endlog();
+        RTT_corba_CServiceRequester_i* mserv;
+        mRequest_i = mserv = new RTT_corba_CServiceRequester_i( mtask->requires(), mpoa );
+        mRequest = mserv->activate_this();
+        //CServiceRequester_i::registerServant(mRequest, mtask->requires());
+    }
+    // Now the this service is available, check for the service name:
+    string svc(service_name);
+    if ( svc == "this" )
+        return ::RTT::corba::CServiceRequester::_duplicate( mRequest.in() );
+    return mRequest->getRequest( service_name );
 }
 
-::RTT::corba::CTaskContext::CTaskContextNames * RTT_corba_CTaskContext_i::getPeerList (
+::RTT::corba::CTaskContext::CPeerNames * RTT_corba_CTaskContext_i::getPeerList (
     void)
 {
     TaskContext::PeerList peers = mtask->getPeerList();
-    ::RTT::corba::CTaskContext::CTaskContextNames_var result = new ::RTT::corba::CTaskContext::CTaskContextNames();
+    ::RTT::corba::CTaskContext::CPeerNames_var result = new ::RTT::corba::CTaskContext::CPeerNames();
     result->length( peers.size() );
     for (unsigned int i=0; i != peers.size(); ++i )
         result[i] = CORBA::string_dup( peers[i].c_str() );
