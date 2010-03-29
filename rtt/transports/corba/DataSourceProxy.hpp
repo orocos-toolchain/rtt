@@ -18,7 +18,7 @@ namespace RTT
          * ValueDataSourceProxy when invalid service or property/attribute
          * was given.
          */
-        struct NonExistingDataSource 
+        struct NonExistingDataSource
         {
         };
         /**
@@ -98,7 +98,7 @@ namespace RTT
 
         /**
          * Mirrors a remote assignable value datasource.
-         * @todo Replace ValueDataSource when type info 
+         * @todo Replace ValueDataSource when type info
          * decomposition is implemented.
          */
         template<class T>
@@ -152,8 +152,9 @@ namespace RTT
                 assert(ctp);
                 if ( misproperty && !mserv->hasProperty( CORBA::string_dup(name.c_str())) )
                     throw NonExistingDataSource();
-                if ( !misproperty && ( !mserv->hasAttribute( CORBA::string_dup(name.c_str()))  || mserv->isAttributeAssignable( CORBA::string_dup(name.c_str())) ))
+                if ( !misproperty && ( !mserv->hasAttribute( CORBA::string_dup(name.c_str()))  || !mserv->isAttributeAssignable( CORBA::string_dup(name.c_str())) ))
                     throw NonExistingDataSource();
+                this->get(); // initialize such that value()/rvalue() return a sane value !
             }
 
             typename internal::DataSource<T>::result_t value() const {
@@ -193,6 +194,7 @@ namespace RTT
             }
 
             virtual typename internal::AssignableDataSource<T>::reference_t set() {
+                this->get();
                 return storage->set();
             }
 
