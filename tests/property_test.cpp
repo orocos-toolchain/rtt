@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( testPrimitives )
 }
 
 
-BOOST_AUTO_TEST_CASE( testBags )
+BOOST_AUTO_TEST_CASE( testfindProperty )
 {
     // non recursive search :
     BOOST_CHECK( bag.find( "pf" ) == 0 );
@@ -147,6 +147,61 @@ BOOST_AUTO_TEST_CASE( testlistProperties )
     BOOST_CHECK_EQUAL( result[5], string("s1.s2.pc"));
     BOOST_CHECK_EQUAL( result[6], string("s1.pf"));
     BOOST_CHECK_EQUAL( result[7], string("s1.pd"));
+}
+
+// storeProperty( bag, path, item, separator )
+BOOST_AUTO_TEST_CASE( teststoreProperty )
+{
+    Property<int>* int1 = new Property<int>("int1","",3);
+    Property<int>* int2 = new Property<int>("int2","",6);
+    Property<int>* int3 = new Property<int>("int3","",9);
+    BOOST_CHECK( storeProperty(bag, "pp1", int1 ));
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1.int1"), int1 );
+
+    BOOST_CHECK( storeProperty(bag, "pp1.pp2", int2) );
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1.pp2.int2"), int2 );
+
+    BOOST_CHECK( removeProperty( bag, "pp1.pp2.int2") );
+    int2 = new Property<int>("int2","",6);
+
+    // re-add int2, but with different separator, and lots of them
+    BOOST_CHECK( storeProperty(bag, "##pp1###pp3##", int2, "#") );
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1#pp3#int2", "#"), int2 );
+
+    // top level store is equivalent to ownProperty:
+    BOOST_CHECK( storeProperty(bag, "", int3) );
+    BOOST_CHECK( findProperty(bag, "int3") );
+    BOOST_CHECK_EQUAL( bag.find("int3"), int3 );
+    BOOST_CHECK( bag.ownsProperty( int3 ) );
+
+    bag.removeProperty( int3 );
+    int3 = new Property<int>("int3","",9);
+
+    // same but with separator as path:
+    BOOST_CHECK( storeProperty(bag, "#", int3,"#") );
+    BOOST_CHECK( findProperty(bag, "int3") );
+    BOOST_CHECK_EQUAL( bag.find("int3"), int3 );
+    BOOST_CHECK( bag.ownsProperty( int3 ) );
+}
+
+// removeProperty( bag, path, item, separator )
+BOOST_AUTO_TEST_CASE( testremoveProperty )
+{
+    // check for wrong input:
+    BOOST_CHECK( removeProperty( bag, "qwerty" ) == false );
+    BOOST_CHECK( removeProperty( bag, "." ) == false );
+
+    // remove top level prop:
+    BOOST_CHECK( removeProperty( bag, "pi1" ) );
+    BOOST_CHECK( findProperty( bag, "pi1" ) == 0 );
+
+    // remove a leaf prop:
+    BOOST_CHECK( removeProperty( bag, "s1.s2.pc" ) );
+    BOOST_CHECK( findProperty( bag, "s1.s2.pc" ) == 0 );
+
+    // remove a bag:
+    BOOST_CHECK( removeProperty( bag, "s1.s2" ) );
+    BOOST_CHECK( findProperty( bag, "s1.s2" ) == 0 );
 }
 
 bool operator==(const std::vector<double>& a, const std::vector<double>& b)

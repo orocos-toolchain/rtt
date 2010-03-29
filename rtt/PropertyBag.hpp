@@ -210,13 +210,7 @@ namespace RTT
          * @return The PropertyBase with this name, zero
          *         if it does not exist.
          */
-        base::PropertyBase* getProperty(const std::string& name) const
-        {
-            const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindProp(), name ) ) );
-            if ( i != mproperties.end() )
-                return *i;
-            return 0;
-        }
+        base::PropertyBase* getProperty(const std::string& name) const;
 
         /**
          * Get the first Property with name \a name of a given type T
@@ -262,7 +256,8 @@ namespace RTT
         void identify( base::PropertyBagVisitor* pi ) const;
 
         /**
-         * Find the base::PropertyBase with name \a name. This function returns the first match.
+         * Find the base::PropertyBase with name \a name.
+         * This function returns the first match.
          *
          * @param  name The name of the property to search for.
          * @return The base::PropertyBase with this name, zero
@@ -344,14 +339,6 @@ namespace RTT
         Properties mowned_props;
 
         /**
-         * A function object for finding a Property by name.
-         */
-        struct FindProp : public std::binary_function<const base::PropertyBase*,const std::string, bool>
-        {
-            bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
-        };
-
-        /**
          * A function object for finding a Property by name and type.
          */
         template<class T>
@@ -396,6 +383,38 @@ namespace RTT
      * @ingroup CoreLibProperties
      */
     RTT_API std::vector<std::string> listProperties( const PropertyBag& bag, const std::string& separator = std::string("."));
+
+    /**
+     * List all descriptions of properties in a PropertyBag in a single list.
+     * The returned list has the same number of items returned by listProperties(bag)
+     * and matches its descriptions 1-to-1 with it.
+     * @param bag The bag to list the property descriptions of.
+     * @param separator The token to separate properties in the \a path,
+     * Defaults to ".".
+     * @ingroup CoreLibProperties
+     */
+    RTT_API std::vector<std::string> listPropertyDescriptions( const PropertyBag& bag, const std::string& separator = std::string("."));
+
+    /**
+     * Stores a property in a bag given a certain path with transfer of ownership.
+     * This allows you to store a property directly in (nested) subbags,
+     * instead of browsing manually to the required level and then calling
+     * PropertyBag::ownProperty().
+     * @see PropertyBag::ownProperty()
+     * @ingroup CoreLibProperties
+     */
+    RTT_API bool storeProperty(PropertyBag& bag, const std::string& path, base::PropertyBase* item, const std::string& separator = std::string(".") );
+
+    /**
+     * Removes a property from a bag given a certain path.
+     * This allows you to remove a property directly in (nested) subbags,
+     * instead of browsing manually to the required level and then calling
+     * PropertyBag::removeProperty().
+     * @see PropertyBag::removeProperty()
+     * @ingroup CoreLibProperties
+     */
+    RTT_API bool removeProperty(PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
+
     /**
      * This function refreshes the values of the properties in one PropertyBag with
      * the values of the properties of another PropertyBag.
@@ -479,7 +498,7 @@ namespace RTT
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
      * it without recursion. This function respects ownership, that is, it deletes
-     * the properties that are not owned by \a target and simply removes properties 
+     * the properties that are not owned by \a target and simply removes properties
      * which \a are owned by target, such that target can do the cleanup.
      *
      * @post All objects in this bag are deleted and no elements reside in the bag
@@ -491,7 +510,7 @@ namespace RTT
     /**
      * This function iterates over a PropertyBag and recursively deletes all Property objects.
      * This function respects ownership, that is, it deletes
-     * the properties that are not owned by \a target and simply removes properties 
+     * the properties that are not owned by \a target and simply removes properties
      * which \a are owned by target, such that target can do the cleanup.
      *
      * @post All objects in this bag (and possible subbags) are deleted and no elements reside in the bag

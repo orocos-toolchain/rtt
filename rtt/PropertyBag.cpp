@@ -194,13 +194,30 @@ namespace RTT
             }
     }
 
+    /**
+     * A function object for finding a Property by name.
+     */
+    struct FindProp : public std::binary_function<const base::PropertyBase*,const std::string, bool>
+    {
+        bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
+    };
+
     PropertyBase* PropertyBag::find(const std::string& name) const
     {
-        const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(PropertyBag::FindProp(), name ) ) );
+        const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindProp(), name ) ) );
         if ( i != mproperties.end() )
             return ( *i );
         return 0;
     }
+
+    base::PropertyBase* PropertyBag::getProperty(const std::string& name) const
+    {
+        const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindProp(), name ) ) );
+        if ( i != mproperties.end() )
+            return *i;
+        return 0;
+    }
+
 
     PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
     {
@@ -310,11 +327,85 @@ namespace RTT
         }
     }
 
+    // Recursively reads the descriptions of a bag.
+    void listDescriptionsHelper(const PropertyBag& source, const std::string& separator, vector<string>& result)
+    {
+        PropertyBag::const_iterator it( source.getProperties().begin() );
+        while ( it != source.getProperties().end() ) {
+            Property<PropertyBag>* sub = dynamic_cast<Property<PropertyBag>*>(*it);
+            result.push_back( (*it)->getDescription() );
+            if ( sub && sub->ready() ) {
+                listDescriptionsHelper( sub->value(), separator, result );
+            }
+            ++it;
+        }
+    }
+
     vector<string> listProperties(const PropertyBag& source, const std::string& separator)
     {
         vector<string> result;
         listPropertiesHelper( source, separator, "", result);
         return result;
+    }
+
+    vector<string> listPropertyDescriptions(const PropertyBag& source, const std::string& separator)
+    {
+        vector<string> result;
+        listDescriptionsHelper( source, separator, result);
+        return result;
+    }
+
+    bool storeProperty(PropertyBag& bag, const std::string& path, base::PropertyBase* item, const std::string& separator )
+    {
+        Logger::In in("storeProperty");
+        if ( path.empty() || path == separator )
+            return bag.ownProperty( item );
+        // find top-level parent
+        string pname, rest;
+        if ( path.find(separator) != string::npos ) {
+            pname = path.substr( 0, path.find(separator));
+            rest  = path.substr( path.find(separator) + separator.length() );
+        } else {
+            pname = path;
+        }
+
+        if ( pname.empty() && !rest.empty() )
+            return storeProperty( bag, rest, item, separator); // recurse
+
+        // pname is parent
+        PropertyBase* parent = bag.find(pname);
+        if (!parent) {
+            bag.ownProperty( new Property<PropertyBag>(pname,"") );
+            parent = bag.find(pname);
+        }
+        Property<PropertyBag>* parentbag = dynamic_cast<Property<PropertyBag>* >(parent);
+        if ( !parentbag ) {
+            log(Error) << "Path component '" << pname << "' in path '"<<path<<"' does not point to a PropertyBag."<<endlog();
+            return false;
+        }
+        // recurse using new parentbag and rest.
+        return storeProperty( parentbag->value(), rest, item, separator);
+    }
+
+    bool removeProperty(PropertyBag& bag, const std::string& path, const std::string& separator )
+    {
+        // empty path
+        if ( path.empty() || path == separator )
+            return false;
+        // single item path
+        if ( path.find( separator ) == string::npos)
+            return bag.removeProperty( bag.find(path) );
+        // multi item path
+        string prefix = path.substr( 0, path.rfind(separator));
+        string pname  = path.substr( path.rfind(separator) + separator.length() );
+        // '.item' form:
+        if ( prefix.empty() )
+            return bag.removeProperty( bag.find(pname) );
+        // 'bag.item' form:
+        Property<PropertyBag> parent = findProperty( bag, prefix);
+        if ( !parent.ready() )
+            return false;
+        return parent.value().removeProperty( parent.value().find( pname ) );
     }
 
     bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool allprops)
@@ -636,7 +727,7 @@ namespace RTT
                     while (flat_it != result->value().getProperties().end() )
                     {
                         (*flat_it)->setName( result->getName() + separator + (*flat_it)->getName() );
-                        target.add( *flat_it );
+                        target.add( (*flat_it) );
                         result->value().remove( *flat_it );
                         flat_it =  result->value().getProperties().begin();
                     }
