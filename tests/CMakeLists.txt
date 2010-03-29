@@ -104,7 +104,7 @@ IF (BUILD_TESTING)
     ENDIF()
 
     IF(ENABLE_CORBA)
-      ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp )
+      ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp operations_fixture.cpp )
       TARGET_LINK_LIBRARIES( corba-test 
             orocos-rtt-dynamic_${OROCOS_TARGET} 
             orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
@@ -119,7 +119,7 @@ IF (BUILD_TESTING)
 
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
       IF (UNIX)
-          ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp )
+          ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp operations_fixture.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
                 orocos-rtt-dynamic_${OROCOS_TARGET} 
                 orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
@@ -233,8 +233,9 @@ IF (BUILD_TESTING)
     if(PLUGINS_ENABLE_MARSHALLING)
         ADD_UNIT_TEST(marshalling_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
         ADD_UNIT_TEST(property_loader_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-        ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+	ADD_UNIT_TEST(property_marsh_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
+    ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test specactivities-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
