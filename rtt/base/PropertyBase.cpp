@@ -68,7 +68,10 @@ namespace RTT {
     namespace base {
         std::ostream& operator<<(std::ostream &os, PropertyBase* p)
         {
-            os << p->getDataSource();
+            if ( p )
+                os << p->getDataSource();
+            else
+                os << "(null property)";
             return os;
         }
     }
