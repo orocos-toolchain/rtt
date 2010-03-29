@@ -227,15 +227,17 @@ namespace RTT
     // Recursively fetch remote objects and create local proxies.
     void TaskContextProxy::fetchServices(ServiceProvider::shared_ptr parent, CServiceProvider_ptr serv)
     {
+        log(Debug) << "Fetching "<<parent->getName()<<" Service:"<<endlog();
         // load command and method factories.
         // methods:
         log(Debug) << "Fetching Methods."<<endlog();
         COperationRepository::COperationList_var objs;
         objs = serv->getOperations();
         for ( size_t i=0; i < objs->length(); ++i) {
-            if (this->provides()->hasMember( string(objs[i].in() )))
+            if ( parent->hasMember( string(objs[i].in() )))
                 continue; // already added.
-            this->provides()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), serv, ProxyPOA() ) );
+            log(Debug) << "Providing operation: "<< objs[i].in() <<endlog();
+            parent->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), serv, ProxyPOA() ) );
         }
 
         // first do properties:
@@ -244,23 +246,13 @@ namespace RTT
         CAttributeRepository::CPropertyNames_var props = serv->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
-            if ( findProperty( *this->provides()->properties(), string(props[i].name.in()), "." ) )
+            if ( findProperty( *parent->properties(), string(props[i].name.in()), "." ) )
                 continue; // previously added.
             if ( !serv->hasProperty( CORBA::string_dup(props[i].name.in() ) ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
                 continue;
             }
-#if 0 // This code may trigger endless recurse if server has recursive prop bags.
-            // See if it is a PropertyBag:
-            CORBA::Any_var any = expr->get();
-            PropertyBag bag;
-            if ( AnyConversion<PropertyBag>::update( *any, bag ) ) {
-                Property<PropertyBag>* pbag = new Property<PropertyBag>( string(props[i].name.in()), string(props[i].description.in()), bag);
-                this->provides()->properties()->ownProperty( pbag );
-                continue;
-            }
-#endif
-            // If the type is known, immediately build the correct property and datasource.
+           // If the type is known, immediately build the correct property and datasource.
             CORBA::String_var tn = serv->getPropertyTypeName(props[i].name.in());
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
 
@@ -281,12 +273,12 @@ namespace RTT
                 assert(ctt);
                 // data source needs full remote path name
                 DataSourceBase::shared_ptr ds = ctt->createPropertyDataSource( serv, props[i].name.in() );
-                storeProperty( *this->provides()->properties(), prefix, ti->buildProperty( pname, props[i].description.in(), ds));
+                storeProperty( *parent->properties(), prefix, ti->buildProperty( pname, props[i].description.in(), ds));
                 log(Info) <<" found!"<<endlog();
             }
             else {
                 if ( string("PropertyBag") == tn.in() ) {
-                    storeProperty(*this->provides()->properties(), prefix, new Property<PropertyBag>( pname, props[i].description.in()) );
+                    storeProperty(*parent->properties(), prefix, new Property<PropertyBag>( pname, props[i].description.in()) );
                     log(Info) <<" created!"<<endlog();
                 } else
                     log(Info)<<" type not known :-("<<endlog();
@@ -296,7 +288,7 @@ namespace RTT
         log(Debug) << "Fetching Attributes."<<endlog();
         CAttributeRepository::CAttributeNames_var attrs = serv->getAttributeList();
         for (size_t i=0; i != attrs->length(); ++i) {
-            if ( this->provides()->hasAttribute( string(attrs[i].in()) ) )
+            if ( parent->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
             if ( !serv->hasAttribute( CORBA::string_dup( attrs[i].in() ) ) ) {
                 log(Error) <<"Attribute '"<< string(attrs[i].in()) << "' present in getAttributeList() but not accessible."<<endlog();
@@ -313,15 +305,14 @@ namespace RTT
                 // this function should check itself for const-ness of the remote Attribute:
                 DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv, attrs[i].in() );
                 if ( serv->isAttributeAssignable( CORBA::string_dup( attrs[i].in() ) ) )
-                    this->provides()->setValue( ti->buildAttribute( attrs[i].in(), ds));
+                    parent->setValue( ti->buildAttribute( attrs[i].in(), ds));
                 else
-                    this->provides()->setValue( ti->buildConstant( attrs[i].in(), ds));
+                    parent->setValue( ti->buildConstant( attrs[i].in(), ds));
             } else {
                 Logger::log() <<": type not known :-("<<endlog();
             }
         }
 
-        log(Debug) << "Fetching Services of "<<parent->getName()<<":"<<endlog();
         CServiceProvider::CProviderNames_var plist = serv->getProviderNames();
 
         for( size_t i =0; i != plist->length(); ++i) {
