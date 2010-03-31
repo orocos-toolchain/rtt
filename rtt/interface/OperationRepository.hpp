@@ -1,15 +1,15 @@
 #ifndef ORO_OPERATION_REPOSITORY_HPP
 #define ORO_OPERATION_REPOSITORY_HPP
 
+#include <string>
 #include <vector>
 #include <map>
-#include <string>
 
 #include "../base/DataSourceBase.hpp"
 #include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
 #include "FactoryExceptions.hpp"
-#include "../base/DisposableInterface.hpp"
+
 
 namespace RTT
 {
@@ -56,10 +56,27 @@ namespace RTT
             virtual unsigned int arity() const = 0;
 
             /**
-             * Returns the number of collectable arguments of this operation.
+             * Returns the type information of the n'th argument, with
+             * argument zero being the return value.
+             * @param arg 0: get return value type, 1..arity(): get n'th argument type.
+             * @return A TypeInfo Object or null if \arg is out of range
+             */
+            virtual const types::TypeInfo* getArgumentType(unsigned int arg) const = 0;
+
+            /**
+             * Returns the number of collectable arguments of this operation's function.
+             * These consist of the return value and the reference arguments.
              * @see produceCollect
              */
             virtual unsigned int collectArity() const = 0;
+
+            /**
+             * Returns the type information of the n'th collectable argument.
+             * The numbering of \a arg starts from 1.
+             * @param arg 1..collectArity(): get n'th argument type.
+             * @return A TypeInfo Object or null if \arg is out of range
+             */
+            virtual const types::TypeInfo* getCollectType(unsigned int arg) const = 0;
 
             /**
              * Create a DataSource for a given callable operation.
@@ -104,7 +121,7 @@ namespace RTT
              * @param args A vector of data sources of which the first element
              * contains a properly initialised sendhandle and the remainder of the
              * elements contains datasources for collecting the return value and
-             * reference arguments.
+             * reference arguments. The total number of items in args must be collectArity() + 1
              * @param blocking Set to true to do a blocking collect, false for a polling version.
              * @return A DataSource which collects the results when evaluated and which returns
              * the SendStatus.
@@ -126,8 +143,8 @@ namespace RTT
          */
 
         /**
-         * @brief This factory is a template for creating operations.
-         * @todo Rename to interface::OperationRepository.
+         * @brief Holds all exported operations of a component and is
+         * able to produce callers for these operations.
          */
         class OperationRepository
         {

@@ -134,3 +134,4 @@ OperationRepositoryPart* OperationRepository::getPart(const std::string& name)
     }
     return 0;
 }
+
