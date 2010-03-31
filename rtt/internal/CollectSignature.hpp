@@ -53,6 +53,8 @@ namespace RTT
             typedef typename ft::function_type<fttype>::type Ft;
             // Type is a more standard way of result type.
             typedef Ft type;
+            // The collect type signature as an mpl list
+            typedef fttype mpl_type;
         };
 
         /**
