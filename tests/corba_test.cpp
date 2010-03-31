@@ -233,11 +233,11 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -1.0 );
 
-    mc = tp->provides("methods")->create("m2", tc->engine() ).argC(1).argC(1.0).ret( r );
+    mc = tp->provides("methods")->create("m2", tc->engine() ).argC(1).argC(2.0).ret( r );
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -3.0 );
 
-    mc = tp->provides("methods")->create("m3", tc->engine() ).ret( r ).argC(1).argC(1.0).argC(true);
+    mc = tp->provides("methods")->create("m3", tc->engine() ).ret( r ).argC(1).argC(2.0).argC(true);
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -4.0 );
 
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
     ++index;
-    any_args[index] <<= CORBA::Any::from_boolean( false );
+    any_args[index] <<= CORBA::Any::from_boolean( true );
     CORBA::Any_var m3;
     BOOST_CHECK_NO_THROW( m3= co->callOperation("m3", any_args.inout()) );
     BOOST_CHECK( m3 >>= d );
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
     ++index;
-    any_args[index] <<= CORBA::Any::from_boolean( false );
+    any_args[index] <<= CORBA::Any::from_boolean( true );
     ++index;
     any_args[index] <<= "hello";
     CORBA::Any_var m4;

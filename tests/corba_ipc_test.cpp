@@ -437,12 +437,12 @@ BOOST_AUTO_TEST_CASE( testPortProxying )
         tp = corba::TaskContextProxy::CreateFromFile( "peerPP.ior");
 
     base::PortInterface* untyped_port;
-     
+
     untyped_port = tp->ports()->getPort("mi");
     BOOST_CHECK(untyped_port);
     base::InputPortInterface* read_port = dynamic_cast<base::InputPortInterface*>(tp->ports()->getPort("mi"));
     BOOST_CHECK(read_port);
-     
+
     untyped_port = tp->ports()->getPort("mo");
     BOOST_CHECK(untyped_port);
     base::OutputPortInterface* write_port = dynamic_cast<base::OutputPortInterface*>(tp->ports()->getPort("mo"));
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered C++ write --> Corba read
     policy.pull = false; // note: buildChannelInput must correct policy to pull = true (adds a buffer).
-    mo->connectTo( *tp->ports()->getPort("mi"), toRTT(policy)  );
+    mo->connectTo( tp->ports()->getPort("mi"), toRTT(policy)  );
     CChannelElement_var cce = ports->buildChannelInput("mo", policy);
     CORBA::Any_var sample;
     BOOST_REQUIRE( cce.in() );
@@ -538,7 +538,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    mi->connectTo( *tp->ports()->getPort("mo"), toRTT(policy)  );
+    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 
     // test unbuffered C++ write --> Corba read
     policy.pull = false; // note: buildChannelInput must correct policy to pull = true (adds a buffer).
-    mo->connectTo( *tp->ports()->getPort("mi"), toRTT(policy) );
+    mo->connectTo( tp->ports()->getPort("mi"), toRTT(policy) );
     CChannelElement_var cce = ports->buildChannelInput("mo", policy);
     CORBA::Any_var sample;
     BOOST_REQUIRE( cce.in() );
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     mo->disconnect();
 
     // test unbuffered Corba write --> C++ read
-    mi->connectTo( *tp->ports()->getPort("mo"), toRTT(policy)  );
+    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
     cce = ports->buildChannelOutput("mi", policy);
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );

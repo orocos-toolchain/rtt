@@ -13,25 +13,40 @@ module RTT
       typedef sequence<any> CAnyArguments;
 
     /**
-     * When querying a method or command for
+     * When querying an operation for
      * the kinds of arguments it takes, this
      * structure is returned for each argument.
      */
     struct CArgumentDescription
     {
-      string name;
-      string description;
-      string type;
+      string name;        //! Argument name
+      string description; //! Argument description
+      string type;        //! Qualified type
     };
 
     typedef sequence<CArgumentDescription> CDescriptions;
+    
+    /**
+     * Is thrown when a wrong argument number is queried.
+     */
+    exception CWrongArgumentException
+    {
+      long which_arg;
+      long max_arg;
+    };
 
+    /**
+     * Is thrown when a wrong number of arguments is provided.
+     */
     exception CWrongNumbArgException
     {
       long wanted;
       long received;
     };
 
+    /**
+     * Is thrown when a wrong type of arguments is provided.
+     */
     exception CWrongTypeArgException
     {
       long whicharg;
@@ -39,6 +54,9 @@ module RTT
       string received;
     };
 
+    /**
+     * Is thrown when an operation does not exist.
+     */
     exception CNoSuchNameException
     {
       string name;
@@ -102,6 +120,16 @@ module RTT
        * Get a result type of a given operation.
        */
       string getResultType(in string operation) raises (CNoSuchNameException);
+      
+      /**
+       * Returns the argument or return type name of call as known to the Orocos type system.
+       */
+      string getArgumentType(in string operation, in unsigned short nbr) raises (CNoSuchNameException, CWrongArgumentException);
+      
+      /**
+       * Returns the argument type  of collect as known to the Orocos type system.
+       */
+      string getCollectType(in string operation, in unsigned short nbr) raises (CNoSuchNameException, CWrongArgumentException);
 
       /**
        * Get a description of a given operation.

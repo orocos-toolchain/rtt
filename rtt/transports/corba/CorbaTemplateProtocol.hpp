@@ -83,6 +83,14 @@ namespace RTT
               return 0;
           }
 
+          virtual base::DataSourceBase::shared_ptr createDataSource(const CORBA::Any* any) const
+          {
+              base::DataSourceBase::shared_ptr result = new internal::ValueDataSource<T>();
+              if ( updateFromAny(any, result) )
+                  return result;
+              return base::DataSourceBase::shared_ptr();
+          }
+
           /**
            * Update \a target with the contents of \a any which is an object of a \a protocol.
            */

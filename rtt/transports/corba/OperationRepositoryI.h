@@ -99,6 +99,16 @@ class  RTT_corba_COperationRepository_i
       const char * operation);
 
   virtual
+  char* getArgumentType(
+          const char*,
+          CORBA::UShort);
+
+  virtual
+  char* getCollectType(
+          const char*,
+          CORBA::UShort);
+
+  virtual
   char * getDescription (
       const char * operation);
 

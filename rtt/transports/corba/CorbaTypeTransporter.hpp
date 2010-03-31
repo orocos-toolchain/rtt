@@ -62,6 +62,12 @@ namespace RTT {
         virtual CORBA::Any_ptr createAny(base::DataSourceBase::shared_ptr source) const = 0;
 
         /**
+         * Create a Data Source from an any.
+         * @return null if no conversion could be made.
+         */
+        virtual base::DataSourceBase::shared_ptr createDataSource(const CORBA::Any* any) const = 0;
+
+        /**
          * Update \a target with the contents of \a blob which is an object of a \a protocol.
          */
         virtual bool updateFromAny(const CORBA::Any* blob, base::DataSourceBase::shared_ptr target) const = 0;

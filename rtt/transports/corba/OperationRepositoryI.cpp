@@ -127,6 +127,30 @@ char * RTT_corba_COperationRepository_i::getResultType (
     return CORBA::string_dup( mfact->getResultType( string(operation) ).c_str() );
 }
 
+char* RTT_corba_COperationRepository_i::getArgumentType(
+        const char* operation,
+        CORBA::UShort nbr)
+{
+    if ( mfact->hasMember( string( operation ) ) == false )
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    if ( nbr > mfact->getPart(operation)->arity() )
+        throw ::RTT::corba::CWrongArgumentException( nbr, mfact->getPart(operation)->arity() );
+    return CORBA::string_dup( mfact->getPart( operation )->getArgumentType(nbr)->getTypeName().c_str() );
+}
+
+char* RTT_corba_COperationRepository_i::getCollectType(
+        const char* operation,
+        CORBA::UShort nbr)
+{
+    if ( mfact->hasMember( string( operation ) ) == false )
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    if ( nbr > mfact->getPart(operation)->collectArity() )
+        throw ::RTT::corba::CWrongArgumentException( nbr, mfact->getPart(operation)->collectArity() );
+    return CORBA::string_dup( mfact->getPart( operation )->getCollectType(nbr)->getTypeName().c_str() );
+
+}
+
+
 char * RTT_corba_COperationRepository_i::getDescription (
     const char * operation)
 {
@@ -151,8 +175,16 @@ void RTT_corba_COperationRepository_i::checkOperation (
     // convert Corba args to C++ args.
     try {
         MethodC orig(mfact->getPart(operation), operation, 0);
-        for (size_t i =0; i != args.length(); ++i)
-            orig.arg( new AnyDataSource( new CORBA::Any( args[i] ) ) );
+        for (size_t i =0; i != args.length(); ++i) {
+            const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
+            if (ti) {
+                CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+                orig.arg( ctt->createDataSource( &args[i] ));
+            } else {
+                // this will cause failure, but will print a nice wrong type/number of arg exception later on.
+                orig.arg( new AnyDataSource( new CORBA::Any( args[i] ) ) );
+            }
+        }
         if ( orig.ready() ) {
             DataSourceBase::shared_ptr ds = orig.getCallDataSource();
             // Call nomatter what:
@@ -165,6 +197,8 @@ void RTT_corba_COperationRepository_i::checkOperation (
                 return new CORBA::Any();
             }
             return ctt->createAny( ds );
+        } else {
+            orig.check(); // will throw
         }
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
@@ -181,6 +215,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
     ::RTT::corba::CAnyArguments & args)
 {
   // Add your implementation here
+    assert(false);
 }
 
 

@@ -76,6 +76,10 @@ namespace RTT
 
         virtual unsigned int arity() const;
 
+        virtual const types::TypeInfo* getArgumentType(unsigned int i) const;
+
+        virtual const types::TypeInfo* getCollectType(unsigned int i) const;
+
         virtual unsigned int collectArity() const;
 
         virtual std::string resultType() const;
