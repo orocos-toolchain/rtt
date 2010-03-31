@@ -278,9 +278,9 @@ namespace RTT
              * number of types in the mpl List of this class.
              * @return An Orocos registered type info object.
              */
-            static types::TypeInfo* GetTypeInfo(int i) {
+            static const types::TypeInfo* GetTypeInfo(int i) {
                 if ( i <= 0 || i > size)
-                    return "na";
+                    return 0;
                 if ( i == 1 ) {
                     return DataSource<arg_type>::GetTypeInfo();
                 } else {
@@ -382,9 +382,9 @@ namespace RTT
                 return type( bf::front(seq)->copy(alreadyCloned) );
             }
 
-            static types::TypeInfo* GetTypeInfo(int i) {
+            static const types::TypeInfo* GetTypeInfo(int i) {
                 if ( i != 1)
-                    return "na";
+                    return 0;
                 return DataSource<arg_type>::GetTypeInfo();
             }
             static std::string GetType(int i) {
@@ -447,8 +447,8 @@ namespace RTT
                               base::DataSourceBase*>& alreadyCloned) {
                 return type();
             }
-            static types::TypeInfo* GetTypeInfo(int i) {
-                return "na";
+            static const types::TypeInfo* GetTypeInfo(int i) {
+                return 0;
             }
             static std::string GetType(int i) {
                 return "na";
