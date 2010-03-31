@@ -36,7 +36,10 @@ namespace RTT
             : public interface::OperationRepositoryPart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
+            //! The factory for converting data sources to C++ types in call()
             typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            //! The factory for converting data sources to C++ types in collect(). This includes SendHandle.
+            typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
             Operation<Signature>* op;
         public:
             OperationRepositoryPartFused( Operation<Signature>* o)
@@ -63,7 +66,19 @@ namespace RTT
 
             unsigned int arity() const { return boost::function_traits<Signature>::arity; }
 
+            const types::TypeInfo* getArgumentType(unsigned int arg) const
+            {
+                if (arg == 0 )
+                    return internal::DataSourceTypeInfo<result_type>::getTypeInfo();
+                return SequenceFactory::GetTypeInfo(arg);
+            }
+
             unsigned int collectArity() const { return boost::function_traits< typename CollectType<Signature>::type >::arity; }
+
+            const types::TypeInfo* getCollectType(unsigned int arg) const
+            {
+                return CollectSequenceFactory::GetTypeInfo(arg);
+            }
 
             base::DataSourceBase::shared_ptr produce(
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
@@ -122,6 +137,7 @@ namespace RTT
                 : public interface::OperationRepositoryPart
             {
                 typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+                typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
                 typedef typename boost::function_traits<Signature>::result_type result_type;
                 Operation<Signature>* op;
                 // the datasource that stores a weak pointer is itself stored by a shared_ptr.
@@ -141,7 +157,19 @@ namespace RTT
 
                 unsigned int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
 
+                const types::TypeInfo* getArgumentType(unsigned int arg) const
+                {
+                    if (arg == 0 )
+                        return internal::DataSourceTypeInfo<result_type>::getTypeInfo();
+                    return SequenceFactory::GetTypeInfo(arg);
+                }
+
                 unsigned int collectArity() const { return boost::function_traits< typename CollectType<Signature>::type >::arity; }
+
+                const types::TypeInfo* getCollectType(unsigned int arg) const
+                {
+                    return CollectSequenceFactory::GetTypeInfo(arg);
+                }
 
                 virtual std::string description() const {
                     return op->getDescriptions().front();

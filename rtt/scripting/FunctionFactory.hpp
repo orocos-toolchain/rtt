@@ -68,6 +68,10 @@ namespace RTT
 
         unsigned int collectArity() const;
 
+        const types::TypeInfo* getArgumentType(unsigned int arg) const;
+
+        const types::TypeInfo* getCollectType(unsigned int arg) const;
+
         std::string description() const;
 
         std::vector< interface::ArgumentDescription > getArgumentList() const;
