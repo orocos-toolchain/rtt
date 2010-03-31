@@ -154,6 +154,15 @@ namespace RTT
         SendHandleC send();
 
         /**
+         * Checks if this method is ready for calling, will throw
+         * if not so. Otherwise, does nothing.
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         */
+        void check();
+
+        /**
          * Returns true if this method is ready for execution.
          */
         bool ready() const;

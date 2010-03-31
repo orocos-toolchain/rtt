@@ -71,7 +71,12 @@ namespace RTT {
                     if ( !m )
                         return;
                     if (rta)
-                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
+                        try {
+                            m = new DataSourceCommand( rta->updateCommand( m.get() ) );
+                        } catch( bad_assignment& ba ) {
+                            log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< rta->getType()<<endlog();
+                        }
+
                 }
             }
         }
@@ -167,9 +172,13 @@ namespace RTT {
         if (d)
             d->ret( r );
         else {
-            if (m)
-                m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
-            else
+            if (m) {
+                try {
+                    m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+                } catch( bad_assignment& ba ) {
+                    log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< r->getDataSource()->getType()<<endlog();
+                }
+            } else
                 log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
         }
         return *this;
@@ -203,6 +212,16 @@ namespace RTT {
             }
         }
         return false;
+    }
+
+    void MethodC::check() {
+        if (d) {
+            // something went wrong, let producer throw
+            if (d->ofp)
+                DataSourceBase::shared_ptr dummy = d->ofp->produce( d->args, d->caller );
+            else
+                throw name_not_found_exception( d->mname );
+        }
     }
 
     SendHandleC MethodC::send() {
