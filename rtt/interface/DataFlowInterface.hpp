@@ -82,18 +82,23 @@ namespace RTT
 
         /**
          * Add a Port to this task without registering a service for it.
-         * @return
+         * If a port with the same name already exists, addPort
+         * will replace it with \a port and log a warning.
+         * @return \a port
          */
         base::PortInterface& addLocalPort(base::PortInterface& port);
 
         /**
          * Add an Event triggering Port to this task without
          * registering a service for it.
+         * When data arrives on this port your TaskContext will be woken up
+         * and updateHook will be executed.
          * @param port The port to add.
-         * @return true if the port could be added, false if already added.
-         * @param callback (Optional) provide a function which will be called asynchronously
-         * when new data arrives on this port. You can add more functions by using the port
-         * directly using base::PortInterface::getNewDataOnPort().
+         * @param callback (Optional) provide a function which will be called
+         * when new data arrives on this port. The callback function will
+         * be called in sequence with updateHook(), so asynchronously with
+         * regard to the arrival of data on the port.
+         * @return \a port
          */
         base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
                 base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
@@ -101,17 +106,24 @@ namespace RTT
         /**
          * Add a Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
+         * If a port or service with the name already exists, addPort
+         * will replace them with \a port and log a warning.
          * @param port The port to add.
+         * @return \a port
          */
         base::PortInterface& addPort(base::PortInterface& port);
 
         /**
          * Add an Event triggering Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
+         * When data arrives on this port your TaskContext will be woken up
+         * and updateHook will be executed.
          * @param port The port to add.
-         * @param callback (Optional) provide a function which will be called asynchronously
-         * when new data arrives on this port. You can add more functions by using the port
-         * directly using base::PortInterface::getNewDataOnPort().
+         * @param callback (Optional) provide a function which will be called
+         * when new data arrives on this port. The callback function will
+         * be called in sequence with updateHook(), so asynchronously with
+         * regard to the arrival of data on the port.
+         * @return \a port
          */
         base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 

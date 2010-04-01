@@ -89,9 +89,19 @@ namespace RTT
 
 
     InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
-        this->addPort(port);
-        if (callback)
-            port.getNewDataOnPortEvent()->connect(callback );
+        this->addLocalEventPort(port);
+        if (mparent && mparent->provides()->hasService( port.getName()) != 0) {
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
+            mparent->provides()->removeService(port.getName());
+        }
+
+        if (!mparent) {
+            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
+            return port;
+        }
+        ServiceProvider::shared_ptr ms( this->createPortObject( port.getName()) );
+        if ( ms )
+            mparent->provides()->addService( ms );
         return port;
     }
 
