@@ -51,5 +51,5 @@ public:
 
     ~OperationsFixture();
 
-    void createMethodFactories();
+    void createMethodFactories(TaskContext* target);
 };

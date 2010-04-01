@@ -94,7 +94,7 @@ void CorbaMQueueIPCTest::new_data_listener(base::PortInterface* port)
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
     signalled_port = 0; \
     code; \
-    usleep(1000000); \
+    usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
 
 void CorbaMQueueIPCTest::testPortDataConnection()
@@ -159,16 +159,16 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueIPCTestSuite,  CorbaMQueueIPCTest )
 BOOST_AUTO_TEST_CASE( setupServer )
 {
     system("./corba-mqueue-ipc-server &");
-    usleep(100000);
+    usleep(500000);
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the different port-to-port connections.
     ts = corba::TaskContextServer::Create( tc, false ); //no-naming
-    tp = corba::TaskContextProxy::Create("other");
-    if (!tp )
-        tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
+    //tp = corba::TaskContextProxy::Create("other");
+    //if (!tp )
+    tp = corba::TaskContextProxy::CreateFromFile( "other.ior");
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );

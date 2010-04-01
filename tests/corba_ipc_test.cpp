@@ -199,11 +199,11 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -1.0 );
 
-    mc = tp->provides("methods")->create("m2", tc->engine()).argC(1).argC(1.0).ret( r );
+    mc = tp->provides("methods")->create("m2", tc->engine()).argC(1).argC(2.0).ret( r );
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -3.0 );
 
-    mc = tp->provides("methods")->create("m3", tc->engine()).ret( r ).argC(1).argC(1.0).argC(true);
+    mc = tp->provides("methods")->create("m3", tc->engine()).ret( r ).argC(1).argC(2.0).argC(true);
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -4.0 );
 
@@ -226,12 +226,13 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 
 BOOST_AUTO_TEST_CASE( testAnyMethod )
 {
+    double d;
     tp = corba::TaskContextProxy::Create( "peerAM" , false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerAM.ior");
@@ -239,31 +240,28 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     BOOST_REQUIRE(tp);
     s = tp->server();
     BOOST_REQUIRE( s );
-
-    // This test tests the createMethodAny() function of the server.
-    corba::CServiceProvider_var co = s->provides("methods");
-    BOOST_REQUIRE( co.in() );
+    // This test tests the callOperation() function of the server.
+    corba::CServiceProvider_var co = s->getProvider("methods");
+    BOOST_CHECK( co.in() );
 
     corba::CAnyArguments_var any_args = new corba::CAnyArguments(0);
-    corba::CMethod_var vm0 = co->createMethodAny("vm0", any_args.in());
-    BOOST_REQUIRE( vm0.in() );
+    CORBA::Any_var vm0 = co->callOperation("vm0", any_args.inout() );
+    //BOOST_CHECK( vm0.in() );
 
-    BOOST_CHECK( vm0->callOperation( any_args.in() ) );
-
-    corba::CMethod_var m0 = co->createMethodAny("m0", any_args.in());
-    BOOST_REQUIRE( m0.in() );
-
-    BOOST_CHECK( m0->callOperation( any_args.in() ) );
+    CORBA::Any_var m0 = co->callOperation("m0", any_args.inout());
+    BOOST_CHECK( m0 >>= d );
+    BOOST_CHECK_EQUAL(d, -1.0 );
 
     any_args = new corba::CAnyArguments(1);
     any_args->length(1);
     unsigned int index = 0;
     any_args[index] <<= (CORBA::Long) 1;
-    corba::CMethod_var m1;
-    BOOST_CHECK_NO_THROW( m1 = co->createMethodAny("m1", any_args.in()));
-    BOOST_CHECK( m1.in() );
+    CORBA::Any_var m1;
+    BOOST_CHECK_NO_THROW( m1 = co->callOperation("m1", any_args.inout()));
+    BOOST_REQUIRE( m1 );
+    BOOST_CHECK( m1 >>= d );
+    BOOST_CHECK_EQUAL(d, -2.0 );
 
-    BOOST_CHECK(m1->callOperation( any_args.in() ));
 
     any_args = new corba::CAnyArguments(2);
     any_args->length(2);
@@ -271,11 +269,10 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     any_args[index] <<= (CORBA::Long) 1;
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
-    corba::CMethod_var m2;
-    BOOST_CHECK_NO_THROW( m2 = co->createMethodAny("m2", any_args.in()));
-    BOOST_CHECK( m2.in() );
-
-    BOOST_CHECK(m2->callOperation( any_args.in() ));
+    CORBA::Any_var m2;
+    BOOST_CHECK_NO_THROW( m2 = co->callOperation("m2", any_args.inout()));
+    BOOST_CHECK( m2 >>= d );
+    BOOST_CHECK_EQUAL(d, -3.0 );
 
     any_args = new corba::CAnyArguments(3);
     any_args->length(3);
@@ -284,12 +281,11 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
     ++index;
-    any_args[index] <<= CORBA::Any::from_boolean( false );
-    corba::CMethod_var m3;
-    BOOST_CHECK_NO_THROW( m3= co->createMethodAny("m3", any_args.in()) );
-    BOOST_CHECK( m3.in() );
-
-    BOOST_CHECK(m3->callOperation( any_args.in() ));
+    any_args[index] <<= CORBA::Any::from_boolean( true );
+    CORBA::Any_var m3;
+    BOOST_CHECK_NO_THROW( m3= co->callOperation("m3", any_args.inout()) );
+    BOOST_CHECK( m3 >>= d );
+    BOOST_CHECK_EQUAL(d, -4.0 );
 
     any_args = new corba::CAnyArguments(4);
     any_args->length(4);
@@ -298,14 +294,13 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
     ++index;
-    any_args[index] <<= CORBA::Any::from_boolean( false );
+    any_args[index] <<= CORBA::Any::from_boolean( true );
     ++index;
     any_args[index] <<= "hello";
-    corba::CMethod_var m4;
-    BOOST_CHECK_NO_THROW ( m4 = co->createMethodAny("m4", any_args.in()) );
-    BOOST_CHECK( m4.in() );
-
-    BOOST_CHECK(m4->callOperation( any_args.in() ));
+    CORBA::Any_var m4;
+    BOOST_CHECK_NO_THROW ( m4 = co->callOperation("m4", any_args.inout()) );
+    BOOST_CHECK( m4 >>= d );
+    BOOST_CHECK_EQUAL(d, -5.0 );
 }
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)

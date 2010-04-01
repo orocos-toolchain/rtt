@@ -48,7 +48,9 @@ public:
     TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
+        this->createMethodFactories( this );
         ts = corba::TaskContextServer::Create( this, true ); //use-naming
+        this->start();
     }
     ~TheServer() {
         this->stop();

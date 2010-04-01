@@ -19,7 +19,7 @@ public:
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->start();
-        ts = corba::TaskContextServer::Create( this, true ); //use-naming
+        ts = corba::TaskContextServer::Create( this, false ); //use-naming
     }
     ~TheServer() {
         this->stop();

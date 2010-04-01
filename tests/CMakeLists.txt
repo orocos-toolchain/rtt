@@ -118,7 +118,7 @@ IF (BUILD_TESTING)
       list(APPEND ORO_EXTRA_TESTS "corba-test")
 
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
-      IF (UNIX)
+        IF (UNIX)
           ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp operations_fixture.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
                 orocos-rtt-dynamic_${OROCOS_TARGET} 
@@ -133,7 +133,7 @@ IF (BUILD_TESTING)
           list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
     
           # This server is required to run when the corba-ipc-test runs
-          ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
+          ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp operations_fixture.cpp)
           TARGET_LINK_LIBRARIES( corba-ipc-server 
                 orocos-rtt-dynamic_${OROCOS_TARGET} 
                 orocos-rtt-corba-dynamic_${OROCOS_TARGET} 

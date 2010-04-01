@@ -14,7 +14,7 @@ OperationsFixture::OperationsFixture()
 {
     i = -1;
     tc = new TaskContext("root");
-    this->createMethodFactories();
+    this->createMethodFactories(tc);
     tc->provides()->addAttribute("ret", ret );
     caller = new TaskContext("caller");
     caller->start();
@@ -28,7 +28,7 @@ OperationsFixture::~OperationsFixture()
     delete caller;
 }
 
-void OperationsFixture::createMethodFactories()
+void OperationsFixture::createMethodFactories(TaskContext* target)
 {
     ServiceProvider::shared_ptr dat = ServiceProvider::Create("test");
     dat->addOperation("i", &OperationsFixture::getI, this).doc("Return the current number");
@@ -38,7 +38,7 @@ void OperationsFixture::createMethodFactories()
     dat->addOperation("resetI", &OperationsFixture::resetI, this).doc("ResetI i");
     dat->addOperation("assertMsg", &OperationsFixture::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
     dat->addOperation("isTrue", &OperationsFixture::assertBool, this).doc("Identity function").arg("bool", "");
-    tc->provides()->addService( dat );
+    target->provides()->addService( dat );
 
     ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
     // ClientThread
@@ -65,5 +65,5 @@ void OperationsFixture::createMethodFactories()
     to->addOperation("o2", &OperationsFixture::m2, this, OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
     to->addOperation("o3", &OperationsFixture::m3, this, OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     to->addOperation("o4", &OperationsFixture::m4, this, OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    tc->provides()->addService( to );
+    target->provides()->addService( to );
 }
