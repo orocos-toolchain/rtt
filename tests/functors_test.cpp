@@ -12,7 +12,10 @@
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
-// Registers the fixture into the 'registry'
+/**
+ * This test suite tests the functors (FusedMCall, FusedMCollect, FusedMSend,...)
+ * indirectly by testing the produce API of OperationRepositoryPart.
+ */
 BOOST_FIXTURE_TEST_SUITE(  FunctorsTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testClientThreadFunctor)

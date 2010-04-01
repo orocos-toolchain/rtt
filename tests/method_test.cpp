@@ -9,8 +9,10 @@
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
+/**
+ * This test suite tests the RTT::Method object's LocalMethod implementation.
+ */
+BOOST_FIXTURE_TEST_SUITE(  MethodTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testClientThreadMethod)
 {
