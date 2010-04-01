@@ -80,12 +80,9 @@ module RTT
      */
     interface CSendHandle {
     
-        CSendStatus collect(inout CAnyArguments args) raises ( 
-                                 CWrongNumbArgException,
-                                 CWrongTypeArgException);
-        CSendStatus collectIfDone(inout CAnyArguments args) raises ( 
-                                 CWrongNumbArgException,
-                                 CWrongTypeArgException);
+        CSendStatus collect(out CAnyArguments args);
+
+        CSendStatus collectIfDone(out CAnyArguments args);
         
         /**
          * Just checks what the status is.
@@ -96,6 +93,18 @@ module RTT
          * Convenient if the sent method only returns a value.
          */  
         any ret();                       
+
+      /**
+       * Checks if this handle returns these arguments in collect() and collectIfDone().
+       * You can use this to check if collect() or collectIfDone() return what you expect.
+       * If no exception is thrown, the arguments are of the correct number
+       * and type. The values in \a args are ignored and not stored, only the types of the anys are checked.
+       * One could obtain the same information by using COperationRepository::getCollectType()
+       * for 1..COperationRepository::getCollectArity().
+       */
+      void checkArguments(in CAnyArguments args) raises (
+                                 CWrongNumbArgException,
+                                 CWrongTypeArgException);
     };
 
     /**
@@ -115,6 +124,18 @@ module RTT
        * Get a list of all arguments of a given operation.
        */
       CDescriptions getArguments(in string operation) raises (CNoSuchNameException);
+
+      /**
+       * Returns the number of arguments required in callOperation() and sendOperation() for
+       * a given operation.
+       */
+      unsigned short getArity(in string operation) raises (CNoSuchNameException);
+
+      /**
+       * Returns the number of arguments required in CSendHandle::collect() and CSendHandle::collectIfDone() for
+       * a given operation.
+       */
+      unsigned short getCollectArity(in string operation) raises (CNoSuchNameException);
 
       /**
        * Get a result type of a given operation.
@@ -140,7 +161,7 @@ module RTT
        * Checks if a given operation accepts the list of arguments.
        * If no exception is thrown, the arguments and operation name were valid.
        */
-      void checkOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
+      void checkOperation(in string operation, in CAnyArguments args) raises ( CNoSuchNameException,
                                  CWrongNumbArgException,
                                  CWrongTypeArgException);
 
@@ -157,7 +178,7 @@ module RTT
        * Send an operation with a list of arguments.
        * This method will return immediately and return a CSendHandle.
        */
-      CSendHandle sendOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
+      CSendHandle sendOperation(in string operation, in CAnyArguments args) raises ( CNoSuchNameException,
                                  CWrongNumbArgException,
                                  CWrongTypeArgException,
                                  CCallInterrupted);

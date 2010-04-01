@@ -38,6 +38,7 @@
 #include "OperationRepositoryC.h"
 #endif
 #include "../../interface/OperationRepository.hpp"
+#include "../../internal/SendHandleC.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -47,20 +48,23 @@ class  RTT_corba_CSendHandle_i
   : public virtual POA_RTT::corba::CSendHandle,
   public virtual PortableServer::RefCountServantBase
 {
+      RTT::internal::SendHandleC mhandle, morig;
+      RTT::interface::OperationRepositoryPart* mofp;
+      std::vector<RTT::base::DataSourceBase::shared_ptr> cargs;
 public:
   // Constructor
-  RTT_corba_CSendHandle_i (void);
+  RTT_corba_CSendHandle_i (RTT::internal::SendHandleC const& sh, RTT::interface::OperationRepositoryPart* ofp);
 
   // Destructor
   virtual ~RTT_corba_CSendHandle_i (void);
 
   virtual
   ::RTT::corba::CSendStatus collect (
-      ::RTT::corba::CAnyArguments & args);
+      ::RTT::corba::CAnyArguments_out args);
 
   virtual
   ::RTT::corba::CSendStatus collectIfDone (
-      ::RTT::corba::CAnyArguments & args);
+      ::RTT::corba::CAnyArguments_out args);
 
   virtual
   ::RTT::corba::CSendStatus checkStatus (
@@ -69,6 +73,10 @@ public:
   virtual
   ::CORBA::Any * ret (
       void);
+
+  virtual
+  void checkArguments (
+          const ::RTT::corba::CAnyArguments & args);
 };
 
 class  RTT_corba_COperationRepository_i
@@ -108,6 +116,12 @@ class  RTT_corba_COperationRepository_i
           const char*,
           CORBA::UShort);
 
+  virtual ::CORBA::UShort getArity (
+      const char * operation);
+
+  virtual ::CORBA::UShort getCollectArity (
+      const char * operation);
+
   virtual
   char * getDescription (
       const char * operation);
@@ -115,7 +129,7 @@ class  RTT_corba_COperationRepository_i
   virtual
   void checkOperation (
       const char * operation,
-      ::RTT::corba::CAnyArguments & args);
+      const ::RTT::corba::CAnyArguments & args);
 
   virtual
   ::CORBA::Any * callOperation (
@@ -125,7 +139,7 @@ class  RTT_corba_COperationRepository_i
   virtual
   ::RTT::corba::CSendHandle_ptr sendOperation (
       const char * operation,
-      ::RTT::corba::CAnyArguments & args);
+      const ::RTT::corba::CAnyArguments & args);
 };
 
 

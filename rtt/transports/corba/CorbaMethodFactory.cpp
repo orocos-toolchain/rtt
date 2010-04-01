@@ -3,7 +3,9 @@
 #include "../../types/Types.hpp"
 #include "../../internal/DataSources.hpp"
 #include "../../internal/DataSourceCommand.hpp"
+#include "../../SendStatus.hpp"
 
+using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
@@ -17,12 +19,11 @@ CorbaMethodFactory::CorbaMethodFactory( const std::string& method_name, corba::C
 CorbaMethodFactory::~CorbaMethodFactory() {}
 
 unsigned int CorbaMethodFactory::arity()  const {
-    return this->getArgumentList().size();
+    return mfact->getArity( method.c_str() );
 }
 
 unsigned int CorbaMethodFactory::collectArity()  const {
-    assert(false);
-    return 0;
+    return mfact->getCollectArity( method.c_str() );
 }
 
 const TypeInfo* CorbaMethodFactory::getArgumentType(unsigned int i) const {
@@ -91,6 +92,11 @@ std::vector< interface::ArgumentDescription > CorbaMethodFactory::getArgumentLis
 
 /**
  * Calls a CORBA method.
+ * This is not a datasource because we separate the returning
+ * of the data from the calling code in order to avoid that the calling code
+ * depends on templates (ie a DataSource<T> base class).
+ * This class needs to be combined with an ActionAliasDataSource that ties this
+ * action to the value datasource referenced by mresult.
  */
 class CorbaMethodCall: public ActionInterface
 {
@@ -132,16 +138,20 @@ public:
         try {
             if (mdocall) {
                 CORBA::Any_var any = mfact->callOperation( mop.c_str(), nargs.inout() );
-                // todo: convert the arguments to local types:
-                //
+                for (size_t i=0; i < margs.size(); ++i ) {
+                    const types::TypeInfo* ti = margs[i]->getTypeInfo();
+                    CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+                    assert( ctt );
+                    ctt->updateFromAny( &nargs[i], margs[i] );
+                }
                 // convert returned any to local type:
                 if (mctt)
                     return mctt->updateFromAny(any.ptr(), mresult);
             } else {
-                CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.inout() );
+                CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
                 AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
                 if (ads) {
-                    ads->set( sh );
+                    ads->set( sh ); // _var creates a copy of the obj reference.
                 }
             }
             return true;
@@ -156,6 +166,14 @@ public:
     }
 
     ActionInterface* clone() const { return new CorbaMethodCall(CServiceProvider::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
+
+    virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        vector<DataSourceBase::shared_ptr> argcopy( margs.size() );
+        unsigned int v=0;
+        for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
+            argcopy[v] = (*it)->copy(alreadyCloned);
+        return new CorbaMethodCall(CServiceProvider::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall);
+    }
 };
 
 base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
@@ -170,7 +188,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<b
     }
     try {
         // will throw if wrong args.
-        mfact->checkOperation(method.c_str(), nargs.inout() );
+        mfact->checkOperation(method.c_str(), nargs.in() );
         // convert returned any to local type:
         const types::TypeInfo* ti = this->getArgumentType(0);
         if ( ti ) {
@@ -184,7 +202,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<b
         } else {
             // it's returning a type we don't know ! Return a DataSource<Any>
             DataSource<CORBA::Any_var>::shared_ptr result = new AnyDataSource( new CORBA::Any() );
-            // todo Provide a ctt  implementation such that the result is updated !
+            // todo Provide a ctt  implementation for 'CORBA::Any_var' such that the result is updated !
             // The result is only for dummy reasons used now, since no ctt is set, no updating will be done.
             return new ActionAliasDataSource<CORBA::Any_var>(new CorbaMethodCall(mfact.in(),method,args,caller, 0, result, true), result.get() );
         }
@@ -229,6 +247,99 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceHandle() const {
     return new ValueDataSource<CSendHandle_var>();
 }
 
+/**
+ * Collects a CORBA method.
+ * This is not a datasource because we separate the returning
+ * of the data from the calling code in order to avoid that the calling code
+ * depends on templates (ie a DataSource<T> base class).
+ * This class needs to be combined with an ActionAliasDataSource that ties this
+ * action to the value datasource referenced by mresult.
+ */
+class CorbaMethodCollect: public DataSource<SendStatus>
+{
+    CSendHandle_var msh;
+    std::vector<base::DataSourceBase::shared_ptr> margs;
+    DataSource<bool>::shared_ptr misblocking;
+    mutable SendStatus mss;
+public:
+    CorbaMethodCollect(CSendHandle_ptr sh,
+                       std::vector<base::DataSourceBase::shared_ptr> const& args,
+                       DataSource<bool>::shared_ptr isblocking)
+    : msh( CSendHandle::_duplicate(sh)), margs(args), misblocking(isblocking), mss(SendFailure)
+    {
+    }
+
+    SendStatus value() const { return mss; }
+
+    SendStatus get() const {
+        try {
+            // only try to collect if we didn't do so before:
+            if ( mss != SendSuccess ) {
+                corba::CAnyArguments_var nargs;
+                if ( misblocking.get() ) {
+                    mss = SendStatus( msh->collect( nargs.out() ) );
+                } else {
+                    mss = SendStatus( msh->collectIfDone( nargs.out() ) );
+                }
+                // only convert results when we got a success:
+                if (mss == SendSuccess) {
+                    assert( nargs->length() ==  margs.size() );
+                    for (size_t i=0; i < margs.size(); ++i ) {
+                        const types::TypeInfo* ti = margs[i]->getTypeInfo();
+                        CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+                        assert( ctt );
+                        ctt->updateFromAny( &nargs[i], margs[i] );
+                    }
+                }
+            }
+            return mss;
+        }  catch ( corba::CWrongNumbArgException& wa ) {
+            return mss;
+        } catch ( corba::CWrongTypeArgException& wta ) {
+            return mss;
+        }
+    }
+
+    DataSource<SendStatus>* clone() const { return new CorbaMethodCollect(CSendHandle::_duplicate( msh.in() ), margs, misblocking); }
+
+    virtual DataSource<SendStatus>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        vector<DataSourceBase::shared_ptr> argcopy( margs.size() );
+        unsigned int v=0;
+        for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
+            argcopy[v] = (*it)->copy(alreadyCloned);
+        return new CorbaMethodCollect(CSendHandle::_duplicate( msh.in() ), argcopy, misblocking);
+    }
+};
+
+
 base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const {
-    assert(false);
+    unsigned int expected = mfact->getCollectArity(method.c_str());
+    if (args.size() !=  expected + 1) {
+        throw interface::wrong_number_of_args_exception( expected + 1, args.size() );
+    }
+    // isolate and check CSendHandle
+    std::vector<base::DataSourceBase::shared_ptr> cargs( ++args.begin(), args.end() );
+    DataSource<CSendHandle_var>::shared_ptr ds = DataSource<CSendHandle_var>::narrow( args.begin()->get() );
+    if (!ds) {
+        throw interface::wrong_types_of_args_exception(0,"CSendHandle_var",(*args.begin())->getTypeName() );
+    }
+    // check if args matches what CSendHandle expects.
+    try {
+        corba::CAnyArguments_var nargs = new corba::CAnyArguments();
+        nargs->length( cargs.size() );
+        for (size_t i=0; i < cargs.size(); ++i ) {
+            const types::TypeInfo* ti = cargs[i]->getTypeInfo();
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+            assert( ctt );
+            CORBA::Any_var any = ctt->createAny( cargs[i] );
+            nargs[i] = *any;
+        }
+        ds->get()->checkArguments( nargs.in() );
+    } catch ( CWrongNumbArgException& wna) {
+        throw interface::wrong_number_of_args_exception(wna.wanted, wna.received);
+    } catch ( CWrongTypeArgException& wta) {
+        throw interface::wrong_types_of_args_exception(wta.whicharg,wta.expected.in(), wta.received.in());
+    }
+    // All went well, produce collect DataSource:
+    return new CorbaMethodCollect( ds->get().in(),cargs, blocking);
 }

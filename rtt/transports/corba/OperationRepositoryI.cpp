@@ -34,44 +34,122 @@
 #include "AnyDataSource.hpp"
 #include "../../rtt-detail-fwd.hpp"
 #include "../../internal/MethodC.hpp"
+#include "../../internal/SendHandleC.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
-// Implementation skeleton constructor
-RTT_corba_CSendHandle_i::RTT_corba_CSendHandle_i (void)
+RTT_corba_CSendHandle_i::RTT_corba_CSendHandle_i (SendHandleC const& sh, OperationRepositoryPart* ofp)
+: mhandle(sh), morig(sh), mofp(ofp)
 {
+    // this will always be correct:
+    for (unsigned int i = 1; i <= mofp->collectArity(); ++i) {
+        const TypeInfo* ti = mofp->getCollectType(i); // retrieve 1..collectArity()
+        assert(ti);
+        cargs.push_back( ti->buildValue() );
+        mhandle.arg( cargs.back() );
+    }
+    assert( mhandle.ready() );
 }
 
-// Implementation skeleton destructor
 RTT_corba_CSendHandle_i::~RTT_corba_CSendHandle_i (void)
 {
 }
 
+/**
+ * Helper function to convert a sequence of anys to a vector of data sources.
+ * @param sources
+ * @param anys
+ * @return
+ */
+bool anysequence_to_sourcevector( CAnyArguments const& anys, vector<DataSourceBase::shared_ptr>& sources) {
+    return false;
+}
+
+/**
+ * Helper function to convert a vector of data sources to a sequence of anys.
+ * @param sources
+ * @param anys
+ * @return
+ */
+bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sources, CAnyArguments & anys ) {
+    bool valid = true;
+    anys.length( sources.size() );
+    for(unsigned int i = 0; i != sources.size(); ++i) {
+        const TypeInfo* ti = sources[i]->getTypeInfo();
+        CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+        CORBA::Any_var any = ctt->createAny( sources[i] );
+        anys[i] = *any;
+    }
+    return valid;
+}
+
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::collect (
-    ::RTT::corba::CAnyArguments & args)
+    ::RTT::corba::CAnyArguments_out args)
 {
-  // Add your implementation here
+    SendStatus ss = mhandle.collect();
+    args = new CAnyArguments();
+    if (ss == SendSuccess) {
+        sourcevector_to_anysequence( cargs, *args.ptr() );
+    }
+    return CSendStatus(ss);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::collectIfDone (
-    ::RTT::corba::CAnyArguments & args)
+    ::RTT::corba::CAnyArguments_out args)
 {
-  // Add your implementation here
+    SendStatus ss = mhandle.collectIfDone();
+    args = new CAnyArguments();
+    if (ss == SendSuccess) {
+        sourcevector_to_anysequence( cargs, *args.ptr() );
+    }
+    return CSendStatus(ss);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::checkStatus (
     void)
 {
-  // Add your implementation here
+    return CSendStatus( mhandle.collectIfDone() );
 }
 
 ::CORBA::Any * RTT_corba_CSendHandle_i::ret (
     void)
 {
-  // Add your implementation here
+    SendStatus ss = mhandle.collectIfDone();
+    // We just copy over the first collectable argument. In
+    // case of a void operation, we will thus return the first
+    // reference argument.
+    if (ss == SendSuccess) {
+        if ( cargs.size() > 0) {
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (cargs[0]->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID));
+            return ctt->createAny( cargs[0] );
+        }
+    }
+    return new CORBA::Any();
 }
+
+void RTT_corba_CSendHandle_i::checkArguments (
+    const ::RTT::corba::CAnyArguments & args)
+{
+    try {
+        SendHandleC shc(morig);
+        for (unsigned int i = 0; i != mofp->collectArity(); ++i) {
+            const TypeInfo* ti = mofp->getCollectType(i + 1);
+            assert(ti);
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
+            shc.arg(ctt->createDataSource(&args[i]));
+        }
+        shc.check();
+    } catch (name_not_found_exception& nnf) {
+        throw ::RTT::corba::CNoSuchNameException(nnf.name.c_str());
+    } catch (wrong_number_of_args_exception& wna) {
+        throw ::RTT::corba::CWrongNumbArgException(wna.wanted, wna.received);
+    } catch (wrong_types_of_args_exception& wta) {
+        throw ::RTT::corba::CWrongTypeArgException(wta.whicharg, wta.expected_.c_str(), wta.received_.c_str());
+    }
+}
+
 
 // Implementation skeleton constructor
 RTT_corba_COperationRepository_i::RTT_corba_COperationRepository_i (OperationRepository* gmf, PortableServer::POA_ptr the_poa)
@@ -150,6 +228,21 @@ char* RTT_corba_COperationRepository_i::getCollectType(
 
 }
 
+::CORBA::UShort RTT_corba_COperationRepository_i::getArity (
+    const char * operation)
+{
+    if ( mfact->hasMember( string( operation ) ) == false )
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    return mfact->getPart(operation)->arity();
+}
+
+::CORBA::UShort RTT_corba_COperationRepository_i::getCollectArity (
+    const char * operation)
+{
+    if ( mfact->hasMember( string( operation ) ) == false )
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    return mfact->getPart(operation)->collectArity();
+}
 
 char * RTT_corba_COperationRepository_i::getDescription (
     const char * operation)
@@ -161,9 +254,27 @@ char * RTT_corba_COperationRepository_i::getDescription (
 
 void RTT_corba_COperationRepository_i::checkOperation (
     const char * operation,
-    ::RTT::corba::CAnyArguments & args)
+    const ::RTT::corba::CAnyArguments & args)
 {
-  // Add your implementation here
+    try {
+        OperationRepositoryPart* mofp = mfact->getPart(operation);
+        MethodC mc(mofp, operation, 0);
+        for (unsigned int i = 0; i < mofp->arity() && i < args.length(); ++i) {
+            const TypeInfo* ti = mofp->getArgumentType(i+1);
+            assert(ti);
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
+            DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
+            if (ds)
+                mc.arg(ds);
+        }
+        mc.check();
+    } catch (name_not_found_exception& nnf) {
+        throw ::RTT::corba::CNoSuchNameException(nnf.name.c_str());
+    } catch (wrong_number_of_args_exception& wna) {
+        throw ::RTT::corba::CWrongNumbArgException(wna.wanted, wna.received);
+    } catch (wrong_types_of_args_exception& wta) {
+        throw ::RTT::corba::CWrongTypeArgException(wta.whicharg, wta.expected_.c_str(), wta.received_.c_str());
+    }
 }
 
 ::CORBA::Any * RTT_corba_COperationRepository_i::callOperation (
@@ -175,20 +286,26 @@ void RTT_corba_COperationRepository_i::checkOperation (
     // convert Corba args to C++ args.
     try {
         MethodC orig(mfact->getPart(operation), operation, 0);
+        vector<DataSourceBase::shared_ptr> results;
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
-            if (ti) {
-                CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-                orig.arg( ctt->createDataSource( &args[i] ));
-            } else {
-                // this will cause failure, but will print a nice wrong type/number of arg exception later on.
-                orig.arg( new AnyDataSource( new CORBA::Any( args[i] ) ) );
-            }
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+            // we need to store the results for returning them to caller (args is inout!) after the call()
+            results.push_back( ctt->createDataSource( &args[i] ) );
+            orig.arg( results[i] );
         }
         if ( orig.ready() ) {
             DataSourceBase::shared_ptr ds = orig.getCallDataSource();
             // Call nomatter what:
-            ds->evaluate();
+            ds->evaluate(); // equivalent to orig.call()
+            // Return results into args:
+            for (size_t i =0; i != args.length(); ++i) {
+                const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
+                CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+                CORBA::Any_var any = ctt->createAny( results[i] );
+                args[i] = *any; // makes a copy.
+            }
+
             // Try to return result:
             const TypeInfo* ti = ds->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
@@ -212,10 +329,33 @@ void RTT_corba_COperationRepository_i::checkOperation (
 
 ::RTT::corba::CSendHandle_ptr RTT_corba_COperationRepository_i::sendOperation (
     const char * operation,
-    ::RTT::corba::CAnyArguments & args)
+    const ::RTT::corba::CAnyArguments & args)
 {
-  // Add your implementation here
-    assert(false);
+    // This implementation is 90% identical to callOperation above, only deviating in the orig.ready() part.
+    if ( mfact->hasMember( string( operation ) ) == false )
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    // convert Corba args to C++ args.
+    try {
+        MethodC orig(mfact->getPart(operation), operation, 0);
+        for (size_t i =0; i != args.length(); ++i) {
+            const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
+            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+            orig.arg( ctt->createDataSource( &args[i] ));
+        }
+        if ( orig.ready() ) {
+            SendHandleC resulthandle = orig.send();
+            RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
+            CSendHandle_var ret = ret_i->_this();
+            return ret._retn();
+        } else {
+            orig.check(); // will throw
+        }
+    } catch ( name_not_found_exception& nnf ) {
+        throw ::RTT::corba::CNoSuchNameException( operation );
+    } catch ( wrong_number_of_args_exception& wna ) {
+        throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );
+    } catch (wrong_types_of_args_exception& wta ) {
+        throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    }
+    return CSendHandle::_nil();
 }
-
-

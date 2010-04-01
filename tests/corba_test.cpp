@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testProperties )
     BOOST_CHECK_EQUAL( proxy_d.value(), -3.0);
 }
 
-BOOST_AUTO_TEST_CASE( testRemoteMethodC )
+BOOST_AUTO_TEST_CASE( testMethodC_Call )
 {
 
     ts = corba::TaskContextServer::Create( tc, false ); //no-naming
@@ -243,7 +243,64 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 
 }
 
-BOOST_AUTO_TEST_CASE( testRemoteMethod )
+BOOST_AUTO_TEST_CASE( testMethodC_Send )
+{
+
+    ts = corba::TaskContextServer::Create( tc, false ); //no-naming
+    BOOST_CHECK( ts );
+    tp = corba::TaskContextProxy::Create( ts->server(), true );
+    BOOST_CHECK( tp );
+
+    MethodC mc;
+    SendHandleC shc;
+    double r = 0.0;
+    double cr = 0.0;
+    mc = tp->provides("methods")->create("m0", caller->engine()).ret( r );
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -1.0 );
+
+    mc = tp->provides("methods")->create("m2", caller->engine()).argC(1).argC(2.0).ret( r );
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -3.0 );
+
+    mc = tp->provides("methods")->create("m3", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true);
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -4.0 );
+
+    mc = tp->provides("methods")->create("m4", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello"));
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -5.0 );
+}
+
+BOOST_AUTO_TEST_CASE( testRemoteMethodCall )
 {
 
     ts = corba::TaskContextServer::Create( tc, false ); //no-naming
@@ -260,8 +317,8 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
-    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
-    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 
 BOOST_AUTO_TEST_CASE( testAnyMethod )
