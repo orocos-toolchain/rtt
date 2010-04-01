@@ -109,10 +109,10 @@ namespace RTT
         base::DataSourceBase::shared_ptr r( other );
         typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if (o) {
-	    if ( o->evaluate() ) {
-		this->set( o->value() );
-		return true;
-	    }
+            if ( o->evaluate() ) {
+                this->set( o->value() );
+                return true;
+            }
             return false;
         }
         return false;
