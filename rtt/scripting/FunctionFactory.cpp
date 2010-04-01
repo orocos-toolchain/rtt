@@ -91,20 +91,21 @@ namespace RTT {
             return func->getResult() ? 1 : 0;
         }
 
-        const types::TypeInfo* getArgumentType(unsigned int arg) const
+        const types::TypeInfo* FunctionFactory::getArgumentType(unsigned int arg) const
         {
-            if (arg == 0 )
+            if (arg == 0 ) {
                 if ( func->getResult() )
                     return func->getResult()->getDataSource()->getTypeInfo();
                 else
                     return DataSourceTypeInfo<void>::getTypeInfo();
+            }
             std::vector<AttributeBase*> origlist = func->getArguments();
             if ( arg > origlist.size() )
                 return 0;
             return origlist[arg - 1]->getDataSource()->getTypeInfo();
         }
 
-        const types::TypeInfo* getCollectType(unsigned int arg) const {
+        const types::TypeInfo* FunctionFactory::getCollectType(unsigned int arg) const {
             if (arg == 1 && collectArity() )
                 return func->getResult()->getDataSource()->getTypeInfo();
             return 0;
