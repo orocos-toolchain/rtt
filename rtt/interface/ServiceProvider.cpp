@@ -120,11 +120,13 @@ namespace RTT {
     std::vector<std::string> ServiceProvider::getOperationNames() const
     {
         return keys(simpleoperations);
+        //return getNames();
     }
 
     bool ServiceProvider::hasOperation(const std::string& name) const
     {
         return simpleoperations.count(name) == 1;
+        //return hasMember(name);
     }
 
     void ServiceProvider::removeOperation(const std::string& name)
