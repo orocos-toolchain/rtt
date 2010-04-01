@@ -75,7 +75,7 @@ namespace RTT
         struct AStore<T&>
         {
             T* arg;
-            AStore() : arg(0) {}
+            AStore() : arg( &NA<T&>::na() ) {}
             AStore(T& t) : arg(&t) {}
             AStore(AStore const& o) : arg(o.arg) {}
 
