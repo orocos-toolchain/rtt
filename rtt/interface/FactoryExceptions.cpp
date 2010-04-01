@@ -54,6 +54,17 @@ namespace RTT {
         return whatstr.c_str();
     }
 
+    invalid_handle_exception::invalid_handle_exception()
+          : whatstr("Invalid SendHandle object.")
+    {
+    }
+
+    invalid_handle_exception::~invalid_handle_exception() throw() {}
+
+    const char* invalid_handle_exception::what() const throw() {
+        return whatstr.c_str();
+    }
+
     wrong_number_of_args_exception::wrong_number_of_args_exception( int w, int r )
           : wanted( w ), received( r )
       {

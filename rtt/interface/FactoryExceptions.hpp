@@ -47,7 +47,8 @@
  * DataSourceFactory's and CommandFactory's.
  */
 namespace RTT
-{ namespace interface {
+{
+    namespace interface {
 
     /**
      * Exception thrown when a factory is requested to
@@ -62,6 +63,19 @@ namespace RTT
       std::string whatstr;
       virtual const char* what() const throw();
   };
+
+        /**
+         * Exception thrown when a factory is requested to
+         * create an object with an invalid SendHandle.
+         */
+        struct RTT_EXPORT invalid_handle_exception
+            : public std::exception
+      {
+          invalid_handle_exception();
+          ~invalid_handle_exception() throw();
+          std::string whatstr;
+          virtual const char* what() const throw();
+      };
 
     /**
      * Exception thrown when a factory is requested to
