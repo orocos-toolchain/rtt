@@ -129,7 +129,8 @@ namespace RTT {
             delete d;
             d = 0;
         } else {
-            log(Error) <<"Can not construct MethodC for '"<<name<<"' from null OperationRepositoryPart."<<endlog();
+            if (mr == 0)
+                log(Error) <<"Can not construct MethodC for '"<<name<<"' from null OperationRepositoryPart."<<endlog();
         }
     }
 
