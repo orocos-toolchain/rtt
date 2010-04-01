@@ -51,6 +51,9 @@ namespace RTT {
 
     using namespace detail;
 
+    bad_assignment::~bad_assignment() throw() {}
+    const char* bad_assignment::what() const throw() { return "Bad DataSource assignment: incompatible types."; }
+
     DataSourceBase::shared_ptr DataSourceBase::stack_shared_ptr(DataSourceBase* dsb) {
         dsb->ref();
         return DataSourceBase::shared_ptr(dsb);

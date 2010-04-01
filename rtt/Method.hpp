@@ -365,7 +365,13 @@ namespace RTT
             if ( !this->impl ) {
 #ifdef ORO_REMOTING
                 // try differently
-                this->impl.reset( new internal::RemoteMethod<Signature>( part, mname, mcaller ));
+                try {
+                    this->impl.reset( new internal::RemoteMethod<Signature>( part, mname, mcaller ));
+                } catch( std::exception& e ) {
+                    log(Error) << "Constructing RemoteMethod for "<< mname <<" was not possible."<<endlog();
+                    log(Error) << "Probable cause: " << e.what() <<endlog();
+                    return;
+                }
                 if (this->impl->ready()) {
                     log(Debug) << "Constructed Method from remote implementation '"<< mname<<"'."<< endlog();
                     this->impl->setCaller(mcaller);

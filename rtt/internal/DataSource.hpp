@@ -40,6 +40,7 @@
 
 #include <map>
 #include <string>
+#include <exception>
 #include "../rtt-config.h"
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
@@ -56,8 +57,10 @@ namespace RTT
      * of an assignment of a DataSource with a base::DataSourceBase
      * differ.
      */
-    struct RTT_EXPORT bad_assignment
+    struct RTT_EXPORT bad_assignment : public std::exception
     {
+        virtual ~bad_assignment() throw();
+        virtual const char* what() const throw();
     };
 #endif
 
