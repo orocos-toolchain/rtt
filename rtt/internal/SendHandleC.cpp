@@ -108,6 +108,7 @@ namespace RTT {
         }
         if ( d && d->s ) {
             this->s = d->s;
+            this->b = d->blocking;
             delete d;
             d = 0;
         }
@@ -118,7 +119,7 @@ namespace RTT {
         if (s) {
             b->set(true); // blocking
             s->evaluate();
-            return SendFailure;
+            return s->value();
         }
         else {
             Logger::log() <<Logger::Error << "call() called on incomplete SendHandleC."<<Logger::endl;
@@ -138,7 +139,7 @@ namespace RTT {
             // does the send.
             s->evaluate();
             // pass on handle.
-            return SendFailure;
+            return s->value();
         }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete SendHandleC."<<Logger::endl;
@@ -156,6 +157,17 @@ namespace RTT {
     {
         return s;
     }
+
+    void SendHandleC::check() {
+        if (d) {
+            // something went wrong, let producer throw
+            if (d->mofp)
+                DataSourceBase::shared_ptr dummy = d->mofp->produceCollect( d->args, d->blocking );
+            else
+                throw invalid_handle_exception();
+        }
+    }
+
 
     DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return s; }
 }

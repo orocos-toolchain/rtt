@@ -98,14 +98,14 @@ namespace RTT {
         }
 
         D( OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
-            : ofp(mr), caller(caller), mname(name), rta(), m()
+            : ofp(mr), caller(caller), mname(name), rta(), m(), s()
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
             : ofp(other.ofp), caller(other.caller), mname(other.mname),
-              args( other.args ), rta( other.rta ), m( other.m )
+              args( other.args ), rta( other.rta ), m( other.m ), s(other.s)
         {
         }
 
@@ -121,10 +121,11 @@ namespace RTT {
     }
 
     MethodC::MethodC(OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
-        : d( mr ? new D( mr, name, caller) : 0 ), m()
+        : d( mr ? new D( mr, name, caller) : 0 ), m(), ofp(mr), mname(name)
     {
         if ( d && d->m ) {
             this->m = d->m;
+            this->s = d->s;
             delete d;
             d = 0;
         } else {
@@ -133,7 +134,7 @@ namespace RTT {
     }
 
     MethodC::MethodC(const MethodC& other)
-        : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0)
+        : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0), ofp(other.ofp), mname(other.mname)
     {
     }
 
@@ -144,6 +145,9 @@ namespace RTT {
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
         m = other.m;
+        s = other.s;
+        ofp = other.ofp;
+        mname = other.mname;
         return *this;
     }
 
@@ -161,6 +165,7 @@ namespace RTT {
         }
         if ( d && d->m ) {
             this->m = d->m;
+            this->s = d->s;
             delete d;
             d = 0;
         }
@@ -226,10 +231,11 @@ namespace RTT {
 
     SendHandleC MethodC::send() {
         if (s) {
-            // does the send.
-            s->evaluate();
-            // pass on handle.
-            return SendHandleC( s, d->ofp, d->mname );
+            DataSourceBase::shared_ptr h = ofp->produceHandle();
+            // evaluate and copy result of s to handle and pass handle to SendHandleC.
+            bool result = h->update( s.get() );
+            assert( result );
+            return SendHandleC( h, ofp, mname );
         }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;

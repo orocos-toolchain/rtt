@@ -11,7 +11,10 @@
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
-// Registers the fixture into the 'registry'
+/**
+ * This test suite tests the RTT::internal::RemoteMethod class
+ * and its dependencies, being MethodC and SendHandleC.
+ */
 BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
 
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
@@ -31,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testRemoteMethod)
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodsC)
+BOOST_AUTO_TEST_CASE(testMethodC_Call)
 {
     MethodC mc;
     double r = 0.0;
@@ -43,22 +46,64 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
     BOOST_CHECK( mc.call() );
     BOOST_CHECK_EQUAL( r, -3.0 );
 
-//    mc = tc->provides("methods")->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-//    BOOST_CHECK( mc.call() );
-//    BOOST_CHECK( r == -4.0 );
+    mc = tc->provides("methods")->create("m3", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true);
+    BOOST_CHECK( mc.call() );
+    BOOST_CHECK( r == -4.0 );
 
-#if 0
-        +" set r = methods.m0()\n"
-        +" do methods.assert( r == -1.0 )\n"
-        +" set r = methods.m1(1)\n"
-        +" do methods.assert( r == -2.0 )\n"
-        +" set r = methods.m2(1, 1.0)\n"
-        +" do methods.assert( r == -3.0 )\n"
-        +" set r = methods.m3(1, 1.0, true)\n"
-        +" do methods.assert( r == -4.0 )\n"
-        +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
-        +" do methods.assert( r == -5.0 )\n"
-#endif
+    mc = tc->provides("methods")->create("m4", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello"));
+    BOOST_CHECK( mc.call() );
+    BOOST_CHECK( r == -5.0 );
+}
+
+BOOST_AUTO_TEST_CASE(testMethodC_Send)
+{
+    MethodC mc;
+    SendHandleC shc;
+    double r = 0.0;
+    double cr = 0.0;
+    mc = tc->provides("methods")->create("m0", caller->engine()).ret( r );
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -1.0 );
+
+    mc = tc->provides("methods")->create("m2", caller->engine()).argC(1).argC(2.0).ret( r );
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -3.0 );
+
+    mc = tc->provides("methods")->create("m3", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true);
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -4.0 );
+
+    mc = tc->provides("methods")->create("m4", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello"));
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -5.0 );
 }
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)

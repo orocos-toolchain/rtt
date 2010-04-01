@@ -61,6 +61,9 @@ namespace RTT
         D* d;
         base::DataSourceBase::shared_ptr m;
         base::DataSourceBase::shared_ptr s;
+        interface::OperationRepositoryPart* ofp;
+        std::string mname;
+
     public:
         /**
          * The default constructor.

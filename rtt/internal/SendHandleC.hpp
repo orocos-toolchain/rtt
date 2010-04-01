@@ -93,6 +93,15 @@ namespace RTT
         SendStatus collectIfDone();
 
         /**
+         * Checks if this handle is ready for collecting, will throw
+         * if not so. Otherwise, does nothing.
+         * @throw invalid_handle_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         */
+        void check();
+
+        /**
          * Returns true if this handle is ready for execution.
          */
         bool ready() const;
