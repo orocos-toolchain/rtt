@@ -138,7 +138,7 @@ namespace RTT {
 #ifndef ORO_EMBEDDED
             try {
                 for (; dit != args.end(); ++dit, ++tit)
-                    icom->add( (*tit)->getDataSource()->updateCommand( dit->get() ) );
+                    icom->add( (*tit)->getDataSource()->updateAction( dit->get() ) );
             }
             catch( const bad_assignment& e) {
                 delete icom;
@@ -147,7 +147,7 @@ namespace RTT {
             }
 #else
             for (; dit != args.end(); ++dit, ++tit) {
-                ActionInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+                ActionInterface* ret = (*tit)->getDataSource()->updateAction( dit->get() );
                 if (ret)
                     icom->add( ret );
                 else {

@@ -955,14 +955,14 @@ namespace RTT
                     "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." ));
 #ifndef ORO_EMBEDDED
             try {
-                paraminitcommands.push_back( i->second->getDataSource()->updateCommand( j->second.get() ) );
+                paraminitcommands.push_back( i->second->getDataSource()->updateAction( j->second.get() ) );
             }
             catch( const bad_assignment& e )
                 {
                     throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
                 }
 #else
-            ActionInterface* ret =  i->second->getDataSource()->updateCommand( j->second.get());
+            ActionInterface* ret =  i->second->getDataSource()->updateAction( j->second.get());
             if (ret)
                 paraminitcommands.push_back( ret );
             else

@@ -205,9 +205,9 @@ namespace RTT
 
             using internal::AssignableDataSource<T>::update;
 
-            ::RTT::base::ActionInterface* updateCommand( base::DataSourceBase* other)
+            ::RTT::base::ActionInterface* updateAction( base::DataSourceBase* other)
             {
-                ::RTT::base::ActionInterface* ci = storage->updateCommand(other);
+                ::RTT::base::ActionInterface* ci = storage->updateAction(other);
                 if (ci)
                     return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
                 return 0;

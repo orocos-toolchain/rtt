@@ -43,6 +43,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <string>
+#include <vector>
 #include "../os/Atomic.hpp"
 #include "../rtt-config.h"
 #include "ActionInterface.hpp"
@@ -169,27 +170,26 @@ namespace RTT
        * @return zero if the internal::DataSource types do not match OR if the
        * contents of this internal::DataSource can not be updated.
        */
-      virtual ActionInterface* updateCommand( DataSourceBase* other);
+      virtual ActionInterface* updateAction( DataSourceBase* other);
 
       /**
-       * Update \a part of the value of this internal::DataSource with the value of an \a other DataSource.
-       * Update does a partial update of the value, according to \a part, which is
-       * most likely an index or hash value of some type.
-       * @pre this->isAssignable() == true
-       * @return false if the DataSources are of different type OR if the
-       * contents of this internal::DataSource can not be partially updated.
+       * Get a (const) reference data source to a part of the value of this
+       * data source. The part_name uses dots to delve into sub-parts,
+       * for example, if this data source contains a frame, the x coordinate
+       * of the position of that frame could be described as "pos.x". Or in
+       * case the 'pos' member was an array, where x is the zero'th argument, 
+       * it could be retrieved by using "pos.0".
+       * @param part_name The name of the part to get access to.
+       * @return null if the part does not exist, this if part_name.empty(),
+       * and a reference data source to the part otherwise.
        */
-      virtual bool updatePart( DataSourceBase* part, DataSourceBase* other );
+      virtual shared_ptr getPart( const std::string& part_name);
 
       /**
-       * Generate a ActionInterface object which will partially update this internal::DataSource
-       * with the value of another internal::DataSource when execute()'ed. \a part is an index or
-       * hash value of some type.
-       * @pre this->isAssignable() == true
-       * @return zero if the internal::DataSource types do not match OR if the
-       * contents of this internal::DataSource can not be partially updated.
+       * Returns the possible part names of this data source, or an empty
+       * list if none.
        */
-      virtual ActionInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other);
+      virtual std::vector<std::string> getPartNames() const;
 
       /**
        * Return a shallow clone of this DataSource. This method

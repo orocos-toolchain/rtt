@@ -369,13 +369,13 @@ namespace RTT
       DataSourceBase::shared_ptr expr  = expressionparser.getResult().get();
       expressionparser.dropResult();
       try {
-          ActionInterface* assigncomm = ar->getDataSource()->updateCommand( expr.get() );
+          ActionInterface* assigncomm = ar->getDataSource()->updateAction( expr.get() );
           // assign the return value to the return argument.
           program_builder->setCommand( assigncomm );
           program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
       }
       catch(...) {
-          // catch exception from updateCommand.
+          // catch exception from updateAction.
           throw parse_exception_syntactic_error("Could not convert '" + expr->getType() + "' to '"+ ar->getDataSource()->getType() +"' in return statement.");
       }
   }

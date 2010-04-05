@@ -311,7 +311,7 @@ namespace RTT
             //assert( !expressionparser.hasResult() );
 #ifndef ORO_EMBEDDED
             try {
-                ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* ac = var->getDataSource()->updateAction( expr.get() );
                 assert(ac);
                 assigncommands.push_back( ac );
             }
@@ -321,7 +321,7 @@ namespace RTT
                     ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
 #else
-            ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+            ActionInterface* ac = var->getDataSource()->updateAction( expr.get() );
             if (ac)
                 assigncommands.push_back( ac );
             else {
@@ -425,7 +425,7 @@ namespace RTT
                 peername->setValue( var );
             }
             try {
-                ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* assigncommand = var->getDataSource()->updateAction( expr.get() );
                 assigncommands.push_back(assigncommand);
                 // if null, not allowed.
                 if ( ! assigncommand )
@@ -440,7 +440,7 @@ namespace RTT
         }
         if ( !index_ds && prop) {
             try {
-                ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* assigncommand = prop->getDataSource()->updateAction( expr.get() );
                 if ( ! assigncommand ) {
                     throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
                 }

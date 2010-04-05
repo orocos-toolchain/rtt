@@ -50,6 +50,7 @@ namespace RTT {
     }
 
     using namespace detail;
+    using namespace std;
 
     bad_assignment::~bad_assignment() throw() {}
     const char* bad_assignment::what() const throw() { return "Bad DataSource assignment: incompatible types."; }
@@ -113,16 +114,19 @@ namespace RTT {
     {}
 
 
-    ActionInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
+    ActionInterface* DataSourceBase::updateAction( DataSourceBase* ) {
         return 0;
     }
 
-    bool DataSourceBase::updatePart( DataSourceBase*, DataSourceBase* ) {
-        return false;
+    DataSourceBase::shared_ptr DataSourceBase::getPart( const std::string& part_name ) {
+        if ( part_name.empty() )
+            return DataSourceBase::shared_ptr(this);
+        else
+            return DataSourceBase::shared_ptr();
     }
 
-    ActionInterface* DataSourceBase::updatePartCommand( DataSourceBase*, DataSourceBase* ) {
-        return 0;
+    vector<string> DataSourceBase::getPartNames() const {
+        return vector<string>();
     }
 
     template<>

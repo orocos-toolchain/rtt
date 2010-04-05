@@ -310,7 +310,7 @@ namespace RTT
             return false;
         }
 
-        virtual base::ActionInterface* updateCommand( const base::PropertyBase* other)
+        virtual base::ActionInterface* updateAction( const base::PropertyBase* other)
         {
             // try to update from identical type or from const_reference_t.
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
@@ -334,7 +334,7 @@ namespace RTT
                 return 0;
             // refresh is just an update of the datasource.
             base::DataSourceBase::shared_ptr sourcebase = other->getDataSource();
-            return _value->updateCommand( sourcebase.get() );
+            return _value->updateAction( sourcebase.get() );
         }
 
         virtual bool copy( const base::PropertyBase* other )

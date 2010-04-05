@@ -72,7 +72,7 @@ namespace RTT {
                         return;
                     if (rta)
                         try {
-                            m = new DataSourceCommand( rta->updateCommand( m.get() ) );
+                            m = new DataSourceCommand( rta->updateAction( m.get() ) );
                         } catch( bad_assignment& ba ) {
                             log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< rta->getType()<<endlog();
                         }
@@ -180,7 +180,7 @@ namespace RTT {
         else {
             if (m) {
                 try {
-                    m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
+                    m = new DataSourceCommand(r->getDataSource()->updateAction( m.get() ) );
                 } catch( bad_assignment& ba ) {
                     log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< r->getDataSource()->getType()<<endlog();
                 }
@@ -197,7 +197,7 @@ namespace RTT {
         else {
             // no d, store manually:
             if (m)
-                m = new DataSourceCommand(r->updateCommand( m.get() ) );
+                m = new DataSourceCommand(r->updateAction( m.get() ) );
             else
                 log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
         }

@@ -303,7 +303,7 @@ namespace RTT
         IndexedValueDataSource()
         {}
 
-        base::ActionInterface* updateCommand( base::DataSourceBase* other)
+        base::ActionInterface* updateAction( base::DataSourceBase* other)
         {
             base::DataSourceBase::const_ptr r( other );
             typedef typename AssignableDataSource<T>::copy_t copy_t;
