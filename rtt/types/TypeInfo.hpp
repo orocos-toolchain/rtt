@@ -168,6 +168,13 @@ namespace RTT
          * Used to write a complex type to an external representation, like XML.
          * @{
          */
+
+        /**
+         * Returns the list of part names of this type.
+         */
+        virtual std::vector<std::string> getPartNames() const;
+
+        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name);
         /**
          * Decompose a structure as basic components into a PropertyBag.
          * @retval true decomposition resulted in new types added to targetbag.
