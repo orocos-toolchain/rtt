@@ -281,7 +281,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_release(m, TM_INFINITE );
+        return rt_mutex_acquire(m, TM_INFINITE );
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
