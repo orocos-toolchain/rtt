@@ -154,8 +154,8 @@ namespace RTT { namespace scripting
       rule_t machinealias;
       rule_t subMachinevarchange;
 
-      ConditionParser* conditionparser;
       CommonParser* commonparser;
+      ConditionParser* conditionparser;
       ValueChangeParser* valuechangeparser;
       ExpressionParser* expressionparser;
       ArgumentsParser* argsparser;

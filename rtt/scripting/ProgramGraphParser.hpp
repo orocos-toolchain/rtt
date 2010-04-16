@@ -191,8 +191,8 @@ namespace RTT { namespace scripting
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
           condition, catchpart, funcargs, functionarg, emitstatement ;
 
+      CommonParser& commonparser;
       ConditionParser conditionparser;
-      CommonParser commonparser;
       ValueChangeParser valuechangeparser;
       ExpressionParser expressionparser;
       ArgumentsParser* argsparser;
@@ -207,7 +207,7 @@ namespace RTT { namespace scripting
       bool exportf;
       int ln_offset;
   public:
-      ProgramGraphParser( iter_t& positer, TaskContext* context, TaskContext* caller);
+      ProgramGraphParser( iter_t& positer, TaskContext* context, TaskContext* caller, CommonParser& cp);
 
       /**
        * @brief Tries to parse programs, returns the generated programs on success.

@@ -78,12 +78,12 @@ namespace RTT { namespace scripting
     void seendataname();
     void seendatacall();
     void seensend();
-    CommonParser commonparser;
+    CommonParser& commonparser;
     ExpressionParser& expressionparser;
     PeerParser peerparser;
     std::stack<ArgumentsParser*> argparsers;
   public:
-    DataCallParser( ExpressionParser& p, TaskContext* pc, TaskContext* caller );
+    DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* pc, TaskContext* caller );
     ~DataCallParser();
 
     rule_t& parser()
@@ -152,12 +152,15 @@ namespace RTT { namespace scripting
       void seentimeexpr();
 
       DataCallParser datacallparser;
-      CommonParser commonparser;
+      /**
+       * The governing common parser.
+       */
+      CommonParser& commonparser;
       ValueParser valueparser;
       bool _invert_time;
       types::OperatorRepository::shared_ptr opreg;
   public:
-    ExpressionParser( TaskContext* pc, TaskContext* caller );
+      ExpressionParser( TaskContext* pc, TaskContext* caller, CommonParser& common_parser );
     ~ExpressionParser();
 
     rule_t& parser();

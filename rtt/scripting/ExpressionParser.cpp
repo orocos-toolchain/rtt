@@ -47,12 +47,14 @@
 #include <boost/lambda/lambda.hpp>
 
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 #include "../rtt-config.h"
 #include <iostream>
 
 namespace RTT
 {
     using boost::bind;
+    using boost::ref;
 
     using namespace detail;
     using namespace std;
@@ -72,8 +74,8 @@ namespace RTT
 
 
 
-  DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c, TaskContext* caller )
-      : mcaller( caller ? caller : c), mis_send(false), expressionparser( p ), peerparser( c )
+  DataCallParser::DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* c, TaskContext* caller )
+      : mcaller( caller ? caller : c), mis_send(false), commonparser(cp), expressionparser( p ), peerparser( c, cp )
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
@@ -257,9 +259,10 @@ namespace RTT
         throw_(iter_t(), reason);
     }
 
-  ExpressionParser::ExpressionParser( TaskContext* pc, TaskContext* caller )
-      : datacallparser( *this, pc, caller ),
-        valueparser( pc ),
+  ExpressionParser::ExpressionParser( TaskContext* pc, TaskContext* caller, CommonParser& cp )
+      : datacallparser( *this, cp, pc, caller ),
+        commonparser( cp ),
+        valueparser( pc, cp ),
         _invert_time(false),
         opreg( OperatorRepository::Instance() )
   {
@@ -267,6 +270,7 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );
     BOOST_SPIRIT_DEBUG_RULE( unaryminusexp );
     BOOST_SPIRIT_DEBUG_RULE( unaryplusexp );
+    BOOST_SPIRIT_DEBUG_RULE( div_or_mul );
     BOOST_SPIRIT_DEBUG_RULE( modexp );
     BOOST_SPIRIT_DEBUG_RULE( plusexp );
     BOOST_SPIRIT_DEBUG_RULE( minusexp );
@@ -394,9 +398,9 @@ namespace RTT
     time_expression =
         (str_p("time")>>eps_p(~commonparser.identchar | eol_p | end_p ))[bind(&ExpressionParser::seentimeexpr, this)]
         |
-        ( (eps_p[boost::lambda::var(eol_skip_functor::skipeol) = false] >> uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
-           >> (str_p( "s" ) | "ms" | "us" | "ns" )[boost::lambda::var(eol_skip_functor::skipeol) = true][bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ])
-          | (eps_p[boost::lambda::var(eol_skip_functor::skipeol) = true] >> nothing_p) // eps_p succeeds always, then fail.
+        ( (eps_p[boost::lambda::var(commonparser.skipeol) = false] >> uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
+           >> (str_p( "s" ) | "ms" | "us" | "ns" )[boost::lambda::var(commonparser.skipeol) = true][bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ])
+          | (eps_p[boost::lambda::var(commonparser.skipeol) = true] >> nothing_p) // eps_p succeeds always, then fail.
           )
           ; // enable skipeol.
 

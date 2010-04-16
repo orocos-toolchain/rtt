@@ -415,11 +415,11 @@ void TypesTest::executeStates(const std::string& state )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE_MESSAGE( false, "Parser returned no state machines to execute." );
         }
 
     BOOST_CHECK( sa->loadStateMachine( *pg_list.begin() ) );

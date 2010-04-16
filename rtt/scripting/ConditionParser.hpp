@@ -68,11 +68,11 @@ namespace RTT { namespace scripting
     rule_t condition;
 
     TaskContext* context;
-    CommonParser commonparser;
+    CommonParser& commonparser;
     ExpressionParser expressionparser;
 
   public:
-    ConditionParser( TaskContext* context, TaskContext* caller );
+      ConditionParser( TaskContext* context, TaskContext* caller, CommonParser& cp );
     ~ConditionParser();
 
     rule_t& parser()

@@ -59,7 +59,7 @@ namespace RTT
   {
     rule_t constant, const_float, const_double, const_int, const_uint, const_bool, named_constant,
       const_string, const_char;
-    CommonParser commonparser;
+    CommonParser& commonparser;
     PeerParser peerparser;
     PropertyParser propparser;
 
@@ -95,7 +95,7 @@ namespace RTT
 
       TaskContext* context;
   public:
-    ValueParser( TaskContext* tc );
+      ValueParser( TaskContext* tc, CommonParser& cp );
 
     ~ValueParser();
       /**

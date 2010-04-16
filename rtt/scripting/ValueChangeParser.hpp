@@ -109,7 +109,7 @@ namespace RTT { namespace scripting
       ExpressionParser expressionparser;
       PeerParser peerparser;
       PropertyParser propparser;
-      CommonParser commonparser;
+      CommonParser& commonparser;
 
       base::DataSourceBase::shared_ptr index_ds;
 
@@ -130,9 +130,9 @@ namespace RTT { namespace scripting
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc,
-                         interface::ServiceProvider::shared_ptr storage = interface::ServiceProviderPtr(),
-                         TaskContext* caller = 0);
+      ValueChangeParser( TaskContext* tc, CommonParser& cp,
+                         interface::ServiceProvider::shared_ptr storage,
+                         TaskContext* caller);
 
       /**
        * Clear assignCommands(), definedValues() and

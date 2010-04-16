@@ -77,6 +77,10 @@ namespace RTT { namespace scripting
       rule_t eos;
       rule_t notassertingeos;
       lexeme_rule_t leos;
+
+      //! Saves eol skipping state
+      bool skipeol;
+      functor_parser<eol_skip_functor> skipper;
       //@}
 
       CommonParser();

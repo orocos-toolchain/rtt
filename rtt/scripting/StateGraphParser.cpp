@@ -117,12 +117,12 @@ namespace RTT
           isroot(false),
           selectln(0),
           evname(""),
-          conditionparser( new ConditionParser( context, caller ) ),
           commonparser( new CommonParser ),
-          valuechangeparser( new ValueChangeParser(context, context->provides(), caller) ),
-          expressionparser( new ExpressionParser(context, caller) ),
+          conditionparser( new ConditionParser( context, caller, *commonparser ) ),
+          valuechangeparser( new ValueChangeParser(context, *commonparser, context->provides(), caller) ),
+          expressionparser( new ExpressionParser(context, caller, *commonparser) ),
           argsparser(0),
-          peerparser( new PeerParser(context, true) ) // full-path peer parser for events.
+          peerparser( new PeerParser(context, *commonparser, true) ) // full-path peer parser for events.
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( rootmachineinstantiation );
@@ -176,7 +176,7 @@ namespace RTT
         // Zero or more declarations and Zero or more states. Once a state is encountered, no more global transitions may be defined.
         statemachinecontent = *( varline | transitions | transition) >> *( varline | state);
 
-        varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
+        varline = vardec[lambda::var(commonparser->skipeol) = false] >> commonparser->eos[lambda::var(commonparser->skipeol) = true];
 
         vardec = subMachinedecl | machinememvar | machineparam;
 
@@ -227,7 +227,7 @@ namespace RTT
             | transitions
             | transition
             | exit
-            | (machinememvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]);
+            | (machinememvar[lambda::var(commonparser->skipeol) = false] >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
@@ -304,8 +304,8 @@ namespace RTT
 
         selector =  str_p( "select" ) >> expect_select_ident(( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
                                            >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
-                                          )[lambda::var(eol_skip_functor::skipeol) = false]
-                                                       >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]);
+                                          )[lambda::var(commonparser->skipeol) = false]
+                                                       >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
 
     }
 
@@ -659,8 +659,7 @@ namespace RTT
         //skip_parser_t skip_parser = SKIP_PARSER;
         //iter_pol_t iter_policy( skip_parser );
 		//#define SKIP_PARSER
-        iter_pol_t iter_policy( ( comment_p( "#" ) | comment_p( "//" ) | \
-        comment_p( "/*", "*/" ) | (space_p - eol_p) | eol_skip_p  ) );
+        iter_pol_t iter_policy( ( comment_p( "#" ) | comment_p( "//" ) | comment_p( "/*", "*/" ) | (space_p - eol_p) | commonparser->skipper  ) );
         scanner_pol_t policies( iter_policy );
         scanner_t scanner( begin, end, policies );
 
@@ -733,8 +732,8 @@ namespace RTT
         valuechangeparser->reset();
 
         // in case of corrupt file, skipeol could have remained on false,
-        // so make sure it is set correctly again (I hate this global variable approach, it should be a member of commonparser !)
-        eol_skip_functor::skipeol = true;
+        // so make sure it is set correctly again
+        commonparser->skipeol = true;
         selectln = 0;
         transProgram.reset();
         elseProgram.reset();
@@ -800,7 +799,7 @@ namespace RTT
 
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
-        progParser = new ProgramGraphParser(mpositer, context, caller);
+        progParser = new ProgramGraphParser(mpositer, context, caller, *commonparser);
 
         // set the 'type' name :
         curtemplate->setName( curmachinename, false );
