@@ -153,12 +153,31 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(OS_HAS_TLSF TRUE)
 
-  find_package(Boost 1.36 REQUIRED thread)
+  if (NOT Boost_THREAD_FOUND)
+	find_package(Boost 1.36 COMPONENTS thread REQUIRED)
+  endif ()
+
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
+
+  # add to list of libraries in pkgconfig file
+  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
+  # with that in pkgconfig, we take 1) the library for this build type, or
+  # 2) the library if only one is listed, or 3) we error out. 
+  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
+  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
+	if (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	  MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
+	endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY}})
+  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
 
+  # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
   list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES}) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
