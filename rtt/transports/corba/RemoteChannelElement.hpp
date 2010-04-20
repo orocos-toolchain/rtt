@@ -250,10 +250,10 @@ namespace RTT {
                 if (base::ChannelElement<T>::write(sample))
                     return true;
                 // go through corba
-                CORBA::Any_var ret = transport.createAny(data_source);
                 assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
+                    CORBA::Any_var ret = transport.createAny(data_source);
                     remote_side->write(ret.in()); 
                     return true;
                 }
