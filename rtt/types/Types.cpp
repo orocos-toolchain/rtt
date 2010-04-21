@@ -70,8 +70,6 @@ namespace RTT
     using namespace std;
     using namespace detail;
 
-    TypeBuilder::~TypeBuilder() {}
-
     namespace types {
         TypeInfoRepository::shared_ptr Types() { return TypeInfoRepository::Instance(); }
     }
