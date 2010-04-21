@@ -54,34 +54,24 @@ namespace RTT
     using namespace boost;
 
 
-    namespace {
-        enum PropertyErrors { bag_not_found };
-        guard<PropertyErrors> my_guard;
-
-        /**
-         * set by locateproperty, read by handle_no_property
-         */
-        static iterator_difference<iter_t>::type advance_on_error = 0;
-    }
-
-    error_status<> handle_no_property(scanner_t const& scan, parser_error<PropertyErrors, iter_t>&e )
+    error_status<> PropertyParser::handle_no_property(scanner_t const& scan, parser_error<PropertyErrors, iter_t>&e )
     {
         //std::cerr<<"Returning accept"<<std::endl;
         // ok, got as far as possible, _property contains the furthest we got.
         return error_status<>( error_status<>::accept, advance_on_error );
     }
 
-        PropertyParser::PropertyParser()
-            : _bag(0), _property(0)
-        {
-            BOOST_SPIRIT_DEBUG_RULE( propertylocator );
-            // find as far as possible a property without throwing an exception
-            // outside our interface
-            propertylocator =
-                !my_guard
-                ( +(commonparser.notassertingidentifier >> ".")[bind( &PropertyParser::locateproperty, this, _1, _2 ) ])
-                [ &handle_no_property ];
-        }
+    PropertyParser::PropertyParser(CommonParser& cp)
+	: commonparser(cp), _bag(0), _property(0)
+    {
+	BOOST_SPIRIT_DEBUG_RULE( propertylocator );
+	// find as far as possible a property without throwing an exception
+	// outside our interface
+	propertylocator =
+	    !my_guard
+	    ( +(commonparser.notassertingidentifier >> ".")[bind( &PropertyParser::locateproperty, this, _1, _2 ) ])
+	    [ bind(&PropertyParser::handle_no_property, this, _1, _2) ];
+    }
 
     void PropertyParser::setPropertyBag( PropertyBag* bg )
     {

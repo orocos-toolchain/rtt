@@ -53,14 +53,24 @@ namespace RTT
      */
     class PropertyParser
     {
-        CommonParser commonparser;
+        CommonParser& commonparser;
         rule_t propertylocator;
         PropertyBag*  _bag;
         PropertyBase* _property;
 
         void locateproperty( iter_t begin, iter_t end );
+
+        enum PropertyErrors { bag_not_found };
+	guard<PropertyErrors> my_guard;
+
+        /**
+         * set by locateproperty, read by handle_no_property
+         */
+	boost::iterator_difference<iter_t>::type advance_on_error;
+
+	error_status<> handle_no_property(scanner_t const& scan, parser_error<PropertyErrors, iter_t>&e );
     public:
-        PropertyParser();
+        PropertyParser(CommonParser& cp);
 
         /**
          * Change the bag we want to traverse.

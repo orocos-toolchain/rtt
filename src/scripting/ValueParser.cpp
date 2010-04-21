@@ -44,8 +44,8 @@ namespace RTT
     using boost::bind;
     using namespace detail;
 
-    ValueParser::ValueParser( TaskContext* tc)
-        : peerparser(tc), context(tc)
+    ValueParser::ValueParser( TaskContext* tc, CommonParser& cp)
+        : commonparser(cp), peerparser(tc,cp), propparser(cp), context(tc)
   {
     BOOST_SPIRIT_DEBUG_RULE( constant );
     BOOST_SPIRIT_DEBUG_RULE( const_float );

@@ -785,7 +785,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     do b_event(true)\n"
+        + "     do b_event(true)\n" //20
         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISTRUE\") ) then\n"
         + "          do test.assertMsg(false, y1.getState() )\n"
@@ -795,7 +795,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do b_event(false)\n"
         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISFALSE\") ) then\n"
-        + "          do test.assertMsg(false, y1.getState() )\n"
+        + "          do test.assertMsg(false, y1.getState() )\n" // 30
         + "     do test.assert( y1.inState(\"ISFALSE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
@@ -806,7 +806,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
-        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n" //40
         + "     do test.assert( y1.eb == false )\n"
         + "     do t_event()\n"
         + "     do nothing\n"
@@ -816,7 +816,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do nothing\n"
         + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
         + "     do test.assert( y1.eb == true )\n"
-        + "     do y1.requestState(\"INIT\")\n"
+        + "     do y1.requestState(\"INIT\")\n" // 50
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         //+ "     do y1.deactivate()\n"
         + " }\n"
@@ -893,19 +893,19 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
+            BOOST_REQUIRE_MESSAGE( false, exc.what() );
         }
     catch( const parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false, exc.what() );
+            BOOST_REQUIRE_MESSAGE( false, exc.what() );
         }
     catch( const program_load_exception& e)
         {
-            BOOST_CHECK_MESSAGE( false, e.what() );
+            BOOST_REQUIRE_MESSAGE( false, e.what() );
         }
     catch( const std::exception& e ) {
             BOOST_CHECK_MESSAGE( false , e.what());
-            BOOST_CHECK_MESSAGE( false, "Uncaught Processor load exception" );
+            BOOST_REQUIRE_MESSAGE( false, "Uncaught Processor load exception" );
     }
     BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");

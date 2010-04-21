@@ -53,17 +53,7 @@ namespace RTT
     using namespace std;
     using namespace boost;
 
-    namespace {
-        enum PeerErrors { peer_not_found };
-        guard<PeerErrors> my_guard;
-
-        /**
-         * set by locatepeer, read by handle_no_peer
-         */
-        static iterator_difference<iter_t>::type advance_on_error = 0;
-    }
-
-    error_status<> handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
+    error_status<> PeerParser::handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
     {
         //std::cerr<<"Returning accept, advance "<<advance_on_error<<std::endl;
         int length = advance_on_error;
@@ -122,8 +112,8 @@ namespace RTT
 
         }
 
-        PeerParser::PeerParser(TaskContext* c, bool fullpath)
-            : mcurobject(c), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
+        PeerParser::PeerParser(TaskContext* c, CommonParser& cp, bool fullpath)
+            : commonparser(cp), mcurobject(c), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
@@ -135,7 +125,7 @@ namespace RTT
             peerlocator =
                 !(my_guard
                   ( +((commonparser.notassertingidentifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
-                [ &handle_no_peer ]);
+		  [ bind(&PeerParser::handle_no_peer, this, _1, _2) ]);
         }
 
     void PeerParser::reset()

@@ -108,7 +108,7 @@ namespace RTT { namespace detail
       ExpressionParser expressionparser;
       PeerParser peerparser;
       PropertyParser propparser;
-      CommonParser commonparser;
+      CommonParser& commonparser;
 
       DataSourceBase::shared_ptr index_ds;
 
@@ -129,7 +129,7 @@ namespace RTT { namespace detail
        * If you want the new added values in a different \a storage, use
        * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc, OperationInterface* storage= 0);
+      ValueChangeParser( TaskContext* tc, CommonParser& cp, OperationInterface* storage= 0 );
 
       /**
        * Clear assignCommands(), definedValues() and

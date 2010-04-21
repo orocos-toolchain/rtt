@@ -49,8 +49,8 @@ namespace RTT
 
 
 
-    ConditionParser::ConditionParser( TaskContext* c )
-        : ds_bool( 0 ), context( c ), expressionparser( c )
+    ConditionParser::ConditionParser( TaskContext* c, CommonParser& cp )
+        : ds_bool( 0 ), context( c ), commonparser(cp), expressionparser( c, cp )
     {
         BOOST_SPIRIT_DEBUG_RULE( condition );
 

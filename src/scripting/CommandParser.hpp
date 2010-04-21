@@ -93,7 +93,7 @@ namespace RTT
     rule_t objectmethod, command, callcommand, nopcommand, arguments;
 
     TaskContext* context;
-    CommonParser commonparser;
+    CommonParser& commonparser;
     ArgumentsParser* argsparser;
     ExpressionParser expressionparser;
       PeerParser peerparser;
@@ -104,7 +104,7 @@ namespace RTT
        * created DispatchInterface in an DispatchAction such that
        * execute() of the returned command does a DispatchInterface::dispatch().
        */
-    CommandParser( TaskContext* context, bool as_action );
+      CommandParser( TaskContext* context, CommonParser& cp, bool as_action );
     ~CommandParser();
 
       bool foundObject() {

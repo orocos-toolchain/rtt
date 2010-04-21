@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 3*(2+1) == 9 )\n" +
         "}";
     // execute
-    executePrograms(prog);    
+    executePrograms(prog);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -332,11 +332,11 @@ void TypesTest::executePrograms(const std::string& prog )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE( false );
         }
 
     BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
@@ -377,11 +377,11 @@ void TypesTest::executeStates(const std::string& state )
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_CHECK_MESSAGE( false , exc.what());
+            BOOST_REQUIRE_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            BOOST_CHECK( false );
+            BOOST_REQUIRE_MESSAGE( false, "Parser returned no state machines to execute." );
         }
 
     BOOST_CHECK( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
