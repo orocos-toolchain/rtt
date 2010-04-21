@@ -215,9 +215,10 @@ namespace RTT
 
             virtual ::RTT::base::ActionInterface* updatePartCommand(base::DataSourceBase* index, base::DataSourceBase* rhs )
             {
-                ::RTT::base::ActionInterface* ci = storage->updatePartCommand(index, rhs);
-                if (ci)
-                    return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
+                //::RTT::base::ActionInterface* ci = storage->updatePartCommand(index, rhs);
+                assert(false);
+                //if (ci)
+                //    return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
                 return 0;
             }
 

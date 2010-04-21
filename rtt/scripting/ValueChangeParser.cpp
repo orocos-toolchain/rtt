@@ -385,7 +385,8 @@ namespace RTT
             //               "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
             ActionInterface* ac;
             try {
-                ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
+                assert(false);
+                //ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
             }
             catch( const bad_assignment& e) {
                 // type-error :
@@ -402,7 +403,8 @@ namespace RTT
         if ( index_ds && var ) {
             ActionInterface* ac;
             try {
-                ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
+                assert(false);
+                //ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
                 assigncommands.push_back( ac );
             }
             catch( const bad_assignment& e) {

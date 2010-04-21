@@ -121,11 +121,12 @@ namespace RTT {
     DataSourceBase::shared_ptr DataSourceBase::getPart( const std::string& part_name ) {
         if ( part_name.empty() )
             return DataSourceBase::shared_ptr(this);
-        else
-            return DataSourceBase::shared_ptr();
+        assert(false);
+        return DataSourceBase::shared_ptr();
     }
 
     vector<string> DataSourceBase::getPartNames() const {
+        assert(false);
         return vector<string>();
     }
 
