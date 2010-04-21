@@ -195,7 +195,7 @@ endif()
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
   message("Forcing OS_HAS_TLSF to OFF for WIN32")
-  set(OS_HAS_TLSF TRUE)
+  set(OS_HAS_TLSF FALSE)
   # Force OFF on mqueue transport on WIN32 platform
   message("Forcing ENABLE_MQ to OFF for WIN32")
   set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on WIN32 platform." FORCE)
