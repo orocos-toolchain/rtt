@@ -188,7 +188,7 @@ endif()
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
   message("Forcing OS_HAS_TLSF to OFF for WIN32")
-  set(OS_HAS_TLSF TRUE)
+  set(OS_HAS_TLSF FALSE)
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
