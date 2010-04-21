@@ -50,7 +50,7 @@ if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
 endif()
 
 # Look for boost
-find_package(Boost 1.33 REQUIRED)
+find_package(Boost 1.36 REQUIRED)
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
@@ -153,7 +153,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(OS_HAS_TLSF TRUE)
 
-  find_package(Boost 1.33 REQUIRED thread)
+  find_package(Boost 1.36 REQUIRED thread)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
