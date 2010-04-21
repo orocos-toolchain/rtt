@@ -91,7 +91,7 @@ IF (BUILD_TESTING)
     #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
     #ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
 
-    IF(UNIX AND NOT (OROCOS_TARGET STREQUAL "xenomai"))
+    IF(UNIX AND NOT OROCOS_TARGET STREQUAL "xenomai" )
       ADD_EXECUTABLE( specactivities-test test-runner.cpp
 	specialized_activities.cpp)
       TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-dynamic_${OROCOS_TARGET} )
