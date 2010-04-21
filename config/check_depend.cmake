@@ -147,9 +147,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Boost 1.33 REQUIRED thread)
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_thread_INCLUDE_DIRS} )
-  # add to list of libraries in pkgconfig file
-  LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY})
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
