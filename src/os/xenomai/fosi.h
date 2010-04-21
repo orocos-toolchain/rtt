@@ -86,6 +86,10 @@ extern "C" {
 #define rt_mutex_acquire rt_mutex_lock
 #define rt_mutex_release rt_mutex_unlock
 #endif
+// BC: support Xenomai < 2.5.0
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+#define ORO_XENO_HAS_ACQUIRE_UNTIL
+#endif
 
 
 	typedef RT_MUTEX rt_mutex_t;
@@ -263,11 +267,11 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         CHK_XENO_CALL();
-#if defined(rt_mutex_acquire) // see top of this file
+#if !defined(ORO_XENO_HAS_ACQUIRE_UNTIL) // see top of this file
         // calling the old style API
         return rt_mutex_acquire(m, rt_timer_ns2ticks(abs_time) - rt_timer_read()  );
 #else
-        // new style API
+        // new style API > 2.5.0
         return rt_mutex_acquire_until(m, rt_timer_ns2ticks(abs_time) );
 #endif
     }
