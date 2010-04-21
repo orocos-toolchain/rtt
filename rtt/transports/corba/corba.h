@@ -60,6 +60,8 @@ namespace CORBA {
 }
 # undef ACE_THROW_SPEC
 # define ACE_THROW_SPEC(x)
+# undef ACE_THROW
+# define ACE_THROW(x)
 # define CORBA_EXCEPTION_INFO(x) x._name()
 // This Xenomai specific work-around is required for omniorb.
 # ifdef OROCOS_TARGET_XENOMAI
