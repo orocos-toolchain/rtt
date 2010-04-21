@@ -1,4 +1,7 @@
 #include "TypeInfo.hpp"
+#include "TypeBuilder.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
+#include "TypeTransporter.hpp"
 
 #include "rtt-config.h"
 
@@ -13,6 +16,7 @@ namespace RTT
 {
     using namespace std;
     using namespace detail;
+    using namespace internal;
 
     AttributeBase* TypeInfo::buildVariable(std::string name, int ) const {
         return this->buildVariable(name);
@@ -156,7 +160,7 @@ namespace RTT
         return vector<string>();
     }
 
-    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, const std::string& name)
+    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, const std::string& part_name)
     {
         /** ** Strong typed data **
          *

@@ -5,6 +5,7 @@
 #include "../Logger.hpp"
 #include "TypeTransporter.hpp"
 #include "../plugin/TransportPlugin.hpp"
+#include "../internal/mystd.hpp"
 
 namespace RTT
 {
