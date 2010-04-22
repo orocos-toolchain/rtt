@@ -237,7 +237,7 @@ IF (BUILD_TESTING)
     endif()
     ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_CUSTOM_TARGET(check ctest -V
-      DEPENDS main-test core-test task-test specactivities-test ${ORO_EXTRA_TESTS}  
+      DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 
     #ADD_DEPENDENCIES(check prep-cpf)

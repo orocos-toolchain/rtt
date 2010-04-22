@@ -83,6 +83,17 @@ namespace RTT
               return 0;
           }
 
+          /**
+           * Update a transportable object for a \a protocol which contains the value of \a source.
+           */
+          virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const
+          {
+              internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
+              if ( d )
+                  return AnyConversion<PropertyType>::updateAny( d->value(), any);
+              return false;
+          }
+
           virtual base::DataSourceBase::shared_ptr createDataSource(const CORBA::Any* any) const
           {
               base::DataSourceBase::shared_ptr result = new internal::ValueDataSource<T>();

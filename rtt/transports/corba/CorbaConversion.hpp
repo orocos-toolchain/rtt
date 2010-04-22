@@ -106,6 +106,18 @@ namespace RTT
             Logger::log() << Logger::Error << "Failing corba::Any creation of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
             return new CORBA::Any();
         }
+
+        /**
+         * Updates an CORBA::Any object from of a C++/IDL type.
+         * @param tp The value to convert to the Any.
+         * @param  An Any object which will contain tp or an
+         * empty Any object if the conversion was not possible.
+         * @return false if no conversion could be made
+         */
+        static bool updateAny( StdType tp, CORBA::Any& any ) {
+            Logger::log() << Logger::Error << "Failing corba::Any updating of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
+            return false;
+        }
     };
 
     /**
@@ -144,6 +156,12 @@ namespace RTT
             return ret;
         }
 
+        static bool updateAny( const Type& t, CORBA::Any& any ) {
+            //Logger::log() << Logger::Debug << "Updating corba::Any from "<<internal::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
+            any <<= toAny( static_cast<CorbaType>(t) );
+            return true;
+        }
+
     };
 
     template<>
@@ -177,6 +195,12 @@ namespace RTT
             //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_ptr." <<Logger::endl;
             return new CORBA::Any(*t);
         }
+
+        static bool updateAny( const StdType& t, CORBA::Any& any ) {
+            //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_ptr." <<Logger::endl;
+            any <<= CORBA::Any(*t);
+            return true;
+        }
     };
 
     template<>
@@ -194,6 +218,12 @@ namespace RTT
         static CORBA::Any_ptr createAny( CORBA::Any_var t ) {
             //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_var." <<Logger::endl;
             return new CORBA::Any( t.in() );
+        }
+
+        static bool updateAny( const StdType& t, CORBA::Any& any ) {
+            //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_var." <<Logger::endl;
+            any <<= CORBA::Any( t.in() );
+            return true;
         }
     };
 
@@ -227,6 +257,11 @@ namespace RTT
             *ret <<= toAny( t );
             return ret;
         }
+
+        static bool updateAny( bool t, CORBA::Any& any ) {
+            any <<= toAny( t );
+            return true;
+        }
     };
 
     template<>
@@ -257,6 +292,11 @@ namespace RTT
             CORBA::Any_ptr ret = new CORBA::Any();
             *ret <<= toAny( t );
             return ret;
+        }
+
+        static bool updateAny( char t, CORBA::Any& any ) {
+            any <<= toAny( t );
+            return true;
         }
     };
 
@@ -290,6 +330,10 @@ namespace RTT
             return ret;
         }
 
+        static bool updateAny( StdType const& t, CORBA::Any& any ) {
+            any <<= toAny( t );
+            return true;
+        }
     };
 
     /**
@@ -326,6 +370,10 @@ namespace RTT
             return ret;
         }
 
+        static bool updateAny( StdType const& t, CORBA::Any& any ) {
+            any <<= toAny( t );
+            return true;
+        }
     };
 
     template<>
@@ -367,6 +415,10 @@ namespace RTT
             return ret;
         }
 
+        static bool updateAny( StdType const& t, CORBA::Any& any ) {
+            any <<= toAny( t );
+            return true;
+        }
     };
 
 

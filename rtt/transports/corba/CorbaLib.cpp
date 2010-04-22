@@ -75,6 +75,15 @@ namespace RTT {
                 return new CORBA::Any();
             }
 
+            virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const
+            {
+                if (warn) {
+                    Logger::In in("CorbaFallBackProtocol");
+                    log(Error) << "Could not send data of type '"<< source->getTypeName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                }
+                return false;
+            }
+
             virtual base::DataSourceBase::shared_ptr createDataSource(const CORBA::Any* any) const
             {
                 return base::DataSourceBase::shared_ptr();

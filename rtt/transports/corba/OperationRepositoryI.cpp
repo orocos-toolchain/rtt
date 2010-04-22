@@ -79,8 +79,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
     for(unsigned int i = 0; i != sources.size(); ++i) {
         const TypeInfo* ti = sources[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-        CORBA::Any_var any = ctt->createAny( sources[i] );
-        anys[i] = any;
+        ctt->updateAny(sources[i], anys[i]);
     }
     return valid;
 }
@@ -302,8 +301,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
             for (size_t i =0; i != args.length(); ++i) {
                 const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-                CORBA::Any_var any = ctt->createAny( results[i] );
-                args[i] = any;
+		ctt->updateAny(results[i], args[i]);
             }
 
             // Try to return result:

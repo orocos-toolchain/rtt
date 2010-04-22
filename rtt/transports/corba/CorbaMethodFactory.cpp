@@ -129,8 +129,7 @@ public:
             const types::TypeInfo* ti = margs[i]->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             assert( ctt );
-            CORBA::Any_var any = ctt->createAny( margs[i] );
-            nargs[i] = any;
+            ctt->updateAny(margs[i], nargs[i]);
         }
     }
 
@@ -183,8 +182,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<b
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
-        CORBA::Any_var any = ctt->createAny( args[i] );
-        nargs[i] = any;
+        ctt->updateAny(args[i], nargs[i]);
     }
     try {
         // will throw if wrong args.
@@ -223,8 +221,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceSend(const std::vect
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
-        CORBA::Any_var any = ctt->createAny( args[i] );
-        nargs[i] = any;
+        ctt->updateAny(args[i], nargs[i]);
     }
     try {
         // will throw if wrong args.
@@ -331,8 +328,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::v
             const types::TypeInfo* ti = cargs[i]->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             assert( ctt );
-            CORBA::Any_var any = ctt->createAny( cargs[i] );
-            nargs[i] = any;
+            ctt->updateAny( cargs[i], nargs[i]);
         }
         ds->get()->checkArguments( nargs.in() );
     } catch ( CWrongNumbArgException& wna) {
