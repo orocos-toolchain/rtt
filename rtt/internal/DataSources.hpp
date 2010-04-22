@@ -103,11 +103,16 @@ namespace RTT
     };
 
     /**
-     * Specialisation for const std::string& to keep capacity when set( ... ) is called.
+     * Specialisation for std::string to keep capacity when set( ... ) is called.
      */
     template<>
     RTT_API void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
 
+    /**
+     * Specialisation for std::string to keep capacity when clone() is called.
+     */
+    template<>
+    RTT_API ValueDataSource<std::string>::ValueDataSource(std::string t );
 
     /**
      * A DataSource which holds a constant value and
@@ -612,6 +617,8 @@ namespace RTT
 
   /**
    * A DataSource which returns the return value of a unary function.
+   * The return value of get() and the input argument are infered from the
+   * \a function signature type.
    */
   template <typename function>
   class UnaryDataSource

@@ -65,7 +65,6 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
     return b;
 }
 
-
     ServiceProvider::shared_ptr TypesTest::createMethodFactory()
     {
         ServiceProvider::shared_ptr to = ServiceProvider::Create("test");
@@ -80,6 +79,74 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
+
+//! Tests the preservation of the capacity of a string in the type system.
+BOOST_AUTO_TEST_CASE( testStringCapacity )
+{
+    Attribute<string> str = Types()->type("string")->buildVariable("str",10);
+
+    // check size hint:
+    BOOST_CHECK( str.get().size() == 10 );
+    BOOST_CHECK( str.get().capacity() == 10 );
+
+    str.set() = "hello"; // note: assign to C string preserves capacity
+
+    BOOST_CHECK( str.get().size() == 5 );
+    BOOST_CHECK( str.get().capacity() == 10 );
+
+    // create empty target:
+    Attribute<string> copy("copy");
+    BOOST_CHECK( copy.get().size() == 0 );
+    BOOST_CHECK( copy.get().capacity() == 0 );
+
+    // copy str to target and check:
+    copy.getDataSource()->update( str.getDataSource().get() );
+
+    BOOST_CHECK_EQUAL( copy.get().size(), 5 );
+    BOOST_CHECK_EQUAL( copy.get().capacity(), 5 );
+    BOOST_CHECK_EQUAL( copy.get(), str.get() );
+
+    copy.set() = "world";
+
+    // now copy target back to str and check if capacity remains:
+    str.getDataSource()->update( copy.getDataSource().get() );
+    BOOST_CHECK( str.get().size() == 5 );
+    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( copy.get(), str.get() );
+
+
+
+    // Same exercise as above, but with updateCommand():
+    str.set() = "hello"; // note: assign to C string preserves capacity
+
+    BOOST_CHECK( str.get().size() == 5 );
+    BOOST_CHECK( str.get().capacity() == 10 );
+
+    // copy str to target and check:
+    ActionInterface* act = copy.getDataSource()->updateCommand( str.getDataSource().get() );
+    BOOST_CHECK( act );
+    act->readArguments();
+    BOOST_CHECK( act->execute() );
+    delete act;
+
+    BOOST_CHECK_EQUAL( copy.get().size(), 5 );
+    BOOST_CHECK_EQUAL( copy.get().capacity(), 5 );
+    BOOST_CHECK_EQUAL( copy.get(), str.get() );
+
+    copy.set() = "world";
+
+    // now copy target back to str and check if capacity remains:
+    act = str.getDataSource()->updateCommand( copy.getDataSource().get() );
+    BOOST_CHECK( act );
+    act->readArguments();
+    BOOST_CHECK( act->execute() );
+    delete act;
+
+    BOOST_CHECK( str.get().size() == 5 );
+    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( copy.get(), str.get() );
+
+}
 
 BOOST_AUTO_TEST_CASE( testTypes )
 {
@@ -122,7 +189,6 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
-        "do test.print(ar1[11])\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
@@ -139,10 +205,17 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert(ar4[1]==3.0)\n"+
         "do test.assert(ar4[2]==4.0)\n"+
         "do test.assert(ar4[3]==5.0)\n"+
-        "var string str(10) = \"hello\"\n"+
+        "var string str(10)\n"+
         // 50:
-        "do test.assert( str.size == 5)\n"+
-        "do test.assert( str.capacity >= 10)\n"+ // fails: check assignment & constructor stuff.
+//        "do test.print(str.size)\n"+
+//        "do test.print(str.capacity)\n"+
+        "do test.assertEqual( str.size, 10)\n"+
+        "do test.assertEqual( str.capacity, 10)\n"
+        "set str = \"hello\"\n"+
+//        "do test.print(str.size)\n"+
+//        "do test.print(str.capacity)\n"+
+        "do test.assertEqual( str.size, 5)\n"+
+        "do test.assertEqual( str.capacity, 10)\n"+ // if this fails, the COW implementation of std::string fooled us again.
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+

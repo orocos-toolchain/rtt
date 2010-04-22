@@ -103,6 +103,16 @@ namespace RTT
         StdStringTypeInfo()
             : TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string")
         {}
+
+        base::AttributeBase* buildVariable(std::string name,int size) const
+        {
+            // if a sizehint is given, create a TaskIndexContainerVariable instead,
+            // which checks capacities.
+            string t_init(size, ' '); // we can't use the default char(), which is null !
+
+            return new Attribute<string>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string> > >( t_init ) );
+        }
+
         virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             return false;
         }

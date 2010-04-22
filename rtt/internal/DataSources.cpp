@@ -47,4 +47,10 @@ namespace RTT {
         mdata = t.c_str();
     }
 
+    template<>
+    ValueDataSource<std::string>::ValueDataSource( std::string t )
+        : mdata( t.c_str() )
+    {
+    }
+
 }
