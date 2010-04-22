@@ -128,8 +128,11 @@ namespace RTT
             // We are a xeno thread now:
             // Only use Logger after this point (i.e. when rt_task_shadow was succesful).
             if ( mt_name == 0) {
-                log(Warning) << "'MainThread' name was already in use.\n" <<endlog();
+                log(Warning) << "'MainThread' name was already in use. Registered empty name with Xenomai.\n" <<endlog();
             }
+
+            // main is created in main thread.
+            main->xenoptr = rt_task_self();
 
 #ifdef OROSEM_OS_XENO_PERIODIC
 # if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
@@ -233,10 +236,16 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_is_self(const RTOS_TASK* task) {
             RT_TASK* self = rt_task_self();
-            if (self == 0)
+            if (self == 0 || task == 0)
                 return -1; // non-xeno thread. We could try to compare pthreads like in gnulinux ?
-            if ( self == task->xenoptr )
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
+            if ( rt_task_same( self, task->xenoptr ) != 0 )
                 return 1;
+#else
+            // older versions:
+            if ( self == task->xenoptr ) // xenoptr is also set by rt_task_self() during construction.
+                return 1;
+#endif
             return 0;
         }
 
