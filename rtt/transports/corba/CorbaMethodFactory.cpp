@@ -130,7 +130,7 @@ public:
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             assert( ctt );
             CORBA::Any_var any = ctt->createAny( margs[i] );
-            nargs[i] = *any;
+            nargs[i] = any;
         }
     }
 
@@ -146,7 +146,7 @@ public:
                 }
                 // convert returned any to local type:
                 if (mctt)
-                    return mctt->updateFromAny(any.ptr(), mresult);
+                    return mctt->updateFromAny(&any.in(), mresult);
             } else {
                 CSendHandle_var sh = mfact->sendOperation( mop.c_str(), nargs.in() );
                 AssignableDataSource<CSendHandle_var>::shared_ptr ads = AssignableDataSource<CSendHandle_var>::narrow( mresult.get() );
@@ -184,7 +184,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<b
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
         CORBA::Any_var any = ctt->createAny( args[i] );
-        nargs[i] = *any;
+        nargs[i] = any;
     }
     try {
         // will throw if wrong args.
@@ -224,7 +224,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceSend(const std::vect
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
         CORBA::Any_var any = ctt->createAny( args[i] );
-        nargs[i] = *any;
+        nargs[i] = any;
     }
     try {
         // will throw if wrong args.
@@ -332,7 +332,7 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::v
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             assert( ctt );
             CORBA::Any_var any = ctt->createAny( cargs[i] );
-            nargs[i] = *any;
+            nargs[i] = any;
         }
         ds->get()->checkArguments( nargs.in() );
     } catch ( CWrongNumbArgException& wna) {

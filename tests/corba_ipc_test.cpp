@@ -258,7 +258,6 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     any_args[index] <<= (CORBA::Long) 1;
     CORBA::Any_var m1;
     BOOST_CHECK_NO_THROW( m1 = co->callOperation("m1", any_args.inout()));
-    BOOST_REQUIRE( m1 );
     BOOST_CHECK( m1 >>= d );
     BOOST_CHECK_EQUAL(d, -2.0 );
 

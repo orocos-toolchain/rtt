@@ -100,7 +100,50 @@ namespace RTT
 
         void reset(T* ptr)
         {
+            boost::intrusive_ptr<Internal> safe = this->internal;
+            if (!safe)
+            {
+                internal = new Internal(ptr);
+                return;
+            }
+
+
+            { os::MutexLock do_lock(safe->lock);
+                if (safe->readers == 2) // we are sole owner
+                {
+                    safe->value = ptr;
+                    return;
+                }
+            }
+
+            // We must *not* change 'internal' while safe->lock is taken. The
+            // above block returns in case we don't need to reallocate a new
+            // Internal structure.
+            //
+            // In other words, if we are here, it is because we *need* to
+            // reallocate.
             internal = new Internal(ptr);
+        }
+
+        T* try_write_access()
+        {
+            boost::intrusive_ptr<Internal> safe = this->internal;
+            if (!safe)
+                return 0;
+
+            { os::MutexLock do_lock(safe->lock);
+                if (safe->readers == 2)
+                { // we're the only owner (don't forget +safe+ above).
+                  // Just promote the current copy
+                    T* value = 0;
+                    std::swap(value, safe->value);
+                    return value;
+                }
+                else
+                { // there are other owners
+                    return NULL;
+                }
+            }
         }
 
         T* write_access()
@@ -109,21 +152,19 @@ namespace RTT
             if (!safe)
                 return 0;
 
-            T* value = 0;
             { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2)
-                { // we're the only owner (don't forget the one just above ...).
+                { // we're the only owner (don't forget +safe+ above).
                   // Just promote the current copy
+                    T* value = 0;
                     std::swap(value, safe->value);
+                    return value;
                 }
                 else
                 { // there are other owners, do a copy
-                    value = new T(*safe->value);
+                    return new T(*safe->value);
                 }
             }
-
-            internal = 0; //.reset() only available in later boost versions.
-            return value;
         }
     };
 }}
