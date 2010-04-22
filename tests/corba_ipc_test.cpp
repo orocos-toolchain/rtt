@@ -178,7 +178,7 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 BOOST_AUTO_TEST_CASE( setupServer )
 {
     system("./corba-ipc-server &");
-    usleep(100000);
+    usleep(500000);
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     cce->disconnect();
     mo->disconnect();
 
-    // test unbuffered Corba write --> C++ read
+    // test buffered Corba write --> C++ read
     mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
     cce = ports->buildChannelOutput("mi", policy);
     sample = new CORBA::Any();
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     cce->write( sample.in() );
     sample <<= 4.44;
     cce->write( sample.in() );
-    usleep(100000);
+    usleep(500000);
     BOOST_CHECK_EQUAL( mi->read( result ), NewData );
     BOOST_CHECK_EQUAL( result, 6.44 );
     BOOST_CHECK_EQUAL( mi->read( result ), NewData );
