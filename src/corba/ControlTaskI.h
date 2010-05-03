@@ -84,6 +84,7 @@
 #include "ServicesC.h"
 #include "DataFlowC.h"
 #include "../TaskContext.hpp"
+#include <utility>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -97,7 +98,8 @@ protected:
 	::RTT::Corba::MethodInterface_var mMFact;
 	::RTT::Corba::CommandInterface_var mCFact;
 	PortableServer::POA_var mpoa;
-    typedef std::map<std::string, Orocos_ControlObject_i*> CTObjMap;
+	// stores name, servant and servant base for refcounting.
+	typedef std::map<std::string, std::pair<Orocos_ControlObject_i*,PortableServer::ServantBase_var> > CTObjMap;
     CTObjMap ctobjmap;
 
 public:

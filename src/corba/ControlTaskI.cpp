@@ -90,9 +90,7 @@ Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig, P
 // Implementation skeleton destructor
 Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
-    // FIXME free up cache ? This is done by refcountservantbase ?
-//     for( CTObjMap::iterator it = ctobjmap.begin(); it != ctobjmap.end; ++it)
-//         delete it->second;
+    ctobjmap.clear();
 }
 
  char* Orocos_ControlObject_i::getName (
@@ -191,13 +189,12 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     if ( task ) {
         // do caching....
         Orocos_ControlObject_i* ret;
-        if ( ctobjmap[pname] == 0 || ctobjmap[pname]->mobj != task) {
+        if ( ctobjmap[pname].first == 0 || ctobjmap[pname].first->mobj != task) {
             // create or lookup new server for this object.
-            // FIXME free up cache ? This is done by refcountservantbase ?
-            //delete ctobjmap[pname];
-            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa.in() );
+            ctobjmap[pname].first = new Orocos_ControlObject_i(task, mpoa.in() );
+            ctobjmap[pname].second = ctobjmap[pname].first; // install refcounting.
         }
-        ret = ctobjmap[pname];
+        ret = ctobjmap[pname].first;
         return ret->_this();
     }
     // clear cache if possible.
