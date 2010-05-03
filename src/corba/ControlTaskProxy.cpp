@@ -106,6 +106,12 @@ namespace RTT
             deleteProperties( *this->properties() );
         }
         this->attributes()->clear();
+        // cleanup ports:
+        RTT::DataFlowInterface::Ports ps = this->ports()->getPorts();
+        for (RTT::DataFlowInterface::Ports::iterator it = ps.begin(); it != ps.end(); ++it) {
+            ports()->removePort( (*it)->getName() );
+            delete *it;
+        }
         proxies.erase(this);
     }
 
@@ -336,6 +342,7 @@ namespace RTT
             for ( size_t i=0; i < objs->length(); ++i) {
                 if (this->ports()->getPort( objs[i].in() ))
                     continue; // already added.
+                // remember to delete it again !
                 this->ports()->addPort( new CorbaPort( objs[i].in(), dfact.in(), ProxyPOA() ) );
             }
         }
