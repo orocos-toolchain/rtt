@@ -94,12 +94,17 @@ class  Orocos_ControlObject_i : public virtual POA_RTT::Corba::ControlObject, pu
 {
 protected:
     RTT::OperationInterface* mobj;
-	::RTT::Corba::AttributeInterface_var mAttrs;
-	::RTT::Corba::MethodInterface_var mMFact;
-	::RTT::Corba::CommandInterface_var mCFact;
-	PortableServer::POA_var mpoa;
-	// stores name, servant and servant base for refcounting.
-	typedef std::map<std::string, std::pair<Orocos_ControlObject_i*,PortableServer::ServantBase_var> > CTObjMap;
+    ::RTT::Corba::AttributeInterface_var mAttrs;
+    ::RTT::Corba::MethodInterface_var mMFact;
+    ::RTT::Corba::CommandInterface_var mCFact;
+
+    // refcounts servants
+    PortableServer::ServantBase_var mAttrs_i;
+    PortableServer::ServantBase_var mMFact_i;
+    PortableServer::ServantBase_var mCFact_i;
+    PortableServer::POA_var mpoa;
+    // stores name, servant and servant base for refcounting.
+    typedef std::map<std::string, std::pair<Orocos_ControlObject_i*,PortableServer::ServantBase_var> > CTObjMap;
     CTObjMap ctobjmap;
 
 public:
@@ -175,15 +180,19 @@ public:
 };
 
 class  Orocos_ControlTask_i
-: public virtual POA_RTT::Corba::ControlTask, public virtual PortableServer::RefCountServantBase,
+: public virtual POA_RTT::Corba::ControlTask,
   public Orocos_ControlObject_i
 {
 protected:
     RTT::TaskContext* mtask;
 
-	::RTT::Corba::ScriptingAccess_var mEEFact;
-	::RTT::Corba::ServiceInterface_var mService;
-	::RTT::Corba::DataFlowInterface_var mDataFlow;
+    ::RTT::Corba::ScriptingAccess_var mEEFact;
+    ::RTT::Corba::ServiceInterface_var mService;
+    ::RTT::Corba::DataFlowInterface_var mDataFlow;
+    // refcounts servants:
+    PortableServer::ServantBase_var mEEFact_i;
+    PortableServer::ServantBase_var mService_i;
+    PortableServer::ServantBase_var mDataFlow_i;
 public:
   //Constructor
   Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);

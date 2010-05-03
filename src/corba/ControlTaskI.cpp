@@ -126,6 +126,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         log(Debug) << "Creating AttributeInterface."<<endlog();
         try {
             Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa.in() );
+            mAttrs_i = attrs;
             mAttrs = attrs->_this();
         } catch( ... ) {
             log(Error) << "Failed to create AttributeInterface." <<endlog();
@@ -144,6 +145,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     if ( CORBA::is_nil( mMFact ) ) {
         log(Debug) << "Creating MethodInterface."<<endlog();
         Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa.in() );
+        mMFact_i = mserv;
         try {
             mMFact = mserv->_this();
         } catch( ... ) {
@@ -164,6 +166,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         try {
             log(Debug) << "Creating CommandInterface."<<endlog();
             Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
+            mCFact_i = mserv;
             mCFact = mserv->_this();
         } catch( ... ) {
             log(Error) << "Failed to create CommandInterface." <<endlog();
@@ -405,6 +408,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     if ( CORBA::is_nil( mEEFact ) ) {
         log(Debug) << "Creating ScriptingAccess."<<endlog();
         Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa.in() );
+        mEEFact_i = mserv;
         mEEFact = mserv->_this();
     }
     return ::RTT::Corba::ScriptingAccess::_duplicate( mEEFact.in() );
@@ -420,6 +424,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating Services."<<endlog();
         RTT_Corba_ServiceInterface_i* mserv = new RTT_Corba_ServiceInterface_i();
+        mService_i = mserv;
         mService = mserv->_this();
     }
     return ::RTT::Corba::ServiceInterface::_duplicate( mService.in() );
@@ -435,6 +440,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     if ( CORBA::is_nil( mDataFlow ) ) {
         log(Debug) << "Creating DataFlowInterface."<<endlog();
         RTT_Corba_DataFlowInterface_i* mserv = new RTT_Corba_DataFlowInterface_i( mtask->ports() );
+        mDataFlow_i = mserv;
         mDataFlow = mserv->_this();
     }
     return ::RTT::Corba::DataFlowInterface::_duplicate( mDataFlow.in() );
