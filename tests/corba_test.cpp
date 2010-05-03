@@ -60,15 +60,34 @@ CorbaTest::setUp()
     t2->ports()->addPort( mdw2 );
     tc->ports()->addPort( mb1 );
     t2->ports()->addPort( mb2 );
+
+    ts = 0;
+    ts2 = 0;
+    tp = 0;
+    tp2 = 0;
 }
 
 
 void
 CorbaTest::tearDown()
 {
-    //delete tc;
-    //delete ts;
-    //delete tp;
+    delete md1;
+    delete md1bis;
+    delete md2;
+    delete mdr1;
+    delete mdr2;
+    delete mdw1;
+    delete mdw2;
+    delete mb1;
+    delete mb2;
+
+    Corba::ControlTaskServer::CleanupServer( tc );
+    delete tc;
+    //delete ts; //server is deleted by tc's destruction;
+    //delete ts2;
+    delete tp;
+    delete tp2;
+    delete t2;
 
 }
 
