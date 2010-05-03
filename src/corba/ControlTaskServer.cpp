@@ -39,6 +39,7 @@
 
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
+#include "CorbaService.hpp"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"
@@ -59,6 +60,7 @@
 
 #include "os/threads.hpp"
 #include "NonPeriodicActivity.hpp"
+#include "../Method.hpp"
 
 namespace RTT
 {namespace Corba
@@ -141,6 +143,11 @@ namespace RTT
             CORBA::Object_var obj = poa->id_to_reference( objId.in() );
             mtask = Corba::ControlTask::_narrow( obj.in() );
 
+            // Install service object that will delete us when the TC is deleted.
+            taskc->addObject( new CorbaService(taskc) );
+            taskc->getObject("corbaservice")->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, the_task),
+                                                                   "Shutdown CORBA ORB. This function makes RunOrb() return.");
+
             if ( use_naming ) {
                 CORBA::Object_var rootObj;
                 CosNaming::NamingContext_var rootNC;
@@ -152,7 +159,9 @@ namespace RTT
                 if (CORBA::is_nil( rootNC ) ) {
                     std::string  err("ControlTask '" + taskc->getName() + "' could not find CORBA Naming Service.");
                     if (require_name_service) {
+                        // prevents deletion of this: when calling removeObject below:
                         servers.erase(taskc);
+                        taskc->removeObject("corbaservice"); // deletes service.
                         log(Error) << err << endlog();
                         throw IllegalServer(err);
                     }
@@ -233,23 +242,20 @@ namespace RTT
     void ControlTaskServer::CleanupServers() {
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
-            ServerMap::iterator it = servers.begin();
             while ( !servers.empty() ){
-                delete servers.begin()->second;
-                // note: destructor will self-erase from map !
+                servers.begin()->first->removeObject("corbaservice");
+                // note: will call CleanupServer below !
             }
             log() << "Cleanup done."<<endlog();
         }
     }
 
     void ControlTaskServer::CleanupServer(TaskContext* c) {
-        if ( !CORBA::is_nil(orb) ) {
-            ServerMap::iterator it = servers.find(c);
-            if ( it != servers.end() ){
-                log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
-                delete it->second; // destructor will do the rest.
-                // note: destructor will self-erase from map !
-            }
+        if ( !CORBA::is_nil(orb) && c && servers.find(c) != servers.end() ) {
+            log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
+            delete servers[c];
+            servers.erase( c );
+            c->removeObject("corbaservice");
         }
     }
 

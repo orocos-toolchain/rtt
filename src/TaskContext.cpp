@@ -193,7 +193,10 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
-            mattributes.clear();
+
+            // clear here to give service objects a chance to see us in
+            // non destructed state.
+            OperationInterface::clear();
 
             delete mscriptAcc;
             delete mengAcc;

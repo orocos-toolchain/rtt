@@ -57,13 +57,10 @@ namespace RTT
 
     void OperationInterface::clear()
     {
-        Objects::const_iterator it = mobjects.begin();
-        while ( it != mobjects.end() ) {
-            if ( (*it)->getParent() == this )
-                delete *it;
-            ++it;
+        // this loop is written such that recursive removal of objects works.
+        while ( ! mobjects.empty() ) {
+            removeObject( mobjects.front()->getName() );
         }
-        mobjects.clear();
         mattributes.clear();
     }
 

@@ -241,8 +241,7 @@ Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::P
 {
     // Add the corba object to the interface:
     mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
-                                   "Shutdown CORBA ORB. This function makes RunOrb() return.");
-
+                                   "Shutdown CORBA ORB. This function makes RunOrb() return. DEPRECATED, use corbaservice.shutdown()");
 }
 
   void Orocos_ControlTask_i::shutdownCORBA() {
