@@ -41,12 +41,32 @@
 #include "Logger.hpp"
 #include "OperationsI.h"
 
+#include <os/StartStopManager.hpp>
+namespace RTT
+{
+    using namespace Corba;
+   namespace {
+       OS::CleanupFunction ECleanup( & ExpressionServer::CleanupExpressions );
+   }
+}
+
 namespace RTT
 {namespace Corba
 {
 
+    // this function is required to cleanup the EServers
+    void  ExpressionServer::CleanupExpressions()
+    {
+        log(Debug) << "Cleanup up Corba::ExpressionServer objects."<<endlog();
+        ExpressionServer::EServantRefs.clear();
+        ExpressionServer::EServants.clear();
+        ExpressionServer::EServers.clear();
+        ExpressionServer::AServers.clear();
+        ExpressionServer::MServers.clear();
+    }
 
 
+    std::vector<PortableServer::ServantBase_var> ExpressionServer::EServantRefs;
     ExpressionServer::EServantMap ExpressionServer::EServants;
     ExpressionServer::EServerMap ExpressionServer::EServers;
     ExpressionServer::AServerMap ExpressionServer::AServers;
@@ -63,6 +83,7 @@ namespace RTT
         Logger::log() <<Logger::Debug<< "Created 'Any' Expression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr, p );
         EServants[expr] = newexpr;
+        EServantRefs.push_back( newexpr );
         EServers[expr] = newexpr->_this();
         return Corba::Expression::_duplicate( EServers[expr] );
     }
@@ -80,6 +101,7 @@ namespace RTT
         Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr, p );
         AServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
+        EServantRefs.push_back( newexpr );
         EServers[expr] = Corba::Expression::_narrow(AServers[expr]);
         Corba::Expression_var ret = Corba::Expression::_duplicate( EServers[expr] );
         return ret._retn();
@@ -87,7 +109,7 @@ namespace RTT
 
     Corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr, MethodC* orig, PortableServer::POA_ptr p ) {
         // try to retrieve:
-        Corba::Method_ptr result = MServers[ expr ];
+        Corba::Method_var result = MServers[ expr ];
         if ( !CORBA::is_nil(result) )
             return Corba::Method::_duplicate(result);
         // create new:
@@ -97,6 +119,7 @@ namespace RTT
         Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( *orig, expr, p );
         MServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
+        EServantRefs.push_back( newexpr );
         EServers[expr] = Corba::Expression::_narrow(MServers[expr]);
         return Corba::Method::_duplicate( MServers[expr] );
     }

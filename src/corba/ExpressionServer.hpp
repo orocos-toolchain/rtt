@@ -46,6 +46,7 @@
 #else
 #include <omniORB4/poa.h>
 #endif
+#include <vector>
 #include "OperationsC.h"
 #include "../DataSourceBase.hpp"
 
@@ -66,14 +67,17 @@ namespace RTT
     {
     protected:
         typedef std::map<DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;
-        typedef std::map<DataSourceBase::const_ptr, Corba::Expression_ptr > EServerMap;
-        typedef std::map<DataSourceBase::shared_ptr, Corba::AssignableExpression_ptr> AServerMap;
-        typedef std::map<DataSourceBase::shared_ptr, Corba::Method_ptr> MServerMap;
+        typedef std::map<DataSourceBase::const_ptr, Corba::Expression_var > EServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Corba::AssignableExpression_var> AServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Corba::Method_var> MServerMap;
 
         /**
          * All created servants end up in this map.
          */
         static EServantMap EServants;
+
+        // keeps refcounts to all servants:
+        static std::vector<PortableServer::ServantBase_var> EServantRefs;
 
         /**
          * All created Expressions (or subclasses) end up in this map.
@@ -124,6 +128,13 @@ namespace RTT
          * The old DataSource becomes 'unserved' and may thus become available for clean-up.
          */
         static void copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
+
+        /**
+         * Removes all cached Expression servers.
+         * Any future client call to such a server will result in
+         * a CORBA exception.
+         */
+        static void CleanupExpressions();
     };
 
 }}
