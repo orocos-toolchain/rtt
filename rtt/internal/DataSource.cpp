@@ -130,6 +130,10 @@ namespace RTT {
         return vector<string>();
     }
 
+    DataSourceBase::shared_ptr DataSourceBase::getParent() {
+        return this;
+    }
+
     template<>
     bool DataSource<bool>::evaluate() const
     {

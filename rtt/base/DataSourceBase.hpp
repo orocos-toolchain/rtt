@@ -177,7 +177,7 @@ namespace RTT
        * data source. The part_name uses dots to delve into sub-parts,
        * for example, if this data source contains a frame, the x coordinate
        * of the position of that frame could be described as "pos.x". Or in
-       * case the 'pos' member was an array, where x is the zero'th argument, 
+       * case the 'pos' member was an array, where x is the zero'th argument,
        * it could be retrieved by using "pos.0".
        * @param part_name The name of the part to get access to.
        * @return null if the part does not exist, this if part_name.empty(),
@@ -190,6 +190,12 @@ namespace RTT
        * list if none.
        */
       virtual std::vector<std::string> getPartNames() const;
+
+      /**
+       * Returns the top level data source that contains the full data structure
+       * this data source refers to. Defaults to returning \a this.
+       */
+      virtual shared_ptr getParent();
 
       /**
        * Return a shallow clone of this DataSource. This method

@@ -1,5 +1,5 @@
-#ifndef ORO_PARTDATASOURCE_HPP_
-#define ORO_PARTDATASOURCE_HPP_
+#ifndef ORO_OFFSETPARTDATASOURCE_HPP_
+#define ORO_OFFSETPARTDATASOURCE_HPP_
 
 namespace RTT
 {
@@ -25,7 +25,7 @@ namespace RTT
 
             /**
              * The offset is size times the index plus any parent offset.
-             * @param size   The size of the parent element.
+             * @param size   The size of the element referenced to by index.
              * @param index  Datasource pointing to the index for use in operator[]
              * @param parent_offset The offset to which the parent may be subject itself.
              */
@@ -36,7 +36,7 @@ namespace RTT
             {
             }
 
-            typename DataSource<offset_type>::result_t get() const
+            DataSource<offset_type>::result_t get() const
             {
                 // calculates the location of the element sequence.
                 if (mparent_offset)
@@ -44,25 +44,25 @@ namespace RTT
                 return msize * mindex->get();
             }
 
-            typename DataSource<T>::result_t value() const
+            DataSource<offset_type>::result_t value() const
             {
                 return get();
             }
 
-            virtual OffsetDataSource<T>* clone() const {
-                return new OffsetDataSource<T>(msize, mindex, mparent_offset);
+            virtual OffsetDataSource* clone() const {
+                return new OffsetDataSource(msize, mindex, mparent_offset);
             }
 
-            virtual OffsetDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const {
+            virtual OffsetDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const {
                 // if somehow a copy exists, return the copy, otherwise return this (see Attribute copy)
                 if ( replace[this] != 0 ) {
-                    assert ( dynamic_cast<OffsetDataSource<T>*>( replace[this] ) == static_cast<OffsetDataSource<T>*>( replace[this] ) );
-                    return static_cast<OffsetDataSource<T>*>( replace[this] );
+                    assert ( dynamic_cast<OffsetDataSource*>( replace[this] ) == static_cast<OffsetDataSource*>( replace[this] ) );
+                    return static_cast<OffsetDataSource*>( replace[this] );
                 }
                 // Other pieces in the code rely on insertion in the map :
-                replace[this] = new OffsetDataSource<T>(msize, mindex->copy(replace), mparent_offset->copy(replace));
+                replace[this] = new OffsetDataSource(msize, mindex->copy(replace), mparent_offset->copy(replace));
                 // return this instead of a copy.
-                return static_cast<OffsetDataSource<T>*>(replace[this]);
+                return static_cast<OffsetDataSource*>(replace[this]);
 
             }
         private:
@@ -78,10 +78,14 @@ namespace RTT
          * A DataSource which is used to manipulate a reference to a
          * part of a data source holding a sequence of elements.
          *
-         * This data source only works on a fixed reference in memory of
-         * a given data sequence. In case the sequence's place in memory
-         * varies, you need the OffsetPartDataSource, which can access
-         * an element at any offset from a given memory location.
+         * It supports referencing to elements of sequences in sequences.
+         *
+         * It requires to know which 'top level' element it is reading
+         * parts of, this is called the \a parent. It also requires proper
+         * offset calculation which takes into account a shift in memory
+         * location in case the one of the higher level elements is also a
+         * sequence. The offset calculation is done by an OffsetDataSource.
+         *
          *
          * @param T The data type of an element.
          */
@@ -107,7 +111,7 @@ namespace RTT
              * an index for accessing the n'th element.
              * @param ref    Reference to the first element of the sequence
              * @param index  Datasource pointing to the index for use in operator[]
-             * @param parent Parent data source for sending updated() messages. This should not be a part itself. May be null.
+             * @param parent Parent data source for sending updated() messages. This should not be a part itself, but a ValueDataSource. May \b not be null.
              * @param offset The offset to the requested element, relative to \a ref, to use in calls to set() and get().
              */
             OffsetPartDataSource( typename AssignableDataSource<T>::reference_t ref,
@@ -148,18 +152,17 @@ namespace RTT
             }
 
             void updated() {
-                if (mparent) mparent->updated();
+                mparent->updated();
             }
 
             /**
              * Overloaded to pass on our own parent to the type system,
              * such that offsets can be correctly calculated.
              *
-             * @param part_name
-             * @return
+             * @return The parent object that holds all data.
              */
-            virtual shared_ptr getPart( const std::string& part_name) {
-                assert(false);
+            virtual shared_ptr getParent() {
+                return mparent;
             }
 
 
