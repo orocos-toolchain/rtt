@@ -236,7 +236,7 @@ IF (BUILD_TESTING)
 	ADD_UNIT_TEST(property_marsh_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
     ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(type_archive_test ORO_EXTRA_TESTS "")
+    ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "")
     ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "")
     
     ADD_CUSTOM_TARGET(check ctest -V

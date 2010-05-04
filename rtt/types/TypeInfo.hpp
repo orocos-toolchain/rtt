@@ -174,7 +174,7 @@ namespace RTT
          */
         virtual std::vector<std::string> getPartNames() const;
 
-        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name);
+        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const;
         /**
          * Decompose a structure as basic components into a PropertyBag.
          * @retval true decomposition resulted in new types added to targetbag.

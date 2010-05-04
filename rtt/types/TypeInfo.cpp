@@ -160,7 +160,7 @@ namespace RTT
         return vector<string>();
     }
 
-    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, const std::string& part_name)
+    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, const std::string& part_name) const
     {
         /** ** Strong typed data **
          *
@@ -175,6 +175,7 @@ namespace RTT
          * set frame["tool"].pos = vector(a,b,c); // getPart("tool") xx
          * set frame[arg].pos = vector(a,b,c);// getPart( arg )->getPart("pos")
          */
+        log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
         if ( part_name.empty() )
             return item;
         else

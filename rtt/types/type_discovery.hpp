@@ -1,5 +1,5 @@
-#ifndef TYPE_DATA_ARCHIVE_HPP_
-#define TYPE_DATA_ARCHIVE_HPP_
+#ifndef TYPE_DISCOVERY_HPP_
+#define TYPE_DISCOVERY_HPP_
 
 // (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // (C) Copyright 2009 Peter Soetens - http://www.thesourceworks.com .
@@ -11,7 +11,7 @@
 
 
 /**
- * @file type_data_archive.hpp
+ * @file type_discovery.hpp
  *
  * This file implements a 'level 2' type archiver of serializable objects
  * and uses the standard BOOST serialization API for reading structures.
@@ -49,7 +49,7 @@ namespace RTT
          * This archive is capable of decomposing objects of serialization level 1 and 2
          * into part data sources.
          */
-        class type_data_archive
+        class type_discovery
         {
         public:
             /**
@@ -80,18 +80,33 @@ namespace RTT
             typedef boost::mpl::bool_<false> is_saving;
 
             /**
-             * Constructor
+             * Constructor which inspects part names and creates
+             * part data sources.
              */
-            type_data_archive(base::DataSourceBase::shared_ptr parent) :
+            type_discovery(base::DataSourceBase::shared_ptr parent) :
                 mparent(parent)
+            {
+            }
+
+            /**
+             * Constructor which only introspects the part names.
+             * No parts will be created.
+             */
+            type_discovery() :
+                mparent()
             {
             }
 
             DataSourceBase::shared_ptr getPart(const std::string name) {
                 PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
-                if ( it != mnames.end() )
+                if ( it != mnames.end() && mparts.size() == mnames.size() )
                     return mparts.at( it - mnames.begin() );
                 return DataSourceBase::shared_ptr();
+            }
+
+            template<class T>
+            void discover( T& t) {
+                boost::archive::detail::load_non_pointer_type<type_discovery,T>::load_only::invoke(*this,t);
             }
 
             /**
@@ -137,7 +152,7 @@ namespace RTT
              * @return *this
              */
             template<class T>
-            type_data_archive &operator>>(T &t)
+            type_discovery &operator>>(T &t)
             {
                 return load_a_type(t, boost::mpl::bool_<boost::serialization::implementation_level<T>::value == boost::serialization::primitive_type>());
             }
@@ -148,7 +163,7 @@ namespace RTT
              * @return *this
              */
             template<class T>
-            type_data_archive &operator&(T &t)
+            type_discovery &operator&(T &t)
             {
                 return this->operator>>(t);
             }
@@ -159,10 +174,11 @@ namespace RTT
              * @return *this
              */
             template<class T>
-            type_data_archive &load_a_type(T &t, boost::mpl::true_)
+            type_discovery &load_a_type(T &t, boost::mpl::true_)
             {
                 // stores the part
-                mparts.push_back(new internal::PartDataSource<T> (t, mparent));
+                if (mparent)
+                    mparts.push_back(new internal::PartDataSource<T> (t, mparent));
                 return *this;
             }
 
@@ -172,9 +188,10 @@ namespace RTT
              * @return *this
              */
             template<class T>
-            type_data_archive &load_a_type(T &t, boost::mpl::false_)
+            type_discovery &load_a_type(T &t, boost::mpl::false_)
             {
-                mparts.push_back(new internal::PartDataSource<T> (t, mparent));
+                if (mparent)
+                    mparts.push_back(new internal::PartDataSource<T> (t, mparent));
                 return *this;
             }
 
@@ -184,9 +201,10 @@ namespace RTT
              * @return *this
              */
             template<class T>
-            type_data_archive &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
+            type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
             {
-                mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                if (mparent)
+                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
                 // probably not necessary:
                 //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
                 return *this;
@@ -199,7 +217,7 @@ namespace RTT
              * @return
              */
             template<class T>
-            type_data_archive &load_a_type(T* &, boost::mpl::false_)
+            type_discovery &load_a_type(T* &, boost::mpl::false_)
             {
                 //pointers can not be serialized.
                 //BOOST_STATIC_ASSERT( boost::mpl::false_ );
@@ -208,7 +226,7 @@ namespace RTT
 
             //! special treatment for name-value pairs.
             template<class T>
-            type_data_archive &load_a_type(const boost::serialization::nvp<T> & t, boost::mpl::false_)
+            type_discovery &load_a_type(const boost::serialization::nvp<T> & t, boost::mpl::false_)
             {
                 // store name of member
                 mnames.push_back( t.name() );
@@ -222,4 +240,4 @@ namespace RTT
     }
 }
 
-#endif /* TYPE_DATA_ARCHIVE_HPP_ */
+#endif /* TYPE_DISCOVERY_HPP_ */
