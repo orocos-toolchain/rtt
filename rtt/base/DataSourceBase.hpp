@@ -180,14 +180,25 @@ namespace RTT
        * case the 'pos' member was an array, where x is the zero'th argument,
        * it could be retrieved by using "pos.0".
        * @param part_name The name of the part to get access to.
-       * @return null if the part does not exist, this if part_name.empty(),
+       * @return null if the part does not exist, \a this if part_name.empty(),
        * and a reference data source to the part otherwise.
        */
       virtual shared_ptr getPart( const std::string& part_name);
 
       /**
+       * Same as above, but with run-time lookup of the part to use.
+       * Also takes an optional offset argument which can be used to offset
+       * the part in memory. This is necessary when using sequences of sequences.
+       * DataSources which are a sequence/offset part themselves must override this function to
+       * let the returned part take the offset into account.
+       */
+      virtual shared_ptr getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset);
+
+      /**
        * Returns the possible part names of this data source, or an empty
        * list if none.
+       * If this data source is a sequence, it will not return the allowed
+       * index numbers.
        */
       virtual std::vector<std::string> getPartNames() const;
 

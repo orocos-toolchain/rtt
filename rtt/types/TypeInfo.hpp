@@ -174,7 +174,23 @@ namespace RTT
          */
         virtual std::vector<std::string> getPartNames() const;
 
+        /**
+         * Returns a part of a given item identified by its name.
+         * @param item The item of which to return a part
+         * @param name The name of a part within \a item
+         * @return null if no such part exists, an assignable datasource referencing that part otherwise.
+         */
         virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const;
+
+        /**
+         * Returns a part of a given item identified by a data source id.
+         * @param item The item of which to return a part
+         * @param name Or a string containing the name of a part, Or an unsigned int containing the
+         * index of the item to retrieve.
+         */
+        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
+                                                         base::DataSourceBase::shared_ptr id) const;
+
         /**
          * Decompose a structure as basic components into a PropertyBag.
          * @retval true decomposition resulted in new types added to targetbag.

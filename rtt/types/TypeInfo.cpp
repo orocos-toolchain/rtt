@@ -181,4 +181,23 @@ namespace RTT
         else
             return DataSourceBase::shared_ptr();
     }
+
+    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, DataSourceBase::shared_ptr id) const
+    {
+        /** ** Strong typed data **
+         *
+         * for( set i = 0; i <=10; set i = i + 1) {
+         *      value[i] = i; // sequence index, runtime structure
+         *      value.i  = i; // part name, browse static structure
+         * }
+         * set frame.pos = vector(a,b,c);     // getPart("pos")
+         * set frame.pos[3] = vector(a,b,c);  // getPart("pos")->getPart(3)
+         * set frame[3].pos = vector(a,b,c);  // getPart(3)->getPart("pos")
+         * set frame[i].pos = vector(a,b,c);  // getPart( $i )->getPart("pos")
+         * set frame["tool"].pos = vector(a,b,c); // getPart("tool") xx
+         * set frame[arg].pos = vector(a,b,c);// getPart( arg )->getPart("pos")
+         */
+        log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
+        return DataSourceBase::shared_ptr();
+    }
 }

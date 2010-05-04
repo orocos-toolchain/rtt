@@ -19,9 +19,6 @@ namespace RTT
         class TemplateStructInfo: public TemplateTypeInfo<T, has_ostream>
         {
         public:
-            using TemplateTypeInfo<T, has_ostream>::buildConstant;
-            using TemplateTypeInfo<T, has_ostream>::buildVariable;
-
             TemplateStructInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
@@ -38,7 +35,6 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename AssignableDataSource<T>::shared_ptr data = AssignableDataSource<T>::narrow( item.get() );
                 if ( !data ) {
-                    log(Error) << "No such part: " << name << endlog();
                     return base::DataSourceBase::shared_ptr();
                 }
                 type_discovery in( item );

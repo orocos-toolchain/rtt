@@ -124,6 +124,10 @@ namespace RTT {
         return getTypeInfo()->getPart( getParent(), part_name );
     }
 
+    DataSourceBase::shared_ptr DataSourceBase::getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset) {
+        return getTypeInfo()->getPart( this, part_id );
+    }
+
     vector<string> DataSourceBase::getPartNames() const {
         return getTypeInfo()->getPartNames();
     }

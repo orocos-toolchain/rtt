@@ -11,6 +11,7 @@
 
 #include "datasource_fixture.hpp"
 #include "types/TemplateStructInfo.hpp"
+#include "types/TemplateCArrayInfo.hpp"
 
 using namespace boost::lambda;
 using namespace boost::archive;
@@ -134,6 +135,9 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_REQUIRE( ai );
     BOOST_REQUIRE( vd );
 
+    BOOST_CHECK( !out.getPart("zort") );
+
+
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
     BOOST_CHECK_EQUAL( b->get(), atype->get().b );
@@ -191,6 +195,8 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     BOOST_REQUIRE( ai );
     BOOST_REQUIRE( vd );
 
+    BOOST_CHECK( !atype->getPart("zort") );
+
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
     BOOST_CHECK_EQUAL( b->get(), atype->get().b );
@@ -202,6 +208,52 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     a->set(10);
     BOOST_CHECK_EQUAL( a->get(), 10 );
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
+}
+
+
+// Test the TemplateCArrayInfo for ints
+BOOST_AUTO_TEST_CASE( testCTypeArray )
+{
+    Types()->addType( new TemplateCArrayInfo< carray<int> >("cints") );
+    int tester[3] = { 3, 2, 1 };
+
+    AssignableDataSource< carray<int> >::shared_ptr atype = new ValueDataSource< carray<int> >( carray<int>(tester, 5) );
+
+    BOOST_REQUIRE( Types()->type("cints") );
+
+    // check the part names lookup:
+    vector<string> names = atype->getPartNames();
+    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
+
+    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
+    cout <<endl;
+
+    BOOST_REQUIRE_EQUAL( names.size(), 2);
+    BOOST_REQUIRE( atype->getPart("0") );
+
+    // Check individual part lookup by index:
+    AssignableDataSource<int>::shared_ptr a0 = AssignableDataSource<int>::narrow( atype->getPart("0").get() );
+    AssignableDataSource<int>::shared_ptr a1 = AssignableDataSource<int>::narrow( atype->getPart("1").get() );
+    AssignableDataSource<int>::shared_ptr a2 = AssignableDataSource<int>::narrow( atype->getPart("2").get() );
+
+    BOOST_REQUIRE( a0 );
+    BOOST_REQUIRE( a1 );
+    BOOST_REQUIRE( a2 );
+
+    BOOST_CHECK( !atype->getPart("zort") );
+
+    // Check reading parts (must equal parent)
+    BOOST_CHECK_EQUAL( a0->get(), tester[0] );
+    BOOST_CHECK_EQUAL( a1->get(), tester[1] );
+    BOOST_CHECK_EQUAL( a2->get(), tester[2] );
+
+    // Check writing a part (must change in parent too).
+    a0->set(30);
+    a1->set(20);
+    a2->set(10);
+    BOOST_CHECK_EQUAL( a0->get(), tester[0] );
+    BOOST_CHECK_EQUAL( a1->get(), tester[1] );
+    BOOST_CHECK_EQUAL( a2->get(), tester[2] );
 }
 
 
