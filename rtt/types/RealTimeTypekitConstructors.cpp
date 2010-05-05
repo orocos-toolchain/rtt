@@ -40,7 +40,7 @@
 #include "rtt-config.h"
 #include "RealTimeToolkit.hpp"
 #include "Types.hpp"
-#include "TemplateTypeInfo.hpp"
+#include "TemplateConstructor.hpp"
 #include "../internal/DataSources.hpp"
 #include "../internal/mystd.hpp"
 #include "../rtt-fwd.hpp"
