@@ -121,7 +121,7 @@ namespace RTT {
     DataSourceBase::shared_ptr DataSourceBase::getPart( const std::string& part_name ) {
         if ( part_name.empty() )
             return DataSourceBase::shared_ptr(this);
-        return getTypeInfo()->getPart( getParent(), part_name );
+        return getTypeInfo()->getPart( this, part_name );
     }
 
     DataSourceBase::shared_ptr DataSourceBase::getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset) {
