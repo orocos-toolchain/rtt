@@ -53,7 +53,7 @@ namespace RTT
         }; // normal type
 
         template<class T>
-        struct DSWrap<T, typename boost::enable_if< boost::is_base_and_derived<base::DataSourceBase,T> >::type > {
+        struct DSWrap<T, typename boost::enable_if< boost::is_base_of<base::DataSourceBase, typename boost::remove_pointer<T>::type > >::type > {
             base::DataSourceBase::shared_ptr operator()(T t) { return t; }
         }; // datasource type
 
