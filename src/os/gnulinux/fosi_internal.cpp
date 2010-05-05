@@ -100,6 +100,11 @@ namespace RTT
 	    if ( (rv = pthread_attr_setschedpolicy(&(task->attr), sched_type)) != 0){
             return rv;
 	    }
+        // Set stack size
+        if (stack_size )
+            if ( (rv = pthread_attr_setstacksize(&(task->attr), stack_size)) != 0){
+                return rv;
+            }
         pthread_attr_getschedpolicy(&(task->attr), &rv );
         assert( rv == sched_type );
 	    /* SCHED_OTHER tasks are always assigned static priority 0, see
