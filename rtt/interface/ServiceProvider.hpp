@@ -7,6 +7,7 @@
 #include "../internal/LocalMethod.hpp"
 #include "../internal/MethodC.hpp"
 #include "../internal/UnMember.hpp"
+#include "../internal/GetSignature.hpp"
 
 #include "AttributeRepository.hpp"
 #include "../Operation.hpp"
@@ -232,15 +233,6 @@ namespace RTT
         }
 
         /**
-         * Returns a function signature from a C++ member function.
-         * This is a public helper struct for addOperation.
-         */
-        template<class FunctionT>
-        struct GetSignature {
-            typedef typename internal::UnMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
-        };
-
-        /**
          * Add an operation to the interface by means of a function.
          * The function \a func may be a \a free function (a 'C' function) or
          * an object member function, in which case serv may not be null
@@ -255,10 +247,10 @@ namespace RTT
          * @return A newly created operation object, which you may further document or query.
          */
         template<class Func, class Service>
-        Operation< typename GetSignature<Func>::Signature >&
+        Operation< typename internal::GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
         {
-            typedef typename GetSignature<Func>::Signature Signature;
+            typedef typename internal::GetSignature<Func>::Signature Signature;
             Operation<Signature>* op = new Operation<Signature>(name);
             op->calls(func, serv, et);
             if ( this->addLocalOperation( *op ) == false ) {
@@ -272,25 +264,15 @@ namespace RTT
         }
 
         /**
-         * Returns a function signature from a C++ member function
-         * suitable for DS operations
-         * This is a public helper struct for addOperationDS.
-         */
-        template<class FunctionT>
-        struct GetSignatureDS {
-            typedef typename internal::ArgMember< typename boost::remove_pointer<FunctionT>::type >::type Signature;
-        };
-
-        /**
          * For internal use only. The pointer of the object of which a member function
          * must be invoked is stored in a internal::DataSource such that the pointer can change
          * during program execution. Required in scripting for state machines.
          */
         template<class Func,class ObjT>
-        Operation< typename GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::shared_ptr<ObjT> >* sp,
+        Operation< typename internal::GetSignatureDS<Func>::Signature>& addOperationDS( const std::string& name, Func func, internal::DataSource< boost::shared_ptr<ObjT> >* sp,
                 ExecutionThread et = ClientThread)
         {
-            typedef typename GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
+            typedef typename internal::GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
             Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
             op->calls(func);
             if ( this->addLocalOperation( *op ) == false ) {

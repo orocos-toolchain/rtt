@@ -316,7 +316,7 @@ namespace RTT
         }
 
         template<class Func, class Service>
-        Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
+        Operation< typename internal::GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
         {
             return tcservice->addOperation(name,func, serv, et);
