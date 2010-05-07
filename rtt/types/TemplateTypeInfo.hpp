@@ -49,6 +49,8 @@
 #include "../internal/CreateSequence.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include "../rtt-config.h"
 
@@ -238,7 +240,11 @@ namespace RTT
 
         base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
         {
-            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            typename internal::AssignableDataSource<T>::shared_ptr ads = internal::AdaptAssignableDataSource<T>()( in ); // no type conversion is done.
+            if ( ads )
+                return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
+
+            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( in ); // no type conversion is done.
             if ( ! ds )
                 return 0;
             return new internal::ActionAliasDataSource<T>(action, ds.get());
@@ -262,6 +268,11 @@ namespace RTT
         }
         virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
             return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
+        }
+
+        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
+            log(Debug) << tname <<": Trying to make " << arg->getType() <<" assignable..."<<endlog();
+            return internal::AdaptAssignableDataSource<T>()(arg);
         }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {

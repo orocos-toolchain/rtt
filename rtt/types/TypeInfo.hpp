@@ -99,6 +99,14 @@ namespace RTT
         virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
 
         /**
+         * Returns an assignable data source that uses arg as a store. This can only be done if
+         * arg is an assignable data source itself or is a data source that returns a reference in get().
+         * @return a new assignable data source, or \a arg if arg is assignable, or \a null if arg could
+         * not be used for assignment.
+         */
+        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const = 0;
+
+        /**
          * Add a constructor/convertor object.
          */
         virtual void addConstructor(TypeBuilder* tb);
@@ -131,6 +139,8 @@ namespace RTT
 
         /**
          * Returns a DataSource that first executes an action and returns the result of another data source.
+         * If \a source is an AssignableDataSource, an AssignableDataSource is returned of the same type, otherwise,
+         * a plain DataSource is returned.
          */
         virtual base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr source) const = 0;
         /** @} */

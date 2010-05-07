@@ -56,6 +56,7 @@ void serialize(Archive & ar, BType & g, const unsigned int version)
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  TypeArchiveTestSuite,  TypeArchiveTest )
 
+#if 1
 // Test writing an AType data sample into a type data archive
 BOOST_AUTO_TEST_CASE( testATypeDiscovery )
 {
@@ -69,8 +70,8 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
     BOOST_CHECK_EQUAL( out.mparts.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparent, atype);
 
-    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
-    cout <<endl;
+//    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( out.mparts.size(), 5);
 
@@ -119,8 +120,8 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_CHECK_EQUAL( out.mparts.size(), 5 );
     BOOST_CHECK_EQUAL( out.mparent, atype);
 
-    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
-    cout <<endl;
+//    for_each( out.mnames.begin(), out.mnames.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( out.mparts.size(), 5);
 
@@ -177,8 +178,8 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     vector<string> names = atype->getPartNames();
     BOOST_CHECK_EQUAL( atype->getPartNames().size(), 5 );
 
-    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-    cout <<endl;
+//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 5);
     BOOST_REQUIRE( atype->getPart("a") );
@@ -226,8 +227,8 @@ BOOST_AUTO_TEST_CASE( testCTypeArray )
     vector<string> names = atype->getPartNames();
     BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
 
-    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-    cout <<endl;
+//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
     BOOST_REQUIRE( atype->getPart("0") );
@@ -274,8 +275,8 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     vector<string> names = atype->getPartNames();
     BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
 
-    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
-    cout <<endl;
+//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
     BOOST_REQUIRE( atype->getPart("0") );
@@ -288,6 +289,70 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     DataSource<int>::shared_ptr cap = AdaptDataSource<int>()( atype->getPart("capacity").get() );
 
     BOOST_REQUIRE( a0 );
+    BOOST_REQUIRE( a1 );
+    BOOST_REQUIRE( a2 );
+    BOOST_REQUIRE( siz );
+    BOOST_REQUIRE( cap );
+
+    BOOST_CHECK( !atype->getPart("zort") );
+
+    // Check reading parts (must equal parent)
+    BOOST_CHECK_EQUAL( a0->get(), tester[0] );
+    BOOST_CHECK_EQUAL( a1->get(), tester[1] );
+    BOOST_CHECK_EQUAL( a2->get(), tester[2] );
+
+    // Check modifying size/capacity.
+    tester.reserve(33);
+    BOOST_CHECK_EQUAL( cap->get(), tester.capacity() );
+
+    tester.push_back(4);
+    tester.push_back(5);
+    tester.push_back(6);
+    BOOST_CHECK_EQUAL( siz->get(), tester.size() );
+
+
+    // Check writing a part (must change in parent too).
+    a0->set(30);
+    a1->set(20);
+    a2->set(10);
+    BOOST_CHECK_EQUAL( a0->get(), tester[0] );
+    BOOST_CHECK_EQUAL( a1->get(), tester[1] );
+    BOOST_CHECK_EQUAL( a2->get(), tester[2] );
+}
+#endif
+
+// Test the TemplateContainerInfo for chars (std::string)
+BOOST_AUTO_TEST_CASE( testStringContainerType )
+{
+    Types()->addType( new TemplateContainerInfo< std::string >("chars") );
+    string tester = "tester";
+
+    AssignableDataSource< string >::shared_ptr atype = new ReferenceDataSource< string >( tester );
+
+    BOOST_REQUIRE( Types()->type("chars") == atype->getTypeInfo() );
+
+    // check the part names lookup:
+    vector<string> names = atype->getPartNames();
+    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
+
+//    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
+//    cout <<endl;
+
+    BOOST_REQUIRE_EQUAL( names.size(), 2);
+    BOOST_REQUIRE( atype->getPart("0") );
+
+    // test use of 'getAssignable()' to narrow:
+    DataSourceBase::shared_ptr ds0 = atype->getPart("0");
+    BOOST_REQUIRE( ds0 );
+    AssignableDataSource<char>::shared_ptr a0 = AssignableDataSource<char>::narrow( ds0->getTypeInfo()->getAssignable( ds0 ).get() );
+    BOOST_REQUIRE( a0 );
+
+    // Check individual part lookup by index:
+    AssignableDataSource<char>::shared_ptr a1 = AdaptAssignableDataSource<char>()( atype->getPart("1").get() );
+    AssignableDataSource<char>::shared_ptr a2 = AdaptAssignableDataSource<char>()( atype->getPart("2").get() );
+    DataSource<int>::shared_ptr siz = AdaptDataSource<int>()( atype->getPart("size").get() );
+    DataSource<int>::shared_ptr cap = AdaptDataSource<int>()( atype->getPart("capacity").get() );
+
     BOOST_REQUIRE( a1 );
     BOOST_REQUIRE( a2 );
     BOOST_REQUIRE( siz );

@@ -97,11 +97,11 @@ namespace RTT
             {
             }
 
-            DataSourceBase::shared_ptr getPart(const std::string name) {
+            base::DataSourceBase::shared_ptr getPart(const std::string name) {
                 PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
                 if ( it != mnames.end() && mparts.size() == mnames.size() )
                     return mparts.at( it - mnames.begin() );
-                return DataSourceBase::shared_ptr();
+                return base::DataSourceBase::shared_ptr();
             }
 
             template<class T>
@@ -204,7 +204,7 @@ namespace RTT
             type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
             {
                 if (mparent)
-                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                    mparts.push_back(new internal::PartDataSource< internal::carray<T> > ( internal::carray<T>(t), mparent) );
                 // probably not necessary:
                 //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
                 return *this;

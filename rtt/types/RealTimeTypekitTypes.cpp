@@ -50,6 +50,7 @@
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
 #include "VectorComposition.hpp"
+#include "TemplateContainerInfo.hpp"
 #include <ostream>
 
 
@@ -98,10 +99,10 @@ namespace RTT
      * Standard strings don't need decomposition.
      */
     struct StdStringTypeInfo
-        : public TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >
+        : public TemplateContainerInfo<std::string,true>
     {
         StdStringTypeInfo()
-            : TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string")
+            : TemplateContainerInfo<std::string,true>("string")
         {}
 
         base::AttributeBase* buildVariable(std::string name,int size) const

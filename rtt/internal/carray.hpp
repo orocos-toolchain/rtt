@@ -6,7 +6,7 @@
 
 namespace RTT
 {
-    namespace types {
+    namespace internal {
 
         /**
          * Wraps a C array such that we can return a C array
