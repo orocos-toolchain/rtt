@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     BOOST_CHECK( str.get().capacity() == 10 );
 
     // copy str to target and check:
-    ActionInterface* act = copy.getDataSource()->updateCommand( str.getDataSource().get() );
+    ActionInterface* act = copy.getDataSource()->updateAction( str.getDataSource().get() );
     BOOST_CHECK( act );
     act->readArguments();
     BOOST_CHECK( act->execute() );
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     copy.set() = "world";
 
     // now copy target back to str and check if capacity remains:
-    act = str.getDataSource()->updateCommand( copy.getDataSource().get() );
+    act = str.getDataSource()->updateAction( copy.getDataSource().get() );
     BOOST_CHECK( act );
     act->readArguments();
     BOOST_CHECK( act->execute() );
