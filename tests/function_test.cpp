@@ -106,15 +106,18 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
 BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 {
     string prog = string("export function foo { \n")
+//                + "   test.print(\"foo()\")\n"
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
         + "export int foo_ret(double d) { \n"
+//        + "   test.printNumber(\"foo_ret(double d), d is: \", d)\n"
         + "   if (true) then\n"
         + "     return 3\n"
         + "   else\n"
         + "     return 5\n"
         + "}\n"
         + "export int foo_args(double d, int v) { \n"
+//        + " test.printNumber(\"foo_args(double d, int v) v is: \", v)\n"
         + " var double r = 10\n"
         + " if ( d == 3.0 && v == 6) then\n"
         + "     set r = +1\n"
@@ -144,7 +147,7 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
     // bug: the first return value is returned also the second time !
     // it's like foo_args is called only the first time.
     i = 0;
-    i = foo_args(0, 0);
+    i = foo_args(-3.0, -6);
     BOOST_CHECK_EQUAL( i, -1);
 
     i = 0;

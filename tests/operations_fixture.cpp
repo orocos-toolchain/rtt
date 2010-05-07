@@ -35,9 +35,14 @@ void OperationsFixture::createMethodFactories(TaskContext* target)
     dat->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
     dat->addOperation("assertEqual", &OperationsFixture::assertEqual, this);
     dat->addOperation("increase", &OperationsFixture::increase, this).doc("Return increasing i");
+    dat->addOperation("increaseCmd", &OperationsFixture::increase, this, OwnThread).doc("Return increasing i");
     dat->addOperation("resetI", &OperationsFixture::resetI, this).doc("ResetI i");
     dat->addOperation("assertMsg", &OperationsFixture::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
-    dat->addOperation("isTrue", &OperationsFixture::assertBool, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("isTrue", &OperationsFixture::isTrue, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("fail", &OperationsFixture::fail, this).doc("Fails by throwing.");
+    dat->addOperation("good", &OperationsFixture::good, this).doc("Returns true.");
+    dat->addOperation("print", &OperationsFixture::print, this).doc("Print message");
+    dat->addOperation("printNumber", &OperationsFixture::printNumber, this).doc("Print message + number");
     target->provides()->addService( dat );
 
     ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");

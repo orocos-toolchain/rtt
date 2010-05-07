@@ -31,6 +31,7 @@
 #include <Method.hpp>
 #include <Port.hpp>
 #include <scripting/ScriptingService.hpp>
+#include "operations_fixture.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -44,10 +45,10 @@ using namespace RTT::detail;
 using namespace std;
 
 class StateTest
+    : public OperationsFixture
 {
 public:
     Parser parser;
-    TaskContext gtc;
     InputPort<double> d_event;
     InputPort<bool>   b_event;
     InputPort<int>    t_event;
@@ -55,85 +56,43 @@ public:
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
     ScriptingService* sa;
-    //Event<void(void)> t_event;
-    ServiceProvider::shared_ptr createObject(std::string);
-    bool assertBool( bool b) { return b; }
-    bool assertMsg( bool b, const std::string& msg) {
-        if ( b == false )
-            cout << "Asserted :" << msg << endl;
-        return true; // allow to continue to check other commands.
-    }
+
     void log(const std::string& msg) {
         Logger::log(Logger::Info) << msg << endlog();
     }
-    int increase() { return ++i;}
-    void resetI() { i = 0; }
     void doState( const std::string& prog, TaskContext*, bool test=true );
     void finishState( TaskContext* , std::string, bool test=true );
 
-    bool true_genCom() { return true; }
-    bool false_genCom() { return false; }
-    bool true_gen() const { return true; }
-    bool false_gen() const { return false; }
-
-    bool bool_gen( bool b ) const { return b; }
-    int getI() const {return i;}
-    int i;
     std::string sline;
 public:
     StateTest()
-        :gtc("root"),
+        :
          d_event("d_event"), b_event("b_event"), t_event("t_event"),
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
-         sa( new ScriptingService(&gtc) )
+         sa( new ScriptingService(tc) )
     {
-        gtc.setActivity( new SimulationActivity(0.001) );
+        tc->stop();
+        tc->setActivity( new SimulationActivity(0.001) );
 
-        // ltc has a test object
-        gtc.provides()->addService(this->createObject("test") );
-
-        gtc.ports()->addPort( d_event );
-        gtc.ports()->addPort( b_event );
-        gtc.ports()->addPort( t_event );
-        gtc.ports()->addPort( d_event_source );
-        gtc.ports()->addPort( b_event_source );
-        gtc.ports()->addPort( t_event_source );
+        tc->ports()->addPort( d_event );
+        tc->ports()->addPort( b_event );
+        tc->ports()->addPort( t_event );
+        tc->ports()->addPort( d_event_source );
+        tc->ports()->addPort( b_event_source );
+        tc->ports()->addPort( t_event_source );
 
         d_event_source.connectTo( &d_event );
         b_event_source.connectTo( &b_event );
         t_event_source.connectTo( &t_event );
-        gtc.start();
+        tc->start();
         i = 0;
         SimulationThread::Instance()->stop();
 
-        gtc.addOperation("log", &StateTest::log, this);
+        tc->addOperation("log", &StateTest::log, this);
     }
     ~StateTest(){
     }
 };
-
-ServiceProvider::shared_ptr StateTest::createObject(string a)
-{
-    ServiceProvider::shared_ptr dat = ServiceProvider::Create(a);
-
-    dat->addOperation("assert", &StateTest::assertBool, this).doc("Assert").arg("bool", "");
-    dat->addOperation("increase", &StateTest::increase, this).doc("Return increasing i");
-    dat->addOperation("resetI", &StateTest::resetI, this).doc("ResetI i");
-    dat->addOperation("assertMsg", &StateTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
-    dat->addOperation("isTrue", &StateTest::assertBool, this).doc("Identity function").arg("bool", "");
-    dat->addOperation("i", &StateTest::getI, this).doc("Return the current number");
-    dat->addOperation("instantDone", &StateTest::true_genCom, this).doc("returns immediately");
-    dat->addOperation("instantDoneDone", &StateTest::true_gen, this).doc("Returns true when instantDone is done.");
-    dat->addOperation("neverDone", &StateTest::true_genCom, this).doc("returns never");
-    dat->addOperation("neverDoneDone", &StateTest::false_gen, this).doc("Returns true when neverDone is done.");
-    dat->addOperation("instantNotDone", &StateTest::true_genCom,this).doc("returns never.");
-    dat->addOperation("instantNotDoneDone", &StateTest::false_gen,this).doc("returns never.");
-    dat->addOperation("instantFail", &StateTest::false_genCom, this).doc("fails immediately");
-    dat->addOperation("instantFailDone", &StateTest::true_gen, this).doc("Returns true when instantFail is done.");
-    dat->addOperation("totalFail", &StateTest::false_genCom, this).doc("fails in command and condition");
-    dat->addOperation("totalFailDone", &StateTest::false_gen, this).doc("Returns true when totalFail is done.");
-    return dat;
-}
 
 BOOST_FIXTURE_TEST_SUITE( StateTestSuite, StateTest )
 
@@ -163,16 +122,16 @@ BOOST_AUTO_TEST_CASE( testParseState)
 //         + " }\n"
         + " entry {\n"
         + "     set varinit = (d_dummy != -1.) || (i_dummy != -1) \n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     set d_dummy = 1.234\n"
         + "     set i_dummy = -2\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.instantDone()\n" // 20
+        + "     do test.good()\n" // 20
         + " }\n"
         + " exit {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     set d_dummy = 0.0\n"
         + "     set i_dummy = 0\n"
         + " }\n"
@@ -217,15 +176,15 @@ BOOST_AUTO_TEST_CASE( testParseState)
         + "     if false then select ERROR\n"
         + " }\n"
         + " entry {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     set d_dummy = -1.\n"
         + "     set i_dummy = -1\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + " }\n"
         + " transitions {\n"
         + "     if false then select ERROR\n"
@@ -238,8 +197,8 @@ BOOST_AUTO_TEST_CASE( testParseState)
         + " RootMachine X x( isten = 10, isok = true, isflse=false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
         ;
 
-    this->doState( prog, &gtc );
-    this->finishState( &gtc, "x");
+    this->doState( prog, tc );
+    this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateFailure)
@@ -287,12 +246,12 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
     const int max = 7;
     int x = 0;
     while ( i < max && x < max) {
-        this->doState( prog, &gtc, false );
+        this->doState( prog, tc, false );
         //cout << "i is: "<< i <<endl;
         // assert that an error happened :
         BOOST_CHECK_MESSAGE( sa->getStateMachineStatus("x") == StateMachine::Status::error, "Status is: " + sa->getStateMachineStatusStr("x") );
 
-        this->finishState( &gtc, "x", false);
+        this->finishState( tc, "x", false);
         ++x;
     }
 }
@@ -304,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " var   double t = 1.0\n"
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + " }\n"
         + " transitions {\n"
         + "     if isnegative >= 0. then select PARAMFAIL\n"
@@ -323,7 +282,7 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + " }\n"
         + " transitions {\n"
         + "     select INIT\n"
@@ -356,7 +315,7 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " SubMachine Z z1( neg = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     do y1.activate()\n"
         + "     do y2.activate()\n"
         + "     do y3.activate()\n"
@@ -390,14 +349,14 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     do y1.stop()\n"
         + "     do y2.stop()\n"
         + "     do y3.stop()\n"
         + "     do z1.stop()\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.good()\n"
         + "     do y1.deactivate()\n"
         + "     do y2.deactivate()\n"
         + "     do y3.deactivate()\n"
@@ -415,8 +374,8 @@ BOOST_AUTO_TEST_CASE( testStateChildren)
         + " RootMachine X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
         ;
 
-    this->doState( prog, &gtc );
-    this->finishState( &gtc, "x");
+    this->doState( prog, tc );
+    this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateEmpty)
@@ -435,8 +394,8 @@ BOOST_AUTO_TEST_CASE( testStateEmpty)
         + " }\n"
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
-     this->doState( prog, &gtc );
-     this->finishState( &gtc, "x");
+     this->doState( prog, tc );
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateEmptyChild)
@@ -458,8 +417,8 @@ BOOST_AUTO_TEST_CASE( testStateEmptyChild)
         + "RootMachine X x\n"
         ;
 
-    this->doState( prog, &gtc );
-    this->finishState( &gtc, "x");
+    this->doState( prog, tc );
+    this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateTransitions)
@@ -513,9 +472,9 @@ BOOST_AUTO_TEST_CASE( testStateTransitions)
         + " }\n"
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
-     this->doState( prog, &gtc );
+     this->doState( prog, tc );
      BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
-     this->finishState( &gtc, "x");
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateTransitionStop )
@@ -536,9 +495,9 @@ BOOST_AUTO_TEST_CASE( testStateTransitionStop )
         + " }\n"
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
-     this->doState( prog, &gtc );
+     this->doState( prog, tc );
      BOOST_CHECK( sa->getStateMachine( "x" )->inState("NEXT") );
-     this->finishState( &gtc, "x");
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
@@ -597,9 +556,9 @@ BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
         + " }\n"
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
-     this->doState( prog, &gtc );
+     this->doState( prog, tc );
      BOOST_CHECK( sa->getStateMachine( "x" )->inState("FINI") );
-     this->finishState( &gtc, "x");
+     this->finishState( tc, "x");
 }
 
 
@@ -675,8 +634,8 @@ BOOST_AUTO_TEST_CASE( testStateSubStateVars)
         + " RootMachine X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
         ;
 
-     this->doState( prog, &gtc );
-     this->finishState( &gtc, "x");
+     this->doState( prog, tc );
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
@@ -758,8 +717,8 @@ BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
         + " RootMachine X x() \n" // instantiate a hierarchical SC
         ;
 
-     this->doState( prog, &gtc );
-     this->finishState( &gtc, "x");
+     this->doState( prog, tc );
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testStateEvents)
@@ -868,9 +827,9 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " RootMachine X x() \n" // instantiate a hierarchical SC
         ;
 
-     this->doState( prog, &gtc );
-     //BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
-     this->finishState( &gtc, "x");
+     this->doState( prog, tc );
+     //BOOST_CHECK( tc->engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( tc, "x");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

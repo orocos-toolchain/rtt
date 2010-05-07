@@ -189,6 +189,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
+//        "do test.print(ar1[11])\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
@@ -287,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
 //         "do test.assert( d == 10.0 )\n" +
-        "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
+        "set b = b || b && true && false || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
         "do test.assert( a1.size == 2 )\n" +
