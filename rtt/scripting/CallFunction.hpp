@@ -76,7 +76,10 @@ namespace RTT
                     // block for the result: foo stopped or in error
                     //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
                     mrunner->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
-                    return !_foo->inError();
+                    if ( _foo->inError() ) {
+                        throw false;
+                    }
+                    return true;
                 }
                 return false;
             }
