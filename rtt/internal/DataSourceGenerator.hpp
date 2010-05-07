@@ -60,15 +60,20 @@ namespace RTT
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference<T> >::type > {
             base::DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<T>( t ); }
-        }; // datasource type
+        }; // reference type
 
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference_wrapper<T> >::type > {
             typedef typename boost::unwrap_reference<T>::type RT;
             base::DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<RT>( t ); }
-        }; // datasource type
+        }; // reference type
 
-    using boost::ref;
+        template<class T>
+        struct DSWrap<boost::intrusive_ptr<T>,  typename boost::enable_if< boost::is_base_of<base::DataSourceBase, typename boost::remove_pointer<T>::type > >::type >
+        : public DSWrap<T> {
+        }; // datasource shared_ptr type
+
+        using boost::ref;
 
     /**
      * A function object which returns a vector of DataSources.
