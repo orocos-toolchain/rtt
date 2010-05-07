@@ -259,6 +259,17 @@ namespace RTT
 
             ~ActionAliasDataSource() {}
 
+            bool evaluate() const {
+                // since get() may return a copy, we override evaluate() to
+                // call alias->get() with alias->evaluate().
+                action->readArguments();
+                bool r = action->execute();
+                action->reset();
+                // alias may only be evaluated after action was executed.
+                alias->evaluate();
+                return r;
+            }
+
             typename DataSource<T>::result_t get() const
             {
                 action->readArguments();
@@ -272,6 +283,8 @@ namespace RTT
                 return alias->value();
             }
 
+            virtual void reset() { alias->reset(); }
+
             virtual ActionAliasDataSource<T>* clone() const {
                 return new ActionAliasDataSource(action, alias.get());
             }
@@ -279,6 +292,75 @@ namespace RTT
                 return new ActionAliasDataSource( action->copy(alreadyCloned), alias->copy(alreadyCloned) );
             }
         };
+
+
+            /**
+             * An AssignableDataSource which is used to execute an action
+             * and then return the value of another DataSource.
+             * @param T The result data type of get().
+             */
+            template<typename T>
+            class ActionAliasAssignableDataSource
+                : public AssignableDataSource<T>
+            {
+                base::ActionInterface* action;
+                typename AssignableDataSource<T>::shared_ptr alias;
+            public:
+                typedef boost::intrusive_ptr<ActionAliasDataSource<T> > shared_ptr;
+
+                ActionAliasAssignableDataSource(base::ActionInterface* act, AssignableDataSource<T>* ds)
+                : action(act), alias(ds)
+                  {}
+
+                ~ActionAliasAssignableDataSource() {}
+
+                bool evaluate() const {
+                    // since get() may return a copy, we override evaluate() to
+                    // call alias->get() with alias->evaluate().
+                    action->readArguments();
+                    bool r = action->execute();
+                    action->reset();
+                    // alias may only be evaluated after action was executed.
+                    alias->evaluate();
+                    return r;
+                }
+
+                typename DataSource<T>::result_t get() const
+                {
+                    action->readArguments();
+                    action->execute();
+                    action->reset();
+                    return alias->get();
+                }
+
+                typename DataSource<T>::result_t value() const
+                {
+                    return alias->value();
+                }
+
+                void set( typename AssignableDataSource<T>::param_t t ) {
+                    alias->set( t );
+                }
+
+                typename AssignableDataSource<T>::reference_t set()
+                {
+                    return alias->set();
+                }
+
+                typename AssignableDataSource<T>::const_reference_t rvalue() const
+                {
+                    return alias->rvalue();
+                }
+
+                virtual void reset() { alias->reset(); }
+
+                virtual ActionAliasAssignableDataSource<T>* clone() const {
+                    return new ActionAliasAssignableDataSource(action, alias.get());
+                }
+                virtual ActionAliasAssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                    return new ActionAliasAssignableDataSource( action->copy(alreadyCloned), alias->copy(alreadyCloned) );
+                }
+            };
 
 
     /**
