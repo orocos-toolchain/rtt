@@ -115,7 +115,7 @@ namespace RTT { namespace scripting
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
       time_expression, time_spec, indexexp, comma, close_brace,
-      value_expression, call_expression;
+      value_expression, call_expression, assignexp;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up
@@ -143,6 +143,8 @@ namespace RTT { namespace scripting
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );
+    void seen_index();
+    void seen_assign();
     void seen_dotmember( iter_t begin, iter_t end );
     void seenvalue();
     void seendatacall();
@@ -159,6 +161,8 @@ namespace RTT { namespace scripting
       ValueParser valueparser;
       bool _invert_time;
       types::OperatorRepository::shared_ptr opreg;
+
+      TaskContext* context;
   public:
       ExpressionParser( TaskContext* pc, TaskContext* caller, CommonParser& common_parser );
     ~ExpressionParser();

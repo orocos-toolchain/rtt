@@ -37,6 +37,7 @@
 #include "ArgumentsParser.hpp"
 #include "../types/Operators.hpp"
 #include "DataSourceCondition.hpp"
+#include "../internal/DataSourceCommand.hpp"
 
 #include "DataSourceTime.hpp"
 #include "../TaskContext.hpp"
@@ -264,7 +265,8 @@ namespace RTT
         commonparser( cp ),
         valueparser( pc, cp ),
         _invert_time(false),
-        opreg( OperatorRepository::Instance() )
+        opreg( OperatorRepository::Instance() ),
+        context(pc)
   {
     BOOST_SPIRIT_DEBUG_RULE( expression );
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );
@@ -296,7 +298,7 @@ namespace RTT
 
     comma = expect_comma( ch_p(',') );
     close_brace = expect_close( ch_p(')') );
-    expression = ifthenelseexp;
+    expression = assignexp;
 
     // We parse expressions without regard of the types.  First we
     // parse the expressions, then we worry about whether what the
@@ -306,7 +308,8 @@ namespace RTT
     // structure from Operators.hpp
 
     // TODO: implement the ifthenelse operator ?
-    ifthenelseexp = andexp;
+    assignexp = andexp >> *( ch_p( '=' ) >> eps_p(~ch_p( '=' ))  // prevent parsing first '=' of "=="
+            >> andexp[ bind( &ExpressionParser::seen_assign, this)] );
     andexp =
       orexp >> *( ( str_p( "&&" ) ) >> orexp[
                     bind( &ExpressionParser::seen_binary, this, "&&" ) ] );
@@ -384,7 +387,7 @@ namespace RTT
                                 [bind( &ExpressionParser::seendatacall, this ) ];
     // take index of an atomicexpression
     indexexp =
-        (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
+        (ch_p('[') >> expression[bind(&ExpressionParser::seen_index, this)] >> expect_close( ch_p( ']') ) );
 
     dotexp =
         +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
@@ -526,8 +529,7 @@ namespace RTT
       // inspirired on seen_unary
     DataSourceBase::shared_ptr arg( parsestack.top() );
     parsestack.pop();
-    DataSourceBase::shared_ptr ret =
-      opreg->applyDot( member, arg.get() );
+    DataSourceBase::shared_ptr ret = arg->getPart(member);
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( arg->getType() + " does not have member \"" + member +
                                             "\"." );
@@ -548,6 +550,72 @@ namespace RTT
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
                                             " "+arg1->getType() +"." );
+    parsestack.push( ret );
+  };
+
+  void ExpressionParser::seen_assign()
+  {
+    DataSourceBase::shared_ptr arg1( parsestack.top() );
+    parsestack.pop(); // right hand side
+    DataSourceBase::shared_ptr arg2( parsestack.top() );
+    parsestack.pop(); // left hand side
+
+    // hack to drop-in a new instance of SendHandle:
+    if (arg2->getTypeName() == "SendHandle" && mhandle) {
+//        cout << "Trying to replace SendHandle/..."<<endl;
+        AttributeRepository::AttributeObjects attrs = context->attributes()->getValues();
+        for( AttributeRepository::AttributeObjects::iterator it = attrs.begin(); it != attrs.end(); ++it) {
+            if ( (*it)->getDataSource() == arg2 ) { // since the parsestack only saves the DSB, we need to do lookup by DSB and not by name :-(
+//                cout << "Found !"<<endl;
+                string name = (*it)->getName();
+                context->attributes()->removeAttribute(name);
+                AttributeBase* var = mhandle->clone();
+                var->setName( name ); // fill in the final handle name.
+                context->attributes()->setValue( var );
+                arg2 = var->getDataSource(); // frees up dummy and puts real one in place.
+                break;
+            }
+        }
+    }
+
+    // It's possible that we need to convert arg2 to an assignable data source:
+    DataSourceBase::shared_ptr receiver = arg2->getTypeInfo()->getAssignable( arg2 );
+    if (!receiver) {
+        // don't throw yet...
+        receiver = arg2; // let it fail later
+    }
+
+    DataSourceBase::shared_ptr ret;
+    ActionInterface* act = 0;
+    try {
+        act = receiver->updateAction( arg1.get() );
+    } catch(...) { // bad assignment
+        throw parse_exception_fatal_semantic_error( "Incompatible types. Cannot assign: "+ arg2->getType() +" = " +
+                " "+arg1->getType() +"." );
+    }
+    if (!act)
+        throw parse_exception_fatal_semantic_error( "2:Cannot assign constant (or returned) variable of types: "+ arg2->getType() +" = " +
+                " "+arg1->getType() );
+    ret = receiver->getTypeInfo()->buildActionAlias(act, receiver);
+    if (!ret) { // no type info !
+        ret = new DataSourceCommand( act ); // fall back into the old behavior of returning a boolean.
+    }
+    parsestack.push( ret );
+  };
+
+  void ExpressionParser::seen_index()
+  {
+    DataSourceBase::shared_ptr arg1( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg2( parsestack.top() );
+    parsestack.pop();
+
+    // Arg2 is the first (!) argument, as it was pushed on the stack
+    // first.
+    DataSourceBase::shared_ptr ret = arg2->getPart( arg1, 0 );
+    if ( ! ret )
+      throw parse_exception_fatal_semantic_error( "Illegal use of []: "+ arg2->getType() +"[ "
+                                                +arg1->getType() +" ]." );
     parsestack.push( ret );
   };
 

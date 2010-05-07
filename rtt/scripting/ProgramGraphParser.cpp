@@ -189,7 +189,8 @@ namespace RTT
 
     valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    dostatement = !lexeme_d[str_p("do ")] >>
+    // take into account deprecated 'do' and 'set'
+    dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >>
             (
               ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
@@ -526,18 +527,18 @@ namespace RTT
       for_init_command = ac;
     }
 
+    void ProgramGraphParser::seenforinit_expr()
+    {
+        DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        expressionparser.dropResult();
+        for_init_command = new CommandDataSource( expr );
+    }
+
     void ProgramGraphParser::seenforincr()
     {
-      ActionInterface* ac = 0;
-      std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
-      if ( acv.size() == 1) {
-          ac = acv.front();
-      }
-      else if (acv.size() > 1) {
-          ac = new CommandComposite( acv );
-      }
-      for_incr_command = ac;
-      valuechangeparser.clear();
+        DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        expressionparser.dropResult();
+        for_incr_command = new CommandDataSource( expr );
     }
 
     void ProgramGraphParser::seenforstatement() {
