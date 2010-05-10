@@ -238,6 +238,7 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "")
     ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "")
+    ADD_UNIT_TEST(typekit_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  

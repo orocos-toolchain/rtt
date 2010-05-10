@@ -36,7 +36,7 @@
 
 #include "../Property.hpp"
 #include "../PropertyBag.hpp"
-#include "TemplateTypeInfo.hpp"
+#include "SequenceTypeInfo.hpp"
 #include "Types.hpp"
 #include "../Logger.hpp"
 #include "../internal/DataSources.hpp"
@@ -148,10 +148,10 @@ namespace RTT
 
     template <typename T, bool has_ostream>
     struct StdVectorTemplateTypeInfo
-        : public TemplateContainerTypeInfo<std::vector<T>, int, T, ArrayIndexChecker<std::vector<T> >, SizeAssignChecker<std::vector<T> >, has_ostream >
+        : public SequenceTypeInfo<std::vector<T>, has_ostream >
     {
         StdVectorTemplateTypeInfo<T,has_ostream>( std::string name )
-            : TemplateContainerTypeInfo<std::vector<T>, int, T, ArrayIndexChecker<std::vector<T> >, SizeAssignChecker<std::vector<T> >, has_ostream >(name)
+            : SequenceTypeInfo<std::vector<T>, has_ostream >(name)
         {
         };
 
@@ -255,29 +255,6 @@ namespace RTT
             return *(ptr);
         }
     };
-
-    template<typename T>
-    struct stdvector_index
-        : public std::binary_function<const std::vector<T>&, int, T>
-    {
-        T operator()(const std::vector<T>& v, int index) const
-        {
-            if ( index >= (int)(v.size()) || index < 0)
-                return T();
-            return v[index];
-        }
-    };
-
-    template<class T>
-    struct get_size
-        : public std::unary_function<T, int>
-    {
-        int operator()(T cont ) const
-        {
-            return cont.size();
-        }
-    };
-
 }};
 #endif
 
