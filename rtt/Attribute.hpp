@@ -42,7 +42,6 @@
 #include "internal/DataSource.hpp"
 #include "internal/DataSources.hpp"
 #include "base/AttributeBase.hpp"
-#include "types/BuildType.hpp"
 
 namespace RTT
 {
@@ -74,7 +73,7 @@ namespace RTT
          */
         explicit Attribute(const std::string& name)
             : base::AttributeBase(name),
-              data( types::BuildType<T>::Value( T() ) )
+              data( new internal::ValueDataSource<T>( T() ) )
         {}
 
         /**
@@ -85,7 +84,7 @@ namespace RTT
          */
         Attribute(const std::string& name, T t)
             : base::AttributeBase(name),
-              data( types::BuildType<T>::Value( t ) )
+              data( new internal::ValueDataSource<T>( t ) )
         {
         }
 
@@ -101,7 +100,7 @@ namespace RTT
         template<class Owner>
         Attribute(const std::string& name, T t, Owner o)
             : base::AttributeBase(name),
-              data( types::BuildType<T>::Value( t ) )
+              data( new internal::ValueDataSource<T>( t ) )
         {
             o->addAttribute(this);
         }

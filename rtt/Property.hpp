@@ -43,7 +43,6 @@
 #include "PropertyBag.hpp"
 #include "internal/PropertyCommands.hpp"
 #include "internal/DataSources.hpp"
-#include "types/BuildType.hpp"
 #include <boost/type_traits.hpp>
 
 #include <string>
@@ -105,7 +104,7 @@ namespace RTT
          * @post ready() will always be true.
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
+            : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
         {
         }
 
@@ -200,7 +199,7 @@ namespace RTT
                 if (vptr)
                     _value = vptr;
                 else
-                    _value = types::BuildType<value_t>::Value() ;
+                    _value = new internal::ValueDataSource<value_t>() ;
             } else {
                 this->setName( "" );
                 this->setDescription( "" );
