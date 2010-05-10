@@ -50,7 +50,7 @@
 #include "TypeStream.hpp"
 #include "../PropertyBag.hpp"
 #include "VectorComposition.hpp"
-#include "TemplateContainerInfo.hpp"
+#include "SequenceTypeInfo.hpp"
 #include <ostream>
 
 
@@ -99,19 +99,21 @@ namespace RTT
      * Standard strings don't need decomposition.
      */
     struct StdStringTypeInfo
-        : public TemplateContainerInfo<std::string,true>
+        : public SequenceTypeInfo<std::string,true>
     {
         StdStringTypeInfo()
-            : TemplateContainerInfo<std::string,true>("string")
+            : SequenceTypeInfo<std::string,true>("string")
         {}
 
         base::AttributeBase* buildVariable(std::string name,int size) const
         {
-            // if a sizehint is given, create a TaskIndexContainerVariable instead,
-            // which checks capacities.
             string t_init(size, ' '); // we can't use the default char(), which is null !
 
-            return new Attribute<string>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string> > >( t_init ) );
+            // returned type is identical to parent, but we set spaces.
+            AttributeBase* ret = SequenceTypeInfo<std::string,true>::buildVariable(name,size);
+            Attribute<std::string> tt = ret;
+            tt.set( t_init );
+            return ret;
         }
 
         virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {

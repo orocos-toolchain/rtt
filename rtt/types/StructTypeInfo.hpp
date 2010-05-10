@@ -1,5 +1,5 @@
-#ifndef ORO_TEMPLATE_STRUCT_INFO_HPP
-#define ORO_TEMPLATE_STRUCT_INFO_HPP
+#ifndef ORO_STRUCT_TYPE_INFO_HPP
+#define ORO_STRUCT_TYPE_INFO_HPP
 
 #include "TemplateTypeInfo.hpp"
 #include "type_discovery.hpp"
@@ -9,17 +9,20 @@ namespace RTT
     namespace types
     {
         /**
-         * Template for data types that are structs.
+         * Type Information for data types that are structs, ie all user data types fall in this category.
+         *
+         * Use this class to register your data type to the Orocos type system.
          *
          * This class requires that your struct is compatible with the boost::serialization API.
          * This means that it must provide a serialize() function or that you define a free function
-         * serialize() in the boost::serialization namespace.
+         * serialize() in the boost::serialization namespace. If no such function exists, you can
+         * fall back to StdTypeInfo or even TemplateTypeInfo.
          */
         template<typename T, bool has_ostream = false>
-        class TemplateStructInfo: public TemplateTypeInfo<T, has_ostream>
+        class StructTypeInfo: public TemplateTypeInfo<T, has_ostream>
         {
         public:
-            TemplateStructInfo(std::string name) :
+            StructTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
             }

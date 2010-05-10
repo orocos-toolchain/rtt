@@ -86,18 +86,18 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     Attribute<string> str = Types()->type("string")->buildVariable("str",10);
 
     // check size hint:
-    BOOST_CHECK( str.get().size() == 10 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 10 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     str.set() = "hello"; // note: assign to C string preserves capacity
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     // create empty target:
     Attribute<string> copy("copy");
-    BOOST_CHECK( copy.get().size() == 0 );
-    BOOST_CHECK( copy.get().capacity() == 0 );
+    BOOST_CHECK_EQUAL( copy.get().size() , 0 );
+    BOOST_CHECK_EQUAL( copy.get().capacity() , 0 );
 
     // copy str to target and check:
     copy.getDataSource()->update( str.getDataSource().get() );
@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
 
     // now copy target back to str and check if capacity remains:
     str.getDataSource()->update( copy.getDataSource().get() );
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 
@@ -119,8 +119,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     // Same exercise as above, but with updateCommand():
     str.set() = "hello"; // note: assign to C string preserves capacity
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     // copy str to target and check:
     ActionInterface* act = copy.getDataSource()->updateAction( str.getDataSource().get() );
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     BOOST_CHECK( act->execute() );
     delete act;
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 }

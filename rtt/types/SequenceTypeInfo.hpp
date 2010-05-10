@@ -1,5 +1,5 @@
-#ifndef ORO_TEMPLATE_CONTAINER_INFO_HPP
-#define ORO_TEMPLATE_CONTAINER_INFO_HPP
+#ifndef ORO_SEQUENCE_TYPE_INFO_HPP
+#define ORO_SEQUENCE_TYPE_INFO_HPP
 
 #include "TemplateTypeInfo.hpp"
 #include "type_discovery.hpp"
@@ -31,17 +31,17 @@ namespace RTT
         }
 
         /**
-         * Template for data types that are C++ STL Containers with operator[]
+         * Template for data types that are C++ STL Sequences with operator[], size() and capacity() methods.
          *
-         * This class requires that your STL container is compatible with the boost::serialization API.
+         * This class requires that your STL Sequence is compatible with the boost::serialization API.
          * This means that it must provide a serialize() function or that you define a free function
          * serialize() in the boost::serialization namespace.
          */
         template<typename T, bool has_ostream = false>
-        class TemplateContainerInfo: public TemplateTypeInfo<T, has_ostream>
+        class SequenceTypeInfo: public TemplateTypeInfo<T, has_ostream>
         {
         public:
-            TemplateContainerInfo(std::string name) :
+            SequenceTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
             }

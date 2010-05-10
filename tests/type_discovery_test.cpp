@@ -10,9 +10,9 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "datasource_fixture.hpp"
-#include "types/TemplateStructInfo.hpp"
-#include "types/TemplateCArrayInfo.hpp"
-#include "types/TemplateContainerInfo.hpp"
+#include "types/StructTypeInfo.hpp"
+#include "types/CArrayTypeInfo.hpp"
+#include "types/SequenceTypeInfo.hpp"
 
 using namespace boost::lambda;
 using namespace boost::archive;
@@ -164,11 +164,11 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_CHECK_EQUAL( out.getPart("vd"), out.mparts[4] );
 }
 
-// Test the TemplateStructInfo for AType
+// Test the StructTypeInfo for AType
 // Similar as the above tests, but now through the TypeInfo system.
 BOOST_AUTO_TEST_CASE( testATypeStruct )
 {
-    Types()->addType( new TemplateStructInfo<AType>("AType") );
+    Types()->addType( new StructTypeInfo<AType>("AType") );
 
     AssignableDataSource<AType>::shared_ptr atype = new ValueDataSource<AType>( AType() );
 
@@ -258,10 +258,10 @@ BOOST_AUTO_TEST_CASE( testCTypeArray )
     BOOST_CHECK_EQUAL( a2->get(), tester[2] );
 }
 
-// Test the TemplateContainerInfo for ints
+// Test the SequenceTypeInfo for ints
 BOOST_AUTO_TEST_CASE( testContainerType )
 {
-    Types()->addType( new TemplateContainerInfo< std::vector<int> >("ints") );
+    Types()->addType( new SequenceTypeInfo< std::vector<int> >("ints") );
     vector<int> tester;
     tester.push_back( 3 );
     tester.push_back( 2 );
@@ -321,10 +321,10 @@ BOOST_AUTO_TEST_CASE( testContainerType )
 }
 #endif
 
-// Test the TemplateContainerInfo for chars (std::string)
+// Test the SequenceTypeInfo for chars (std::string)
 BOOST_AUTO_TEST_CASE( testStringContainerType )
 {
-    Types()->addType( new TemplateContainerInfo< std::string >("chars") );
+    Types()->addType( new SequenceTypeInfo< std::string >("chars") );
     string tester = "tester";
 
     AssignableDataSource< string >::shared_ptr atype = new ReferenceDataSource< string >( tester );

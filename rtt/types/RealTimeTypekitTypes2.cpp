@@ -3,7 +3,7 @@
 #include "RealTimeToolkit.hpp"
 #include "Types.hpp"
 #include "TemplateTypeInfo.hpp"
-#include "TemplateContainerInfo.hpp"
+#include "SequenceTypeInfo.hpp"
 #include "StdTypeInfo.hpp"
 #include "TypeInfoName.hpp"
 #include "../rtt-fwd.hpp"
@@ -25,10 +25,10 @@ namespace RTT
      * This class tells Orocos how to handle std::vector<double>.
      */
     struct StdVectorTypeInfo
-        : public TemplateContainerInfo<std::vector<double>, true >
+        : public SequenceTypeInfo<std::vector<double>, true >
     {
         StdVectorTypeInfo( std::string name )
-            : TemplateContainerInfo<std::vector<double>, true >(name)
+            : SequenceTypeInfo<std::vector<double>, true >(name)
         {}
 
         bool decomposeTypeImpl(const std::vector<double>& vec, PropertyBag& targetbag) const

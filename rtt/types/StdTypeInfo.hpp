@@ -8,7 +8,11 @@ namespace RTT
     namespace types {
 
         /**
-         * Standard types that don't need decomposition.
+         * Type information for standard C types or structs of which
+         * no introspection is required. No boost::serialization function
+         * is required to use this class.
+         *
+         * @see StructTypeInfo
          */
         template<class T>
         struct StdTypeInfo
