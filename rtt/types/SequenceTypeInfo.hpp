@@ -10,25 +10,52 @@ namespace RTT
 {
     namespace types
     {
+        /**
+         * Returns the capacity of an STL container which has the capacity() member function.
+         * @param cont A const ref to an STL container.
+         * @return its capacity.
+         */
         template<class T>
         int get_capacity(T const& cont)
         {
             return cont.capacity();
         }
 
+        /**
+         * Returns the size of an STL container which has the size() member function.
+         * @param cont A const ref to an STL container.
+         * @return its size.
+         */
         template<class T>
         int get_size(T const& cont)
         {
             return cont.size();
         }
 
+        /**
+         * Returns a reference to one item in an STL container.
+         * @note vector<bool> is not supported, since it's not an STL container.
+         * @param cont The container to access
+         * @param index The item to reference
+         * @return A reference to item \a index
+         */
         template<class T>
-        typename T::value_type& get_container_item(T & cont, int index)
+        typename T::reference get_container_item(T & cont, int index)
         {
             if (index >= (int) (cont.size()) || index < 0)
-                return internal::NA<typename T::value_type&>::na();
+                return internal::NA<typename T::reference>::na();
             return cont[index];
         }
+
+        /**
+         * Specialisation for vector<bool>, we don't return references to bits aka std::_Bit_reference.
+         * vector<bool> is an outlier and should not be used. Use vector<int>
+         * or vector<char> instead.
+         * @param cont Is a vector<bool>
+         * @param index The item to read.
+         * @return A copy of the value at position \a index. \b not a reference !
+         */
+        bool get_container_item(std::vector<bool> & cont, int index);
 
         /**
          * Template for data types that are C++ STL Sequences with operator[], size() and capacity() methods.
