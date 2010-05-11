@@ -271,7 +271,7 @@ namespace RTT
         }
 
         virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
-            log(Debug) << tname <<": Trying to make " << arg->getType() <<" assignable..."<<endlog();
+            log(Debug) << "Trying to make " << arg->getType() <<" assignable to "<< tname <<"..."<<endlog();
             return internal::AdaptAssignableDataSource<T>()(arg);
         }
 

@@ -13,6 +13,7 @@
 #include "types/StructTypeInfo.hpp"
 #include "types/CArrayTypeInfo.hpp"
 #include "types/SequenceTypeInfo.hpp"
+#include "types/BoostArrayTypeInfo.hpp"
 
 using namespace boost::lambda;
 using namespace boost::archive;
@@ -50,13 +51,21 @@ void serialize(Archive & ar, BType & g, const unsigned int version)
     //ar & make_nvp("vvi", make_array( g.vvi, 4));
 }
 
+template<class Archive>
+void serialize(Archive & ar, CType & g, const unsigned int version)
+{
+    ar & make_nvp("a", g.a);
+    ar & make_nvp("b", g.b);
+    ar & make_nvp("av", g.av );
+    ar & make_nvp("bv", g.bv );
+}
+
 } // namespace serialization
 } // namespace boost
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  TypeArchiveTestSuite,  TypeArchiveTest )
 
-#if 1
 // Test writing an AType data sample into a type data archive
 BOOST_AUTO_TEST_CASE( testATypeDiscovery )
 {
@@ -213,10 +222,10 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
 }
 
 
-// Test the TemplateCArrayInfo for ints
+// Test the CArrayTypeInfo for ints
 BOOST_AUTO_TEST_CASE( testCTypeArray )
 {
-    Types()->addType( new TemplateCArrayInfo< carray<int> >("cints") );
+    Types()->addType( new CArrayTypeInfo< carray<int> >("cints") );
     int tester[3] = { 3, 2, 1 };
 
     AssignableDataSource< carray<int> >::shared_ptr atype = new ValueDataSource< carray<int> >( carray<int>(tester, 3) );
@@ -319,7 +328,6 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     BOOST_CHECK_EQUAL( a1->get(), tester[1] );
     BOOST_CHECK_EQUAL( a2->get(), tester[2] );
 }
-#endif
 
 // Test the SequenceTypeInfo for chars (std::string)
 BOOST_AUTO_TEST_CASE( testStringContainerType )
@@ -384,6 +392,62 @@ BOOST_AUTO_TEST_CASE( testStringContainerType )
     BOOST_CHECK_EQUAL( a2->get(), tester[2] );
 }
 
+//! Tests complex type introspection (sequence of structs)
+BOOST_AUTO_TEST_CASE( testCTypeDiscovery )
+{
+    Types()->addType( new StructTypeInfo< AType >("AType") );
+    Types()->addType( new StructTypeInfo< BType >("BType") );
+    Types()->addType( new StructTypeInfo< CType >("CType") );
+    Types()->addType( new SequenceTypeInfo< vector<AType> >("as") );
+    Types()->addType( new SequenceTypeInfo< vector<BType> >("bs") );
+    Types()->addType( new CArrayTypeInfo< carray<int> >("cints") );
+    Types()->addType( new BoostArrayTypeInfo< boost::array<int,5> >("int5") );
+    Types()->addType( new SequenceTypeInfo< vector<int> >("ints") );
+
+    AssignableDataSource<CType>::shared_ptr atype = new ValueDataSource<CType>( CType() );
+
+    // decompose a complex type
+    AssignableDataSource<AType>::shared_ptr a = AssignableDataSource<AType>::narrow( atype->getPart("a").get() );
+    AssignableDataSource<BType>::shared_ptr b = AssignableDataSource<BType>::narrow( atype->getPart("b").get() );
+    AssignableDataSource< vector<AType> >::shared_ptr av = AssignableDataSource< vector<AType> >::narrow( atype->getPart("av").get());
+    AssignableDataSource< vector<BType> >::shared_ptr bv = AssignableDataSource< vector<BType> >::narrow( atype->getPart("bv").get());
+
+    BOOST_REQUIRE( a );
+    BOOST_REQUIRE( b );
+    BOOST_REQUIRE( av );
+    BOOST_REQUIRE( bv );
+
+    // Access top level elements
+    BOOST_REQUIRE( a->getPart("ai") );
+    AssignableDataSource<int>::shared_ptr ai3 = AdaptAssignableDataSource<int>()( a->getPart("ai")->getPart("3").get() );
+    BOOST_REQUIRE( b->getPart("ai") );
+    AssignableDataSource<int>::shared_ptr bi3 = AdaptAssignableDataSource<int>()( b->getPart("ai")->getPart("3").get() );
+
+    // Access elements in sequences:
+    AssignableDataSource<int>::shared_ptr avi3 = AdaptAssignableDataSource<int>()( av->getPart("3")->getPart("ai")->getPart("3").get() );
+    AssignableDataSource<int>::shared_ptr bvi3 = AdaptAssignableDataSource<int>()( bv->getPart("3")->getPart("ai")->getPart("3").get() );
+
+    BOOST_REQUIRE( ai3 );
+    BOOST_REQUIRE( bi3 );
+    BOOST_REQUIRE( avi3 );
+    BOOST_REQUIRE( bvi3 );
+
+    // Check reading parts (must equal parent)
+    BOOST_CHECK_EQUAL( a->get(), atype->get().a );
+    BOOST_CHECK_EQUAL( b->get(), atype->get().b );
+    BOOST_CHECK( std::equal(av->set().begin(), av->set().end(), atype->set().av.begin() ) );
+    BOOST_CHECK( std::equal(bv->set().begin(), bv->set().end(), atype->set().bv.begin() ) );
+    BOOST_CHECK_EQUAL( avi3->get(), atype->get().av[3].ai[3] );
+    BOOST_CHECK_EQUAL( bvi3->get(), atype->get().bv[3].ai[3] );
+
+    // Check writing a part (must change in parent too).
+    avi3->set(10);
+    bvi3->set(20);
+    BOOST_CHECK_EQUAL( avi3->get(), 10 );
+    BOOST_CHECK_EQUAL( avi3->get(), atype->get().av[3].ai[3] );
+    BOOST_CHECK_EQUAL( bvi3->get(), 20 );
+    BOOST_CHECK_EQUAL( bvi3->get(), atype->get().bv[3].ai[3] );
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

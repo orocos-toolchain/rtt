@@ -1,28 +1,26 @@
-#ifndef ORO_TEMPLATE_CARRAY_INFO_HPP
-#define ORO_TEMPLATE_CARRAY_INFO_HPP
+#ifndef ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
+#define ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 
 #include "TemplateTypeInfo.hpp"
 #include "../internal/ArrayPartDataSource.hpp"
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
-#include "../internal/carray.hpp"
+#include <boost/array.hpp>
 
 namespace RTT
 {
     namespace types
     {
         /**
-         * Template for data types that are C-style arrays.
+         * Template for data types that are of type boost::array<U,int>
          *
-         * C-style arrays are represented by the carray<T> wrapper
-         * in the RTT type system.
-         * @param T A carray<U> wrapper, where U is a C data type.
+         * @param T A boost::array<U> wrapper, where U is a data type.
          */
         template<typename T, bool has_ostream = false>
-        class CArrayTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class BoostArrayTypeInfo: public TemplateTypeInfo<T, has_ostream>
         {
         public:
-            CArrayTypeInfo(std::string name) :
+            BoostArrayTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
             }
@@ -43,16 +41,16 @@ namespace RTT
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ValueDataSource<unsigned int>( data->set().count() );
+                    return new ValueDataSource<unsigned int>( T::static_size );
                 }
 
                 // contents of indx can change during program execution:
                 try {
                     unsigned int indx = boost::lexical_cast<unsigned int>(name);
                     // @todo could also return a direct reference to item indx using another DS type that respects updated().
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().address(), new ConstantDataSource<unsigned int>(indx), item );
+                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), new ConstantDataSource<unsigned int>(indx), item );
                 } catch(...) {}
-                log(Error) << "CArrayTypeInfo: No such part (or invalid index): " << name << endlog();
+                log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << name << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
 
@@ -69,14 +67,14 @@ namespace RTT
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ValueDataSource<unsigned int>( data->set().count() );
+                        return new ValueDataSource<unsigned int>( T::static_size );
                     }
                 }
 
                 if ( id_indx ) {
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().address(), id_indx, item );
+                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), id_indx, item );
                 }
-                log(Error) << "CArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
+                log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
         };

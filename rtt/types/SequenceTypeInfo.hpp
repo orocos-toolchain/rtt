@@ -64,7 +64,7 @@ namespace RTT
             }
 
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = internal::AssignableDataSource<T>::narrow( item.get() );
+                typename internal::AssignableDataSource<T>::shared_ptr data = internal::AdaptAssignableDataSource<T>()( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
                 }
@@ -93,7 +93,7 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = internal::AssignableDataSource<T>::narrow( item.get() );
+                typename internal::AssignableDataSource<T>::shared_ptr data = internal::AdaptAssignableDataSource<T>()( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
                 }

@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& os, const AType& a)
 }
 
 /**
- * AType uses simple C types and C arrays
+ * BType uses simple C types and C arrays
  * for any sequence type. Identical values as AType.
  *
  * Tests cases like KDL::Frame
@@ -86,6 +86,40 @@ std::ostream& operator<<(std::ostream& os, const BType& a)
     return os;
 }
 
+/**
+ * CType uses composite A/B types
+ *
+ * Tests cases like vector<KDL::Frame>
+ */
+struct CType
+{
+    CType() :
+        a(), b(), av(10), bv(10)
+    {
+    }
+    AType a;
+    BType b;
+    vector<AType> av;
+    vector<BType> bv;
+};
+
+bool operator==(const CType& a, const CType& b)
+{
+    return a.a == b.a && a.b == b.b && std::equal(a.av.begin(), a.av.end(), b.av.begin()) && std::equal(a.bv.begin(), a.bv.end(), b.bv.begin());
+}
+
+std::ostream& operator<<(std::ostream& os, const CType& a)
+{
+    os << "{ (" << a.a << ", " << endl <<"   " << a.b << endl<< "  )"<<endl;
+    os << "  <";
+    for (unsigned int i = 0; i != 5; ++i)
+        os << a.av[i] << " ";
+    os <<"  >,"<<endl<<"  <";
+    for (unsigned int i = 0; i != 10; ++i)
+        os << a.bv[i] << " ";
+    os <<"  >"<<endl <<"}";
+    return os;
+}
     /**
      * Only for unit tests: only returns new value in get() after updated() has been
      * called. Use this to test the calling of updated() after a set().
