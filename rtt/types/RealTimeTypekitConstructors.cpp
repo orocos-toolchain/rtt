@@ -140,6 +140,8 @@ namespace RTT
 #endif
         bool flow_to_bool(FlowStatus fs) { return fs; }
         bool send_to_bool(SendStatus ss) { return ss; }
+        bool int_to_bool(int i) { return i; }
+        int bool_to_int(bool b) { return b; }
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>
@@ -171,10 +173,12 @@ namespace RTT
         ti->type("int")->addConstructor( newConstructor( &float_to_int, false ));
         ti->type("int")->addConstructor( newConstructor( &double_to_int, false ));
         ti->type("int")->addConstructor( newConstructor( &uint_to_int, false ));
+        ti->type("int")->addConstructor( newConstructor( &bool_to_int, true ));
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
+        ti->type("bool")->addConstructor( newConstructor( &int_to_bool, true ) );
 #endif
         return true;
     }
