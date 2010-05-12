@@ -46,106 +46,6 @@
 
 namespace RTT
 { namespace types {
-
-    /**
-     * A decomposePropertyBag method for decomposing a vector<T>
-     * into a PropertyBag with Property<T>'s.
-     * The dimension of the vector must be less than 100 if you want the
-     * Property<T>'s to have a different name.
-     */
-    template<class T>
-    void decomposeProperty(const std::vector<T>& vec, PropertyBag& targetbag)
-    {
-        std::string tname = internal::DataSourceTypeInfo<T>::getType();
-        targetbag.setType(tname+"s");
-        int dimension = vec.size();
-        std::string str;
-
-        assert( targetbag.empty() );
-
-        for ( int i=0; i < dimension ; i++){
-            std::stringstream out;
-            out << i+1;
-            str = out.str();
-
-            Property<PropertyBag>* el_bag = new Property<PropertyBag>("Element" + str, str +"th element of list");
-            Property<T> el("Element" + str, str +"th element of list",vec[i])  ;
-            if(    el.getTypeInfo()->decomposeType(el.getDataSource(),el_bag->value()) )
-            {
-                log(Debug)<<"Element type "<<el.getType()<<" is a bag"<<endlog();
-                targetbag.add( el_bag ); // Put variables in the bag
-            }
-            else
-            {
-                log(Debug)<<"Element type "<<el.getType()<<" is not a bag"<<endlog();
-                //For Property
-                targetbag.add( new Property<T>("Element" + str, str +"th element of list",vec[i]) ); // Put variables in the bag
-            }
-        }
-    };
-
-    /**
-     * A composeProperty method for composing a property of a vector<T>
-     * The dimension of the vector must be less than 100.
-     */
-    template<class T>
-    bool composeProperty(const PropertyBag& bag, std::vector<T>& result)
-    {
-        std::string tname = internal::DataSourceTypeInfo<T>::getType();
-
-        if ( bag.getType() == tname+"s" ) {
-            int dimension = bag.size();
-            Logger::log() << Logger::Info << "bag size " << dimension <<Logger::endl;
-            result.resize( dimension );
-
-            // Get values
-            for (int i = 0; i < dimension ; i++) {
-                std::stringstream out;
-                out << "Element";
-                out << i + 1;
-                Property<PropertyBag> el_bag =  bag.getProperty(out.str());
-
-                if( !el_bag.ready() ){
-                    // Works for properties in vector
-                    base::PropertyBase* element = bag.getItem( i );
-                    log(Debug)<<element->getName()<<", "<< element->getDescription()<<endlog();
-                    Property<T> my_property_t (element->getName(),element->getDescription());
-                    if(my_property_t.getType()!=element->getType())
-                    {
-                        log(Error)<< "Type of "<< element->getName() << " does not match type of "<<tname+"s"<< "OR "<<"Could not read element "<<i<<endlog();
-                        return false;
-                    }
-                    else{
-                        my_property_t.getTypeInfo()->composeType(element->getDataSource(),my_property_t.getDataSource());
-                        result[ i ] = my_property_t.get();
-                    }
-                }
-                else{
-                    // Works for propertybags in vector
-                    const std::string el_bagType = el_bag.getType();
-                    Property<T > el_p(el_bag.getName(),el_bag.getDescription());
-                    if(!(el_p.getDataSource()->composeType(el_bag.getDataSource()))){
-                        log(Error)<<"Could not compose element "<<i<<endlog();
-                        return false;
-                    }
-                    if(el_p.ready()){
-                        result[ i ] = el_p.get();
-                    }else{
-                        log(Error)<<"Property of Element"<<i<<"was not ready for use"<<endlog();
-                        return false;
-                    }
-                }
-            }
-        }
-        else {
-            Logger::log() << Logger::Error << "Composing Property< std::vector<T> > :"
-                          << " type mismatch, got type '"<< bag.getType()
-                          << "', expected type "<<tname<<"s."<<Logger::endl;
-            return false;
-        }
-        return true;
-    };
-
     template <typename T, bool has_ostream>
     struct StdVectorTemplateTypeInfo
         : public SequenceTypeInfo<std::vector<T>, has_ostream >
@@ -154,17 +54,6 @@ namespace RTT
             : SequenceTypeInfo<std::vector<T>, has_ostream >(name)
         {
         };
-
-        bool decomposeTypeImpl(const std::vector<T>& vec, PropertyBag& targetbag) const
-        {
-            decomposeProperty<T>( vec, targetbag );
-            return true;
-        };
-
-        bool composeTypeImpl(const PropertyBag& bag, std::vector<T>& result) const
-        {
-            return composeProperty<T>( bag, result );
-        }
 
     };
 

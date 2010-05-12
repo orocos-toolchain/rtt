@@ -82,6 +82,41 @@ namespace RTT
                 return new Attribute<T>( name, new internal::UnboundDataSource<internal::ValueDataSource<T> >( t_init ) );
             }
 
+            bool resize(base::DataSourceBase::shared_ptr arg, int size) const
+            {
+                arg = this->getAssignable( arg );
+                if (arg) {
+                    typename internal::AssignableDataSource<T>::shared_ptr asarg = internal::AssignableDataSource<T>::narrow( arg.get() );
+                    asarg->set().resize( size );
+                    asarg->updated();
+                    return true;
+                }
+                return false;
+            }
+
+            /**
+             * Specialize to resize \a result given the size of \a source.
+             */
+            virtual bool composeTypeImpl(const PropertyBag& source, typename internal::AssignableDataSource<T>::reference_t result) const
+            {
+                // take into account sequences:
+                base::PropertyBase* sz = source.find("Size");
+                if (!sz)
+                    sz = source.find("size");
+                if (sz)
+                {
+                    internal::DataSource<int>::shared_ptr sz_ds = internal::DataSource<int>::narrow(sz->getDataSource().get());
+                    if (sz_ds)
+                        result.resize( sz_ds->get() );
+                }
+                else
+                {
+                    // no size found, inform parent of number of elements to come:
+                    result.resize( source.size() );
+                }
+                return TemplateTypeInfo<T,has_ostream>::composeTypeImpl(source,result);
+            }
+
             virtual std::vector<std::string> getPartNames() const {
                 // only discover the parts of this struct:
                 std::vector<std::string> result;
@@ -91,37 +126,21 @@ namespace RTT
             }
 
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = internal::AdaptAssignableDataSource<T>()( item );
-                if ( !data ) {
-                    return base::DataSourceBase::shared_ptr();
-                }
-
-                // size and capacity *can* change during program execution:
-                if ( name == "size" ) {
-                    try {
-                        return internal::newFunctorDataSource(&get_size<T>, internal::GenerateDataSource()(item.get()) );
-                    } catch(...) {}
-                }
-                if ( name == "capacity" ) {
-                    try {
-                        return internal::newFunctorDataSource(&get_capacity<T>, internal::GenerateDataSource()(item.get()) );
-                    } catch(...) {}
-                }
-
-                // contents of indx *can* change during program execution:
+                // the only thing we do is to check for an integer in name, otherwise, assume a part (size/capacity) is accessed:
                 try {
                     unsigned int indx = boost::lexical_cast<unsigned int>(name);
                     // @todo could also return a direct reference to item indx using another DS type that respects updated().
-                    return internal::newFunctorDataSource(&get_container_item<T>, internal::GenerateDataSource()(item.get(), new internal::ConstantDataSource<int>(indx)) );
+                    return getPart( item, new internal::ConstantDataSource<int>(indx));
                 } catch(...) {}
-                log(Error) << "TemplateContainerInfo: No such part (or invalid index): " << name << endlog();
-                return base::DataSourceBase::shared_ptr();
+
+                return getPart( item, new internal::ConstantDataSource<std::string>(name) );
             }
 
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = internal::AdaptAssignableDataSource<T>()( item );
                 if ( !data ) {
+                    log(Error) << "TypeInfo of type "<< this->getTypeName() <<" can't handle (non-assignable) types of type "<< item->getTypeInfo() <<endlog();
                     return base::DataSourceBase::shared_ptr();
                 }
 

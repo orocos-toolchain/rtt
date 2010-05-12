@@ -47,6 +47,7 @@
 #include <ostream>
 #include "../internal/FusedFunctorDataSource.hpp"
 #include "../internal/CreateSequence.hpp"
+#include "PropertyDecomposition.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -298,23 +299,6 @@ namespace RTT
             return os;
         }
 
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
-            // Extract typed values
-            typename internal::DataSource<PropertyType>::shared_ptr ds = internal::AdaptDataSource<PropertyType>()( source.get() );
-            if ( !ds )
-                return false; // happens in the case of 'unknown type'
-            // Try user's function.
-            return decomposeTypeImpl( ds->get(), targetbag );
-        }
-
-        /**
-         * User, implement this function. Add the structural elements of source to targetbag.
-         */
-        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
-            log(Info) << "Decomposition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
-            return false;
-        }
-
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
             // First, try a plain update.
             if ( result->update( source.get() ) )
@@ -328,6 +312,7 @@ namespace RTT
             if ( !ads )
                 return false;
 
+            // last fall-back: use user supplied function:
             if ( composeTypeImpl( pb->value(), ads->set() ) )
                 ads->updated();
             else {
@@ -339,11 +324,14 @@ namespace RTT
         }
 
         /**
-         * User, implement this function. Extract the structural elements in source to result.
+         * TemplateTypeInfo provides a default, good for most types implementation.
          */
         virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
-            log(Info) << "Composition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
-            return false;
+            // The default implementation decomposes result and refreshes it with source.
+            internal::ReferenceDataSource<T> rds(result);
+            rds.ref(); // prevent dealloc.
+            PropertyBag decomp;
+            return typeDecomposition( &rds, decomp) && refreshProperties(decomp, source);
         }
 
 		std::string getTypeIdName() const { return typeid(T).name(); }

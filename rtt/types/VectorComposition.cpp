@@ -47,24 +47,6 @@ namespace RTT {
     namespace types {
     using namespace detail;
 
-    // A decomposeProperty method for decomposing a Property< vector<double> >
-    // into a PropertyBag with Property<double>'s.
-    void decomposeProperty(const std::vector<double>& vec, PropertyBag& targetbag)
-    {
-        targetbag.setType("array");
-        int dimension = vec.size();
-
-        assert( targetbag.empty() );
-
-        for ( int i=0; i < dimension ; i++)
-            {
-                targetbag.add( new Property<double>("","",vec[i]) ); // Put variables in the bag
-            }
-    }
-
-    // A composeProperty method for composing a property of a vector<double>
-    // The dimension of the vector must be less than 100.
-
     bool composeProperty(const PropertyBag& bag, std::vector<double>& result)
     {
         if ( bag.getType() == "std::vector<double>" || bag.getType() == "array" ) {

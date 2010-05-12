@@ -85,6 +85,12 @@ namespace RTT
         virtual base::AttributeBase* buildVariable(std::string name) const = 0;
 
         /**
+         * Tries to resize a data source in case it's a resizable sequence.
+         * @return true if the resizing could be done, false otherwise.
+         */
+        virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const;
+
+        /**
          * Constructor syntax: construct a internal::DataSource which returns an instance of data
          * depending on the given arguments.  When \a args is empty, the default 'variable'
          * is returned.
@@ -202,16 +208,18 @@ namespace RTT
                                                          base::DataSourceBase::shared_ptr id) const;
 
         /**
-         * Decompose a structure as basic components into a PropertyBag.
-         * @retval true decomposition resulted in new types added to targetbag.
-         * @retval false nothing was added to targetbag.
-         */
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
-
-        /**
-         * Compose a structure from a base::DataSourceBase containing its basic components.
-         * The default behavior tries to assign \a source to \a target. If this does
-         * not work, because source and target have different type, this function returns false.
+         * Compose a type from a DataSourceBase containing its basic parts.
+         * The default behavior tries to assign \a source to \a target. If that fails,
+         * it tries to decompose \a target into its parts and update \a target with the contents of source.
+         *
+         * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
+         * multiple versions/possibilities to make a \a target from a \a source. For example, in
+         * order to support legacy formats.
+         *
+         * @param source A data source of the same type as \a target OR a PropertyBag that contains the parts of \a target
+         * to be refreshed.
+         * @param target A data source of the same type as this TypeInfo object which contains the data to be updated from \a source.
+         * @return true if source could be updated, false otherwise.
          */
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
         /**

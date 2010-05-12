@@ -36,23 +36,12 @@
  ***************************************************************************/
 
 
-
 #include "rtt-config.h"
 #include "RealTimeToolkit.hpp"
-#include "Types.hpp"
-#include "TemplateTypeInfo.hpp"
 #include "StdTypeInfo.hpp"
+#include "StdStringTypeInfo.hpp"
+#include "BoolTypeInfo.hpp"
 #include "TypeInfoName.hpp"
-#include "../rtt-fwd.hpp"
-#include "../FlowStatus.hpp"
-#include "../ConnPolicy.hpp"
-
-#include "TypeStream.hpp"
-#include "../PropertyBag.hpp"
-#include "VectorComposition.hpp"
-#include "SequenceTypeInfo.hpp"
-#include <ostream>
-
 
 namespace RTT
 {
@@ -62,72 +51,6 @@ namespace RTT
 
     using namespace std;
     using namespace detail;
-
-    /**
-     * Write boolean as 'true' or 'false'.
-     */
-    struct BoolTypeInfo
-        : public TemplateTypeInfo<bool>
-    {
-        BoolTypeInfo()
-            : TemplateTypeInfo<bool>("bool")
-        {}
-
-        virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
-#ifdef OS_HAVE_STREAMS
-            DataSource<bool>* d = AdaptDataSource<bool>()( in );
-            if (d)
-                return os << boolalpha << d->value();
-#endif
-            return os;
-        }
-
-        virtual std::istream& read( std::istream& os, DataSourceBase::shared_ptr out ) const {
-#ifdef OS_HAVE_STREAMS
-            AssignableDataSource<bool>::shared_ptr d = AdaptAssignableDataSource<bool>()( out );
-            if ( d ) {
-                boolalpha(os);
-                os >> d->set();
-                d->updated(); // because use of set().
-            }
-#endif
-            return os;
-        }
-    };
-
-    /**
-     * Standard strings don't need decomposition.
-     */
-    struct StdStringTypeInfo
-        : public SequenceTypeInfo<std::string,true>
-    {
-        StdStringTypeInfo()
-            : SequenceTypeInfo<std::string,true>("string")
-        {}
-
-        base::AttributeBase* buildVariable(std::string name,int size) const
-        {
-            string t_init(size, ' '); // we can't use the default char(), which is null !
-
-            // returned type is identical to parent, but we set spaces.
-            AttributeBase* ret = SequenceTypeInfo<std::string,true>::buildVariable(name,size);
-            Attribute<std::string> tt = ret;
-            tt.set( t_init );
-            return ret;
-        }
-
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
-            return false;
-        }
-
-        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
-            // First, try a plain update.
-            if ( result->update( source.get() ) )
-                return true;
-            return false;
-        }
-
-    };
 
     bool RealTimeToolkitPlugin::loadTypes()
     {

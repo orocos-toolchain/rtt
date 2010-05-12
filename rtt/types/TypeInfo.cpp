@@ -81,6 +81,10 @@ namespace RTT
         return arg;
     }
 
+    bool TypeInfo::resize(base::DataSourceBase::shared_ptr arg, int size) const {
+        return false;
+    }
+
     string TypeInfo::toString( DataSourceBase::shared_ptr in ) const
     {
 #ifdef OS_HAVE_STREAMS
