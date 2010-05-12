@@ -53,15 +53,15 @@ namespace RTT
 { namespace base {
 
   /**
-   * @brief The base class for all internal::DataSource's
+   * @brief The base class for all internal data representations.
    *
    * The internal::DataSource is an object containing Data of any type. It's
    * interface is designed for dynamic build-up and destruction of
    * these objects and allowing Commands, Properties etc to use them
    * as 'storage' devices which have the dual \a copy() /\a clone() semantics
-   * (which is heavily used by the Orocos Task Infrastructure).
+   * (which is heavily used by the Orocos type and scripting Infrastructure).
    *
-   * @important internal::DataSource's are reference counted and must be allocated on the headp. Use
+   * @important internal::DataSource's are reference counted and must be allocated on the heap. Use
    * DataSourceBase::shared_ptr or internal::DataSource<T>::shared_ptr to deal
    * with cleanup of allocated DataSources. You are not allowed to delete
    * a DataSource. If you must have the pointer of a internal::DataSource, use
@@ -252,18 +252,6 @@ namespace RTT
        * @see types::TypeInfo
        */
       std::string toString();
-
-      /**
-       * Decompose the contents of this object into properties.
-       * @see types::TypeInfo
-       */
-      bool decomposeType( PropertyBag& targetbag );
-
-      /**
-       * Compose the contents of this object from another datasource.
-       * @see types::TypeInfo
-       */
-      bool composeType( DataSourceBase::shared_ptr source);
 
       /**
        * Inspect if this internal::DataSource is a proxy for a remote server object.

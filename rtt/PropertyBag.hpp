@@ -377,6 +377,22 @@ namespace RTT
      */
 
     /**
+     * Recursively prints out the contents of this bag.
+     * @param os A Std stream to print to
+     * @param bag The bag to print.
+     * @return os
+     */
+    std::ostream& operator<<(std::ostream& os, const PropertyBag& bag);
+
+    /**
+     * Not implemented
+     * @param is unused
+     * @param bag unused
+     * @return is
+     */
+    std::istream& operator>>(std::istream& is, PropertyBag& bag);
+
+    /**
      * This function locates a Property in nested PropertyBags.
      *
      * @param bag The bag to look for a Property.

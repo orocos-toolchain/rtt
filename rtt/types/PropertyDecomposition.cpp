@@ -29,10 +29,18 @@ bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
     DataSourceBase::shared_ptr dsb = source->getDataSource();
     if (!dsb)
         return false;
+    return typeDecomposition( dsb, targetbag);
+}
 
+bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targetbag)
+{
+    if (!dsb)
+        return false;
     vector<string> parts = dsb->getPartNames();
     if ( parts.empty() )
         return false;
+
+    targetbag.setType( dsb->getTypeName() );
 
     // needed for recursion.
     auto_ptr< Property<PropertyBag> > recurse_bag( new Property<PropertyBag>("recurse_bag","Part") );
@@ -40,10 +48,10 @@ bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
     for(vector<string>::iterator it = parts.begin(); it != parts.end(); ++it ) {
         DataSourceBase::shared_ptr part = dsb->getPart( *it );
         if (!part) {
-            log(Error) <<"propertyDecomposition: Inconsistent type info for "<< part->getTypeName() << ": reported to have part '"<<*it<<"' but failed to return it."<<endlog();
-            return false;
+            log(Error) <<"propertyDecomposition: Inconsistent type info for "<< dsb->getTypeName() << ": reported to have part '"<<*it<<"' but failed to return it."<<endlog();
+            continue;
         }
-        DataSourceBase::shared_ptr aspart = dsb->getTypeInfo()->getAssignable( part );
+        DataSourceBase::shared_ptr aspart = part->getTypeInfo()->getAssignable( part );
         if (!aspart) {
             // For example: the case for size() and capacity() in SequenceTypeInfo
             log(Warning)<<"propertyDecomposition: Part '"<< *it << "' of type "<< part->getTypeName() << " is not changeable."<<endlog();
@@ -51,10 +59,16 @@ bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
         }
         // finally recurse or add it to the target bag:
         PropertyBase* newpb = part->getTypeInfo()->buildProperty(*it,"Part",aspart);
+        if ( !newpb ) {
+            log(Error)<< "Decomposition failed because Part '"<<*it<<"' is not known to type system."<<endlog();
+            continue;
+        }
         if (!propertyDecomposition( newpb, recurse_bag->value()) ) {
+            assert( recurse_bag->value().empty() );
             targetbag.ownProperty( newpb ); // leaf
         } else {
             recurse_bag->setName(*it);
+            // setType() is done by recursive of self.
             targetbag.ownProperty( recurse_bag.release() ); //recursed.
             recurse_bag.reset( new Property<PropertyBag>("recurse_bag","Part") );
         }
@@ -78,11 +92,12 @@ bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
                     continue;
                 }
                 // finally recurse or add it to the target bag:
-                PropertyBase* newpb = item->getTypeInfo()->buildProperty(indx,"Item",asitem);
+                PropertyBase* newpb = item->getTypeInfo()->buildProperty( "Element" + indx,"Sequence Element",asitem);
                 if (!propertyDecomposition( newpb, recurse_bag->value()) ) {
                     targetbag.ownProperty( newpb ); // leaf
                 } else {
                     recurse_bag->setName( indx );
+                    // setType() is done by recursive of self.
                     targetbag.ownProperty( recurse_bag.release() ); //recursed.
                     recurse_bag.reset( new Property<PropertyBag>("recurse_bag","Item") );
                 }
@@ -90,7 +105,7 @@ bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
         }
     }
 
-    return true;
+    return !targetbag.empty();
 }
 
 }}

@@ -41,6 +41,7 @@
 #include "PropertyBase.hpp"
 #include "internal/DataSources.hpp"
 #include "PropertyBag.hpp"
+#include "../types/PropertyDecomposition.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -78,8 +79,11 @@ namespace RTT {
 
     bool PropertyBase::compose( const PropertyBag& source)
     {
+        DataSourceBase::shared_ptr dsb = getDataSource();
         ConstReferenceDataSource<PropertyBag> rds(source);
         rds.ref();
-        return this->getDataSource()->composeType( &rds );
+        if (dsb)
+            return dsb->getTypeInfo()->composeType( &rds, dsb);
+        return false;
     }
 }

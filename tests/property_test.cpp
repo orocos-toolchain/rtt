@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <typeinfo>
 #include <marsh/PropertyBagIntrospector.hpp>
 #include <internal/DataSourceTypeInfo.hpp>
 #include <types/PropertyDecomposition.hpp>
@@ -76,6 +77,22 @@ public:
         delete pi2ref;
     }
 };
+
+bool operator==(const std::vector<double>& a, const std::vector<double>& b)
+{
+    if ( a.size() != b.size() ) {
+        log(Error) << "Wrong vector sizes : " << a.size() <<" "<< b.size()<<endlog();
+        return false;
+    }
+    for(unsigned int i =0; i != a.size(); ++i)
+        {
+            if (a[i] != b[i]) {
+                log(Error) << "Wrong vector element: "<<a[i]<<" != "<<b[i]<<" i:" << i<<endlog();
+                return false;
+            }
+        }
+    return true;
+}
 
 
 BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
@@ -205,22 +222,6 @@ BOOST_AUTO_TEST_CASE( testremoveProperty )
     BOOST_CHECK( findProperty( bag, "s1.s2" ) == 0 );
 }
 
-bool operator==(const std::vector<double>& a, const std::vector<double>& b)
-{
-    if ( a.size() != b.size() ) {
-        log(Error) << "Wrong vector sizes : " << a.size() <<" "<< b.size()<<endlog();
-        return false;
-    }
-    for(unsigned int i =0; i != a.size(); ++i)
-        {
-            if (a[i] != b[i]) {
-                log(Error) << "Wrong vector element: "<<a[i]<<" != "<<b[i]<<" i:" << i<<endlog();
-                return false;
-            }
-        }
-    return true;
-}
-
 BOOST_AUTO_TEST_CASE( testRepository )
 {
     /**
@@ -234,14 +235,13 @@ BOOST_AUTO_TEST_CASE( testRepository )
         Property<PropertyBag> bag("Result","D");
         BOOST_REQUIRE( TypeInfoRepository::Instance()->type( *it ) );
         target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
-        if ( target && target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
-            BOOST_CHECK( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
+        if ( target && typeDecomposition( target->getDataSource(), bag.value() ) )
+            BOOST_CHECK_MESSAGE( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ), "Failed composition for type "+target->getTypeInfo()->getTypeName() );
         deletePropertyBag( bag.value() );
         delete target;
     }
 
 }
-#include <typeinfo>
 
 BOOST_AUTO_TEST_CASE( testComposition )
 {
@@ -274,26 +274,26 @@ BOOST_AUTO_TEST_CASE( testComposition )
 
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and back:
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
     BOOST_CHECK( pvd == pvd2 );
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
 
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    BOOST_CHECK( typeDecomposition( pvd_cr.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
     BOOST_CHECK( pvd_cr == pvd_cr2);
     pvd_cr2.value().clear();
     deletePropertyBag( bag.value() );
 
     // Cross composition. (const ref to value and vice versa)
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
     BOOST_CHECK( pvd == pvd_cr2);
     pvd_cr2.value().clear();
     deletePropertyBag( bag.value() );
 
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    BOOST_CHECK( typeDecomposition( pvd_cr.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
     BOOST_CHECK( pvd_cr == pvd2);
     pvd2.value().clear();

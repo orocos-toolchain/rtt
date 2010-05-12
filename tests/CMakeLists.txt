@@ -42,10 +42,10 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ)
 
     # Copy over CPF files.
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf
-                   ${RUNTIME_OUTPUT_DIRECTORY}/property_test_vect.cpf COPYONLY)
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf
-                   ${RUNTIME_OUTPUT_DIRECTORY}/property_loading.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarshVectLegacy.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarsh.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarsh.cpf COPYONLY)
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-dynamic_${OROCOS_TARGET})

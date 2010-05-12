@@ -40,6 +40,7 @@
 #endif
 #include "PropertyBag.hpp"
 #include "Property.hpp"
+#include "types/PropertyDecomposition.hpp"
 #include "Logger.hpp"
 #include <algorithm>
 #include "rtt-fwd.hpp"
@@ -280,6 +281,20 @@ namespace RTT
         return copyProperties( this->_value->set(), orig.rvalue() );
     }
 
+    std::ostream& operator<<(std::ostream& os, const PropertyBag& bag) {
+        int size = bag.size();
+        os << "[[";
+        for(int i=0; i != size; ++i) {
+            os << bag.getItem(i)->getName() << "='"<< bag.getItem(i) <<"'"<<endl;
+        }
+        os << "]]";
+
+        return os;
+    }
+
+    std::istream& operator>>(std::istream& is, PropertyBag& bag) { return is; }
+
+
     PropertyBase* findProperty(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;
@@ -425,9 +440,15 @@ namespace RTT
             if (srcprop != 0)
             {
                 //std::cout <<"*******************refresh"<<std::endl;
+#ifndef NDEBUG
+                log(Debug) << "refreshing Property "
+                        << tgtprop->getType() << " "<< tgtprop->getName()
+                        << " from "<< srcprop->getType() << " "<< srcprop->getName()<< Logger::endl;
+#endif
                 if ( tgtprop->refresh( srcprop ) == false ) {
                     // try composition:
-                    if ( tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), tgtprop->getDataSource() ) == false ) {
+                    Property<PropertyBag> source = srcprop;
+                    if ( !srcprop || !tgtprop->compose( source.value())) {
                         log(Error) << "Could not update, nor compose Property "
                                    << tgtprop->getType() << " "<< srcprop->getName()
                                    << ": type mismatch, can not refresh with type "
@@ -488,8 +509,8 @@ namespace RTT
 
         // if the target is of different type than source, it is replaced by source.
         if ( target.getType() != "PropertyBag" && target.getType() != source.getType() ) {
-            log(Debug) << "Rebuilding typed PropertyBag."<<endlog();
-            deletePropertyBag(target);
+            log(Error) << "Can not populate typed PropertyBag '"<< target.getType() <<"' from '"<<source.getType()<<"' (source and target type differed)."<<endlog();
+            return false;
         }
 
         target.setType( source.getType() );
@@ -517,7 +538,9 @@ namespace RTT
                     // no need to make new one, just update existing one
                     if ( (*mit)->update( (*sit) ) == false ) {
                         // try composition:
-                        if ( (*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) == false ) {
+                        Property<PropertyBag> source = *sit;
+                        // if *sit is a bag, and we can decompose target, and we can update it, we have success, otherwise failure:
+                        if ( !source.ready() || ! (*mit)->compose( source.value() ) ) {
                             Logger::log() << Logger::Error;
                             Logger::log() << "updateProperties: Could not update, nor compose Property "
                                           << (*mit)->getType() << " "<< (*mit)->getName()
@@ -595,7 +618,10 @@ namespace RTT
                 // found it, update !
                 if (target_walker->update(source_walker) == false ) {
                     // try composition:
-                    if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), target_walker->getDataSource() ) == false ) {
+                    PropertyBag decomp;
+                    Property<PropertyBag> source = source_walker;
+                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
+                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
                         log(Error) << "Could not update nor compose Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not update with type "
@@ -658,7 +684,10 @@ namespace RTT
                 // found it, refresh !
                 if (target_walker->refresh(source_walker) == false ) {
                     // try composition:
-                    if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), target_walker->getDataSource() ) == false ) {
+                    PropertyBag decomp;
+                    Property<PropertyBag> source = source_walker;
+                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
+                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
                         log(Error) << "Could not refresh nor compose Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not refresh with type "

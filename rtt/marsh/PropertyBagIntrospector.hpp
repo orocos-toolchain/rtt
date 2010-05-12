@@ -41,6 +41,7 @@
 #include "../PropertyBag.hpp"
 #include "../Property.hpp"
 #include "../base/PropertyIntrospection.hpp"
+#include "../types/PropertyDecomposition.hpp"
 #include <stack>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -101,11 +102,10 @@ namespace RTT
         {
             // if it is decomposable, identify a new bag, otherwise add a clone.
             Property<PropertyBag> res(v->getName(), v->getDescription() );
-            if ( v->getTypeInfo()->decomposeType( v->getDataSource(), res.value() ))
+            if ( types::typeDecomposition( v->getDataSource(), res.value() ))
                 res.identify( this );
             else
                 mystack.top()->add( v->clone() );
-            deleteProperties(res.value());
         }
 
         virtual void introspect(Property<PropertyBag> &v)

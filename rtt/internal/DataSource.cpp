@@ -90,18 +90,6 @@ namespace RTT {
         return mobj->getTypeInfo()->toString( mobj );
     }
 
-    bool DataSourceBase::decomposeType( PropertyBag& targetbag )
-    {
-        DataSourceBase::shared_ptr mobj(this);
-        return mobj->getTypeInfo()->decomposeType( mobj, targetbag );
-    }
-
-    bool DataSourceBase::composeType( DataSourceBase::shared_ptr source)
-    {
-        DataSourceBase::shared_ptr mobj(this);
-        return mobj->getTypeInfo()->composeType( source, mobj );
-    }
-
     bool DataSourceBase::isAssignable() const {
         return false;
     }
