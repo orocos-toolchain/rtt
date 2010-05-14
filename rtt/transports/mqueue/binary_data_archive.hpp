@@ -78,6 +78,9 @@
 #include <boost/config.hpp>
 #include <boost/mpl/bool.hpp>
 
+// binary_data_archive API changed at 1.42
+#include <boost/version.hpp>
+
 namespace RTT
 {
     namespace mqueue
@@ -267,7 +270,11 @@ namespace RTT
              */
             template<class T>
             binary_data_iarchive &load_a_type(T &t,boost::mpl::false_){
+#if BOOST_VERSION >= 104200
+                boost::archive::detail::load_non_pointer_type<binary_data_iarchive>::load_only::invoke(*this,t);
+#else
                 boost::archive::detail::load_non_pointer_type<binary_data_iarchive,T>::load_only::invoke(*this,t);
+#endif
                 return *this;
             }
 
@@ -436,7 +443,11 @@ namespace RTT
              */
             template<class T>
             binary_data_oarchive &save_a_type(T const &t,boost::mpl::false_){
+#if BOOST_VERSION >= 104200
+                  boost::archive::detail::save_non_pointer_type<binary_data_oarchive>::save_only::invoke(*this,t);
+#else
                   boost::archive::detail::save_non_pointer_type<binary_data_oarchive,T>::save_only::invoke(*this,t);
+#endif
                   return *this;
             }
 
