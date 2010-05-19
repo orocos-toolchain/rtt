@@ -230,7 +230,17 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return mset->updateBlob(ORO_CORBA_PROTOCOL_ID, &value );
+      if ( mset->updateBlob(ORO_CORBA_PROTOCOL_ID, &value ) == false) {
+#if CORBA_IS_TAO
+          CORBA::TypeCode_ptr tc = value.type(); // may leak.
+#else
+          CORBA::TypeCode_var tc = value.type(); // does not compile in TAO, probably a bug in TAO API.
+#endif
+          RTT::log(RTT::Error) << "Failed to update Assignable Expression of type "<< mset->getTypeName()
+                  << " with Any (Type id:" << tc->id() << " Type name:"<< tc->name() <<")"<<RTT::endlog();
+          return false;
+      }
+      return true;
   }
 
   virtual
