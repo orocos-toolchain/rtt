@@ -39,8 +39,8 @@
 
 #include "rtt-config.h"
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include "RealTimeToolkit.hpp"
-#include "Toolkit.hpp"
+#include "RealTimeTypekit.hpp"
+#include "Typekit.hpp"
 #endif
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT

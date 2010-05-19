@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#include "Toolkit.hpp"
-#include "ToolkitPlugin.hpp"
+#include "Typekit.hpp"
+#include "TypekitPlugin.hpp"
 #include "../plugin/TransportPlugin.hpp"
 #include "../Logger.hpp"
 #include <algorithm>

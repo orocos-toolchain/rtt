@@ -1,5 +1,5 @@
 #include "rtt-config.h"
-#include "RealTimeToolkit.hpp"
+#include "RealTimeTypekit.hpp"
 #include "Types.hpp"
 #include "GlobalsRepository.hpp"
 #include "../FlowStatus.hpp"

@@ -38,7 +38,7 @@
 
 
 #include "rtt-config.h"
-#include "RealTimeToolkit.hpp"
+#include "RealTimeTypekit.hpp"
 #include "Types.hpp"
 #include "TemplateConstructor.hpp"
 #include "../internal/DataSources.hpp"

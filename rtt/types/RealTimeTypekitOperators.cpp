@@ -38,7 +38,7 @@
 
 
 #include "rtt-config.h"
-#include "RealTimeToolkit.hpp"
+#include "RealTimeTypekit.hpp"
 #include "Types.hpp"
 #include "Operators.hpp"
 #include "OperatorTypes.hpp"

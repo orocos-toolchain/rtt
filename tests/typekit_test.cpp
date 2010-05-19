@@ -11,7 +11,7 @@
 #include <types/TemplateConstructor.hpp>
 #include <types/Operators.hpp>
 #include <types/OperatorTypes.hpp>
-#include <types/RealTimeToolkit.hpp>
+#include <types/RealTimeTypekit.hpp>
 
 #include <types/VectorTemplateComposition.hpp>
 

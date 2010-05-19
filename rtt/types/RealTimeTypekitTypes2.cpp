@@ -1,6 +1,6 @@
 
 #include "rtt-config.h"
-#include "RealTimeToolkit.hpp"
+#include "RealTimeTypekit.hpp"
 #include "Types.hpp"
 #include "TemplateTypeInfo.hpp"
 #include "SequenceTypeInfo.hpp"

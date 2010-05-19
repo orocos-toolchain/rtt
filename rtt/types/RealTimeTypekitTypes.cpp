@@ -37,7 +37,7 @@
 
 
 #include "rtt-config.h"
-#include "RealTimeToolkit.hpp"
+#include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
 #include "StdStringTypeInfo.hpp"
 #include "BoolTypeInfo.hpp"
