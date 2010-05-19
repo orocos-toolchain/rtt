@@ -76,7 +76,7 @@ namespace RTT
 	 * The resolution is up to 100 nano seconds. Anything smaller will be interpreted
 	 * as a zero.
          */
-        static bool InitOrb(int argc, char* argv[], Seconds orb_timeout=0 );
+        static bool RTT_CORBA_API InitOrb(int argc, char* argv[], Seconds orb_timeout=0 );
 
     };
 }}

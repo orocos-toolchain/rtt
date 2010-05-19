@@ -194,7 +194,7 @@ if(OROCOS_TARGET STREQUAL "win32")
     set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
   endif()
   if (MSVC)
-    set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
     # We force to ON
     message("Forcing OS_NO_ASM to ON for MSVC.")
