@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.cxx
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeTypekit.cxx
 
-                        RealTimeToolkit.cxx -  description
+                        RealTimeTypekit.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -158,7 +158,7 @@ namespace RTT
         };
     }
 
-    bool RealTimeToolkitPlugin::loadConstructors()
+    bool RealTimeTypekitPlugin::loadConstructors()
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 #ifndef ORO_EMBEDDED

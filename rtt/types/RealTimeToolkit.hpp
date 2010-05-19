@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeTypekit.hpp
 
-                        RealTimeToolkit.hpp -  description
+                        RealTimeTypekit.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -48,8 +48,8 @@ namespace RTT
     /**
      * This interface defines the types of the realTime package.
      */
-    class RTT_API RealTimeToolkitPlugin
-       : public ToolkitPlugin
+    class RTT_API RealTimeTypekitPlugin
+       : public TypekitPlugin
     {
     public:
         virtual std::string getName();
@@ -61,9 +61,9 @@ namespace RTT
     };
 
     /**
-     * The single global instance of the RealTime Toolkit.
+     * The single global instance of the RealTime Typekit.
      */
-    extern RealTimeToolkitPlugin RealTimeToolkit;
+    extern RealTimeTypekitPlugin RealTimeTypekit;
 }}
 
 #endif

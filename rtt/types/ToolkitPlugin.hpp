@@ -31,8 +31,8 @@
  ***************************************************************************/
 
 
-#ifndef ORO_TOOLKITPLUGIN_HPP
-#define ORO_TOOLKITPLUGIN_HPP 1
+#ifndef ORO_TYPEKITPLUGIN_HPP
+#define ORO_TYPEKITPLUGIN_HPP 1
 
 #include <string>
 #include <vector>
@@ -43,15 +43,15 @@ namespace RTT
 
 
     /**
-     * This interface defines how additional toolkits
+     * This interface defines how additional typekits
      * are loaded into Orocos.
-     * A ToolkitPlugin defines additional user data types for a Toolkit.
+     * A TypekitPlugin defines additional user data types for a Typekit.
      * @ingroup CoreLib
      */
-    class RTT_API ToolkitPlugin
+    class RTT_API TypekitPlugin
     {
     public:
-        virtual ~ToolkitPlugin() {}
+        virtual ~TypekitPlugin() {}
 
         /**
          * Implement this method to add types to the
@@ -62,7 +62,7 @@ namespace RTT
          * in scripting, XML,...
          * @see The TypeInfoName class for only 'name' addition of a user type
          * @see The TemplateIndexTypeInfo for adding container types.
-         * @see The RealTimeToolkit for an implementation example.
+         * @see The RealTimeTypekit for an implementation example.
          */
         virtual bool loadTypes() = 0;
 
@@ -74,7 +74,7 @@ namespace RTT
          * classes for the interface of an operation.
          * @see The newUnaryOperator, newBinaryOperator and newDotOperator
          * functions for creating new operator objects.
-         * @see The RealTimeToolkit for an implementation example.
+         * @see The RealTimeTypekit for an implementation example.
          */
         virtual bool loadOperators() = 0;
 
@@ -87,7 +87,7 @@ namespace RTT
          * @see The TypeBuilder class for the interface of a constructor.
          * @see The newConstructor utility function for creating a new
          * constructor object.
-         * @see The RealTimeToolkit for an implementation example.
+         * @see The RealTimeTypekit for an implementation example.
          */
         virtual bool loadConstructors() = 0;
 

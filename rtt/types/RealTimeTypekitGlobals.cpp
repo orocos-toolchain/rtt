@@ -9,7 +9,7 @@
 namespace RTT
 {
     using namespace types;
-    bool RealTimeToolkitPlugin::loadGlobals() {
+    bool RealTimeTypekitPlugin::loadGlobals() {
         GlobalsRepository::shared_ptr globals = GlobalsRepository::Instance();
 
         // Data Flow enums:

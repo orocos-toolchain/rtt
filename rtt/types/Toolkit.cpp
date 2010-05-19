@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Toolkit.cxx
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Typekit.cxx
 
-                        Toolkit.cxx -  description
+                        Typekit.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -46,13 +46,13 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    std::vector<ToolkitPlugin*> Toolkit::Tools;
-    std::vector<TransportPlugin*> Toolkit::Transports;
+    std::vector<TypekitPlugin*> Typekit::Tools;
+    std::vector<TransportPlugin*> Typekit::Transports;
 
-    void Toolkit::Import( ToolkitPlugin& tkpr )
+    void Typekit::Import( TypekitPlugin& tkpr )
     {
-        ToolkitPlugin* tkp = &tkpr;
-        Logger::In in("Toolkit");
+        TypekitPlugin* tkp = &tkpr;
+        Logger::In in("Typekit");
         if ( find( Tools.begin(), Tools.end(), tkp ) != Tools.end() ) {
             Logger::log() <<Logger::Debug << "Tool "<<tkp->getName() <<" already loaded."<<Logger::endl;
             return;
@@ -76,10 +76,10 @@ namespace RTT {
         }
     }
 
-    void Toolkit::Import( TransportPlugin& trpr )
+    void Typekit::Import( TransportPlugin& trpr )
     {
         TransportPlugin* trp = &trpr;
-        Logger::In in("Toolkit");
+        Logger::In in("Typekit");
         if ( find( Transports.begin(), Transports.end(), trp ) != Transports.end() ) {
             Logger::log() <<Logger::Debug << "Transport "<<trp->getName() <<" already loaded."<<Logger::endl;
             return;
@@ -91,16 +91,16 @@ namespace RTT {
         TypeInfoRepository::Instance()->registerTransport( trp );
     }
 
-    std::vector<std::string> Toolkit::getTools()
+    std::vector<std::string> Typekit::getTools()
     {
         std::vector<std::string> ret;
-        for (std::vector<ToolkitPlugin*>::const_iterator it = Tools.begin();
+        for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
              it != Tools.end(); ++it)
             ret.push_back( (*it)->getName() );
         return ret;
     }
 
-    std::vector<std::string> Toolkit::getTransports()
+    std::vector<std::string> Typekit::getTransports()
     {
         std::vector<std::string> ret;
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
@@ -109,16 +109,16 @@ namespace RTT {
         return ret;
     }
 
-    bool Toolkit::hasTool( const std::string& toolname )
+    bool Typekit::hasTool( const std::string& toolname )
     {
-        for (std::vector<ToolkitPlugin*>::const_iterator it = Tools.begin();
+        for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
              it != Tools.end(); ++it)
             if ((*it)->getName() == toolname)
                 return true;
         return false;
     }
 
-    bool Toolkit::hasTransport( const std::string& transportname )
+    bool Typekit::hasTransport( const std::string& transportname )
     {
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
              it != Transports.end(); ++it)

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.cxx
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeTypekit.cxx
 
-                        RealTimeToolkit.cxx -  description
+                        RealTimeTypekit.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -45,9 +45,9 @@ namespace RTT
     using namespace std;
 
     namespace types {
-        RealTimeToolkitPlugin RealTimeToolkit;
+        RealTimeTypekitPlugin RealTimeTypekit;
 
-        std::string RealTimeToolkitPlugin::getName()
+        std::string RealTimeTypekitPlugin::getName()
         {
             return "RealTime";
         }

@@ -55,7 +55,7 @@ namespace RTT {
          */
         int loadRTT()
         {
-            Toolkit::Import( RealTimeToolkit );
+            Typekit::Import( RealTimeTypekit );
             return true;
         }
 

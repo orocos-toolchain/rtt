@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Toolkit.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Typekit.hpp
 
-                        Toolkit.hpp -  description
+                        Typekit.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#ifndef ORO_TOOLKIT_HPP
-#define ORO_TOOLKIT_HPP
+#ifndef ORO_TYPEKIT_HPP
+#define ORO_TYPEKIT_HPP
 
 #include <string>
 #include <vector>
@@ -49,15 +49,15 @@ namespace RTT
 { namespace types {
 
     /**
-     * This class allows the Orocos Real-Time Toolkit to be extended
-     * with additional toolkits (ToolkitPlugin), such as for kinematics or any
+     * This class allows the Orocos Real-Time Typekit to be extended
+     * with additional typekits (TypekitPlugin), such as for kinematics or any
      * library foreign to Orocos.
      * @ingroup CoreLib
      */
-    class RTT_API Toolkit
+    class RTT_API Typekit
     {
         /** Loaded tools. */
-        static std::vector<ToolkitPlugin*> Tools;
+        static std::vector<TypekitPlugin*> Tools;
         /** Loaded transports. */
         static std::vector<plugin::TransportPlugin*> Transports;
     public:
@@ -68,7 +68,7 @@ namespace RTT
          * import will succeed. Multiple imports will not
          * be considered as an error.
          */
-        static void Import( ToolkitPlugin& tkp );
+        static void Import( TypekitPlugin& tkp );
         /**
          * Import a transport plugin into Orocos.
          * One may try to load the same transport plugin multiple
@@ -100,22 +100,22 @@ namespace RTT
 }}
 
 /**
- * Once you defined your Toolkit Plugin static object,
+ * Once you defined your Typekit Plugin static object,
  * you can use this macro to make it available as a
  * plugin.
  * @note Do not use this macro inside a namespace !
- * For example: ORO_TOOLKIT_PLUGIN ( KDL::KDLToolkit )
- * where KDL::KDLToolkit is a global object (not a classname !).
+ * For example: ORO_TYPEKIT_PLUGIN ( KDL::KDLTypekit )
+ * where KDL::KDLTypekit is a global object (not a classname !).
  */
-#define ORO_TOOLKIT_PLUGIN( TOOLKIT ) \
+#define ORO_TYPEKIT_PLUGIN( TYPEKIT ) \
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
         bool loadRTTPlugin(RTT::TaskContext* ) {    \
-            RTT::types::Toolkit::Import( TOOLKIT ); \
+            RTT::types::Typekit::Import( TYPEKIT ); \
         return true; \
     } \
     std::string getRTTPluginName() { \
-        return TOOLKIT.getName(); \
+        return TYPEKIT.getName(); \
     } \
 }
 
