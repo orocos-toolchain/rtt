@@ -37,10 +37,10 @@
  * @file Plugin.hpp
  * This file defines the Orocos plugin API.
  * A plugin is a dynamic library which has a unique name and
- * can be loaded in a running application. In case the loading
- * is done by an Orocos TaskContext, the plugin is notified of
- * the loading TaskContext. A plugin can reject to load, in which
- * case the library should be unloaded from the application again.
+ * can be loaded in a running process. In case the loading
+ * is done in an Orocos TaskContext, the plugin is notified of
+ * the TaskContext. A plugin can reject to load in a process, in which
+ * case the library will be unloaded from the process again.
  * Once loaded, a plugin remains in the current process until the
  * process exits.
  */
@@ -50,14 +50,19 @@ namespace RTT {
 }
 extern "C" {
     /**
-     * Instructs this plugin to load itself into the application.
+     * Instructs this plugin to load itself into the process or a component.
+     * This function will first be called with \a t being equal to zero, giving
+     * the plugin the opportunity to load something in the whole process.
      * Implement in this function any startup code your plugin requires.
      * This function should not throw.
      *
      * @param t The optional TaskContext which is loading this plugin.
-     * May be zero.
-     * @return true if the initialisation succeeded, false if the
-     * plugin could not do so.
+     * Is zero when the plugin is loaded into the process, non-zero
+     * when loaded in a TaskContext. A plugin may choose to load only
+     * in the process and not in a TaskContext (typekits for example). If
+     * a plugin only wants to load in a TaskContext, it must return true when
+     * t is zero, such that the plugin remains loaded in the process.
+     * @return true if the loading succeeded, false otherwise.
      */
     bool loadRTTPlugin( RTT::TaskContext* t );
 
@@ -66,6 +71,15 @@ extern "C" {
      * the same name will be allowed to live in a single process.
      */
     std::string getRTTPluginName();
+
+    /**
+     * Returns the target name for which this plugin was built.
+     *
+     * @return The name as set by OROCOS_TARGET. When the empty
+     * string is returned, it is assumed that the loadRTTPlugin
+     * function will check if this plugin may be loaded or not.
+     */
+    std::string getRTTTargetName();
 }
 
 #endif

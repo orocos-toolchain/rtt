@@ -52,6 +52,10 @@
 #include "parse_exception.hpp"
 #include "../Method.hpp"
 #include "../internal/mystd.hpp"
+#include "../plugin/ServicePlugin.hpp"
+
+ORO_SERVICE_NAMED_PLUGIN( RTT::scripting::ScriptingService, "scripting" )
+
 
 namespace RTT {
     using namespace detail;

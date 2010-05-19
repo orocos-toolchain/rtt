@@ -100,22 +100,31 @@ namespace RTT
 }}
 
 /**
- * Once you defined your Typekit Plugin static object,
+ * Once you defined your TypekitPlugin class,
  * you can use this macro to make it available as a
  * plugin.
  * @note Do not use this macro inside a namespace !
  * For example: ORO_TYPEKIT_PLUGIN ( KDL::KDLTypekit )
- * where KDL::KDLTypekit is a global object (not a classname !).
+ * where KDL::KDLTypekit is a *classname*, derived from
+ * RTT::types::TypekitPlugin.
  */
 #define ORO_TYPEKIT_PLUGIN( TYPEKIT ) \
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
-        bool loadRTTPlugin(RTT::TaskContext* ) {    \
-            RTT::types::Typekit::Import( TYPEKIT ); \
-        return true; \
-    } \
+        bool loadRTTPlugin(RTT::TaskContext* tc) { \
+            TYPEKIT tk; \
+            if (tc == 0) { \
+                RTT::types::Typekit::Import( tk ); \
+                return true; \
+            } \
+            return false; \
+        } \
     std::string getRTTPluginName() { \
-        return TYPEKIT.getName(); \
+        TYPEKIT tk; \
+        return tk.getName(); \
+    } \
+    std::string getRTTTargetName() { \
+        return OROCOS_TARGET_NAME; \
     } \
 }
 

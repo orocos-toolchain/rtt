@@ -12,7 +12,7 @@ IF (BUILD_TESTING)
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY})
+   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY} rtt-scripting-dynamic_${OROCOS_TARGET} rtt-marshalling-dynamic_${OROCOS_TARGET})
 
     # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
     INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
@@ -157,7 +157,7 @@ IF (BUILD_TESTING)
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
 
-      ADD_UNIT_TEST(mqueue_archive_test EXTRA_TESTS ${TEST_LIBRARIES})
+      ADD_UNIT_TEST(mqueue_archive_test EXTRA_TESTS "${TEST_LIBRARIES}")
 
     ENDIF(ENABLE_MQ)
 
@@ -239,6 +239,11 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "")
     ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "")
     ADD_UNIT_TEST(typekit_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    if(PLUGINS_ENABLE)
+        ADD_UNIT_TEST(plugins_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_SUBDIRECTORY(plugins)
+        ADD_SUBDIRECTORY(types)
+    endif()
     
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  

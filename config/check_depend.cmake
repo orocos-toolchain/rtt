@@ -37,6 +37,8 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
   message(SEND_ERROR "OS_NO_ASM was turned on, but this requires Boost v1.36.0 or newer.")
 endif()
 
+OPTION(PLUGINS_ENABLE "Enable plugins" ON)
+    
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #
@@ -50,7 +52,13 @@ if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
 endif()
 
 # Look for boost
-find_package(Boost 1.36 REQUIRED)
+if ( PLUGINS_ENABLE )
+    find_package(Boost 1.36 REQUIRED filesystem system)
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS})
+    list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES}) 
+else()
+    find_package(Boost 1.36 REQUIRED)
+endif()
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
@@ -100,7 +108,7 @@ if(OROCOS_TARGET STREQUAL "lxrt")
 
   if(RTAI_FOUND)
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
+    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
   endif()
 else()
@@ -119,7 +127,7 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   if(XENOMAI_FOUND)
     list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
+    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
     if (XENOMAI_POSIX_FOUND)
       set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
@@ -142,7 +150,7 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.
 
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
@@ -178,7 +186,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
 
   # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES}) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
