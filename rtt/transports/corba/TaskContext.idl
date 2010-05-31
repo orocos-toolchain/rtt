@@ -1,0 +1,209 @@
+#ifndef ORO_CORBA_TASK_CONTEXT_IDL
+#define ORO_CORBA_TASK_CONTEXT_IDL
+
+/**
+ * @file CTaskContext.idl
+ * This file defines the interface of an
+ * Orocos Corba TaskContext Component.
+ */
+
+#include "ServiceProvider.idl"
+#include "ServiceRequester.idl"
+#include "DataFlow.idl"
+
+module RTT
+{
+    module corba
+    {
+
+	/**
+	 * Maps 1-to-1 to RTT::base::TaskCore::TaskState.
+	 * @ingroup CompIDL
+	 */
+	enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeError };
+
+	/**
+	 * A CTaskContext is the main entry point of a distributed
+	 * component and maps to a RTT::TaskContext.
+	 * @ingroup CompIDL
+	 */
+	interface CTaskContext
+	{
+	    typedef sequence<string> CPeerNames;
+
+	    /**
+	     * Return the instance name of this component.
+	     */
+	    string getName();
+
+	    /**
+	     * Return the description of this component.
+	     */
+	    string getDescription();
+
+	    /**
+	     * @name TaskContext life-cycle
+	     * @{
+	     */
+
+	    /**
+	     * Returns the current state of the component.
+	     */
+	    CTaskState getTaskState();
+
+	    /**
+	     * Configure this component.
+	     * @see RTT::base::TaskCore::configure()
+	     */
+	    boolean configure();
+
+	    /**
+	     * Start this component.
+	     * @see RTT::base::TaskCore::start()
+	     */
+	    boolean start();
+
+	    /**
+	     * Activate this component.
+	     * @see RTT::base::TaskCore::activate()
+	     */
+	    boolean activate();
+
+	    /**
+	     * Stop this component.
+	     * @see RTT::base::TaskCore::stop()
+	     */
+	    boolean stop();
+
+	    /**
+	     * Cleanup this component.
+	     * @see RTT::base::TaskCore::cleanup()
+	     */
+	    boolean cleanup();
+
+	    /**
+	     * Is this component's ExecutionEngine active ?
+	     * @see RTT::base::TaskCore::isActive()
+	     */
+	    boolean isActive();
+
+	    /**
+	     * Is this component running ?
+	     * @see RTT::base::TaskCore::isRunning()
+	     */
+	    boolean isRunning();
+
+	    /**
+	     * Is this component configured ?
+	     * @see RTT::base::TaskCore::isConfigured()
+	     */
+	    boolean isConfigured();
+
+	    /**
+	     * Is this component in a Fatal error state ?
+	     * @see RTT::base::TaskCore::inFatalError()
+	     */
+	    boolean inFatalError();
+
+	    /**
+	     * Is this component in a RunTime error state ?
+	     * @see RTT::base::TaskCore::inRunTimeError()
+	     */
+	    boolean inRunTimeError();
+
+	    /** @} */
+
+	    /**
+	     * Access to the Data Flow ports.
+	     * @see RTT::base::TaskCore::ports()
+	     */
+	    CDataFlowInterface ports();
+
+	    /**
+	     * @name CTaskContext services
+	     * @{
+	     */
+
+	    /**
+	     * Get a provided service.
+	     * @see RTT::TaskContext::provides()
+	     */
+	    CServiceProvider getProvider( in string service_name );
+      
+	    /**
+	     * Get a required service.
+	     * @see RTT::TaskContext::requires()
+	     */
+	    CServiceRequester getRequester( in string service_name );
+	    /** @} */
+
+	    /**
+	     * @name CTaskContext Browsing functions.
+	     * @{
+	     */
+
+	    /**
+	     * Get a list of all the peers this task is connected to.
+	     * @see RTT::TaskContext::getPeerList()
+	     */
+	    CPeerNames getPeerList( );
+
+	    /**
+	     * Get a peer this task is connected to.
+	     * @see RTT::TaskContext::getPeer()
+	     */
+	    CTaskContext getPeer( in string name );
+
+	    /**
+	     * Has this task a peer with given name ?
+	     * @see RTT::TaskContext::hasPeer()
+	     */
+	    boolean hasPeer( in string name );
+
+	    /**
+	     * Add a one-way peer connection.
+	     * @see RTT::TaskContext::addPeer()
+	     */
+	    boolean addPeer( in CTaskContext p, in string alias );
+
+	    /**
+	     * Remove a one-way peer connection.
+	     * @see RTT::TaskContext::removePeer()
+	     */
+	    boolean removePeer( in string name );
+
+	    /** @} */
+
+	    /**
+	     * Create a two-way peer connection.
+	     * @see RTT::TaskContext::connectPeers()
+	     */
+	    boolean connectPeers( in CTaskContext p );
+
+	    /**
+	     * Destroy a two-way peer connection.
+	     * @see RTT::TaskContext::disconnectPeers()
+	     */
+	    boolean disconnectPeers( in string name );
+
+	    /**
+	     * Connect all compatible and equally named
+	     * data ports with another CTaskContext's
+	     * data ports.
+	     * @see RTT::TaskContext::connectPorts()
+	     */
+	    boolean connectPorts( in CTaskContext p );
+
+	    /**
+	     * Connect all compatible and equally named
+	     * services with another CTaskContext's
+	     * services.
+	     * @see RTT::TaskContext::connectServices()
+	     */
+	    boolean connectServices( in CTaskContext p );
+
+	};
+    };
+};
+
+#endif

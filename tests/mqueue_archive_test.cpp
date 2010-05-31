@@ -7,12 +7,13 @@
 #include <boost/archive/binary_iarchive.hpp>
 
 #include <rtt-fwd.hpp>
-#include <marsh/binary_data_archive.hpp>
+#include <transports/mqueue/binary_data_archive.hpp>
 #include <os/fosi.h>
 
 using namespace std;
 using namespace boost::archive;
 using namespace RTT::detail;
+using namespace RTT::mqueue;
 namespace io = boost::iostreams;
 
 class MQueueArchiveTest

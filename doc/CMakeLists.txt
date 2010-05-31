@@ -11,8 +11,8 @@ IF (BUILD_DOCS)
 
   #list the xml files:
   SET( XML_SOURCES
-    xml/orocos-overview.xml xml/orocos-installation.xml xml/orocos-overview-devel.xml
-    xml/orocos-user-manual.xml xml/orocos-components-manual.xml xml/orocos-devel-manual.xml
+    xml/orocos-overview.xml xml/orocos-installation.xml
+    xml/orocos-user-manual.xml xml/orocos-components-manual.xml
     xml/orocos-rtt-changes.xml xml/orocos-user-manual.xml xml/orocos-ocl-intro.xml
     xml/orocos-transports-corba.xml xml/orocos-transports-mqueue.xml
     xml/orocos-toolkit-plugin.xml xml/orocos-faq.xml )

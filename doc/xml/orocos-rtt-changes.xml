@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.6">
-<!ENTITY version     "1.8">
+<!ENTITY oldversion  "1.10">
+<!ENTITY version     "2.0">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -22,12 +22,15 @@
   </articleinfo>
   <para>
     This document provides a quick overview of what changed between
-    the Real-Time Toolkit &oldversion; and version &version;. This
-    release includes all bugfixes of the &oldversion; branch. If your
-    application does not work with this release, look here for
-    possible causes and solutions. Also feature additions and
-    improvements are documented.
+    the Real-Time Toolkit &oldversion; and version &version;.
   </para>
+  <para>
+    Please consult the online wiki for all necessary information about
+    the Beta releases:
+    <ulink
+    url="http://www.orocos.org/wiki/rtt/rtt-20/rtt-200-beta1">RTT 2.0 Beta releases</ulink>.
+  </para>
+  <!--
   <para>
     The <ulink
     url="http://svn.mech.kuleuven.be/websvn/orocos/trunk/rtt/?op=log&amp;max=150&amp;">complete
@@ -64,8 +67,6 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    A thread creation bug (a regression) was fixed when running in the gnulinux target and no
-	    pam limits were set.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -75,88 +76,6 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>RTT::TaskContext</classname> has gained a
-	    new default execution model. Previously, a newly created
-	    TaskContext object could not be started and had no
-	    activity assigned. With this release, each created
-	    TaskContext gets automatically a
-	    <classname>RTT::SequentialActivity</classname> assigned,
-	    which allows it to start running and process commands and
-	    events. There is no thread created for this Activity,
-	    the commands and events are processed in the thread of the
-	    caller (thus sequentially). This activity implementation is equally
-	    thread-safe as the other RTT activities. See the Component Builder's Manual for
-	    an example.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The TaskContext has gained <classname>RTT::Event</classname>
-	    based Data and Buffer port processing. This allows non-periodic
-	    or sequential TaskContext objects to wake up when input on plain data ports arrives.
-	    A new function <function>ports()->addEventPort( &amp;a_port, "Description")</function>
-	    has been added to the interface to register a port for event-based
-	    reception. See the Component Builder's Manual for an example.
-	  </para>
-	  <para> Contributed by S. Joyeux. </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::TaskContext</classname> interface gained
-	    a <function>getActivity()</function> function which always returns
-	    a valid object and is equivalent to the old notation
-	    <function>engine()->getActivity()</function>. Further more, the
-	    <function>setActivity(ActivityInterface* )</function> function has
-	    been added to assign an activity to a TaskContext. The TaskContext
-	    <emphasis>owns</emphasis> the assigned activity object and manages memory
-	    allocation. The new usage pattern is then for example: 
-	    <programlisting>  a_task.setActivity( new PeriodicActivity(0.01) );</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    ActivityInterface::trigger() and start() behaviour of
-	    non-periodic threads/activities was documented and
-	    fixed. SingleThread::start() (which is called by these)
-	    returns now also true when a loop() is still being scheduled.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>RTT Classes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The <classname>RTT::Logger</classname> class has been extended such that
-	    it can be queried for the current 'log message' time. The OCL
-	    ReportingComponent can use this to synchronise data logs with message
-	    logs with the property <option>Synchronize</option>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Several issues in the <classname>RTT::Event</classname> class were
-	    fixed when using heavily threaded applications. At the same time, the
-	    lock-based event implementation has been re-added and tested but can only
-	    be enabled by changing a define in signal_base.hpp.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The RTT has been adapted to work with Boost versions up to 1.37.x.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>CORBA</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The CORBA transport layer has been improved and ported to Omniorb as well,
-	    which allows for smaller CORBA libraries. Set the CORBA_IMPLEMENTATION
-	    CMake build option to OMNIORB to use Omniorb (default is TAO).
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -176,20 +95,6 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The interface of the <classname>OCL::DeploymentComponent</classname> changed slightly.
-	    <function>kickOut(void)</function> has been renamed to <function>kickOutAll(void)</function>
-	    and two new functions <function>kickOut(std::string file_name)</function>,
-	    <function>kickOutComponent(std::string comp_name)</function> which unload a series
-	    of components described in a file or a single component by name respectively.
-	    This was done for equivalence with the <function>kickStart*</function> methods.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The Property file format of the Reporting Component has changed. The
-	    component is now configured from a single property file, which must be
-	    read using 'LoadProperties' (XML) or 'marshalling().loadProperties(file)'
-	    (scripting). See the OCL Reporting Component Manual for all details.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -199,62 +104,13 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>OCL::DeploymentComponent</classname> has better
-	    support for unloading/reloading components using XML files and
-	    error handling during the configuration steps. Loading additional
-	    components in a configured and running system is now possible.
 	  </para>
-	  <para> Contributed by D. Faconti </para>
-	</listitem>
-	<listitem>
-	  <para> The DeploymentComponent gained the ability to use
-	  <option>LoadProperties</option> (in addition to the
-	  <option>UpdateProperties</option> and
-	  <option>PropertyFile</option> elements) in the XML
-	  configuration file. This allows to load new properties into
-	  any existing component. </para>
-	  <para>Finally, a <option>Properties</option> element has
-	  been added in case you want to set (default) properties in
-	  the deployment XML file. This makes the use of an external
-	  property file optional.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    It is now possible to specify which component is
-	    <emphasis>Master</emphasis> when specifying a Slave
-	    activity in the deployment XML file. Also, each slave
-	    becomes automatically a peer of its master.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The Deployment component now looks for a 'site local' XML file
-	    in the current directory. This allows to pre-set the component
-	    path and load local libraries or site specific components.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The Deployment component's file format got the 'AutoSave' property
-	    for each loaded component. When set to 1, it causes the properties
-	    of the component to be saved to disk, using the same file name
-	    as used in LoadProperties, PropertyFile or UpdateProperties. If
-	    no file is given, a warning is issued and nothing is saved.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The Deployment component now also detects .dylib libraries on Mac
-	  </para>
-	  <para>
-	    Contributed by S. Roderick.
-	  </para>
+	  <para> Contributed by </para>
 	</listitem>
       </itemizedlist>
     </section>
   </section>
-
+  -->
   <appendix>
     <title>About Orocos</title>
     <para>
@@ -284,7 +140,7 @@
 	archive</ulink> ) .
       </para>
     <para>
-      Copyright (C) FMTC
+      Copyright (C) The SourceWorks
     </para>
     <para>
       Verbatim copying and distribution of this entire article is

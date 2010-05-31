@@ -1,0 +1,1160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="297mm"
+   height="210mm"
+   id="svg1489"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docbase="/home/sspr/src/documents/PhDtheses/psoetens/introduction"
+   sodipodi:docname="CameraWalkThrough.svg"
+   inkscape:export-filename="/home/sspr/src/documents/EURON/2009/presentation/rtt/CameraWalkThroughIface.png"
+   inkscape:export-xdpi="200"
+   inkscape:export-ydpi="200"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs1491">
+    <radialGradient
+       r="21.099501"
+       id="XMLID_16_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.9774,-0.2115,0.2115,0.9774,-204.4903,341.9193)"
+       cy="-178.67529"
+       cx="335.71289">
+      <stop
+         style="stop-color:#FFFA5F"
+         offset="0"
+         id="stop117" />
+      <stop
+         style="stop-color:#FEF85E"
+         offset="0.3945"
+         id="stop119" />
+      <stop
+         style="stop-color:#FCF15B"
+         offset="0.5366"
+         id="stop121" />
+      <stop
+         style="stop-color:#F7E655"
+         offset="0.6379"
+         id="stop123" />
+      <stop
+         style="stop-color:#F1D54C"
+         offset="0.7199"
+         id="stop125" />
+      <stop
+         style="stop-color:#E8BF42"
+         offset="0.7901"
+         id="stop127" />
+      <stop
+         style="stop-color:#DEA334"
+         offset="0.8522"
+         id="stop129" />
+      <stop
+         style="stop-color:#D18324"
+         offset="0.9084"
+         id="stop131" />
+      <stop
+         style="stop-color:#C35F12"
+         offset="0.9583"
+         id="stop133" />
+      <stop
+         style="stop-color:#B53A00"
+         offset="1"
+         id="stop135" />
+    </radialGradient>
+    <linearGradient
+       y2="-178.67529"
+       y1="-178.67529"
+       x2="461.86221"
+       x1="247.46581"
+       id="XMLID_15_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.9774,-0.2115,0.2115,0.9774,-204.4903,341.9193)">
+      <stop
+         style="stop-color:#FFFFFF"
+         offset="0"
+         id="stop110" />
+      <stop
+         style="stop-color:#000000"
+         offset="1"
+         id="stop112" />
+    </linearGradient>
+    <linearGradient
+       y2="-178.022"
+       y1="-178.022"
+       x2="892.42572"
+       x1="-20.3428"
+       id="XMLID_14_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.9774,-0.2115,0.2115,0.9774,-204.4903,341.9193)">
+      <stop
+         style="stop-color:#FFFFFF"
+         offset="0"
+         id="stop103" />
+      <stop
+         style="stop-color:#000000"
+         offset="1"
+         id="stop105" />
+    </linearGradient>
+    <radialGradient
+       r="39.746799"
+       id="XMLID_13_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.9774,-0.2115,0.2115,0.9774,-204.4903,341.9193)"
+       cy="-178.1563"
+       cx="336.2793">
+      <stop
+         style="stop-color:#FFFA5F"
+         offset="0"
+         id="stop96" />
+      <stop
+         style="stop-color:#B53A00"
+         offset="1"
+         id="stop98" />
+    </radialGradient>
+    <radialGradient
+       r="21.1"
+       id="XMLID_12_"
+       gradientUnits="userSpaceOnUse"
+       cy="39.519001"
+       cx="39.623001">
+      <stop
+         style="stop-color:#FFFA5F"
+         offset="0"
+         id="stop29" />
+      <stop
+         style="stop-color:#FEF85E"
+         offset="0.3945"
+         id="stop31" />
+      <stop
+         style="stop-color:#FCF15B"
+         offset="0.5366"
+         id="stop33" />
+      <stop
+         style="stop-color:#F7E655"
+         offset="0.6379"
+         id="stop35" />
+      <stop
+         style="stop-color:#F1D54C"
+         offset="0.7199"
+         id="stop37" />
+      <stop
+         style="stop-color:#E8BF42"
+         offset="0.7901"
+         id="stop39" />
+      <stop
+         style="stop-color:#DEA334"
+         offset="0.8522"
+         id="stop41" />
+      <stop
+         style="stop-color:#D18324"
+         offset="0.9084"
+         id="stop43" />
+      <stop
+         style="stop-color:#C35F12"
+         offset="0.9583"
+         id="stop45" />
+      <stop
+         style="stop-color:#B53A00"
+         offset="1"
+         id="stop47" />
+    </radialGradient>
+    <linearGradient
+       y2="476.68991"
+       y1="476.68991"
+       x2="-242.3132"
+       x1="-243.2471"
+       id="XMLID_11_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0,-214.9991,-214.9991,0,102527.3,-52175.832)">
+      <stop
+         style="stop-color:#FFFFFF"
+         offset="0"
+         id="stop22" />
+      <stop
+         style="stop-color:#000000"
+         offset="1"
+         id="stop24" />
+    </linearGradient>
+    <linearGradient
+       y2="462.69379"
+       y1="462.69379"
+       x2="-243.01469"
+       x1="-243.9702"
+       id="XMLID_10_"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(776.0099,550.007,550.007,-776.0099,-65411.414,493075.94)">
+      <stop
+         style="stop-color:#FFFFFF"
+         offset="0"
+         id="stop15" />
+      <stop
+         style="stop-color:#000000"
+         offset="1"
+         id="stop17" />
+    </linearGradient>
+    <radialGradient
+       r="39.747601"
+       id="XMLID_9_"
+       gradientUnits="userSpaceOnUse"
+       cy="40.038601"
+       cx="40.189499">
+      <stop
+         style="stop-color:#FFFA5F"
+         offset="0"
+         id="stop8" />
+      <stop
+         style="stop-color:#B53A00"
+         offset="1"
+         id="stop10" />
+    </radialGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 372.04724 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1052.3622 : 372.04724 : 1"
+       inkscape:persp3d-origin="526.18109 : 248.03149 : 1"
+       id="perspective38144" />
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;">
+      <path
+         id="path2407"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Sstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Sstart"
+       style="overflow:visible">
+      <path
+         id="path2428"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.2)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path2431"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mstart"
+       style="overflow:visible">
+      <path
+         sodipodi:nodetypes="ccccc"
+         id="path2417"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.4)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         sodipodi:nodetypes="cccc"
+         id="path2187"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(-5,0)" />
+    </marker>
+    <inkscape:perspective
+       id="perspective42366"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:document-units="mm"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.99852911"
+     inkscape:cx="526.18109"
+     inkscape:cy="372.04724"
+     inkscape:current-layer="layer1"
+     id="namedview1493"
+     inkscape:window-width="1680"
+     inkscape:window-height="975"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     showgrid="false" />
+  <metadata
+     id="metadata1495">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="connections"
+     style="display:none" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer8"
+     inkscape:label="execflow"
+     style="display:none">
+    <path
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.17127872;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       d="M 696.56195,382.17047 L 428.72147,382.17047"
+       id="path1565"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.88401604px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="538.19818"
+       y="553.11719"
+       id="text2436"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan2438"
+         x="538.19818"
+         y="553.11719">Execution Flow:</tspan><tspan
+         sodipodi:role="line"
+         x="538.19818"
+         y="581.72223"
+         id="tspan2442">events, methods and commands</tspan></text>
+    <path
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.62175083;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       d="M 747.50103,405.03032 L 747.50103,451.41101 L 297.92881,451.41101"
+       id="path1392"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600" />
+    <path
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.17127872;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       d="M 413.10691,323.60802 L 685.56192,323.60802"
+       id="path2465"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="dataflow"
+     style="display:none">
+    <g
+       id="g1536"
+       transform="matrix(1.292001,0,0,-1.2713342,60.86987,514.68778)"
+       style="font-size:17.8554554px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         transform="matrix(0.573739,0,0,0.659446,146.924,98.0697)"
+         d="M 401.83872,175.28482 A 30.484318,17.320635 0 1 1 340.87008,175.28482 A 30.484318,17.320635 0 1 1 401.83872,175.28482 z"
+         sodipodi:ry="17.320635"
+         sodipodi:rx="30.484318"
+         sodipodi:cy="175.28482"
+         sodipodi:cx="371.3544"
+         id="path12949"
+         style="font-size:29.02846909px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#ffff00;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.19045186;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc" />
+      <path
+         id="path12951"
+         d="M 277.82803,193.09531 C 312.48394,194.25011 305.55273,215.03666 335.58786,215.03666"
+         style="font-size:17.8554554px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.96245086;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans" />
+      <path
+         id="path12953"
+         d="M 378.13247,214.32446 C 415.80264,213.4107 408.26859,196.96299 440.91606,196.96299"
+         style="font-size:17.8554554px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.96245134;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:22.88401604px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="527.18665"
+       y="137.87714"
+       id="text12955"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan12957"
+         x="527.18665"
+         y="137.87714">Data Flow:</tspan><tspan
+         sodipodi:role="line"
+         x="527.18665"
+         y="166.48216"
+         id="tspan1553">Port Connections</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="528.24115"
+       y="280.4982"
+       id="text2469"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="528.24115"
+         y="280.4982"
+         id="tspan2473">connector</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="config"
+     style="display:none">
+    <g
+       style="display:inline"
+       id="g4533"
+       transform="matrix(1.2713342,0,0,1.2713342,55.395479,51.067435)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <rect
+         y="361.50226"
+         x="29.933867"
+         height="70.157501"
+         width="57.996864"
+         id="rect3564"
+         style="opacity:1;fill:#7ad1c6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.06220484;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path4439"
+         d="M 39.522058,374.59833 L 77.874822,374.59833"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path4527"
+         d="M 39.522058,402.03769 L 77.874822,402.03769"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path4529"
+         d="M 39.522057,388.31803 L 77.874822,388.31803"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path4531"
+         d="M 39.522057,415.75739 L 77.874822,415.75739"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4.87411499;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Send);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
+       d="M 131.13897,505.56851 L 131.13897,357.20013"
+       id="path4540"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600" />
+    <g
+       style="display:inline"
+       id="g5419"
+       transform="matrix(1.2713342,0,0,1.2713342,851.49515,51.519)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <rect
+         y="361.50226"
+         x="29.933867"
+         height="70.157501"
+         width="57.996864"
+         id="rect5421"
+         style="opacity:1;fill:#7ad1c6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.06220484;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path5423"
+         d="M 39.522058,374.59833 L 77.874822,374.59833"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path5425"
+         d="M 39.522058,402.03769 L 77.874822,402.03769"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path5427"
+         d="M 39.522057,388.31803 L 77.874822,388.31803"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+      <path
+         inkscape:tile-cy="374.59833"
+         inkscape:tile-cx="57.529148"
+         inkscape:tile-h="1"
+         inkscape:tile-w="39.352765"
+         id="path5429"
+         d="M 39.522057,415.75739 L 77.874822,415.75739"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:4.87411499;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Send);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
+       d="M 927.23863,506.02007 L 927.23863,357.65168"
+       id="path5431"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600" />
+    <text
+       xml:space="preserve"
+       style="font-size:30.51202011px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Charter"
+       x="78.155357"
+       y="627.8606"
+       id="text5433"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan5435"
+         x="78.155357"
+         y="627.8606">&lt;xml&gt;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30.51202011px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Charter"
+       x="875.44025"
+       y="627.90063"
+       id="text5437"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughConnection.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan5439"
+         x="875.44025"
+         y="627.90063">&lt;xml&gt;</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="interface"
+     style="display:inline">
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g4271"
+       transform="matrix(0,-1.2713342,-1.2713342,0,1046.4322,1042.6766)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path4275"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path4273"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g13128"
+       transform="matrix(-1.2713342,0,0,1.2713342,995.27927,-398.71676)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path13132"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path13130"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1519"
+       transform="matrix(-1.2713342,0,0,1.2713342,995.27517,-513.6263)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1523"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1521"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1525"
+       transform="matrix(1.2713342,0,0,1.2713342,61.953361,-513.6263)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1529"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1527"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="408.862"
+       y="214.22119"
+       id="text1541"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan1543"
+         x="408.862"
+         y="214.22119">Image:</tspan><tspan
+         sodipodi:role="line"
+         x="408.862"
+         y="236.46954"
+         id="tspan1545">Data Port</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="649.7959"
+       y="211.67851"
+       id="text1547"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan1549"
+         x="649.7959"
+         y="211.67851">Image:</tspan><tspan
+         sodipodi:role="line"
+         x="649.7959"
+         y="233.92686"
+         id="tspan1551">Data Port</tspan></text>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1354"
+       transform="matrix(-1.2713342,0,0,1.2713342,1518.5447,-462.65088)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1358"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1356"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1360"
+       transform="matrix(1.2713342,0,0,-1.2713342,-461.88853,1099.1653)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1364"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1362"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="102.49635"
+       y="247.63026"
+       id="text1370"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="102.49635"
+         y="247.63026"
+         id="tspan1374">resolution,</tspan><tspan
+         sodipodi:role="line"
+         x="102.49635"
+         y="269.8786"
+         id="tspan1378">refresh rate:</tspan><tspan
+         sodipodi:role="line"
+         x="102.49635"
+         y="292.12695"
+         id="tspan1380">properties</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="946.42114"
+       y="260.50095"
+       id="text1382"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="946.42114"
+         y="260.50095"
+         id="tspan1386">car color:</tspan><tspan
+         sodipodi:role="line"
+         x="946.42114"
+         y="282.7493"
+         id="tspan1388">property</tspan></text>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g2449"
+       transform="matrix(-1.2713342,0,0,1.2713342,994.78257,-456.41829)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path2453"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path2451"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="XtraInterface"
+     style="display:none">
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1734"
+       transform="matrix(1.2713342,0,0,1.2713342,62.655981,-398.71676)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1736"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1738"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="736.82635"
+       y="526.49042"
+       id="text1740"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan1742"
+         x="736.82635"
+         y="526.49042">p getCarLocation(),</tspan><tspan
+         sodipodi:role="line"
+         x="736.82635"
+         y="548.73877"
+         id="tspan1776">bool carLocated():</tspan><tspan
+         sodipodi:role="line"
+         x="736.82635"
+         y="570.98712"
+         id="tspan1744">methods</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="362.38202"
+       y="473.81152"
+       id="text1727"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="362.38202"
+         y="473.81152"
+         id="tspan1731">fetchImage(),</tspan></text>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g1709"
+       transform="matrix(0,-1.2713342,-1.2713342,0,1573.6571,1045.3878)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <path
+         id="path1713"
+         d="M 478.8331,613.79976 L 500.00599,613.79976"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
+      <path
+         inkscape:tile-cy="694.71527"
+         inkscape:tile-cx="177.35329"
+         inkscape:tile-h="221.40189"
+         inkscape:tile-w="221.40189"
+         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)"
+         d="M 178.33326,873.04907 A 53.891918,53.891918 0 1 1 70.549419,873.04907 A 53.891918,53.891918 0 1 1 178.33326,873.04907 z"
+         sodipodi:ry="53.891918"
+         sodipodi:rx="53.891918"
+         sodipodi:cy="873.04907"
+         sodipodi:cx="124.44134"
+         id="path1711"
+         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+         sodipodi:type="arc" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="892.99896"
+       y="446.51181"
+       id="text1715"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="892.99896"
+         y="446.51181"
+         id="tspan1717">processImage():</tspan><tspan
+         sodipodi:role="line"
+         x="892.99896"
+         y="468.76016"
+         id="tspan1719">command</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="105.15219"
+       y="227.12471"
+       id="text1782"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="105.15219"
+         y="227.12471"
+         id="tspan1784">calibrated,</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Template"
+     style="display:none">
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:6.67600489;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 365.96625,288.81232 L 650.25657,288.81232"
+       id="path2663"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughTemplate.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:6.67600489;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
+       d="M 688.35871,381.5737 L 404.06839,381.5737"
+       id="path3538"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughTemplate.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3544"
+       y="261.465"
+       x="522.43555"
+       style="font-size:22.88401604px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughTemplate.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         id="tspan3546"
+         y="261.465"
+         x="522.43555"
+         sodipodi:role="line">Image Data</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3548"
+       y="366.11884"
+       x="522.43555"
+       style="font-size:22.88401604px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughTemplate.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         id="tspan3550"
+         y="366.11884"
+         x="522.43555"
+         sodipodi:role="line">Position Control</tspan></text>
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <rect
+       style="fill:#00f801;fill-opacity:1;stroke:#ff9800;stroke-width:2.54150462;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:6.00000003;stroke-opacity:1;display:inline"
+       id="rect42234"
+       width="184.27406"
+       height="184.54324"
+       x="698.02521"
+       y="227.20123"
+       ry="15.900385"
+       rx="14.667469" />
+    <g
+       style="font-size:27.29563904px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g12911"
+       transform="matrix(0.8383762,0,0,0.8383762,439.35327,204.45656)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <text
+         sodipodi:linespacing="125%"
+         id="text12915"
+         y="3.5662384"
+         x="-204.48204"
+         style="font-size:27.29563904px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           id="tspan12919"
+           y="3.5662384"
+           x="-204.48204"
+           sodipodi:role="line">Camera</tspan></text>
+    </g>
+    <g
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
+       id="g12975"
+       transform="matrix(1.2713342,0,0,1.2713342,-52.735141,139.60478)"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600">
+      <text
+         sodipodi:linespacing="125%"
+         id="text12979"
+         y="33.529858"
+         x="661.65582"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           id="tspan12983"
+           y="33.529858"
+           x="661.65582"
+           sodipodi:role="line">Image</tspan><tspan
+           y="56.029858"
+           x="661.65582"
+           sodipodi:role="line"
+           id="tspan2467">Recognition</tspan></text>
+      <image
+         y="96.765022"
+         x="602.82489"
+         xlink:href="/home/sspr/Projecten/OpenRTC/Odense06/red-retro-racer.png"
+         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Odense06/red-retro-racer.png"
+         width="124.09895"
+         height="93.074203"
+         id="image12985"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;font-family:Bitstream Vera Sans" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="488.52646"
+       y="406.14291"
+       id="text1557"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         id="tspan1559"
+         x="488.52646"
+         y="406.14291">isCalibrated():</tspan><tspan
+         sodipodi:role="line"
+         x="488.52646"
+         y="428.39127"
+         id="tspan1561">method</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="393.47562"
+       y="481.01208"
+       id="text4277"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="393.47562"
+         y="481.01208"
+         id="tspan4281">moveCamera( p ):</tspan><tspan
+         sodipodi:role="line"
+         x="393.47562"
+         y="503.26044"
+         id="tspan4283">command</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="487.5657"
+       y="343.94791"
+       id="text2455"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
+       inkscape:export-xdpi="600"
+       inkscape:export-ydpi="600"><tspan
+         sodipodi:role="line"
+         x="487.5657"
+         y="343.94791"
+         id="tspan2459">imageReady():</tspan><tspan
+         sodipodi:role="line"
+         x="487.5657"
+         y="366.19626"
+         id="tspan2463">event</tspan></text>
+    <rect
+       style="fill:#00f801;fill-opacity:1;stroke:#ff9800;stroke-width:2.54150462;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:6.00000003;stroke-opacity:1;display:inline"
+       id="rect3632"
+       width="184.27406"
+       height="184.54324"
+       x="173.75406"
+       y="228.27971"
+       ry="15.900385"
+       rx="14.667469" />
+    <image
+       y="243.47578"
+       x="192.40057"
+       id="image42368"
+       height="160"
+       width="160"
+       sodipodi:absref="/home/sspr/src/documents/EURON/2009/presentation/rtt/Camera.png"
+       xlink:href="Camera.png" />
+  </g>
+</svg>

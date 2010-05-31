@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 1.92.0 )
+SET( RTT_VERSION 1.99.2 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -93,7 +93,8 @@ INCLUDE(config/rtt_macros.cmake)
 #                                                         #
 ###########################################################
 
-ADD_SUBDIRECTORY(src)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+ADD_SUBDIRECTORY(rtt)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 

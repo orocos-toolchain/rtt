@@ -50,8 +50,7 @@ if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
 endif()
 
 # Look for boost
-find_package(Boost 1.33 REQUIRED)
-find_package(Boost 1.33 COMPONENTS program_options thread)
+find_package(Boost 1.36 REQUIRED)
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
@@ -93,6 +92,7 @@ string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 if(OROCOS_TARGET STREQUAL "lxrt")
   set(OROPKG_OS_LXRT TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "Path to Linux source dir (required for lxrt target)" FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(RTAI REQUIRED)
   find_package(Pthread REQUIRED)
@@ -110,6 +110,7 @@ endif()
 # Setup flags for Xenomai
 if(OROCOS_TARGET STREQUAL "xenomai")
   set(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
   find_package(Pthread REQUIRED)
@@ -134,6 +135,7 @@ endif()
 # Setup flags for GNU/Linux
 if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Pthread REQUIRED)
 
@@ -149,9 +151,10 @@ endif()
 # Setup flags for Mac-OSX
 if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
-  find_package(Boost 1.33 COMPONENTS thread REQUIRED)
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_thread_INCLUDE_DIRS} )
+  find_package(Boost 1.36 REQUIRED thread)
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
@@ -166,6 +169,7 @@ endif()
 # Setup flags for ecos
 if(OROCOS_TARGET STREQUAL "ecos")
   set(OROPKG_OS_ECOS TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF FALSE)
 
   # We can't really use 'UseEcos.cmake' because we're building a library
   # and not a final application
@@ -189,6 +193,8 @@ endif()
 
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  message("Forcing OS_HAS_TLSF to OFF for WIN32")
+  set(OS_HAS_TLSF FALSE)
   # Force OFF on mqueue transport on WIN32 platform
   message("Forcing ENABLE_MQ to OFF for WIN32")
   set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on WIN32 platform." FORCE)

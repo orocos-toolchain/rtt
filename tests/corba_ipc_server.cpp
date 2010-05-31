@@ -19,26 +19,26 @@
 
 
 #include <iostream>
-#include <Method.hpp>
-#include <interface/OperationInterface.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/interface/ServiceProvider.hpp>
 #include <transports/corba/DataFlowI.h>
-#include <transports/corba/RemotePorts.hpp>
-#include <transports/corba/OperationsC.h>
-#include <transports/corba/OperationInterfaceC.h>
+#include <rtt/transports/corba/RemotePorts.hpp>
+#include <transports/corba/ServiceProviderC.h>
 #include <transports/corba/corba.h>
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <TaskContext.hpp>
-#include <transports/corba/ControlTaskServer.hpp>
-#include <transports/corba/ControlTaskProxy.hpp>
+#include <rtt/InputPort.hpp>
+#include <rtt/OutputPort.hpp>
+#include <rtt/TaskContext.hpp>
+#include <transports/corba/TaskContextServer.hpp>
+#include <transports/corba/TaskContextProxy.hpp>
 #include <string>
 #include <os/main.h>
+#include "operations_fixture.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
-class TheServer : public TaskContext
+class TheServer : public TaskContext, public OperationsFixture
 {
 public:
     // Ports
@@ -46,11 +46,11 @@ public:
     OutputPort<double> mo1;
 
     TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
-        ports()->addEventPort( &mi1 );
-        ports()->addPort( &mo1 );
-        this->addObject( this->createMethodFactory() );
+        ports()->addEventPort( mi1 );
+        ports()->addPort( mo1 );
+        this->createMethodFactories( this );
+        ts = corba::TaskContextServer::Create( this, true ); //use-naming
         this->start();
-        ts = corba::ControlTaskServer::Create( this, true ); //use-naming
     }
     ~TheServer() {
         this->stop();
@@ -62,48 +62,13 @@ public:
         mo1.write(d);
     }
 
-    corba::ControlTaskServer* ts;
+    corba::TaskContextServer* ts;
 
-    TaskObject* createMethodFactory();
-
-    // ref/const-ref tests:
-    double ret;
-    double& m0r() { return ret; }
-    const double& m0cr() { return ret; }
-
-    // test const std::string& argument for command_ds
-    bool comstr(const std::string& cs) { return !cs.empty(); }
-
-    double m1r(double& a) { a = 2*a; return a; }
-    double m1cr(const double& a) { return a; }
-
-    // plain argument tests:
-    double m0() { return -1.0; }
-    double m1(int i) { return -2.0; }
-    double m2(int i, double d) { return -3.0; }
-    double m3(int i, double d, bool c) { return -4.0; }
-    double m4(int i, double d, bool c, std::string s) { return -5.0; }
-
-    // void(void) function test:
-    void vm0(void) { ; }
 };
-
-TaskObject* TheServer::createMethodFactory()
-{
-    TaskObject* to = new TaskObject("methods");
-
-    to->methods()->addMethod( method("vm0",  &TheServer::vm0, this), "VM0");
-    to->methods()->addMethod( method("m0",  &TheServer::m0, this), "M0");
-    to->methods()->addMethod( method("m1",  &TheServer::m1, this), "M1","a","ad");
-    to->methods()->addMethod( method("m2",  &TheServer::m2, this), "M2","a","ad","a","ad");
-    to->methods()->addMethod( method("m3",  &TheServer::m3, this), "M3","a","ad","a","ad","a","ad");
-    to->methods()->addMethod( method("m4",  &TheServer::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
-    return to;
-}
 
 int ORO_main(int argc, char** argv)
 {
-    corba::ControlTaskProxy::InitOrb(argc,argv);
+    corba::TaskContextProxy::InitOrb(argc,argv);
 
     {
         TheServer ctest1("peerRMC");
@@ -116,10 +81,10 @@ int ORO_main(int argc, char** argv)
         TheServer ctest8("peerBH");
 
         // wait for shutdown.
-        corba::ControlTaskServer::RunOrb();
+        corba::TaskContextServer::RunOrb();
     }
 
-    corba::ControlTaskProxy::DestroyOrb();
+    corba::TaskContextProxy::DestroyOrb();
 
     return 0;
 }

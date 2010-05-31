@@ -23,7 +23,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <os/StartStopManager.hpp>
-#include <transports/corba/ControlTaskServer.hpp>
+#include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/CorbaDispatcher.hpp>
 
 using boost::unit_test::test_suite;
@@ -37,8 +37,8 @@ public:
 	InitOrocos(){  }
 	~InitOrocos(){ 
 	    corba::CorbaDispatcher::ReleaseAll();
-	    corba::ControlTaskServer::ShutdownOrb(true);
-	    corba::ControlTaskServer::DestroyOrb();
+	    corba::TaskContextServer::ShutdownOrb(true);
+	    corba::TaskContextServer::DestroyOrb();
 
 	    // If we call __os_exit() in Xenomai, we get an ABORT
 	    // because the main task is cleaned up too early.
@@ -83,8 +83,8 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 
 	__os_init(argc, argv);
 
-    corba::ControlTaskServer::InitOrb(argc,argv);
-    corba::ControlTaskServer::ThreadOrb();
+    corba::TaskContextServer::InitOrb(argc,argv);
+    corba::TaskContextServer::ThreadOrb();
 
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
