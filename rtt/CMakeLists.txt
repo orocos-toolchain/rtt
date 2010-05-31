@@ -16,12 +16,15 @@ OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the O
 OPTION(ORO_OS_USE_BOOST_THREAD "Use the Boost.Thread library. Currently only the mutex implementation is used." OFF)
 
 if (ORO_OS_USE_BOOST_THREAD)
+  # Look for boost threads
+  find_package(Boost 1.36 COMPONENTS thread date_time REQUIRED)
+
   if (NOT Boost_THREAD_FOUND)
     message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
   endif()
-  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} )
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
   # add to list of libraries in pkgconfig file: boost headers end up in user code
-  list(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY})
+  list(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
 endif()
 
 SET(OS_MAX_CONC_ACCESS 8 CACHE STRING  "The maximum number of threads that will access a lock-free resource at exactly the same time. The Default (8) is very conservative. Your application may have more threads than this number.")

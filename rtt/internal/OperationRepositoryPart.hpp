@@ -111,7 +111,7 @@ namespace RTT
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
-                return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
                                                                             _1
                                                                             )
