@@ -288,8 +288,10 @@ extern "C"
     	if(!lockSem(m)) return -1;
     	m->count--;
     	unlockSem(m);
+      timeBeginPeriod(1);
     	DWORD res = WaitForSingleObject(m->sem, (DWORD)(delay)/1000000LL);
-    	if( res==WAIT_OBJECT_0 ){
+    	timeEndPeriod(1);
+      if( res==WAIT_OBJECT_0 ){
     		return 0;
     	}
     	if(!lockSem(m)) return -1;
@@ -395,6 +397,119 @@ extern "C"
     static inline void rtos_disable_rt_warning()
     {
     }
+
+    // Condition variable implementation (SetEvent solution from ACE framework)
+
+    typedef struct 
+    {
+      enum { SIGNAL = 0, BROADCAST = 1, MAX_EVENTS = 2 };
+
+      HANDLE events_[MAX_EVENTS];
+
+      // Count of the number of waiters.
+      unsigned int waiters_count_;
+      CRITICAL_SECTION waiters_count_lock_;
+
+    } rt_cond_t;
+
+    static inline int rtos_cond_init(rt_cond_t *cond)
+    {
+      // Initialize the count to 0.
+      cond->waiters_count_ = 0;
+
+      // Create an auto-reset event.
+      cond->events_[rt_cond_t::SIGNAL] = CreateEvent (NULL,  // no security
+                                         FALSE, // auto-reset event
+                                         FALSE, // non-signaled initially
+                                         NULL); // unnamed
+
+      // Create a manual-reset event.
+      cond->events_[rt_cond_t::BROADCAST] = CreateEvent (NULL,  // no security
+                                            TRUE,  // manual-reset
+                                            FALSE, // non-signaled initially
+                                            NULL); // unnamed
+      return 0;
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+      CloseHandle(cond->events_[rt_cond_t::SIGNAL]);
+      CloseHandle(cond->events_[rt_cond_t::BROADCAST]);
+
+      return 0;
+    }
+
+    static inline int rtos_cond_timedwait_internal(rt_cond_t *cond, rt_mutex_t *external_mutex, DWORD ms)
+    {
+      // Avoid race conditions.
+      EnterCriticalSection (&cond->waiters_count_lock_);
+      cond->waiters_count_++;
+      LeaveCriticalSection (&cond->waiters_count_lock_);
+
+      // It's ok to release the <external_mutex> here since Win32
+      // manual-reset events maintain state when used with
+      // <SetEvent>.  This avoids the "lost wakeup" bug...
+      LeaveCriticalSection (external_mutex);
+
+      // Wait for either event to become signaled due to <pthread_cond_signal>
+      // being called or <pthread_cond_broadcast> being called.
+      timeBeginPeriod(1);
+      int result = WaitForMultipleObjects (2, cond->events_, FALSE, ms);
+      timeEndPeriod(1);
+
+      EnterCriticalSection (&cond->waiters_count_lock_);
+      cond->waiters_count_--;
+      int last_waiter = result == WAIT_OBJECT_0 + rt_cond_t::BROADCAST && cond->waiters_count_ == 0;
+      LeaveCriticalSection (&cond->waiters_count_lock_);
+
+      // Some thread called <pthread_cond_broadcast>.
+      if (last_waiter)
+        // We're the last waiter to be notified or to stop waiting, so
+        // reset the manual event. 
+        ResetEvent (cond->events_[rt_cond_t::BROADCAST]); 
+
+      // Reacquire the <external_mutex>.
+      EnterCriticalSection (external_mutex);
+
+      return 0;
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
+    {
+      return rtos_cond_timedwait_internal(cond, mutex, (DWORD)(abs_time / 1000000));
+    }
+
+    static inline int rtos_cond_wait(rt_cond_t *cond, rt_mutex_t *mutex)
+    {
+      return rtos_cond_timedwait_internal(cond, mutex, INFINITE);
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+      // Avoid race conditions.
+      EnterCriticalSection (&cond->waiters_count_lock_);
+      int have_waiters = cond->waiters_count_ > 0;
+      LeaveCriticalSection (&cond->waiters_count_lock_);
+
+      if (have_waiters)
+        SetEvent (cond->events_[rt_cond_t::BROADCAST]);
+
+      return 0;
+    }
+
+    static inline int rtos_cond_signal (rt_cond_t *cond)
+    {
+      // Avoid race conditions.
+      EnterCriticalSection (&cond->waiters_count_lock_);
+      int have_waiters = cond->waiters_count_ > 0;
+      LeaveCriticalSection (&cond->waiters_count_lock_);
+
+      if (have_waiters)
+        SetEvent (cond->events_[rt_cond_t::SIGNAL]);
+
+      return 0;
+    }
+
 
 #define rtos_printf printf
 
