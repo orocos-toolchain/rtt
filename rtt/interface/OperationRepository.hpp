@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 
+#include "rtt-config.h"
 #include "../base/DataSourceBase.hpp"
 #include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
@@ -30,7 +31,7 @@ namespace RTT
         class OperationRepositoryPart
         {
         public:
-            virtual ~OperationRepositoryPart();
+            RTT_API virtual ~OperationRepositoryPart();
 
             /**
              * Returns the description of this operation.
@@ -136,7 +137,7 @@ namespace RTT
              * @return null if no such operation exists, the operation's implementation
              * otherwise.
              */
-            virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
+            RTT_API virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
         };
         /**
          * @}
@@ -160,17 +161,17 @@ namespace RTT
             /**
              * Remove and delete all added operations.
              */
-            void clear();
+            RTT_API void clear();
 
             /**
              * Get a list of all the names of the added operations.
              */
-            std::vector<std::string> getNames() const;
+            RTT_API std::vector<std::string> getNames() const;
 
             /**
              * Query if an operation is present.
              */
-            bool hasMember(const std::string& name) const;
+            RTT_API bool hasMember(const std::string& name) const;
 
             /**
              * Query the number of arguments of an operation.
@@ -180,7 +181,7 @@ namespace RTT
              *
              * @return The arity, or -1 if \a name is not found.
              */
-            int getArity(const std::string& name) const;
+            RTT_API int getArity(const std::string& name) const;
 
             /**
              * Query the collectable number of arguments of an operation.
@@ -191,7 +192,7 @@ namespace RTT
              *
              * @return The arity, or -1 if \a name is not found.
              */
-            int getCollectArity(const std::string& name) const;
+            RTT_API int getCollectArity(const std::string& name) const;
 
             /**
              * Produce a DataSource that call()s an operation.
@@ -205,7 +206,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase::shared_ptr produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
+            RTT_API base::DataSourceBase::shared_ptr produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
 
             /**
              * Produce a DataSource that send()s an operation.
@@ -219,7 +220,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase::shared_ptr produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
+            RTT_API base::DataSourceBase::shared_ptr produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
 
             /**
              * Produce an AssignableDataSource that contains a SendHandle,
@@ -234,7 +235,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase::shared_ptr produceHandle(const std::string& name) const;
+            RTT_API base::DataSourceBase::shared_ptr produceHandle(const std::string& name) const;
 
             /**
              * Produce a DataSource that collects a sent operation,
@@ -251,7 +252,7 @@ namespace RTT
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
              */
-            base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
+            RTT_API base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
 
             /**
              * The descriptions of an argumentlist.
@@ -266,7 +267,7 @@ namespace RTT
              * @return A list of descriptions.
              * @throw name_not_found_exception
              */
-            Descriptions getArgumentList(const std::string& name) const;
+            RTT_API Descriptions getArgumentList(const std::string& name) const;
 
             /**
              * Get the type name of the result type of an operation.
@@ -276,7 +277,7 @@ namespace RTT
              * @return A name of a data type.
              * @throw name_not_found_exception
              */
-            std::string getResultType(const std::string& name) const;
+            RTT_API std::string getResultType(const std::string& name) const;
 
             /**
              * Get the description of an operation
@@ -286,7 +287,7 @@ namespace RTT
              * @return A user readable description.
              * @throw name_not_found_exception
              */
-            std::string getDescription(const std::string& name) const;
+            RTT_API std::string getDescription(const std::string& name) const;
 
             /**
              * Add a new operation to the interface or replace an existing one.
@@ -294,21 +295,21 @@ namespace RTT
              * @param name The name of the operation
              * @param part A part which creates the operation.
              */
-            void add(const std::string& name, OperationRepositoryPart* part);
+            RTT_API void add(const std::string& name, OperationRepositoryPart* part);
 
             /**
              * Remove an added operation from the interface
              *
              * @param name The name of the operation
              */
-            void remove(const std::string& name);
+            RTT_API void remove(const std::string& name);
 
             /**
              * Get a previously added part of this factory.
              * @param name
              * @return
              */
-            OperationRepositoryPart* getPart(const std::string& name);
+            RTT_API OperationRepositoryPart* getPart(const std::string& name);
         };
     }
 }

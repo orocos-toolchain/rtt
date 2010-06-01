@@ -1,6 +1,7 @@
 #ifndef ORO_SERVICEREQUESTER_HPP_
 #define ORO_SERVICEREQUESTER_HPP_
 
+#include "rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "../base/MethodBaseInvoker.hpp"
 #include "ServiceProvider.hpp"
@@ -33,9 +34,9 @@ namespace RTT
             ServiceRequester(const std::string& name, TaskContext* owner = 0);
             virtual ~ServiceRequester();
 
-            const std::string& getRequestName() const { return mrname; }
+            RTT_API const std::string& getRequestName() const { return mrname; }
 
-            RequesterNames getRequesterNames() const;
+            RTT_API RequesterNames getRequesterNames() const;
 
             /**
              * The owner is the top-level TaskContext owning this service
@@ -53,7 +54,7 @@ namespace RTT
 
             bool addMethod( base::MethodBaseInvoker& mbi);
 
-            MethodNames getMethodNames() const;
+            RTT_API MethodNames getMethodNames() const;
 
             base::MethodBaseInvoker& getMethod(const std::string& name);
 
@@ -88,18 +89,18 @@ namespace RTT
              * @return true if all methods of that are required are provided, false
              * if not all methods could yet be matched.
              */
-            bool connectTo(ServiceProvider::shared_ptr sp);
+            RTT_API bool connectTo(ServiceProvider::shared_ptr sp);
 
             /**
              * Returns true when all methods were resolved.
              * @return
              */
-            bool ready() const;
+            RTT_API bool ready() const;
 
             /**
              * Disconnects all methods from their implementation.
              */
-            void disconnect();
+            RTT_API void disconnect();
 
         protected:
             typedef std::map< std::string, interface::ServiceRequester* > Requests;
