@@ -176,8 +176,11 @@ extern "C"
             timevl.tv_nsec -= 1000000000;
         }
 
+        assert( 0 <= timevl.tv_nsec);
         assert( timevl.tv_nsec < 1000000000 );
 
+        /// \todo should really deal with errno=EINTR due to signal,
+        /// and errno=ETIMEDOUT appropriately.
         return sem_timedwait( m, &timevl);
     }
 
