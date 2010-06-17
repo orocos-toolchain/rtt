@@ -44,6 +44,11 @@ endif()
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
 set(XENOMAI_PROCESS_INCLUDES XENOMAI_INCLUDE_DIR)
-set(XENOMAI_PROCESS_LIBS XENOMAI_LIBRARY XENOMAI_NATIVE_LIBRARY)
+if ( XENOMAI_LIBRARY )
+  set(XENOMAI_PROCESS_LIBS XENOMAI_LIBRARY XENOMAI_NATIVE_LIBRARY)
+else( XENOMAI_LIBRARY )
+  set(XENOMAI_PROCESS_LIBS XENOMAI_NATIVE_LIBRARY)
+endif( XENOMAI_LIBRARY )
+
 
 libfind_process(XENOMAI)
