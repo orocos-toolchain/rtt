@@ -83,6 +83,7 @@ namespace RTT
     using namespace detail;
 
     AttributeBase* TypeInfo::buildVariable(std::string name, int ) const {
+        // the default implementation discards the sizehint. Override this function by subclassing TypeInfo.
         return this->buildVariable(name);
     }
 

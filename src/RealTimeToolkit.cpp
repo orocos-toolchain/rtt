@@ -55,6 +55,7 @@
 namespace RTT
 {
     using namespace std;
+    using namespace detail;
 
 
     RealTimeToolkitPlugin RealTimeToolkit;
@@ -121,6 +122,38 @@ namespace RTT
 
     };
 
+    /**
+     * Standard strings don't need decomposition.
+     */
+    struct StdStringTypeInfo
+        : public TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >
+    {
+        StdStringTypeInfo()
+            : TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string")
+        {}
+
+        AttributeBase* buildVariable(std::string name,int size) const
+        {
+            // if a sizehint is given, create a TaskIndexContainerVariable instead,
+            // which checks capacities.
+            string t_init(size, ' '); // we can't use the default char(), which is null !
+
+            return new Attribute<string>( name, new UnboundDataSource<IndexedValueDataSource<string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string> > >( t_init ) );
+        }
+
+        virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+            return false;
+        }
+
+        virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr result) const {
+            // First, try a plain update.
+            if ( result->update( source.get() ) )
+                return true;
+            return false;
+        }
+
+    };
+
     bool RealTimeToolkitPlugin::loadTypes()
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
@@ -140,8 +173,8 @@ namespace RTT
 
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
-        // from a c-style string obviously disables a copy-on-write connection.
-        ti->addType( new TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
+        // from a c-style string obviously disables a copy-on-write connection. Same for the constructor / buildVariable().
+        ti->addType( new StdStringTypeInfo() );
 
         return true;
     }
