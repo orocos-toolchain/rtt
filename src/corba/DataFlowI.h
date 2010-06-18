@@ -107,8 +107,8 @@ public:
                          ))
     {
         using namespace RTT;
-        Logger::In in("CorbaBufferChannelI::push");
-        log(Debug) << "Receiving buffer value."<<endlog();
+        // Logger::In in("CorbaBufferChannelI::push");
+        // log(Debug) << "Receiving buffer value."<<endlog();
 
         T value;
         if ( AnyConversion<T>::update( data, value ) == false ) {
@@ -125,8 +125,8 @@ public:
                          ))
     {
         using namespace RTT;
-        Logger::In in("CorbaBufferChannelI::pull");
-        log(Debug) << "Returning buffer value."<<endlog();
+        // Logger::In in("CorbaBufferChannelI::pull");
+        // log(Debug) << "Returning buffer value."<<endlog();
         T result;
         if ( mbuf->Pop( result ) == false ) {
             data = new CORBA::Any();
