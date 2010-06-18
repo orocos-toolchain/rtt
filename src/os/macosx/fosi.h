@@ -179,20 +179,29 @@ extern "C"
         TIME_SPEC arg_time = ticks2timespec( abs_time );
         clock_gettime(CLOCK_REALTIME, &timevl);
 
+        /// \todo avoid race condition where arg_time < now
+
         // calculate delay from abs_time
         delayvl.tv_sec = arg_time.tv_sec - timevl.tv_sec;
         delayvl.tv_nsec = arg_time.tv_nsec - timevl.tv_nsec;
-        if ( delayvl.tv_nsec >= 1000000000) { // tv_nsec is unsigned
-                                              // int !!
-            --timevl.tv_sec;
-            timevl.tv_nsec += 1000000000;
+		// tv_nsec is signed long in 10.6 (see sys/_structs.h)
+        if ( delayvl.tv_nsec >= 1000000000) {
+            ++delayvl.tv_sec;
+            delayvl.tv_nsec -= 1000000000;
+        }
+        if ( delayvl.tv_nsec < 0) {
+            --delayvl.tv_sec;
+            delayvl.tv_nsec += 1000000000;
         }
 
+        assert( 0 <= delayvl.tv_sec);
+        assert( 0 <= delayvl.tv_nsec);
         assert( delayvl.tv_nsec < 1000000000 );
-        // What if delayvl.tv_sec is < 0 (is unsigned int)
 
         mach_timespec_t mach_delayvl = { delayvl.tv_sec, delayvl.tv_nsec };
-        return semaphore_timedwait( *m, mach_delayvl);
+        int rc = semaphore_timedwait( *m, mach_delayvl);
+        // map to return values from gnulinux, and expected by the calling layer
+        return (KERN_OPERATION_TIMED_OUT == rc ? -1 : 0);
     }
 
     // semaphore_value is not supported on darwin
