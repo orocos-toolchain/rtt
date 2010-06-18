@@ -380,6 +380,26 @@ BOOST_AUTO_TEST_CASE(testProgramUntilFail)
     this->finishProgram( &gtc, "x");
 }
 
+BOOST_AUTO_TEST_CASE(testProgramAssignArrayIndex)
+{
+    // see if assigning an array from an int works (bug #773)
+    string prog = string("program x {\n")
+        + "var array myArray(10);\n"
+        + "var int i;\n"
+        + "for (var int cpt = 0; cpt < 10; set cpt = cpt +1 )\n"
+        + "{\n"
+        + "   set myArray[cpt] = cpt;\n"
+        + "   set i = cpt;\n"
+        + "}\n"
+        + "for (set cpt = 0; cpt < 10; set cpt = cpt +1 )\n"
+        + "{\n"
+        + "   do test.assert( myArray[cpt] == cpt );\n"
+        + "}\n"
+        + "}\n";
+    this->doProgram( prog, &gtc );
+    this->finishProgram( &gtc, "x");
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

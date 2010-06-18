@@ -227,7 +227,7 @@ namespace RTT
         {
             DataSourceBase::const_ptr r( other );
             typedef typename AssignableDataSource<T>::copy_t copy_t;
-            DataSource< copy_t >* ct = AdaptDataSource<copy_t>()( other );
+            typename DataSource< copy_t >::shared_ptr ct = AdaptDataSource<copy_t>()( other );
             if ( ct )
                 return new detail::AssignContainerCommand<T,APred,copy_t >( this, ct );
 
@@ -242,7 +242,7 @@ namespace RTT
         {
             DataSourceBase::shared_ptr r( rhs );
             DataSourceBase::shared_ptr i( index );
-            DataSource<SetType>* t = AdaptDataSource<SetType>()( detail::DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
+            typename DataSource<SetType>::shared_ptr t = AdaptDataSource<SetType>()( detail::DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
             if ( ! t ) {
 #ifndef ORO_EMBEDDED
                 throw bad_assignment();
@@ -250,7 +250,7 @@ namespace RTT
                 return 0;
 #endif
             }
-            DataSource<Index>* ind = AdaptDataSource<Index>()( i );
+            typename DataSource<Index>::shared_ptr ind = AdaptDataSource<Index>()( i );
             if ( ! ind ) {
 #ifndef ORO_EMBEDDED
                 throw bad_assignment();

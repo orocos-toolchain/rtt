@@ -399,6 +399,9 @@ namespace RTT
             CommandInterface* ac;
 #ifndef ORO_EMBEDDED
             try {
+                assert( expr );
+                assert( var );
+                assert( index_ds );
                 ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
                 assigncommands.push_back( ac );
             }
