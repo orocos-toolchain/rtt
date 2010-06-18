@@ -210,22 +210,29 @@ namespace RTT
             template< class T>
             struct Data
             {
-                Data() : work(false), val_("EventData") {}
-                bool work;
+                Data() : tag(0), tagged(0), val_("EventData") {}
+                volatile int tag;
+                mutable int tagged;
                 DataObjectLockFree<T> val_;
                 typedef T type;
                 operator bool() const {
-                    return work;
+                	/*Check for work.*/
+                    return (tagged != tag);
                 }
                 void operator=(const T& t) {
                     val_.Set(t);
-                    work = true;
+                    tag++;
                 }
                 T val() const {
+                	tagged = tag;
                     return val_.Get();
                 }
                 void clear() {
-                    work = false;
+                    if(OS::CAS(&tag, tagged, tagged+1))
+                    {
+                    	/*Try to clear work. If pre-empted here by operator=() tag will be incremented toO.*/
+                    	tagged++;
+                    }
                 }
             };
         };
@@ -264,7 +271,8 @@ namespace RTT
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args.val()), get<1>(args.val()) );
+                Args tmp_args = args.val();
+                f( get<0>(tmp_args), get<1>(tmp_args) );
                 args.clear();
                 signalWorkDone();
             }
@@ -307,7 +315,8 @@ namespace RTT
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()) );
+                Args tmp_args = args.val();
+                f( get<0>(tmp_args), get<1>(tmp_args), get<2>(tmp_args) );
                 args.clear();
                 signalWorkDone();
             }
@@ -356,7 +365,8 @@ namespace RTT
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()) );
+                Args tmp_args = args.val();
+                f( get<0>(tmp_args), get<1>(tmp_args), get<2>(tmp_args), get<3>(tmp_args) );
                 args.clear();
                 signalWorkDone();
             }
@@ -409,7 +419,8 @@ namespace RTT
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()) );
+                Args tmp_args = args.val();
+                f( get<0>(tmp_args), get<1>(tmp_args), get<2>(tmp_args), get<3>(tmp_args), get<4>(tmp_args) );
                 args.clear();
                 signalWorkDone();
             }
@@ -460,7 +471,8 @@ namespace RTT
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()), get<5>(args.val()) );
+                Args tmp_args = args.val();
+                f( get<0>(tmp_args), get<1>(tmp_args), get<2>(tmp_args), get<3>(tmp_args), get<4>(tmp_args), get<5>(tmp_args) );
                 args.clear();
                 signalWorkDone();
             }
