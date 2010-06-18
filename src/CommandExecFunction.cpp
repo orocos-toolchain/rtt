@@ -61,5 +61,7 @@ CommandExecFunction::~CommandExecFunction() {
 		log(Warning) << "Stopping Function running in ProgramProcessor !" << endlog();
 	}
 	if ( _foo->getProgramProcessor() != 0 ) // ie if _foo->isLoaded().
-		_proc->removeFunction( _foo.get() );
+		if ( _proc->removeFunction( _foo.get() ) == false ) {
+		    log(Error) << "Failed to remove running function from ProgramPorcessor !" << endlog();
+		}
 }

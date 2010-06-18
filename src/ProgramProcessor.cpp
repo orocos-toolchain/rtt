@@ -236,7 +236,21 @@ namespace RTT
 
     bool ProgramProcessor::removeFunction( ProgramInterface* f )
     {
-        // Remove from the queue.
+        // This is a best-effort implementation. We can't store foo in funcs
+        // since this would race with step() :-(
+        ProgramInterface* foo = 0;
+        int sz =  f_queue->size();
+        while ( sz ) {
+            // Dequeue and check
+            f_queue->dequeue( foo );
+            if ( f == foo)
+                return true;
+            f_queue->enqueue( foo );
+            // check next one in queue...
+            foo = 0;
+            --sz;
+        }
+
         std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), f );
         if ( f_it != funcs.end() ) {
         	{
