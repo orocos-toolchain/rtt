@@ -65,7 +65,6 @@ string makeShortFilename(string const& str) {
         ret = str.substr(3);
     if (str.rfind(SO_EXT) != string::npos)
         ret = ret.substr(0, str.rfind(SO_EXT) - SO_EXT.length() );
-    log(Info) << "STRIPPED " << str << " to " << ret <<endlog();
     return ret;
 }
 
@@ -201,7 +200,11 @@ bool PluginLoader::loadInProcess(string file, string shortname, bool log_error) 
     char* error;
 
     if ( isLoaded(shortname) || isLoaded(file) ) {
-        log(Warning) <<"Plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
+        if (log_error)
+            log(Warning);
+        else
+            log(Debug);
+        log() <<"Plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return false;
     }
 
