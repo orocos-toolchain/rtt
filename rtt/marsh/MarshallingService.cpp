@@ -47,7 +47,8 @@
 #endif
 #include "PropertyLoader.hpp"
 
-ORO_SERVICE_PLUGIN( RTT::marsh::MarshallingService )
+//ORO_SERVICE_PLUGIN( RTT::marsh::MarshallingService )
+ORO_SERVICE_NAMED_PLUGIN(RTT::marsh::MarshallingService, "marshalling")
 
 namespace RTT {
     using namespace detail;

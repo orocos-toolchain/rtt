@@ -35,5 +35,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   
   install(TARGETS rtt-marshalling-dynamic_${OROCOS_TARGET}
           LIBRARY DESTINATION lib/plugins )
+  install(TARGETS rtt-marshalling-dynamic_${OROCOS_TARGET}
+          LIBRARY DESTINATION ${PROJ_BINARY_DIR}/rtt/plugins )
   
 ENDIF(PLUGINS_ENABLE_MARSHALLING)

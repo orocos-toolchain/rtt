@@ -23,6 +23,8 @@ IF (PLUGINS_ENABLE_SCRIPTING)
   
   install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
           LIBRARY DESTINATION lib/plugins )
+   install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
+          LIBRARY DESTINATION ${PROJ_BINARY_DIR}/rtt/plugins )
   
   SET_SOURCE_FILES_PROPERTIES( ${SRCS} PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 
