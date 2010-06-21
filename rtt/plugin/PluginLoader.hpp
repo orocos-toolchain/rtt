@@ -2,7 +2,10 @@
 #define ORO_PLUGINLOADER_HPP_
 
 #include <string>
-#include "TaskContext.hpp"
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
+#include "../rtt-fwd.hpp"
 
 namespace RTT {
     namespace plugin {
@@ -22,7 +25,7 @@ namespace RTT {
             class LoadedLib{
             public:
                 LoadedLib(std::string n, std::string short_name, void* h)
-                : filename(n), shortname(short_name), handle(h), loadPlugin(0)
+                : filename(n), shortname(short_name), handle(h), loadPlugin(0), is_typekit(0)
                 {
                 }
                 /**
@@ -39,6 +42,7 @@ namespace RTT {
                 std::string plugname;
                 void* handle;
                 bool (*loadPlugin)(RTT::TaskContext*);
+                bool is_typekit;
             };
 
             std::vector< LoadedLib > loadedLibs;
@@ -57,11 +61,12 @@ namespace RTT {
              * Internal function that does all library loading.
              * @param filename The path+filename to open
              * @param shortname The short name of this file
+             * @param kind The kind of plugin to load: 'plugin' or 'typekit'.
              * @param log_error Log errors to users. Set to false in case you are poking
              * files to see if they can be loaded.
              * @return true if a new library was loaded or if this library was already loaded.
              */
-            bool loadInProcess(std::string filename, std::string shortname, bool log_error );
+            bool loadInProcess(std::string filename, std::string shortname, std::string kind, bool log_error );
             /**
              * Helper function for loadTypekit and loadPlugin.
              * @param name
@@ -144,6 +149,24 @@ namespace RTT {
              * @return false if the plugin refused to load into the TaskContext.
              */
             bool loadService(std::string const& servicename, TaskContext* tc);
+
+            /**
+             * Lists all services discovered by the PluginLoader.
+             * @return A list of service names
+             */
+            std::vector<std::string> listServices() const;
+
+            /**
+             * Lists all plugins (= services + typekits) discovered by the PluginLoader.
+             * @return A list of plugin names
+             */
+            std::vector<std::string> listPlugins() const;
+
+            /**
+             * Lists all typekits discovered by the PluginLoader.
+             * @return A list of typekit names
+             */
+            std::vector<std::string> listTypekits() const;
         };
     }
 }

@@ -6,6 +6,8 @@
  */
 
 #include "PluginLoader.hpp"
+#include "../TaskContext.hpp"
+#include "../Logger.hpp"
 #include <boost/filesystem.hpp>
 
 #include <dlfcn.h>
@@ -110,6 +112,8 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
 void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
     vector<string> paths = splitPaths(path_list);
+    if (paths.empty())
+        paths.push_back(".");
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
@@ -120,7 +124,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             {
                 log(Debug) << "Scanning " << itr->path().string() << "..." <<endlog();
                 if (is_regular_file(itr->status()))
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), false);
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
             }
         }
         else
@@ -134,7 +138,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             {
                 log(Debug) << "Scanning " << itr->path().string() << "..." <<endlog();
                 if (is_regular_file(itr->status()))
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), false );
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false );
             }
         }
         else
@@ -158,19 +162,19 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     {
         path p = path(*it) / subdir / (name + SO_EXT);
         tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, true ) )
+        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
         p = path(*it) / subdir / ("lib" + name + SO_EXT);
         tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, true ) )
+        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
         p = path(*it) / subdir / OROCOS_TARGET_NAME / (name + SO_EXT);
         tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, true ) )
+        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
         p = path(*it) / subdir / OROCOS_TARGET_NAME / ("lib" + name + SO_EXT);
         tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, true ) )
+        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
     }
     log(Error) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
@@ -195,7 +199,7 @@ bool PluginLoader::isLoaded(string file)
 }
 
 // loads a single plugin in the current process.
-bool PluginLoader::loadInProcess(string file, string shortname, bool log_error) {
+bool PluginLoader::loadInProcess(string file, string shortname, string kind, bool log_error) {
     path p(file);
     char* error;
 
@@ -251,6 +255,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, bool log_error) 
         // ok; try to load it.
         bool success = false;
         try {
+            // Load into process (TaskContext* == 0):
             success = (*loading_lib.loadPlugin)( 0 );
         } catch(...) {
             log(Error) << "Unexpected exception in loadRTTPlugin !"<<endlog();
@@ -261,7 +266,13 @@ bool PluginLoader::loadInProcess(string file, string shortname, bool log_error) 
             dlclose(handle);
             return false;
         }
-        log(Info) << "Loaded RTT Plugin '"<< string(OROCOS_TARGET_NAME) + ":" + shortname  << "/"<< plugname <<"'"<<endlog();
+        if (kind == "typekit") {
+            log(Info) << "Loaded RTT TypeKit '"<< string(OROCOS_TARGET_NAME) + ":" + shortname  << "/"<< plugname <<"'"<<endlog();
+            loading_lib.is_typekit = true;
+        } else {
+            log(Info) << "Loaded RTT Plugin '"<< string(OROCOS_TARGET_NAME) + ":" + shortname  << "/"<< plugname <<"'"<<endlog();
+            loading_lib.is_typekit = false;
+        }
         loadedLibs.push_back(loading_lib);
         return true;
     } else {
@@ -270,5 +281,31 @@ bool PluginLoader::loadInProcess(string file, string shortname, bool log_error) 
     }
     dlclose(handle);
     return false;
+}
+
+std::vector<std::string> PluginLoader::listServices() const {
+    vector<string> names;
+    for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
+        if ( !it->is_typekit )
+            names.push_back( it->plugname );
+    }
+    return names;
+}
+
+std::vector<std::string> PluginLoader::listPlugins() const {
+    vector<string> names;
+    for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
+        names.push_back( it->plugname );
+    }
+    return names;
+}
+
+std::vector<std::string> PluginLoader::listTypekits() const {
+    vector<string> names;
+    for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
+        if ( it->is_typekit )
+            names.push_back( it->plugname );
+    }
+    return names;
 }
 
