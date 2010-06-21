@@ -21,6 +21,9 @@ IF (PLUGINS_ENABLE_SCRIPTING)
     CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(rtt-scripting-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
   
+  install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
+          LIBRARY DESTINATION lib/plugins )
+  
   SET_SOURCE_FILES_PROPERTIES( ${SRCS} PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 
 ENDIF (PLUGINS_ENABLE_SCRIPTING)

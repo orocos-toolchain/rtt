@@ -33,4 +33,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
     CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(rtt-marshalling-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
   
+  install(TARGETS rtt-marshalling-dynamic_${OROCOS_TARGET}
+          LIBRARY DESTINATION lib/plugins )
+  
 ENDIF(PLUGINS_ENABLE_MARSHALLING)
