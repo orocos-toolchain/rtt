@@ -220,6 +220,9 @@ namespace RTT
          * to be refreshed.
          * @param target A data source of the same type as this TypeInfo object which contains the data to be updated from \a source.
          * @return true if source could be updated, false otherwise.
+         *
+         * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
+         * datasources and hierarchical properties.
          */
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
         /**

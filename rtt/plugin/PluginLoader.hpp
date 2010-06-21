@@ -8,6 +8,8 @@ namespace RTT {
     namespace plugin {
         /**
          * Loads plugins found on the filesystem and keeps track of found plugins, typekits and services.
+         * It has no facilities of unloading plugins. Plugins remain in memory until the process
+         * terminates.
          */
         class PluginLoader
         {
@@ -79,11 +81,23 @@ namespace RTT {
             void loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
         public:
             typedef boost::shared_ptr<PluginLoader> shared_ptr;
+            /**
+             * Create the instance of the PluginLoader. It will keep track
+             * of the loaded libraries for this process.
+             * @return A singleton.
+             */
             static boost::shared_ptr<PluginLoader> Instance();
+
+            /**
+             * Release the PluginLoader, erasing all knowledge of loaded
+             * libraries. No libraries will be unloaded from the process.
+             */
             static void Release();
 
             /**
              * Load any typekit found in the 'types/' subdirectory of each path in path_list in the process.
+             * This is a best effort function, ie it will silently ignore wrong paths or paths without any
+             * typekits.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for typekits.
              */
@@ -98,13 +112,17 @@ namespace RTT {
 
             /**
              * Loads any plugin found in the 'plugins/' subdirectory of each path in path_list in the current process.
+             * This is a best effort function, ie it will silently ignore wrong paths or paths without any
+             * plugins.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for plugins.
              */
             void loadPlugins(std::string const& path_list);
 
             /**
-             * Checks if a given plugin or filename has been loaded
+             * Checks if a given plugin or filename has been loaded.
+             * This function accepts full filenames ('libthe_plugin.so.1.99.0'), short names
+             * ('the_plugin') or the name provided by the plugin ('The Plugin').
              * @param name name of a file or the plugin name.
              * @return true if so.
              */
