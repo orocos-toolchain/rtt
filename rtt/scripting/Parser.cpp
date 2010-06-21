@@ -194,15 +194,22 @@ namespace RTT
     ActionInterface* ac = 0;
     std::vector<ActionInterface*> acv = parser.assignCommands();
     // and not forget to reset()..
+    if ( acv.empty() && parser.lastDefinedValue() ) {
+        return parser.lastDefinedValue()->getDataSource();
+    }
     if ( acv.size() == 1) {
         ac = acv.front();
+        ac->readArguments();
+        ac->execute();
+        delete ac;
+        return parser.lastDefinedValue()->getDataSource();
     }
     else if (acv.size() > 1) {
         ac = new CommandComposite(acv);
     }
 
     if ( ac ) {
-        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand()->clone() );
+        DataSourceBase::shared_ptr ret = new DataSourceCommand( ac );
         //parser.reset(); don't do this, we want to keep it.
         return ret;
     }
