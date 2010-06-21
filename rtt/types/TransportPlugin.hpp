@@ -35,16 +35,16 @@
 #define ORO_TRANSPORTPLUGIN_HPP 1
 
 #include <string>
-#include "../types/Types.hpp"
+#include "Types.hpp"
 
 namespace RTT
-{ namespace plugin {
+{ namespace types {
 
 
     /**
      * A class which registers TransportProtocol instances to types.
-     * Use the ORO_TOOLKIT_PLUGIN macro to have the plugin framework 
-     * automatically load all types supported by this plugin (using 
+     * Use the ORO_TOOLKIT_PLUGIN macro to have the plugin framework
+     * automatically load all types supported by this plugin (using
      * registerTransport() below).
      */
     class RTT_API TransportPlugin
@@ -59,7 +59,7 @@ namespace RTT
          * @param ti The typ to which transports may be added.
          * @return false if no transport was added, true otherwise.
          */
-        virtual bool registerTransport(std::string type_name, types::TypeInfo* ti) = 0;
+        virtual bool registerTransport(std::string type_name, TypeInfo* ti) = 0;
 
         /**
          * Returns the (protocol) name of this transport.

@@ -40,8 +40,8 @@
 #include "MQLib.hpp"
 #include "MQTemplateProtocol.hpp"
 #include "MQSerializationProtocol.hpp"
-#include "../../plugin/TransportPlugin.hpp"
-#include "../../types/Typekit.hpp"
+#include "../../types/TransportPlugin.hpp"
+#include "../../types/TypekitPlugin.hpp"
 #include "../../os/StartStopManager.hpp"
 #include <boost/serialization/vector.hpp>
 
@@ -98,7 +98,7 @@ namespace RTT {
          */
         int loadMQLib()
         {
-            Typekit::Import(MQLibPlugin);
+            TypekitRepository::Import(MQLibPlugin);
             // register fallback also.
             //DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_MQUEUE_PROTOCOL_ID, new MQFallBackProtocol() );
             return 0;

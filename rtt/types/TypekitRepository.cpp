@@ -36,9 +36,9 @@
  ***************************************************************************/
 
 
-#include "Typekit.hpp"
+#include "TypekitRepository.hpp"
 #include "TypekitPlugin.hpp"
-#include "../plugin/TransportPlugin.hpp"
+#include "TransportPlugin.hpp"
 #include "../Logger.hpp"
 #include <algorithm>
 
@@ -46,10 +46,10 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    std::vector<TypekitPlugin*> Typekit::Tools;
-    std::vector<TransportPlugin*> Typekit::Transports;
+    std::vector<TypekitPlugin*> TypekitRepository::Tools;
+    std::vector<TransportPlugin*> TypekitRepository::Transports;
 
-    void Typekit::Import( TypekitPlugin& tkpr )
+    void TypekitRepository::Import( TypekitPlugin& tkpr )
     {
         TypekitPlugin* tkp = &tkpr;
         Logger::In in("Typekit");
@@ -76,7 +76,7 @@ namespace RTT {
         }
     }
 
-    void Typekit::Import( TransportPlugin& trpr )
+    void TypekitRepository::Import( TransportPlugin& trpr )
     {
         TransportPlugin* trp = &trpr;
         Logger::In in("Typekit");
@@ -91,7 +91,7 @@ namespace RTT {
         TypeInfoRepository::Instance()->registerTransport( trp );
     }
 
-    std::vector<std::string> Typekit::getTools()
+    std::vector<std::string> TypekitRepository::getTools()
     {
         std::vector<std::string> ret;
         for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
@@ -100,7 +100,7 @@ namespace RTT {
         return ret;
     }
 
-    std::vector<std::string> Typekit::getTransports()
+    std::vector<std::string> TypekitRepository::getTransports()
     {
         std::vector<std::string> ret;
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
@@ -109,7 +109,7 @@ namespace RTT {
         return ret;
     }
 
-    bool Typekit::hasTool( const std::string& toolname )
+    bool TypekitRepository::hasTool( const std::string& toolname )
     {
         for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
              it != Tools.end(); ++it)
@@ -118,7 +118,7 @@ namespace RTT {
         return false;
     }
 
-    bool Typekit::hasTransport( const std::string& transportname )
+    bool TypekitRepository::hasTransport( const std::string& transportname )
     {
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
              it != Transports.end(); ++it)

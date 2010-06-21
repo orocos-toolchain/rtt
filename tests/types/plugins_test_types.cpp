@@ -5,7 +5,6 @@
  *      Author: kaltan
  */
 
-#include <rtt/types/Typekit.hpp>
 #include <rtt/types/TypekitPlugin.hpp>
 
 class TypesPluginTest : public RTT::types::TypekitPlugin

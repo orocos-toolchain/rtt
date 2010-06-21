@@ -40,7 +40,7 @@
 #include "rtt-config.h"
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include "RealTimeTypekit.hpp"
-#include "Typekit.hpp"
+#include "TypekitRepository.hpp"
 #endif
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
@@ -55,7 +55,7 @@ namespace RTT {
          */
         int loadRTT()
         {
-            Typekit::Import( RealTimeTypekit );
+            TypekitRepository::Import( RealTimeTypekit );
             return true;
         }
 

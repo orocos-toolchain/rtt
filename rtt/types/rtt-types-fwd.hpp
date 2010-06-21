@@ -9,8 +9,9 @@ namespace RTT {
         class GlobalsRepository;
         class OperatorRepository;
         class RealTimeTypekitPlugin;
-        class Typekit;
+        class TransportPlugin;
         class TypekitPlugin;
+        class TypekitRepository;
         class TypeInfo;
         class TypeInfoRepository;
         class TypeTransporter;

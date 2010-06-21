@@ -59,7 +59,7 @@ namespace RTT
         typedef std::map<std::string, TypeInfo*> map_t;
         map_t data;
 
-        typedef std::vector<plugin::TransportPlugin*> Transports;
+        typedef std::vector<TransportPlugin*> Transports;
         Transports transports;
     public:
         ~TypeInfoRepository();
@@ -97,7 +97,7 @@ namespace RTT
          * Call this function to add a new (network) transport
          * for Orocos types.
          */
-        void registerTransport( plugin::TransportPlugin* tr );
+        void registerTransport( TransportPlugin* tr );
 
         /**
          * Dump all known types, along with transports and their types, to

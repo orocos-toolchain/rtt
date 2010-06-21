@@ -43,7 +43,6 @@
 #include <vector>
 #include "../rtt-config.h"
 #include "rtt-types-fwd.hpp"
-#include "../plugin/rtt-plugin-fwd.hpp"
 
 namespace RTT
 { namespace types {
@@ -54,12 +53,12 @@ namespace RTT
      * library foreign to Orocos.
      * @ingroup CoreLib
      */
-    class RTT_API Typekit
+    class RTT_API TypekitRepository
     {
         /** Loaded tools. */
         static std::vector<TypekitPlugin*> Tools;
         /** Loaded transports. */
-        static std::vector<plugin::TransportPlugin*> Transports;
+        static std::vector<TransportPlugin*> Transports;
     public:
         /**
          * Import a plugin into Orocos.
@@ -76,7 +75,7 @@ namespace RTT
          * import will succeed. Multiple imports will not
          * be considered as an error.
          */
-        static void Import( plugin::TransportPlugin& tr );
+        static void Import( TransportPlugin& tr );
 
         /**
          * Get the names of all imported tools.
@@ -98,35 +97,5 @@ namespace RTT
     };
 
 }}
-
-/**
- * Once you defined your TypekitPlugin class,
- * you can use this macro to make it available as a
- * plugin.
- * @note Do not use this macro inside a namespace !
- * For example: ORO_TYPEKIT_PLUGIN ( KDL::KDLTypekit )
- * where KDL::KDLTypekit is a *classname*, derived from
- * RTT::types::TypekitPlugin.
- */
-#define ORO_TYPEKIT_PLUGIN( TYPEKIT ) \
-    namespace RTT { class TaskContext; } \
-    extern "C" {                      \
-        bool loadRTTPlugin(RTT::TaskContext* tc) { \
-            TYPEKIT tk; \
-            if (tc == 0) { \
-                RTT::types::Typekit::Import( tk ); \
-                return true; \
-            } \
-            return false; \
-        } \
-    std::string getRTTPluginName() { \
-        TYPEKIT tk; \
-        return tk.getName(); \
-    } \
-    std::string getRTTTargetName() { \
-        return OROCOS_TARGET_NAME; \
-    } \
-}
-
 
 #endif
