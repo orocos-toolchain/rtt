@@ -3,6 +3,7 @@
 #include <scripting/Scripting.hpp>
 #include <scripting/ScriptingService.hpp>
 #include <extras/SequentialActivity.hpp>
+#include <plugin/PluginLoader.hpp>
 
 using namespace std;
 using namespace boost;
@@ -21,6 +22,8 @@ BOOST_FIXTURE_TEST_SUITE(  ScriptingTestSuite,  OperationsFixture )
 BOOST_AUTO_TEST_CASE(TestGetProvider)
 {
     //ScriptingService* sa = new ScriptingService( tc ); // done by TC or plugin.
+
+    PluginLoader::Instance()->loadService("scripting",tc);
 
     // We use a sequential activity in order to force execution on trigger().
     tc->stop();

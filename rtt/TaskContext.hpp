@@ -41,6 +41,7 @@
 
 
 #include "rtt-config.h"
+#include "plugin/PluginLoader.hpp"
 #include "interface/ServiceProvider.hpp"
 #include "interface/ServiceRequester.hpp"
 #include "interface/DataFlowInterface.hpp"
@@ -271,6 +272,8 @@ namespace RTT
 
         /**
          * Use this method to be able to make Method calls to services provided by this component.
+         * In case the service does not exist in this component, it tries to load the service using the plugin::PluginLoader class.
+         * If all fails, a null pointer is returned.
          *
          * For example: getProvider<Scripting>("scripting")->loadPrograms("file.ops");
          *
@@ -281,7 +284,8 @@ namespace RTT
          */
         template<class ServiceType>
         boost::shared_ptr<ServiceType> getProvider(const std::string& name) {
-            if (!provides()->hasService(name)) return boost::shared_ptr<ServiceType>();
+            if (!provides()->hasService(name) && plugin::PluginLoader::Instance()->loadService(name, this) == false)
+                return boost::shared_ptr<ServiceType>();
             LocalServices::iterator it = localservs.find(name);
             if (  it != localservs.end() ) {
                 return boost::dynamic_pointer_cast<ServiceType>(it->second);

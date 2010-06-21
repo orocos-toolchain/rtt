@@ -27,6 +27,7 @@
 #include <extras/SimulationThread.hpp>
 #include <interface/ServiceProvider.hpp>
 #include <TaskContext.hpp>
+#include <scripting/Scripting.hpp>
 #include <interface/ServiceProvider.hpp>
 #include <types/GlobalsRepository.hpp>
 
@@ -40,6 +41,7 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
+    tc->getProvider<Scripting>("scripting");
     sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
     tc->provides()->addService( this->createMethodFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
