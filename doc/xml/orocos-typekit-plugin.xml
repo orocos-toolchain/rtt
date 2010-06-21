@@ -1,0 +1,501 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+]
+>
+
+<article>
+  <articleinfo>
+    <title>Extending the Real-Time Toolkit with your own Data Types</title>
+    <copyright>
+      <year>2006,2007,2009, 2010</year>
+      <holder>Peter Soetens, FMTC</holder>
+      <holder>Peter Soetens, The SourceWorks</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document is an introduction to making user defined types
+	(classes) visible within &orocos;. You need to read this
+	document when you want to see the value of an object you
+	defined yourself, for example in the TaskBrowser component or
+	in an Orocos script. Other uses are reading and writing
+	objects to and from XML and generally, anything a built-in
+	Orocos type can do, so can yours.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>2.0.0</revnumber>
+	<date>21 Jun 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Reworked for RTT-2.0</revremark>
+      </revision>
+      <revision>
+	<revnumber>1.8.0</revnumber>
+	<date>5 Feb 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Dot operator and toolkit plugin examples</revremark>
+      </revision>
+      <revision>
+	<revnumber>1.0.1</revnumber>
+	<date>24 Nov 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Separated from the Developer's Manual.</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+  <section>
+    <title>The Orocos Type System : Typekits</title>
+    <para>
+      Most applications define their own classes or structs to exchange
+      data between components. It is possible to tell the RTT about these
+      user defined types such that they can be displayed, stored to XML,
+      used in the scripting engine or even transfered over a network
+      connection.
+    </para>
+
+    <section>
+      <title>Loading Typekits</title>
+      <para>
+	Orocos uses the 'Typekit' principle to make it aware of user
+	types. The RTT's typekit has built-in support for
+	the C++ types <classname>int</classname>,<classname>unsigned
+	int</classname>,<classname>double</classname>,<classname>float</classname>,
+	<classname>char</classname>,<classname>bool</classname>,
+	<classname>vector&lt;double&gt;</classname> and
+	<classname>string</classname>. The idea is that user contributed typekits
+	are added at runtime.
+      </para>
+      <para>
+	A typekit is loaded as a plugin, as shown in the 
+	RTT Plugin Manual, from the <filename>types</filename> sudirectories
+	of the <filename>RTT_PLUGIN_PATH</filename> directories.
+	In case you want to load typekits manually, you can use
+	the <classname>RTT::plugin::PluginLoader</classname> class
+	which manages all loading and locating of RTT plugins.
+      </para>
+    </section>
+    <section>
+      <title>Generating Typekits</title>
+      <para>
+	There are two tools available to generate Typekits for users.
+	The first one is orogen, which generates typekits from existing C++
+	structs. The second is based on ROS, and generates typekits
+	for ROS Messages (which are used in ros topics).
+      </para>
+      <para>
+	This table lists the pro's and con's of these two approaches:
+	<table id="typekit-generator-table">
+	  <title>Typekit generators</title>
+	  <tgroup cols="4">
+	    <thead>
+	      <row>
+		<entry>Generator</entry>
+		<entry>Pro's</entry>
+		<entry>Con's</entry>
+		<entry>Status</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>orogen</entry>
+		<entry>
+		  <itemizedlist>
+		  <listitem><para>Works with existing C++ classes</para></listitem>
+		  <listitem><para>Stable and tested</para></listitem>
+		  <listitem><para>Usable with the CORBA transport</para></listitem>
+		  </itemizedlist>
+		</entry>
+		<entry>
+		  <itemizedlist>
+		  <listitem><para>Can not be used with classes with virtual functions.</para></listitem>
+		  <listitem><para>Requires manual ruby setup</para></listitem>
+		  <listitem><para></para></listitem>
+		  </itemizedlist>
+		</entry>
+		<entry>
+		  Being ported to RTT 2.x, Available for RTT 1.x
+		</entry>
+	      </row>
+	      <row>
+		<entry>rosgen</entry>
+		<entry>
+		  <itemizedlist>
+		  <listitem><para>Compatible with ROS messages</para></listitem>
+		  <listitem><para>Easy to use with many predefined data structures available.</para></listitem>
+		  <listitem><para></para></listitem>
+		  </itemizedlist>
+		</entry>
+		<entry>
+		  <itemizedlist>
+		  <listitem><para>Can not be used with existing C++ data types</para></listitem>
+		  <listitem><para>Experimental.</para></listitem>
+		  <listitem><para>Depends on ROS</para></listitem>
+		  <listitem><para>Not compatible with the CORBA transport</para></listitem>
+		  </itemizedlist>
+		</entry>
+		<entry>
+		  Not available for RTT 1.x, Under development for RTT 2.x (alfa status).
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>	
+      </para>
+      <note>
+	<para>
+	  These tools are under development and will mature during the
+	  2.x release cycles. In the meantime, users can fall back on
+	  writing typekits manually as described below.
+	</para>
+      </note>
+    </section>
+    <section>
+      <title>Telling the RTT about your data</title>
+      <para>
+	Say that you have an application which transfers data
+	in a struct <classname>ControlData</classname> :
+	<programlisting>  struct ControlData {
+    double x, y, z;
+    int sample_nbr;
+  }</programlisting>
+        When you would use a DataPort&lt;ControlData&gt; and ask the
+	taskbrowser to display the data port. You would see:
+	<screen>  ... <emphasis>unknown_t</emphasis> ... </screen>
+	instead of <emphasis>ControlData</emphasis>. The RTT has no
+	clue on the name of your data and how to display it.
+      </para>
+      <para>
+        How can you tell the RTT how to handle this data type? A
+	class is provided which you can extend to fit your needs,
+	<classname>RTT::StructTypeInfo</classname>. It only requires
+	a helper function which is compabible with the boost::serialization
+	library and which is easy to write:
+	<programlisting>  #include &lt;rtt/StructTypeInfo.hpp>
+
+  // The helper function which you write yourself:
+  template&lt;class Archive>
+  void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
+     using boost::serialization::make_nvp;
+     a &amp; make_nvp("x", cd.x);
+     a &amp; make_nvp("y", cd.y);
+     a &amp; make_nvp("z", cd.z);
+     a &amp; make_nvp("sample_nbr", cd.sample_nbr);
+  }
+
+  // The RTT helper class which uses the above function behind the scenes:
+  struct ControlDataTypeInfo
+    : public RTT::StructTypeInfo&lt;ControlData>
+  {
+     ControlDataTypeInfo()
+        : RTT::StructTypeInfo&lt;ControlData>("ControlData")
+     {}
+  };
+
+  // Tell the RTT the name and type of this struct:
+  RTT::Types()->addType( new ControlDataTypeInfo() );
+	</programlisting>
+	From now on, the RTT knows the 'ControlData' type name and allows
+	you to write it to XML, use it in scripts and access its member
+	variables. For example, you may write in a script:
+	<programlisting>  var ControlData mycd;
+  mycd.x = 2 * mycd.y  = 2 * mycd.z = 1; // (x,y,z)=(4,2,1)
+  mycd.sample_nbr = 1;
+  
+  var ControlData mycd2 = mycd;
+  // ... </programlisting>
+      </para>
+      <note>
+	<para>
+	  The type is now usable as a 'var' in a script, however,
+	  you may need to add a constructor as
+	  well. See <xref linkend="overloading-constructors" />. 
+	</para>
+      </note>
+      <section>
+	<title>Displaying and Reading</title>
+	<para>
+	  There is no default implementation for reading or writing
+	  your data to a stream. You need to implement this yourself.
+	</para>
+	<para>	
+	  In order to tell the RTT how to display your type, you
+	  may overload the <function>StructTypeInfo::read</function> and
+	  <function>StructTypeInfo::write</function> functions
+	  OR define <function>operator&lt;&lt;()</function> and 
+	  <function>operator&gt;&gt;()</function>  for your type (preferred).
+	  The code below shows the latter option:
+	</para>
+	<programlisting>  #include &lt;rtt/StructTypeInfo.hpp>
+  #include &lt;ostream>
+  #include &lt;istream>
+
+  // Displaying:
+  std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const ControlData&amp; cd) {
+     return os &lt;&lt; '('&lt;&lt; cd.x &lt;&lt; ',' &lt;&lt; cd.y &lt;&lt; ',' &lt;&lt; cd.z &lt;&lt; '): ' &lt;&lt; cd.sample_nbr;
+  }
+
+  // Reading :
+  std::istream&amp; operator&gt;&gt;(std::istream&amp; is, ControlData&amp; cd) {
+     char c;
+     return is >> c >> cd.x >> c >> cd.y >> c >> cd.z >> c >> c >> cd.sample_nbr; // 'c' reads '(' ',' ',' ')' and ':'
+  }
+  // ...
+  // The 'true' argument means: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
+  struct ControlDataTypeInfo
+    : public RTT::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
+  {
+     ControlDataTypeInfo()
+        : RTT::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
+     {}
+  };
+
+  // Tell the RTT the name and type of this struct
+  RTT::Types()->addType( new ControlDataTypeInfo() );
+	</programlisting>
+	<para>
+	  If you use the above line of code to add the type, the RTT will be
+	  able to display it as well, for example in the TaskBrowser.
+	  Other subsystems may use your operators
+	  to exchange data in a text-based form. However, in order to
+	  'construct' your type in a script or at the TaskBrowser prompt,
+	  you need to add a constructor as shown in <xref linkend="overloading-constructors" />. 
+	</para>
+      </section>
+      <section>
+	<title>Reading/Writing data from/to XML</title>
+        <para>
+	  Every data type that has been defined using the StructTypeInfo
+	  and a proper serialization function, can be written to XML.
+	  The above data type will be encoded as such:
+	</para>
+	<programlisting>
+<![CDATA[  <struct name="MyData" type="ControlData">
+    <simple name="x" type="double">
+       <value>0.12</value>
+    </simple>
+    <simple name="y" type="double">
+       <value>1.23</value>
+    </simple>
+    <simple name="z" type="double">
+       <value>3.21</value>
+    </simple>
+    <simple name="sample_nbr" type="short">
+       <value>3123</value>
+    </simple>
+  </struct>]]>
+	</programlisting>
+      </section>
+      <section>
+	<title>Network transfer using CORBA</title>
+	<para>
+	  In order to transfer your data between components using the
+	  CORBA network transport, the RTT requires that you provide the conversion
+	  from your type to a CORBA::Any type and back. The Orocos.org
+	  wiki contains more details about this procedure. This procedure is
+	  done automatically if you use <command>orogen</command>.
+	</para>
+	<para>
+	  The first step is describing your struct in IDL and generate
+	  the 'client' headers with 'Any' support. Next you
+	  create such a struct, fill it with your data type's data
+	  and next 'stream' it to an Any. The other way around is
+	  required as well.
+	</para>
+	<para>
+	  In addition, you will need the CORBA support of the RTT
+	  enabled in your build configuration.
+	</para>
+      </section>
+    </section>
+    <section>
+      <title>Building your own Typekit</title>
+      <para>
+	The number of types may grow in your application to such
+	a number or diversity that it may be convenient to 
+	build your own typekit and make it a plugin.
+	Non-Orocos libraries benefit from this system as well because
+	they can introduce their data types into Orocos.
+      </para>
+      <para>
+	Each typekit must define a class that inherits from the
+	<classname>RTT::TypekitPlugin</classname> class and implement
+	four functions: <function>loadTypes()</function>,
+	<function>loadConstructors</function>,
+	<function>loadOperators()</function> and
+	<function>getName()</function>.
+      </para>
+      <para>
+	The name of a typekit must be unique. Each typekit will be loaded
+	no more than once. The loadTypes function contains all 
+	'StructTypeInfo' constructs to tell the RTT about the types
+	of your typekit. The loadOperators function contains all
+	operations that can be performed on your data such as addition ('+'),
+	indexing ('[i]'), comparison ('==') etc. Finally, type constructors
+	are added in the loadConstructors function. They allow a newly
+	created script variable to be initialised with a (set of) values.
+      </para>
+      <para>
+	Mimick the code of the
+	<classname>RTT::RealTimeTypekitPlugin</classname> and KDL's
+	<classname>KDL::KDLTypekitPlugin</classname> to build
+	your own.
+      </para>
+      <para> Your typekit header file might look like:
+      <programlisting>  #ifndef ORO_MY_TYPEKIT_HPP
+  #define ORO_MY_TYPEKIT_HPP
+
+  #include &lt;rtt/types/TypekitPlugin.hpp&gt;
+
+  namespace MyApp
+  {
+    /**
+     * This interface defines the types of my application
+     */
+    class MyTypekitPlugin
+       : public RTT::types::TypekitPlugin
+    {
+    public:
+        virtual std::string getName();
+
+        virtual bool loadTypes();
+        virtual bool loadConstructors();
+        virtual bool loadOperators();
+    };
+  }
+  #endif</programlisting>
+      The mytypekit.cpp files looks like:
+      <programlisting>
+  #include "mytypekit.hpp"
+
+  namespace MyApp {
+    std::string MyTypekitPlugin::getName() { return "MyTypekit"; }
+
+    bool MyTypekitPlugin::loadTypes() {
+      // Tell the RTT the name and type of this struct
+      RTT::Types()->addType( new ControlDataTypeInfo() );
+    }  
+
+    /** ...Add the other example code of this manual here as well... */
+    bool MyTypekitPlugin::loadConstructors() {
+      // ...
+    }
+    bool MyTypekitPlugin::loadOperators() {
+      // ...
+    }
+  } // namespace MyApp
+
+  /** Register the class as a plugin */
+  ORO_TYPEKIT_PLUGIN( MyApp::MyTypekitPlugin ); </programlisting></para>
+      <para>
+	Next compile the .cpp file as a shared library and put it in
+	the <filename>types</filename> subdirectory of the RTT_PLUGIN_PATH.
+      </para>
+      <para>
+	The Plugin Manual explains more in detail how plugins are
+	located or can be loaded from C++ code. The class that 
+	manages plugin loading is the <classname>RTT::plugin::PluginLoader</classname>.
+      </para>
+      <section id="overloading-operators">
+	<title>Loading Operators</title>
+	<para>
+	  Some data types may support mathematical operations. In that case,
+	  you can register these operators to the RTT type system such that
+	  you can use them in your scripts. In case your type does not need
+	  such operations, this section can be skipped.
+	</para>
+	<para>
+	  Operator are stored in the class <classname>RTT::OperatorRepository</classname>
+	  in <filename>Operators.hpp</filename>.  The list of
+	  supported operators is set by the typekit and added to the OperatorRepository
+	  It looks something like this:
+	  <programlisting>
+bool loadOperators() {
+  OperatorRepository::shared_ptr oreg = RTT::operators();
+  // boolean stuff:
+  oreg->add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
+  return true;
+} </programlisting>
+	  Adding your own should not be terribly hard.  The hardest
+	  part is that as the second argument to newUnaryOperator,
+	  newBinaryOperator or newTernaryOperator, you need to specify
+	  a STL Adaptable Functor, and even though the STL provides
+	  many predefined one's, it does not provide all possible
+	  combinations, and you might end up having to write your
+	  own.  The STL does not at all provide any "ternary
+	  operators", so if you need one of those, you'll definitely
+	  have to write it yourself.
+	</para>
+	<para>
+	  Note that this section is only about adding overloads for
+	  existing operators, if you want to add new operators to
+	  the scripting engine, the parsers need to be extended as well.
+	</para>
+      </section>
+      <section id="overloading-constructors">
+	<title>Loading Constructors</title>
+	<para>
+	  Constructors can only be added <emphasis>after</emphasis> a 
+	  type has been loaded using <function>addType</function>.
+	  Say that the ControlData struct has a constructor:
+	</para>
+	<programlisting>  struct ControlData {
+    // Don't forget to supply the default constructor
+    // as well.
+    ControlData() 
+      : x(0), y(0), z(0), sample_nbr(0)
+    {}
+    ControlData(double a, double b, double c) 
+      : x(a), y(b), z(c), sample_nbr(0)
+    {}
+    double x, y, z;
+    int sample_nbr;
+  }</programlisting>
+        <para>
+	  This constructor is not automatically known to the type system.
+	  You need to write a constructor function and add that to the
+	  type info:
+        </para>
+	<programlisting>
+  // This 'factory' function constructs one object.
+  ControlData createCD(double a, double b, double c) {
+    return ControlData(a,b,c);
+  }
+
+  // Tell the RTT a constructor is available:
+  // Attention: "ControlData" must have been added before with 'addType' !
+  RTT::Types()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
+	</programlisting>
+	<para>
+	  From now on, one can write in a script:
+	</para>
+	<programlisting>  var ControlData cd = ControlData(3.4, 5.0, 1.7);</programlisting>
+	<para>
+	  Multiple constructors can be added for the same type. The first
+	  one that matches with the given arguments is then taken.
+	</para>
+      </section>
+    </section>
+  </section>
+</article>
