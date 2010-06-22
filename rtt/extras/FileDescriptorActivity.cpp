@@ -200,7 +200,10 @@ void FileDescriptorActivity::loop()
             m_has_error = true;
         }
         else if (ret == 0)
+        {
+            log(Error) << "FileDescriptorActivity: timeout in select()" << endlog();
             m_has_timeout = true;
+        }
 
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe
