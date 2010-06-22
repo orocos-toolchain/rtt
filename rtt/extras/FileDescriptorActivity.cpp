@@ -217,11 +217,13 @@ void FileDescriptorActivity::loop()
             do
             {
                 boost::uint8_t code;
-                read(pipe, &code, 1);
-                if (code == CMD_BREAK_LOOP)
-                    do_break = true;
-                else
-                    do_trigger = true;
+                if (read(pipe, &code, 1) == 1)
+                {
+                    if (code == CMD_BREAK_LOOP)
+                        do_break = true;
+                    else
+                        do_trigger = true;
+                }
 
                 // Initialize the values for the next select() call
                 FD_ZERO(&watch_pipe);
