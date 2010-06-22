@@ -164,10 +164,18 @@ bool FileDescriptorActivity::start()
 bool FileDescriptorActivity::trigger()
 { return write(m_interrupt_pipe[1], &CMD_TRIGGER, 1) == 1; }
 
+struct fd_watch {
+    int fd;
+    fd_watch(int fd) : fd(fd) {}
+    ~fd_watch() { close(fd); };
+};
+
 void FileDescriptorActivity::loop()
 {
     int pipe = m_interrupt_pipe[0];
     int max_fd = std::max(pipe, *m_watched_fds.rbegin());
+    fd_watch watch_pipe_0(m_interrupt_pipe[0]);
+    fd_watch watch_pipe_1(m_interrupt_pipe[1]);
 
     while(true)
     {
@@ -243,7 +251,9 @@ bool FileDescriptorActivity::breakLoop()
     if (write(m_interrupt_pipe[1], &CMD_BREAK_LOOP, 1) != 1)
         return false;
 
-    // os::SingleThread properly waits for loop() to return
+    // either OS::SingleThread properly waits for loop() to return, or we are
+    // called from within loop() [for instance because updateHook() called
+    // fatal()]. In both cases, just return.
     return true;
 }
 
@@ -257,15 +267,12 @@ void FileDescriptorActivity::step()
 
 bool FileDescriptorActivity::stop()
 {
-    // Activity::stop will call breakLoop and act upon its return
-    // value.
-    if (Activity::stop())
-    {
-        close(m_interrupt_pipe[0]);
-        close(m_interrupt_pipe[1]);
-        return true;
-    }
-    else
-        return false;
+    // If fatal() is called from the updateHook(), stop() will be called from
+    // within the context and loop() will still run after this command has quit.
+    //
+    // This is bad and will have to be fixed in RTT 2.0 by having delayed stops
+    // (i.e. setting the task context's state to FATAL only when loop() has
+    // quit)
+    return Activity::stop();
 }
 
