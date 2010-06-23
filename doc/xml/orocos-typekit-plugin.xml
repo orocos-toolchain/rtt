@@ -127,7 +127,6 @@
 		  <itemizedlist>
 		  <listitem><para>Can not be used with classes with virtual functions.</para></listitem>
 		  <listitem><para>Requires manual ruby setup</para></listitem>
-		  <listitem><para></para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
@@ -140,7 +139,6 @@
 		  <itemizedlist>
 		  <listitem><para>Compatible with ROS messages</para></listitem>
 		  <listitem><para>Easy to use with many predefined data structures available.</para></listitem>
-		  <listitem><para></para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
@@ -167,6 +165,15 @@
 	</para>
       </note>
     </section>
+  </section>
+  <section>
+    <title>Creating a Typekit in C++</title>
+    <para>
+      In case you don't use any of the typekit generators, you need to
+      write a typekit yourself. This has been simplified in RTT
+      2.x, but the hardest part remains providing network transport
+      for data types.
+    </para>
     <section>
       <title>Telling the RTT about your data</title>
       <para>
@@ -185,10 +192,10 @@
       <para>
         How can you tell the RTT how to handle this data type? A
 	class is provided which you can extend to fit your needs,
-	<classname>RTT::StructTypeInfo</classname>. It only requires
+	<classname>RTT::types::StructTypeInfo</classname>. It only requires
 	a helper function which is compabible with the boost::serialization
 	library and which is easy to write:
-	<programlisting>  #include &lt;rtt/StructTypeInfo.hpp>
+	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
 
   // The helper function which you write yourself:
   template&lt;class Archive>
@@ -202,15 +209,15 @@
 
   // The RTT helper class which uses the above function behind the scenes:
   struct ControlDataTypeInfo
-    : public RTT::StructTypeInfo&lt;ControlData>
+    : public RTT::types::StructTypeInfo&lt;ControlData>
   {
      ControlDataTypeInfo()
-        : RTT::StructTypeInfo&lt;ControlData>("ControlData")
+        : RTT::types::StructTypeInfo&lt;ControlData>("ControlData")
      {}
   };
 
   // Tell the RTT the name and type of this struct:
-  RTT::Types()->addType( new ControlDataTypeInfo() );
+  RTT::types::Types()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	From now on, the RTT knows the 'ControlData' type name and allows
 	you to write it to XML, use it in scripts and access its member
@@ -243,7 +250,7 @@
 	  <function>operator&gt;&gt;()</function>  for your type (preferred).
 	  The code below shows the latter option:
 	</para>
-	<programlisting>  #include &lt;rtt/StructTypeInfo.hpp>
+	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
   #include &lt;ostream>
   #include &lt;istream>
 
@@ -260,15 +267,15 @@
   // ...
   // The 'true' argument means: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
   struct ControlDataTypeInfo
-    : public RTT::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
+    : public RTT::types::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
   {
      ControlDataTypeInfo()
-        : RTT::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
+        : RTT::types::StructTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
      {}
   };
 
   // Tell the RTT the name and type of this struct
-  RTT::Types()->addType( new ControlDataTypeInfo() );
+  RTT::types::Types()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	<para>
 	  If you use the above line of code to add the type, the RTT will be
@@ -308,8 +315,7 @@
 	<para>
 	  In order to transfer your data between components using the
 	  CORBA network transport, the RTT requires that you provide the conversion
-	  from your type to a CORBA::Any type and back. The Orocos.org
-	  wiki contains more details about this procedure. This procedure is
+	  from your type to a CORBA::Any type and back. This procedure is
 	  done automatically if you use <command>orogen</command>.
 	</para>
 	<para>
@@ -323,6 +329,11 @@
 	  In addition, you will need the CORBA support of the RTT
 	  enabled in your build configuration.
 	</para>
+	<note>
+	  <para>
+	    This procedure is discussed in detail <ulink url="http://www.orocos.org/wiki/rtt/simple-examples/developing-plugins-and-toolkits/part-3-transport-plugin">on the Orocos wiki</ulink>.
+	  </para>
+	</note>
       </section>
     </section>
     <section>
@@ -485,7 +496,7 @@ bool loadOperators() {
 
   // Tell the RTT a constructor is available:
   // Attention: "ControlData" must have been added before with 'addType' !
-  RTT::Types()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
+  RTT::types::Types()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
 	</programlisting>
 	<para>
 	  From now on, one can write in a script:

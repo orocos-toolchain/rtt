@@ -79,7 +79,7 @@
      </para>
      <para> 
        The <classname>RTT::plugin::PluginLoader</classname> assumes that every directory listed in
-       the <option>RTT_PLUGIN_PATH</option> has this structure, meaning,
+       the <option>RTT_PLUGIN_PATH</option> has this structure, meaning, having
        a <filename>plugins</filename> or a <filename>types</filename>
        directory. If neither exists, the directory is just ignored.
      </para>
@@ -128,10 +128,13 @@ Service 'scripting' loaded in MyPeer
 	Both steps can actually be combined, since the RTT loads
 	services as you need them. For example, in your component's 
 	configureHook():
-	<programlisting> bool configureHook() {
-     boost::shared_ptr&lt;Scripting&gt; scripting = this->getProvider&lt;Scripting&gt;("scripting"); // 1
+	<programlisting> #include &lt;rtt/scripting/Scripting.hpp>
+
+// ... in your component:
+   bool configureHook() {
+     boost::shared_ptr&lt;<classname>RTT::Scripting</classname>&gt; scripting = this->getProvider&lt;RTT::Scripting&gt;("scripting"); // 1.
      if (scripting) {
-        bool result = scripting->loadStateMachines("statemachines.osd"); // 2
+        bool result = scripting->loadStateMachines("statemachines.osd"); // 2.
         //...
      }
   }</programlisting>
@@ -171,9 +174,9 @@ Service 'scripting' loaded in MyPeer
 	There are very little requirements to make a library an
 	Orocos plugin. The interface of an Orocos plugin is shown
 	in the file <filename>rtt/plugin/Plugin.hpp</filename>.
-	The most important function is the <function>bool loadRTTPlugin(RTT::TaskContext* c)</function>
+	The most important function is the <programlisting><function>bool loadRTTPlugin(RTT::TaskContext* c)</function></programlisting>
 	function. The <classname>RTT::plugin::PluginLoader</classname> looks for this
-	function in order to determine of the shared library is
+	function in order to determine if the shared library is
 	an RTT plugin. If found, it is called with a  c = null argument
 	to give the plugin a chance to load into the application.
 	If it returns false or throws an exception, the library
