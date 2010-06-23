@@ -9,7 +9,9 @@
 #include "../TaskContext.hpp"
 #include "../Logger.hpp"
 #include <boost/filesystem.hpp>
+#include "../../os/StartStopManager.hpp"
 
+#include <cstdlib>
 #include <dlfcn.h>
 
 
@@ -28,6 +30,28 @@ static const std::string SO_EXT(".dll");
 static const std::string SO_EXT(".so");
 # endif
 #endif
+
+namespace {
+    /**
+     * Reads the RTT_PLUGIN_PATH and inits the PluginLoader.
+     */
+    int loadPlugins()
+    {
+        char* paths = getenv("RTT_PLUGIN_PATH");
+        if (paths) {
+            string plugin_paths = paths;
+            log(Info) <<"RTT_PLUGIN_PATH was set to " << plugin_paths << endlog();
+            PluginLoader::Instance()->setPluginPath(plugin_paths);
+        } else {
+            log(Info) <<"No RTT_PLUGIN_PATH set." <<endlog();
+        }
+        PluginLoader::Instance()->loadPlugins("");
+        PluginLoader::Instance()->loadTypekits("");
+        return 0;
+    }
+
+    os::InitFunction plugin_loader( &loadPlugins );
+}
 
 boost::shared_ptr<PluginLoader> PluginLoader::minstance;
 
