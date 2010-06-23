@@ -46,12 +46,15 @@ vector<string> splitPaths(string const& str)
     while (string::npos != pos || string::npos != lastPos)
     {
         // Found a token, add it to the vector.
-        paths.push_back(str.substr(lastPos, pos - lastPos));
+        if ( !str.substr(lastPos, pos - lastPos).empty() )
+            paths.push_back(str.substr(lastPos, pos - lastPos));
         // Skip delimiters.  Note the "not_of"
         lastPos = str.find_first_not_of(delimiters, pos);
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
     }
+    if ( paths.empty() )
+        paths.push_back(".");
     return paths;
 }
 
@@ -111,9 +114,8 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
 
 void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list);
-    if (paths.empty())
-        paths.push_back(".");
+    vector<string> paths = splitPaths(path_list + ":" + plugin_path);
+
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
@@ -148,7 +150,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list);
+    vector<string> paths = splitPaths(path_list + ":" + plugin_path);
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {
@@ -202,6 +204,7 @@ bool PluginLoader::isLoaded(string file)
 bool PluginLoader::loadInProcess(string file, string shortname, string kind, bool log_error) {
     path p(file);
     char* error;
+    void* handle;
 
     if ( isLoaded(shortname) || isLoaded(file) ) {
         if (log_error)
@@ -309,3 +312,10 @@ std::vector<std::string> PluginLoader::listTypekits() const {
     return names;
 }
 
+std::string PluginLoader::getPluginPath() const {
+    return plugin_path;
+}
+
+void PluginLoader::setPluginPath( std::string const& newpath ) {
+    plugin_path = newpath;
+}

@@ -24,13 +24,12 @@ namespace RTT {
             if (paths) {
                 string plugin_paths = paths;
                 log(Info) <<"RTT_PLUGIN_PATH was set to " << plugin_paths << endlog();
-                PluginLoader::Instance()->loadPlugins(plugin_paths);
-                PluginLoader::Instance()->loadTypekits(plugin_paths);
+                PluginLoader::Instance()->setPluginPath(plugin_paths);
             } else {
                 log(Info) <<"No RTT_PLUGIN_PATH set." <<endlog();
-                PluginLoader::Instance()->loadPlugins(".");
-                PluginLoader::Instance()->loadTypekits(".");
             }
+            PluginLoader::Instance()->loadPlugins("");
+            PluginLoader::Instance()->loadTypekits("");
             return 0;
         }
 

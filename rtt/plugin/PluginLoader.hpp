@@ -13,6 +13,13 @@ namespace RTT {
          * Loads plugins found on the filesystem and keeps track of found plugins, typekits and services.
          * It has no facilities of unloading plugins. Plugins remain in memory until the process
          * terminates.
+         *
+         * @name Plugin Paths
+         * The PluginLoader searches for plugins in three stages:
+         * ** First the paths specified by the function argument \a path_list if the function takes such argument
+         * ** Second the paths specified by the RTT_PLUGIN_PATH environment variable, if specified
+         * ** Last the paths specified using the setPluginPath() function.
+         * If neither is specified, it looks for plugins in the current directory (".").
          */
         class PluginLoader
         {
@@ -48,14 +55,9 @@ namespace RTT {
             std::vector< LoadedLib > loadedLibs;
 
             /**
-             * Handle of last loaded library.
+             * Path to look for if all else fails.
              */
-            void* handle;
-
-            /**
-             * Name of last loaded library.
-             */
-            std::string libname;
+            std::string plugin_path;
 
             /**
              * Internal function that does all library loading.
@@ -111,7 +113,7 @@ namespace RTT {
             /**
              * Load a typekit found in the 'types/' subdirectory of each path in path_list in the process.
              * @param path_list A colon or semi-colon seperated list of paths
-             * to look for typekits.
+             * to look for typekits. May be empty the empty string.
              */
             bool loadTypekit(std::string const& name, std::string const& path_list);
 
@@ -120,7 +122,7 @@ namespace RTT {
              * This is a best effort function, ie it will silently ignore wrong paths or paths without any
              * plugins.
              * @param path_list A colon or semi-colon seperated list of paths
-             * to look for plugins.
+             * to look for plugins. May be the empty string.
              */
             void loadPlugins(std::string const& path_list);
 
@@ -137,7 +139,7 @@ namespace RTT {
              * Loads a plugin found in the 'plugins/' subdirectory of each path in path_list in the current process.
              * @param name The name of the plugin to load, must match the library name (without lib/dll/so pre-/suffixes).
              * @param path_list A colon or semi-colon seperated list of paths
-             * to look for plugins.
+             * to look for plugins. May be the empty string.
              */
             bool loadPlugin(std::string const& name, std::string const& path_list);
 
@@ -167,6 +169,22 @@ namespace RTT {
              * @return A list of typekit names
              */
             std::vector<std::string> listTypekits() const;
+
+            /**
+             * Returns the current plugin path list.
+             * Defaults to the value of RTT_PLUGIN_PATH, when
+             * the RTT was started for the current process.
+             * @return A colon separated list of paths or the empty string if not set.
+             */
+            std::string getPluginPath() const;
+
+            /**
+             * Sets the plugin path list. This is typically done by RTT
+             * startup code with the contents of the RTT_PLUGIN_PATH variable.
+             *
+             * @param newpath The new paths to look for plugins.
+             */
+            void setPluginPath( std::string const& newpath );
         };
     }
 }
