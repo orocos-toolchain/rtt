@@ -15,10 +15,12 @@ namespace RTT {
          * terminates.
          *
          * @name Plugin Paths
-         * The PluginLoader searches for plugins in three stages:
+         * The PluginLoader reads the RTT_PLUGIN_PATH variable when the application starts
+         * and stores it using setPluginPath(). Paths are scanned in this order:
+         *
          * ** First the paths specified by the function argument \a path_list if the function takes such argument
-         * ** Second the paths specified by the RTT_PLUGIN_PATH environment variable, if specified
-         * ** Last the paths specified using the setPluginPath() function.
+         * ** Second the paths specified using the setPluginPath() function.
+         *
          * If neither is specified, it looks for plugins in the current directory (".").
          */
         class PluginLoader
