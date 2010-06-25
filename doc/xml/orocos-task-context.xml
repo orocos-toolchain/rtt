@@ -1106,26 +1106,26 @@ Printing Interface of 'the_input_port' :
   class MyTask
     : public <classname>RTT::TaskContext</classname>
   {
-    // Input port:
+    // Input port: We'll let this one wake up our thread
     <classname>RTT::InputPort</classname>&lt;double&gt; evPort;
-    // Input port:
+
+    // Input port: We will poll this one
+
     <classname>RTT::InputPort</classname>&lt;double&gt; inPort;
-    // Output ports are 'send and forget'
+
+    // Output ports are allways 'send and forget'
     <classname>RTT::OuputPort</classname>&lt;double&gt; outPort;
   public:
     // ...
     MyTask(std::string name)
-      : <classname>RTT::TaskContext</classname>(name),
-        evPort("my_input_1"),
-        inPort("my_input_2"),
-        outdatPort("my_output")
+      : <classname>RTT::TaskContext</classname>(name)
     {
        // an 'EventPort' is an InputPort which wakes our task up when data arrives.
-       this->ports()->addEventPort( evPort ).doc( "Input Port that raises an event." );
+       this->ports()->addEventPort( "evPort", evPort ).doc( "Input Port that raises an event." );
 
        // These ports do not wake up our task
-       this->ports()->addPort( evPort ).doc( "Input Port that raises an event." );
-       this->ports()->addPort( outPort ).doc( "Output Port" );
+       this->ports()->addPort( "inPort", inPort ).doc( "Input Port that does *not* raise an event." );
+       this->ports()->addPort( "outPort", outPort ).doc( "Output Port, here write our data to." );
 
        // more additions to follow, see below
      }
@@ -1137,11 +1137,11 @@ Printing Interface of 'the_input_port' :
 	The example starts with declaring all the ports of MyTask. A
 	template parameter '&lt;double&gt;' specifies the type of data
 	the task wants to exchange through that port. Logically, if
-	input and output are connected, they must agree on this type.  The
-	constructor of MyTask initialises each port with a name.  This
+	input and output are to be connected, they must agree on this type.
+	The name is given in the addPort() function. This
 	name can be used to 'match' ports between connected tasks
 	( using 'connectPorts', see <xref linkend="connect-tasks" /> ),
-	but it is possible to connect Ports with different names as well
+	but it is possible <emphasis>and preferred</emphasis> to connect Ports with different names
 	using the Orocos deployer.
       </para>
       <para>
