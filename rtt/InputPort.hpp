@@ -85,7 +85,7 @@ namespace RTT
             return false;
         }
     public:
-        InputPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
+        InputPort(std::string const& name = "unnamed", ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 

@@ -140,14 +140,14 @@ namespace RTT
          * you need to write() to this port such an object before a connection is created. That object
          * will be used to allocate enough data storage in each there-after created connection. If you would
          * set keep_last_written_value == false in this use case, several memory allocations will happen
-         * during the initial writes, after which non will happen anymore.
+         * during the initial writes, after which none will happen anymore.
          * * You want to have an input to have the last written data available from before its connection
          * was created, such that it is immediately initialized.
          * The keep_last_written_value incurs a space overhead of one thread-safe data storage container.
-         * This is about the same as an extra connection.
+         * This is about the same size as one extra connection.
          *
          */
-        OutputPort(std::string const& name, bool keep_last_written_value = true)
+        OutputPort(std::string const& name = "unnamed", bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
             , written(false)
         {
