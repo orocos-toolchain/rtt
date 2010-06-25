@@ -448,7 +448,7 @@ namespace RTT
          */
         base::PropertyBase* getProperty(const std::string& name) const
         {
-            return tcservice->getProperty("name");
+            return tcservice->getProperty(name);
         }
 
         /**
