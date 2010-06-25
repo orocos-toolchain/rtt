@@ -230,7 +230,8 @@ namespace RTT
 
     void TaskContext::addUser( TaskContext* peer )
     {
-        musers.push_back(peer);
+        if (peer)
+            musers.push_back(peer);
     }
 
     void TaskContext::removeUser( TaskContext* peer )
@@ -244,7 +245,7 @@ namespace RTT
         {
             if ( alias.empty() )
                 alias = peer->getName();
-            if ( _task_map.count( alias ) != 0 )
+            if ( !peer || _task_map.count( alias ) != 0 )
                 return false;
             _task_map[ alias ] = peer;
             peer->addUser( this );
