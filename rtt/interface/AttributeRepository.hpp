@@ -213,7 +213,7 @@ namespace RTT
          */
         base::PropertyBase* getProperty(const std::string& name) const
         {
-            return bag.find("name");
+            return bag.find(name);
         }
 
         /**
