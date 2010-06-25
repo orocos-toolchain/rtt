@@ -82,7 +82,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     }
 
     // sets environment if not set by user.
-    setenv("RTT_PLUGIN_PATH","../rtt", 0);
+    setenv("RTT_COMPONENT_PATH","../rtt", 0);
 
 	__os_init(argc, argv);
 

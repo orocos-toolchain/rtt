@@ -15,7 +15,7 @@ namespace RTT {
          * terminates.
          *
          * @name Plugin Paths
-         * The PluginLoader reads the RTT_PLUGIN_PATH variable when the application starts
+         * The PluginLoader reads the RTT_COMPONENT_PATH variable when the application starts
          * and stores it using setPluginPath(). Paths are scanned in this order:
          *
          * ** First the paths specified by the function argument \a path_list if the function takes such argument
@@ -174,7 +174,7 @@ namespace RTT {
 
             /**
              * Returns the current plugin path list.
-             * Defaults to the value of RTT_PLUGIN_PATH, when
+             * Defaults to the value of RTT_COMPONENT_PATH, when
              * the RTT was started for the current process.
              * @return A colon separated list of paths or the empty string if not set.
              */
@@ -182,7 +182,7 @@ namespace RTT {
 
             /**
              * Sets the plugin path list. This is typically done by RTT
-             * startup code with the contents of the RTT_PLUGIN_PATH variable.
+             * startup code with the contents of the RTT_COMPONENT_PATH variable.
              *
              * @param newpath The new paths to look for plugins.
              */

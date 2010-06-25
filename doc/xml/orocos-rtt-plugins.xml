@@ -53,11 +53,11 @@
     <title>Loading Existing Plugins</title>
     <para>
       Existing plugins are fairly easy to use. The most important
-      thing to remember is to set the <option>RTT_PLUGIN_PATH</option>
+      thing to remember is to set the <option>RTT_COMPONENT_PATH</option>
       environment variable which is a list of colon or semi-colon seprated
       directories where to look for plugins. For example (in Linux):
       <programlisting>
-	export RTT_PLUGIN_PATH=.:/opt/rtt/lib:/usr/local/lib/orocos
+	export RTT_COMPONENT_PATH=.:/opt/rtt/lib:/usr/local/lib/orocos
       </programlisting>
       Which looks for plugins in <filename>.</filename>, <filename>/opt/rtt/lib</filename>
       and <filename>/usr/local/lib/orocos</filename>
@@ -67,7 +67,7 @@
       and load any RTT plugin found there. The plugin directories
       are typically structured as such:
     </para><screen>
- /usr/local/lib/orocos/
+ /usr/local/lib/orocos/        : component libraries
                       /plugins : services
                       /types   : typekits and transports
   </screen>
@@ -79,9 +79,10 @@
      </para>
      <para> 
        The <classname>RTT::plugin::PluginLoader</classname> assumes that every directory listed in
-       the <option>RTT_PLUGIN_PATH</option> has this structure, meaning, having
+       the <option>RTT_COMPONENT_PATH</option> has this structure, meaning, having
        a <filename>plugins</filename> or a <filename>types</filename>
-       directory. If neither exists, the directory is just ignored.
+       subdirectory. If neither exists, the directory is just ignored. The listed paths
+       are <emphasis>not recursed</emphasis> !
      </para>
      <note>
        <para>As a special provision for multi-target environments
@@ -236,7 +237,7 @@ Service 'scripting' loaded in MyPeer
 	</para>
 	<para>
 	  When you compile the above file into a library and put it
-	  in the plugins directory of your RTT_PLUGIN_PATH, it will be
+	  in the plugins directory of your RTT_COMPONENT_PATH, it will be
 	  found by the RTT and you'll have access to a new service,
 	  called "myservice" and which offers one operation: "HelloWorld".
 	</para>

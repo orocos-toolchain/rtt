@@ -86,7 +86,7 @@
       <para>
 	A typekit is loaded as a plugin, as shown in the 
 	RTT Plugin Manual, from the <filename>types</filename> sudirectories
-	of the <filename>RTT_PLUGIN_PATH</filename> directories.
+	of the <filename>RTT_COMPONENT_PATH</filename> directories.
 	In case you want to load typekits manually, you can use
 	the <classname>RTT::plugin::PluginLoader</classname> class
 	which manages all loading and locating of RTT plugins.
@@ -417,7 +417,7 @@
   ORO_TYPEKIT_PLUGIN( MyApp::MyTypekitPlugin ); </programlisting></para>
       <para>
 	Next compile the .cpp file as a shared library and put it in
-	the <filename>types</filename> subdirectory of the RTT_PLUGIN_PATH.
+	the <filename>types</filename> subdirectory of the RTT_COMPONENT_PATH.
       </para>
       <para>
 	The Plugin Manual explains more in detail how plugins are

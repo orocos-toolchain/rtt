@@ -33,17 +33,17 @@ static const std::string SO_EXT(".so");
 
 namespace {
     /**
-     * Reads the RTT_PLUGIN_PATH and inits the PluginLoader.
+     * Reads the RTT_COMPONENT_PATH and inits the PluginLoader.
      */
     int loadPlugins()
     {
-        char* paths = getenv("RTT_PLUGIN_PATH");
+        char* paths = getenv("RTT_COMPONENT_PATH");
         if (paths) {
             string plugin_paths = paths;
-            log(Info) <<"RTT_PLUGIN_PATH was set to " << plugin_paths << endlog();
+            log(Info) <<"RTT_COMPONENT_PATH was set to " << plugin_paths << endlog();
             PluginLoader::Instance()->setPluginPath(plugin_paths);
         } else {
-            log(Info) <<"No RTT_PLUGIN_PATH set." <<endlog();
+            log(Info) <<"No RTT_COMPONENT_PATH set." <<endlog();
         }
         PluginLoader::Instance()->loadPlugins("");
         PluginLoader::Instance()->loadTypekits("");

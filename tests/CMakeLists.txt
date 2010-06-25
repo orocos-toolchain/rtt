@@ -6,8 +6,6 @@ IF (BUILD_TESTING)
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
    endif()
    
-   set( ENV RTT_PLUGIN_PATH "${PROJ_BINARY_DIR}/rtt" )
-
    find_package(Boost 1.33 REQUIRED unit_test_framework)
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
