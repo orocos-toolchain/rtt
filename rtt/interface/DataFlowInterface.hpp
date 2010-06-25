@@ -76,34 +76,6 @@ namespace RTT
         ~DataFlowInterface();
 
         /**
-         * Returns the component this interface belongs to.
-         */
-        TaskContext* getParent();
-
-        /**
-         * Add a Port to this task without registering a service for it.
-         * If a port with the same name already exists, addPort
-         * will replace it with \a port and log a warning.
-         * @return \a port
-         */
-        base::PortInterface& addLocalPort(base::PortInterface& port);
-
-        /**
-         * Add an Event triggering Port to this task without
-         * registering a service for it.
-         * When data arrives on this port your TaskContext will be woken up
-         * and updateHook will be executed.
-         * @param port The port to add.
-         * @param callback (Optional) provide a function which will be called
-         * when new data arrives on this port. The callback function will
-         * be called in sequence with updateHook(), so asynchronously with
-         * regard to the arrival of data on the port.
-         * @return \a port
-         */
-        base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
-                base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
-
-        /**
          * Add a Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
          * If a port or service with the name already exists, addPort
@@ -149,12 +121,6 @@ namespace RTT
         PortNames getPortNames() const;
 
         /**
-         * Get all port names of this interface.
-         * @return A sequence of strings containing the port names.
-         */
-        PortNames getNames() const;
-
-        /**
          * Get an added port.
          * @param name The port name
          * @return a pointer to a port or null if it does not exist.
@@ -171,13 +137,32 @@ namespace RTT
         std::string getPortDescription(const std::string& name) const;
 
         /**
-         * Create a Task Object through which one can access a Port.
-         * This is required to access ports from the scripting interface.
-         * @param name The port name
-         * @deprecated Do not use this function. It is no longer required.,
-         * the objects are directly added to the parent TaskContext in \a addPort.
+         * Returns the component this interface belongs to.
          */
-        ServiceProvider* createPortObject(const std::string& name);
+        TaskContext* getParent();
+
+        /**
+         * Add a Port to this task without registering a service for it.
+         * If a port with the same name already exists, addPort
+         * will replace it with \a port and log a warning.
+         * @return \a port
+         */
+        base::PortInterface& addLocalPort(base::PortInterface& port);
+
+        /**
+         * Add an Event triggering Port to this task without
+         * registering a service for it.
+         * When data arrives on this port your TaskContext will be woken up
+         * and updateHook will be executed.
+         * @param port The port to add.
+         * @param callback (Optional) provide a function which will be called
+         * when new data arrives on this port. The callback function will
+         * be called in sequence with updateHook(), so asynchronously with
+         * regard to the arrival of data on the port.
+         * @return \a port
+         */
+        base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
+                base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Get a port of a specific type.
@@ -202,6 +187,12 @@ namespace RTT
          */
         void cleanupHandles();
     protected:
+        /**
+         * Create a Service through which one can access a Port.
+         * @param name The port name
+         */
+        ServiceProvider* createPortObject(const std::string& name);
+
         /**
          * All our ports.
          */

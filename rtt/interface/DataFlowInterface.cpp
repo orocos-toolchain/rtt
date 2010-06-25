@@ -159,10 +159,6 @@ namespace RTT
     }
 
     DataFlowInterface::PortNames DataFlowInterface::getPortNames() const {
-        return this->getNames();
-    }
-
-    DataFlowInterface::PortNames DataFlowInterface::getNames() const {
         std::vector<std::string> res;
         for ( Ports::const_iterator it(mports.begin());
               it != mports.end();
