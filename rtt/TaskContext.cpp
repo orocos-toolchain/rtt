@@ -397,8 +397,11 @@ namespace RTT
         this->getActivity()->trigger();
     }
 
-    void TaskContext::dataOnPortSize(unsigned int max) {
+    bool TaskContext::dataOnPortSize(unsigned int max) {
+        if ( isRunning() ) 
+            return false;
         updated_ports.reserve(max);
+        return true;
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {

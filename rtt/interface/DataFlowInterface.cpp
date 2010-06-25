@@ -145,8 +145,11 @@ namespace RTT
               ++it)
             if ( (*it)->getName() == name ) {
                 if (mparent) {
+                    bool running = mparent->stop();
                     mparent->provides()->removeService( name );
                     mparent->dataOnPortRemoved( *it );
+                    if (running)
+                        mparent->start();
                 }
                 (*it)->disconnect(); // remove all connections and callbacks.
                 mports.erase(it);
