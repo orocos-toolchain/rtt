@@ -2532,38 +2532,38 @@ Printing Interface of 'the_input_port' :
 	 other properties.
        </para>
        <para>
-	<programlisting>  #include &lt;rtt/Property.hpp>
+	<programlisting>  #include &lt;rtt/TaskContext.hpp>
+#include &lt;rtt/Property.hpp>
+#include &lt;rtt/PropertyBag.hpp>
 
   class MyTask
     : public <classname>RTT::TaskContext</classname>
   {
      
-     <classname>RTT::Property</classname>&lt;int&gt; i_param;
-     <classname>RTT::Property</classname>&lt;double&gt; d_param;
-     <classname>RTT::Property</classname>&lt;PropertyBag&gt; sub_bag;
-     <classname>RTT::Property</classname>&lt;std::string&gt; s_param;
-     <classname>RTT::Property</classname>&lt;bool&gt; b_param;
+     int i_param;
+     double d_param;
+     <classname>RTT::PropertyBag</classname> sub_bag;
+     std::string s_param;
+     bool b_param;
   public:
     // ...
     MyTask(std::string name)
       : <classname>RTT::TaskContext</classname>(name),
-        i_param("IParam","Param Description", 5 ),
-        d_param("DParam","Param Description", -3.0),
-        sub_bag("SubBag","Bag Description"),
-        s_param("SParam","Param Description","The String"),
-        b_param("BParam","Param Description", false)
+        i_param(5 ),
+        d_param(-3.0),
+        s_param("The String"),
+        b_param(false)
     {
        // other code here...
 
-       this->addProperty( &amp;i_param );
-       this->addProperty( &amp;d_param );
-       this->addProperty( &amp;sub_bag );
+       this->addProperty("IParam", i_param ).doc("Param Description");
+       this->addProperty("DParam", d_param ).doc("Param Description");
+       this->addProperty("SubBag", sub_bag ).doc("SubBag Description");
 
-       // we need to call addProperty on the PropertyBag object
-       // contained within the Property object, hence value(),
-       // which returns a reference, is used.
-       sub_bag.value().addProperty( &amp;s_param );
-       sub_bag.value().addProperty( &amp;b_param );
+       // we call addProperty on the PropertyBag object in order to 
+       // create a hierarchy
+       sub_bag.addProperty("SParam", s_param ).doc("Param Description");
+       sub_bag.addProperty("BParam", b_param ).doc("Param Description");
      }
      // ...
   };
@@ -2583,6 +2583,7 @@ Printing Interface of 'the_input_port' :
   </simple>
 
   <struct name="SubBag" type="PropertyBag">
+    <description>SubBag Description</description>
     <simple name="SParam" type="string">
       <description>Param Description</description>
       <value>The String</value>
