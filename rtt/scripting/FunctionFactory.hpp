@@ -83,6 +83,8 @@ namespace RTT
                                    ) const;
         base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking
                                    ) const;
+
+        Handle produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
     };
 }}
 

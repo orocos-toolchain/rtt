@@ -55,6 +55,8 @@
 #include "parse_exception.hpp"
 #include "../internal/DataSourceCommand.hpp"
 #include "../interface/FactoryExceptions.hpp"
+#include "../../Handle.hpp"
+
 
 namespace RTT {
     using namespace detail;
@@ -185,6 +187,11 @@ namespace RTT {
                 log(Error) <<"Invalid number of arguments. Script functions can only collect the return value." <<endlog();
             }
             return 0;
+        }
+        Handle FunctionFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args
+                                   ) const {
+            log(Error) <<"Installing signal handler on dynamic function is not yet supported." <<endlog();
+            return Handle();
         }
 
 }

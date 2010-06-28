@@ -234,6 +234,31 @@ namespace RTT
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
                 }
 
+                virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    // the user won't give the necessary object argument, so we glue it in front.
+                    ArgList a2;
+                    a2.reserve(args.size()+1);
+                    a2.push_back(mwp);
+                    a2.insert(a2.end(), args.begin(), args.end());
+                    // note: in boost 1.41.0+ the function make_unfused() is available.
+    #if BOOST_VERSION >= 104200
+                    return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                                _1
+                                                                                )
+                                                                    )
+                                       );
+    #else
+                    return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
+                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                                _1
+                                                                                )
+                                                                    )
+                                       );
+    #endif
+                }
+
                 boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
                     return op->getImplementation();
                 }

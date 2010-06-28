@@ -4,6 +4,7 @@
 #include "../../internal/DataSources.hpp"
 #include "../../internal/DataSourceCommand.hpp"
 #include "../../SendStatus.hpp"
+#include "../../Handle.hpp"
 
 using namespace std;
 using namespace RTT;
@@ -340,4 +341,9 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::v
     }
     // All went well, produce collect DataSource:
     return new CorbaMethodCollect( ds->get().in(),cargs, blocking);
+}
+
+Handle CorbaMethodFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+    log(Error) << "Can not attach Signal to remote Corba Operation '"<<method <<"'" <<endlog();
+    return Handle();
 }

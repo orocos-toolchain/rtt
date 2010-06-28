@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "../internal/mystd.hpp"
 #include "../internal/Exceptions.hpp"
+#include "../Handle.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -81,6 +82,14 @@ base::DataSourceBase::shared_ptr OperationRepository::produceCollect(const std::
     if (i == data.end() || i->second == 0)
         ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
     return i->second->produceCollect(args, blocking);
+}
+
+Handle OperationRepository::produceSignal(const std::string& name, base::ActionInterface* act, const Arguments& args) const
+{
+    map_t::const_iterator i = data.find(name);
+    if (i == data.end() || i->second == 0)
+        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+    return i->second->produceSignal(act, args);
 }
 
 OperationRepository::Descriptions OperationRepository::getArgumentList(const std::string& name) const
