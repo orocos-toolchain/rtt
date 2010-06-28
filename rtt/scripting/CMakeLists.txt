@@ -23,8 +23,11 @@ IF (PLUGINS_ENABLE_SCRIPTING)
   
   install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
           LIBRARY DESTINATION lib/orocos/plugins )
-   install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
-          LIBRARY DESTINATION ${PROJ_BINARY_DIR}/rtt/plugins )
+
+  get_target_property(PLUGINLIB_DIR rtt-scripting-dynamic_${OROCOS_TARGET} LOCATION)
+
+  add_custom_command(TARGET rtt-scripting-dynamic_${OROCOS_TARGET} POST_BUILD 
+          COMMAND cmake -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
   
   SET_SOURCE_FILES_PROPERTIES( ${SRCS} PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 

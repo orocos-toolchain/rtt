@@ -23,8 +23,11 @@ IF (PLUGINS_ENABLE_TYPEKIT)
   
   install(TARGETS rtt-typekit-dynamic_${OROCOS_TARGET}
           LIBRARY DESTINATION lib/orocos/types )
-  install(TARGETS rtt-typekit-dynamic_${OROCOS_TARGET}
-          LIBRARY DESTINATION ${PROJ_BINARY_DIR}/rtt/types )
+
+  get_target_property(TYPEKITLIB_DIR rtt-typekit-dynamic_${OROCOS_TARGET} LOCATION)
+
+  add_custom_command(TARGET rtt-typekit-dynamic_${OROCOS_TARGET} POST_BUILD 
+          COMMAND cmake -E copy ${TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
   
   SET_SOURCE_FILES_PROPERTIES( ${SRCS} PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 
