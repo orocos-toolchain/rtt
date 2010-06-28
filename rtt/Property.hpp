@@ -123,7 +123,7 @@ namespace RTT
          */
         template<class Owner>
         Property(const std::string& name, const std::string& description, param_t value, Owner o)
-            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
+            : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
         {
             o->addProperty(this);
         }
