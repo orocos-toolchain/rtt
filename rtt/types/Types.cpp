@@ -38,32 +38,6 @@
 #include "Types.hpp"
 
 #include "rtt-config.h"
-#ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include "RealTimeTypekit.hpp"
-#include "TypekitRepository.hpp"
-#endif
-
-#ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include "../os/StartStopManager.hpp"
-namespace RTT {
-    namespace {
-        using namespace detail;
-
-        /**
-         * This struct has the sole purpose of invoking
-         * the Import function.
-         */
-        int loadRTT()
-        {
-            TypekitRepository::Import( RealTimeTypekit );
-            return true;
-        }
-
-        os::InitFunction RTTLoader( &loadRTT );
-    }
-}
-#endif
-
 
 namespace RTT
 {

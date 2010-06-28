@@ -39,9 +39,9 @@
 
 #include "rtt-config.h"
 #include "RealTimeTypekit.hpp"
-#include "Types.hpp"
-#include "Operators.hpp"
-#include "OperatorTypes.hpp"
+#include "../types/Types.hpp"
+#include "../types/Operators.hpp"
+#include "../types/OperatorTypes.hpp"
 #include "../internal/mystd.hpp"
 #include "../rtt-fwd.hpp"
 #include "../FlowStatus.hpp"

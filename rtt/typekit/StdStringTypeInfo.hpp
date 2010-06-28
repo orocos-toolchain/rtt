@@ -1,5 +1,5 @@
 #include <string>
-#include "SequenceTypeInfo.hpp"
+#include "../types/SequenceTypeInfo.hpp"
 
 namespace RTT
 {

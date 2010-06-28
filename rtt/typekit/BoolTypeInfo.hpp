@@ -1,4 +1,5 @@
-#include "TemplateTypeInfo.hpp"
+#include "../types/Types.hpp"
+#include "../types/TemplateTypeInfo.hpp"
 #include <ostream>
 #include <istream>
 

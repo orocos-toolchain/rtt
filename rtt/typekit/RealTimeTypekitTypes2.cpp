@@ -1,12 +1,12 @@
 
 #include "rtt-config.h"
 #include "RealTimeTypekit.hpp"
-#include "Types.hpp"
-#include "TemplateTypeInfo.hpp"
-#include "SequenceTypeInfo.hpp"
+#include "../types/Types.hpp"
+#include "../types/TemplateTypeInfo.hpp"
+#include "../types/SequenceTypeInfo.hpp"
 #include "StdTypeInfo.hpp"
 #include "StdVectorTypeInfo.hpp"
-#include "StructTypeInfo.hpp"
+#include "../types/StructTypeInfo.hpp"
 
 #include "../rtt-fwd.hpp"
 #include "../FlowStatus.hpp"

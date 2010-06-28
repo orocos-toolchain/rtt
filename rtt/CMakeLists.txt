@@ -87,8 +87,11 @@ ENDIF (OROPKG_EXECUTION_ADVANCED)
 ### Marshalling
 OPTION(PLUGINS_ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
 
-### Marshalling
+### Scripting
 OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
+
+### RTT-Typekit
+OPTION(PLUGINS_ENABLE_TYPEKIT "Enable default RTT typekit plugin." ON)
 
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
@@ -153,6 +156,7 @@ ADD_SUBDIRECTORY( interface )
 ADD_SUBDIRECTORY( base )
 ADD_SUBDIRECTORY( internal )
 ADD_SUBDIRECTORY( types )
+ADD_SUBDIRECTORY( typekit )
 ADD_SUBDIRECTORY( transports/corba )
 ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )

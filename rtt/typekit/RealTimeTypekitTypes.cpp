@@ -41,7 +41,7 @@
 #include "StdTypeInfo.hpp"
 #include "StdStringTypeInfo.hpp"
 #include "BoolTypeInfo.hpp"
-#include "TypeInfoName.hpp"
+#include "../types/TypeInfoName.hpp"
 
 namespace RTT
 {

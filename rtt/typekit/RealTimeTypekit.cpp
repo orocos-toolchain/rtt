@@ -45,12 +45,13 @@ namespace RTT
     using namespace std;
 
     namespace types {
-        RealTimeTypekitPlugin RealTimeTypekit;
 
         std::string RealTimeTypekitPlugin::getName()
         {
-            return "RealTime";
+            return "RTT";
         }
     }
 
 }
+
+ORO_TYPEKIT_PLUGIN( RTT::types::RealTimeTypekitPlugin );

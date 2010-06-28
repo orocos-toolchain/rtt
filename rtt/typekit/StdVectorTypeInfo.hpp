@@ -1,7 +1,7 @@
 #include <vector>
-#include "SequenceTypeInfo.hpp"
-#include "VectorComposition.hpp"
-#include "TypeStream.hpp"
+#include "../types/SequenceTypeInfo.hpp"
+#include "../types/VectorComposition.hpp"
+#include "../types/TypeStream.hpp"
 
 namespace RTT
 {

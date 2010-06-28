@@ -1,7 +1,7 @@
 
 #include "../rtt-config.h"
-#include "Types.hpp"
-#include "TemplateTypeInfo.hpp"
+#include "../types/Types.hpp"
+#include "../types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {
