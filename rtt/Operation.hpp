@@ -33,12 +33,17 @@ namespace RTT
     public:
         /**
          * Create an operation object with a name.
-         * The resulting object will not be ready().
+         * The resulting object will not call any function but can be
+         * used to attach Signal handlers to (using signals() ) or
+         * set the function to call later on with calls().
          * @param name The name of this instance.
          */
         Operation(const std::string& name)
         :OperationBase(name)
         {
+            // set null implementation such that we can
+            ExecutionEngine* null_e = 0;
+            impl = boost::make_shared<internal::LocalMethod<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
         }
 
         /**
