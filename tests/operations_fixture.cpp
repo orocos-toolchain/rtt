@@ -12,6 +12,7 @@ using namespace RTT::detail;
 
 OperationsFixture::OperationsFixture()
 {
+    ret = 0.0;
     i = -1;
     tc = new TaskContext("root");
     this->createMethodFactories(tc);
