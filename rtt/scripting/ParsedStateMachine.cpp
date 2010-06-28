@@ -132,6 +132,39 @@ namespace RTT {
             }
         }
 
+        // next, copy/recreate the events
+        for ( EventMap::const_iterator i = eventMap.begin(); i != eventMap.end(); ++i )
+        {
+            assert( statemapping.find( i->first ) != statemapping.end() );
+            StateInterface* fromState = statemapping[i->first];
+            for ( EventList::const_iterator j = i->second.begin(); j != i->second.end(); ++j )
+            {
+                ServiceProviderPtr sp = j->get<0>();
+                string ename = j->get<1>();
+                vector<DataSourceBase::shared_ptr> origargs( j->get<2>() );
+                vector<DataSourceBase::shared_ptr> newargs;
+                for ( vector<DataSourceBase::shared_ptr>::const_iterator vit = origargs.begin();
+                      vit != origargs.end(); ++vit)
+                    newargs.push_back( (*vit)->copy(replacements) );
+                StateInterface* toState = statemapping[j->get<3>()];
+                ConditionInterface* condition = j->get<4>()->copy( replacements );
+                ProgramInterfacePtr tprog;
+                ProgramInterfacePtr tgraph( j->get<5>() );
+                if (tgraph)
+                    tprog.reset( tgraph->copy(replacements) );
+                StateInterface* elseState = statemapping[j->get<7>()];
+                ProgramInterfacePtr eprog;
+                ProgramInterfacePtr egraph( j->get<8>() );
+                if (egraph)
+                    eprog.reset( egraph->copy(replacements) );
+#ifndef NDEBUG
+                bool eresult =
+#endif
+                    ret->createEventTransition(sp, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
+                assert( eresult );
+            }
+        }
+
         // finally, copy the preconditions
         for ( PreConditionMap::const_iterator i = precondMap.begin(); i != precondMap.end(); ++i )
         {
@@ -164,6 +197,12 @@ namespace RTT {
               i != stateMap.end(); ++i )
             for ( TransList::iterator i2 = i->second.begin(); i2 != i->second.end(); ++i2 )
                 delete get<0>( *i2 );  // delete the condition.
+
+        // we own our event guards...
+        for ( EventMap::iterator i = eventMap.begin();
+              i != eventMap.end(); ++i )
+            for ( EventList::iterator i2 = i->second.begin(); i2 != i->second.end(); ++i2 )
+                delete get<4>( *i2 );  // delete the condition.
 
     }
 

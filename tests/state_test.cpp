@@ -52,6 +52,7 @@ public:
     InputPort<double> d_event;
     InputPort<bool>   b_event;
     InputPort<int>    t_event;
+    Operation<void(double)> o_event;
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
@@ -61,13 +62,16 @@ public:
         Logger::log(Logger::Info) << msg << endlog();
     }
     void doState( const std::string& prog, TaskContext*, bool test=true );
+    void parseState( const std::string& prog, TaskContext*, bool test=true );
+    void runState( const std::string& prog, TaskContext*, bool test=true );
+    void checkState( const std::string& prog, TaskContext*, bool test=true );
     void finishState( TaskContext* , std::string, bool test=true );
 
     std::string sline;
 public:
     StateTest()
         :
-         d_event("d_event"), b_event("b_event"), t_event("t_event"),
+         d_event("d_event"), b_event("b_event"), t_event("t_event"), o_event("o_event"),
          d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
          sa( new ScriptingService(tc) )
     {
@@ -77,6 +81,7 @@ public:
         tc->ports()->addPort( d_event );
         tc->ports()->addPort( b_event );
         tc->ports()->addPort( t_event );
+        tc->provides()->addOperation( o_event );
         tc->ports()->addPort( d_event_source );
         tc->ports()->addPort( b_event_source );
         tc->ports()->addPort( t_event_source );
@@ -721,6 +726,29 @@ BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
      this->finishState( tc, "x");
 }
 
+BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
+{
+    // test event reception in sub states.
+    string prog = string("StateMachine X {\n")
+        + " var   double et = 0.0\n"
+        + " initial state INIT {\n"
+        + "    transition o_event(et) { do log(\"Signal Transition to FINI\");} select FINI\n" // test signal
+        + " }\n"
+        + " final state FINI {} \n"
+        + "}\n"
+        + "RootMachine X x()\n";
+    this->parseState( prog, tc );
+    this->runState(prog, tc);
+    Method<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    mo(3.33);
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    BOOST_CHECK( sm->inState("FINI") );
+    this->checkState(prog,tc);
+    this->finishState(tc, "x");
+}
+
 BOOST_AUTO_TEST_CASE( testStateEvents)
 {
     // test event reception in sub states.
@@ -744,7 +772,9 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + " state ISPOSITIVE {\n"
         + "   entry { do log(\"ISPOSITIVE\");}\n"
         + "   transition b_event(eb)\n"
-        + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition\");} select INIT\n" // 20
+        + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n" // 20
+        + "   transition o_event(et)\n"
+        + "      if (et == 3.33) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event\");} select INIT\n"
         + " }\n"
         + " state TESTSELF {\n"
         + "   entry {\n"
@@ -789,6 +819,19 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "          do test.assertMsg( false, \"Not ISNEGATIVE but \" + y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do b_event_source.write( true )\n" // go to INIT.
+        + "     do yield\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+
+        // test operation
+        + "     do d_event_source.write(+1.0)\n"
+        + "     do nothing\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
+        + "          do test.assertMsg( false, \"Not ISNEGATIVE but \" + y1.getState() )\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do o_event( 3.33 )\n" // go to INIT.
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
 
@@ -838,6 +881,13 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
 
+    parseState( prog, tc, test);
+    runState(prog, tc, test);
+    checkState(prog, tc, test);
+}
+
+void StateTest::parseState(const std::string& prog, TaskContext* tc, bool test )
+{
     // Alternative way: test ScriptingService as well.
     try {
         sa->loadStateMachines( prog, std::string("state_test.cpp"), true );
@@ -858,6 +908,10 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             BOOST_CHECK_MESSAGE( false , e.what());
             BOOST_REQUIRE_MESSAGE( false, "Uncaught Processor load exception" );
     }
+}
+
+void StateTest::runState(const std::string& prog, TaskContext* tc, bool test )
+{
     StateMachinePtr sm = sa->getStateMachine("x");
     BOOST_REQUIRE( sm );
     sm->trace(true);
@@ -869,8 +923,13 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     BOOST_CHECK( autom(sm.get()) || !test  );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+}
 
-    if (test ) {
+void StateTest::checkState(const std::string& prog, TaskContext* tc, bool test )
+{
+    StateMachinePtr sm = sa->getStateMachine("x");
+    BOOST_REQUIRE( sm );
+    if ( test ) {
         // check error status of parent :
         BOOST_CHECK_MESSAGE( sm->isActive(), "Error : State Context '"+sm->getName()+"' did not get activated." );
         stringstream errormsg;
@@ -890,6 +949,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         errormsg <<"here  > " << sline << endl;
         if ( sm->inError() ) {
             RTT::scripting::DumpObject( tc->provides() );
+            RTT::scripting::DumpObject( tc->provides("x") );
         }
         BOOST_CHECK_MESSAGE( sm->inError() == false, "Runtime error (inError() == true) encountered" + errormsg.str() );
         // check error status of all children:
