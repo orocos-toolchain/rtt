@@ -111,6 +111,7 @@ namespace RTT
         enum TaskState { Init,           //! The state during component construction.
                          PreOperational, //! The state indicating additional configuration is required.
                          FatalError,     //! The state indicating the component encountered a fatal error and is unable to execute.
+                         Exception,      //! The state indicating the component encountered a C++ exception.
                          Stopped,        //! The state indicating the component is ready to run.
                          Running,        //! The state indicating the component is running [green].
                          RunTimeError    //! The state indicating that a run-time error has occured [red] and needs attention.
@@ -242,6 +243,11 @@ namespace RTT
         virtual bool inFatalError() const;
 
         /**
+         * Inspect if the component is in the Exception state.
+         */
+        virtual bool inException() const;
+
+        /**
          * Inspect if the component is in the RunTimeError state.
          */
         virtual bool inRunTimeError() const;
@@ -271,11 +277,13 @@ namespace RTT
         virtual void error();
 
         /**
-         * Call this method in a Running state to indicate that the
-         * run-time warning or error conditions are gone and nominal
-         * operation is resumed.
+         * Call this method in a RunTimeError or Exception state to indicate that the
+         * run-time error conditions are gone and nominal
+         * operation is resumed. Makes transition to Running or PreOperational,
+         * depending on the state it was in.
+         * @return false if not applicable in the current state.
          */
-        virtual void recovered();
+        virtual bool recover();
 
         /**
          *@}
@@ -367,9 +375,19 @@ namespace RTT
          * in the RunTimeError state, instead of updateHook(). This allows
          * you to specify the behaviour in an erroneous component.
          * errorHook() is called as long as the component is not
-         * recovered(). After recovered(), the updateHook() is called again.
+         * recover()'ed. After recover()'ed, the updateHook() is called again.
          */
         virtual void errorHook();
+
+        /**
+         * Implement this method to contain code that must be executed
+         * when transitioning to the Exception state. This allows
+         * you to specify the last actions in an erroneous component, after
+         * stopHook() and cleanupHook() were called.
+         * @see recover() to leave the Exception state.
+         */
+        virtual void exceptionHook();
+
 
         /**
          * Implement this method such that it contains the code which
@@ -381,10 +399,20 @@ namespace RTT
         /**
          * Call this method from any place to indicate that this
          * component encountered a fatal error.  It
-         * calls stopHook() and cleanupHook, the ExecutionEngine is stopped and the component waits
+         * calls no hooks, the ExecutionEngine is stopped and the component waits
          * destruction.
          */
         virtual void fatal();
+
+        /**
+         * Call this method to indicate a
+         * run-time exception happend. First the TaskState is set to Exception.
+         * Next, if the taskstate was >= Running, stopHook() is called.
+         * Next, if the taskstate was >= Stopped, cleanupHook() is called.
+         * Finally, exceptionHook() is called.
+         * If any exception happens in exceptionHook(), fatal() is called.
+         */
+        virtual void exception();
 
         // Required to set mTaskState to Running or Stopped.
         // As an alternative, one could query the EE.
