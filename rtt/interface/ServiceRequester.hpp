@@ -26,7 +26,7 @@ namespace RTT
          * Typical use is to inherit from ServiceRequester and add named Method objects
          * to it using addMethod. @see RTT::Scripting for an example.
          */
-        class ServiceRequester
+        class RTT_API ServiceRequester
         {
         public:
             typedef std::vector<std::string> RequesterNames;
@@ -34,9 +34,9 @@ namespace RTT
             ServiceRequester(const std::string& name, TaskContext* owner = 0);
             virtual ~ServiceRequester();
 
-            RTT_API const std::string& getRequestName() const { return mrname; }
+            const std::string& getRequestName() const { return mrname; }
 
-            RTT_API RequesterNames getRequesterNames() const;
+            RequesterNames getRequesterNames() const;
 
             /**
              * The owner is the top-level TaskContext owning this service
@@ -54,7 +54,7 @@ namespace RTT
 
             bool addMethod( base::MethodBaseInvoker& mbi);
 
-            RTT_API MethodNames getMethodNames() const;
+            MethodNames getMethodNames() const;
 
             base::MethodBaseInvoker& getMethod(const std::string& name);
 
@@ -89,18 +89,18 @@ namespace RTT
              * @return true if all methods of that are required are provided, false
              * if not all methods could yet be matched.
              */
-            RTT_API bool connectTo(ServiceProvider::shared_ptr sp);
+            bool connectTo(ServiceProvider::shared_ptr sp);
 
             /**
              * Returns true when all methods were resolved.
              * @return
              */
-            RTT_API bool ready() const;
+            bool ready() const;
 
             /**
              * Disconnects all methods from their implementation.
              */
-            RTT_API void disconnect();
+            void disconnect();
 
         protected:
             typedef std::map< std::string, interface::ServiceRequester* > Requests;
