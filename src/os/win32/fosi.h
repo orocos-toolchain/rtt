@@ -48,6 +48,8 @@
 #include "../oro_limits.h"
 #include "../../rtt-config.h"
 
+#include "dlfcn.h"
+
     // Time Related
 #ifdef _MSC_VER
 #include <ctime>
