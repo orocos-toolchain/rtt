@@ -111,6 +111,7 @@ namespace RTT
             { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2) // we are sole owner
                 {
+                    delete safe->value;
                     safe->value = ptr;
                     return;
                 }
