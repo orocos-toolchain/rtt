@@ -137,7 +137,7 @@ namespace RTT
          * @return zero if the Property types do not match
          * @todo: check if this method is necessary/used.
          */
-        virtual ActionInterface* updateCommand( const PropertyBase* other) = 0;
+        virtual ActionInterface* updateAction( const PropertyBase* other) = 0;
 
         /**
          * Refresh the value of this Property with the value of an \a other Property.

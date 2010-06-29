@@ -45,13 +45,6 @@ namespace RTT
 { namespace types {
 
     /**
-     * A decomposeProperty method for decomposing a vector<double>
-     * into a PropertyBag with Property<double>'s.
-     * The dimension of the vector must be less than 100 if you want the
-     * Property<double>'s to have a different name.
-     */
-    void decomposeProperty(const std::vector<double>& c, PropertyBag& targetbag);
-    /**
      * A composeProperty method for composing a property of a vector<double>
      * The dimension of the vector must be less than 100.
      */

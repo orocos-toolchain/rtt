@@ -133,6 +133,16 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const = 0;
 
             /**
+             * Attach a Signal Handle to this operation which fills in the given data sources and
+             * executes a given function.
+             * @param func The function to execute
+             * @param args The data sources to fill in with the arguments the operation was given.
+             * The number of elements and their type must match the signature of the operation.
+             * @return
+             */
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
+
+            /**
              * Returns any local operation associated with this operation.
              * @return null if no such operation exists, the operation's implementation
              * otherwise.
@@ -253,6 +263,22 @@ namespace RTT
              * @throw name_not_found_exception
              */
             RTT_API base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
+
+            /**
+             * Attach a Signal Handle to this operation which fills in the given data sources and
+             * executes a given function.
+             *
+             * @param name The name of the operation
+             * @param func The function to execute
+             * @param args The data sources to fill in with the arguments the operation was given.
+             * The number of elements and their type must match the signature of the operation.
+             *
+             * @return a new Signal Handle
+             * @throw wrong_number_of_args_exception
+             * @throw wrong_types_of_args_exception
+             * @throw name_not_found_exception
+             */
+            Handle produceSignal(const std::string& name, base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
 
             /**
              * The descriptions of an argumentlist.

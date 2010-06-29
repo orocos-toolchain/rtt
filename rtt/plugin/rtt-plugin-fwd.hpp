@@ -3,7 +3,7 @@
 
 namespace RTT {
     namespace plugin {
-        class TransportPlugin;
+        class PluginLoader;
     }
     namespace detail {
         using namespace plugin;

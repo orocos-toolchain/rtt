@@ -98,8 +98,6 @@ namespace RTT
 
         /**
          * Mirrors a remote assignable value datasource.
-         * @todo Replace ValueDataSource when type info
-         * decomposition is implemented.
          */
         template<class T>
         class ValueDataSourceProxy
@@ -113,39 +111,11 @@ namespace RTT
             CorbaTypeTransporter* ctp;
             //mutable typename internal::DataSource<T>::value_t last_value;
 
-            /**
-             * We need this class such that we can re-use the container
-             * template type infos. Once type info decomposition is standardized,
-             * this can all go and be replaced by use of last_value.
-             */
-            struct  UpdatedCommand : public ::RTT::base::ActionInterface
-            {
-                base::DataSourceBase::shared_ptr mds;
-                UpdatedCommand( base::DataSourceBase* ds )
-                    :mds(ds)
-                {}
-
-                bool execute() {
-                    mds->updated();
-                    return true;
-                }
-
-                void readArguments() {}
-
-                ::RTT::base::ActionInterface* clone() const {
-                    return new UpdatedCommand(mds.get());
-                }
-
-                ::RTT::base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                    return new UpdatedCommand(mds->copy(alreadyCloned));
-                }
-            };
-
         public:
             ValueDataSourceProxy( corba::CServiceProvider_ptr serv, const std::string& name, bool isproperty)
                 : mserv( corba::CServiceProvider::_duplicate(serv) ), mname(name), misproperty(isproperty)
             {
-                storage = types::BuildType<value_t>::Value();
+                storage = new internal::ValueDataSource<value_t>();
                 assert( serv );
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
@@ -201,24 +171,6 @@ namespace RTT
             virtual void updated()
             {
                 this->set( storage->value() );
-            }
-
-            using internal::AssignableDataSource<T>::update;
-
-            ::RTT::base::ActionInterface* updateCommand( base::DataSourceBase* other)
-            {
-                ::RTT::base::ActionInterface* ci = storage->updateCommand(other);
-                if (ci)
-                    return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
-                return 0;
-            }
-
-            virtual ::RTT::base::ActionInterface* updatePartCommand(base::DataSourceBase* index, base::DataSourceBase* rhs )
-            {
-                ::RTT::base::ActionInterface* ci = storage->updatePartCommand(index, rhs);
-                if (ci)
-                    return new scripting::CommandBinary( ci, new UpdatedCommand( this ) );
-                return 0;
             }
 
             virtual internal::AssignableDataSource<T>* clone() const {

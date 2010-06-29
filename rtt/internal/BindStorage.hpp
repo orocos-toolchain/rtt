@@ -93,10 +93,7 @@ namespace RTT
          * any other type. We need these specialisations because the collection
          * of the results will be different if R is non-void or poid (appears as
          * first arg of collect() or not respectively). So RStore is the only
-         * instance that knows if a return value was stored or not. The user of this
-         * class needs to provide a function pointer in collect that has the collection signature
-         * and provides all collectable arguments. RStore will call this function with
-         * as first argument the return value (if non-void) followed by the rest of the arguments.
+         * instance that knows if a return value was stored or not.
          */
         template<class T>
         struct RStore {

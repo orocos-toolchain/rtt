@@ -56,6 +56,7 @@ public:
         do_fatal = false;
         do_throw=false;
         do_throw2=false;
+        do_throw3=false;
     }
 
     void resetFlags()
@@ -66,6 +67,7 @@ public:
         didcleanup = false;
         didupdate = false;
         diderror = false;
+        didexcept = false;
     }
 
     bool configureHook() {
@@ -81,13 +83,20 @@ public:
     }
 
     void stopHook() {
-        BOOST_CHECK( mTaskState >= Running || mTaskState == FatalError);
+        BOOST_CHECK( mTaskState >= Running || mTaskState == Exception);
         didstop = true;
     }
 
     void cleanupHook() {
-        BOOST_CHECK( mTaskState == Stopped || mTaskState == FatalError);
+        BOOST_CHECK( mTaskState == Stopped || mTaskState == Exception);
         didcleanup = true;
+    }
+
+    void exceptionHook() {
+        BOOST_CHECK( mTaskState == Exception);
+        didexcept = true;
+        if (do_throw3)
+            throw A();
     }
 
     void updateHook() {
@@ -114,8 +123,8 @@ public:
     bool validstart, didstart;
     bool didstop;
     bool didcleanup;
-    bool didupdate,diderror;
-    bool do_fatal, do_error, do_throw,do_throw2;
+    bool didupdate,diderror,didexcept;
+    bool do_fatal, do_error, do_throw,do_throw2,do_throw3;
 };
 
 /**
@@ -244,6 +253,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didstart == false );
     BOOST_CHECK( stc->didupdate == false );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didstop == false );
     BOOST_CHECK( stc->didcleanup == false );
     stc->resetFlags();
@@ -256,6 +266,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didconfig == false );
     BOOST_CHECK( stc->didupdate == false );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didstop == false );
     BOOST_CHECK( stc->didcleanup == false );
     stc->resetFlags();
@@ -268,6 +279,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didstart == false );
     BOOST_CHECK( stc->didupdate == true );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didstop == false );
     BOOST_CHECK( stc->didcleanup == false );
     stc->resetFlags();
@@ -281,6 +293,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didstart == false );
     BOOST_CHECK( stc->didupdate == false );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didcleanup == false );
     stc->resetFlags();
 
@@ -292,6 +305,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didstart == false );
     BOOST_CHECK( stc->didupdate == false );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didstop == false );
     BOOST_CHECK( stc->didcleanup == false );
     stc->resetFlags();
@@ -305,6 +319,7 @@ BOOST_AUTO_TEST_CASE( testSpecialTCStates)
     BOOST_CHECK( stc->didstart == false );
     BOOST_CHECK( stc->didupdate == false );
     BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->didstop == false );
     stc->resetFlags();
 }
@@ -360,10 +375,11 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     SimulationThread::Instance()->run(1);
     BOOST_CHECK( stc->inRunTimeError() == true );
     BOOST_CHECK( stc->diderror == true );
+    BOOST_CHECK( stc->didexcept == false );
     BOOST_CHECK( stc->isActive() == true );  // still active
     stc->resetFlags();
     stc->do_error = false;
-    stc->recovered();
+    stc->recover();
     SimulationThread::Instance()->run(1);
     BOOST_CHECK( stc->isRunning() == true );
     BOOST_CHECK( stc->diderror == false );
@@ -373,27 +389,31 @@ BOOST_AUTO_TEST_CASE( testFailingTCStates)
     stc->do_throw = true;
     // Running state / updateHook :
     SimulationThread::Instance()->run(1);
-    BOOST_CHECK( stc->inRunTimeError() == true );
-    BOOST_CHECK( stc->diderror == true );
+    BOOST_CHECK( stc->inRunTimeError() == false );
+    BOOST_CHECK( stc->inException() == true );
+    BOOST_CHECK( stc->didexcept == true );
     BOOST_CHECK( stc->isActive() == true );  // still active
     stc->resetFlags();
     stc->do_throw = false;
-    stc->recovered();
+    stc->recover();
     SimulationThread::Instance()->run(1);
-    BOOST_CHECK( stc->isRunning() == true );
+    BOOST_CHECK( stc->isConfigured() == false );
     BOOST_CHECK( stc->diderror == false );
-    BOOST_CHECK( stc->didupdate == true );
+    BOOST_CHECK( stc->didupdate == false );
     stc->resetFlags();
+    stc->configure();
+    stc->start();
 
-    // Fatal Error state by throwing in errorHook()
+    // Fatal Error state by throwing in exceptionHook()
     stc->do_error = false;
     stc->do_throw = true;
-    stc->do_throw2 = true;
+    stc->do_throw3 = true;
     // Running state / updateHook :
     SimulationThread::Instance()->run(1);
     BOOST_CHECK( stc->inRunTimeError() == false );
     BOOST_CHECK( stc->inFatalError() == true );
-    BOOST_CHECK( stc->diderror == true );
+    BOOST_CHECK( stc->diderror == false );
+    BOOST_CHECK( stc->didexcept == true );
     BOOST_CHECK( stc->didstop == true );
     BOOST_CHECK( stc->didcleanup == true );
     BOOST_CHECK( stc->isActive() == false );

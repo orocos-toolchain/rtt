@@ -146,13 +146,14 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
 
     // Input side is now ok and waiting for us to complete. We build our corba channel element too
     // and connect it to the remote side and vice versa.
-    CRemoteChannelElement_i*  local;
-    PortableServer::ServantBase_var servant = local =
+    CRemoteChannelElement_i*  local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
                             ->createChannelElement_i(output_port.getInterface(), mpoa, policy.pull);
 
+    CRemoteChannelElement_var proxy = local->_this();
     local->setRemoteSide(remote);
-    remote->setRemoteSide(local->_this());
+    remote->setRemoteSide(proxy.in());
+    local->_remove_ref();
 
     RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
 

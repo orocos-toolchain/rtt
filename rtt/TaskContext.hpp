@@ -41,6 +41,7 @@
 
 
 #include "rtt-config.h"
+#include "plugin/PluginLoader.hpp"
 #include "interface/ServiceProvider.hpp"
 #include "interface/ServiceRequester.hpp"
 #include "interface/DataFlowInterface.hpp"
@@ -271,6 +272,8 @@ namespace RTT
 
         /**
          * Use this method to be able to make Method calls to services provided by this component.
+         * In case the service does not exist in this component, it tries to load the service using the plugin::PluginLoader class.
+         * If all fails, a null pointer is returned.
          *
          * For example: getProvider<Scripting>("scripting")->loadPrograms("file.ops");
          *
@@ -281,7 +284,8 @@ namespace RTT
          */
         template<class ServiceType>
         boost::shared_ptr<ServiceType> getProvider(const std::string& name) {
-            if (!provides()->hasService(name)) return boost::shared_ptr<ServiceType>();
+            if (!provides()->hasService(name) && plugin::PluginLoader::Instance()->loadService(name, this) == false)
+                return boost::shared_ptr<ServiceType>();
             LocalServices::iterator it = localservs.find(name);
             if (  it != localservs.end() ) {
                 return boost::dynamic_pointer_cast<ServiceType>(it->second);
@@ -316,7 +320,7 @@ namespace RTT
         }
 
         template<class Func, class Service>
-        Operation< typename interface::ServiceProvider::GetSignature<Func>::Signature >&
+        Operation< typename internal::GetSignature<Func>::Signature >&
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
         {
             return tcservice->addOperation(name,func, serv, et);
@@ -448,7 +452,7 @@ namespace RTT
          */
         base::PropertyBase* getProperty(const std::string& name) const
         {
-            return tcservice->getProperty("name");
+            return tcservice->getProperty(name);
         }
 
         /**
@@ -466,6 +470,17 @@ namespace RTT
          * @{
          */
         /**
+         * Name and add a Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * @param name The name to give to the port.
+         * @param port The port to add.
+         */
+        base::PortInterface& addPort(const std::string& name, base::PortInterface& port) {
+            port.setName(name);
+            return ports()->addPort(port);
+        }
+
+        /**
          * Add a Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
@@ -475,12 +490,30 @@ namespace RTT
         }
 
         /**
+         * Name and add an Event triggering Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * @param name The name to give to the port.
+         * @param port The port to add.
+         * @param callback (Optional) provide a function which will be called asynchronously
+         * when new data arrives on this port. You can add more functions by using the port
+         * directly using base::PortInterface::getNewDataOnPort().
+         * @note This function will temporarily stop your TaskContext and
+         * re-start it in case it was running.
+         */
+        base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+            port.setName(name);
+            return ports()->addEventPort(port,callback);
+        }
+
+        /**
          * Add an Event triggering Port to the interface of this task and
          * add a ServiceProvider with the same name of the port.
          * @param port The port to add.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
+         * @note This function will temporarily stop your TaskContext and
+         * re-start it in case it was running.
          */
         base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
             return ports()->addEventPort(port,callback);
@@ -581,8 +614,19 @@ namespace RTT
          * event port.
          */
         void dataOnPort(base::PortInterface* port);
-        void dataOnPortSize(unsigned int max);
+        /**
+         * Called to inform us of the number of possible
+         * ports that will trigger a dataOnPort event.
+         * @return false if this->isRunning().
+         */
+        bool dataOnPortSize(unsigned int max);
+        /**
+         * Function to call in the thread of this component if data on the given port arrives.
+         */
         void dataOnPortCallback(base::InputPortInterface* port, base::InputPortInterface::SlotFunction callback);
+        /**
+         * Inform that a given port will no longer raise dataOnPort() events.
+         */
         void dataOnPortRemoved(base::PortInterface* port);
 
         typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;

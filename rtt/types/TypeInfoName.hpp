@@ -125,6 +125,9 @@ namespace RTT
             return base::DataSourceBase::shared_ptr();
         }
 
+        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
+            return base::DataSourceBase::shared_ptr();
+        }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");

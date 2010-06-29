@@ -36,11 +36,40 @@ public:
     double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }
     double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
 
-    bool assertBool(bool b) { return b; }
-    bool assertEqual(int a, int b) { if (a != b) cerr <<"AssertEqual failed: a != b "<< a << " != " <<b<<"."<<endl; return a == b; }
+    void print(const std::string& what) { cout << "print: " << what <<endl; }
+    void printNumber(const std::string& what, int n) { cout << "print: " << what << n << endl; }
+
+    bool fail() {
+        throw false;
+        return true; // should be ignored anyway.
+    }
+
+    bool good() {
+        return true;
+    }
+
+    bool assertBool(bool b) {
+        if (!b) throw b;
+        return b;
+    }
+
+    bool isTrue(bool b) {
+        return b;
+    }
+
+    bool assertEqual(int a, int b)
+    {
+        if (a != b) {
+            cerr << "AssertEqual failed: a != b " << a << " != " << b << "." << endl;
+            throw b;
+        }
+        return a == b;
+    }
     bool assertMsg( bool b, const std::string& msg) {
-        if ( b == false )
+        if ( b == false ) {
             cout << "Asserted :" << msg << endl;
+            throw b;
+        }
         return true; // allow to continue to check other commands.
     }
     int increase() { return ++i;}

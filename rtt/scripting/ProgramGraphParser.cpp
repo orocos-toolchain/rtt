@@ -189,7 +189,8 @@ namespace RTT
 
     valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    dostatement = !lexeme_d[str_p("do ")] >>
+    // take into account deprecated 'do' and 'set'
+    dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >>
             (
               ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
@@ -369,13 +370,13 @@ namespace RTT
       DataSourceBase::shared_ptr expr  = expressionparser.getResult().get();
       expressionparser.dropResult();
       try {
-          ActionInterface* assigncomm = ar->getDataSource()->updateCommand( expr.get() );
+          ActionInterface* assigncomm = ar->getDataSource()->updateAction( expr.get() );
           // assign the return value to the return argument.
           program_builder->setCommand( assigncomm );
           program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
       }
       catch(...) {
-          // catch exception from updateCommand.
+          // catch exception from updateAction.
           throw parse_exception_syntactic_error("Could not convert '" + expr->getType() + "' to '"+ ar->getDataSource()->getType() +"' in return statement.");
       }
   }
@@ -526,18 +527,18 @@ namespace RTT
       for_init_command = ac;
     }
 
+    void ProgramGraphParser::seenforinit_expr()
+    {
+        DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        expressionparser.dropResult();
+        for_init_command = new CommandDataSource( expr );
+    }
+
     void ProgramGraphParser::seenforincr()
     {
-      ActionInterface* ac = 0;
-      std::vector<ActionInterface*> acv = valuechangeparser.assignCommands();
-      if ( acv.size() == 1) {
-          ac = acv.front();
-      }
-      else if (acv.size() > 1) {
-          ac = new CommandComposite( acv );
-      }
-      for_incr_command = ac;
-      valuechangeparser.clear();
+        DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        expressionparser.dropResult();
+        for_incr_command = new CommandDataSource( expr );
     }
 
     void ProgramGraphParser::seenforstatement() {

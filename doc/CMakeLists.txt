@@ -15,7 +15,7 @@ IF (BUILD_DOCS)
     xml/orocos-user-manual.xml xml/orocos-components-manual.xml
     xml/orocos-rtt-changes.xml xml/orocos-user-manual.xml xml/orocos-ocl-intro.xml
     xml/orocos-transports-corba.xml xml/orocos-transports-mqueue.xml
-    xml/orocos-toolkit-plugin.xml xml/orocos-faq.xml )
+    xml/orocos-rtt-plugins.xml xml/orocos-typekit-plugin.xml xml/orocos-faq.xml )
 
   SEPARATE_ARGUMENTS(XML_SOURCES)
 

@@ -20,10 +20,10 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE( PropertyMarshTestSuite, PropertyMarshTest )
 
-// This test does not yet test all types !
+//! Test writing some properties and reading the same file back in.
 BOOST_AUTO_TEST_CASE( testPropMarsh )
 {
-    std::string filename = ".property_test.cpf";
+    std::string filename = ".testPropMarsh.cpf";
 
     PropertyBag source; // to file
     PropertyBag target; // from file
@@ -64,9 +64,10 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
     deletePropertyBag( target );
 }
 
+//! Test writing a vector to file and back in.
 BOOST_AUTO_TEST_CASE( testPropMarshVect )
 {
-    std::string filename = ".property_test_vect.cpf";
+    std::string filename = ".testPropMarshVect.cpf";
 
     PropertyBag source; // to file
     PropertyBag target; // from file
@@ -93,38 +94,53 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     Property<PropertyBag> bag = target.getProperty("p1");
     BOOST_REQUIRE( bag.ready() );
     BOOST_CHECK( bag.getDescription() == "p1d" );
-    BOOST_CHECK( bag.rvalue().size() == 7 );
+    BOOST_CHECK_EQUAL( bag.rvalue().size(), 7 );
 
     // update bag -> array.
     BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
-    BOOST_CHECK( p1->rvalue().size() == 7 );
-    BOOST_CHECK( p1->rvalue()[0] == 1.234 );
+    BOOST_CHECK_EQUAL( p1->rvalue().size() , 7 );
+    BOOST_CHECK_EQUAL( p1->rvalue()[0] , 1.234 );
 
-    // Test legacy:
     deletePropertyBag( target );
-    p1->setName("driveLimits");
+    deletePropertyBag( source );
+}
+
+//! Test reading a legacy vector back in.
+BOOST_AUTO_TEST_CASE( testPropMarshVectLegacy )
+{
+    PropertyBag target; // to file
+    PropertyBag source; // from file
+
+    Property<std::vector<double> >* p1 =  new Property<std::vector<double> >("driveLimits","p1d", std::vector<double>(7, 1.234) );
+
+    // setup target tree
+    target.addProperty( *p1 );
     {
         // scope required such that file is closed
-        PropertyDemarshaller pd( "property_test_vect.cpf" );
-        BOOST_REQUIRE( pd.deserialize( target ) );
+        PropertyDemarshaller pd( "testPropMarshVectLegacy.cpf" );
+        BOOST_REQUIRE( pd.deserialize( source ) );
     }
-    bag = target.getProperty("driveLimits");
+    // Check if the bag was read from file:
+    Property<PropertyBag> bag = source.getProperty("driveLimits");
     BOOST_REQUIRE( bag.ready() );
-    BOOST_CHECK( bag.rvalue().size() == 7 );
+    // check if legacy bag contains 7 elements:
+    BOOST_CHECK_EQUAL( bag.value().size() , 7 );
 
     // update bag -> array.
-    BOOST_CHECK( updateProperties( source, target) );
+    cout <<"target: "<< target <<endl;
+    cout <<"source: "<< source <<endl;
+    BOOST_CHECK( refreshProperties( target, source) );
 
-    //p1 = source.getProperty("p1");
+    //p1 = target.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
     //cout << p1 << endl;
-    BOOST_CHECK( p1->rvalue().size() == 6 );
-    BOOST_CHECK( p1->rvalue()[0] == 1 );
+    // check updated vector size is 6, contents is 1:
+    BOOST_CHECK_EQUAL( p1->rvalue().size() , 6 );
+    BOOST_CHECK_EQUAL( p1->rvalue()[0] , 1 );
 
-    deletePropertyBag( target );
     deletePropertyBag( source );
 }
 

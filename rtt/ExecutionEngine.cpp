@@ -311,23 +311,18 @@ namespace RTT
                 try {
                     taskc->updateHook();
                 } catch(...){
-                    taskc->error();
+                    taskc->exception(); // calls stopHook,cleanupHook
                 }
             }
             if (  taskc->mTaskState == TaskCore::RunTimeError ) {
                 try {
                     taskc->errorHook();
                 } catch(...) {
-                    taskc->fatal(); // calls stopHook,cleanupHook
+                    taskc->exception(); // calls stopHook,cleanupHook
                 }
             }
-            // If an error occured (Running=>FatalError state), abort all !
-            if ( taskc->mTaskState == TaskCore::FatalError) {
-                this->getActivity()->stop(); // calls finalize()
-                return;
-            }
         }
-        if ( !this->getActivity()->isRunning() ) return;
+        if ( !this->getActivity() || this->getActivity()->isRunning() ) return;
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
@@ -335,20 +330,15 @@ namespace RTT
                 try {
                     taskc->updateHook();
                 } catch(...){
-                    taskc->error();
+                    taskc->exception();
                 }
             if (  (*it)->mTaskState == TaskCore::RunTimeError )
                 try {
                     taskc->errorHook();
                 } catch(...) {
-                    taskc->fatal(); // calls stopHook,cleanupHook
+                    taskc->exception(); // calls stopHook,cleanupHook
                 }
-            // If an error occured (Running=>FatalError state), abort all !
-            if ( (*it)->mTaskState == TaskCore::FatalError) {
-                this->getActivity()->stop(); // calls finalize()
-                return;
-            }
-            if ( !this->getActivity()->isRunning() ) return;
+            if ( !this->getActivity() || this->getActivity()->isRunning() ) return;
         }
     }
 

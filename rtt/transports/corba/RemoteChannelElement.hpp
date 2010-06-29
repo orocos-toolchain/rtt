@@ -69,7 +69,11 @@ namespace RTT {
 	     * In pull mode, we don't send data, just signal it and remote must read it back.
 	     */
 	    bool pull;
+
 	    interface::DataFlowInterface* msender;
+
+            PortableServer::ObjectId_var oid;
+
 	public:
 	    /**
 	     * Create a channel element for remote data exchange.
@@ -87,6 +91,7 @@ namespace RTT {
                 // CORBA refcount-managed servants must start with a refcount of
                 // 1
                 this->ref();
+                oid = mpoa->activate_object(this);
                 // Force creation of dispatcher.
                 CorbaDispatcher::Instance(msender);
             }
@@ -175,8 +180,7 @@ namespace RTT {
                 base::ChannelElement<T>::disconnect(!writer_to_reader);
 
                 remote_side = 0;
-                PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
-                mpoa->deactivate_object(oid.in());
+                mpoa->deactivate_object(oid);
             }
 
             /**
@@ -193,8 +197,7 @@ namespace RTT {
                 catch(CORBA::Exception&) {}
                 base::ChannelElement<T>::disconnect(writer_to_reader);
                 remote_side = 0;
-                PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
-                mpoa->deactivate_object(oid.in());
+                mpoa->deactivate_object(oid);
             }
 
             FlowStatus read(typename base::ChannelElement<T>::reference_t sample)

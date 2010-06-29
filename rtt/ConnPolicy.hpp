@@ -179,9 +179,6 @@ namespace RTT {
          */
         mutable std::string name_id;
     };
-
-    bool composeProperty(const PropertyBag& bag, ConnPolicy& result);
-    void decomposeProperty(const ConnPolicy& cp, PropertyBag& targetbag);
 }
 
 #endif

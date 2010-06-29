@@ -37,6 +37,8 @@
 #include "StateMachine.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSource.hpp"
+#include "../internal/CommandFunctors.hpp"
+#include "../interface/ServiceProvider.hpp"
 #include <Logger.hpp>
 #include <functional>
 
@@ -88,6 +90,14 @@ namespace RTT {
            for(TransList::iterator tlit= it->second.begin(); tlit != it->second.end(); ++tlit ) {
                if ( get<4>(*tlit) )
                    get<4>(*tlit)->loaded( this->getEngine() );
+           }
+       }
+       for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
+       {
+           // inform all transition scripts
+           for(EventList::iterator tlit= it->second.begin(); tlit != it->second.end(); ++tlit ) {
+               if ( get<5>(*tlit) )
+                   get<5>(*tlit)->loaded( this->getEngine() );
            }
        }
    }
@@ -463,6 +473,12 @@ namespace RTT {
 //            TRACE("Enabling events for state '"+s->getName()+"'.");
 //        } else
 //            TRACE("Enabling global events.");
+        EventMap::mapped_type& hlist = eventMap[s];
+        for (EventList::iterator eit = hlist.begin();
+             eit != hlist.end();
+             ++eit) {
+            get<6>(*eit).connect();
+        }
     }
     void StateMachine::disableEvents( StateInterface* s )
     {
@@ -471,8 +487,115 @@ namespace RTT {
 //            TRACE("Disabling events for state '"+s->getName()+"'.");
 //        } else
 //            TRACE("Disabling global events.");
+        EventMap::mapped_type& hlist = eventMap[s];
+                for (EventList::iterator eit = hlist.begin();
+                     eit != hlist.end();
+                     ++eit) {
+                    get<6>(*eit).disconnect();
+                }
+
     }
 
+    bool StateMachine::createEventTransition( ServiceProviderPtr sp,
+                                              const std::string& ename, vector<DataSourceBase::shared_ptr> args,
+                                              StateInterface* from, StateInterface* to,
+                                              ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
+                                              StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
+    {
+        Logger::In in("StateMachine::createEventTransition");
+        if ( false ) { // todo: check for OwnThread
+            log(Error) << "Can not receive event '"<< ename <<"' in StateMachine for Operation not executed in OwnThread."<< endlog();
+            return false;
+        }
+
+        if ( !( sp && guard ) ) {
+            log(Error) << "Invalid arguments for event '"<< ename <<"'. ";
+            if (!sp)
+                log() <<"EventService was null. ";
+            if (!guard)
+                log() <<"Guard Condition was null. ";
+            log() << endlog();
+            return false;
+        }
+
+        if ( to == 0 )
+            to = from;
+
+        // get ename from event service, provide args as arguments
+        // event should be activated upon entry of 'from'
+        // guard is evaluated to get final 'ok'.
+        // event does a requestStateChange( to );
+        // if 'ok', execute transprog during transition.
+
+        // Store guard and transprog for copy/clone semantics.
+        // upon SM copy, recreate the handles for the copy SM with a copy of guard/transprog.
+        // Same for args. I guess we need to store all arguments of this function to allow
+        // proper copy semantics, such that the event handle can be created for each new SM
+        // instance. Ownership of guard and transprog is to be determined, but seems to ly
+        // with the SM. handle.destroy() can be called upon SM destruction.
+        Handle handle;
+        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"'."<<Logger::endl;
+        handle = sp->produceSignal( ename, new CommandFunction( bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
+
+        if ( !handle.ready() ) {
+            Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
+            return false; // event does not exist...
+        }
+        // BIG NOTE : we MUST store handle otherwise, the connection is destroyed (cfr setup vs connect).
+        // Off course, we also need it to connect/disconnect the event.
+        eventMap[from].push_back( boost::make_tuple( sp, ename, args, to, guard, transprog, handle, elseto, elseprog) );
+        // add the states to the statemap.
+        stateMap[from];
+        stateMap[to];
+        return true;
+    }
+
+    bool StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
+    {
+        TRACE_INIT();
+        // called by event to begin Transition to 'to'.
+        // This interrupts the current run program at an interruption point ?
+        // the transition and/or exit program can cleanup...
+
+        // this will never be called if the event connection is destroyed, unless called from the
+        // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
+        // only transition if this event was meant for this state and we are not
+        // in transition already.
+        // If condition fails, check precondition 'else' state (if present) and
+        // execute else program (may be null).
+        if ( !current)
+            return true;
+
+        TRACE("Received Signal in state '"+ current->getName()+"'.");
+        if (from == 0)
+            from  = current;
+        if (to == 0)
+            to = current;
+        if ( from == current && !this->inTransition() ) {
+            if ( c->evaluate() && checkConditions(to, false) == 1 ) {
+                TRACE( "Valid transition from " + from->getName() +
+                            +" to "+to->getName()+".");
+                changeState( to, p );              //  valid transition to 'to'.
+            }
+            else {
+                TRACE( "Rejected transition from " + from->getName() +
+                        " to " + to->getName() +
+                        " within state " + current->getName() + ": guards failed.");
+            }
+        }
+#if 1
+        else {
+            if (this->inTransition() ) {
+                TRACE( "Rejected transition from " + from->getName() +
+                              " within " + current->getName() + ": in transition.");
+            } else {
+                TRACE( "Rejected transition from " + from->getName() +
+                              + " within " + current->getName() + ": wrong state.");
+            }
+        }
+#endif
+        return true;
+    }
 
     StateInterface* StateMachine::requestNextState(bool stepping)
     {

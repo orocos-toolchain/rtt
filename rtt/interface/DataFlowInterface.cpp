@@ -145,8 +145,11 @@ namespace RTT
               ++it)
             if ( (*it)->getName() == name ) {
                 if (mparent) {
+                    bool running = mparent->stop();
                     mparent->provides()->removeService( name );
                     mparent->dataOnPortRemoved( *it );
+                    if (running)
+                        mparent->start();
                 }
                 (*it)->disconnect(); // remove all connections and callbacks.
                 mports.erase(it);
@@ -159,10 +162,6 @@ namespace RTT
     }
 
     DataFlowInterface::PortNames DataFlowInterface::getPortNames() const {
-        return this->getNames();
-    }
-
-    DataFlowInterface::PortNames DataFlowInterface::getNames() const {
         std::vector<std::string> res;
         for ( Ports::const_iterator it(mports.begin());
               it != mports.end();

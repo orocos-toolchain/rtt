@@ -223,13 +223,20 @@ namespace RTT {
                 {
                     for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
                         emap[*ei].reset();
-                    cmap[current].startExecution();
+                    try {
+                        cmap[current].startExecution();
+                    } catch(...) {
+                        pStatus = Status::error;
+                        return false;
+                    }
                 }
 
             // initial conditions :
             previous = current;
             // execute the current command.
-            if ( !cmap[current].execute() ) {
+            try {
+                cmap[current].execute();
+            } catch(...) {
                 pStatus = Status::error;
                 return false;
             }
@@ -237,11 +244,16 @@ namespace RTT {
             // Branch selecting Logic :
             if ( cmap[current].isValid() ) {
                 for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei) {
-                    if ( emap[*ei].evaluate() ) {
-                        current = boost::target(*ei, program);
-                        // a new node has been found ...
-                        // so continue
-                        break; // exit from for loop.
+                    try {
+                        if ( emap[*ei].evaluate() ) {
+                            current = boost::target(*ei, program);
+                            // a new node has been found ...
+                            // so continue
+                            break; // exit from for loop.
+                        }
+                    } catch(...) {
+                        pStatus = Status::error;
+                        return false;
                     }
                 }
             }
@@ -267,12 +279,19 @@ namespace RTT {
         {
             for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
                 emap[*ei].reset();
-            cmap[current].startExecution();
+            try {
+                cmap[current].startExecution();
+            } catch(...) {
+                pStatus = Status::error;
+                return false;
+            }
             previous = current;
         }
 
         // execute the current command.
-        if ( !cmap[current].execute() ) {
+        try {
+            cmap[current].execute();
+        } catch(...) {
             pStatus = Status::error;
             return false;
         }
@@ -280,13 +299,18 @@ namespace RTT {
         // Branch selecting Logic :
         if ( cmap[current].isValid() ) {
             for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei) {
-                if ( emap[*ei].evaluate() ) {
-                    current = boost::target(*ei, program);
-                    if (current == exitv)
-                        this->stop();
-                    // a new node has been found ...
-                    // it will be executed in the next step.
-                    return true;
+                try {
+                    if ( emap[*ei].evaluate() ) {
+                        current = boost::target(*ei, program);
+                        if (current == exitv)
+                            this->stop();
+                        // a new node has been found ...
+                        // it will be executed in the next step.
+                        return true;
+                    }
+                } catch(...) {
+                    pStatus = Status::error;
+                    return false;
                 }
             }
         }

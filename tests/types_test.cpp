@@ -27,6 +27,7 @@
 #include <extras/SimulationThread.hpp>
 #include <interface/ServiceProvider.hpp>
 #include <TaskContext.hpp>
+#include <scripting/Scripting.hpp>
 #include <interface/ServiceProvider.hpp>
 #include <types/GlobalsRepository.hpp>
 
@@ -40,6 +41,7 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
+    tc->getProvider<Scripting>("scripting");
     sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
     tc->provides()->addService( this->createMethodFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
@@ -86,18 +88,18 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     Attribute<string> str = Types()->type("string")->buildVariable("str",10);
 
     // check size hint:
-    BOOST_CHECK( str.get().size() == 10 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 10 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     str.set() = "hello"; // note: assign to C string preserves capacity
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     // create empty target:
     Attribute<string> copy("copy");
-    BOOST_CHECK( copy.get().size() == 0 );
-    BOOST_CHECK( copy.get().capacity() == 0 );
+    BOOST_CHECK_EQUAL( copy.get().size() , 0 );
+    BOOST_CHECK_EQUAL( copy.get().capacity() , 0 );
 
     // copy str to target and check:
     copy.getDataSource()->update( str.getDataSource().get() );
@@ -110,8 +112,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
 
     // now copy target back to str and check if capacity remains:
     str.getDataSource()->update( copy.getDataSource().get() );
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 
@@ -119,11 +121,11 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     // Same exercise as above, but with updateCommand():
     str.set() = "hello"; // note: assign to C string preserves capacity
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     // copy str to target and check:
-    ActionInterface* act = copy.getDataSource()->updateCommand( str.getDataSource().get() );
+    ActionInterface* act = copy.getDataSource()->updateAction( str.getDataSource().get() );
     BOOST_CHECK( act );
     act->readArguments();
     BOOST_CHECK( act->execute() );
@@ -136,14 +138,14 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     copy.set() = "world";
 
     // now copy target back to str and check if capacity remains:
-    act = str.getDataSource()->updateCommand( copy.getDataSource().get() );
+    act = str.getDataSource()->updateAction( copy.getDataSource().get() );
     BOOST_CHECK( act );
     act->readArguments();
     BOOST_CHECK( act->execute() );
     delete act;
 
-    BOOST_CHECK( str.get().size() == 5 );
-    BOOST_CHECK( str.get().capacity() == 10 );
+    BOOST_CHECK_EQUAL( str.get().size() , 5 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 }
@@ -189,6 +191,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
+//        "do test.print(ar1[11])\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
@@ -287,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
 //         "do test.assert( d == 10.0 )\n" +
-        "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
+        "set b = b || b && true && false || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
         "do test.assert( a1.size == 2 )\n" +

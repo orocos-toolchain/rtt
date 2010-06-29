@@ -137,7 +137,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
-        CommonParser cp;
+    CommonParser cp;
     ExpressionParser parser( tc, mcaller, cp );
     bool skipref=true;
     try
@@ -163,33 +163,7 @@ namespace RTT
   DataSourceBase::shared_ptr Parser::parseValueChange( const std::string& _s,
                                                        TaskContext* tc )
   {
-    std::string s( _s );
-
-    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
-    our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
-
-    CommonParser cp;
-    ValueChangeParser parser( tc, cp, tc->provides(), mcaller ? mcaller : tc );
-    bool skipref=true;
-    try
-    {
-        parse( parsebegin, parseend, parser.variableChangeParser(), SKIP_PARSER );
-    }
-    catch( const parse_exception& e )
-    {
-        throw;
-    }
-    catch( const parser_error<std::string, iter_t>& e )
-        {
-            // this only happens if input is really wrong.
-            throw parse_exception_syntactic_error( e.descriptor );
-        }
-    if ( parser.assignCommand() ) {
-        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand()->clone() );
-        parser.reset();
-        return ret;
-    }
-    throw parse_exception_parser_fail();
+      return parseExpression( _s, tc );
   }
 
   DataSourceBase::shared_ptr Parser::parseValueStatement( const std::string& _s,
@@ -220,15 +194,22 @@ namespace RTT
     ActionInterface* ac = 0;
     std::vector<ActionInterface*> acv = parser.assignCommands();
     // and not forget to reset()..
+    if ( acv.empty() && parser.lastDefinedValue() ) {
+        return parser.lastDefinedValue()->getDataSource();
+    }
     if ( acv.size() == 1) {
         ac = acv.front();
+        ac->readArguments();
+        ac->execute();
+        delete ac;
+        return parser.lastDefinedValue()->getDataSource();
     }
     else if (acv.size() > 1) {
         ac = new CommandComposite(acv);
     }
 
     if ( ac ) {
-        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand()->clone() );
+        DataSourceBase::shared_ptr ret = new DataSourceCommand( ac );
         //parser.reset(); don't do this, we want to keep it.
         return ret;
     }

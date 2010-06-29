@@ -59,10 +59,7 @@ namespace RTT
         /**
          * Automatic type conversion (float->double,... ). Fails by default.
          */
-        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const
-        {
-            return base::DataSourceBase::shared_ptr();
-        }
+        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
     };
 }}
 

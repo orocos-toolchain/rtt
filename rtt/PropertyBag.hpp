@@ -154,6 +154,23 @@ namespace RTT
         void remove(base::PropertyBase *p);
 
         /**
+         * Adds a variable of any type as a property to this bag.
+         * A Property is created which causes contents of the
+         * property always to be in sync
+         * with the contents of \a attr.
+         * @param name The name of this property
+         * @param attr The variable that will be aliased.
+         * @return the Property object by reference, which you can further query or document.
+         */
+        template<class T>
+        Property<T>& addProperty( const std::string& name, T& attr) {
+            Property<T>* p = new Property<T>(name,"", new internal::ReferenceDataSource<T>(attr));
+            this->ownProperty( p );
+            return *p;
+        }
+
+
+        /**
          * Add a valid property to the container.
          * @param p Pointer to the property to be added.
          * @return false if !p || !p->ready(), true otherwise.
@@ -358,6 +375,22 @@ namespace RTT
      * @ingroup CoreLibProperties
      * @{
      */
+
+    /**
+     * Recursively prints out the contents of this bag.
+     * @param os A Std stream to print to
+     * @param bag The bag to print.
+     * @return os
+     */
+    std::ostream& operator<<(std::ostream& os, const PropertyBag& bag);
+
+    /**
+     * Not implemented
+     * @param is unused
+     * @param bag unused
+     * @return is
+     */
+    std::istream& operator>>(std::istream& is, PropertyBag& bag);
 
     /**
      * This function locates a Property in nested PropertyBags.

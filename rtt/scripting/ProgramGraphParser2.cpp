@@ -76,9 +76,11 @@ namespace RTT
                  >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
 
     forstatement = ( str_p("for") >> openbrace
-                     >> !valuechangeparser.parser()[bind(&ProgramGraphParser::seenforinit, this)] >> semicolon
-                     >> condition >> semicolon
-                     >> !valuechangeparser.parser()[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
+                     >> !(valuechangeparser.parser()[bind(&ProgramGraphParser::seenforinit, this)]
+                          |
+                          expressionparser.parser()[bind(&ProgramGraphParser::seenforinit_expr, this)])>> semicolon
+                     >> condition >> semicolon >> !str_p("set ")
+                     >> !expressionparser.parser()[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
                      ) [bind(&ProgramGraphParser::seenforstatement, this)]
                                   >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endforstatement, this) ]);
 

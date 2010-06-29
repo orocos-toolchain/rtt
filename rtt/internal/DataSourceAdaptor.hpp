@@ -375,7 +375,7 @@ namespace RTT
         AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
             : orig_(orig) {}
 
-        virtual typename DataSource<To>::result_t get() const { return orig_->set(); }
+        virtual typename DataSource<To>::result_t get() const { orig_->evaluate(); return orig_->set(); }
 
         virtual typename DataSource<To>::result_t value() const { return orig_->set(); }
 
@@ -418,7 +418,7 @@ namespace RTT
         AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
             : orig_(orig) {}
 
-        virtual typename DataSource<To>::result_t get() const { return orig_->rvalue(); }
+        virtual typename DataSource<To>::result_t get() const { orig_->evaluate(); return orig_->rvalue(); }
 
         virtual typename DataSource<To>::result_t value() const { return orig_->rvalue(); }
 

@@ -35,7 +35,7 @@ using namespace std;
 struct InitOrocos {
 public:
 	InitOrocos(){  }
-	~InitOrocos(){ 
+	~InitOrocos(){
 	    corba::CorbaDispatcher::ReleaseAll();
 	    corba::TaskContextServer::ShutdownOrb(true);
 	    corba::TaskContextServer::DestroyOrb();
@@ -73,13 +73,16 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
         cout << "  --report level[=<no|confirm*|short|detailed>"<<endl;
         cout << "  --show_progress[=<yes|no*>        "<<endl<<endl;
         cout << "  --use_alt_stack[=<yes*|no>        "<<endl<<endl;
-        
+
         cout << "Select tests by using the form:"<<endl;
         cout << "  " << argv[0] << " --run_test=suite/testX"<<endl;
         cout << "Wildcards are accepted:"<<endl;
         cout << "  " << argv[0] << " --run_test=*/testX"<<endl;
         exit(0);
     }
+
+    // sets environment if not set by user.
+    setenv("RTT_COMPONENT_PATH","../rtt", 0);
 
 	__os_init(argc, argv);
 

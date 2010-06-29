@@ -90,28 +90,20 @@ namespace RTT { namespace scripting
     void seenvariabledefinition();
     void seenbaredefinition();
     void seenparamdefinition();
-    void seenvariableassignment();
     void storedefinitionname( iter_t begin, iter_t end );
-    void storename( iter_t begin, iter_t end );
-    void storepeername();
     void seentype( iter_t begin, iter_t end );
-    void seenindexassignment();
     void seensizehint();
     void seenproperty();
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
-        variableassignment, variablechange, paramdefinition, baredefinition,
+        paramdefinition, baredefinition,
         vardecl, constdecl, baredecl,
         valuechange_parsers;
 
       TaskContext* context;
       interface::ServiceProvider::shared_ptr mstore;
       ExpressionParser expressionparser;
-      PeerParser peerparser;
-      PropertyParser propparser;
       CommonParser& commonparser;
-
-      base::DataSourceBase::shared_ptr index_ds;
 
       int sizehint;
       boost::shared_ptr<types::TypeInfoRepository> typerepos;
@@ -213,20 +205,6 @@ namespace RTT { namespace scripting
      * parsed..
      */
     rule_t& variableDefinitionParser();
-
-    /**
-     * the parser that parses variable assignments with 'set', don't forget to
-     * check @ref assignCommand after a variable assignment is
-     * parsed..
-     */
-    rule_t& variableAssignmentParser();
-
-    /**
-     * the parser that parses variable assignments without 'set' prefix , don't forget to
-     * check @ref assignCommand after a variable assignment is
-     * parsed..
-     */
-    rule_t& variableChangeParser();
 
     /**
      * The parser that parses alias definitions.  This does not work

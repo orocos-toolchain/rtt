@@ -97,13 +97,13 @@ namespace RTT
 
     void TaskContext::setup()
     {
-        // Temporarily until plugins are implemented:
-#if defined(PLUGINS_ENABLE_SCRIPTING)
-        ScriptingService::Create(this);
-#endif
-#if defined(PLUGINS_ENABLE_MARSHALLING)
-        MarshallingService::Create(this);
-#endif
+//        // Temporarily until plugins are implemented:
+//#if defined(PLUGINS_ENABLE_SCRIPTING)
+//        ScriptingService::Create(this);
+//#endif
+//#if defined(PLUGINS_ENABLE_MARSHALLING)
+//        MarshallingService::Create(this);
+//#endif
 
         // from ServiceProvider
         provides()->doc("The interface of this TaskContext.");
@@ -230,7 +230,8 @@ namespace RTT
 
     void TaskContext::addUser( TaskContext* peer )
     {
-        musers.push_back(peer);
+        if (peer)
+            musers.push_back(peer);
     }
 
     void TaskContext::removeUser( TaskContext* peer )
@@ -244,7 +245,7 @@ namespace RTT
         {
             if ( alias.empty() )
                 alias = peer->getName();
-            if ( _task_map.count( alias ) != 0 )
+            if ( !peer || _task_map.count( alias ) != 0 )
                 return false;
             _task_map[ alias ] = peer;
             peer->addUser( this );
@@ -397,8 +398,11 @@ namespace RTT
         this->getActivity()->trigger();
     }
 
-    void TaskContext::dataOnPortSize(unsigned int max) {
+    bool TaskContext::dataOnPortSize(unsigned int max) {
+        if ( isRunning() ) 
+            return false;
         updated_ports.reserve(max);
+        return true;
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {

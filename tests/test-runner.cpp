@@ -19,6 +19,7 @@
 #include <os/main.h>
 #include <Logger.hpp>
 #include <iostream>
+#include <cstdlib>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
@@ -32,7 +33,7 @@ using namespace std;
 struct InitOrocos {
 public:
 	InitOrocos(){  }
-	~InitOrocos(){ 
+	~InitOrocos(){
 	    // If we call __os_exit() in Xenomai, we get an ABORT
 	    // because the main task is cleaned up too early.
 	    // The work around for now is to stop all threads but
@@ -66,7 +67,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
         cout << "  --report level[=<no|confirm*|short|detailed>"<<endl;
         cout << "  --show_progress[=<yes|no*>        "<<endl<<endl;
         cout << "  --use_alt_stack[=<yes*|no>        "<<endl<<endl;
-        
+
         cout << "Select tests by using the form:"<<endl;
         cout << "  " << argv[0] << " --run_test=suite/testX"<<endl;
         cout << "Wildcards are accepted:"<<endl;
@@ -74,6 +75,8 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
         exit(0);
     }
 
+    // sets environment if not set by user.
+    setenv("RTT_COMPONENT_PATH","../rtt", 0);
 	__os_init(argc, argv);
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.

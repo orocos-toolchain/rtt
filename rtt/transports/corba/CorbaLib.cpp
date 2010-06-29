@@ -46,8 +46,8 @@
 #endif
 
 #include "CorbaTemplateProtocol.hpp"
-#include "../../plugin/TransportPlugin.hpp"
-#include "../../types/Toolkit.hpp"
+#include "../../types/TransportPlugin.hpp"
+#include "../../types/TypekitPlugin.hpp"
 #include "../../os/StartStopManager.hpp"
 
 using namespace std;
@@ -215,7 +215,7 @@ namespace RTT {
          */
         int loadCorbaLib()
         {
-            Toolkit::Import(CorbaLibPlugin);
+            TypekitRepository::Import(CorbaLibPlugin);
             // register fallback also.
             DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
             return 0;

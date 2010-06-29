@@ -194,7 +194,7 @@ namespace RTT
 
       virtual bool update( base::DataSourceBase* other );
 
-      virtual base::ActionInterface* updateCommand( base::DataSourceBase* other);
+      virtual base::ActionInterface* updateAction( base::DataSourceBase* other);
 
       virtual AssignableDataSource<T>* clone() const = 0;
 

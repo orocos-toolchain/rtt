@@ -76,6 +76,69 @@ namespace RTT
         ~DataFlowInterface();
 
         /**
+         * Add a Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * If a port or service with the name already exists, addPort
+         * will replace them with \a port and log a warning.
+         * @param port The port to add.
+         * @return \a port
+         */
+        base::PortInterface& addPort(base::PortInterface& port);
+
+        /**
+         * Add an Event triggering Port to the interface of this task and
+         * add a ServiceProvider with the same name of the port.
+         * When data arrives on this port your TaskContext will be woken up
+         * and updateHook will be executed.
+         * @param port The port to add.
+         * @param callback (Optional) provide a function which will be called
+         * when new data arrives on this port. The callback function will
+         * be called in sequence with updateHook(), so asynchronously with
+         * regard to the arrival of data on the port.
+         * @return \a port
+         * @note This function will temporarily stop your TaskContext and
+         * re-start it in case it was running.
+         */
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+
+        /**
+         * Remove a Port from this interface.
+         * This will remove all connections and callbacks
+         * assosiated with this port.
+         * @param port The port to remove.
+         */
+        void removePort(const std::string& name);
+
+        /**
+         * Get all ports of this interface.
+         * @return A sequence of pointers to ports.
+         */
+        Ports getPorts() const;
+
+        /**
+         * Get all port names of this interface.
+         * @return A sequence of strings containing the port names.
+         * @deprecated by getNames()
+         */
+        PortNames getPortNames() const;
+
+        /**
+         * Get an added port.
+         * @param name The port name
+         * @return a pointer to a port or null if it does not exist.
+         */
+        base::PortInterface* getPort(const std::string& name) const;
+
+        /**
+         * Get the description of an added Port.
+         *
+         * @param name The port name
+         *
+         * @return The description or "" if it does not exist.
+         */
+        std::string getPortDescription(const std::string& name) const;
+
+        /**
          * Returns the component this interface belongs to.
          */
         TaskContext* getParent();
@@ -104,82 +167,6 @@ namespace RTT
                 base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
-         * Add a Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
-         * If a port or service with the name already exists, addPort
-         * will replace them with \a port and log a warning.
-         * @param port The port to add.
-         * @return \a port
-         */
-        base::PortInterface& addPort(base::PortInterface& port);
-
-        /**
-         * Add an Event triggering Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
-         * When data arrives on this port your TaskContext will be woken up
-         * and updateHook will be executed.
-         * @param port The port to add.
-         * @param callback (Optional) provide a function which will be called
-         * when new data arrives on this port. The callback function will
-         * be called in sequence with updateHook(), so asynchronously with
-         * regard to the arrival of data on the port.
-         * @return \a port
-         */
-        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
-
-        /**
-         * Remove a Port from this interface.
-         * This will remove all connections and callbacks
-         * assosiated with this port.
-         * @param port The port to remove.
-         */
-        void removePort(const std::string& name);
-
-        /**
-         * Get all ports of this interface.
-         * @return A sequence of pointers to ports.
-         */
-        Ports getPorts() const;
-
-        /**
-         * Get all port names of this interface.
-         * @return A sequence of strings containing the port names.
-         * @deprecated by getNames()
-         */
-        PortNames getPortNames() const;
-
-        /**
-         * Get all port names of this interface.
-         * @return A sequence of strings containing the port names.
-         */
-        PortNames getNames() const;
-
-        /**
-         * Get an added port.
-         * @param name The port name
-         * @return a pointer to a port or null if it does not exist.
-         */
-        base::PortInterface* getPort(const std::string& name) const;
-
-        /**
-         * Get the description of an added Port.
-         *
-         * @param name The port name
-         *
-         * @return The description or "" if it does not exist.
-         */
-        std::string getPortDescription(const std::string& name) const;
-
-        /**
-         * Create a Task Object through which one can access a Port.
-         * This is required to access ports from the scripting interface.
-         * @param name The port name
-         * @deprecated Do not use this function. It is no longer required.,
-         * the objects are directly added to the parent TaskContext in \a addPort.
-         */
-        ServiceProvider* createPortObject(const std::string& name);
-
-        /**
          * Get a port of a specific type.
          */
         template< class Type>
@@ -202,6 +189,12 @@ namespace RTT
          */
         void cleanupHandles();
     protected:
+        /**
+         * Create a Service through which one can access a Port.
+         * @param name The port name
+         */
+        ServiceProvider* createPortObject(const std::string& name);
+
         /**
          * All our ports.
          */

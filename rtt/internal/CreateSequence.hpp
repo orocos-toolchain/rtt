@@ -48,7 +48,7 @@ namespace RTT
                       typename boost::is_convertible< T,::boost::shared_ptr<const void> > > type;
         };
 
-        /***
+        /**
          * Helper class for extracting the bare pointer from a shared_ptr
          * data source. Used in create_sequence::data() to unwrap the shared_ptr;
          */
@@ -60,6 +60,21 @@ namespace RTT
         template<class Seq, class Data>
         struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
             Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
+        }; // shared_ptr type
+
+        /**
+         * Helper class for avoiding assigning a bare pointer to a shared_ptr
+         * data source. Used in create_sequence::set() to ignore the shared_ptr;
+         */
+        template<class Seq, class Data, class Enable = void >
+        struct AssignHelper {
+            static void set( Seq seq, Data in) { bf::front(seq)->set( bf::front(in) );
+}
+        }; // normal type
+
+        template<class Seq, class Data>
+        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
+            static void set(Seq , Data ) {} // nop
         }; // shared_ptr type
 
         /**
@@ -245,7 +260,8 @@ namespace RTT
              * @param seq The receiving assignable data sources.
              */
             static void set(const data_type& in, const assign_type& seq) {
-
+                AssignHelper<assign_type, data_type>::set(seq, in);
+                return tail::set( bf::pop_front(in), bf::pop_front(seq) );
             }
 
             /**
@@ -366,7 +382,7 @@ namespace RTT
             }
 
             static void set(const data_type& in, const assign_type& seq) {
-
+                AssignHelper<assign_type, data_type>::set(seq, in);
             }
 
             /**

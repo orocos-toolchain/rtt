@@ -19,25 +19,9 @@ namespace io = boost::iostreams;
 class MQueueArchiveTest
 {
 public:
-    MQueueArchiveTest() { this->setUp(); }
-    ~MQueueArchiveTest() { this->tearDown(); }
-
-    void setUp();
-    void tearDown();
+    MQueueArchiveTest() { }
+    ~MQueueArchiveTest() { }
 };
-
-
-
-void
-MQueueArchiveTest::setUp()
-{
-}
-
-
-void
-MQueueArchiveTest::tearDown()
-{
-}
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  MQueueArchiveTestSuite,  MQueueArchiveTest )
@@ -60,7 +44,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     out << d; // +0 alloc
     out << c; // +0 alloc
 
-    int stored = out.getArchiveSize();
+    unsigned int stored = out.getArchiveSize();
     BOOST_CHECK( stored > 10*sizeof(double) );
     rtos_disable_rt_warning();
 
@@ -79,6 +63,36 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     for(int i=0; i != 10; ++i) {
         BOOST_CHECK_CLOSE( c[i], 9.99, 0.01);
     }
+    BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
+    rtos_disable_rt_warning();
+}
+
+/**
+ * For serializing C-Style arrays, we need to use the make_array
+ * or array<T> helper functions (aka 'wrappers') from boost::serialization.
+ */
+BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
+{
+    char sink[1000];
+    memset( sink, 0, 1000);
+    char c[10] = "123456789";
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_sink>  outbuf(sink,1000);
+    binary_data_oarchive out( outbuf ); // +0 alloc
+    out << make_array(c, 10); // +0 alloc
+
+    unsigned int stored = out.getArchiveSize();
+    BOOST_CHECK( stored >= 10*sizeof(char) );
+    rtos_disable_rt_warning();
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_source>  inbuf(sink,1000);
+    binary_data_iarchive in( inbuf ); // +0 alloc
+    array<char> ma = make_array(c, 10);
+    in >> ma; // +0 alloc
+
+    BOOST_CHECK_EQUAL(c, "123456789");
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
     rtos_disable_rt_warning();
 }

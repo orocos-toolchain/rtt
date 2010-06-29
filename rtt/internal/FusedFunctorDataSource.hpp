@@ -2,13 +2,13 @@
 #define ORO_FUSEDFUNCTORDATASOURCE_HPP_
 
 #include "DataSource.hpp"
-#include "../base/MethodBase.hpp"
 #include "CreateSequence.hpp"
+#include "../SendStatus.hpp"
 #include "BindStorage.hpp"
-#include "UnMember.hpp"
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function.hpp>
+#include <boost/function_types/function_type.hpp>
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/invoke_procedure.hpp>
 
@@ -85,6 +85,22 @@ namespace RTT
                   return new FusedFunctorDataSource<Signature> (ff, SequenceFactory::copy(args, alreadyCloned));
               }
           };
+
+        /**
+         * Creates a data source that returns the result of a given function.
+         * Use GenerateDataSource to create the arguments args from given data sources.
+         * @param f The function to embed in a data source. The return type of this function
+         * will be the return type of the created data source.
+         * @param args The arguments given to the function \a f
+         * @return A new data source.
+         */
+        template<class Function>
+        base::DataSourceBase* newFunctorDataSource(Function f, const std::vector<base::DataSourceBase::shared_ptr>& args)
+        {
+            typedef typename boost::function_types::function_type<Function>::type Signature;
+            typedef internal::create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            return new FusedFunctorDataSource<Signature>(f, SequenceFactory()(args));
+        }
 
         /**
          * A DataSource that calls a method which gets its arguments from other

@@ -41,9 +41,9 @@ extern "C"
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
 
-    const TICK_TIME InfiniteTicks = LLONG_MAX;
-    const NANO_TIME InfiniteNSecs = LLONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
+    static const TICK_TIME InfiniteTicks = LLONG_MAX;
+    static const NANO_TIME InfiniteNSecs = LLONG_MAX;
+    static const double    InfiniteSeconds = DBL_MAX;
 
     typedef struct {
         pthread_t thread;
@@ -72,7 +72,7 @@ extern "C"
 
     /* fake clock_gettime for systems like darwin */
     #define  CLOCK_REALTIME 0
-    inline int clock_gettime(int clk_id /*ignored*/, struct timespec *tp)
+    static inline int clock_gettime(int clk_id /*ignored*/, struct timespec *tp)
     {
         struct timeval now;
         int rv = gettimeofday(&now, NULL);
@@ -87,7 +87,7 @@ extern "C"
     }
 
     // high-resolution time to timespec
-    inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+    static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
     {
         TIME_SPEC timevl;
         timevl.tv_sec = hrt / 1000000000LL;
@@ -95,7 +95,7 @@ extern "C"
         return timevl;
     }
 
-    inline NANO_TIME rtos_get_time_ns( void )
+    static inline NANO_TIME rtos_get_time_ns( void )
     {
         TIME_SPEC tv;
         clock_gettime(CLOCK_REALTIME, &tv);
@@ -111,23 +111,23 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-    inline NANO_TIME rtos_get_time_ticks()
+    static inline NANO_TIME rtos_get_time_ticks()
     {
         return rtos_get_time_ns();
     }
 
-    inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
+    static inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
         //    return usleep(rqtp->tv_nsec/1000L);
         return nanosleep( rqtp, rmtp );
     }
 
-    inline long long nano2ticks( long long nano )
+    static inline long long nano2ticks( long long nano )
     {
         return nano;
     }
 
-    inline long long ticks2nano( long long count )
+    static inline long long ticks2nano( long long count )
     {
         return count;
     }
@@ -179,20 +179,29 @@ extern "C"
         TIME_SPEC arg_time = ticks2timespec( abs_time );
         clock_gettime(CLOCK_REALTIME, &timevl);
 
+        /// \todo avoid race condition where arg_time < now
+
         // calculate delay from abs_time
         delayvl.tv_sec = arg_time.tv_sec - timevl.tv_sec;
         delayvl.tv_nsec = arg_time.tv_nsec - timevl.tv_nsec;
-        if ( delayvl.tv_nsec >= 1000000000) { // tv_nsec is unsigned
-                                              // int !!
-            --timevl.tv_sec;
-            timevl.tv_nsec += 1000000000;
+		// tv_nsec is signed long in 10.6 (see sys/_structs.h)
+        if ( delayvl.tv_nsec >= 1000000000) {
+            ++delayvl.tv_sec;
+            delayvl.tv_nsec -= 1000000000;
+        }
+        if ( delayvl.tv_nsec < 0) {
+            --delayvl.tv_sec;
+            delayvl.tv_nsec += 1000000000;
         }
 
+        assert( 0 <= delayvl.tv_sec);
+        assert( 0 <= delayvl.tv_nsec);
         assert( delayvl.tv_nsec < 1000000000 );
-        // What if delayvl.tv_sec is < 0 (is unsigned int)
 
         mach_timespec_t mach_delayvl = { delayvl.tv_sec, delayvl.tv_nsec };
-        return semaphore_timedwait( *m, mach_delayvl);
+        int rc = semaphore_timedwait( *m, mach_delayvl);
+        // map to return values from gnulinux, and expected by the calling layer
+        return (KERN_OPERATION_TIMED_OUT == rc ? -1 : 0);
     }
 
     // semaphore_value is not supported on darwin

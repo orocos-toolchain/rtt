@@ -39,12 +39,16 @@
 
 #include "MarshallingService.hpp"
 #include "../TaskContext.hpp"
+#include "../plugin/ServicePlugin.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED)
 #include "../Method.hpp"
 #endif
 #include "PropertyLoader.hpp"
+
+//ORO_SERVICE_PLUGIN( RTT::marsh::MarshallingService )
+ORO_SERVICE_NAMED_PLUGIN(RTT::marsh::MarshallingService, "marshalling")
 
 namespace RTT {
     using namespace detail;

@@ -66,6 +66,7 @@ namespace RTT
 
     template<class T>
     DataSource<T>* DataSource<T>::narrow(base::DataSourceBase* dsb) {
+        if (!dsb) return 0;
         // first try conventional C++ style cast.
         DataSource<T>* ret = dynamic_cast< DataSource<T>* >( dsb );
         if (ret) return ret;
@@ -87,6 +88,7 @@ namespace RTT
 
     template<class T>
     AssignableDataSource<T>* AssignableDataSource<T>::narrow(base::DataSourceBase* dsb) {
+        if (!dsb) return 0;
         // first try conventional C++ style cast.
         AssignableDataSource<T>* ret = dynamic_cast< AssignableDataSource<T>* >( dsb );
         if (ret) return ret;
@@ -106,6 +108,8 @@ namespace RTT
 
     template<class T>
     bool AssignableDataSource<T>::update( base::DataSourceBase* other ) {
+        if (!other) return false;
+
         base::DataSourceBase::shared_ptr r( other );
         typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if (o) {
@@ -119,7 +123,13 @@ namespace RTT
     }
 
     template<class T>
-    base::ActionInterface* AssignableDataSource<T>::updateCommand( base::DataSourceBase* other) {
+    base::ActionInterface* AssignableDataSource<T>::updateAction( base::DataSourceBase* other) {
+#ifndef ORO_EMBEDDED
+        if (!other) throw bad_assignment();
+#else
+        if (!other) return 0;
+#endif
+
         // Use the same rules of parameter passing as C++, but no const for 'int',...
         base::DataSourceBase::shared_ptr r( other );
         typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );

@@ -72,14 +72,12 @@ namespace RTT
 
     ValueChangeParser::ValueChangeParser( TaskContext* pc, CommonParser& cp, ServiceProvider::shared_ptr storage, TaskContext* caller )
         : type( 0 ), context( pc ), mstore( storage ? storage : pc->provides() ),
-          expressionparser( pc, caller, cp ), peerparser( pc, cp ), propparser(cp), commonparser(cp), sizehint(-1),
+          expressionparser( pc, caller, cp ), commonparser(cp), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
     {
         BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
         BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
         BOOST_SPIRIT_DEBUG_RULE( variabledefinition );
-        BOOST_SPIRIT_DEBUG_RULE( variableassignment );
-        BOOST_SPIRIT_DEBUG_RULE( variablechange );
         BOOST_SPIRIT_DEBUG_RULE( paramdefinition );
         BOOST_SPIRIT_DEBUG_RULE( baredefinition );
         BOOST_SPIRIT_DEBUG_RULE( constdecl );
@@ -94,8 +92,7 @@ namespace RTT
 
         valuechange_parsers =  constantdefinition
             | variabledefinition
-            | aliasdefinition
-            | variableassignment;
+            | aliasdefinition;
 
         constantdefinition =
             lexeme_d[str_p("const ")]
@@ -120,24 +117,6 @@ namespace RTT
                 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ]
                 >> *(ch_p(',') >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
-
-        variableassignment =
-              lexeme_d[str_p("set ")] >> expect_change(variablechange);
-            //eps_p(commonparser.keyword) >> str_p("set") >> expect_change(variablechange);
-
-        /**
-         * One of the most important parsers in the ValueChangeParser. Variable assignment
-         * syntax is defined here, what can be on the left side of the = sign :
-         */
-        variablechange =
-            ( peerparser.locator()[ bind( &ValueChangeParser::storepeername, this) ] // traverse peers
-              >> propparser.locator()[ bind( &ValueChangeParser::seenproperty, this)] // traverse propertybags
-              // notasserting will just 'fail' to parse.
-              >> commonparser.notassertingidentifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] // final variable after last '.'
-              >> !( '[' >> expect_index( expressionparser.parser() ) >>  ch_p(']')
-                    [ bind( &ValueChangeParser::seenindexassignment, this) ]) // subindex final variable
-              >> ch_p( '=' ) >> eps_p(~ch_p( '=' )) // prevent parsing first '=' of "=="
-              >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
         paramdefinition =
             "param"
@@ -272,24 +251,6 @@ namespace RTT
         alldefinednames.push_back( valuename );
     }
 
-    void ValueChangeParser::seenproperty() {
-        //nop, ask propparser lateron. propparser is reset by this->reset()
-    }
-
-    void ValueChangeParser::storename( iter_t begin, iter_t end ) {
-        valuename = std::string( begin, end );
-    }
-
-    void ValueChangeParser::storepeername()
-    {
-        //cerr << "seen peer " << peerparser.peer()->getName()<<endl;
-        //peername  = peerparser.peer();
-        // the peerparser.object() should contain "this"
-        //peerparser.reset();
-        // reset the Property parser to traverse this peers bag :
-        propparser.setPropertyBag( peerparser.peer()->provides()->properties() ); // may be null. ok.
-    }
-
     void ValueChangeParser::seenvariabledefinition()
     {
         // build type.
@@ -309,9 +270,8 @@ namespace RTT
             DataSourceBase::shared_ptr expr = expressionparser.getResult();
             expressionparser.dropResult();
             //assert( !expressionparser.hasResult() );
-#ifndef ORO_EMBEDDED
             try {
-                ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+                ActionInterface* ac = var->getDataSource()->updateAction( expr.get() );
                 assert(ac);
                 assigncommands.push_back( ac );
             }
@@ -320,148 +280,7 @@ namespace RTT
                 throw parse_exception_semantic_error
                     ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
-#else
-            ActionInterface* ac = var->getDataSource()->updateCommand( expr.get() );
-            if (ac)
-                assigncommands.push_back( ac );
-            else {
-                this->cleanup();
-                return;
-            }
-#endif
         }
-    }
-
-    void ValueChangeParser::seenvariableassignment()
-    {
-        AttributeBase* var = 0;
-        PropertyBase*     prop = 0;
-
-        ServiceProvider::shared_ptr peername = peerparser.taskObject();
-        peerparser.reset();
-
-        // if bag is non-null, 'valuename' must be one of its properties :
-        if ( propparser.bag() && propparser.property() ) {
-            // propparser.property() is the Property<PropertyBag> of a nested bag() :
-            // valuename is the element of this bag.
-            // we need to use Property assignment commands instead of
-            // taskattributebase assignment commands lateron.
-            prop = propparser.bag()->find( valuename );
-            if ( prop == 0 )
-                throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of ServiceProvider '"+peername->getName()+"'." );
-
-            propparser.reset();
-        } else {
-            // first check if it is a property :
-            if ( peername->hasProperty( valuename ) ) {
-                prop =  peername->properties()->find( valuename );
-            } else {
-                // not a property case :
-                var = peername->getValue( valuename );
-                // SIDENOTE: now, we must be sure that if this program gets copied,
-                // the DS still points to the peer's attribute, and not to a new copy. Attribute and Properties
-                // takes care of this by definition, but the variable of a loaded StateMachine or program
-                // must first get an instantiation-copy() before they become uncopyable.
-                if ( !var ) {
-                    var = GlobalsRepository::Instance()->getValue( valuename );
-                    if (!var) {
-                        //DumpObject( context );
-                        throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
-                    }
-                }
-            }
-        }
-
-        // collect RHS :
-        DataSourceBase::shared_ptr expr = expressionparser.getResult();
-        shared_ptr<AttributeBase> handle = expressionparser.getHandle();
-        assert( expr );
-        expressionparser.dropResult();
-
-        //assert( !expressionparser.hasResult() );
-
-        if ( index_ds && prop ) {
-            //           throw parse_exception_semantic_error(
-            //               "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
-            ActionInterface* ac;
-            try {
-                ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
-            }
-            catch( const bad_assignment& e) {
-                // type-error :
-                throw parse_exception_semantic_error(
-                                                     "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
-            }
-            // not allowed :
-            if ( !ac )
-                throw parse_exception_semantic_error(
-                                                     "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
-            assigncommands.push_back( ac );
-        }
-
-        if ( index_ds && var ) {
-            ActionInterface* ac;
-            try {
-                ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
-                assigncommands.push_back( ac );
-            }
-            catch( const bad_assignment& e) {
-                // type-error :
-                throw parse_exception_semantic_error(
-                                                     "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
-            }
-            // not allowed :
-            if ( !ac )
-                throw parse_exception_semantic_error(
-                                                     "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
-        }
-        if ( !index_ds && var) {
-            // hack to drop-in a new instance of SendHandle:
-            if (var->getDataSource()->getTypeName() == "SendHandle" && handle) {
-                string name = var->getName();
-                peername->removeAttribute(name);
-                var = handle->clone();
-                var->setName( name ); // fill in the final handle name.
-                peername->setValue( var );
-            }
-            try {
-                ActionInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
-                assigncommands.push_back(assigncommand);
-                // if null, not allowed.
-                if ( ! assigncommand )
-                    throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in ServiceProvider "+ peername->getName()+"." );
-            }
-            catch( const bad_assignment& e )
-                {
-                    // type-error :
-                    throw parse_exception_semantic_error
-                        ( "Attempt to assign variable of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
-                }
-        }
-        if ( !index_ds && prop) {
-            try {
-                ActionInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
-                if ( ! assigncommand ) {
-                    throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
-                }
-                assigncommands.push_back(assigncommand);
-            }
-            catch( bad_assignment& ) {
-                throw parse_exception_semantic_error
-                    ( "Attempt to assign property of type "+prop->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
-            }
-        }
-
-        // allow to restart over...
-        index_ds = 0;
-    }
-
-    void ValueChangeParser::seenindexassignment()
-    {
-        index_ds = expressionparser.getResult();
-        expressionparser.dropResult();
-        assert(index_ds);
-        //assert( !expressionparser.hasResult() );
     }
 
     void ValueChangeParser::store(ServiceProvider::shared_ptr o)
@@ -498,10 +317,7 @@ namespace RTT
         this->clear();
         valuename = "";
         type = 0;
-        index_ds = 0;
         sizehint = -1;
-        peerparser.reset();
-        propparser.reset();
     }
 
     rule_t& ValueChangeParser::parser()
@@ -522,16 +338,6 @@ namespace RTT
     rule_t& ValueChangeParser::variableDefinitionParser()
     {
         return variabledefinition;
-    }
-
-    rule_t& ValueChangeParser::variableAssignmentParser()
-    {
-        return variableassignment;
-    }
-
-    rule_t& ValueChangeParser::variableChangeParser()
-    {
-        return variablechange;
     }
 
     rule_t& ValueChangeParser::paramDefinitionParser()

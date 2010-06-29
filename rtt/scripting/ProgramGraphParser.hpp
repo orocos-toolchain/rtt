@@ -171,6 +171,7 @@ namespace RTT { namespace scripting
 
       void seenforstatement();
       void seenforinit();
+      void seenforinit_expr();
       void seenforincr();
       void endforstatement();
 

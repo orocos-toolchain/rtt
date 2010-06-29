@@ -43,7 +43,6 @@
 #include "PropertyBag.hpp"
 #include "internal/PropertyCommands.hpp"
 #include "internal/DataSources.hpp"
-#include "types/BuildType.hpp"
 #include <boost/type_traits.hpp>
 
 #include <string>
@@ -105,7 +104,7 @@ namespace RTT
          * @post ready() will always be true.
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
+            : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
         {
         }
 
@@ -124,7 +123,7 @@ namespace RTT
          */
         template<class Owner>
         Property(const std::string& name, const std::string& description, param_t value, Owner o)
-            : base::PropertyBase(name, description), _value( types::BuildType<value_t>::Value( value ) )
+            : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
         {
             o->addProperty(this);
         }
@@ -200,7 +199,7 @@ namespace RTT
                 if (vptr)
                     _value = vptr;
                 else
-                    _value = types::BuildType<value_t>::Value() ;
+                    _value = new internal::ValueDataSource<value_t>() ;
             } else {
                 this->setName( "" );
                 this->setDescription( "" );
@@ -310,7 +309,7 @@ namespace RTT
             return false;
         }
 
-        virtual base::ActionInterface* updateCommand( const base::PropertyBase* other)
+        virtual base::ActionInterface* updateAction( const base::PropertyBase* other)
         {
             // try to update from identical type or from const_reference_t.
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
@@ -334,7 +333,7 @@ namespace RTT
                 return 0;
             // refresh is just an update of the datasource.
             base::DataSourceBase::shared_ptr sourcebase = other->getDataSource();
-            return _value->updateCommand( sourcebase.get() );
+            return _value->updateAction( sourcebase.get() );
         }
 
         virtual bool copy( const base::PropertyBase* other )

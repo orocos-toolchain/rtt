@@ -37,6 +37,7 @@
 
 
 #include "PropertyIntrospection.hpp"
+#include "../types/PropertyDecomposition.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -44,7 +45,7 @@ namespace RTT {
     void PropertyIntrospection::introspect_T(PropertyBase* v)
     {
         Property<PropertyBag> res(v->getName(), v->getDescription() );
-        if ( v->getTypeInfo()->decomposeType( v->getDataSource(), res.value() ) ) {
+        if ( types::propertyDecomposition(v, res.value() ) ) {
             this->introspect( res );
             deletePropertyBag( res.value() );
         }else

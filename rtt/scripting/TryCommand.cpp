@@ -56,7 +56,15 @@ namespace RTT
         bool TryCommand::execute() {
             //Logger::In in("TryCommand");
             //Logger::log() <<Logger::RealTime << "execute()"<<Logger::endl;
-            _result->set( c->execute() );
+            if (_result->get() == false) // has thrown in readArguments
+                return false;
+            try {
+                c->execute();
+            } catch( ... ) {
+                _result->set( false );
+                return true;
+            }
+            _result->set( true );
             return true;
         }
         void TryCommand::reset() {
@@ -64,15 +72,21 @@ namespace RTT
             _result->set(true);
         }
 
-    bool TryCommand::valid() const {
-        // ok to check conditions if command is valid or it failed.
-        // we assume here that c behaves as a DispatchAction:
+        bool TryCommand::valid() const {
+            // ok to check conditions if command is valid or it failed.
+            // we assume here that c behaves as a DispatchAction:
 
-        return _result->get() == false || c->valid();
-    }
+            return _result->get() == false || c->valid();
+        }
 
         void TryCommand::readArguments() {
-            c->readArguments();
+            try {
+                c->readArguments();
+            } catch( ... ) {
+                _result->set( false );
+                return;
+            }
+            _result->set( true );
         }
 
         ActionInterface* TryCommand::theCommand() const {

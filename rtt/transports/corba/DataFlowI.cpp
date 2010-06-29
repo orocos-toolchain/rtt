@@ -331,8 +331,8 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ConnPolicy policy2 = toRTT(corba_policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
-    CRemoteChannelElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+    CRemoteChannelElement_i* this_element = 
+        transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
 
     /*
      * This part is for out-of band (needs to be factored out).
@@ -372,10 +372,13 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         }
     }
 
+    this_element->_remove_ref();
+
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
     channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), end->getOutputEndPoint()));
 
-    return RTT::corba::CChannelElement::_duplicate(this_element->_this());
+    CRemoteChannelElement_var proxy = this_element->_this();
+    return proxy._retn();
 }
 
 /**

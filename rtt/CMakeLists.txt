@@ -22,9 +22,21 @@ if (ORO_OS_USE_BOOST_THREAD)
   if (NOT Boost_THREAD_FOUND)
     message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
   endif()
-  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
-  # add to list of libraries in pkgconfig file: boost headers end up in user code
-  list(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
+
+  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
+  # with that in pkgconfig, we take 1) the library for this build type, or
+  # 2) the library if only one is listed, or 3) we error out. 
+  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
+  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
+	if (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	  MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
+	endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} )
+  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+
 endif()
 
 SET(OS_MAX_CONC_ACCESS 8 CACHE STRING  "The maximum number of threads that will access a lock-free resource at exactly the same time. The Default (8) is very conservative. Your application may have more threads than this number.")
@@ -78,8 +90,11 @@ ENDIF (OROPKG_EXECUTION_ADVANCED)
 ### Marshalling
 OPTION(PLUGINS_ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
 
-### Marshalling
+### Scripting
 OPTION(PLUGINS_ENABLE_SCRIPTING "Enable loading Orocos program scripts." ON)
+
+### RTT-Typekit
+OPTION(PLUGINS_ENABLE_TYPEKIT "Enable default RTT typekit plugin." ON)
 
 ### TaskContext & Activities
 OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
@@ -144,6 +159,7 @@ ADD_SUBDIRECTORY( interface )
 ADD_SUBDIRECTORY( base )
 ADD_SUBDIRECTORY( internal )
 ADD_SUBDIRECTORY( types )
+ADD_SUBDIRECTORY( typekit )
 ADD_SUBDIRECTORY( transports/corba )
 ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )

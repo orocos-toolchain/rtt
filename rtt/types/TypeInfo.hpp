@@ -85,6 +85,12 @@ namespace RTT
         virtual base::AttributeBase* buildVariable(std::string name) const = 0;
 
         /**
+         * Tries to resize a data source in case it's a resizable sequence.
+         * @return true if the resizing could be done, false otherwise.
+         */
+        virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const;
+
+        /**
          * Constructor syntax: construct a internal::DataSource which returns an instance of data
          * depending on the given arguments.  When \a args is empty, the default 'variable'
          * is returned.
@@ -97,6 +103,14 @@ namespace RTT
          * returns arg again, otherwise, a new data source.
          */
         virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
+
+        /**
+         * Returns an assignable data source that uses arg as a store. This can only be done if
+         * arg is an assignable data source itself or is a data source that returns a reference in get().
+         * @return a new assignable data source, or \a arg if arg is assignable, or \a null if arg could
+         * not be used for assignment.
+         */
+        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const = 0;
 
         /**
          * Add a constructor/convertor object.
@@ -131,6 +145,8 @@ namespace RTT
 
         /**
          * Returns a DataSource that first executes an action and returns the result of another data source.
+         * If \a source is an AssignableDataSource, an AssignableDataSource is returned of the same type, otherwise,
+         * a plain DataSource is returned.
          */
         virtual base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr source) const = 0;
         /** @} */
@@ -168,17 +184,45 @@ namespace RTT
          * Used to write a complex type to an external representation, like XML.
          * @{
          */
-        /**
-         * Decompose a structure as basic components into a PropertyBag.
-         * @retval true decomposition resulted in new types added to targetbag.
-         * @retval false nothing was added to targetbag.
-         */
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
 
         /**
-         * Compose a structure from a base::DataSourceBase containing its basic components.
-         * The default behavior tries to assign \a source to \a target. If this does
-         * not work, because source and target have different type, this function returns false.
+         * Returns the list of part names of this type.
+         */
+        virtual std::vector<std::string> getPartNames() const;
+
+        /**
+         * Returns a part of a given item identified by its name.
+         * @param item The item of which to return a part
+         * @param name The name of a part within \a item
+         * @return null if no such part exists, an assignable datasource referencing that part otherwise.
+         */
+        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const;
+
+        /**
+         * Returns a part of a given item identified by a data source id.
+         * @param item The item of which to return a part
+         * @param name Or a string containing the name of a part, Or an unsigned int containing the
+         * index of the item to retrieve.
+         */
+        virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
+                                                         base::DataSourceBase::shared_ptr id) const;
+
+        /**
+         * Compose a type from a DataSourceBase containing its basic parts.
+         * The default behavior tries to assign \a source to \a target. If that fails,
+         * it tries to decompose \a target into its parts and update \a target with the contents of source.
+         *
+         * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
+         * multiple versions/possibilities to make a \a target from a \a source. For example, in
+         * order to support legacy formats.
+         *
+         * @param source A data source of the same type as \a target OR a PropertyBag that contains the parts of \a target
+         * to be refreshed.
+         * @param target A data source of the same type as this TypeInfo object which contains the data to be updated from \a source.
+         * @return true if source could be updated, false otherwise.
+         *
+         * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
+         * datasources and hierarchical properties.
          */
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
         /**

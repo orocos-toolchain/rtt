@@ -9,13 +9,14 @@ namespace RTT {
         class ConnID;
         class ConnectionBase;
         class ConnectionManager;
+        class DataSourceCommand;
         class DispatchAction;
         class GlobalEngine;
         class MethodC;
+        class OffsetDataSource;
+        class SendHandleC;
         class SignalBase;
         class SimpleConnID;
-        struct EventCallBack;
-        struct EventHookBase;
         struct GenerateDataSource;
         struct IntrusiveStorage;
         struct LocalConnID;
@@ -57,6 +58,8 @@ namespace RTT {
         struct Collect;
         template<class F, class BaseImpl>
         struct Invoker;
+        template<class F, class BaseImpl>
+        struct Return;
         template<class F,class Class>
         class AddMember;
         template<class F>
@@ -73,12 +76,18 @@ namespace RTT {
         struct InvokerBase;
         template<class F>
         struct MethodBinder;
+        template<class F>
+        struct ReturnBase;
         template<class From, class To>
         struct AssignableDataSourceAdaptor;
         template<class From, class To>
         struct DataSourceAdaptor;
         template<class FunctionT>
         class LocalMethodImpl;
+        template<class FunctionT>
+        struct GetSignature;
+        template<class FunctionT>
+        struct GetSignatureDS;
         template<class FunctionT>
         struct LocalMethod;
         template<class MethodT>
@@ -108,6 +117,8 @@ namespace RTT {
         template<class T>
         struct AStore;
         template<class T>
+        struct DSRStore;
+        template<class T>
         struct NA;
         template<class T>
         struct RStore;
@@ -129,20 +140,20 @@ namespace RTT {
         struct FusedMCollectDataSource;
         template<typename Signature>
         struct FusedMSendDataSource;
+        template<typename Signature>
+        struct FusedMSignal;
         template<typename SignatureT, typename FunctorT>
         class CommandFunctor;
         template<typename SignatureT, typename FunctorT>
         class ConditionFunctor;
-        template<typename T, typename APred, typename S>
-        class AssignContainerCommand;
-        template<typename T, typename Index, typename SetType, typename IPred, typename APred>
-        class IndexedValueDataSource;
-        template<typename T, typename Index, typename SetType, typename Pred>
-        class AssignIndexCommand;
         template<typename T, typename S>
         class AssignCommand;
         template<typename T>
+        class ActionAliasAssignableDataSource;
+        template<typename T>
         class ActionAliasDataSource;
+        template<typename T>
+        class ArrayPartDataSource;
         template<typename T>
         class AssignableDataSource;
         template<typename T>
@@ -162,6 +173,10 @@ namespace RTT {
         template<typename T>
         class InputPortSource;
         template<typename T>
+        class OffsetPartDataSource;
+        template<typename T>
+        class PartDataSource;
+        template<typename T>
         class ReferenceDataSource;
         template<typename T>
         class ValueDataSource;
@@ -169,8 +184,6 @@ namespace RTT {
         class BinaryDataSource;
         template<typename function>
         class NArityDataSource;
-        template<typename function>
-        class SixaryDataSource;
         template<typename function>
         class TernaryDataSource;
     }

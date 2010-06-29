@@ -47,8 +47,11 @@
 #include <ostream>
 #include "../internal/FusedFunctorDataSource.hpp"
 #include "../internal/CreateSequence.hpp"
+#include "PropertyDecomposition.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include "../rtt-config.h"
 
@@ -238,7 +241,11 @@ namespace RTT
 
         base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
         {
-            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            typename internal::AssignableDataSource<T>::shared_ptr ads = internal::AdaptAssignableDataSource<T>()( in ); // no type conversion is done.
+            if ( ads )
+                return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
+
+            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( in ); // no type conversion is done.
             if ( ! ds )
                 return 0;
             return new internal::ActionAliasDataSource<T>(action, ds.get());
@@ -264,6 +271,11 @@ namespace RTT
             return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
         }
 
+        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
+            log(Debug) << "Trying to make " << arg->getType() <<" assignable to "<< tname <<"..."<<endlog();
+            return internal::AdaptAssignableDataSource<T>()(arg);
+        }
+
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = internal::AdaptDataSource<T>()( in );
             if ( d && use_ostream )
@@ -287,23 +299,6 @@ namespace RTT
             return os;
         }
 
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
-            // Extract typed values
-            typename internal::DataSource<PropertyType>::shared_ptr ds = internal::AdaptDataSource<PropertyType>()( source.get() );
-            if ( !ds )
-                return false; // happens in the case of 'unknown type'
-            // Try user's function.
-            return decomposeTypeImpl( ds->get(), targetbag );
-        }
-
-        /**
-         * User, implement this function. Add the structural elements of source to targetbag.
-         */
-        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
-            log(Info) << "Decomposition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
-            return false;
-        }
-
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
             // First, try a plain update.
             if ( result->update( source.get() ) )
@@ -317,6 +312,7 @@ namespace RTT
             if ( !ads )
                 return false;
 
+            // last fall-back: use user supplied function:
             if ( composeTypeImpl( pb->value(), ads->set() ) )
                 ads->updated();
             else {
@@ -328,11 +324,14 @@ namespace RTT
         }
 
         /**
-         * User, implement this function. Extract the structural elements in source to result.
+         * TemplateTypeInfo provides a default, good for most types implementation.
          */
         virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
-            log(Info) << "Composition of type " << internal::DataSourceTypeInfo<T>::getType() <<" not implemented." <<endlog();
-            return false;
+            // The default implementation decomposes result and refreshes it with source.
+            internal::ReferenceDataSource<T> rds(result);
+            rds.ref(); // prevent dealloc.
+            PropertyBag decomp;
+            return typeDecomposition( &rds, decomp) && refreshProperties(decomp, source);
         }
 
 		std::string getTypeIdName() const { return typeid(T).name(); }
@@ -356,214 +355,7 @@ namespace RTT
             return internal::ConnFactory::buildChannelInput(
                     static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
         }
-
-
     };
-
-    template< class T>
-    struct AlwaysAssignChecker
-        : public std::binary_function<T, T, bool>
-    {
-        bool operator()(const T&, const T& ) const
-        {
-            return true;
-        }
-    };
-
-    template< class T>
-    struct SizeAssignChecker
-        : public std::binary_function<T, T, bool>
-    {
-        bool operator()(const T& v1, const T& v2) const
-        {
-            // v2 may be assigned to v1 if it has sufficient capacity.
-            return v1.capacity() >= v2.size();
-        }
-    };
-
-    // check the validity of an index
-    template< class T>
-    struct ArrayIndexChecker
-        : public std::binary_function< T, int, bool>
-    {
-        bool operator()(const T& v, int i ) const
-        {
-            return i > -1 && i < (int)(v.size());
-        }
-    };
-
-#if 0
-  // check the validity of an index
-    template< class T>
-    struct MultiVectorIndexChecker
-        : public std::binary_function< T, int, bool>
-    {
-        bool operator()(const T& v, int i ) const
-        {
-            return i > -1 && i < T::size;
-        }
-    };
-#endif
-
-  // check the validity of a fixed range index
-    template< class T, int Range>
-    struct RangeIndexChecker
-        : public std::binary_function< T, int, bool>
-    {
-        bool operator()(const T& v, int i ) const
-        {
-            return i > -1 && i < Range;
-        }
-    };
-
-    /**
-     * Template for containers.
-     */
-    template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>
-    class TemplateContainerTypeInfo
-        : public TemplateTypeInfo<T,has_ostream>
-    {
-        typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type _T;
-    public:
-        using TemplateTypeInfo<T,has_ostream>::buildConstant;
-        using TemplateTypeInfo<T,has_ostream>::buildVariable;
-
-        TemplateContainerTypeInfo(std::string name)
-            : TemplateTypeInfo<T, has_ostream>(name) {}
-
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
-        }
-
-        base::DataSourceBase::shared_ptr buildValue() const
-        {
-            return new internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
-        }
-
-        base::AttributeBase* buildVariable(std::string name,int size) const
-        {
-            // if a sizehint is given, create a TaskIndexContainerVariable instead,
-            // which checks capacities.
-            _T t_init(size, SetType());
-
-            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, APred> >( t_init ) );
-        }
-    };
-
-    /**
-     * Template for indexable types.
-     */
-    template<typename T, typename IndexType, typename SetType, typename IPred, typename APred, bool has_ostream>
-    class TemplateIndexTypeInfo
-        : public TemplateTypeInfo<T,has_ostream>
-    {
-        typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type _T;
-    public:
-        using TemplateTypeInfo<T,has_ostream>::buildConstant;
-        using TemplateTypeInfo<T,has_ostream>::buildVariable;
-
-        TemplateIndexTypeInfo(std::string name)
-            : TemplateTypeInfo<T, has_ostream>(name) {}
-
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( name, new internal::UnboundDataSource<internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
-        }
-
-        base::DataSourceBase::shared_ptr buildValue() const
-        {
-            Logger::log() <<Logger::Debug << "Building Indexable value of "<< this->getTypeName()<<Logger::endl;
-            return new internal::IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
-        }
-
-    };
-
-        /**
-         * The constructor classes allow to define type constructors
-         * or type conversions (convert type B from type A).
-         * @see TypeInfo::addConstructor()
-         * @param S The function Signature, should at least have one argument
-         * and must return non-void.
-         */
-        template<class S>
-        struct TemplateConstructor
-            : public TypeBuilder
-        {
-            typedef typename boost::function_traits<S>::result_type result_type;
-            typedef typename boost::function_traits<S>::arg1_type arg1_type;
-            typedef internal::create_sequence<typename boost::function_types::parameter_types<S>::type> SequenceFactory;
-
-            boost::function<S> ff;
-            bool automatic;
-
-            template<class FInit>
-            TemplateConstructor( FInit f, bool autom)
-                : ff(f), automatic(autom)
-            {}
-
-            virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                // number of arguments must be exact.
-                if ( args.size() != boost::function_traits<S>::arity )
-                    return base::DataSourceBase::shared_ptr();
-                try {
-                    return new internal::FusedFunctorDataSource<S>(ff, SequenceFactory()(args) );
-                } catch(...) // wrong argument types
-                {}
-                return base::DataSourceBase::shared_ptr();
-            }
-
-            virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const {
-                if ( boost::function_traits<S>::arity != 1) {
-                    return base::DataSourceBase::shared_ptr();
-                } else {
-                    // The compiler should optimise this out...
-                    // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
-                    // detect same type converion.
-                    if ( arg->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
-                        return arg;
-                    }
-                    // detect invalid type conversion.
-                    if ( arg->getTypeInfo() != internal::DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
-                        return base::DataSourceBase::shared_ptr();
-                    }
-                    // from now on, it should always succeed.
-                    std::vector<base::DataSourceBase::shared_ptr> args;
-                    args.push_back(arg);
-                    base::DataSourceBase::shared_ptr ret = this->build(args);
-                    assert( ret );
-                    if (!automatic)
-                        log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
-                    return ret;
-                }
-            }
-        };
-    /**
-     * Create a new Constructor.
-     *
-     * @param foo A pointer to the 'C' function which creates an object.
-     * @param automatic Set to true to allow automatic conversion (without warning) to this type.
-     * @return a Constructor object suitable for the type system.
-     */
-    template<class Function>
-    TypeBuilder* newConstructor( Function* foo, bool automatic = false ) {
-        return new detail::TemplateConstructor<Function>(foo, automatic);
-    }
-
-    /**
-     * Create a new Constructor.
-     *
-     * @param obj A function object which has operator().
-     * @param automatic Set to true to allow automatic conversion (without warning) to this type.
-     *
-     * @return a Constructor object suitable for the type system.
-     */
-    template<class Object>
-    TypeBuilder* newConstructor( Object obj, bool automatic = false) {
-        return new detail::TemplateConstructor<typename Object::Signature>(obj, automatic);
-    }
 }}
 
 #endif

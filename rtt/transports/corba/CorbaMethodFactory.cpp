@@ -4,6 +4,7 @@
 #include "../../internal/DataSources.hpp"
 #include "../../internal/DataSourceCommand.hpp"
 #include "../../SendStatus.hpp"
+#include "../../Handle.hpp"
 
 using namespace std;
 using namespace RTT;
@@ -191,8 +192,10 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<b
         const types::TypeInfo* ti = this->getArgumentType(0);
         if ( ti ) {
             if ( ti != Types()->type("void") ) {
+                // create a method call object and a return value and let the former store results in the latter.
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
                 DataSourceBase::shared_ptr result = ti->buildValue();
+                // evaluate()/get() will cause the method to be called and remote return value will end up in result.
                 return ti->buildActionAlias(new CorbaMethodCall(mfact.in(),method,args,caller, ctt, result, true), result );
             } else {
                 return new DataSourceCommand( new CorbaMethodCall(mfact.in(),method,args,caller, 0, DataSourceBase::shared_ptr() , true) );
@@ -338,4 +341,9 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::v
     }
     // All went well, produce collect DataSource:
     return new CorbaMethodCollect( ds->get().in(),cargs, blocking);
+}
+
+Handle CorbaMethodFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
+    log(Error) << "Can not attach Signal to remote Corba Operation '"<<method <<"'" <<endlog();
+    return Handle();
 }

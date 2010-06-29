@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     DataSourceBase::shared_ptr dsc0 = tc->provides("methods")->produceCollect("o0",args,new ValueDataSource<bool>(true));
 
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     DataSourceBase::shared_ptr dsc1 = tc->provides("methods")->produceCollect("o1",args, new ValueDataSource<bool>(true));
 
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     dsh= tc->provides("methods")->produceHandle("o2");
 
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     dsh= tc->provides("methods")->produceHandle("o3");
 
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     dsb = tc->provides("methods")->produceSend("o4", args, caller->engine());
     dsh= tc->provides("methods")->produceHandle("o4");
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     dsb = tc->provides("methods")->produceSend("o1r", args, caller->engine());
     dsh = tc->provides("methods")->produceHandle("o1r");
     // Assign the handle of produceSend to the one of produceHandle:
-    update = dsh->updateCommand( dsb.get() );
+    update = dsh->updateAction( dsb.get() );
     update->readArguments();
     update->execute();
     delete update;

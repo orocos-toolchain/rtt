@@ -55,11 +55,15 @@ namespace RTT
 
     error_status<> PeerParser::handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
     {
-        //std::cerr<<"Returning accept, advance "<<advance_on_error<<std::endl;
         int length = advance_on_error;
-        advance_on_error = 0;
+        // before, this was not necessary !
+        while (advance_on_error != 0) {
+            ++scan;
+            --advance_on_error;
+        }
         // ok, got as far as possible, _peer contains the furthest we got.
-        return error_status<>( error_status<>::accept, length  );
+        //std::cerr<<"Returning accept, advance "<< length <<std::endl;
+        return error_status<>( error_status<>::accept, length );
     }
 
         void PeerParser::done()
@@ -113,8 +117,9 @@ namespace RTT
         }
 
         PeerParser::PeerParser(TaskContext* c, CommonParser& cp, bool fullpath)
-            : commonparser(cp), mcurobject(c->provides()), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
+            : commonparser(cp), mcurobject(c->provides()), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath), advance_on_error(0)
         {
+            BOOST_SPIRIT_DEBUG_RULE( my_guard );
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
             peerpath =
@@ -123,9 +128,9 @@ namespace RTT
             // find as far as possible a peer without throwing an exception
             // outside our interface
             peerlocator =
-                !(my_guard
-                  ( +((commonparser.notassertingidentifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
-		  [ bind(&PeerParser::handle_no_peer, this, _1, _2) ]);
+                my_guard( *((commonparser.notassertingidentifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
+                        [ bind(&PeerParser::handle_no_peer, this, _1, _2) ]
+                ;
         }
 
     void PeerParser::reset()
@@ -160,7 +165,7 @@ namespace RTT
             mcurobject = _peer->provides();
             advance_on_error += end.base() - begin.base();
 
-            //cout << "PP located "<<name <<endl;
+//            cout << "PP located "<<name <<endl;
         }
         else if ( mcurobject->hasService(name) ) {
             mcurobject = mcurobject->provides(name);
@@ -173,10 +178,10 @@ namespace RTT
                 advance_on_error += end.base() - begin.base();
                 return;
             }
-            //cout << "PP failed "<<name <<endl;
+//            cout << "PP failed "<<name <<endl;
             // store object name for higher level access.
             // do not consume it though.
-            //cout << std::string(begin, end)<<endl;
+//            cout << std::string(begin, end)<<endl;
             mlastobject = name;
             if (mfullpath)
                 mcurobject.reset(); //when partial paths are OK, leave curobject pointing to last valid object.

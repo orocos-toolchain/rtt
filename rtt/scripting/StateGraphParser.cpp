@@ -447,16 +447,24 @@ namespace RTT
         peer    = peerparser->taskObject();
         peerparser->reset();
 
-        if (peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read") == false) {
-            if (curstate)
-                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": InputPort "+evname+" not found in Task "+peer->getName() ));
-            else
-                ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: InputPort "+evname+" not found in Task "+peer->getName() ));
+        // check if it's an operation:
+        if (peer->hasOperation(evname) ) {
+            argsparser =
+                new ArgumentsParser( *expressionparser, context, peer->provides(),
+                                     evname, "callback" );
+        } else {
+            // check if it's a port.
+            if ( peer->hasService(evname) == false || peer->provides(evname)->hasOperation("read") == false) {
+                if (curstate)
+                    ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": InputPort or Operation "+evname+" not found in Task "+peer->getName() ));
+                else
+                    ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: InputPort or Operation "+evname+" not found in Task "+peer->getName() ));
+            }
+            argsparser =
+                new ArgumentsParser( *expressionparser, context, peer->provides(evname),
+                                     evname, "read" );
         }
 
-        argsparser =
-            new ArgumentsParser( *expressionparser, context, peer->provides(evname),
-                                 evname, "read" );
         argslist = argsparser->parser();
     }
 
@@ -505,7 +513,7 @@ namespace RTT
         if (evname.empty()) {
             if (curcondition == 0)
                 curcondition = new ConditionTrue;
-        } else {
+        } else if ( peer->provides(evname) && peer->provides(evname)->hasOperation("read") ) { // is a port
             try {
                 assert(peer->provides(evname)); // checked in seeneventname()
                 ConditionInterface* evcondition = 0;
@@ -549,6 +557,40 @@ namespace RTT
                 }
             elsestate = 0;
             elseProgram.reset();
+        } else { // is an operation
+            assert( peer->provides()->hasMember(evname) );
+            bool res;
+            if (curcondition == 0)
+                curcondition = new ConditionTrue;
+
+            //             if ( elsestate != 0)
+            //                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone()
+            //             else
+            //cerr << "Registering "<<evname<<" handler for SM."<<endl;
+            try {
+                res = curtemplate->createEventTransition( peer->provides(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+                if (!res)
+                    throw parse_exception_fatal_semantic_error("StateMachine could not install a Signal Handler for Operation "+evname);
+            }
+            catch( const wrong_number_of_args_exception& e )
+                {
+                    throw parse_exception_wrong_number_of_arguments
+                        ( peer->getName(), evname, e.wanted, e.received );
+                }
+            catch( const wrong_types_of_args_exception& e )
+                {
+                    throw parse_exception_wrong_type_of_argument
+                        ( peer->getName(), evname, e.whicharg, e.expected_, e.received_ );
+                }
+            catch( ... )
+                {
+                    assert( false );
+                }
+
+            assert( res ); // checked in seeneventname()
+            elsestate = 0;
+            elseProgram.reset();
+            return; // we installed the Signal Handler !
         }
         // finally, install the handler:
         curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
@@ -955,14 +997,14 @@ namespace RTT
                     "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." ));
 #ifndef ORO_EMBEDDED
             try {
-                paraminitcommands.push_back( i->second->getDataSource()->updateCommand( j->second.get() ) );
+                paraminitcommands.push_back( i->second->getDataSource()->updateAction( j->second.get() ) );
             }
             catch( const bad_assignment& e )
                 {
                     throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
                 }
 #else
-            ActionInterface* ret =  i->second->getDataSource()->updateCommand( j->second.get());
+            ActionInterface* ret =  i->second->getDataSource()->updateAction( j->second.get());
             if (ret)
                 paraminitcommands.push_back( ret );
             else

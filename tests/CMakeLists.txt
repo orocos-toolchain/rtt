@@ -5,14 +5,14 @@ IF (BUILD_TESTING)
    if (NOT RUNTIME_OUTPUT_DIRECTORY)
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
    endif()
-
+   
    find_package(Boost 1.33 REQUIRED unit_test_framework)
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY})
+   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY} rtt-scripting-dynamic_${OROCOS_TARGET} rtt-marshalling-dynamic_${OROCOS_TARGET})
 
     # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
     INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
@@ -42,10 +42,10 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ)
 
     # Copy over CPF files.
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf
-                   ${RUNTIME_OUTPUT_DIRECTORY}/property_test_vect.cpf COPYONLY)
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf
-                   ${RUNTIME_OUTPUT_DIRECTORY}/property_loading.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarshVectLegacy.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarsh.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarsh.cpf COPYONLY)
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-dynamic_${OROCOS_TARGET})
@@ -157,7 +157,7 @@ IF (BUILD_TESTING)
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
 
-      ADD_UNIT_TEST(mqueue_archive_test EXTRA_TESTS ${TEST_LIBRARIES})
+      ADD_UNIT_TEST(mqueue_archive_test EXTRA_TESTS "${TEST_LIBRARIES}")
 
     ENDIF(ENABLE_MQ)
 
@@ -226,8 +226,8 @@ IF (BUILD_TESTING)
     if(PLUGINS_ENABLE_SCRIPTING)
         ADD_UNIT_TEST(scripting_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
         ADD_UNIT_TEST(types_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-        ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-        ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
         ADD_UNIT_TEST(function_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     endif()
     if(PLUGINS_ENABLE_MARSHALLING)
@@ -236,6 +236,15 @@ IF (BUILD_TESTING)
 	ADD_UNIT_TEST(property_marsh_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
     ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "")
+    ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "")
+    ADD_UNIT_TEST(typekit_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    if(PLUGINS_ENABLE)
+        ADD_UNIT_TEST(plugins_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_SUBDIRECTORY(plugins)
+        ADD_SUBDIRECTORY(types)
+    endif()
+    
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")

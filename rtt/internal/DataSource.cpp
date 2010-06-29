@@ -50,6 +50,7 @@ namespace RTT {
     }
 
     using namespace detail;
+    using namespace std;
 
     bad_assignment::~bad_assignment() throw() {}
     const char* bad_assignment::what() const throw() { return "Bad DataSource assignment: incompatible types."; }
@@ -89,18 +90,6 @@ namespace RTT {
         return mobj->getTypeInfo()->toString( mobj );
     }
 
-    bool DataSourceBase::decomposeType( PropertyBag& targetbag )
-    {
-        DataSourceBase::shared_ptr mobj(this);
-        return mobj->getTypeInfo()->decomposeType( mobj, targetbag );
-    }
-
-    bool DataSourceBase::composeType( DataSourceBase::shared_ptr source)
-    {
-        DataSourceBase::shared_ptr mobj(this);
-        return mobj->getTypeInfo()->composeType( source, mobj );
-    }
-
     bool DataSourceBase::isAssignable() const {
         return false;
     }
@@ -113,16 +102,26 @@ namespace RTT {
     {}
 
 
-    ActionInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
+    ActionInterface* DataSourceBase::updateAction( DataSourceBase* ) {
         return 0;
     }
 
-    bool DataSourceBase::updatePart( DataSourceBase*, DataSourceBase* ) {
-        return false;
+    DataSourceBase::shared_ptr DataSourceBase::getPart( const std::string& part_name ) {
+        if ( part_name.empty() )
+            return DataSourceBase::shared_ptr(this);
+        return getTypeInfo()->getPart( this, part_name );
     }
 
-    ActionInterface* DataSourceBase::updatePartCommand( DataSourceBase*, DataSourceBase* ) {
-        return 0;
+    DataSourceBase::shared_ptr DataSourceBase::getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset) {
+        return getTypeInfo()->getPart( this, part_id );
+    }
+
+    vector<string> DataSourceBase::getPartNames() const {
+        return getTypeInfo()->getPartNames();
+    }
+
+    DataSourceBase::shared_ptr DataSourceBase::getParent()  {
+        return this;
     }
 
     template<>

@@ -259,6 +259,17 @@ namespace RTT
 
             ~ActionAliasDataSource() {}
 
+            bool evaluate() const {
+                // since get() may return a copy, we override evaluate() to
+                // call alias->get() with alias->evaluate().
+                action->readArguments();
+                bool r = action->execute();
+                action->reset();
+                // alias may only be evaluated after action was executed.
+                alias->evaluate();
+                return r;
+            }
+
             typename DataSource<T>::result_t get() const
             {
                 action->readArguments();
@@ -272,6 +283,8 @@ namespace RTT
                 return alias->value();
             }
 
+            virtual void reset() { alias->reset(); }
+
             virtual ActionAliasDataSource<T>* clone() const {
                 return new ActionAliasDataSource(action, alias.get());
             }
@@ -281,86 +294,73 @@ namespace RTT
         };
 
 
-    /**
-     * A ValueDataSource of which individual parts can be updated
-     * using an index.
-     * @param T The type of the container.
-     * @param Index The type of the index into the container.
-     * @param SetType The type of an element of the container.
-     * @param IPred A predicate which checks if the index is valid.
-     * @param APred A predicate which checks if the container may be assigned to another container.
-     */
-    template<typename T, typename Index, typename SetType, typename IPred, typename APred>
-    class IndexedValueDataSource
-        : public ValueDataSource<T>
-    {
-    public:
-        typedef boost::intrusive_ptr<IndexedValueDataSource<T, Index, SetType, IPred, APred> > shared_ptr;
+            /**
+             * An AssignableDataSource which is used to execute an action
+             * and then return the value of another DataSource.
+             * @param T The result data type of get().
+             */
+            template<typename T>
+            class ActionAliasAssignableDataSource
+                : public AssignableDataSource<T>
+            {
+                base::ActionInterface* action;
+                typename AssignableDataSource<T>::shared_ptr alias;
+            public:
+                typedef boost::intrusive_ptr<ActionAliasDataSource<T> > shared_ptr;
 
-        IndexedValueDataSource( T idata )
-            : ValueDataSource<T>(idata) {}
+                ActionAliasAssignableDataSource(base::ActionInterface* act, AssignableDataSource<T>* ds)
+                : action(act), alias(ds)
+                  {}
 
-        IndexedValueDataSource()
-        {}
+                ~ActionAliasAssignableDataSource() {}
 
-        base::ActionInterface* updateCommand( base::DataSourceBase* other)
-        {
-            base::DataSourceBase::const_ptr r( other );
-            typedef typename AssignableDataSource<T>::copy_t copy_t;
-            DataSource< copy_t >* ct = AdaptDataSource<copy_t>()( other );
-            if ( ct )
-                return new AssignContainerCommand<T,APred,copy_t >( this, ct );
+                bool evaluate() const {
+                    // since get() may return a copy, we override evaluate() to
+                    // call alias->get() with alias->evaluate().
+                    action->readArguments();
+                    bool r = action->execute();
+                    action->reset();
+                    // alias may only be evaluated after action was executed.
+                    alias->evaluate();
+                    return r;
+                }
 
-#ifndef ORO_EMBEDDED
-            throw bad_assignment();
-#else
-            return 0;
-#endif
-        }
+                typename DataSource<T>::result_t get() const
+                {
+                    action->readArguments();
+                    action->execute();
+                    action->reset();
+                    return alias->get();
+                }
 
-        base::ActionInterface* updatePartCommand( base::DataSourceBase* index, base::DataSourceBase* rhs )
-        {
-            base::DataSourceBase::shared_ptr r( rhs );
-            base::DataSourceBase::shared_ptr i( index );
-            DataSource<SetType>* t = AdaptDataSource<SetType>()( DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
-            if ( ! t ) {
-#ifndef ORO_EMBEDDED
-                throw bad_assignment();
-#else
-                return 0;
-#endif
-            }
-            DataSource<Index>* ind = AdaptDataSource<Index>()( i );
-            if ( ! ind ) {
-#ifndef ORO_EMBEDDED
-                throw bad_assignment();
-#else
-                return 0;
-#endif
-            }
-            typename AssignableDataSource<T>::shared_ptr mthis(this);
-            return new AssignIndexCommand<T, Index, SetType, IPred>( mthis, ind ,t );
-        }
+                typename DataSource<T>::result_t value() const
+                {
+                    return alias->value();
+                }
 
-        IndexedValueDataSource<T, Index, SetType,IPred,APred>* clone() const
-        {
-            return new IndexedValueDataSource( this->mdata );
-        }
+                void set( typename AssignableDataSource<T>::param_t t ) {
+                    alias->set( t );
+                }
 
-        IndexedValueDataSource<T, Index, SetType,IPred,APred>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const
-        {
-            // if somehow a copy exists, return the copy, otherwise return this.
-            if ( replace[this] != 0 ) {
-                assert ( (dynamic_cast<IndexedValueDataSource<T, Index, SetType,IPred,APred>*>( replace[this] )
-                         == static_cast<IndexedValueDataSource<T, Index, SetType,IPred,APred>*>( replace[this] ) ) );
-                return static_cast<IndexedValueDataSource<T, Index, SetType,IPred,APred>*>( replace[this] );
-            }
-            // Other pieces in the code rely on insertion in the map :
-            replace[this] = const_cast<IndexedValueDataSource<T, Index, SetType,IPred,APred>*>(this);
-            // return this instead of a copy.
-            return const_cast<IndexedValueDataSource<T, Index, SetType,IPred,APred>*>(this);
-        }
-    };
+                typename AssignableDataSource<T>::reference_t set()
+                {
+                    return alias->set();
+                }
+
+                typename AssignableDataSource<T>::const_reference_t rvalue() const
+                {
+                    return alias->rvalue();
+                }
+
+                virtual void reset() { alias->reset(); }
+
+                virtual ActionAliasAssignableDataSource<T>* clone() const {
+                    return new ActionAliasAssignableDataSource(action, alias.get());
+                }
+                virtual ActionAliasAssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                    return new ActionAliasAssignableDataSource( action->copy(alreadyCloned), alias->copy(alreadyCloned) );
+                }
+            };
 
         /**
          * A special DataSource only to be used for if you understand
@@ -526,93 +526,6 @@ namespace RTT
           return new TernaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), mdsc->copy( alreadyCloned ), fun );
       }
 
-  };
-
-  /**
-   * A DataSource which returns the return value of a sixary function.
-   */
-  template<typename function>
-  class SixaryDataSource
-    : public DataSource<typename function::result_type>
-  {
-    typedef typename function::result_type value_t;
-    typedef typename function::first_argument_type first_arg_t;
-    typedef typename function::second_argument_type second_arg_t;
-    typedef typename function::third_argument_type third_arg_t;
-    typedef typename function::fourth_argument_type fourth_arg_t;
-    typedef typename function::fifth_argument_type fifth_arg_t;
-    typedef typename function::sixth_argument_type sixth_arg_t;
-    typename DataSource<first_arg_t>::shared_ptr mdsa;
-    typename DataSource<second_arg_t>::shared_ptr mdsb;
-    typename DataSource<third_arg_t>::shared_ptr mdsc;
-    typename DataSource<fourth_arg_t>::shared_ptr mdsd;
-    typename DataSource<fifth_arg_t>::shared_ptr mdse;
-    typename DataSource<sixth_arg_t>::shared_ptr mdsf;
-    function fun;
-  public:
-    typedef boost::intrusive_ptr<SixaryDataSource<function> > shared_ptr;
-
-      /**
-       * Create a DataSource which returns the return value of a function
-       * \a f which is given argument \a a to \a f.
-       */
-    SixaryDataSource(
-                     typename DataSource<first_arg_t>::shared_ptr a,
-                     typename DataSource<second_arg_t>::shared_ptr b,
-                     typename DataSource<third_arg_t>::shared_ptr c,
-                     typename DataSource<fourth_arg_t>::shared_ptr d,
-                     typename DataSource<fifth_arg_t>::shared_ptr e,
-                     typename DataSource<sixth_arg_t>::shared_ptr f,
-                       function _fun )
-      : mdsa( a ), mdsb( b ), mdsc( c ),mdsd( d ), mdse( e ), mdsf( f ),
-        fun( _fun )
-      {
-      }
-
-    virtual value_t get() const
-      {
-        first_arg_t a = mdsa->get();
-        second_arg_t b = mdsb->get();
-        third_arg_t c = mdsc->get();
-        fourth_arg_t d = mdsd->get();
-        fifth_arg_t e = mdse->get();
-        sixth_arg_t f = mdsf->get();
-        return fun( a, b, c, d, e, f );
-      }
-
-    virtual value_t value() const
-      {
-        first_arg_t a = mdsa->value();
-        second_arg_t b = mdsb->value();
-        third_arg_t c = mdsc->value();
-        fourth_arg_t d = mdsd->value();
-        fifth_arg_t e = mdse->value();
-        sixth_arg_t f = mdsf->value();
-        return fun( a, b, c, d, e, f );
-      }
-
-    virtual void reset()
-      {
-        mdsa->reset();
-        mdsb->reset();
-        mdsc->reset();
-        mdsd->reset();
-        mdse->reset();
-        mdsf->reset();
-      }
-
-      virtual SixaryDataSource<function>* clone() const
-      {
-          return new SixaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(),
-                                                mdsd.get(), mdse.get(), mdsf.get(),
-                                                fun);
-      }
-
-      virtual SixaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-          return new SixaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ),
-                                                 mdsc->copy( alreadyCloned ), mdsd->copy( alreadyCloned ),
-                                                 mdse->copy( alreadyCloned ), mdsf->copy( alreadyCloned ), fun );
-      }
   };
 
   /**
