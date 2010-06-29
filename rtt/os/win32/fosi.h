@@ -513,6 +513,8 @@ extern "C"
 
 #define rtos_printf printf
 
+int setenv(const char *name, const char *value, int overwrite);
+
 #ifdef __cplusplus
 }
 
