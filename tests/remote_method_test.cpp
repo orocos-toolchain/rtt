@@ -177,12 +177,11 @@ BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
     BOOST_CHECK_EQUAL( -2.0, mm1(1) );
     BOOST_CHECK_EQUAL( -3.0, mm2(1, 2.0) );
 
-    // test error cases:
     // Add uninitialised op:
-    Operation<void(void)> ovoid("voidm");
-    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
-    ovoid = Operation<void(void)>("voidm");
-    BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
+    Operation<void(void)> ovoid("ovoid");
+    BOOST_CHECK(to.addOperation( ovoid ).ready() == true);
+    ovoid = Operation<void(void)>("ovoid");
+    BOOST_CHECK(to.addOperation( ovoid ).ready() == true);
 
     // wrong type 1:
     Method<void(void)> mvoid;

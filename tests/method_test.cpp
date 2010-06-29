@@ -206,10 +206,10 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
 
     // test error cases:
     // Add uninitialised op:
-    Operation<void(void)> ovoid("voidm");
-    BOOST_CHECK(to.addLocalOperation( ovoid ) == false);
-    ovoid = Operation<void(void)>("voidm");
-    BOOST_CHECK(to.addLocalOperation( ovoid ) == false);
+    Operation<void(void)> ovoid("ovoid");
+    BOOST_CHECK(to.addLocalOperation( ovoid ) == true);
+    ovoid = Operation<void(void)>("ovoid");
+    BOOST_CHECK(to.addLocalOperation( ovoid ) == true);
 
     // wrong type 1:
     Method<void(void)> mvoid;
