@@ -16,7 +16,7 @@ namespace RTT
          * Be careful that all these functions may be called
          * from a hard real-time context.
          */
-        class ExecutableInterface
+        class RTT_API ExecutableInterface
         {
         protected:
             ExecutionEngine* engine;
