@@ -22,6 +22,7 @@ IF (PLUGINS_ENABLE_SCRIPTING)
   target_link_libraries(rtt-scripting-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
   
   install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
+          ARCHIVE DESTINATION lib/orocos/plugins
           LIBRARY DESTINATION lib/orocos/plugins )
 
   get_target_property(PLUGINLIB_DIR rtt-scripting-dynamic_${OROCOS_TARGET} LOCATION)

@@ -22,7 +22,8 @@ IF (PLUGINS_ENABLE_TYPEKIT)
   target_link_libraries(rtt-typekit-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
   
   install(TARGETS rtt-typekit-dynamic_${OROCOS_TARGET}
-          LIBRARY DESTINATION lib/orocos/types )
+          ARCHIVE DESTINATION lib/orocos/types
+          LIBRARY DESTINATION lib/orocos/types)
 
   get_target_property(TYPEKITLIB_DIR rtt-typekit-dynamic_${OROCOS_TARGET} LOCATION)
 
