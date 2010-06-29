@@ -39,6 +39,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   get_target_property(PLUGINLIB_DIR rtt-marshalling-dynamic_${OROCOS_TARGET} LOCATION)
 
   add_custom_command(TARGET rtt-marshalling-dynamic_${OROCOS_TARGET} POST_BUILD 
+          COMMAND cmake -E make_directory ${PROJ_BINARY_DIR}/rtt/plugins
           COMMAND cmake -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
   
 ENDIF(PLUGINS_ENABLE_MARSHALLING)
