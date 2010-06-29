@@ -49,10 +49,7 @@ namespace RTT
 
     /**
      * The minimal Orocos task. It has a state and an ExecutionEngine
-     * to process events,commands, programs, statemachines and run a user function. It
-     * is useful for in embedded systems, where communication between
-     * tasks may be hard coded and hence, no interface browsing or
-     * task browsing is required (for every task).
+     * to process messages and user functions.
      */
     class RTT_API TaskCore
     {
