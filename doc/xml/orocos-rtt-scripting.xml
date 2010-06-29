@@ -468,11 +468,19 @@
 	<section>
 	  <title>The '.' Operator</title>
 	  <para>
-	    Some value types, like array and string in
-	    the Parser framework are actually containing values
-	    or useful information themselves. For accessing these values, a
-	    value type can have a 'dot' operator which allows you to 
-	    <emphasis>read-only</emphasis> contents of the container :
+	    When a data type is a C++ struct or class, it contains fields
+	    which you might want to access directly. These can be accessed
+	    for reading or writing by using a dot '.' and the name of the
+	    field:
+	    <programlisting>  var mydata d1;
+
+  d1.count = 1;
+  d1.name  = "sample";</programlisting>
+	  </para>
+	  <para>
+	    Some value types, like array and string,
+	    are containing <emphasis>read-only</emphasis> values
+	    or useful information about their size and capacity:
 	    <programlisting>  var string s1 = "abcdef"
 
   // retrieve size and capacity of a string :
