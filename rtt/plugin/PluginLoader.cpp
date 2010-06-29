@@ -24,7 +24,7 @@ using namespace boost::filesystem;
 #ifdef  __APPLE__
 static const std::string SO_EXT(".dylib");
 #else
-# ifdef __WIN32__
+# ifdef WIN32
 static const std::string SO_EXT(".dll");
 # else
 static const std::string SO_EXT(".so");
