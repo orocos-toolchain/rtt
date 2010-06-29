@@ -24,7 +24,7 @@ ENDIF (NOT CORBA_IMPLEMENTATION)
 #
 # CORBA Remote Methods in C++
 #
-OPTION( ORO_REMOTING "Enable transparant Remote Methods and Commands in C++" ${ENABLE_CORBA} )
+OPTION( ORO_REMOTING "Enable transparant Remote Methods Calls in C++" ON )
 # Force remoting when CORBA is enabled.
 IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
   MESSAGE( "Forcing ORO_REMOTING to ON")
