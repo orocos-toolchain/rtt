@@ -97,6 +97,7 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
     this->finishFunction( tc, "x");
 }
 
+#ifdef ORO_REMOTING
 /**
  * Exports foo and foo_args and calls them from C++
  * Compare with testReturnExportFunction below that does
@@ -155,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
     BOOST_CHECK_EQUAL( i, +1);
 
 }
-
+#endif
 /**
  * Compare to use case above that does the same,
  * but in C++
