@@ -69,7 +69,7 @@ namespace RTT
          * in order to manage their channels.
          * TODO: use the mutex lock !!!
          */
-        class ConnectionManager
+        class RTT_API ConnectionManager
         {
         public:
             /**
