@@ -32,7 +32,7 @@ OperationsFixture::~OperationsFixture()
 void OperationsFixture::createMethodFactories(TaskContext* target)
 {
     ServiceProvider::shared_ptr dat = ServiceProvider::Create("test");
-    dat->addOperation("i", &OperationsFixture::getI, this).doc("Return the current number");
+    dat->addAttribute("i", i);
     dat->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
     dat->addOperation("assertEqual", &OperationsFixture::assertEqual, this);
     dat->addOperation("increase", &OperationsFixture::increase, this).doc("Return increasing i");
