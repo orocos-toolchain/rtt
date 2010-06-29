@@ -145,6 +145,8 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(OS_HAS_TLSF TRUE)
 
+  find_package(Boost 1.36 COMPONENTS thread )
+
   find_package(Pthread REQUIRED)
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
@@ -162,7 +164,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OS_HAS_TLSF TRUE)
 
   if (NOT Boost_THREAD_FOUND)
-	find_package(Boost 1.36 COMPONENTS thread REQUIRED)
+	find_package(Boost 1.36 REQUIRED thread)
   endif ()
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )

@@ -96,7 +96,7 @@ namespace RTT
         }
 #else
     protected:
-        boost::condition_variable c;
+        boost::condition_variable_any c;
     public:
         /**
         * Initialize a Condition.
@@ -163,11 +163,14 @@ namespace RTT
         {
             // abs_time is since epoch, so set p_time to epoch, then add our abs_time.
             boost::posix_time::ptime p_time = boost::posix_time::from_time_t(0);
-            boost::posix_time::nanosec abs_p_time = nanoseconds(abs_time);
+            boost::posix_time::nanosec abs_p_time = boost::posix_time::nanoseconds(abs_time);
             // wakeup time = epoch date + time since epoch
             p_time = p_time + abs_p_time;
-            return c.timed_wait(m, p_time, true);
+            return c.timed_wait(m, p_time, &Condition::retfalse );
         }
+    private:
+        static bool retfalse() { return false; }
+
 #endif
 
     };
