@@ -92,6 +92,14 @@ namespace RTT {
                    get<4>(*tlit)->loaded( this->getEngine() );
            }
        }
+       for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
+       {
+           // inform all transition scripts
+           for(EventList::iterator tlit= it->second.begin(); tlit != it->second.end(); ++tlit ) {
+               if ( get<5>(*tlit) )
+                   get<5>(*tlit)->loaded( this->getEngine() );
+           }
+       }
    }
 
    void StateMachine::unloading() {
@@ -544,6 +552,7 @@ namespace RTT {
 
     bool StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
     {
+        TRACE_INIT();
         // called by event to begin Transition to 'to'.
         // This interrupts the current run program at an interruption point ?
         // the transition and/or exit program can cleanup...
@@ -556,36 +565,33 @@ namespace RTT {
         // execute else program (may be null).
         if ( !current)
             return true;
+
+        TRACE("Received Signal in state '"+ current->getName()+"'.");
         if (from == 0)
             from  = current;
         if (to == 0)
             to = current;
-        if (elseto == 0)
-            elseto = current;
         if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
-//                 log(Debug) <<"Valid transition from "<<from->getName()
-//                            <<" to "<<to->getName()<<"."<<Logger::endl;
+                TRACE( "Valid transition from " + from->getName() +
+                            +" to "+to->getName()+".");
                 changeState( to, p );              //  valid transition to 'to'.
             }
-            else if ( elseto && checkConditions(elseto, false) == 1 ) {
-//                 log(Debug) <<"Valid transition from "<<from->getName()
-//                            <<" to "<<elseto->getName()<<"."<<Logger::endl;
-                changeState( elseto, elsep );      //  valid transition to 'elseto'.
-            }
             else {
-//                 log(Debug) <<"Rejected transition from "<<from->getName()
-//                            <<" within "<<current->getName()<<": guards failed."<<Logger::endl;
+                TRACE( "Rejected transition from " + from->getName() +
+                        " to " + to->getName() +
+                        " within state " + current->getName() + ": guards failed.");
             }
         }
-#if 0
+#if 1
         else {
-            if (this->inTransition() )
-                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-                              <<" within "<<current->getName()<<": in transition."<<Logger::endl;
-            else
-                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-                              <<" within "<<current->getName()<<": wrong state."<<Logger::endl;
+            if (this->inTransition() ) {
+                TRACE( "Rejected transition from " + from->getName() +
+                              " within " + current->getName() + ": in transition.");
+            } else {
+                TRACE( "Rejected transition from " + from->getName() +
+                              + " within " + current->getName() + ": wrong state.");
+            }
         }
 #endif
         return true;
