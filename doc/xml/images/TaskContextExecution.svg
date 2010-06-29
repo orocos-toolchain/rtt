@@ -592,6 +592,13 @@
        cx="335.71289"
        cy="-178.67529"
        r="21.099501" />
+    <inkscape:perspective
+       id="perspective40684"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
   </defs>
   <sodipodi:namedview
      inkscape:document-units="mm"
@@ -601,7 +608,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="0.75591361"
-     inkscape:cx="350.43379"
+     inkscape:cx="181.76372"
      inkscape:cy="358.43693"
      inkscape:current-layer="layer1"
      id="namedview3782"
@@ -1048,15 +1055,15 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
        x="757.52686"
-       y="190.57867"
+       y="193.16344"
        id="text6465"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6467"
          x="757.52686"
-         y="190.57867">TaskContext</tspan></text>
+         y="193.16344">TaskContext</tspan></text>
     <rect
        style="opacity:1;color:#000000;fill:#ff0035;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        id="rect4053"
@@ -1081,27 +1088,27 @@
          sodipodi:role="line"
          x="117.19776"
          y="436.59787"
-         id="tspan3332">An Activity object executes the</tspan><tspan
+         id="tspan3332">An <tspan
+   style="font-weight:bold;-inkscape-font-specification:Andale Mono Bold"
+   id="tspan40666">Activity</tspan> object executes the</tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="459.09787"
-         id="tspan3355">ExecutionEngine, which in turn</tspan><tspan
+         id="tspan3355"><tspan
+   style="font-weight:bold;-inkscape-font-specification:Andale Mono Bold"
+   id="tspan40668">ExecutionEngine</tspan>, which in turn</tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="481.59787"
-         id="tspan3363">processes incomming operations,</tspan><tspan
+         id="tspan3363">processes incomming messages,</tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="504.09787"
-         id="tspan17378">loaded functions and child </tspan><tspan
+         id="tspan17380">loaded functions and finally </tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="526.5979"
-         id="tspan17380">TaskContexts. Finally updateHook()</tspan><tspan
-         sodipodi:role="line"
-         x="117.19776"
-         y="549.0979"
-         id="tspan17382">is called.</tspan></text>
+         id="tspan17382">updateHook() is called.</tspan></text>
     <rect
        y="242.1118"
        x="193.30536"
@@ -1126,7 +1133,7 @@
        id="path1398" />
     <text
        xml:space="preserve"
-       style="font-size:18.95421028px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+       style="font-size:18.95421028px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
        x="341.11197"
        y="258.29572"
        id="text2273"
@@ -1134,7 +1141,7 @@
          sodipodi:role="line"
          id="tspan2275"
          x="341.11197"
-         y="258.29572">executes</tspan></text>
+         y="258.29572">calls</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.4165349;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 535.52114,241.95778 L 618.71968,241.95778"
@@ -1202,39 +1209,6 @@
          x="646.33673"
          y="292.72235">Plugin Functions</tspan></text>
     <path
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.4165349;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 535.52114,332.7971 L 618.71968,332.7971"
-       id="path2314" />
-    <text
-       xml:space="preserve"
-       style="font-size:18.95421028px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
-       x="551.18628"
-       y="325.88904"
-       id="text2316"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan2318"
-         x="551.18628"
-         y="325.88904">calls</tspan></text>
-    <rect
-       y="309.04501"
-       x="634.19049"
-       height="43.53812"
-       width="220.40196"
-       id="rect2320"
-       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086616;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
-    <text
-       xml:space="preserve"
-       style="font-size:19.77347374px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
-       x="646.33673"
-       y="338.14203"
-       id="text2322"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan2324"
-         x="646.33673"
-         y="338.14203">Children::updateHook()</tspan></text>
-    <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.41653585;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 488.08839,389.55662 L 488.08839,438.50401 L 619.77761,438.50401"
        id="path2370" />
@@ -1247,7 +1221,7 @@
        style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086592;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
     <text
        xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
        x="642.9306"
        y="433.2124"
        id="text3299"
@@ -1263,7 +1237,7 @@
          sodipodi:role="line"
          x="642.9306"
          y="483.2124"
-         id="tspan3305">     // ....</tspan><tspan
+         id="tspan3305">     // your code</tspan><tspan
          sodipodi:role="line"
          x="642.9306"
          y="508.2124"
@@ -1317,5 +1291,16 @@
          x="456.85941"
          y="335.47409"
          id="tspan3383">Engine</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
+       x="195.59869"
+       y="193.16344"
+       id="text6465-9"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan6467-2"
+         x="195.59869"
+         y="193.16344">Thread type</tspan></text>
   </g>
 </svg>
