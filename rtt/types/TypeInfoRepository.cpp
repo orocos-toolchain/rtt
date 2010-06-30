@@ -59,10 +59,10 @@ namespace RTT
     {
         std::string tname = t->getTypeName();
         if ( data.count( tname ) != 0 ) {
-            Logger::log() << Logger::Warning << "Attempt to register Type '"<<tname <<"' twice to the Orocos Type System."<<Logger::endl;
+            log(Warning) << "Attempt to register Type '"<<tname <<"' twice to the Orocos Type System."<<Logger::endl;
         }
         data[ tname ] = t;
-        Logger::log() << Logger::Debug << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
+        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
         for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
             if ( (*it)->registerTransport( tname, t) )
                 log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
@@ -88,12 +88,12 @@ namespace RTT
     void TypeInfoRepository::logTypeInfo() const
     {
         // dump the names of all known types
-        Logger::log() << Logger::Debug << "Types known to the Orocos Type System."<<Logger::endl;
+        log(Debug) << "Types known to the Orocos Type System."<<Logger::endl;
         for(map_t::const_iterator it = data.begin(); it != data.end(); ++it)
         {
             std::vector<int>    transports;
             transports = it->second->getTransportNames();
-            Logger::log() << Logger::Debug << "-- " << it->first
+            log(Debug) << "-- " << it->first
                           << " (" << (*it).second->getTypeName() << ") protocols [";
             for (std::vector<int>::const_iterator   iter=transports.begin();
                  iter != transports.end();
@@ -104,10 +104,10 @@ namespace RTT
             Logger::log() << "]" << Logger::endl;
         }
         // dump the names of all known transports
-        Logger::log() << Logger::Debug << "Transports known to the Orocos Type System."<<Logger::endl;
+        log(Debug) << "Transports known to the Orocos Type System."<<Logger::endl;
         for(Transports::const_iterator it = transports.begin(); it != transports.end(); ++it)
         {
-            Logger::log() << Logger::Debug << "-- " << (*it)->getTransportName() << Logger::endl;
+            log(Debug) << "-- " << (*it)->getTransportName() << Logger::endl;
         }
     }
 

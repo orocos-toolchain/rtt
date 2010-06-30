@@ -48,50 +48,62 @@ namespace RTT
 { namespace types {
 
     /**
-     * This class allows the Orocos Real-Time Typekit to be extended
+     * This class allows the RTT to be extended
      * with additional typekits (TypekitPlugin), such as for kinematics or any
      * library foreign to Orocos.
      * @ingroup CoreLib
      */
     class RTT_API TypekitRepository
     {
-        /** Loaded tools. */
-        static std::vector<TypekitPlugin*> Tools;
+        /** Loaded typekits. */
+        static std::vector<TypekitPlugin*> Typekits;
         /** Loaded transports. */
         static std::vector<TransportPlugin*> Transports;
     public:
         /**
-         * Import a plugin into Orocos.
+         * Import a typekit plugin into the type system of this process.
+         *
          * One may try to load the same plugin multiple
          * times from different places. Only the first
          * import will succeed. Multiple imports will not
-         * be considered as an error.
+         * be considered as an error, but will be silently
+         * freed.
+         *
+         * @param tkp A typekit plugin that becomes owned
+         * by the TypekitRepository.
          */
-        static void Import( TypekitPlugin& tkp );
+        static void Import( TypekitPlugin* tkp );
         /**
-         * Import a transport plugin into Orocos.
+         * Import a transport plugin into the type system of this process.
+         *
          * One may try to load the same transport plugin multiple
          * times from different places. Only the first
          * import will succeed. Multiple imports will not
-         * be considered as an error.
+         * be considered as an error, but will be silently
+         * freed.
+         *
+         * @param tr A transport plugin that becomes owned
+         * by the TypekitRepository.
          */
-        static void Import( TransportPlugin& tr );
+        static void Import( TransportPlugin* tr );
 
         /**
-         * Get the names of all imported tools.
+         * Get the names of all imported typekits.
          */
-        static std::vector<std::string> getTools();
+        static std::vector<std::string> getTypekits();
         /**
          * Get the names of all imported transports.
          */
         static std::vector<std::string> getTransports();
 
         /**
-         * Check if a tool with given name was already imported.
+         * Check if a typekit with given name was already imported.
          */
-        static bool hasTool( const std::string& toolname );
+        static bool hasTypekit( const std::string& typekitname );
         /**
          * Check if a transport with given name was already imported.
+         * The name should have the form 'PROTOCOL://plugin', for example:
+         * "CORBA://rtt-types"
          */
         static bool hasTransport( const std::string& transportname );
     };

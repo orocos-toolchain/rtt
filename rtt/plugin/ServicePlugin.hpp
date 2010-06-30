@@ -27,15 +27,15 @@ namespace RTT {
  */
 #define ORO_SERVICE_NAMED_PLUGIN( SERVICE, NAME ) \
     extern "C" {                      \
-        bool loadRTTPlugin(RTT::TaskContext* tc) {    \
+        RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
             RTT::interface::ServiceProvider::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
-        std::string getRTTPluginName() { \
+        RTT_EXPORT std::string getRTTPluginName() { \
             return NAME; \
         } \
-        std::string getRTTTargetName() { \
+        RTT_EXPORT std::string getRTTTargetName() { \
             return OROCOS_TARGET_NAME; \
         } \
     }
@@ -52,15 +52,15 @@ namespace RTT {
  */
 #define ORO_SERVICE_PLUGIN( SERVICE ) \
     extern "C" {                      \
-        bool loadRTTPlugin(RTT::TaskContext* tc) {    \
+        RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
             RTT::interface::ServiceProvider::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
-        std::string getRTTPluginName() { \
+        RTT_EXPORT std::string getRTTPluginName() { \
             return ORO_SERVICEPLUGIN_xstr(SERVICE); \
         } \
-        std::string getRTTTargetName() { \
+        RTT_EXPORT std::string getRTTTargetName() { \
             return OROCOS_TARGET_NAME; \
         } \
     }

@@ -100,6 +100,8 @@ namespace RTT
 
         /**
          * Each plugin must have a unique name.
+         * This name is used globally in the process to identify
+         * this instance.
          */
         virtual std::string getName() = 0;
     };
@@ -109,32 +111,31 @@ namespace RTT
 #include "TypekitRepository.hpp"
 
 /**
- * Once you defined your TypekitPlugin class,
+ * Once you defined your TypekitPlugin or TransportPlugin class,
  * you can use this macro to make it available as a
  * plugin.
  * @note Do not use this macro inside a namespace !
  * For example: ORO_TYPEKIT_PLUGIN ( KDL::KDLTypekit )
  * where KDL::KDLTypekit is a *classname*, derived from
- * RTT::types::TypekitPlugin.
+ * RTT::types::TypekitPlugin or RTT::types::TransportPlugin
  */
 #define ORO_TYPEKIT_PLUGIN( TYPEKIT ) \
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
-        bool loadRTTPlugin(RTT::TaskContext* tc) { \
-            TYPEKIT tk; \
+        RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc) { \
             if (tc == 0) { \
-                RTT::types::TypekitRepository::Import( tk ); \
+                RTT::types::TypekitRepository::Import( new TYPEKIT() ); \
                 return true; \
             } \
             return false; \
         } \
-    std::string getRTTPluginName() { \
+        RTT_EXPORT std::string getRTTPluginName() { \
         TYPEKIT tk; \
         return tk.getName(); \
-    } \
-    std::string getRTTTargetName() { \
-        return OROCOS_TARGET_NAME; \
-    } \
-}
+        } \
+        RTT_EXPORT std::string getRTTTargetName() { \
+            return OROCOS_TARGET_NAME; \
+        } \
+    }
 
 #endif

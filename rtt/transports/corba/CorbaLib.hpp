@@ -40,7 +40,7 @@
 #include "rtt-corba-config.h"
 namespace RTT {
 	namespace corba {
-	RTT_CORBA_API int loadCorbaLib();
-}}
+	}
+}
 #define ORO_CORBA_PROTOCOL_ID 1
 #endif

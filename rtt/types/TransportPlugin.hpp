@@ -42,10 +42,16 @@ namespace RTT
 
 
     /**
-     * A class which registers TransportProtocol instances to types.
-     * Use the ORO_TOOLKIT_PLUGIN macro to have the plugin framework
+     * A class which registers TypeTransporter instances to types.
+     * Use the ORO_TYPEKIT_PLUGIN macro to have the plugin framework
      * automatically load all types supported by this plugin (using
      * registerTransport() below).
+     *
+     * A transport's 'fully qualified name' consists of the protocol
+     * name followed by a "://" and the name of the typekit it is for.
+     * For example:
+     *
+     * "CORBA://kdl-types/frame". The protocol name may not contain slashes.
      */
     class RTT_API TransportPlugin
     {
@@ -56,22 +62,32 @@ namespace RTT
          * Add a transport for the given type to the types::TypeInfo
          * instance.
          * @param type_name The name of the type to transport
-         * @param ti The typ to which transports may be added.
+         * @param ti The type to which transports may be added.
          * @return false if no transport was added, true otherwise.
          */
         virtual bool registerTransport(std::string type_name, TypeInfo* ti) = 0;
 
         /**
          * Returns the (protocol) name of this transport.
-         * e.g. "CORBA"
+         * May not contain slashes.
+         * e.g. "CORBA", "mqueue, "rostcp",...
          */
         virtual std::string getTransportName() const = 0;
 
         /**
+         * Returns the intended typekit name of this plugin.
+         * This is informative and only for user display.
+         * e.g. "rtt-types", "kdl-types/frame",...
+         */
+        virtual std::string getTypekitName() const = 0;
+
+        /**
          * Each plugin must have a unique name.
-         * e.g. "CorbaKDL"
+         * This name is used globally in the process to identify
+         * this instance.
          */
         virtual std::string getName() const = 0;
+
     };
 
 }}

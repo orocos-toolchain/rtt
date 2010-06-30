@@ -41,7 +41,6 @@
 
 namespace RTT {
     namespace mqueue {
-        RTT_MQUEUE_API int loadCorbaLib();
     }
 }
 
