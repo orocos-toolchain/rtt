@@ -21,7 +21,7 @@ namespace RTT
             virtual std::ostream& write(std::ostream& os, base::DataSourceBase::shared_ptr in) const
             {
 #ifdef OS_HAVE_STREAMS
-                internal::DataSource<bool>* d = internal::AdaptDataSource<bool> ()(in);
+                internal::DataSource<bool>* d = boost::dynamic_pointer_cast< DataSource<bool> >(in);
                 if (d)
                     return os << boolalpha << d->value();
 #endif

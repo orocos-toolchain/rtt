@@ -68,7 +68,7 @@ namespace RTT
             {
                 if ( op != mop ) return 0;
                 typename internal::DataSource<arg_t>::shared_ptr arg =
-                    internal::AdaptDataSource<arg_t>()( a ); // do not call convert(a) here ! Would always succeed.
+                    boost::dynamic_pointer_cast< DataSource<arg_t> >( a ); // do not call convert(a) here ! Would always succeed.
                 if ( ! arg ) return 0;
                 return new internal::UnaryDataSource<function>( arg, fun );
             }
@@ -100,9 +100,9 @@ namespace RTT
                 if ( op != mop || a->getTypeInfo() != internal::DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
                 //         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
                 typename internal::DataSource<arg1_t>::shared_ptr arg1 =
-                    internal::AdaptDataSource<arg1_t>()( a ); // first argument must be exact match.
+                    boost::dynamic_pointer_cast< DataSource<arg1_t> >( a ); // first argument must be exact match.
                 typename internal::DataSource<arg2_t>::shared_ptr arg2 =
-                    internal::AdaptDataSource<arg2_t>()( internal::DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
+                    boost::dynamic_pointer_cast< DataSource<arg2_t> >( internal::DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
                 //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
                 //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
                 if ( !arg1 || ! arg2 ) return 0;
@@ -135,7 +135,7 @@ namespace RTT
                 if ( member != memb ) return 0;
                 //         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
                 typename internal::DataSource<arg1_t>::shared_ptr arg1 =
-                    internal::AdaptDataSource<arg1_t>()( a );
+                    boost::dynamic_pointer_cast< DataSource<arg1_t> >( a );
                 if ( !arg1 ) return 0;
                 //         Logger::log() << "success !"<< Logger::endl;
                 return new internal::UnaryDataSource<function>( arg1, fun );

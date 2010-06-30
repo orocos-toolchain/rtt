@@ -77,7 +77,7 @@ namespace RTT
            */
           virtual CORBA::Any* createAny( base::DataSourceBase::shared_ptr source) const
           {
-              internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
+              typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< DataSource<T> >( source );
               if ( d )
                   return AnyConversion<PropertyType>::createAny( d->value());
               return 0;
@@ -88,7 +88,7 @@ namespace RTT
            */
           virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const
           {
-              internal::DataSource<T>* d = internal::AdaptDataSource<T>()( source );
+              typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< DataSource<T> >( source );
               if ( d )
                   return AnyConversion<PropertyType>::updateAny( d->value(), any);
               return false;

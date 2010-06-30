@@ -119,7 +119,7 @@ namespace RTT
                  return base::DataSourceBase::shared_ptr();
              typename internal::NArityDataSource<stdvector_varargs_ctor<T> >::shared_ptr vds = new internal::NArityDataSource<stdvector_varargs_ctor<T> >();
              for(unsigned int i=0; i != args.size(); ++i) {
-                 typename internal::DataSource<T>::shared_ptr dsd = internal::AdaptDataSource<T>()( args[i] );
+                 typename internal::DataSource<T>::shared_ptr dsd = boost::dynamic_pointer_cast< DataSource<T> >( args[i] );
                  if (dsd)
                      vds->add( dsd );
                  else

@@ -101,7 +101,7 @@ namespace RTT
                     return DataSourceBase::shared_ptr();
                 ArrayDataSource::shared_ptr vds = new ArrayDataSource();
                 for(unsigned int i=0; i != args.size(); ++i) {
-                    DataSource<double>::shared_ptr dsd = AdaptDataSource<double>()( args[i] );
+                    DataSource<double>::shared_ptr dsd = boost::dynamic_pointer_cast< DataSource<double> >( args[i] );
                     if (dsd)
                         vds->add( dsd );
                     else

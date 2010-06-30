@@ -200,7 +200,7 @@ namespace RTT
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
         {
             typename internal::DataSource<PropertyType>::shared_ptr res =
-                internal::AdaptDataSource<PropertyType>()( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
+                internal::boost::dynamic_pointer_cast< DataSource<PropertyType> >( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
             if ( res ) {
                 res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
@@ -233,7 +233,7 @@ namespace RTT
 
         base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
         {
-            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< DataSource<T> >( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
             if ( ! ds )
                 return 0;
             return new Alias( name, ds );
@@ -245,7 +245,7 @@ namespace RTT
             if ( ads )
                 return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
 
-            typename internal::DataSource<T>::shared_ptr ds = internal::AdaptDataSource<T>()( in ); // no type conversion is done.
+            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< DataSource<T> >( in ); // no type conversion is done.
             if ( ! ds )
                 return 0;
             return new internal::ActionAliasDataSource<T>(action, ds.get());
@@ -277,7 +277,7 @@ namespace RTT
         }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
-            typename internal::DataSource<T>::shared_ptr d = internal::AdaptDataSource<T>()( in );
+            typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< DataSource<T> >( in );
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {

@@ -111,7 +111,7 @@ namespace RTT
         if (!other) return false;
 
         base::DataSourceBase::shared_ptr r( other );
-        typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
+        typename DataSource<T>::shared_ptr o = boost::dynamic_pointer_cast< DataSource<T> >( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if (o) {
             if ( o->evaluate() ) {
                 this->set( o->value() );
@@ -132,7 +132,7 @@ namespace RTT
 
         // Use the same rules of parameter passing as C++, but no const for 'int',...
         base::DataSourceBase::shared_ptr r( other );
-        typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
+        typename DataSource<copy_t>::shared_ptr t = boost::dynamic_pointer_cast< DataSource<copy_t> >( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if ( t )
             return new AssignCommand<T,copy_t>( this, t );
 
