@@ -294,10 +294,10 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
             return false;
         }
         if (kind == "typekit") {
-            log(Info) << "Loaded RTT TypeKit '"<< string(OROCOS_TARGET_NAME) + ":" + shortname  << "/"<< plugname <<"'"<<endlog();
+            log(Info) << "Loaded RTT TypeKit/Transport '" + plugname + "' from '" + shortname +"'"<<endlog();
             loading_lib.is_typekit = true;
         } else {
-            log(Info) << "Loaded RTT Plugin '"<< string(OROCOS_TARGET_NAME) + ":" + shortname  << "/"<< plugname <<"'"<<endlog();
+            log(Info) << "Loaded RTT Plugin '" + plugname + "' from '" + shortname +"'"<<endlog();
             loading_lib.is_typekit = false;
         }
         loadedLibs.push_back(loading_lib);
