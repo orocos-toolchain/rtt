@@ -21,25 +21,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
     list(APPEND CPPS  TinyDemarshaller.cpp tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp )
   ENDIF (XERCES_FOUND AND NOT OS_NOEXCEPTIONS)
   
-  ADD_LIBRARY(rtt-marshalling-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
-  SET_TARGET_PROPERTIES( rtt-marshalling-dynamic_${OROCOS_TARGET} PROPERTIES
-    DEFINE_SYMBOL "RTT_DLL_EXPORT"
-    SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
-    VERSION "${RTT_VERSION}"
-    OUTPUT_NAME rtt-marshalling-${OROCOS_TARGET}
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "-Wl,-zdefs"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
-    CLEAN_DIRECT_OUTPUT 1)
-  target_link_libraries(rtt-marshalling-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
-  
-  install(TARGETS rtt-marshalling-dynamic_${OROCOS_TARGET}
-          LIBRARY DESTINATION lib/orocos/plugins )
-
-  get_target_property(PLUGINLIB_DIR rtt-marshalling-dynamic_${OROCOS_TARGET} LOCATION)
-
-  add_custom_command(TARGET rtt-marshalling-dynamic_${OROCOS_TARGET} POST_BUILD 
-          COMMAND cmake -E make_directory ${PROJ_BINARY_DIR}/rtt/plugins
-          COMMAND cmake -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
+  SET(RTT_DEFINITIONS ${OROCOS-RTT_DEFINITIONS})
+  ADD_RTT_PLUGIN( rtt-marshalling ${RTT_VERSION} ${CPPS})
   
 ENDIF(PLUGINS_ENABLE_MARSHALLING)

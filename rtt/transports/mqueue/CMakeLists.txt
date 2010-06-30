@@ -5,7 +5,7 @@ IF(ENABLE_MQ)
   find_package(Boost 1.37 REQUIRED serialization)
 
 
-  FILE( GLOB CPPS [^.]*.cpp )
+  FILE( GLOB CPPS Dispatcher.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
@@ -21,8 +21,8 @@ IF(ENABLE_MQ)
   endif()
 
 IF ( BUILD_STATIC )
-  ADD_LIBRARY(orocos-rtt-mqueue-static_${OROCOS_TARGET} STATIC ${CPPS})
-  SET_TARGET_PROPERTIES( orocos-rtt-mqueue-static_${OROCOS_TARGET} 
+  ADD_LIBRARY(orocos-rtt-mqueue-${OROCOS_TARGET}_static STATIC ${CPPS})
+  SET_TARGET_PROPERTIES( orocos-rtt-mqueue-${OROCOS_TARGET}_static 
   PROPERTIES DEFINE_SYMBOL "RTT_MQ_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-mqueue-${OROCOS_TARGET}
   CLEAN_DIRECT_OUTPUT 1
@@ -31,12 +31,12 @@ IF ( BUILD_STATIC )
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
 ENDIF( BUILD_STATIC )
 
-  ADD_LIBRARY(orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
-  TARGET_LINK_LIBRARIES(orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} 
-	orocos-rtt-dynamic_${OROCOS_TARGET}
+  ADD_LIBRARY(orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic SHARED ${CPPS})
+  TARGET_LINK_LIBRARIES(orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic 
+	orocos-rtt-${OROCOS_TARGET}_dynamic
 	${MQ_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY}
 	) 
-  SET_TARGET_PROPERTIES( orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} PROPERTIES
+  SET_TARGET_PROPERTIES( orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic PROPERTIES
   DEFINE_SYMBOL "RTT_MQ_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-mqueue-${OROCOS_TARGET}
   LINK_FLAGS "${MQ_LDFLAGS}"
@@ -52,11 +52,15 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-mqueue.pc.in ${CMAKE_CURR
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-mqueue-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h @ONLY)
 
 IF ( BUILD_STATIC )
-  INSTALL(TARGETS orocos-rtt-mqueue-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
+  INSTALL(TARGETS orocos-rtt-mqueue-${OROCOS_TARGET}_static ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
+  SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
+  ADD_RTT_TYPEKIT( rtt-mqueue-typekit ${RTT_VERSION} MQLib.cpp)
+  target_link_libraries( rtt-mqueue-typekit-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
+
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-mqueue-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
-  INSTALL(TARGETS orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
+  INSTALL(TARGETS orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h ${IDLS} DESTINATION include/rtt/transports/mqueue )
 
 ENDIF(ENABLE_MQ)

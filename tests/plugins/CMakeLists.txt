@@ -9,5 +9,5 @@
     LINK_FLAGS "-Wl,-zdefs"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
     )
-  target_link_libraries(service_plugin orocos-rtt-dynamic_${OROCOS_TARGET})
+  target_link_libraries(service_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
 
