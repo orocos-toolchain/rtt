@@ -426,6 +426,13 @@ namespace RTT
     bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool allprops)
     {
         Logger::In in("refreshProperties");
+
+        // if the target is of different type than source, it is replaced by source.
+        if ( target.getType() != "PropertyBag" && target.getType() != source.getType() ) {
+            log(Error) << "Can not populate typed PropertyBag '"<< target.getType() <<"' from '"<<source.getType()<<"' (source and target type differed)."<<endlog();
+            return false;
+        }
+
         //iterate over source, update PropertyBases
         PropertyBag::const_iterator it( target.getProperties().begin() );
         bool failure = false;
