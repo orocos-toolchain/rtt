@@ -65,6 +65,10 @@ namespace RTT
         /**
          * Implements the a ChannelElement using message queues.
          * It converts the C++ calls into MQ messages and vice versa.
+         * @todo This class can be refactored into a base class with
+         * generic mqueue code and a subclass with type specific info.
+         * @todo This is an inspiration for a generic, transport independent
+         * channel element.
          */
         template<typename T>
         class MQChannelElement: public base::ChannelElement<T>
