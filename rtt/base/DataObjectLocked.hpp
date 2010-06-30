@@ -86,14 +86,6 @@ namespace RTT
         virtual void data_sample( const DataType& sample ) {
             Set(sample);
         }
-
-        virtual DataObjectLocked<DataType>* clone() const {
-            return new DataObjectLocked<DataType>();
-        }
-
-        virtual DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectLocked<DataType>*>(this);
-        }
     };
 }}
 

@@ -222,15 +222,6 @@ namespace RTT
             }
 
         }
-
-        virtual DataObjectLockFree<DataType>* clone() const {
-            return new DataObjectLockFree<DataType>();
-        }
-
-        virtual DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectLockFree<DataType>*>(this);
-        }
-
     };
 }}
 

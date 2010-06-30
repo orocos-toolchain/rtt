@@ -82,14 +82,6 @@ namespace RTT
         virtual void data_sample( const DataType& sample ) {
             Set(sample);
         }
-
-        virtual DataObjectUnSync<DataType>* clone() const {
-            return new DataObjectUnSync<DataType>();
-        }
-
-        virtual DataObjectUnSync<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
-            return const_cast<DataObjectUnSync<DataType>*>(this);
-        }
     };
 }}
 

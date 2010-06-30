@@ -71,7 +71,7 @@ namespace RTT
         friend class internal::ConnInputEndpoint<T>;
 
         bool written;
-        typename base::DataObjectInterface<T>::shared_ptr last_written_value;
+        typename internal::AssignableDataSource<T>::shared_ptr last_written_value;
 
         bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
@@ -110,11 +110,10 @@ namespace RTT
 
             if (written)
             {
-                typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+                typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
                 if (last_written_value)
                 {
-                    T sample;
-                    last_written_value->Get(sample);
+                    T sample = last_written_value->get();
                     if ( channel_el_input->data_sample(sample) ) {
                         if ( policy.init )
                             return channel_el_input->write(sample);
@@ -162,8 +161,7 @@ namespace RTT
             {
                 if (!last_written_value)
                 {
-                    last_written_value = new base::DataObject<T>();
-                    last_written_value->deref(); // Data objects are initialized with a refcount of 1
+                    last_written_value = new internal::ValueDataSource<T>();
                 }
             }
             else
@@ -177,9 +175,9 @@ namespace RTT
          */
         T getLastWrittenValue() const
         {
-            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
             if (written && last_written_value)
-                return last_written_value->Get();
+                return last_written_value->get();
             else return T();
         }
 
@@ -191,10 +189,10 @@ namespace RTT
          */
         bool getLastWrittenValue(T& sample) const
         {
-            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
             if (written && last_written_value)
             {
-                sample = last_written_value->Get();
+                sample = last_written_value->get();
                 return true;
             }
             return false;
@@ -217,7 +215,7 @@ namespace RTT
         void setDataSample(const T& sample)
         {
             keepLastWrittenValue(true);
-            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
                 last_written_value->Set(sample);
             written = true;
@@ -233,9 +231,9 @@ namespace RTT
          */
         void write(const T& sample)
         {
-            typename base::DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
-                last_written_value->Set(sample);
+                last_written_value->set(sample);
             written = true;
 
             cmanager.delete_if( boost::bind(

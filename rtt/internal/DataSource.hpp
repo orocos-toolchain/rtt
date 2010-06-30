@@ -173,20 +173,14 @@ namespace RTT
       virtual void set( param_t t ) = 0;
 
       /**
-       * Get a reference (or null) to the value of this DataSource.
-       * Getting a reference to an  internal data structure is not thread-safe.
-       * DataSources which wish to protect their data from concurrent access may
-       * return the null reference with this method. All calls to set() must first
-       * check whether they do not return null.
+       * Get a reference to the value of this DataSource.
+       * Getting a reference to an internal data structure is not thread-safe.
        */
       virtual reference_t set() = 0;
 
       /**
        * Get a const reference (or null) to the value of this DataSource.
        * Getting a reference to an  internal data structure is not thread-safe.
-       * DataSources which wish to protect their data from concurrent access may
-       * return the null reference with this method. All calls to rvalue() must first
-       * check whether they do not return null.
        */
       virtual const_reference_t rvalue() const = 0;
 

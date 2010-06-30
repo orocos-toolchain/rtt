@@ -111,24 +111,23 @@ namespace RTT
         {
             if (policy.type == ConnPolicy::DATA)
             {
-                base::DataObjectInterface<T>* data_object = 0;
+                typename base::DataObjectInterface<T>::shared_ptr data_object;
                 switch (policy.lock_policy)
                 {
                 case ConnPolicy::LOCKED:
-                    data_object = new base::DataObjectLocked<T>(initial_value);
+                    data_object.reset( new base::DataObjectLocked<T>(initial_value) );
                     break;
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    data_object = new base::DataObjectLockFree<T>(initial_value);
+                    data_object.reset( new base::DataObjectLockFree<T>(initial_value) );
                     break;
 #endif
                 case ConnPolicy::UNSYNC:
-                    data_object = new base::DataObjectUnSync<T>(initial_value);
+                    data_object.reset( new base::DataObjectUnSync<T>(initial_value) );
                     break;
                 }
 
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
-                data_object->deref(); // data objects are initialized with a refcount of 1
                 return result;
             }
             else if (policy.type == ConnPolicy::BUFFER)

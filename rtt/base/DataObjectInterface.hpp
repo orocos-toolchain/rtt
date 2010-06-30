@@ -46,12 +46,7 @@ namespace RTT
 
 
     /**
-     * @brief A DataObjectInterface extends the internal::AssignableDataSource with
-     * implementations of multi-threaded read/write solutions. It is initially not
-     * reference counted, such that DataObjects may be created on the stack.
-     * Store a DataObject in a shared_ptr and use this->deref() to get a reference counted version.
-     * This dual policy was introduced to be consistent with the other buffer
-     * implementations.
+     * @brief A DataObjectInterface implements multi-threaded read/write solutions.
      *
      * @see DataObject
      * @param T The \a DataType which can be Get() or Set() with this DataObject.
@@ -59,20 +54,17 @@ namespace RTT
      */
     template <class T>
     class DataObjectInterface
-        : public internal::AssignableDataSource<T>
     {
     public:
         /**
-         * If you plan to use a reference counted DataObject, use this
-         * type to store it and apply this->deref() to enable reference counting.
+         * Used for shared_ptr management.
          */
-        typedef typename boost::intrusive_ptr<DataObjectInterface<T> > shared_ptr;
+        typedef typename boost::shared_ptr<DataObjectInterface<T> > shared_ptr;
 
         /**
          * Create a DataObject which is initially not reference counted.
          */
         DataObjectInterface() {
-            this->ref();
         }
 
         /**
@@ -114,36 +106,6 @@ namespace RTT
          * @param sample
          */
         virtual void data_sample( const DataType& sample ) = 0;
-
-        /**
-         * Normally, value() does not trigger a get(), but for
-         * DataObjects, this is actually the sanest thing to
-         * do.
-         */
-        typename internal::DataSource<T>::result_t value() const {
-            return this->Get();
-        }
-
-        virtual typename internal::DataSource<DataType>::result_t get() const {
-            return this->Get();
-        }
-
-        virtual void set( typename internal::AssignableDataSource<DataType>::param_t t ) {
-            this->Set( t );
-        }
-
-        virtual typename internal::AssignableDataSource<DataType>::reference_t set() {
-            // return null reference, allowed by API.
-            typename internal::DataSource<DataType>::value_t* tmp = 0;
-            return typename internal::AssignableDataSource<DataType>::reference_t(*tmp);
-        }
-
-        virtual typename internal::AssignableDataSource<DataType>::const_reference_t rvalue() const {
-            // return null reference, allowed by API.
-            typename internal::DataSource<DataType>::value_t* tmp = 0;
-            return typename internal::AssignableDataSource<DataType>::const_reference_t(*tmp);
-        }
-
     };
 }}
 
