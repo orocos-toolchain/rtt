@@ -109,7 +109,7 @@ namespace RTT
           {
             //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
             //Only narrow.
-//             internal::AssignableDataSource<T>* ad = internal::AdaptAssignableDataSource<T>()( target );
+//             internal::AssignableDataSource<T>* ad = boost::dynamic_pointer_cast< AssignableDataSource<T> >( target );
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             if ( ad ) {
                 PropertyType value;

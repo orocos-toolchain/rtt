@@ -231,7 +231,7 @@ namespace RTT
                 base::DataSourceBase::shared_ptr front = args.front();
 
                 typename AssignableDataSource<assign_arg_type>::shared_ptr a =
-                    AdaptAssignableDataSource<assign_arg_type>()( front ); // note: no conversion done, must be same type.
+                    boost::dynamic_pointer_cast< AssignableDataSource<assign_arg_type> >( front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
                     ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());
                 }
@@ -357,7 +357,7 @@ namespace RTT
                 base::DataSourceBase::shared_ptr front = args.front();
 
                 typename AssignableDataSource<assign_arg_type>::shared_ptr a =
-                    AdaptAssignableDataSource<assign_arg_type>()( front );
+                    boost::dynamic_pointer_cast< AssignableDataSource<assign_arg_type> >( front );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());

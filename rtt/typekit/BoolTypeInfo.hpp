@@ -31,7 +31,7 @@ namespace RTT
             virtual std::istream& read(std::istream& os, base::DataSourceBase::shared_ptr out) const
             {
 #ifdef OS_HAVE_STREAMS
-                internal::AssignableDataSource<bool>::shared_ptr d = internal::AdaptAssignableDataSource<bool> ()(out);
+                internal::AssignableDataSource<bool>::shared_ptr d = boost::dynamic_pointer_cast< AssignableDataSource<bool> >(out);
                 if (d)
                 {
                     boolalpha(os);
