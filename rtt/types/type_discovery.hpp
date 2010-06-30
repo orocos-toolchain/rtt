@@ -24,6 +24,7 @@
  */
 
 #include <cassert>
+#include <boost/version.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/serialization/vector.hpp>
@@ -106,7 +107,7 @@ namespace RTT
 
             template<class T>
             void discover( T& t) {
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104100
                 boost::archive::detail::load_non_pointer_type<type_discovery>::load_only::invoke(*this,t);
 #else
                 boost::archive::detail::load_non_pointer_type<type_discovery,T>::load_only::invoke(*this,t);

@@ -270,7 +270,7 @@ namespace RTT
              */
             template<class T>
             binary_data_iarchive &load_a_type(T &t,boost::mpl::false_){
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104100
                 boost::archive::detail::load_non_pointer_type<binary_data_iarchive>::load_only::invoke(*this,t);
 #else
                 boost::archive::detail::load_non_pointer_type<binary_data_iarchive,T>::load_only::invoke(*this,t);
