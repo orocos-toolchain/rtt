@@ -44,6 +44,9 @@
 #include "../rtt-config.h"
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
 
 #include "../base/DataSourceBase.hpp"
 
@@ -85,7 +88,8 @@ namespace RTT
        */
       typedef T value_t;
       typedef T result_t;
-      typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
+      typedef typename boost::mpl::if_< typename boost::is_void<T>, void, typename boost::add_reference<typename boost::add_const<T>::type>::type >::type const_reference_t;
+//      typedef typename boost::mpl::eval_if< typename boost::is_void<T>, boost::mpl::identity<void>, boost::mpl::identity<void> >::type const_reference_t;
 
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
@@ -155,9 +159,9 @@ namespace RTT
       ~AssignableDataSource();
   public:
       typedef typename DataSource<T>::value_t value_t;
+      typedef typename DataSource<T>::const_reference_t const_reference_t;
       typedef typename boost::call_traits<value_t>::param_type param_t;
       typedef typename boost::call_traits<value_t>::reference reference_t;
-      typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
 
       // For assignment from another datasource, we use the call_traits convention but
       // remove the 'const' for the 'small' types. This to avoid requiring a DataSourceAdaptor.

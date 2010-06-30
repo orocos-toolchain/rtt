@@ -138,7 +138,7 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 if ( !data ) {
                     log(Error) << "TypeInfo of type "<< this->getTypeName() <<" can't handle (non-assignable) types of type "<< item->getTypeInfo() <<endlog();
                     return base::DataSourceBase::shared_ptr();

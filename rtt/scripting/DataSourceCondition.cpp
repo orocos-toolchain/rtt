@@ -65,6 +65,11 @@ namespace RTT {
       return result;
   }
 
+  bool const& DataSourceCondition::rvalue() const
+  {
+      return result;
+  }
+
   ConditionInterface* DataSourceCondition::condition() const
   {
       return cond;

@@ -291,11 +291,11 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     BOOST_REQUIRE( atype->getPart("0") );
 
     // Check individual part lookup by index:
-    AssignableDataSource<int>::shared_ptr a0 = AdaptAssignableDataSource<int>()( atype->getPart("0").get() );
-    AssignableDataSource<int>::shared_ptr a1 = AdaptAssignableDataSource<int>()( atype->getPart("1").get() );
-    AssignableDataSource<int>::shared_ptr a2 = AdaptAssignableDataSource<int>()( atype->getPart("2").get() );
-    DataSource<int>::shared_ptr siz = AdaptDataSource<int>()( atype->getPart("size").get() );
-    DataSource<int>::shared_ptr cap = AdaptDataSource<int>()( atype->getPart("capacity").get() );
+    AssignableDataSource<int>::shared_ptr a0 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("0") );
+    AssignableDataSource<int>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("1") );
+    AssignableDataSource<int>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("2") );
+    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getPart("size") );
+    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getPart("capacity") );
 
     BOOST_REQUIRE( a0 );
     BOOST_REQUIRE( a1 );
@@ -356,10 +356,10 @@ BOOST_AUTO_TEST_CASE( testStringContainerType )
     BOOST_REQUIRE( a0 );
 
     // Check individual part lookup by index:
-    AssignableDataSource<char>::shared_ptr a1 = AdaptAssignableDataSource<char>()( atype->getPart("1").get() );
-    AssignableDataSource<char>::shared_ptr a2 = AdaptAssignableDataSource<char>()( atype->getPart("2").get() );
-    DataSource<int>::shared_ptr siz = AdaptDataSource<int>()( atype->getPart("size").get() );
-    DataSource<int>::shared_ptr cap = AdaptDataSource<int>()( atype->getPart("capacity").get() );
+    AssignableDataSource<char>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getPart("1") );
+    AssignableDataSource<char>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getPart("2") );
+    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getPart("size") );
+    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getPart("capacity") );
 
     BOOST_REQUIRE( a1 );
     BOOST_REQUIRE( a2 );
@@ -419,13 +419,13 @@ BOOST_AUTO_TEST_CASE( testCTypeDiscovery )
 
     // Access top level elements
     BOOST_REQUIRE( a->getPart("ai") );
-    AssignableDataSource<int>::shared_ptr ai3 = AdaptAssignableDataSource<int>()( a->getPart("ai")->getPart("3").get() );
+    AssignableDataSource<int>::shared_ptr ai3 = dynamic_pointer_cast< AssignableDataSource<int> >( a->getPart("ai")->getPart("3") );
     BOOST_REQUIRE( b->getPart("ai") );
-    AssignableDataSource<int>::shared_ptr bi3 = AdaptAssignableDataSource<int>()( b->getPart("ai")->getPart("3").get() );
+    AssignableDataSource<int>::shared_ptr bi3 = dynamic_pointer_cast< AssignableDataSource<int> >( b->getPart("ai")->getPart("3") );
 
     // Access elements in sequences:
-    AssignableDataSource<int>::shared_ptr avi3 = AdaptAssignableDataSource<int>()( av->getPart("3")->getPart("ai")->getPart("3").get() );
-    AssignableDataSource<int>::shared_ptr bvi3 = AdaptAssignableDataSource<int>()( bv->getPart("3")->getPart("ai")->getPart("3").get() );
+    AssignableDataSource<int>::shared_ptr avi3 = dynamic_pointer_cast< AssignableDataSource<int> >( av->getPart("3")->getPart("ai")->getPart("3") );
+    AssignableDataSource<int>::shared_ptr bvi3 = dynamic_pointer_cast< AssignableDataSource<int> >( bv->getPart("3")->getPart("ai")->getPart("3") );
 
     BOOST_REQUIRE( ai3 );
     BOOST_REQUIRE( bi3 );

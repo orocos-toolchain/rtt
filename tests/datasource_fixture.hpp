@@ -151,6 +151,11 @@ std::ostream& operator<<(std::ostream& os, const CType& a)
             return mcopy;
         }
 
+        typename DataSource<T>::const_reference_t rvalue() const
+        {
+            return mcopy;
+        }
+
         void updated() { mcopy = mref; }
 
         virtual UpdatedReferenceDataSource<T>* clone() const { return new UpdatedReferenceDataSource(mref); }

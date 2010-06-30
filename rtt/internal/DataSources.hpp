@@ -39,6 +39,7 @@
 #ifndef ORO_CORELIB_DATASOURCES_HPP
 #define ORO_CORELIB_DATASOURCES_HPP
 
+#include "mystd.hpp"
 #include "DataSource.hpp"
 #include "DataSourceAdaptor.hpp"
 #include "DataSourceTypeInfo.hpp"
@@ -149,6 +150,11 @@ namespace RTT
 			return mdata;
 		}
 
+        typename DataSource<T>::const_reference_t rvalue() const
+        {
+            return mdata;
+        }
+
         virtual ConstantDataSource<T>* clone() const;
 
         virtual ConstantDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
@@ -164,7 +170,7 @@ namespace RTT
             : public DataSource<T>
         {
             // a reference to a value_t
-            typename AssignableDataSource<T>::const_reference_t mref;
+            typename DataSource<T>::const_reference_t mref;
         public:
             /**
              * Use shared_ptr.
@@ -173,7 +179,7 @@ namespace RTT
 
             typedef boost::intrusive_ptr<ConstReferenceDataSource<T> > shared_ptr;
 
-            ConstReferenceDataSource( typename AssignableDataSource<T>::const_reference_t ref );
+            ConstReferenceDataSource( typename DataSource<T>::const_reference_t ref );
 
             typename DataSource<T>::result_t get() const
             {
@@ -181,6 +187,11 @@ namespace RTT
             }
 
             typename DataSource<T>::result_t value() const
+            {
+                return mref;
+            }
+
+            typename DataSource<T>::const_reference_t rvalue() const
             {
                 return mref;
             }
@@ -281,6 +292,11 @@ namespace RTT
             typename DataSource<T>::result_t value() const
             {
                 return alias->value();
+            }
+
+            typename DataSource<T>::const_reference_t rvalue() const
+            {
+                return alias->rvalue();
             }
 
             virtual void reset() { alias->reset(); }
@@ -412,14 +428,15 @@ namespace RTT
    */
   template<typename function>
   class BinaryDataSource
-    : public DataSource<typename function::result_type>
+    : public DataSource< typename remove_cr<typename function::result_type>::type >
   {
-    typedef typename function::result_type value_t;
-    typedef typename function::first_argument_type  first_arg_t;
-    typedef typename function::second_argument_type second_arg_t;
+    typedef typename remove_cr<typename function::result_type>::type value_t;
+    typedef typename remove_cr<typename function::first_argument_type>::type  first_arg_t;
+    typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
     typename DataSource<first_arg_t>::shared_ptr mdsa;
     typename DataSource<second_arg_t>::shared_ptr mdsb;
     function fun;
+    mutable value_t mdata;
   public:
     typedef boost::intrusive_ptr<BinaryDataSource<function> > shared_ptr;
 
@@ -438,15 +455,18 @@ namespace RTT
       {
         first_arg_t a = mdsa->get();
         second_arg_t b = mdsb->get();
-        return fun( a, b );
+        return mdata = fun( a, b );
       }
 
     virtual value_t value() const
       {
-        first_arg_t a = mdsa->value();
-        second_arg_t b = mdsb->value();
-        return fun( a, b );
+        return mdata;
       }
+
+    typename DataSource<value_t>::const_reference_t rvalue() const
+    {
+        return mdata;
+    }
 
     virtual void reset()
       {
@@ -465,82 +485,19 @@ namespace RTT
   };
 
   /**
-   * A DataSource which returns the return value of a ternary function.
-   */
-  template<typename function>
-  class TernaryDataSource
-    : public DataSource<typename function::result_type>
-  {
-    typedef typename function::result_type value_t;
-    typedef typename function::first_argument_type first_arg_t;
-    typedef typename function::second_argument_type second_arg_t;
-    typedef typename function::third_argument_type third_arg_t;
-    typename DataSource<first_arg_t>::shared_ptr mdsa;
-    typename DataSource<second_arg_t>::shared_ptr mdsb;
-    typename DataSource<third_arg_t>::shared_ptr mdsc;
-    function fun;
-  public:
-    typedef boost::intrusive_ptr<TernaryDataSource<function> > shared_ptr;
-
-      /**
-       * Create a DataSource which returns the return value of a function
-       * \a f which is given argument \a a to \a c.
-       */
-    TernaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
-                       typename DataSource<second_arg_t>::shared_ptr b,
-                       typename DataSource<third_arg_t>::shared_ptr c,
-                       function f )
-      : mdsa( a ), mdsb( b ), mdsc( c ), fun( f )
-      {
-      }
-
-    virtual value_t get() const
-      {
-        first_arg_t a = mdsa->get();
-        second_arg_t b = mdsb->get();
-        third_arg_t c = mdsc->get();
-        return fun( a, b, c );
-      }
-
-    virtual value_t value() const
-      {
-        first_arg_t a = mdsa->value();
-        second_arg_t b = mdsb->value();
-        third_arg_t c = mdsc->value();
-        return fun( a, b, c );
-      }
-
-    virtual void reset()
-      {
-        mdsa->reset();
-        mdsb->reset();
-        mdsc->reset();
-      }
-
-      virtual TernaryDataSource<function>* clone() const
-      {
-          return new TernaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(), fun);
-      }
-
-      virtual TernaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-          return new TernaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), mdsc->copy( alreadyCloned ), fun );
-      }
-
-  };
-
-  /**
    * A DataSource which returns the return value of a unary function.
    * The return value of get() and the input argument are infered from the
    * \a function signature type.
    */
   template <typename function>
   class UnaryDataSource
-    : public DataSource<typename function::result_type>
+    : public DataSource<typename remove_cr<typename function::result_type>::type>
   {
-    typedef typename function::result_type value_t;
-    typedef typename function::argument_type arg_t;
+    typedef typename remove_cr<typename function::result_type>::type value_t;
+    typedef typename remove_cr<typename function::argument_type>::type arg_t;
     typename DataSource<arg_t>::shared_ptr mdsa;
     function fun;
+    mutable value_t mdata;
   public:
     typedef boost::intrusive_ptr<UnaryDataSource<function> > shared_ptr;
 
@@ -555,13 +512,19 @@ namespace RTT
 
     virtual value_t get() const
       {
-        return fun( mdsa->get() );
+        return mdata = fun( mdsa->get() );
       }
 
     virtual value_t value() const
       {
-        return fun( mdsa->value() );
+        return mdata;
       }
+
+    typename DataSource<value_t>::const_reference_t rvalue() const
+    {
+        return mdata;
+    }
+
 
     void reset()
       {
@@ -587,13 +550,14 @@ namespace RTT
    */
   template<typename function>
   class NArityDataSource
-    : public DataSource<typename function::result_type>
+    : public DataSource<typename remove_cr<typename function::result_type>::type>
   {
-      typedef typename function::result_type value_t;
-      typedef typename function::argument_type  arg_t;
+      typedef typename remove_cr<typename function::result_type>::type value_t;
+      typedef typename remove_cr<typename function::argument_type>::type  arg_t;
       mutable std::vector<arg_t> margs;
       std::vector<typename DataSource<arg_t>::shared_ptr > mdsargs;
       function fun;
+      mutable value_t mdata;
   public:
       typedef boost::intrusive_ptr<NArityDataSource<function> > shared_ptr;
 
@@ -625,15 +589,17 @@ namespace RTT
           assert( mdsargs.size() == margs.size() );
           for( unsigned int i=0; i !=mdsargs.size(); ++i)
               margs[i] = mdsargs[i]->get();
-          return fun( margs );
+          return mdata = fun( margs );
       }
 
       virtual value_t value() const
+        {
+          return mdata;
+        }
+
+      typename DataSource<value_t>::const_reference_t rvalue() const
       {
-          assert( mdsargs.size() == margs.size() );
-          for( unsigned int i=0; i !=mdsargs.size(); ++i)
-              margs[i] = mdsargs[i]->value();
-          return fun( margs ); // fun is allowed to return margs directly.
+          return mdata;
       }
 
       virtual void reset()

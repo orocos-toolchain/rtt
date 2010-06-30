@@ -65,6 +65,7 @@ namespace RTT
       ~DataSourceCommand();
       bool get() const;
       bool value() const;
+      bool const& rvalue() const;
       void reset();
       base::ActionInterface* command() const;
       virtual DataSourceCommand* clone() const;

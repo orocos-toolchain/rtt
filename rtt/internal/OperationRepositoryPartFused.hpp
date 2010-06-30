@@ -223,7 +223,7 @@ namespace RTT
 
                 virtual base::DataSourceBase::shared_ptr produceHandle() const {
                     // Because of copy/clone,value objects must begin unbound.
-                    return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature>& > >();
+                    return new internal::UnboundDataSource<ValueDataSource<SendHandle<Signature> > >();
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {

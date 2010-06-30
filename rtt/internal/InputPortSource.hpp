@@ -88,6 +88,8 @@ namespace RTT
 
         typename DataSource<T>::result_t value() const
         { return mvalue; }
+        typename DataSource<T>::const_reference_t rvalue() const
+        { return mvalue; }
         typename DataSource<T>::result_t get() const
         {
             if ( evaluate() )

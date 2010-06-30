@@ -42,6 +42,7 @@
 #include "Operators.hpp"
 #include "../internal/DataSources.hpp"
 #include "../internal/DataSourceAdaptor.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
@@ -55,8 +56,8 @@ namespace RTT
         class UnaryOperator
             : public UnaryOp
         {
-            typedef typename function::argument_type arg_t;
-            typedef typename function::result_type result_t;
+            typedef typename internal::remove_cr<typename function::argument_type>::type arg_t;
+            typedef typename internal::remove_cr<typename function::result_type>::type result_t;
             const char* mop;
             function fun;
         public:
@@ -67,8 +68,9 @@ namespace RTT
             internal::DataSource<result_t>* build( const std::string& op, base::DataSourceBase* a )
             {
                 if ( op != mop ) return 0;
+                base::DataSourceBase::shared_ptr dsb = a;
                 typename internal::DataSource<arg_t>::shared_ptr arg =
-                    boost::dynamic_pointer_cast< DataSource<arg_t> >( a ); // do not call convert(a) here ! Would always succeed.
+                    boost::dynamic_pointer_cast< internal::DataSource<arg_t> >( dsb ); // do not call convert(a) here ! Would always succeed.
                 if ( ! arg ) return 0;
                 return new internal::UnaryDataSource<function>( arg, fun );
             }
@@ -83,9 +85,9 @@ namespace RTT
         class BinaryOperator
             : public BinaryOp
         {
-            typedef typename function::first_argument_type arg1_t;
-            typedef typename function::second_argument_type arg2_t;
-            typedef typename function::result_type result_t;
+            typedef typename internal::remove_cr<typename function::first_argument_type>::type arg1_t;
+            typedef typename internal::remove_cr<typename function::second_argument_type>::type arg2_t;
+            typedef typename internal::remove_cr<typename function::result_type>::type result_t;
             const char* mop;
             function fun;
         public:
@@ -99,10 +101,11 @@ namespace RTT
                 // operation (+,-,...) and first argument type must match.
                 if ( op != mop || a->getTypeInfo() != internal::DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
                 //         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
+                base::DataSourceBase::shared_ptr dsb = a;
                 typename internal::DataSource<arg1_t>::shared_ptr arg1 =
-                    boost::dynamic_pointer_cast< DataSource<arg1_t> >( a ); // first argument must be exact match.
+                    boost::dynamic_pointer_cast< internal::DataSource<arg1_t> >( dsb ); // first argument must be exact match.
                 typename internal::DataSource<arg2_t>::shared_ptr arg2 =
-                    boost::dynamic_pointer_cast< DataSource<arg2_t> >( internal::DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
+                    boost::dynamic_pointer_cast< internal::DataSource<arg2_t> >( internal::DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
                 //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
                 //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
                 if ( !arg1 || ! arg2 ) return 0;
@@ -118,8 +121,8 @@ namespace RTT
         class DotOperator
             : public DotOp
         {
-            typedef typename function::argument_type arg1_t;
-            typedef typename function::result_type result_t;
+            typedef typename internal::remove_cr<typename function::argument_type>::type arg1_t;
+            typedef typename internal::remove_cr<typename function::result_type>::type result_t;
             const char* memb;
             function fun;
         public:
@@ -134,8 +137,9 @@ namespace RTT
             {
                 if ( member != memb ) return 0;
                 //         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
+                base::DataSourceBase::shared_ptr dsb = a;
                 typename internal::DataSource<arg1_t>::shared_ptr arg1 =
-                    boost::dynamic_pointer_cast< DataSource<arg1_t> >( a );
+                    boost::dynamic_pointer_cast< internal::DataSource<arg1_t> >( dsb );
                 if ( !arg1 ) return 0;
                 //         Logger::log() << "success !"<< Logger::endl;
                 return new internal::UnaryDataSource<function>( arg1, fun );

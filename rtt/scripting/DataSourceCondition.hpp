@@ -63,6 +63,7 @@ namespace RTT
       ~DataSourceCondition();
       bool get() const;
       bool value() const;
+      bool const& rvalue() const;
       void reset();
       base::ConditionInterface* condition() const;
       virtual DataSourceCondition* clone() const;

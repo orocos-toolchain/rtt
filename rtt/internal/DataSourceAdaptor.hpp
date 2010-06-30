@@ -37,8 +37,8 @@
 
 #include "DataSource.hpp"
 
-#ifndef DATASOURCE_ADAPTOR_HPP
 #define DATASOURCE_ADAPTOR_HPP
+#ifndef DATASOURCE_ADAPTOR_HPP
 
 namespace RTT
 {

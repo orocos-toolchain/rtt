@@ -72,7 +72,7 @@ namespace RTT
     ConstReferenceDataSource<T>::~ConstReferenceDataSource() {}
 
     template<typename T>
-    ConstReferenceDataSource<T>::ConstReferenceDataSource( typename AssignableDataSource<T>::const_reference_t ref )
+    ConstReferenceDataSource<T>::ConstReferenceDataSource( typename DataSource<T>::const_reference_t ref )
         : mref( ref )
     {
     }

@@ -65,6 +65,10 @@ namespace RTT
             return last;
         }
 
+        os::TimeService::Seconds const& rvalue() const {
+            return last;
+        }
+
         void reset() {
             // get new pointer to ts also ?
             stamp = ts->getTicks();

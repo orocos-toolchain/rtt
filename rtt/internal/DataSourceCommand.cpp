@@ -69,6 +69,11 @@ namespace RTT {
     return mresult;
   }
 
+  bool const& DataSourceCommand::rvalue() const
+  {
+    return mresult;
+  }
+
   ActionInterface* DataSourceCommand::command() const
   {
       return comm;

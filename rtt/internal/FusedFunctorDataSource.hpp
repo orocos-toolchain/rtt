@@ -26,11 +26,12 @@ namespace RTT
         template<typename Signature>
         struct FusedFunctorDataSource
         : public DataSource<
-                  typename boost::function_traits<Signature>::result_type>
+                  typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
           {
-              typedef typename boost::function_traits<Signature>::result_type
+              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
                       result_type;
               typedef result_type value_t;
+              typedef typename DataSource<value_t>::const_reference_t const_reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -56,6 +57,11 @@ namespace RTT
               }
 
               value_t value() const
+              {
+                  return ret.result();
+              }
+
+              const_reference_t rvalue() const
               {
                   return ret.result();
               }
@@ -110,11 +116,12 @@ namespace RTT
         template<typename Signature>
         struct FusedMCallDataSource
         : public DataSource<
-                  typename boost::function_traits<Signature>::result_type>
-          {
-              typedef typename boost::function_traits<Signature>::result_type
+              typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
+        {
+              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
                       result_type;
               typedef result_type value_t;
+              typedef typename DataSource<value_t>::const_reference_t const_reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -137,6 +144,11 @@ namespace RTT
               }
 
               value_t value() const
+              {
+                  return ret.result();
+              }
+
+              const_reference_t rvalue() const
               {
                   return ret.result();
               }
@@ -180,6 +192,7 @@ namespace RTT
           {
               typedef SendHandle<Signature> result_type;
               typedef result_type value_t;
+              typedef typename DataSource<value_t>::const_reference_t const_reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -202,6 +215,11 @@ namespace RTT
               }
 
               value_t value() const
+              {
+                  return sh;
+              }
+
+              const_reference_t rvalue() const
               {
                   return sh;
               }
@@ -238,6 +256,7 @@ namespace RTT
           {
               typedef SendStatus result_type;
               typedef result_type value_t;
+              typedef DataSource<SendStatus>::const_reference_t const_reference_t;
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
@@ -264,6 +283,11 @@ namespace RTT
               }
 
               value_t value() const
+              {
+                  return ss;
+              }
+
+              const_reference_t rvalue() const
               {
                   return ss;
               }

@@ -40,13 +40,18 @@ namespace RTT
             {
                 // calculates the location of the element sequence.
                 if (mparent_offset)
-                    return msize * mindex->get() + mparent_offset->get();
-                return msize * mindex->get();
+                    return mdata = msize * mindex->get() + mparent_offset->get();
+                return mdata = msize * mindex->get();
             }
 
             DataSource<offset_type>::result_t value() const
             {
-                return get();
+                return mdata;
+            }
+
+            DataSource<offset_type>::const_reference_t rvalue() const
+            {
+                return mdata;
             }
 
             virtual OffsetDataSource* clone() const {
@@ -68,6 +73,7 @@ namespace RTT
         private:
             // size of one element.
             const unsigned int msize;
+            mutable unsigned int mdata;
             // [] index
             DataSource<unsigned int>::shared_ptr mindex;
             // parent offset

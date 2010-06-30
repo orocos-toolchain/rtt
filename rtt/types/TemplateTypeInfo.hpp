@@ -200,7 +200,7 @@ namespace RTT
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
         {
             typename internal::DataSource<PropertyType>::shared_ptr res =
-                internal::boost::dynamic_pointer_cast< DataSource<PropertyType> >( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
+                boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
             if ( res ) {
                 res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
@@ -233,7 +233,7 @@ namespace RTT
 
         base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
         {
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< DataSource<T> >( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
+            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
             if ( ! ds )
                 return 0;
             return new Alias( name, ds );
@@ -241,11 +241,11 @@ namespace RTT
 
         base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
         {
-            typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< AssignableDataSource<T> >( in ); // no type conversion is done.
+            typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( in ); // no type conversion is done.
             if ( ads )
                 return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
 
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< DataSource<T> >( in ); // no type conversion is done.
+            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( in ); // no type conversion is done.
             if ( ! ds )
                 return 0;
             return new internal::ActionAliasDataSource<T>(action, ds.get());
@@ -256,7 +256,7 @@ namespace RTT
         virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
             if (source) {
                typename internal::AssignableDataSource<PropertyType>::shared_ptr ad
-                    = boost::dynamic_pointer_cast< AssignableDataSource<PropertyType> >( source );
+                    = boost::dynamic_pointer_cast< internal::AssignableDataSource<PropertyType> >( source );
                 if (ad)
                     return new Property<PropertyType>(name, desc, ad );
                 // else ?
@@ -273,11 +273,11 @@ namespace RTT
 
         virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
             log(Debug) << "Trying to make " << arg->getType() <<" assignable to "<< tname <<"..."<<endlog();
-            return boost::dynamic_pointer_cast< AssignableDataSource<T> >(arg);
+            return boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(arg);
         }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
-            typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< DataSource<T> >( in );
+            typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
@@ -291,7 +291,7 @@ namespace RTT
         }
 
         virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
-            typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< AssignableDataSource<T> >( out );
+            typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( out );
             if ( d && use_ostream ) {
                 detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
@@ -308,7 +308,7 @@ namespace RTT
             const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (source.get() );
             if ( !pb )
                 return false;
-            typename internal::AssignableDataSource<PropertyType>::shared_ptr ads = boost::dynamic_pointer_cast< AssignableDataSource<PropertyType> >( result.get() );
+            typename internal::AssignableDataSource<PropertyType>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<PropertyType> >( result );
             if ( !ads )
                 return false;
 
