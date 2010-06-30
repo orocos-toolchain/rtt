@@ -70,11 +70,7 @@ namespace RTT
    * data of type \a T.
    *
    * @see base::DataSourceBase for shared_ptr use.
-   * @param T The type of data returned by \a get(). It does not
-   * necessarily say that the data is stored as a \a T, it only
-   * specifies in which form the get() method returns the data.
-   * Thus a DataSource<const std::string&> returns a const ref to
-   * a string, but may store the string itself by value.
+   * @param T The type of data returned.
    */
   template<typename T>
   class DataSource
@@ -87,8 +83,9 @@ namespace RTT
       /**
        * The bare type of T is extracted into value_t.
        */
-      typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type value_t;
+      typedef T value_t;
       typedef T result_t;
+      typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
 
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
@@ -103,6 +100,12 @@ namespace RTT
        * Return the result of the last \a evaluate() function.
        */
       virtual result_t value() const = 0;
+
+      /**
+       * Get a const reference (or null) to the value of this DataSource.
+       * Getting a reference to an internal data structure is not thread-safe.
+       */
+      virtual const_reference_t rvalue() const = 0;
 
       virtual bool evaluate() const;
 
@@ -177,12 +180,6 @@ namespace RTT
        * Getting a reference to an internal data structure is not thread-safe.
        */
       virtual reference_t set() = 0;
-
-      /**
-       * Get a const reference (or null) to the value of this DataSource.
-       * Getting a reference to an  internal data structure is not thread-safe.
-       */
-      virtual const_reference_t rvalue() const = 0;
 
       virtual bool isAssignable() const { return true; }
 
