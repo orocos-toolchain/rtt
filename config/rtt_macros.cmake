@@ -49,6 +49,7 @@ macro(ADD_RTT_TYPEKIT name version)
 
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
   
+  # Note: typkits don't get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
           LIBRARY DESTINATION lib/orocos/types NAMELINK_SKIP)
 
@@ -82,8 +83,9 @@ macro(ADD_RTT_PLUGIN name version)
 
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
   
+  # Note: plugins do get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
-          LIBRARY DESTINATION lib/orocos/plugins NAMELINK_SKIP)
+          LIBRARY DESTINATION lib/orocos/plugins)
 
   get_target_property(PLUGINLIB_DIR ${name}-${OROCOS_TARGET}_plugin LOCATION)
 
