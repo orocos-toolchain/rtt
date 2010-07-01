@@ -40,17 +40,27 @@ ENDMACRO( GLOBAL_ADD_SRC )
 # The resulting filename is '${name}-${OROCOS_TARGET}[.dll|.so|...]'
 #
 macro(ADD_RTT_TYPEKIT name version)
+  # Get the name of the current dir (this name will be used as a macro prefix) 
+  get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+  string(REGEX REPLACE ".*/(.*)" "\\1" PREFIX ${SELF_DIR})
+  string(TOUPPER ${PREFIX} UPREFIX)
+
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
+    DEFINE_SYMBOL "RTT_${UPREFIX}_DLL_EXPORT"
     VERSION "${version}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     CLEAN_DIRECT_OUTPUT 1)
 
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
-  
+
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${PREFIX}-config.h @ONLY)
+
   # Note: typkits don't get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
+          ARCHIVE DESTINATION lib/orocos/types
           LIBRARY DESTINATION lib/orocos/types NAMELINK_SKIP)
 
   get_target_property(TYPEKITLIB_DIR ${name}-${OROCOS_TARGET}_plugin LOCATION)
@@ -74,17 +84,27 @@ endmacro(ADD_RTT_TYPEKIT name)
 # The resulting filename is '${name}-${OROCOS_TARGET}[.dll|.so|...]'
 #
 macro(ADD_RTT_PLUGIN name version)
+  # Get the name of the current dir (this name will be used as a macro prefix) 
+  get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+  string(REGEX REPLACE ".*/(.*)" "\\1" PREFIX ${SELF_DIR})
+  string(TOUPPER ${PREFIX} UPREFIX)
+
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
+    DEFINE_SYMBOL "RTT_${UPREFIX}_DLL_EXPORT"
     VERSION "${version}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     CLEAN_DIRECT_OUTPUT 1)
 
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
   
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${PREFIX}-config.h @ONLY)
+
   # Note: plugins do get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
+          ARCHIVE DESTINATION lib/orocos/plugins
           LIBRARY DESTINATION lib/orocos/plugins)
 
   get_target_property(PLUGINLIB_DIR ${name}-${OROCOS_TARGET}_plugin LOCATION)
