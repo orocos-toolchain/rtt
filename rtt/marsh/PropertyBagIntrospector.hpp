@@ -38,7 +38,7 @@
 #ifndef PROPERTYBAGINTROSPECTOR
 #define PROPERTYBAGINTROSPECTOR
 
-#include "rtt-marsh-config.h"
+#include "../marsh/rtt-marsh-config.h"
 #include "../PropertyBag.hpp"
 #include "../Property.hpp"
 #include "../base/PropertyIntrospection.hpp"

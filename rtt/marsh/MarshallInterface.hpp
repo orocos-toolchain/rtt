@@ -39,7 +39,7 @@
 #define PI_PROPERTIES_MARSHALLER
 
 #include <string>
-#include "rtt-marsh-config.h"
+#include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
