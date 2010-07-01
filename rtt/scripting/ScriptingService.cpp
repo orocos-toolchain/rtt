@@ -44,7 +44,7 @@
 #include <functional>
 #include <fstream>
 #include <iterator>
-#include "rtt-config.h"
+#include "scripting/rtt-scripting-config.h"
 #include "ProgramExceptions.hpp"
 #include "StatementProcessor.hpp"
 #include "../interface/ServiceProvider.hpp"

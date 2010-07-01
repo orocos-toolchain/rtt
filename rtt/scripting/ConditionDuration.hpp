@@ -39,6 +39,7 @@
 #ifndef CONDITIONDURATION_HPP
 #define CONDITIONDURATION_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 
@@ -50,7 +51,7 @@ namespace RTT
      * A conditional that evaluates true after a certain time has passed.
      * The behaviour can be inverted upon construction.
      */
-    class RTT_API ConditionDuration
+    class RTT_SCRIPTING_API ConditionDuration
         : public base::ConditionInterface
     {
         typedef os::TimeService::nsecs nsecs;

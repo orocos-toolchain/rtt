@@ -38,6 +38,7 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 #include <string>
 
@@ -53,7 +54,7 @@ namespace RTT
      * another command.
      * @deprecated Remove this low-level class since it's nowhere used.
      */
-    class RTT_API CommandIllegal
+    class RTT_SCRIPTING_API CommandIllegal
         : public base::ActionInterface
     {
 

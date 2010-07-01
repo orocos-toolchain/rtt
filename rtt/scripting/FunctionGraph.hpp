@@ -41,7 +41,7 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include "CommandNOP.hpp"
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/AttributeBase.hpp"
 #include "ProgramInterface.hpp"
 
@@ -56,7 +56,7 @@ namespace RTT
      * much in common with a program but is only
      * used for storing a Graph.
      */
-    class RTT_API FunctionGraph
+    class RTT_SCRIPTING_API FunctionGraph
         :public ProgramInterface
     {
     public:

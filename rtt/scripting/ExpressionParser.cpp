@@ -49,7 +49,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include <iostream>
 
 namespace RTT

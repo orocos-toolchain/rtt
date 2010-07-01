@@ -38,6 +38,7 @@
 #ifndef COMMANDNOP_HPP
 #define COMMANDNOP_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
@@ -48,7 +49,7 @@ namespace RTT
      *
      * This command does nothing when executed.
      */
-    class RTT_API CommandNOP : public base::ActionInterface
+    class RTT_SCRIPTING_API CommandNOP : public base::ActionInterface
     {
     public:
         /**

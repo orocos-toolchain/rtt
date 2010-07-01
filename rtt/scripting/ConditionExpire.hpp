@@ -51,7 +51,7 @@ namespace RTT
      * or the last \a reset()
      */
 
-    class RTT_API ConditionExpire
+    class RTT_SCRIPTING_API ConditionExpire
         : public base::ConditionInterface
     {
         typedef os::TimeService::ticks ticks;

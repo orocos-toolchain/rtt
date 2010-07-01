@@ -40,7 +40,7 @@
 #define CONDITIONONCE_HPP
 
 #include "../base/ConditionInterface.hpp"
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
@@ -50,7 +50,7 @@ namespace RTT
      * A conditional that evaluates the first time true
      * and afterwards always false (or vice versa).
      */
-    class RTT_API ConditionOnce
+    class RTT_SCRIPTING_API ConditionOnce
         : public base::ConditionInterface
     {
 

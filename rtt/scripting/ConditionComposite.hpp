@@ -38,6 +38,7 @@
 #ifndef CONDITIONCOMPOSITE_HPP
 #define CONDITIONCOMPOSITE_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ConditionInterface.hpp"
 
 namespace RTT { namespace scripting {
@@ -46,7 +47,7 @@ namespace RTT { namespace scripting {
   /**
    * Compose an 'AND' function of two Conditions.
    */
-  class RTT_API ConditionBinaryCompositeAND
+  class RTT_SCRIPTING_API ConditionBinaryCompositeAND
     : public base::ConditionInterface
   {
     base::ConditionInterface* lhs;
@@ -93,7 +94,7 @@ namespace RTT { namespace scripting {
     /*
      * Compose an 'OR' function of two Conditions.
      */
-  class RTT_API ConditionBinaryCompositeOR
+  class RTT_SCRIPTING_API ConditionBinaryCompositeOR
     : public base::ConditionInterface
   {
     base::ConditionInterface* lhs;
@@ -138,7 +139,7 @@ namespace RTT { namespace scripting {
       }
   };
 
-  class RTT_API ConditionCompositeNOT
+  class RTT_SCRIPTING_API ConditionCompositeNOT
     : public base::ConditionInterface
   {
     base::ConditionInterface* cond;

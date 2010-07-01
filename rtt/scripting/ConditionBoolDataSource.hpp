@@ -38,6 +38,7 @@
 #ifndef CONDITIONBOOLDATASOURCE_HPP
 #define CONDITIONBOOLDATASOURCE_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ConditionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
@@ -51,7 +52,7 @@ namespace RTT
     /**
      * A Condition which holds a boolean DataSource.
      */
-  class RTT_API ConditionBoolDataSource
+  class RTT_SCRIPTING_API ConditionBoolDataSource
     : public base::ConditionInterface
   {
     internal::DataSource<bool>::shared_ptr data;

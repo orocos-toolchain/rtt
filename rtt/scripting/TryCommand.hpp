@@ -39,6 +39,7 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 #include "../base/ConditionInterface.hpp"
 #include "../Logger.hpp"
@@ -55,7 +56,7 @@ namespace RTT
      * and stores the result in a internal::DataSource<bool>.
      * @see TryCommandResult.
      */
-    class RTT_API TryCommand :
+    class RTT_SCRIPTING_API TryCommand :
         public base::ActionInterface
     {
         // we must use a internal::DataSource for correct
@@ -92,7 +93,7 @@ namespace RTT
      * of another command.
      * @see TryCommand
      */
-    class RTT_API TryCommandResult :
+    class RTT_SCRIPTING_API TryCommandResult :
         public base::ConditionInterface
     {
         internal::DataSource<bool>::shared_ptr c;
@@ -123,7 +124,7 @@ namespace RTT
      * EvalCommandResult assumes the EvalCommand has been executed when evaluated.
      * @see EvalCommandResult
      */
-    class RTT_API EvalCommand :
+    class RTT_SCRIPTING_API EvalCommand :
         public base::ActionInterface
     {
         // the result
@@ -153,7 +154,7 @@ namespace RTT
      * a boolean DataSource.
      * @see EvalCommand
      */
-    class RTT_API EvalCommandResult :
+    class RTT_SCRIPTING_API EvalCommandResult :
         public base::ConditionInterface
     {
         internal::DataSource<bool>::shared_ptr c;

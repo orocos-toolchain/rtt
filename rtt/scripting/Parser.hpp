@@ -48,7 +48,7 @@
 #include "../internal/DataSource.hpp"
 #include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
@@ -61,7 +61,7 @@ namespace RTT
      * @see ScriptingAccess for a more user friendly loading of scripts
      * into TaskContexts.
      */
-    class RTT_API Parser
+    class RTT_SCRIPTING_API Parser
     {
         TaskContext* mcaller;
     public:

@@ -46,7 +46,7 @@ namespace RTT
      * A internal::DataSource which returns the time elapsed since the last reset
      * in Seconds.
      */
-    class RTT_API DataSourceTime
+    class RTT_SCRIPTING_API DataSourceTime
         : public internal::DataSource<os::TimeService::Seconds>
     {
         os::TimeService::ticks stamp;

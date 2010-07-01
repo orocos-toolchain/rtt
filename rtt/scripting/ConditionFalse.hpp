@@ -49,7 +49,7 @@ namespace RTT
      * A conditional that evaluates false
      */
 
-    class RTT_API ConditionFalse
+    class RTT_SCRIPTING_API ConditionFalse
                 : public base::ConditionInterface
     {
 

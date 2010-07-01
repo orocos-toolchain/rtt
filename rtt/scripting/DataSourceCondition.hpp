@@ -38,6 +38,7 @@
 #ifndef DATASOURCECONDITION_HPP
 #define DATASOURCECONDITION_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../internal/DataSource.hpp"
 
 namespace RTT
@@ -47,7 +48,7 @@ namespace RTT
    * A class that wraps a Condition in a internal::DataSource<bool>
    * interface.
    */
-  class RTT_API DataSourceCondition
+  class RTT_SCRIPTING_API DataSourceCondition
     : public internal::DataSource<bool>
   {
       base::ConditionInterface* cond;

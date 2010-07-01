@@ -44,7 +44,7 @@
 #include "CommonParser.hpp"
 #include <queue>
 #include <string>
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -55,7 +55,7 @@ namespace RTT
      * Get the peer and object from an invocation path like
      *  a.b.c.d() .
      */
-    class RTT_API PeerParser
+    class RTT_SCRIPTING_API PeerParser
     {
         CommonParser& commonparser;
         rule_t peerpath, peerlocator;
