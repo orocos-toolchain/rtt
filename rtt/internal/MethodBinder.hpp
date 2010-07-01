@@ -65,7 +65,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1 );
+                return boost::bind( boost::mem_fn(m), o, ::_1 );
             }
         };
 
@@ -74,7 +74,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2 );
             }
         };
 
@@ -83,7 +83,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3 );
             }
         };
 
@@ -92,7 +92,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4 );
             }
         };
 
@@ -101,7 +101,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4, boost::lambda::_5 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4, ::_5 );
             }
         };
 
@@ -110,7 +110,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4, boost::lambda::_5, boost::lambda::_6 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4, ::_5, ::_6 );
             }
         };
 
@@ -119,7 +119,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4, boost::lambda::_5, boost::lambda::_6, boost::lambda::_7 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4, ::_5, ::_6, ::_7 );
             }
         };
 
@@ -128,7 +128,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4, boost::lambda::_5, boost::lambda::_6, boost::lambda::_7, boost::lambda::_8 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4, ::_5, ::_6, ::_7, ::_8 );
             }
         };
 
@@ -137,7 +137,7 @@ namespace RTT
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, boost::lambda::_1, boost::lambda::_2, boost::lambda::_3, boost::lambda::_4, boost::lambda::_5, boost::lambda::_6, boost::lambda::_7, boost::lambda::_8, boost::lambda::_9 );
+                return boost::bind( boost::mem_fn(m), o, ::_1, ::_2, ::_3, ::_4, ::_5, ::_6, ::_7, ::_8, ::_9 );
             }
         };
 
