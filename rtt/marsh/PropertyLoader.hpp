@@ -40,7 +40,7 @@
 #define ORO_PROPERTY_LOADER_HPP
 
 #include <string>
-#include "../rtt-config.h"
+#include "rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -50,7 +50,7 @@ namespace RTT
      * Load and save property files to a TaskContext's PropertyBag.
      * The default file format is 'cpf' from the CPFMarshaller class.
      */
-    class RTT_API PropertyLoader
+    class RTT_MARSH_API PropertyLoader
     {
     public:
 

@@ -38,7 +38,7 @@
 
 
 #include "PropertyDemarshaller.hpp"
-#include "rtt-config.h"
+#include "rtt-marsh-config.h"
 
 #ifdef ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE

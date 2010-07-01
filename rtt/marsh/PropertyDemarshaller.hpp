@@ -51,7 +51,7 @@ namespace RTT
      * from a property file.
      * @see PropertyMarshaller to create property files.
      */
-    class RTT_API PropertyDemarshaller
+    class RTT_MARSH_API PropertyDemarshaller
         : public DemarshallInterface
     {
         DemarshallInterface* d;

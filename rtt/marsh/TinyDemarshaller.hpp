@@ -50,7 +50,7 @@ namespace RTT
      * from a Component Property File (CPF) following the CORBA 3 standard.
      * @see CPFMarshaller to create CPF files.
      */
-    class RTT_API TinyDemarshaller
+    class RTT_MARSH_API TinyDemarshaller
         : public DemarshallInterface
     {
         class D;

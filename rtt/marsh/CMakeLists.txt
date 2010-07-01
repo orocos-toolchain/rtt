@@ -23,7 +23,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   
   ADD_LIBRARY(rtt-marshalling-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
   SET_TARGET_PROPERTIES( rtt-marshalling-dynamic_${OROCOS_TARGET} PROPERTIES
-    DEFINE_SYMBOL "RTT_DLL_EXPORT"
+    DEFINE_SYMBOL "RTT_MARSH_DLL_EXPORT"
     SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME rtt-marshalling-${OROCOS_TARGET}
@@ -33,6 +33,8 @@ IF (PLUGINS_ENABLE_MARSHALLING)
     CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(rtt-marshalling-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
   
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-marsh-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-marsh-config.h @ONLY)
+
   install(TARGETS rtt-marshalling-dynamic_${OROCOS_TARGET}
           ARCHIVE DESTINATION lib/orocos/plugins
           LIBRARY DESTINATION lib/orocos/plugins )

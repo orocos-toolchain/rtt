@@ -38,7 +38,7 @@
 #ifndef PI_PROPERTIES_CPFDESERIALIZER
 #define PI_PROPERTIES_CPFDESERIALIZER
 
-#include "../rtt-config.h"
+#include "rtt-marsh-config.h"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/XMLUniDefs.hpp>
@@ -58,7 +58,7 @@ namespace RTT
      * from a Component Property File (CPF) following the CORBA 3 standard.
      * @see CPFMarshaller to create CPF files.
      */
-    class RTT_API CPFDemarshaller
+    class RTT_MARSH_API CPFDemarshaller
         : public DemarshallInterface
     {
 #ifdef XERCES_CPP_NAMESPACE
