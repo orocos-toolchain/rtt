@@ -70,8 +70,8 @@ macro(ADD_RTT_TYPEKIT name version)
 
   if (PROJ_BINARY_DIR)
     add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
-          COMMAND cmake -E make_directory ${PROJ_BINARY_DIR}/rtt/types
-          COMMAND cmake -E copy ${TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJ_BINARY_DIR}/rtt/types
+          COMMAND ${CMAKE_COMMAND} -E copy ${TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
   endif(PROJ_BINARY_DIR)
   
 endmacro(ADD_RTT_TYPEKIT name)
@@ -118,8 +118,8 @@ macro(ADD_RTT_PLUGIN name version)
 
   if (PROJ_BINARY_DIR)
     add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
-          COMMAND cmake -E make_directory ${PROJ_BINARY_DIR}/rtt/plugins
-          COMMAND cmake -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJ_BINARY_DIR}/rtt/plugins
+          COMMAND ${CMAKE_COMMAND} -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
   endif(PROJ_BINARY_DIR)
   
 endmacro(ADD_RTT_PLUGIN name)
