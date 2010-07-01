@@ -40,23 +40,25 @@ ENDMACRO( GLOBAL_ADD_SRC )
 # The resulting filename is '${name}-${OROCOS_TARGET}[.dll|.so|...]'
 #
 macro(ADD_RTT_TYPEKIT name version)
-  # Get the name of the current dir (this name will be used as a macro prefix) 
-  get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-  string(REGEX REPLACE ".*/(.*)" "\\1" PREFIX ${SELF_DIR})
-  string(TOUPPER ${PREFIX} UPREFIX)
-
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
-    DEFINE_SYMBOL "RTT_${UPREFIX}_DLL_EXPORT"
     VERSION "${version}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     CLEAN_DIRECT_OUTPUT 1)
 
+  if (DLL_EXPORT_PREFIX)
+    string(TOUPPER ${DLL_EXPORT_PREFIX} UDLL_EXPORT_PREFIX )
+    set(DEFINE_PREFIX "RTT_${UDLL_EXPORT_PREFIX}_DLL_EXPORT")
+    SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES DEFINE_SYMBOL "${DEFINE_PREFIX}")
+  endif()
+
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
 
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${PREFIX}-config.h @ONLY)
+  if(DLL_EXPORT_PREFIX)
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${DLL_EXPORT_PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${DLL_EXPORT_PREFIX}-config.h @ONLY)
+  endif()
 
   # Note: typkits don't get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
@@ -79,28 +81,32 @@ endmacro(ADD_RTT_TYPEKIT name)
 # Requires: OROCOS_TARGET, 
 #           PROJ_BINARY_DIR (optional, if given plugin is also installed in PROJ_BINARY_DIR/orocos/plugins ),
 #           RTT_DEFINITIONS (optional, added as COMPILE_DEFINITIONS to target's properties).
+#           DLL_EXPORT_PREFIX (optional, defines the symbol RTT_${UDLL_EXPORT_PREFIX}_DLL_EXPORT used for DLL import/export symbols on win32 
 #
 # The resulting CMake target's name is '${name}-${OROCOS_TARGET}_plugin'
 # The resulting filename is '${name}-${OROCOS_TARGET}[.dll|.so|...]'
 #
 macro(ADD_RTT_PLUGIN name version)
-  # Get the name of the current dir (this name will be used as a macro prefix) 
-  get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-  string(REGEX REPLACE ".*/(.*)" "\\1" PREFIX ${SELF_DIR})
-  string(TOUPPER ${PREFIX} UPREFIX)
-
   ADD_LIBRARY(${name}-${OROCOS_TARGET}_plugin SHARED ${ARGN})
   SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES
-    DEFINE_SYMBOL "RTT_${UPREFIX}_DLL_EXPORT"
     VERSION "${version}"
     OUTPUT_NAME ${name}-${OROCOS_TARGET}
+    DEBUG_OUTPUT_NAME ${name}-${OROCOS_TARGET}d
     COMPILE_DEFINITIONS "${RTT_DEFINITIONS}"
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     CLEAN_DIRECT_OUTPUT 1)
 
+  if (DLL_EXPORT_PREFIX)
+    string(TOUPPER ${DLL_EXPORT_PREFIX} UDLL_EXPORT_PREFIX )
+    set(DEFINE_PREFIX "RTT_${UDLL_EXPORT_PREFIX}_DLL_EXPORT")
+    SET_TARGET_PROPERTIES( ${name}-${OROCOS_TARGET}_plugin PROPERTIES DEFINE_SYMBOL "${DEFINE_PREFIX}")
+  endif()
+
   target_link_libraries(${name}-${OROCOS_TARGET}_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
   
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${PREFIX}-config.h @ONLY)
+  if(DLL_EXPORT_PREFIX)
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-${DLL_EXPORT_PREFIX}-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-${DLL_EXPORT_PREFIX}-config.h @ONLY)
+  endif()
 
   # Note: plugins do get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
