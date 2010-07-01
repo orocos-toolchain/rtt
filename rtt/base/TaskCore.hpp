@@ -49,10 +49,7 @@ namespace RTT
 
     /**
      * The minimal Orocos task. It has a state and an ExecutionEngine
-     * to process events,commands, programs, statemachines and run a user function. It
-     * is useful for in embedded systems, where communication between
-     * tasks may be hard coded and hence, no interface browsing or
-     * task browsing is required (for every task).
+     * to process messages and user functions.
      */
     class RTT_API TaskCore
     {
@@ -207,11 +204,10 @@ namespace RTT
         virtual bool isActive() const;
 
         /**
-         * Inspect if the component is in the Running, RunTimeWarning or RunTimeError state.
-         * As RunTimeWarning and RunTimeError are substates of Running, this method
+         * Inspect if the component is in the Running or RunTimeError state.
+         * As RunTimeError is a substate of Running, this method
          * also returns true when the component is in one of these states.
-         * See inRunTimeError() and inRunTimeWarning() for testing these error
-         * conditions.
+         * See inRunTimeError() or testing the run-time error state.
          */
         virtual bool isRunning() const;
 

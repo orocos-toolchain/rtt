@@ -8,30 +8,8 @@ IF (PLUGINS_ENABLE_SCRIPTING)
   INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
   INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
   INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt/scripting )
-  
-  ADD_LIBRARY(rtt-scripting-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
-  SET_TARGET_PROPERTIES( rtt-scripting-dynamic_${OROCOS_TARGET} PROPERTIES
-    DEFINE_SYMBOL "RTT_SCRIPTING_DLL_EXPORT"
-    SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
-    VERSION "${RTT_VERSION}"
-    OUTPUT_NAME rtt-scripting-${OROCOS_TARGET}
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "-Wl,-zdefs"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
-    CLEAN_DIRECT_OUTPUT 1)
-  target_link_libraries(rtt-scripting-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
-  
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-scripting-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-scripting-config.h @ONLY)
-
-  install(TARGETS rtt-scripting-dynamic_${OROCOS_TARGET}
-          ARCHIVE DESTINATION lib/orocos/plugins
-          LIBRARY DESTINATION lib/orocos/plugins )
-
-  get_target_property(PLUGINLIB_DIR rtt-scripting-dynamic_${OROCOS_TARGET} LOCATION)
-
-  add_custom_command(TARGET rtt-scripting-dynamic_${OROCOS_TARGET} POST_BUILD 
-          COMMAND cmake -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
-  
-  SET_SOURCE_FILES_PROPERTIES( ${SRCS} PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+           
+  SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
+  ADD_RTT_PLUGIN( rtt-scripting ${RTT_VERSION} ${CPPS})
 
 ENDIF (PLUGINS_ENABLE_SCRIPTING)

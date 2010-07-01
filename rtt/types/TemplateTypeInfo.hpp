@@ -331,7 +331,8 @@ namespace RTT
             internal::ReferenceDataSource<T> rds(result);
             rds.ref(); // prevent dealloc.
             PropertyBag decomp;
-            return typeDecomposition( &rds, decomp) && refreshProperties(decomp, source);
+            // only try refreshProperties if decomp's type is equal to source type.
+            return typeDecomposition( &rds, decomp) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
         }
 
 		std::string getTypeIdName() const { return typeid(T).name(); }

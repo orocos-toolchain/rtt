@@ -1885,9 +1885,9 @@ Printing Interface of 'the_input_port' :
 	In addition to the <function>PreOperational</function>,
 	<function>Stopped</function> and <function>Running</function>
 	TaskContext states, you can use two additional states for more
-	advanced component behaviour: the <function>FatalError</function>
-	and the <function>RunTimeError</function> states, as in 
-	<xref linkend="fig-ext-component-states" />
+	advanced component behaviour: the <function>Exception</function>, <function>FatalError</function>
+	and the <function>RunTimeError</function> states. The first two are shown in
+	<xref linkend="fig-ext-component-states" />.
       </para>
       <figure id="fig-ext-component-states">
 	<title>
@@ -1902,9 +1902,9 @@ Printing Interface of 'the_input_port' :
 	  </imageobject>
 	  <caption>
 	    <para>
-	      This figure shows the complete state diagram of a
+	      This figure shows the extended state diagram of a
 	      TaskContext.  This is <xref linkend="fig-component-states" />
-	      extended with two more states: <function>RunTimeError</function>
+	      extended with two more states: <function>Exception</function>
 	      and <function>FatalError</function>.
 	    </para>
 	  </caption>
@@ -1913,22 +1913,19 @@ Printing Interface of 'the_input_port' :
       <para>
 	The <function>FatalError</function> state is entered whenever
 	the TaskContext's <function>fatal()</function> function is
-	called, and indicates that an unrecoverable error occured,
-	possibly in the <function>updateHook()</function> or in any
-	other component function. The ExecutionEngine is immediately
-	stopped and <function>stopHook()</function> is called when
-	this state is entered.
+	called, and indicates that an unrecoverable error occured. 
+	The ExecutionEngine is immediately
+	stopped and no more functions are called. This state can
+	not be left and the only next step is destruction of the component
+	(hence 'Fatal').
       </para>
       <para>
-	In order to leave the <function>FatalError</function> state,
-	one needs to call <function>resetError()</function> which calls
-	<function>resetHook()</function>, the user function, in turn.
-	When <function>resetHook()</function> returns true, error
-	recovery was possible and the component becomes
-	<function>Stopped</function> again. In case
-	<function>resetHook()</function> returns false, the
-	TaskContext becomes <function>PreOperational</function> and
-	requires configuration.
+	When an exception happens in your code, the <function>Exception</function> state
+	is entered. Depending on the TaskState, stopHook() and cleanupHook()
+	will be called to give a chance to cleanup. This state is recoverable
+	with the <function>recover()</function> function which drops your
+	component back to the <function>PreOperational</function> state,
+	from which it needs to be configured again.
       </para>
       <para>
 	It is possible that non-fatal run-time errors occur which
@@ -1938,7 +1935,7 @@ Printing Interface of 'the_input_port' :
 	Therefor, in the <function>Running</function> state, one can
 	make a transition to the<function>RunTimeError</function>
 	sub-state by calling <function>error()</function>. See
-	<xref linkend="fig-ext-runtime-states" />
+	<xref linkend="fig-ext-runtime-states" />.
       </para>
       <figure id="fig-ext-runtime-states">
 	<title>
@@ -1953,8 +1950,7 @@ Printing Interface of 'the_input_port' :
 	  </imageobject>
 	  <caption>
 	    <para>
-	      This figure shows the error sub-state of the Running state
-	      as a UML state chart.
+	      Th
 	    </para>
 	  </caption>
 	</mediaobject>
@@ -1965,7 +1961,7 @@ Printing Interface of 'the_input_port' :
 	<function>errorHook()</function> is executed instead of
 	<function>updateHook()</function>.  If at some moment the
 	component detects that it can resume normal operation, it
-	calls the <function>recovered()</function> function, which
+	calls the <function>recover()</function> function, which
 	leads to the Running state again and in the next iteration,
 	<function>updateHook()</function> is called again.
       </para>
@@ -2003,7 +1999,7 @@ Printing Interface of 'the_input_port' :
             if ( rv == NewData ) {
                this->stateUpdate(data);
                faults = 0;
-               this->recovered(); // may be an external supervisor calls this instead.
+               this->recover(); // may be an external supervisor calls this instead.
             } else {
                faults++;
                if (faults > 4)
@@ -2032,7 +2028,7 @@ Printing Interface of 'the_input_port' :
       </para>
       <para>
 	When you want to discard the 'error' state of the component,
-	call mycomp.recovered().  If your component went into
+	call mycomp.recover().  If your component went into
 	FatalError, call mycomp.reset() and mycomp.start() again for
 	processing updateHook() again.
       </para>

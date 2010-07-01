@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../rtt-fwd.hpp"
+#include "../rtt-config.h"
 
 namespace RTT {
     namespace plugin {
@@ -23,7 +24,7 @@ namespace RTT {
          *
          * If neither is specified, it looks for plugins in the current directory (".").
          */
-        class PluginLoader
+        class RTT_API PluginLoader
         {
             static boost::shared_ptr<PluginLoader> minstance;
 

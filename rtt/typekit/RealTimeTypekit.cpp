@@ -48,10 +48,10 @@ namespace RTT
 
         std::string RealTimeTypekitPlugin::getName()
         {
-            return "RTT";
+            return "rtt-types";
         }
     }
 
 }
 
-ORO_TYPEKIT_PLUGIN( RTT::types::RealTimeTypekitPlugin );
+ORO_TYPEKIT_PLUGIN( RTT::types::RealTimeTypekitPlugin )

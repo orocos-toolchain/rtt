@@ -48,7 +48,6 @@
 #include "CorbaTemplateProtocol.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
-#include "../../os/StartStopManager.hpp"
 
 using namespace std;
 using namespace RTT::detail;
@@ -168,12 +167,13 @@ namespace RTT {
           }
         };
 
-        struct CorbaLibPlugin
-            : public TransportPlugin
+        struct CorbaLibPlugin: public TransportPlugin
         {
             bool registerTransport(std::string name, TypeInfo* ti)
             {
                 assert( name == ti->getTypeName() );
+                if ( name == "unknown_t") // register fallback also.
+                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol());
                 if ( name == "int" )
                     return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<int>() );
                 if ( name == "double" )
@@ -203,27 +203,16 @@ namespace RTT {
                 return "CORBA";
             }
 
-            std::string getName() const {
-                return "CorbaRealtime";
+            std::string getTypekitName() const {
+                return "rtt-types";
             }
 
-        } CorbaLibPlugin;
+            std::string getName() const {
+                return "rtt-corba-types";
+            }
 
-        /**
-         * This struct has the sole purpose of invoking
-         * the Import function.
-         */
-        int loadCorbaLib()
-        {
-            TypekitRepository::Import(CorbaLibPlugin);
-            // register fallback also.
-            DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
-            return 0;
-        }
-
-        os::InitFunction CorbaLoader( &loadCorbaLib );
+        };
     }
-
-
 }
 
+ORO_TYPEKIT_PLUGIN( RTT::corba::CorbaLibPlugin )

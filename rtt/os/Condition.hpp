@@ -159,16 +159,18 @@ namespace RTT
          * @return true when the condition occured, false in case the timeout
          * happened.
          */
-        template<class Predicate>
-        bool wait_until(Mutex& m, nsecs abs_time, Predicate& p)
+        bool wait_until(Mutex& m, nsecs abs_time)
         {
             // abs_time is since epoch, so set p_time to epoch, then add our abs_time.
             boost::posix_time::ptime p_time = boost::posix_time::from_time_t(0);
             boost::posix_time::nanosec abs_p_time = boost::posix_time::nanoseconds(abs_time);
             // wakeup time = epoch date + time since epoch
             p_time = p_time + abs_p_time;
-            return c.timed_wait<boost::timed_mutex>(m.m, p_time, p);
+            return c.timed_wait(m, p_time, &Condition::retfalse );
         }
+    private:
+        static bool retfalse() { return false; }
+
 #endif
 
     };

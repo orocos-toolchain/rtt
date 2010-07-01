@@ -198,15 +198,15 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.69749207"
-     inkscape:cx="336.21477"
-     inkscape:cy="716.13717"
+     inkscape:zoom="1.3949841"
+     inkscape:cx="281.74894"
+     inkscape:cy="787.70916"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
      inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      width="744.09449px"
      height="1052.3622px"
      showgrid="false"
@@ -636,11 +636,11 @@
        d="m 328.38499,155.11229 29.40717,101.43359"
        id="path7616" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.9320876px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:0.93208760000000002px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow1Mstart)"
        d="m 404.68852,233.32774 9.31848,9.31847"
        id="path9402" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.9320876px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
+       style="fill:none;stroke:#000000;stroke-width:0.932;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;stroke-miterlimit:4;stroke-dasharray:none;marker-start:url(#Arrow1Mstart)"
        d="m 405.61941,265.13699 9.31848,-9.31848"
        id="path9404" />
     <text

@@ -19,17 +19,15 @@ IF(ENABLE_CORBA)
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
-  # exclude some files:
-  LIST( REMOVE_ITEM HPPS CorbaDataObject.hpp CorbaBuffer.hpp)
+  LIST(REMOVE_ITEM CPPS ${CMAKE_CURRENT_SOURCE_DIR}/CorbaLib.cpp)
 
   ORO_ADD_CORBA_SERVERS(CPPS HPPS ${IDLS} )
-  SET( ENV{GLOBAL_GENERATED_SRCS} "${CPPS}" )
 
   #This has been added in order to generate files before make -j<N>
   # make -j<N> causes corruption of generated files because of overwriting
   ADD_CUSTOM_TARGET( idl DEPENDS ${CPPS} ${HPPS} COMMENT "Generating sources from .idl files")
 
-  #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
+  MESSAGE("CPPS: ${CPPS}")
   #MESSAGE("HPPS: ${HPPS}")
   GLOBAL_ADD_INCLUDE( rtt/transports/corba ${HPPS} OrocosTypes.idl)
   #GLOBAL_ADD_SRC( ${CPPS} )
@@ -48,12 +46,12 @@ IF ( BUILD_STATIC )
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
 ENDIF( BUILD_STATIC )
 
-  ADD_LIBRARY(orocos-rtt-corba-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
-  TARGET_LINK_LIBRARIES(orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
-	orocos-rtt-dynamic_${OROCOS_TARGET}
+  ADD_LIBRARY(orocos-rtt-corba-${OROCOS_TARGET}_dynamic SHARED ${CPPS})
+  TARGET_LINK_LIBRARIES(orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
+	orocos-rtt-${OROCOS_TARGET}_dynamic
 	${CORBA_LIBRARIES}
-	) 
-  SET_TARGET_PROPERTIES( orocos-rtt-corba-dynamic_${OROCOS_TARGET} PROPERTIES
+	)
+  SET_TARGET_PROPERTIES( orocos-rtt-corba-${OROCOS_TARGET}_dynamic PROPERTIES
   DEFINE_SYMBOL "RTT_CORBA_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-corba-${OROCOS_TARGET}
   DEBUG_OUTPUT_NAME orocos-rtt-corba-${OROCOS_TARGET}d
@@ -73,8 +71,13 @@ IF ( BUILD_STATIC )
   INSTALL(TARGETS orocos-rtt-corba-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
+  SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
+  ADD_RTT_TYPEKIT(rtt-corba-typekit ${RTT_VERSION} CorbaLib.cpp)
+  target_link_libraries(rtt-corba-typekit-${OROCOS_TARGET}_plugin  orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
+
+
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
-  INSTALL(TARGETS orocos-rtt-corba-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
+  INSTALL(TARGETS orocos-rtt-corba-${OROCOS_TARGET}_dynamic LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h ${IDLS} DESTINATION include/rtt/transports/corba )
 
 ENDIF(ENABLE_CORBA)

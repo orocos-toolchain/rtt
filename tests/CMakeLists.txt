@@ -12,7 +12,7 @@ IF (BUILD_TESTING)
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY} rtt-scripting-dynamic_${OROCOS_TARGET} rtt-marshalling-dynamic_${OROCOS_TARGET})
+   SET(TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY} rtt-scripting-${OROCOS_TARGET}_plugin rtt-marshalling-${OROCOS_TARGET}_plugin)
 
     # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
     INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
@@ -46,9 +46,11 @@ IF (BUILD_TESTING)
                    ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarshVectLegacy.cpf COPYONLY)
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarsh.cpf
                    ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarsh.cpf COPYONLY)
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf
+                   ${RUNTIME_OUTPUT_DIRECTORY}/property_loading.cpf COPYONLY)
 
     ADD_EXECUTABLE( main-test test-main.cpp )
-    TARGET_LINK_LIBRARIES( main-test orocos-rtt-dynamic_${OROCOS_TARGET})
+    TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic)
     SET_TARGET_PROPERTIES( main-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -57,7 +59,7 @@ IF (BUILD_TESTING)
 
     if ( ${Boost_VERSION} GREATER 103599 )
       ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
-      TARGET_LINK_LIBRARIES( list-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+      TARGET_LINK_LIBRARIES( list-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( list-test PROPERTIES
 	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -68,7 +70,7 @@ IF (BUILD_TESTING)
 
     # repeat for each test
     ADD_EXECUTABLE( core-test test-runner.cpp logger_test.cpp time_test.cpp ptr_test.cpp )
-    TARGET_LINK_LIBRARIES( core-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -76,7 +78,7 @@ IF (BUILD_TESTING)
     ADD_TEST( core-test ${RUNTIME_OUTPUT_DIRECTORY}/core-test )
 
     ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
-    TARGET_LINK_LIBRARIES( task-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    TARGET_LINK_LIBRARIES( task-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     SET_TARGET_PROPERTIES( task-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -84,7 +86,7 @@ IF (BUILD_TESTING)
     ADD_TEST( task-test ${RUNTIME_OUTPUT_DIRECTORY}/task-test )
 
     #ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
-    #TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+    #TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
     #SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
     #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -94,7 +96,7 @@ IF (BUILD_TESTING)
     IF(UNIX AND NOT OROCOS_TARGET STREQUAL "xenomai" )
       ADD_EXECUTABLE( specactivities-test test-runner.cpp
 	specialized_activities.cpp)
-      TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-dynamic_${OROCOS_TARGET} )
+      TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET}_dynamic )
       SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -106,8 +108,8 @@ IF (BUILD_TESTING)
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp operations_fixture.cpp )
       TARGET_LINK_LIBRARIES( corba-test 
-            orocos-rtt-dynamic_${OROCOS_TARGET} 
-            orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+            orocos-rtt-${OROCOS_TARGET}_dynamic 
+            orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
             ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
 	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -121,8 +123,8 @@ IF (BUILD_TESTING)
         IF (UNIX)
           ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp operations_fixture.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
-                orocos-rtt-dynamic_${OROCOS_TARGET} 
-                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-${OROCOS_TARGET}_dynamic 
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -135,8 +137,8 @@ IF (BUILD_TESTING)
           # This server is required to run when the corba-ipc-test runs
           ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp operations_fixture.cpp)
           TARGET_LINK_LIBRARIES( corba-ipc-server 
-                orocos-rtt-dynamic_${OROCOS_TARGET} 
-                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-${OROCOS_TARGET}_dynamic 
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -148,8 +150,8 @@ IF (BUILD_TESTING)
 
     IF(ENABLE_MQ)
       ADD_EXECUTABLE( mqueue-test test-runner.cpp mqueue_test.cpp )
-      TARGET_LINK_LIBRARIES( mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET}
-        orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} ${TEST_LIBRARIES})
+      TARGET_LINK_LIBRARIES( mqueue-test orocos-rtt-${OROCOS_TARGET}_dynamic
+        orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( mqueue-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
@@ -163,8 +165,8 @@ IF (BUILD_TESTING)
 
     IF(ENABLE_MQ AND ENABLE_CORBA)
       ADD_EXECUTABLE( corba-mqueue-test test-runner-corba.cpp corba_mqueue_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-mqueue-test orocos-rtt-dynamic_${OROCOS_TARGET}
-        orocos-rtt-mqueue-dynamic_${OROCOS_TARGET} orocos-rtt-corba-dynamic_${OROCOS_TARGET}
+      TARGET_LINK_LIBRARIES( corba-mqueue-test orocos-rtt-${OROCOS_TARGET}_dynamic
+        orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic orocos-rtt-corba-${OROCOS_TARGET}_dynamic
         ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-mqueue-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -177,9 +179,9 @@ IF (BUILD_TESTING)
       IF (UNIX)
           ADD_EXECUTABLE( corba-mqueue-ipc-test test-runner-corba.cpp corba_mqueue_ipc_test.cpp )
           TARGET_LINK_LIBRARIES( corba-mqueue-ipc-test 
-                orocos-rtt-dynamic_${OROCOS_TARGET}
-                orocos-rtt-mqueue-dynamic_${OROCOS_TARGET}
-                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-${OROCOS_TARGET}_dynamic
+                orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-test PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
@@ -192,9 +194,9 @@ IF (BUILD_TESTING)
           # This server is required to run when the corba-mqueue-ipc-test runs
           ADD_EXECUTABLE( corba-mqueue-ipc-server corba_mqueue_ipc_server.cpp )
           TARGET_LINK_LIBRARIES( corba-mqueue-ipc-server 
-                orocos-rtt-dynamic_${OROCOS_TARGET} 
-                orocos-rtt-mqueue-dynamic_${OROCOS_TARGET}
-                orocos-rtt-corba-dynamic_${OROCOS_TARGET} 
+                orocos-rtt-${OROCOS_TARGET}_dynamic 
+                orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
+                orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
                 ${CORBA_LIBRARIES} ${TEST_LIBRARIES})
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-server PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"

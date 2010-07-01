@@ -42,7 +42,6 @@
 #include "MQSerializationProtocol.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
-#include "../../os/StartStopManager.hpp"
 #include <boost/serialization/vector.hpp>
 
 using namespace std;
@@ -83,30 +82,18 @@ namespace RTT {
             }
 
             std::string getTransportName() const {
-                return "MQueue";
+                return "mqueue";
             }
 
+            std::string getTypekitName() const {
+                return "rtt-types";
+            }
             std::string getName() const {
-                return "MQueueRealtime";
+                return "rtt-mqueue-transport";
             }
 
-        } MQLibPlugin;
-
-        /**
-         * This struct has the sole purpose of invoking
-         * the Import function.
-         */
-        int loadMQLib()
-        {
-            TypekitRepository::Import(MQLibPlugin);
-            // register fallback also.
-            //DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_MQUEUE_PROTOCOL_ID, new MQFallBackProtocol() );
-            return 0;
-        }
-
-        os::InitFunction MQLoader( &loadMQLib );
+        };
     }
-
-
 }
 
+ORO_TYPEKIT_PLUGIN( RTT::mqueue::MQLibPlugin )

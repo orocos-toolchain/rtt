@@ -46,56 +46,60 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    std::vector<TypekitPlugin*> TypekitRepository::Tools;
+    std::vector<TypekitPlugin*> TypekitRepository::Typekits;
     std::vector<TransportPlugin*> TypekitRepository::Transports;
 
-    void TypekitRepository::Import( TypekitPlugin& tkpr )
+    void TypekitRepository::Import( TypekitPlugin* tkp )
     {
-        TypekitPlugin* tkp = &tkpr;
-        Logger::In in("Typekit");
-        if ( find( Tools.begin(), Tools.end(), tkp ) != Tools.end() ) {
-            Logger::log() <<Logger::Debug << "Tool "<<tkp->getName() <<" already loaded."<<Logger::endl;
-            return;
+        Logger::In in("TypekitRepository::Import");
+        for( vector<TypekitPlugin*>::iterator it = Typekits.begin(); it != Typekits.end(); ++it ) {
+            if ( (*it)->getName() == tkp->getName() ) {
+                log( Debug ) << "Typekit "<<tkp->getName() <<" already loaded."<<Logger::endl;
+                delete tkp;
+                return;
+            }
         }
 
-        Logger::log() <<Logger::Info << "Loading Tool "<<tkp->getName() <<"."<<Logger::endl;
-        Tools.push_back( tkp );
+        log( Info) << "Loading Typekit "<<tkp->getName() <<"."<<Logger::endl;
+        Typekits.push_back( tkp );
 
         if ( tkp->loadTypes() == false ) {
-            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load types."<<Logger::endl;
+            log( Error) << "Typekit "<<tkp->getName() <<" failed to load types."<<Logger::endl;
         }
 
         if ( tkp->loadConstructors() == false ) {
-            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load type constructors."<<Logger::endl;
+            log( Error) << "Typekit "<<tkp->getName() <<" failed to load type constructors."<<Logger::endl;
         }
         if ( tkp->loadOperators() == false ) {
-            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load type operators."<<Logger::endl;
+            log( Error) << "Typekit "<<tkp->getName() <<" failed to load type operators."<<Logger::endl;
         }
         if ( tkp->loadGlobals() == false ) {
-            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load global variables."<<Logger::endl;
+            log( Error) << "Typekit "<<tkp->getName() <<" failed to load global variables."<<Logger::endl;
         }
     }
 
-    void TypekitRepository::Import( TransportPlugin& trpr )
+    void TypekitRepository::Import( TransportPlugin* trp )
     {
-        TransportPlugin* trp = &trpr;
-        Logger::In in("Typekit");
-        if ( find( Transports.begin(), Transports.end(), trp ) != Transports.end() ) {
-            Logger::log() <<Logger::Debug << "Transport "<<trp->getName() <<" already loaded."<<Logger::endl;
-            return;
+        Logger::In in("TypekitRepository::Import");
+        for( vector<TransportPlugin*>::iterator it = Transports.begin(); it != Transports.end(); ++it ) {
+            if ( (*it)->getName() == trp->getName() ) {
+                log(Debug) << "Transport "<<trp->getTransportName() <<"://"<< trp->getTypekitName()<<" already loaded by plugin '"<<(*it)->getName()<<"'"<<Logger::endl;
+                delete trp;
+                return;
+            }
         }
 
-        Logger::log() <<Logger::Info << "Loading Transport "<<trp->getName() <<"."<<Logger::endl;
+        log(Info) << "Loading Transport "<<trp->getTransportName() <<"://"<<trp->getTypekitName() <<"."<<Logger::endl;
         Transports.push_back( trp );
 
         TypeInfoRepository::Instance()->registerTransport( trp );
     }
 
-    std::vector<std::string> TypekitRepository::getTools()
+    std::vector<std::string> TypekitRepository::getTypekits()
     {
         std::vector<std::string> ret;
-        for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
-             it != Tools.end(); ++it)
+        for (std::vector<TypekitPlugin*>::const_iterator it = Typekits.begin();
+             it != Typekits.end(); ++it)
             ret.push_back( (*it)->getName() );
         return ret;
     }
@@ -105,14 +109,14 @@ namespace RTT {
         std::vector<std::string> ret;
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
              it != Transports.end(); ++it)
-            ret.push_back( (*it)->getName() );
+            ret.push_back( (*it)->getTransportName() + "://" + (*it)->getTypekitName() );
         return ret;
     }
 
-    bool TypekitRepository::hasTool( const std::string& toolname )
+    bool TypekitRepository::hasTypekit( const std::string& toolname )
     {
-        for (std::vector<TypekitPlugin*>::const_iterator it = Tools.begin();
-             it != Tools.end(); ++it)
+        for (std::vector<TypekitPlugin*>::const_iterator it = Typekits.begin();
+             it != Typekits.end(); ++it)
             if ((*it)->getName() == toolname)
                 return true;
         return false;
@@ -122,7 +126,7 @@ namespace RTT {
     {
         for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
              it != Transports.end(); ++it)
-            if ((*it)->getName() == transportname)
+            if ((*it)->getTransportName() + "://" + (*it)->getTypekitName() == transportname)
                 return true;
         return false;
     }
