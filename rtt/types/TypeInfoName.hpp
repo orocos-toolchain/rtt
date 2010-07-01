@@ -177,7 +177,7 @@ namespace RTT
      * @see TemplateTypeInfo for adding full type info to Orocos.
      */
     template<typename T>
-    struct RTT_API TypeInfoName
+    struct TypeInfoName
         : public EmptyTypeInfo
     {
         /**

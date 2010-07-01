@@ -48,7 +48,7 @@ namespace RTT
      * A composeProperty method for composing a property of a vector<double>
      * The dimension of the vector must be less than 100.
      */
-    bool composeProperty(const PropertyBag& bag, std::vector<double>& result);
+    RTT_API bool composeProperty(const PropertyBag& bag, std::vector<double>& result);
 
 }}; // namespace RTT
 
