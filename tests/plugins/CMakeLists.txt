@@ -1,7 +1,6 @@
 
   ADD_LIBRARY(service_plugin SHARED plugins_test_services.cpp)
   SET_TARGET_PROPERTIES( service_plugin PROPERTIES
-    DEFINE_SYMBOL ""
     SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME service_plugin

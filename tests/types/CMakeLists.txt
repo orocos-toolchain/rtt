@@ -1,7 +1,6 @@
 
   ADD_LIBRARY(typekit_plugin SHARED plugins_test_types.cpp)
   SET_TARGET_PROPERTIES( typekit_plugin PROPERTIES
-    DEFINE_SYMBOL ""
     SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME typekit_plugin
