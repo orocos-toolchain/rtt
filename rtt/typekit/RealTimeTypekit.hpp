@@ -48,7 +48,7 @@ namespace RTT
     /**
      * This interface defines the types of the realTime package.
      */
-    class RTT_API RealTimeTypekitPlugin
+    class RTT_TYPEKIT_API RealTimeTypekitPlugin
        : public TypekitPlugin
     {
     public:

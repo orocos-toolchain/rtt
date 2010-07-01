@@ -11,7 +11,7 @@ IF (PLUGINS_ENABLE_TYPEKIT)
   
   ADD_LIBRARY(rtt-typekit-dynamic_${OROCOS_TARGET} SHARED ${CPPS})
   SET_TARGET_PROPERTIES( rtt-typekit-dynamic_${OROCOS_TARGET} PROPERTIES
-    DEFINE_SYMBOL "RTT_DLL_EXPORT"
+    DEFINE_SYMBOL "RTT_TYPEKIT_DLL_EXPORT"
     SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME rtt-typekit-${OROCOS_TARGET}
@@ -20,7 +20,9 @@ IF (PLUGINS_ENABLE_TYPEKIT)
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
     CLEAN_DIRECT_OUTPUT 1)
   target_link_libraries(rtt-typekit-dynamic_${OROCOS_TARGET} orocos-rtt-dynamic_${OROCOS_TARGET})
-  
+	
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-typekit-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-typekit-config.h @ONLY)
+	
   install(TARGETS rtt-typekit-dynamic_${OROCOS_TARGET}
           ARCHIVE DESTINATION lib/orocos/types
           LIBRARY DESTINATION lib/orocos/types)
