@@ -26,6 +26,8 @@
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/CorbaDispatcher.hpp>
 
+#include "test-runner.hpp"
+
 using boost::unit_test::test_suite;
 
 using namespace RTT;
