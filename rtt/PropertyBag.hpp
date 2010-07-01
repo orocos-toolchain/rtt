@@ -382,7 +382,7 @@ namespace RTT
      * @param bag The bag to print.
      * @return os
      */
-    std::ostream& operator<<(std::ostream& os, const PropertyBag& bag);
+    RTT_API std::ostream& operator<<(std::ostream& os, const PropertyBag& bag);
 
     /**
      * Not implemented
@@ -390,7 +390,7 @@ namespace RTT
      * @param bag unused
      * @return is
      */
-    std::istream& operator>>(std::istream& is, PropertyBag& bag);
+    RTT_API std::istream& operator>>(std::istream& is, PropertyBag& bag);
 
     /**
      * This function locates a Property in nested PropertyBags.
