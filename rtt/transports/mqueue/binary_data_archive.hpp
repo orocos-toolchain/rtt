@@ -443,7 +443,7 @@ namespace RTT
              */
             template<class T>
             binary_data_oarchive &save_a_type(T const &t,boost::mpl::false_){
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104100
                   boost::archive::detail::save_non_pointer_type<binary_data_oarchive>::save_only::invoke(*this,t);
 #else
                   boost::archive::detail::save_non_pointer_type<binary_data_oarchive,T>::save_only::invoke(*this,t);

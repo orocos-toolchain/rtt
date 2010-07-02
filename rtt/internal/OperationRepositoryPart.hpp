@@ -7,7 +7,7 @@
 #include <boost/function_types/parameter_types.hpp>
 // Fusion behaviour changed at Boost 1.42
 #include <boost/version.hpp>
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104100
 #include <boost/fusion/functional/generation/make_unfused.hpp>
 #else
 #include <boost/fusion/include/make_unfused_generic.hpp>
@@ -117,7 +117,7 @@ namespace RTT
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
                                                                             _1
@@ -242,7 +242,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // note: in boost 1.41.0+ the function make_unfused() is available.
-    #if BOOST_VERSION >= 104200
+    #if BOOST_VERSION >= 104100
                     return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                                 boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
                                                                                 _1
