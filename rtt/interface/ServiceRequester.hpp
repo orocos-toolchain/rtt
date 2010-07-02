@@ -1,7 +1,7 @@
 #ifndef ORO_SERVICEREQUESTER_HPP_
 #define ORO_SERVICEREQUESTER_HPP_
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "../base/MethodBaseInvoker.hpp"
 #include "ServiceProvider.hpp"

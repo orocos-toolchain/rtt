@@ -1,7 +1,7 @@
 #ifndef ORO_OPERATIONBASE_HPP_
 #define ORO_OPERATIONBASE_HPP_
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include <string>

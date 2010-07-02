@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #include "../base/DataSourceBase.hpp"
 #include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
