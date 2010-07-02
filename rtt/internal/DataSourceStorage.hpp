@@ -95,12 +95,12 @@ namespace RTT
         template<class R>
         struct DataSourceResultStorage
         {
-            typedef R result_type;
+            typedef typename remove_cr<R>::type ds_type;
             DSRStore<R> retn;
-            typename ReferenceDataSource<R>::shared_ptr result;
+            typename ReferenceDataSource<ds_type>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result( new ReferenceDataSource<R>(retn.result()) )
+                : result( new ReferenceDataSource<ds_type>(retn.result()) )
             {
             }
 
@@ -135,11 +135,12 @@ namespace RTT
         struct DataSourceResultStorage<R const&>
         {
             typedef R const& result_type;
+            typedef R ds_type;
             DSRStore<result_type> retn;
-            typename AssignableDataSource<result_type>::shared_ptr result;
+            typename AssignableDataSource<ds_type>::shared_ptr result;
 
             DataSourceResultStorage()
-                : result( new ReferenceDataSource<result_type>( retn.result() ) )
+                : result( new ReferenceDataSource<ds_type>( retn.result() ) )
             {
             }
 
@@ -149,7 +150,7 @@ namespace RTT
             }
 
             result_type getResult() {
-                return result->get();
+                return result->rvalue();
             }
         };
 
@@ -159,10 +160,10 @@ namespace RTT
         struct DataSourceArgStorage
         {
             AStore<A> arg;
-            typedef typename AssignableDataSource<A>::reference_t ref_t;
-            typename ReferenceDataSource<ref_t>::shared_ptr value;
+            typedef typename remove_cr<A>::type ds_type;
+            typename ReferenceDataSource<ds_type>::shared_ptr value;
             DataSourceArgStorage()
-                : value( new ReferenceDataSource<ref_t>(arg.get()) )
+                : value( new ReferenceDataSource<ds_type>(arg.get()) )
             {}
         };
 
@@ -170,10 +171,10 @@ namespace RTT
         struct DataSourceArgStorage<A const&>
         {
             AStore<A const&> arg;
-            typedef typename AssignableDataSource<A>::const_reference_t cref_t;
-            typename ConstReferenceDataSource<cref_t>::shared_ptr value;
+            // without const&:
+            typename ConstReferenceDataSource<A>::shared_ptr value;
             DataSourceArgStorage()
-                : value( new ConstReferenceDataSource<cref_t>(arg.get()) )
+                : value( new ConstReferenceDataSource<A>(arg.get()) )
             {}
         };
 
