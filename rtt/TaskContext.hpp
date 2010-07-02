@@ -166,8 +166,8 @@ namespace RTT
          */
         virtual bool ready();
 
-        bool start();
-        bool stop();
+        virtual bool start();
+        virtual bool stop();
 
         /**
          * These functions are used to setup and manage peer-to-peer networks
@@ -556,7 +556,7 @@ namespace RTT
          *
          * This default implementation calls updateHook(updated_ports)
          */
-        void updateHook();
+        virtual void updateHook();
 
         /**
          * This method gets called when new data is available on some input ports. The ports

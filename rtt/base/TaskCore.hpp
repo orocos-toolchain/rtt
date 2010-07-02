@@ -138,7 +138,7 @@ namespace RTT
         /**
          * Returns the current state of the TaskContext.
          */
-        TaskState getTaskState() const;
+        virtual TaskState getTaskState() const;
 
         /**
          * @name Script Methods
