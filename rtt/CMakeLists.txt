@@ -202,7 +202,7 @@ ENDIF ( BUILD_STATIC )
   SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
   VERSION "${RTT_VERSION}"
   OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
-  DEBUG_OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}d
+  DEBUG_OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
 # Set accumulated compilation flags: (.so and .a)
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
   LINK_FLAGS "-Wl,-zdefs"
