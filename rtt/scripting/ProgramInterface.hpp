@@ -44,7 +44,7 @@
 #include "../base/DataSourceBase.hpp"
 #include "../base/AttributeBase.hpp"
 #include "../base/ExecutableInterface.hpp"
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 #include "rtt-scripting-fwd.hpp"
 
@@ -57,14 +57,14 @@ namespace RTT
 	 * @brief A Program represents a collection of
 	 * instructions that can be stepwise executed.
 	 */
-	class RTT_API ProgramInterface
+	class RTT_SCRIPTING_API ProgramInterface
         : public base::ExecutableInterface
 	{
     public:
         /**
          * Placeholder of the ProgramStatus.
          */
-        struct RTT_API Status {
+        struct RTT_SCRIPTING_API Status {
             /**
              * Enumerates the statuses of a ProgramInterface.
              */

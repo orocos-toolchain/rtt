@@ -16,6 +16,9 @@ OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the O
 OPTION(ORO_OS_USE_BOOST_THREAD "Use the Boost.Thread library. Currently only the mutex implementation is used." OFF)
 
 if (ORO_OS_USE_BOOST_THREAD)
+  # Look for boost threads
+  find_package(Boost 1.36 COMPONENTS thread date_time REQUIRED)
+
   if (NOT Boost_THREAD_FOUND)
     message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
   endif()
@@ -199,6 +202,7 @@ ENDIF ( BUILD_STATIC )
   SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
   VERSION "${RTT_VERSION}"
   OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
+  DEBUG_OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}d
 # Set accumulated compilation flags: (.so and .a)
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
   LINK_FLAGS "-Wl,-zdefs"

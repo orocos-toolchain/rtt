@@ -41,7 +41,7 @@
 
 #include <exception>
 #include <string>
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
@@ -50,7 +50,7 @@ namespace RTT
      * This exception is thrown when a program or state machine
      * could not be loaded into a ProgramProcessor or StateMachineProcessor.
      */
-    class RTT_API program_load_exception
+    class RTT_SCRIPTING_API program_load_exception
         : public std::exception
     {
         std::string merror;
@@ -70,7 +70,7 @@ namespace RTT
      * This exception is thrown when a program or state machine
      * could not be unloaded into a ProgramProcessor or StateMachineProcessor.
      */
-    class RTT_API program_unload_exception
+    class RTT_SCRIPTING_API program_unload_exception
         : public std::exception
     {
         std::string merror;

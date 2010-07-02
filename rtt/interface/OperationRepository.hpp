@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 
+#include "rtt-config.h"
 #include "../base/DataSourceBase.hpp"
 #include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
@@ -36,7 +37,7 @@ namespace RTT
         class OperationRepositoryPart
         {
         public:
-            virtual ~OperationRepositoryPart();
+            RTT_API virtual ~OperationRepositoryPart();
 
             /**
              * Returns the description of this operation.
@@ -152,14 +153,14 @@ namespace RTT
              * @return null if no such operation exists, the operation's implementation
              * otherwise.
              */
-            virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
+            RTT_API virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
         };
 
         /**
          * @brief Holds all exported operations of a component and is
          * able to produce callers for these operations.
          */
-        class OperationRepository
+        class RTT_API OperationRepository
         {
         protected:
             typedef std::map<std::string, OperationRepositoryPart*> map_t;

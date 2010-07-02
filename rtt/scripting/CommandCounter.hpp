@@ -38,6 +38,7 @@
 #ifndef COMMANDCOUNTER_HPP
 #define COMMANDCOUNTER_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 
 namespace RTT
@@ -48,7 +49,7 @@ namespace RTT
      *
      * @deprecated Remove this low-level class since it's nowhere used.
      */
-    class RTT_API CommandCounter
+    class RTT_SCRIPTING_API CommandCounter
         : public base::ActionInterface
     {
 

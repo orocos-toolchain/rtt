@@ -239,7 +239,7 @@ namespace RTT
             written = true;
 
             cmanager.delete_if( boost::bind(
-                        &OutputPort<T>::do_write, this, boost::ref(sample), _1)
+                        &OutputPort<T>::do_write, this, boost::ref(sample), boost::lambda::_1)
                     );
         }
 

@@ -42,7 +42,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
 #include "../base/DispatchInterface.hpp"
@@ -58,7 +58,7 @@ namespace RTT
      * It keeps track of all loaded scripts of the parent component.
      * It can be found as the \a scripting object of a TaskContext.
      */
-    class RTT_API ScriptingService
+    class RTT_SCRIPTING_API ScriptingService
         : public interface::ServiceProvider
     {
     public:

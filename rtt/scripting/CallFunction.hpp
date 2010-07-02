@@ -21,7 +21,7 @@ namespace RTT
      *
      * It is an DataSource such that it can be executed by program scripts.
      */
-    class RTT_API CallFunction
+    class RTT_SCRIPTING_API CallFunction
         : public base::ActionInterface
     {
         base::ActionInterface* minit;

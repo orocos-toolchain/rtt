@@ -39,7 +39,7 @@
 #ifndef HIERARCHICAL_STATE_MACHINE_HPP
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "StateInterface.hpp"
 #include "../base/ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
@@ -68,7 +68,7 @@ namespace RTT
      * @todo Implement the whole transition mechanism with the
      * Strategy software pattern to allow cleaner implementation.
      */
-    class RTT_API StateMachine
+    class RTT_SCRIPTING_API StateMachine
         : public base::ExecutableInterface
     {
         enum PrivateStatus { nill, gostop, goreset, pausing } smpStatus;
@@ -78,7 +78,7 @@ namespace RTT
         /**
          * Enumerates all possible state machine statuses.
          */
-        struct RTT_API Status {
+        struct RTT_SCRIPTING_API Status {
             enum StateMachineStatus {inactive, activating, active, requesting, running, stopping, stopped, resetting, deactivating, paused, error, unloaded };
         };
     protected:

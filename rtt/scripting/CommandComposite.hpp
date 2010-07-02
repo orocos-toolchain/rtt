@@ -44,9 +44,9 @@ namespace RTT
 
     /**
      * @brief Based on the software pattern 'composite', this
-     * class RTT_API allows composing command objects into one command object
+     * class RTT_SCRIPTING_API allows composing command objects into one command object
      */
-    class RTT_API CommandComposite
+    class RTT_SCRIPTING_API CommandComposite
         : public base::ActionInterface
     {
         public:

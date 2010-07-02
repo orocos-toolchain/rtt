@@ -53,9 +53,9 @@ endif()
 
 # Look for boost
 if ( PLUGINS_ENABLE )
-    find_package(Boost 1.36 REQUIRED filesystem system)
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES}) 
+    find_package(Boost 1.36 REQUIRED filesystem system serialization)
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
+    list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
 else()
     find_package(Boost 1.36 REQUIRED)
 endif()

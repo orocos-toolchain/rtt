@@ -78,7 +78,7 @@ namespace RTT
      * the programs return false and the state machine containing this state is considered
      * in error.
      */
-    class RTT_API StateInterface
+    class RTT_SCRIPTING_API StateInterface
     {
     public:
 

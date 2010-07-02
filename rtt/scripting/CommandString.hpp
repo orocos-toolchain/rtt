@@ -35,6 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 
 #include <string>
@@ -48,7 +49,7 @@ namespace RTT
 	 * @brief This command displays a string when executed.
      * @deprecated Remove this low-level class since it's nowhere used.
 	 */
-	class RTT_API CommandString : public base::ActionInterface
+	class RTT_SCRIPTING_API CommandString : public base::ActionInterface
 	{
 
     public:

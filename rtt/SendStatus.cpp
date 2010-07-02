@@ -1,5 +1,7 @@
 #include "SendStatus.hpp"
 
+#include <string>
+
 using namespace std;
 
 namespace RTT {
@@ -23,7 +25,7 @@ namespace RTT {
     {
         // default:
         fs = SendFailure;
-        string s;
+        std::string s;
         is >> s;
         if (s == "SendNotReady")
             fs = SendNotReady;

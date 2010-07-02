@@ -53,7 +53,7 @@ namespace RTT {
      * Extends the TypeTransporter in order to allow the creation of
      * channel elements or output halves for a given type.
      */
-	class CorbaTypeTransporter : public RTT::types::TypeTransporter
+	class RTT_CORBA_API CorbaTypeTransporter : public RTT::types::TypeTransporter
 	{
 	public:
         /**

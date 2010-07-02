@@ -13,7 +13,7 @@ namespace RTT
     /**
      * The method interface of the scripting plugin.
      */
-    class RTT_API Scripting
+    class RTT_SCRIPTING_API Scripting
         : public interface::ServiceRequester
     {
     public:

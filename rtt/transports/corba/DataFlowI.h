@@ -64,7 +64,7 @@ namespace RTT {
          * Derive from this class to implement a channel
          * which transports data over a CORBA connection.
          */
-        class CRemoteChannelElement_i
+        class RTT_CORBA_API CRemoteChannelElement_i
             : public POA_RTT::corba::CRemoteChannelElement
             , public virtual PortableServer::RefCountServantBase
         {

@@ -41,7 +41,7 @@
 #define ORO_MARSHALLING_ACCESS_HPP
 
 #include <string>
-#include "../rtt-config.h"
+#include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
 #include "../interface/ServiceProvider.hpp"
 
@@ -51,7 +51,7 @@ namespace RTT
     /**
      * Service which loads and saves properties of a TaskContext.
      */
-    class RTT_API MarshallingService
+    class RTT_MARSH_API MarshallingService
         : public interface::ServiceProvider
     {
     public:

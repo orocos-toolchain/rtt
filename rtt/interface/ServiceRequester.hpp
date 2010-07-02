@@ -1,6 +1,7 @@
 #ifndef ORO_SERVICEREQUESTER_HPP_
 #define ORO_SERVICEREQUESTER_HPP_
 
+#include "rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "../base/MethodBaseInvoker.hpp"
 #include "ServiceProvider.hpp"
@@ -25,7 +26,7 @@ namespace RTT
          * Typical use is to inherit from ServiceRequester and add named Method objects
          * to it using addMethod. @see RTT::Scripting for an example.
          */
-        class ServiceRequester
+        class RTT_API ServiceRequester
         {
         public:
             typedef std::vector<std::string> RequesterNames;

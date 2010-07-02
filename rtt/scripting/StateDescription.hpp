@@ -48,7 +48,7 @@ namespace RTT
      * @brief This class represents a state with all actions stored
      * in an external program.
      */
-    class RTT_API StateDescription
+    class RTT_SCRIPTING_API StateDescription
         : public StateInterface
     {
         ProgramInterfacePtr mentry;

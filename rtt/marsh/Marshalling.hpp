@@ -2,18 +2,17 @@
 #define ORO_MARSHALLING_HPP_
 
 #include <string>
-#include "../rtt-config.h"
+#include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
 #include "../interface/ServiceRequester.hpp"
 #include "../Method.hpp"
-#include <string>
 
 namespace RTT
 {
     /**
      * Service requester to load and save properties of a TaskContext.
      */
-    class RTT_API Marshalling
+    class RTT_MARSH_API Marshalling
     : public interface::ServiceRequester
     {
         TaskContext* mparent;

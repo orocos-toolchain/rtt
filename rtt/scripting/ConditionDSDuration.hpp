@@ -39,6 +39,7 @@
 #ifndef CONDITION_DS_DURATION_HPP
 #define CONDITION_DS_DURATION_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 #include "../internal/DataSource.hpp"
@@ -52,7 +53,7 @@ namespace RTT
      * given by a DataSource.
      * The behaviour can be inverted upon construction.
      */
-    class RTT_API ConditionDSDuration
+    class RTT_SCRIPTING_API ConditionDSDuration
         : public base::ConditionInterface
     {
         typedef os::TimeService::nsecs nsecs;

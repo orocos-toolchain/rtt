@@ -350,7 +350,7 @@ namespace RTT
     {
         base::DataSourceBase::shared_ptr data;
     public:
-        Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
+        RTT_API Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
 
         /**
          * Create an alias from a datasource with an owner.

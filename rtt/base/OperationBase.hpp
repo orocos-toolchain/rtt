@@ -1,6 +1,7 @@
 #ifndef ORO_OPERATIONBASE_HPP_
 #define ORO_OPERATIONBASE_HPP_
 
+#include "rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "rtt-base-fwd.hpp"
 #include <string>
@@ -30,12 +31,12 @@ namespace RTT
             std::string mname;
             std::vector<std::string> descriptions;
             ExecutionEngine* mowner;
-            void mdoc(const std::string& description);
-            void marg(const std::string& name, const std::string& description);
+            RTT_API void mdoc(const std::string& description);
+            RTT_API void marg(const std::string& name, const std::string& description);
             virtual void ownerUpdated() = 0;
         public:
-            OperationBase(const std::string& name);
-            virtual ~OperationBase();
+            RTT_API OperationBase(const std::string& name);
+            RTT_API virtual ~OperationBase();
 
             /**
              * Returns the name of this operation.

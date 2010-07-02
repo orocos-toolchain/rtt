@@ -39,13 +39,13 @@
 #ifndef ORO_DUMP_OBJECT_HPP
 #define ORO_DUMP_OBJECT_HPP
 
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../interface/rtt-interface-fwd.hpp"
 #include "../interface/ServiceProvider.hpp"
 
 namespace RTT { namespace scripting {
 
-RTT_API void DumpObject(interface::ServiceProvider::shared_ptr obj);
+RTT_SCRIPTING_API void DumpObject(interface::ServiceProvider::shared_ptr obj);
 
 }}
 #endif

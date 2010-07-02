@@ -38,6 +38,7 @@
 #ifndef PROPERTYBAGINTROSPECTOR
 #define PROPERTYBAGINTROSPECTOR
 
+#include "../marsh/rtt-marsh-config.h"
 #include "../PropertyBag.hpp"
 #include "../Property.hpp"
 #include "../base/PropertyIntrospection.hpp"
@@ -56,7 +57,7 @@ namespace RTT
      * @brief This class fills up a given bag with
      * the results of an introspection.
      */
-    class RTT_API PropertyBagIntrospector
+    class RTT_MARSH_API PropertyBagIntrospector
         : public base::PropertyBagVisitor
     {
         std::stack<PropertyBag*> mystack;

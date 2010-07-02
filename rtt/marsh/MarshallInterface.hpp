@@ -39,7 +39,7 @@
 #define PI_PROPERTIES_MARSHALLER
 
 #include <string>
-#include "../rtt-config.h"
+#include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -53,7 +53,7 @@ namespace RTT
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-    class RTT_API MarshallInterface
+    class RTT_MARSH_API MarshallInterface
     {
         public:
         virtual ~MarshallInterface() {}
@@ -90,7 +90,7 @@ namespace RTT
 	 * @see PropertyBag
      * @ingroup CoreLibProperties
 	 */
-	class RTT_API DemarshallInterface
+	class RTT_MARSH_API DemarshallInterface
 	{
 		public:
         virtual ~DemarshallInterface() {}

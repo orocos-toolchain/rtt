@@ -38,6 +38,7 @@
 #ifndef VERTEXNODE_HPP
 #define VERTEXNODE_HPP
 
+#include "../scripting/rtt-scripting-config.h"
 #include <map>
 #include "../base/ActionInterface.hpp"
 
@@ -72,7 +73,7 @@ namespace RTT
 	/**
 	 * This class represents elements in a program tree.
 	 */
-  class RTT_API VertexNode
+  class RTT_SCRIPTING_API VertexNode
   {
   public:
       /**

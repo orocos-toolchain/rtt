@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 
-#include "rtt-config.h"
+#include "rtt-typekit-config.h"
 #include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
 #include "StdStringTypeInfo.hpp"

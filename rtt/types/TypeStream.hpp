@@ -46,9 +46,9 @@
 namespace RTT
 { namespace types {
 
-    std::ostream& operator<<(std::ostream& os, const std::vector<double>& v);
+    RTT_API std::ostream& operator<<(std::ostream& os, const std::vector<double>& v);
 
-    std::istream& operator>>(std::istream& os, std::vector<double>& v);
+    RTT_API std::istream& operator>>(std::istream& os, std::vector<double>& v);
     // declared in MultiVector.hpp
     //std::ostream& operator<<(std::ostream& os, const Double6D& v);
 

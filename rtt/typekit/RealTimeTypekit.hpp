@@ -39,6 +39,7 @@
 #ifndef ORO_REALTIME_TOOLKIT_HPP
 #define ORO_REALTIME_TOOLKIT_HPP
 
+#include "../typekit/rtt-typekit-config.h"
 #include "../types/TypekitPlugin.hpp"
 
 namespace RTT
@@ -48,7 +49,7 @@ namespace RTT
     /**
      * This interface defines the types of the realTime package.
      */
-    class RTT_API RealTimeTypekitPlugin
+    class RTT_TYPEKIT_API RealTimeTypekitPlugin
        : public TypekitPlugin
     {
     public:

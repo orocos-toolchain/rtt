@@ -20,7 +20,7 @@ namespace RTT
             GlobalEngine();
             virtual ~GlobalEngine();
         public:
-            static ExecutionEngine* Instance();
+            RTT_API static ExecutionEngine* Instance();
             static void Release();
         };
 

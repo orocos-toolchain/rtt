@@ -120,14 +120,14 @@ namespace RTT
 #if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
-                                                                            _1
+                                                                            boost::lambda::_1
                                                                             )
                                                                 )
                                    );
 #else
                 return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
                                                                             boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
-                                                                            _1
+                                                                            boost::lambda::_1
                                                                             )
                                                                 )
                                    );

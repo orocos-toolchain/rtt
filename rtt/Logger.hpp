@@ -92,7 +92,7 @@ namespace RTT
      */
     class RTT_API Logger
     {
-        class D;
+        struct D;
         D* d;
     public:
 

@@ -39,7 +39,7 @@
 #define EDGECONDITION_HPP
 
 #include <map>
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../base/rtt-base-fwd.hpp"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
@@ -68,7 +68,7 @@ namespace RTT
      * tree.  It contains a condition which must be satisfied
      * to pass to the next node.
      */
-    class RTT_API EdgeCondition
+    class RTT_SCRIPTING_API EdgeCondition
     {
         static int condition_counter;
     public:

@@ -13,7 +13,7 @@ namespace RTT
      * In order to read the cached value, use ConditionBoolDataSource.
      * By default, and after a reset, the cached condition returned in getResult() returns false.
      */
-    class RTT_API ConditionCache
+    class RTT_SCRIPTING_API ConditionCache
         : public base::ConditionInterface
     {
         boost::shared_ptr<base::ConditionInterface> mc;

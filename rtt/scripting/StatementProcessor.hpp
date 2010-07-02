@@ -41,7 +41,7 @@
 
 #include <string>
 #include "../base/DispatchInterface.hpp"
-#include "../rtt-config.h"
+#include "../scripting/rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT
@@ -51,9 +51,9 @@ namespace RTT
      * This class parses and executes a single scripting
      * statement.
      */
-    class RTT_API StatementProcessor
+    class RTT_SCRIPTING_API StatementProcessor
     {
-        class D;
+        struct D;
         D* d;
     public:
         StatementProcessor(TaskContext* tc);
