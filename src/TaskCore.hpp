@@ -164,19 +164,19 @@ namespace RTT
         /**
          * Returns the current state of the TaskContext.
          */
-        TaskState getTaskState() const;
+        virtual TaskState getTaskState() const;
 
         /**
          * Returns the number of times the RunTimeWarning state
          * was \b entered.
          */
-        int getWarningCount() const;
+        virtual int getWarningCount() const;
 
         /**
          * Returns the number of times the RunTimeError state
          * was \b entered.
          */
-        int getErrorCount() const;
+        virtual int getErrorCount() const;
 
         /**
          * @name Script Methods
@@ -320,7 +320,7 @@ namespace RTT
         /**
          * Get the name of this TaskCore.
          */
-        const std::string& getName() const
+        virtual const std::string& getName() const
         {
             return mtask_name;
         }
@@ -328,7 +328,7 @@ namespace RTT
         /**
          * Change the name of this TaskCore.
          */
-        void setName(const std::string& n)
+        virtual void setName(const std::string& n)
         {
             mtask_name = n;
         }
