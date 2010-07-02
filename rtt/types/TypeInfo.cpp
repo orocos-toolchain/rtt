@@ -159,12 +159,12 @@ namespace RTT
         return ret;
     }
 
-    vector<string> TypeInfo::getPartNames() const
+    vector<string> TypeInfo::getMemberNames() const
     {
         return vector<string>();
     }
 
-    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, const std::string& part_name) const
+    DataSourceBase::shared_ptr TypeInfo::getMember(DataSourceBase::shared_ptr item, const std::string& part_name) const
     {
         /** ** Strong typed data **
          *
@@ -172,12 +172,12 @@ namespace RTT
          *      value[i] = i; // sequence index, runtime structure
          *      value.i  = i; // part name, browse static structure
          * }
-         * set frame.pos = vector(a,b,c);     // getPart("pos")
-         * set frame.pos[3] = vector(a,b,c);  // getPart("pos")->getPart(3)
-         * set frame[3].pos = vector(a,b,c);  // getPart(3)->getPart("pos")
-         * set frame[i].pos = vector(a,b,c);  // getPart( $i )->getPart("pos")
-         * set frame["tool"].pos = vector(a,b,c); // getPart("tool") xx
-         * set frame[arg].pos = vector(a,b,c);// getPart( arg )->getPart("pos")
+         * set frame.pos = vector(a,b,c);     // getMember("pos")
+         * set frame.pos[3] = vector(a,b,c);  // getMember("pos")->getMember(3)
+         * set frame[3].pos = vector(a,b,c);  // getMember(3)->getMember("pos")
+         * set frame[i].pos = vector(a,b,c);  // getMember( $i )->getMember("pos")
+         * set frame["tool"].pos = vector(a,b,c); // getMember("tool") xx
+         * set frame[arg].pos = vector(a,b,c);// getMember( arg )->getMember("pos")
          */
         log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
         if ( part_name.empty() )
@@ -186,7 +186,7 @@ namespace RTT
             return DataSourceBase::shared_ptr();
     }
 
-    DataSourceBase::shared_ptr TypeInfo::getPart(DataSourceBase::shared_ptr item, DataSourceBase::shared_ptr id) const
+    DataSourceBase::shared_ptr TypeInfo::getMember(DataSourceBase::shared_ptr item, DataSourceBase::shared_ptr id) const
     {
         /** ** Strong typed data **
          *
@@ -194,12 +194,12 @@ namespace RTT
          *      value[i] = i; // sequence index, runtime structure
          *      value.i  = i; // part name, browse static structure
          * }
-         * set frame.pos = vector(a,b,c);     // getPart("pos")
-         * set frame.pos[3] = vector(a,b,c);  // getPart("pos")->getPart(3)
-         * set frame[3].pos = vector(a,b,c);  // getPart(3)->getPart("pos")
-         * set frame[i].pos = vector(a,b,c);  // getPart( $i )->getPart("pos")
-         * set frame["tool"].pos = vector(a,b,c); // getPart("tool") xx
-         * set frame[arg].pos = vector(a,b,c);// getPart( arg )->getPart("pos")
+         * set frame.pos = vector(a,b,c);     // getMember("pos")
+         * set frame.pos[3] = vector(a,b,c);  // getMember("pos")->getMember(3)
+         * set frame[3].pos = vector(a,b,c);  // getMember(3)->getMember("pos")
+         * set frame[i].pos = vector(a,b,c);  // getMember( $i )->getMember("pos")
+         * set frame["tool"].pos = vector(a,b,c); // getMember("tool") xx
+         * set frame[arg].pos = vector(a,b,c);// getMember( arg )->getMember("pos")
          */
         log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
         return DataSourceBase::shared_ptr();

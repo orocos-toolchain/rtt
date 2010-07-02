@@ -36,7 +36,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
 {
     if (!dsb)
         return false;
-    vector<string> parts = dsb->getPartNames();
+    vector<string> parts = dsb->getMemberNames();
     if ( parts.empty() )
         return false;
 
@@ -46,7 +46,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
     auto_ptr< Property<PropertyBag> > recurse_bag( new Property<PropertyBag>("recurse_bag","Part") );
     // First at the explicitly listed parts:
     for(vector<string>::iterator it = parts.begin(); it != parts.end(); ++it ) {
-        DataSourceBase::shared_ptr part = dsb->getPart( *it );
+        DataSourceBase::shared_ptr part = dsb->getMember( *it );
         if (!part) {
             log(Error) <<"propertyDecomposition: Inconsistent type info for "<< dsb->getTypeName() << ": reported to have part '"<<*it<<"' but failed to return it."<<endlog();
             continue;
@@ -78,12 +78,12 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
     recurse_bag->setDescription("Item");
 
     // Next get the numbered parts:
-    DataSource<int>::shared_ptr size = DataSource<int>::narrow( dsb->getPart("size").get() );
+    DataSource<int>::shared_ptr size = DataSource<int>::narrow( dsb->getMember("size").get() );
     if (size) {
         int msize = size->get();
         for (int i=0; i < msize; ++i) {
             string indx = boost::lexical_cast<string>( i );
-            DataSourceBase::shared_ptr item = dsb->getPart(indx);
+            DataSourceBase::shared_ptr item = dsb->getMember(indx);
             if (item) {
                 DataSourceBase::shared_ptr asitem = item->getTypeInfo()->getAssignable( item );
                 if (!asitem) {

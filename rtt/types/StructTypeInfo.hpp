@@ -27,7 +27,7 @@ namespace RTT
             {
             }
 
-            virtual std::vector<std::string> getPartNames() const {
+            virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
                 type_discovery in;
                 T t; // boost can't work without a value.
@@ -35,7 +35,7 @@ namespace RTT
                 return in.mnames;
             }
 
-            virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 if ( !data ) {
                     log(Error) << "Could not get reference to Struct data source of type " + item->getTypeName()<<endlog();
@@ -44,7 +44,7 @@ namespace RTT
                 type_discovery in( item );
                 in.discover( data->set() );
                 log(Debug) << "Returning part: " << name << endlog();
-                return in.getPart(name);
+                return in.getMember(name);
             }
         };
     }

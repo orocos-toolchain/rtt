@@ -106,18 +106,18 @@ namespace RTT {
         return 0;
     }
 
-    DataSourceBase::shared_ptr DataSourceBase::getPart( const std::string& part_name ) {
+    DataSourceBase::shared_ptr DataSourceBase::getMember( const std::string& part_name ) {
         if ( part_name.empty() )
             return DataSourceBase::shared_ptr(this);
-        return getTypeInfo()->getPart( this, part_name );
+        return getTypeInfo()->getMember( this, part_name );
     }
 
-    DataSourceBase::shared_ptr DataSourceBase::getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset) {
-        return getTypeInfo()->getPart( this, part_id );
+    DataSourceBase::shared_ptr DataSourceBase::getMember( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset) {
+        return getTypeInfo()->getMember( this, part_id );
     }
 
-    vector<string> DataSourceBase::getPartNames() const {
-        return getTypeInfo()->getPartNames();
+    vector<string> DataSourceBase::getMemberNames() const {
+        return getTypeInfo()->getMemberNames();
     }
 
     DataSourceBase::shared_ptr DataSourceBase::getParent()  {

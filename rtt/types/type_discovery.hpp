@@ -98,7 +98,7 @@ namespace RTT
             {
             }
 
-            base::DataSourceBase::shared_ptr getPart(const std::string name) {
+            base::DataSourceBase::shared_ptr getMember(const std::string name) {
                 PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
                 if ( it != mnames.end() && mparts.size() == mnames.size() )
                     return mparts.at( it - mnames.begin() );

@@ -183,7 +183,7 @@ namespace RTT
        * @return null if the part does not exist, \a this if part_name.empty(),
        * and a reference data source to the part otherwise.
        */
-      virtual shared_ptr getPart( const std::string& part_name);
+      virtual shared_ptr getMember( const std::string& part_name);
 
       /**
        * Same as above, but with run-time lookup of the part to use.
@@ -192,7 +192,7 @@ namespace RTT
        * DataSources which are a sequence/offset part themselves must override this function to
        * let the returned part take the offset into account.
        */
-      virtual shared_ptr getPart( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset);
+      virtual shared_ptr getMember( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset);
 
       /**
        * Returns the possible part names of this data source, or an empty
@@ -200,7 +200,7 @@ namespace RTT
        * If this data source is a sequence, it will not return the allowed
        * index numbers.
        */
-      virtual std::vector<std::string> getPartNames() const;
+      virtual std::vector<std::string> getMemberNames() const;
 
       /**
        * Returns the top level data source that contains the full data structure

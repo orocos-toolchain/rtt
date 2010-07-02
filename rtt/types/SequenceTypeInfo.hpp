@@ -117,7 +117,7 @@ namespace RTT
                 return TemplateTypeInfo<T,has_ostream>::composeTypeImpl(source,result);
             }
 
-            virtual std::vector<std::string> getPartNames() const {
+            virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
                 std::vector<std::string> result;
                 result.push_back("size");
@@ -125,18 +125,18 @@ namespace RTT
                 return result;
             }
 
-            virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 // the only thing we do is to check for an integer in name, otherwise, assume a part (size/capacity) is accessed:
                 try {
                     unsigned int indx = boost::lexical_cast<unsigned int>(name);
                     // @todo could also return a direct reference to item indx using another DS type that respects updated().
-                    return getPart( item, new internal::ConstantDataSource<int>(indx));
+                    return getMember( item, new internal::ConstantDataSource<int>(indx));
                 } catch(...) {}
 
-                return getPart( item, new internal::ConstantDataSource<std::string>(name) );
+                return getMember( item, new internal::ConstantDataSource<std::string>(name) );
             }
 
-            virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 if ( !data ) {

@@ -529,7 +529,7 @@ namespace RTT
       // inspirired on seen_unary
     DataSourceBase::shared_ptr arg( parsestack.top() );
     parsestack.pop();
-    DataSourceBase::shared_ptr ret = arg->getPart(member);
+    DataSourceBase::shared_ptr ret = arg->getMember(member);
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( arg->getType() + " does not have member \"" + member +
                                             "\"." );
@@ -612,7 +612,7 @@ namespace RTT
 
     // Arg2 is the first (!) argument, as it was pushed on the stack
     // first.
-    DataSourceBase::shared_ptr ret = arg2->getPart( arg1, 0 );
+    DataSourceBase::shared_ptr ret = arg2->getMember( arg1, 0 );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Illegal use of []: "+ arg2->getType() +"[ "
                                                 +arg1->getType() +" ]." );

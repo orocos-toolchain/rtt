@@ -25,7 +25,7 @@ namespace RTT
             {
             }
 
-            virtual std::vector<std::string> getPartNames() const {
+            virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
                 std::vector<std::string> result;
                 result.push_back("size");
@@ -33,7 +33,7 @@ namespace RTT
                 return result;
             }
 
-            virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item, const std::string& name) const {
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
@@ -54,7 +54,7 @@ namespace RTT
                 return base::DataSourceBase::shared_ptr();
             }
 
-            virtual base::DataSourceBase::shared_ptr getPart(base::DataSourceBase::shared_ptr item,
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
                 if ( !data ) {

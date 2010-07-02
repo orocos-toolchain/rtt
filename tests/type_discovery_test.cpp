@@ -108,12 +108,12 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
     BOOST_CHECK_EQUAL( a->get(), 10 );
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
 
-    // Check getPart function.
-    BOOST_CHECK_EQUAL( out.getPart("a"), out.mparts[0] );
-    BOOST_CHECK_EQUAL( out.getPart("b"), out.mparts[1] );
-    BOOST_CHECK_EQUAL( out.getPart("c"), out.mparts[2] );
-    BOOST_CHECK_EQUAL( out.getPart("ai"), out.mparts[3] );
-    BOOST_CHECK_EQUAL( out.getPart("vd"), out.mparts[4] );
+    // Check getMember function.
+    BOOST_CHECK_EQUAL( out.getMember("a"), out.mparts[0] );
+    BOOST_CHECK_EQUAL( out.getMember("b"), out.mparts[1] );
+    BOOST_CHECK_EQUAL( out.getMember("c"), out.mparts[2] );
+    BOOST_CHECK_EQUAL( out.getMember("ai"), out.mparts[3] );
+    BOOST_CHECK_EQUAL( out.getMember("vd"), out.mparts[4] );
 }
 
 // Test writing a BType data sample into a type data archive
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_REQUIRE( ai );
     BOOST_REQUIRE( vd );
 
-    BOOST_CHECK( !out.getPart("zort") );
+    BOOST_CHECK( !out.getMember("zort") );
 
 
     // Check reading parts (must equal parent)
@@ -165,12 +165,12 @@ BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
     BOOST_CHECK_EQUAL( c->get().address(), "helLo" );
     BOOST_CHECK_EQUAL( c->get().address(), atype->set().c );
 
-    // Check getPart function.
-    BOOST_CHECK_EQUAL( out.getPart("a"), out.mparts[0] );
-    BOOST_CHECK_EQUAL( out.getPart("b"), out.mparts[1] );
-    BOOST_CHECK_EQUAL( out.getPart("c"), out.mparts[2] );
-    BOOST_CHECK_EQUAL( out.getPart("ai"), out.mparts[3] );
-    BOOST_CHECK_EQUAL( out.getPart("vd"), out.mparts[4] );
+    // Check getMember function.
+    BOOST_CHECK_EQUAL( out.getMember("a"), out.mparts[0] );
+    BOOST_CHECK_EQUAL( out.getMember("b"), out.mparts[1] );
+    BOOST_CHECK_EQUAL( out.getMember("c"), out.mparts[2] );
+    BOOST_CHECK_EQUAL( out.getMember("ai"), out.mparts[3] );
+    BOOST_CHECK_EQUAL( out.getMember("vd"), out.mparts[4] );
 }
 
 // Test the StructTypeInfo for AType
@@ -184,21 +184,21 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     BOOST_REQUIRE( Types()->type("AType") );
 
     // check the part names lookup:
-    vector<string> names = atype->getPartNames();
-    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 5 );
+    vector<string> names = atype->getMemberNames();
+    BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 5 );
 
 //    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
 //    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 5);
-    BOOST_REQUIRE( atype->getPart("a") );
+    BOOST_REQUIRE( atype->getMember("a") );
 
     // Check individual part lookup by name:
-    AssignableDataSource<int>::shared_ptr a = AssignableDataSource<int>::narrow( atype->getPart("a").get() );
-    AssignableDataSource<double>::shared_ptr b = AssignableDataSource<double>::narrow( atype->getPart("b").get() );
-    AssignableDataSource<string>::shared_ptr c = AssignableDataSource<string>::narrow( atype->getPart("c").get());
-    AssignableDataSource<boost::array<int,5> >::shared_ptr ai = AssignableDataSource<boost::array<int,5> >::narrow( atype->getPart("ai").get());
-    AssignableDataSource<vector<double> >::shared_ptr vd = AssignableDataSource<vector<double> >::narrow( atype->getPart("vd").get());
+    AssignableDataSource<int>::shared_ptr a = AssignableDataSource<int>::narrow( atype->getMember("a").get() );
+    AssignableDataSource<double>::shared_ptr b = AssignableDataSource<double>::narrow( atype->getMember("b").get() );
+    AssignableDataSource<string>::shared_ptr c = AssignableDataSource<string>::narrow( atype->getMember("c").get());
+    AssignableDataSource<boost::array<int,5> >::shared_ptr ai = AssignableDataSource<boost::array<int,5> >::narrow( atype->getMember("ai").get());
+    AssignableDataSource<vector<double> >::shared_ptr vd = AssignableDataSource<vector<double> >::narrow( atype->getMember("vd").get());
 
     BOOST_REQUIRE( a );
     BOOST_REQUIRE( b );
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     BOOST_REQUIRE( ai );
     BOOST_REQUIRE( vd );
 
-    BOOST_CHECK( !atype->getPart("zort") );
+    BOOST_CHECK( !atype->getMember("zort") );
 
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
@@ -233,25 +233,25 @@ BOOST_AUTO_TEST_CASE( testCTypeArray )
     BOOST_REQUIRE( Types()->type("cints") );
 
     // check the part names lookup:
-    vector<string> names = atype->getPartNames();
-    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
+    vector<string> names = atype->getMemberNames();
+    BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
 
 //    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
 //    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
-    BOOST_REQUIRE( atype->getPart("0") );
+    BOOST_REQUIRE( atype->getMember("0") );
 
     // Check individual part lookup by index:
-    AssignableDataSource<int>::shared_ptr a0 = AssignableDataSource<int>::narrow( atype->getPart("0").get() );
-    AssignableDataSource<int>::shared_ptr a1 = AssignableDataSource<int>::narrow( atype->getPart("1").get() );
-    AssignableDataSource<int>::shared_ptr a2 = AssignableDataSource<int>::narrow( atype->getPart("2").get() );
+    AssignableDataSource<int>::shared_ptr a0 = AssignableDataSource<int>::narrow( atype->getMember("0").get() );
+    AssignableDataSource<int>::shared_ptr a1 = AssignableDataSource<int>::narrow( atype->getMember("1").get() );
+    AssignableDataSource<int>::shared_ptr a2 = AssignableDataSource<int>::narrow( atype->getMember("2").get() );
 
     BOOST_REQUIRE( a0 );
     BOOST_REQUIRE( a1 );
     BOOST_REQUIRE( a2 );
 
-    BOOST_CHECK( !atype->getPart("zort") );
+    BOOST_CHECK( !atype->getMember("zort") );
 
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a0->get(), tester[0] );
@@ -281,21 +281,21 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     BOOST_REQUIRE( Types()->type("ints") == atype->getTypeInfo() );
 
     // check the part names lookup:
-    vector<string> names = atype->getPartNames();
-    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
+    vector<string> names = atype->getMemberNames();
+    BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
 
 //    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
 //    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
-    BOOST_REQUIRE( atype->getPart("0") );
+    BOOST_REQUIRE( atype->getMember("0") );
 
     // Check individual part lookup by index:
-    AssignableDataSource<int>::shared_ptr a0 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("0") );
-    AssignableDataSource<int>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("1") );
-    AssignableDataSource<int>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getPart("2") );
-    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getPart("size") );
-    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getPart("capacity") );
+    AssignableDataSource<int>::shared_ptr a0 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getMember("0") );
+    AssignableDataSource<int>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getMember("1") );
+    AssignableDataSource<int>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<int> >( atype->getMember("2") );
+    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getMember("size") );
+    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getMember("capacity") );
 
     BOOST_REQUIRE( a0 );
     BOOST_REQUIRE( a1 );
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE( testContainerType )
     BOOST_REQUIRE( siz );
     BOOST_REQUIRE( cap );
 
-    BOOST_CHECK( !atype->getPart("zort") );
+    BOOST_CHECK( !atype->getMember("zort") );
 
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a0->get(), tester[0] );
@@ -340,33 +340,33 @@ BOOST_AUTO_TEST_CASE( testStringContainerType )
     BOOST_REQUIRE( Types()->type("chars") == atype->getTypeInfo() );
 
     // check the part names lookup:
-    vector<string> names = atype->getPartNames();
-    BOOST_CHECK_EQUAL( atype->getPartNames().size(), 2 ); // capacity,size
+    vector<string> names = atype->getMemberNames();
+    BOOST_CHECK_EQUAL( atype->getMemberNames().size(), 2 ); // capacity,size
 
 //    for_each( names.begin(), names.end(), cout << lambda::_1 <<", " );
 //    cout <<endl;
 
     BOOST_REQUIRE_EQUAL( names.size(), 2);
-    BOOST_REQUIRE( atype->getPart("0") );
+    BOOST_REQUIRE( atype->getMember("0") );
 
     // test use of 'getAssignable()' to narrow:
-    DataSourceBase::shared_ptr ds0 = atype->getPart("0");
+    DataSourceBase::shared_ptr ds0 = atype->getMember("0");
     BOOST_REQUIRE( ds0 );
     AssignableDataSource<char>::shared_ptr a0 = AssignableDataSource<char>::narrow( ds0->getTypeInfo()->getAssignable( ds0 ).get() );
     BOOST_REQUIRE( a0 );
 
     // Check individual part lookup by index:
-    AssignableDataSource<char>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getPart("1") );
-    AssignableDataSource<char>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getPart("2") );
-    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getPart("size") );
-    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getPart("capacity") );
+    AssignableDataSource<char>::shared_ptr a1 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getMember("1") );
+    AssignableDataSource<char>::shared_ptr a2 = dynamic_pointer_cast< AssignableDataSource<char> >( atype->getMember("2") );
+    DataSource<int>::shared_ptr siz = dynamic_pointer_cast< DataSource<int> >( atype->getMember("size") );
+    DataSource<int>::shared_ptr cap = dynamic_pointer_cast< DataSource<int> >( atype->getMember("capacity") );
 
     BOOST_REQUIRE( a1 );
     BOOST_REQUIRE( a2 );
     BOOST_REQUIRE( siz );
     BOOST_REQUIRE( cap );
 
-    BOOST_CHECK( !atype->getPart("zort") );
+    BOOST_CHECK( !atype->getMember("zort") );
 
     // Check reading parts (must equal parent)
     BOOST_CHECK_EQUAL( a0->get(), tester[0] );
@@ -407,10 +407,10 @@ BOOST_AUTO_TEST_CASE( testCTypeDiscovery )
     AssignableDataSource<CType>::shared_ptr atype = new ValueDataSource<CType>( CType() );
 
     // decompose a complex type
-    AssignableDataSource<AType>::shared_ptr a = AssignableDataSource<AType>::narrow( atype->getPart("a").get() );
-    AssignableDataSource<BType>::shared_ptr b = AssignableDataSource<BType>::narrow( atype->getPart("b").get() );
-    AssignableDataSource< vector<AType> >::shared_ptr av = AssignableDataSource< vector<AType> >::narrow( atype->getPart("av").get());
-    AssignableDataSource< vector<BType> >::shared_ptr bv = AssignableDataSource< vector<BType> >::narrow( atype->getPart("bv").get());
+    AssignableDataSource<AType>::shared_ptr a = AssignableDataSource<AType>::narrow( atype->getMember("a").get() );
+    AssignableDataSource<BType>::shared_ptr b = AssignableDataSource<BType>::narrow( atype->getMember("b").get() );
+    AssignableDataSource< vector<AType> >::shared_ptr av = AssignableDataSource< vector<AType> >::narrow( atype->getMember("av").get());
+    AssignableDataSource< vector<BType> >::shared_ptr bv = AssignableDataSource< vector<BType> >::narrow( atype->getMember("bv").get());
 
     BOOST_REQUIRE( a );
     BOOST_REQUIRE( b );
@@ -418,14 +418,14 @@ BOOST_AUTO_TEST_CASE( testCTypeDiscovery )
     BOOST_REQUIRE( bv );
 
     // Access top level elements
-    BOOST_REQUIRE( a->getPart("ai") );
-    AssignableDataSource<int>::shared_ptr ai3 = dynamic_pointer_cast< AssignableDataSource<int> >( a->getPart("ai")->getPart("3") );
-    BOOST_REQUIRE( b->getPart("ai") );
-    AssignableDataSource<int>::shared_ptr bi3 = dynamic_pointer_cast< AssignableDataSource<int> >( b->getPart("ai")->getPart("3") );
+    BOOST_REQUIRE( a->getMember("ai") );
+    AssignableDataSource<int>::shared_ptr ai3 = dynamic_pointer_cast< AssignableDataSource<int> >( a->getMember("ai")->getMember("3") );
+    BOOST_REQUIRE( b->getMember("ai") );
+    AssignableDataSource<int>::shared_ptr bi3 = dynamic_pointer_cast< AssignableDataSource<int> >( b->getMember("ai")->getMember("3") );
 
     // Access elements in sequences:
-    AssignableDataSource<int>::shared_ptr avi3 = dynamic_pointer_cast< AssignableDataSource<int> >( av->getPart("3")->getPart("ai")->getPart("3") );
-    AssignableDataSource<int>::shared_ptr bvi3 = dynamic_pointer_cast< AssignableDataSource<int> >( bv->getPart("3")->getPart("ai")->getPart("3") );
+    AssignableDataSource<int>::shared_ptr avi3 = dynamic_pointer_cast< AssignableDataSource<int> >( av->getMember("3")->getMember("ai")->getMember("3") );
+    AssignableDataSource<int>::shared_ptr bvi3 = dynamic_pointer_cast< AssignableDataSource<int> >( bv->getMember("3")->getMember("ai")->getMember("3") );
 
     BOOST_REQUIRE( ai3 );
     BOOST_REQUIRE( bi3 );
