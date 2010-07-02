@@ -17,15 +17,21 @@ namespace RTT
     {
 
         /**
-         * @internal
-         * @defgroup OperationRepositoryPart Base Classes for scriptable operations.
-         * @brief Factories for operations.
+         * This class defines the interface for creating operation
+         * objects without using C++ templates.
          *
-         * Each operation in the OperationRepository will
-         * be linked with one OperationRepositoryPart that knows how to produce
-         * that operation
+         * The OperationRepository offers the same interface as this class,
+         * but with operation names as first argument of each function.
          *
-         *@{
+         * It is most used in conjunction with the MethodC/SendHandleC
+         * classes to create objects that manage calling/sending methods and
+         * collecting results of method invocations.
+         *
+         * A Part must be interpreted as one single operation of an
+         * OperationRepository.
+         *
+         * This class serves as a base class for the template based classes
+         * that implement the produce and query logic for a given operation.
          */
         class OperationRepositoryPart
         {
@@ -148,9 +154,6 @@ namespace RTT
              */
             virtual boost::shared_ptr<base::DisposableInterface> getLocalOperation() const;
         };
-        /**
-         * @}
-         */
 
         /**
          * @brief Holds all exported operations of a component and is
