@@ -1,5 +1,5 @@
-#ifndef ORO_OPERATION_REPOSITORY_PART_HPP
-#define ORO_OPERATION_REPOSITORY_PART_HPP
+#ifndef ORO_OPERATION_REPOSITORY_PART_FUSED_HPP
+#define ORO_OPERATION_REPOSITORY_PART_FUSED_HPP
 
 
 #include <boost/shared_ptr.hpp>
@@ -19,7 +19,7 @@
 #include "DataSource.hpp"
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
-#include "../interface/OperationRepository.hpp"
+#include "../interface/OperationRepositoryPart.hpp"
 #include "../interface/FactoryExceptions.hpp"
 #include "../Operation.hpp"
 #include "../base/MethodBase.hpp"

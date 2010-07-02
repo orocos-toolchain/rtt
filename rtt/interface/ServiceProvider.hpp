@@ -3,7 +3,7 @@
 
 #include "../rtt-config.h"
 #include "OperationRepository.hpp"
-#include "../internal/OperationRepositoryPart.hpp"
+#include "../internal/OperationRepositoryPartFused.hpp"
 #include "../internal/LocalMethod.hpp"
 #include "../internal/MethodC.hpp"
 #include "../internal/UnMember.hpp"
