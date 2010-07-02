@@ -52,7 +52,7 @@
 
 #include "rtt-config.h"
 #include "marsh/MarshallingService.hpp"
-//#include "scripting/ScriptingService.hpp" [XXX] : Temporarily until plugins are implemented: see below
+#include "scripting/ScriptingService.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
 #include "extras/SequentialActivity.hpp"
