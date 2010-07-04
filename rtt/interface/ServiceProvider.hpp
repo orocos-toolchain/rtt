@@ -258,7 +258,7 @@ namespace RTT
                 ExecutionThread et = ClientThread)
         {
             typedef typename internal::GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
-            Operation<SignatureDS>* op = new Operation<SignatureDS>(name, func, et);
+            Operation<SignatureDS>* op = new Operation<SignatureDS>(name, boost::function<SignatureDS>(func), et);
             ownedoperations.push_back(op);
             return addOperationDS( sp, *op );
         }
