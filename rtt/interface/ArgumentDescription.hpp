@@ -49,9 +49,7 @@ namespace RTT
      */
     struct RTT_API ArgumentDescription
     {
-        ArgumentDescription (const std::string _name, const std::string _desc, const std::string _type)
-            : name( _name), description(_desc), type(_type)
-        {}
+        ArgumentDescription (const std::string _name, const std::string _desc, const std::string _type);
         std::string name;
         std::string description;
         std::string type;
