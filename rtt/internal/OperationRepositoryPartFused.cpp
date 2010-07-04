@@ -9,8 +9,8 @@ string OperationRepositoryPartHelper::description(OperationBase* op) {
     return op->getDescriptions().front();
 }
 
-vector<interface::ArgumentDescription> OperationRepositoryPartHelper::getArgumentList(OperationBase* op, const int arity, const vector<string> arg_types ) {
-    vector<string> const& descr = op->getDescriptions();
+vector<interface::ArgumentDescription> OperationRepositoryPartHelper::getArgumentList(OperationBase* op, const int arity, const vector<string>& arg_types ) {
+    vector<string> descr = op->getDescriptions();
     vector<interface::ArgumentDescription> ret;
     for (unsigned int i =1; i < arity; i +=2 ) {
         // resize for undocumented arguments.
