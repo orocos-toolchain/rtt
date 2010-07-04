@@ -446,21 +446,7 @@ namespace RTT
     template<class T>
     Property<T>* Property<T>::narrow( base::PropertyBase* prop ) {
         Property<T>* res = dynamic_cast<Property<T>*>( prop );
-        if (res)
-            return res->clone();
-        // If this property is a proxy:
-        int p_id = prop->getDataSource()->serverProtocol();
-        if ( p_id ) {
-            assert(false); // untested code.
-#if 0
-            T result;
-            void* ret = propbase->getDataSource()->getBlob(p_id);
-            if( A n y Conversion<T>::update( any.in() , result ) ) {
-                return new Property<T>( propbase->getName(), propbase->getDescription(), result );
-            }
-#endif
-        }
-        return 0;
+        return res;
     }
 
 #if !defined(ORO_EMBEDDED) && defined(__GNUC__)
@@ -470,7 +456,6 @@ namespace RTT
     extern template class Property<int>;
     extern template class Property<unsigned int>;
     extern template class Property<std::string>;
-    extern template class Property<const std::string &>;
 #endif
 }
 

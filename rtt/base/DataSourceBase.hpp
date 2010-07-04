@@ -252,13 +252,6 @@ namespace RTT
        * @see types::TypeInfo
        */
       std::string toString();
-
-      /**
-       * Inspect if this internal::DataSource is a proxy for a remote server object.
-       * @return 0 if it is a local internal::DataSource, or the protocol id if it
-       * is a proxy for a remove server.
-       */
-      virtual int serverProtocol() const;
   };
 
     /**

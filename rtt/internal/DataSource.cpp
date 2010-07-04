@@ -131,11 +131,6 @@ namespace RTT {
         return true;
     }
 
-    int DataSourceBase::serverProtocol() const
-    {
-        return 0; // default to local DataSource.
-    }
-
     namespace internal {
 
         TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
