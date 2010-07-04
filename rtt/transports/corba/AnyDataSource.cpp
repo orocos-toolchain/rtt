@@ -62,6 +62,10 @@ namespace RTT {
         return new CORBA::Any(mdata.in());
     }
 
+    DataSource<CORBA::Any_var>::const_reference_t AnyDataSource::rvalue() const
+    {
+        return mdata;
+    }
 
     AnyDataSource* AnyDataSource::clone() const
     {
@@ -72,10 +76,6 @@ namespace RTT {
     AnyDataSource* AnyDataSource::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
         // no copy needed, share this with all instances.
         return const_cast<AnyDataSource*>(this);
-    }
-
-    int AnyDataSource::serverProtocol() const {
-        return ORO_CORBA_PROTOCOL_ID;
     }
     }
 

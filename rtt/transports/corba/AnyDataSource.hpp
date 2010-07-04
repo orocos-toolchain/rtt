@@ -82,12 +82,11 @@ namespace RTT
 
             internal::DataSource<CORBA::Any_var>::result_t value() const;
 
+            internal::DataSource<CORBA::Any_var>::const_reference_t value() const;
+
             virtual AnyDataSource* clone() const;
 
             virtual AnyDataSource* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
-
-            virtual int serverProtocol() const;
-
         };
     }
 }

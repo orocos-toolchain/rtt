@@ -61,6 +61,10 @@ namespace RTT
                 return last_value;
             }
 
+            typename internal::AssignableDataSource<T>::const_reference_t rvalue() const {
+                return last_value;
+            }
+
             virtual typename internal::DataSource<T>::result_t get() const {
                 CORBA::Any_var res;
                 if ( misproperty ) {
@@ -90,10 +94,6 @@ namespace RTT
                 //return std::string( mserv->getType() );
             }
 
-            virtual int serverProtocol() const
-            {
-                return ORO_CORBA_PROTOCOL_ID;
-            }
         };
 
         /**
@@ -180,11 +180,6 @@ namespace RTT
             virtual internal::AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
                 alreadyCloned[this] = const_cast<ValueDataSourceProxy<T>*>(this);
                 return const_cast<ValueDataSourceProxy<T>*>(this);
-            }
-
-            virtual int serverProtocol() const
-            {
-                return ORO_CORBA_PROTOCOL_ID;
             }
         };
 
