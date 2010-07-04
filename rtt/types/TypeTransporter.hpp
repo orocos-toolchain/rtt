@@ -79,20 +79,6 @@ namespace RTT
              *
              */
             virtual base::ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const = 0;
-
-            /**
-             * Narrows a remote data source object or proxy to this type.
-             * Used internally to determine the type of a remote object.
-             * @return 0 if \a dsb is not of this type.
-             */
-            virtual base::DataSourceBase* narrowDataSource(base::DataSourceBase* dsb) = 0;
-
-            /**
-             * Narrows a remote assignable data source object or proxy to this type.
-             * Used internally to determine the type of a remote object.
-             * @return 0 if \a dsb is not of this type.
-             */
-            virtual base::DataSourceBase* narrowAssignableDataSource(base::DataSourceBase* dsb) = 0;
         };
     }
 }

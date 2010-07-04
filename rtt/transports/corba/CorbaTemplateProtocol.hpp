@@ -133,19 +133,6 @@ namespace RTT
                   return base::DataSourceBase::shared_ptr( new DataSourceProxy<PropertyType>( serv, vname, false ) );
               }
           }
-
-          virtual base::DataSourceBase* narrowDataSource(base::DataSourceBase* dsb)
-          {
-              log( Error) << "Failed to narrow remote data source "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<endlog();
-              return 0;
-          }
-
-          virtual base::DataSourceBase* narrowAssignableDataSource(base::DataSourceBase* dsb)
-          {
-              log( Error) << "Failed to narrow remote assignable data source "<<dsb->getType()<<" to local "<<internal::DataSource<T>::GetType() <<endlog();
-              return 0;
-          }
-
       };
 }
 }

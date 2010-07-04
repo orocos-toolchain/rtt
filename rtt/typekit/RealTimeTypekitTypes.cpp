@@ -39,9 +39,9 @@
 #include "rtt-typekit-config.h"
 #include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
-#include "StdStringTypeInfo.hpp"
-#include "BoolTypeInfo.hpp"
-#include "../types/TypeInfoName.hpp"
+//#include "StdStringTypeInfo.hpp"
+//#include "BoolTypeInfo.hpp"
+//#include "../types/TypeInfoName.hpp"
 
 namespace RTT
 {
@@ -59,6 +59,7 @@ namespace RTT
         // The standard C types + std::string are defined here,
 
         ti->addType( new StdTypeInfo<int>("int") );
+#if 0
         ti->addType( new StdTypeInfo<unsigned int>("uint") );
         ti->addType( new StdTypeInfo<double>("double") );
         ti->addType( new StdTypeInfo<float>("float") );
@@ -69,6 +70,7 @@ namespace RTT
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
         ti->addType( new StdStringTypeInfo() );
+#endif
 
         // load the Orocos specific types:
         loadOrocosTypes( ti );

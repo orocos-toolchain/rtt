@@ -118,36 +118,6 @@ namespace RTT
               }
               return 0;
           }
-
-          /**
-           * Create a internal::DataSource which is a proxy for a remote object.
-           */
-          virtual base::DataSourceBase* proxy( void* data ) const
-          {
-            base::DataSourceBase* result = 0;
-            return result;
-          }
-
-          virtual void* server(base::DataSourceBase::shared_ptr source, bool assignable, void* arg ) const
-          {
-              return 0;
-          }
-
-          virtual void* method(base::DataSourceBase::shared_ptr source, internal::MethodC* orig, void* arg) const
-          {
-              return 0;
-          }
-
-          virtual base::DataSourceBase* narrowDataSource(base::DataSourceBase* dsb)
-          {
-              return 0;
-          }
-
-          virtual base::DataSourceBase* narrowAssignableDataSource(base::DataSourceBase* dsb)
-          {
-              return 0;
-          }
-
       };
 }
 }

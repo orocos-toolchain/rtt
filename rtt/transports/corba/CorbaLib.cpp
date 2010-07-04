@@ -128,32 +128,6 @@ namespace RTT {
                 log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
             }
-            /**
-             * Narrows a remote data source object or proxy to this type.
-             * Used internally to determine the type of a remote object.
-             * @return 0 if \a dsb is not of this type.
-             */
-            virtual DataSourceBase* narrowDataSource(DataSourceBase* dsb)
-            {
-                if (warn) {
-                    log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
-                }
-                return 0;
-            }
-
-            /**
-             * Narrows a remote assignable data source object or proxy to this type.
-             * Used internally to determine the type of a remote object.
-             * @return 0 if \a dsb is not of this type.
-             */
-            virtual DataSourceBase* narrowAssignableDataSource(DataSourceBase* dsb)
-            {
-                if (warn) {
-                    log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
-                }
-                return 0;
-            }
-
           virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) {
               CORBA::String_var tname = serv->getPropertyTypeName( CORBA::string_dup(vname.c_str()));
               log(Warning) << "Corba: Remote property '"<< vname << "' has unknown type " << tname.in()  << endlog();
