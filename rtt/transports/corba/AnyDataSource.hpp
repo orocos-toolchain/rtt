@@ -82,7 +82,7 @@ namespace RTT
 
             internal::DataSource<CORBA::Any_var>::result_t value() const;
 
-            internal::DataSource<CORBA::Any_var>::const_reference_t value() const;
+            internal::DataSource<CORBA::Any_var>::const_reference_t rvalue() const;
 
             virtual AnyDataSource* clone() const;
 

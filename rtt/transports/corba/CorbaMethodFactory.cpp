@@ -271,6 +271,8 @@ public:
 
     SendStatus value() const { return mss; }
 
+    SendStatus const& rvalue() const { return mss; }
+
     SendStatus get() const {
         try {
             // only try to collect if we didn't do so before:
