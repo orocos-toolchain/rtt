@@ -47,8 +47,10 @@
 #include <boost/type_traits/is_void.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/static_assert.hpp>
 
 #include "../base/DataSourceBase.hpp"
+#include "mystd.hpp"
 
 namespace RTT
 { namespace internal {
@@ -90,6 +92,12 @@ namespace RTT
       typedef T result_t;
       typedef typename boost::mpl::if_< typename boost::is_void<T>, void, typename boost::add_reference<typename boost::add_const<T>::type>::type >::type const_reference_t;
 //      typedef typename boost::mpl::eval_if< typename boost::is_void<T>, boost::mpl::identity<void>, boost::mpl::identity<void> >::type const_reference_t;
+
+      /**
+       * If you get a compile error here, it means T has const or reference
+       * qualifiers, which is not allowed for DataSource<T>
+       */
+      BOOST_STATIC_ASSERT( (boost::is_same<value_t, typename remove_cr<T>::type>::value) );
 
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
@@ -162,11 +170,6 @@ namespace RTT
       typedef typename DataSource<T>::const_reference_t const_reference_t;
       typedef typename boost::call_traits<value_t>::param_type param_t;
       typedef typename boost::call_traits<value_t>::reference reference_t;
-
-      // For assignment from another datasource, we use the call_traits convention but
-      // remove the 'const' for the 'small' types. This to avoid requiring a DataSourceAdaptor.
-      // Big types (classes) are still passed by const&.
-      typedef typename boost::remove_const<typename boost::call_traits<value_t>::param_type>::type copy_t;
 
       /**
        * Use this type to store a pointer to an AssignableDataSource.

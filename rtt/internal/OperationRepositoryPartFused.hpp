@@ -67,7 +67,7 @@ namespace RTT
 
             std::string resultType() const
             {
-                return DataSource<result_type>::GetType();
+                return DataSourceTypeInfo<result_type>::getType() + DataSourceTypeInfo<result_type>::getQualifier();
             }
 
             unsigned int arity() const { return boost::function_traits<Signature>::arity; }
@@ -91,13 +91,13 @@ namespace RTT
             {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
-                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
+                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
-                return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(args) );
+                return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceHandle() const {
@@ -110,7 +110,7 @@ namespace RTT
                 assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                 if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
-                return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
+                return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args), blocking );
             }
 
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
@@ -167,7 +167,7 @@ namespace RTT
 
                 std::string resultType() const
                 {
-                    return DataSource<result_type>::GetType();
+                    return DataSourceTypeInfo<result_type>::getType() + DataSourceTypeInfo<result_type>::getQualifier();
                 }
 
                 unsigned int arity() const { return boost::function_traits<Signature>::arity - 1;/*lie about the hidden member pointer */ }
@@ -207,7 +207,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
+                    return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
@@ -218,7 +218,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory()(a2) );
+                    return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceHandle() const {

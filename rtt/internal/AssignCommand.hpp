@@ -83,7 +83,7 @@ namespace RTT
             bool execute()
             {
                 if (news) {
-                    lhs->set( rhs->value() );
+                    lhs->set( rhs->rvalue() );
                     news=false;
                     return true;
                 }

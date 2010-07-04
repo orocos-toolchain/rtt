@@ -132,9 +132,9 @@ namespace RTT
 
         // Use the same rules of parameter passing as C++, but no const for 'int',...
         base::DataSourceBase::shared_ptr r( other );
-        typename DataSource<copy_t>::shared_ptr t = boost::dynamic_pointer_cast< DataSource<copy_t> >( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
+        typename DataSource<value_t>::shared_ptr t = boost::dynamic_pointer_cast< DataSource<value_t> >( DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if ( t )
-            return new AssignCommand<T,copy_t>( this, t );
+            return new AssignCommand<value_t>( this, t );
 
 #ifndef ORO_EMBEDDED
         throw bad_assignment();

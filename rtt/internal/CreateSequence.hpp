@@ -54,12 +54,23 @@ namespace RTT
          */
         template<class Seq, class Data, class Enable = void >
         struct GetPointerWrap {
-            Data operator()(Seq s) { return Data(bf::front(s)->get()); /* front(s) is a DataSource<Data> */}
+            Data operator()(Seq s) { return Data(bf::front(s)->rvalue()); /* front(s) is a DataSource<Data> */}
         }; // normal type
 
+        /**
+         * In this case, Data is a pointer and the front element of Seq is a shared_ptr.
+         */
         template<class Seq, class Data>
-        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
+        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::ds_type::result_t> >::type> {
             Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
+        }; // shared_ptr type
+
+        /**
+         * In this case, Data is a pure reference and the first element of Seq is an AssignableDataSource.
+         */
+        template<class Seq, class Data>
+        struct GetPointerWrap<Seq, Data, typename boost::enable_if< boost::is_reference<Data> >::type> {
+            Data operator()(Seq s) { return Data(bf::front(s)->set() ); /* Case of reference.*/ }
         }; // shared_ptr type
 
         /**
@@ -73,7 +84,7 @@ namespace RTT
         }; // normal type
 
         template<class Seq, class Data>
-        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
+        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::ds_type::result_t> >::type> {
             static void set(Seq , Data ) {} // nop
         }; // shared_ptr type
 
@@ -82,12 +93,12 @@ namespace RTT
          */
         template<class T>
         struct UpdateHelper {
-            static void update(typename DataSource<T>::shared_ptr) {}
+            static void update(typename DataSource<typename remove_cr<T>::type >::shared_ptr) {}
         };
 
         template<class T>
         struct UpdateHelper<T&> {
-            static void update(typename DataSource<T&>::shared_ptr s) { s->updated(); }
+            static void update(typename DataSource<typename remove_cr<T>::type >::shared_ptr s) { s->updated(); }
         };
 
         template<class List, int size>
@@ -97,7 +108,7 @@ namespace RTT
          * This class can create three kinds of Boost Fusion
          * Sequences.
          *
-         * opeartor() creates a fusion sequence of DataSource<T>::shared_ptr from an mpl sequence
+         * sources() creates a fusion sequence of (Assignable)DataSource<T>::shared_ptr from an mpl sequence
          * and a std::vector<DataSourceBase*>. Both must have same length.
          * The mpl sequence is typically obtained from the
          * function_types parameter_types traits class.
@@ -144,22 +155,21 @@ namespace RTT
              * As documented, if the first element of List is a pointer, wrap it
              * in a boost::shared_ptr.
              */
-            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
+            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type >::type arg_type;
 
             /**
              * The data source value type of an assignable data source is non-const, non-reference.
              */
-            typedef typename remove_cr<arg_type>::type assign_arg_type;
+            typedef typename remove_cr<arg_type>::type ds_arg_type;
 
             /**
              * The type of a single element of the vector.
              */
-            typedef typename DataSource<arg_type>::shared_ptr element_type;
+            typedef typename mpl::if_<typename boost::is_reference<bare_type>::type,
+                    typename AssignableDataSource< ds_arg_type >::shared_ptr,
+                    typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
 
-            /**
-             * The assignable type of a single element of the vector.
-             */
-            typedef typename AssignableDataSource< assign_arg_type >::shared_ptr assign_element_type;
+            typedef typename AssignableDataSource< ds_arg_type >::shared_ptr ads_type;
 
             /**
              * The type of the tail (List - head) of our sequence. It is recursively formulated
@@ -168,20 +178,12 @@ namespace RTT
             typedef typename tail::type tail_type;
 
             /**
-             * The type of the tail (List - head) of our assignable sequence. It is recursively formulated
-             * in terms of create_sequence.
-             */
-            typedef typename tail::assign_type assign_tail_type;
-
-            /**
              * The joint DataSource<T>::shared_ptr type of head and tail, again a fusion cons.
              */
-            typedef bf::cons<element_type, tail_type> type;
+            typedef bf::cons<ds_type, tail_type> type;
 
-            /**
-             * The joint AssignableDataSource<T>::shared_ptr type of head and tail, again a fusion cons.
-             */
-            typedef bf::cons<assign_element_type, assign_tail_type> assign_type;
+            typedef typename tail::atype atail_type;
+            typedef bf::cons<ads_type, tail_type> atype;
 
             typedef typename tail::data_type arg_tail_type;
 
@@ -198,23 +200,23 @@ namespace RTT
              * @param argnbr Leave as default. Used internally to count recursive calls.
              * @return a Fusion Sequence of DataSource<T>::shared_ptr objects
              */
-            type operator()(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
+            static type sources(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
             {
                 assert( args.size() == size);
                 base::DataSourceBase::shared_ptr front = args.front();
 
-                typename DataSource<arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< DataSource<arg_type> >( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
+                ds_type a =
+                    boost::dynamic_pointer_cast< typename ds_type::element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
                     //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
                 }
 
                 args.erase(args.begin());
-                return bf::cons<element_type, tail_type>(
-                        element_type(a),
-                        tail()(args, ++argnbr));
+                return bf::cons<ds_type, tail_type>(
+                        ds_type(a),
+                        tail::sources(args, ++argnbr));
             }
 
             /**
@@ -225,20 +227,20 @@ namespace RTT
              * @param argnbr Leave as default. Used internally to count recursive calls.
              * @return a Fusion Sequence of DataSource<T>::shared_ptr objects
              */
-            static assign_type assignable(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
+            static atype assignable(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
             {
                 assert( args.size() == size);
                 base::DataSourceBase::shared_ptr front = args.front();
 
-                typename AssignableDataSource<assign_arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<assign_arg_type> >( front ); // note: no conversion done, must be same type.
+                typename AssignableDataSource<ds_arg_type>::shared_ptr a =
+                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
                 }
 
                 args.erase(args.begin());
-                return bf::cons<assign_element_type, assign_tail_type>(
-                        assign_element_type(a),
+                return atype(
+                        ads_type(a),
                         tail::assignable(args, ++argnbr));
             }
 
@@ -259,8 +261,8 @@ namespace RTT
              * @param in The values to write.
              * @param seq The receiving assignable data sources.
              */
-            static void set(const data_type& in, const assign_type& seq) {
-                AssignHelper<assign_type, data_type>::set(seq, in);
+            static void set(const data_type& in, const atype& seq) {
+                AssignHelper<atype, data_type>::set(seq, in);
                 return tail::set( bf::pop_front(in), bf::pop_front(seq) );
             }
 
@@ -298,7 +300,7 @@ namespace RTT
                 if ( i <= 0 || i > size)
                     return 0;
                 if ( i == 1 ) {
-                    return DataSource<arg_type>::GetTypeInfo();
+                    return DataSourceTypeInfo<arg_type>::getTypeInfo();
                 } else {
                     return tail::GetTypeInfo(i-1);
                 }
@@ -315,7 +317,7 @@ namespace RTT
                 if ( i <= 0 || i > size)
                     return "na";
                 if ( i == 1 ) {
-                    return DataSource<arg_type>::GetType();
+                    return DataSourceTypeInfo<arg_type>::getType() + DataSourceTypeInfo<arg_type>::getQualifier();
                 } else {
                     return tail::GetType(i-1);
                 }
@@ -326,44 +328,52 @@ namespace RTT
         struct create_sequence_impl<List, 1> // mpl list of one
         {
             typedef typename mpl::front<List>::type bare_type;
-            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type>::type arg_type;
-            typedef typename remove_cr<arg_type>::type assign_arg_type;
+            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type >::type arg_type;
+            typedef typename remove_cr<arg_type>::type ds_arg_type;
             typedef bf::cons<bare_type> data_type;
 
-            // the result sequence type is a cons of the last argument in the vector.
-            typedef bf::cons<typename DataSource<arg_type>::shared_ptr> type;
+            /**
+             * The type of a single element of the vector.
+             */
+            typedef typename mpl::if_<typename boost::is_reference<bare_type>::type,
+                    typename AssignableDataSource< ds_arg_type >::shared_ptr,
+                    typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
+            typedef typename AssignableDataSource< ds_arg_type >::shared_ptr ads_type;
+
 
             // the result sequence type is a cons of the last argument in the vector.
-            typedef bf::cons<typename AssignableDataSource<assign_arg_type>::shared_ptr> assign_type;
+            typedef bf::cons<ds_type> type;
 
-            type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
+            typedef bf::cons<ads_type> atype;
+
+            static type sources(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
             {
                 assert( args.size() == 1);
                 base::DataSourceBase::shared_ptr front = args.front();
 
-                typename DataSource<arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< DataSource<arg_type> >( DataSourceTypeInfo<arg_type>::getTypeInfo()->convert(front) );
+                ds_type a =
+                    boost::dynamic_pointer_cast< typename ds_type::element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
                 }
 
                 return type(a);
             }
 
-            static assign_type assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
+            static atype assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
             {
                 assert( args.size() == 1);
                 base::DataSourceBase::shared_ptr front = args.front();
 
-                typename AssignableDataSource<assign_arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<assign_arg_type> >( front );
+                typename AssignableDataSource<ds_arg_type>::shared_ptr a =
+                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<assign_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
                 }
 
-                return assign_type(a);
+                return atype(a);
             }
 
             /**
@@ -381,8 +391,8 @@ namespace RTT
                 return;
             }
 
-            static void set(const data_type& in, const assign_type& seq) {
-                AssignHelper<assign_type, data_type>::set(seq, in);
+            static void set(const data_type& in, const atype& seq) {
+                AssignHelper<atype, data_type>::set(seq, in);
             }
 
             /**
@@ -401,12 +411,12 @@ namespace RTT
             static const types::TypeInfo* GetTypeInfo(int i) {
                 if ( i != 1)
                     return 0;
-                return DataSource<arg_type>::GetTypeInfo();
+                return DataSource<ds_arg_type>::GetTypeInfo();
             }
             static std::string GetType(int i) {
                 if ( i != 1)
                     return "na";
-                return DataSource<arg_type>::GetType();
+                return DataSource<ds_arg_type>::GetType();
             }
         };
 
@@ -418,18 +428,18 @@ namespace RTT
             // the result sequence type is a cons of the last argument in the vector.
             typedef bf::vector<> type;
 
-            typedef bf::vector<> assign_type;
+            typedef bf::vector<> atype;
 
-            type operator()(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
+            static type sources(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
             {
                 assert( args.size() == 0);
                 return type();
             }
 
-            static assign_type assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
+            static atype assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
             {
                 assert( args.size() == 0);
-                return assign_type();
+                return atype();
             }
 
             /**
@@ -446,7 +456,7 @@ namespace RTT
                 return;
             }
 
-            static void set(const data_type& in, const assign_type& seq) {
+            static void set(const data_type& in, const atype& seq) {
                 return;
             }
 

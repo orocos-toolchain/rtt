@@ -51,7 +51,6 @@ namespace RTT {
      template class Property<int>;
      template class Property<unsigned int>;
      template class Property<std::string>;
-     template class Property<const std::string&>;
 #endif
 
 

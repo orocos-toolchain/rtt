@@ -105,7 +105,7 @@ namespace RTT
         {
             typedef typename boost::function_types::function_type<Function>::type Signature;
             typedef internal::create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
-            return new FusedFunctorDataSource<Signature>(f, SequenceFactory()(args));
+            return new FusedFunctorDataSource<Signature>(f, SequenceFactory::sources(args));
         }
 
         /**
@@ -260,7 +260,7 @@ namespace RTT
               // push the SendHandle pointer in front.
               typedef typename CollectType<Signature>::type CollectSignature;
               typedef typename boost::function_types::parameter_types<CollectSignature>::type arg_types;
-              typedef typename mpl::push_front<arg_types,typename boost::add_reference<SendHandle<Signature> >::type >::type handle_and_arg_types;
+              typedef typename mpl::push_front<arg_types, SendHandle<Signature>& >::type handle_and_arg_types;
               typedef create_sequence< handle_and_arg_types
                       > SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
@@ -328,7 +328,7 @@ namespace RTT
             typedef result_type value_t;
             typedef create_sequence<
                     typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
-            typedef typename SequenceFactory::assign_type DataSourceSequence;
+            typedef typename SequenceFactory::atype DataSourceSequence;
             base::ActionInterface* mact;
             DataSourceSequence args;
         public:
