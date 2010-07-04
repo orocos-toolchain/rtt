@@ -199,15 +199,7 @@ namespace RTT
          * @return A pointer to an operation repository part or a null pointer if
          * \a name was not found.
          */
-        OperationRepositoryPart* getOperation( std::string name )
-        {
-            Logger::In in("ServiceProvider::getOperation");
-            if ( this->hasMember(name ) ) {
-                return this->getPart(name);
-            }
-            log(Warning) << "No such operation in service '"<< getName() <<"': "<< name <<endlog();
-            return 0;
-        }
+        OperationRepositoryPart* getOperation( std::string name );
 
         /**
          * Removes a previously added operation.
@@ -251,16 +243,9 @@ namespace RTT
         addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name);
-            op->calls(func, serv, et);
-            if ( this->addLocalOperation( *op ) == false ) {
-                assert(false);
-                return *op; // should never be reached.
-            }
+            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
             ownedoperations.push_back(op);
-            this->add( op->getName(), new internal::OperationRepositoryPartFused<Signature>( op ) );
-
-            return *op;
+            return addOperation( *op );
         }
 
         /**
@@ -273,18 +258,9 @@ namespace RTT
                 ExecutionThread et = ClientThread)
         {
             typedef typename internal::GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
-            Operation<SignatureDS>* op = new Operation<SignatureDS>(name);
-            op->calls(func);
-            if ( this->addLocalOperation( *op ) == false ) {
-                assert(false);
-                return *op; // should never be reached.
-            }
+            Operation<SignatureDS>* op = new Operation<SignatureDS>(name, func, et);
             ownedoperations.push_back(op);
-            //typedef typename internal::incomplete<ObjT>::x x;
-            //typedef typename internal::incomplete<SignatureDS>::y y;
-            this->add( op->getName(), new internal::OperationRepositoryPartFusedDS<SignatureDS,ObjT>( sp, op) );
-
-            return *op;
+            return addOperationDS( sp, *op );
         }
 
         /**
@@ -331,13 +307,7 @@ namespace RTT
         /**
          * Reset the implementation of a operation.
          */
-        bool resetOperation(std::string name, base::OperationBase* impl)
-        {
-            if (!hasOperation(name))
-                return false;
-            simpleoperations[name] = impl;
-            return true;
-        }
+        bool resetOperation(std::string name, base::OperationBase* impl);
     protected:
         typedef std::map< std::string, shared_ptr > Services;
         /// the services we implement.

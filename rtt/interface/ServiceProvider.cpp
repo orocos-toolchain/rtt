@@ -70,6 +70,24 @@ namespace RTT {
         return shared_ptr();
     }
 
+    OperationRepositoryPart* ServiceProvider::getOperation( std::string name )
+    {
+        Logger::In in("ServiceProvider::getOperation");
+        if ( this->hasMember(name ) ) {
+            return this->getPart(name);
+        }
+        log(Warning) << "No such operation in service '"<< getName() <<"': "<< name <<endlog();
+        return 0;
+    }
+
+    bool ServiceProvider::resetOperation(std::string name, base::OperationBase* impl)
+    {
+        if (!hasOperation(name))
+            return false;
+        simpleoperations[name] = impl;
+        return true;
+    }
+    
     bool ServiceProvider::hasService(const std::string& service_name) {
         if (service_name == "this")
             return true;
@@ -79,8 +97,8 @@ namespace RTT {
     bool ServiceProvider::addLocalOperation( OperationBase& op )
     {
         Logger::In in("ServiceProvider::addLocalOperation");
-        if ( op.getName().empty() || !op.getImplementation() ) {
-            log(Error) << "Failed to add Operation: '"<< op.getName() <<"' has no name or no implementation." <<endlog();
+        if ( op.getName().empty() ) {
+            log(Error) << "Failed to add Operation: '"<< op.getName() <<"' has no name." <<endlog();
             return false;
         }
         if ( simpleoperations.count( op.getName() ) ) {

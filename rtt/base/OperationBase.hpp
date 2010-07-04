@@ -45,10 +45,11 @@ namespace RTT
             const std::string& getName() { return mname; }
 
             /**
-             * Returns all the descriptions of this operation, as a single list,
+             * Returns all the \b documented descriptions of this operation, as a single list,
              * starting with the operation's description, followed by the name,
-             * description pairs of each argument.
-             * @return A vector with all descriptions.
+             * description pairs of each argument. In case no argument was documented,
+             * only the description of the operation is returned.
+             * @return A vector with all documented descriptions.
              */
             const std::vector<std::string>& getDescriptions() { return descriptions; }
 
