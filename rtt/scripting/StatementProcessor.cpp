@@ -109,19 +109,9 @@ namespace RTT
                 Logger::log() <<'"'<< dss->get() << '"' ;
                 return;
             }
-            DataSource<const std::string&>* dscs = DataSource<const std::string&>::narrow(ds);
-            if (dscs) {
-                Logger::log() <<'"'<< dscs->get() <<'"' ;
-                return;
-            }
             DataSource<std::vector<double> >* dsvval = DataSource< std::vector<double> >::narrow(ds);
             if (dsvval) {
                 Logger::log()  << dsvval->get() ;
-                return;
-            }
-            DataSource<const std::vector<double>& >* dsv = DataSource<const std::vector<double>& >::narrow(ds);
-            if (dsv) {
-                Logger::log()  << dsv->get() ;
                 return;
             }
             DataSource< Double6D >* ds6d = DataSource<Double6D>::narrow(ds);

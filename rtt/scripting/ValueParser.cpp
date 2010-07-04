@@ -222,7 +222,7 @@ namespace RTT
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new ConstantDataSource<const std::string&>( mcurstring );
+    ret = new ConstantDataSource<std::string>( mcurstring );
     //deleter.reset( ret );
     mcurstring.clear();
   }
