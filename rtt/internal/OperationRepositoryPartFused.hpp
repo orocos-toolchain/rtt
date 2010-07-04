@@ -33,6 +33,12 @@ namespace RTT
 {
     namespace internal {
 
+        class RTT_API OperationRepositoryPartHelper {
+        public:
+            static std::string description(base::OperationBase* ob);
+            static std::vector<interface::ArgumentDescription> getArgumentList(base::OperationBase* ob, const int arity, std::vector<std::string> const& types);
+        };
+
         /**
          * OperationRepositoryPart implementation that uses boost::fusion
          * to produce items.
@@ -54,15 +60,14 @@ namespace RTT
             }
 
             virtual std::string description() const {
-                return op->getDescriptions().front();
+                return OperationRepositoryPartHelper::description( op );
             }
 
             virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
-                std::vector<std::string> const& descr = op->getDescriptions();
-                std::vector<interface::ArgumentDescription> ret;
-                for (unsigned int i =1; i < descr.size(); i +=2 )
-                    ret.push_back(interface::ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1) ));
-                return ret;
+                std::vector<std::string> types;
+                for (unsigned int i = 1; i <= OperationRepositoryPartFused::arity(); ++i )
+                    types.push_back( SequenceFactory::GetType(i) );
+                return OperationRepositoryPartHelper::getArgumentList( op, OperationRepositoryPartFused::arity(), types );
             }
 
             std::string resultType() const
@@ -90,13 +95,14 @@ namespace RTT
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                if ( args.size() != OperationRepositoryPartFused::arity() ) 
+                    throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
                 return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                if ( args.size() != OperationRepositoryPartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
                 return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args) );
             }
 
@@ -115,7 +121,7 @@ namespace RTT
 
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                if ( args.size() != OperationRepositoryPartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
