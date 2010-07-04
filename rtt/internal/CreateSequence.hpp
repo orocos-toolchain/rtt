@@ -37,16 +37,12 @@ namespace RTT
          */
         template <typename T>
         struct is_shared_ptr
-        {
-          enum {
-              value=mpl::or_<
-                      boost::is_convertible<T,::boost::shared_ptr<void> >,
-                      boost::is_convertible<T,::boost::shared_ptr<const void> > >::value
-          };
-          typedef typename mpl::or_<
-                      typename boost::is_convertible< T,::boost::shared_ptr<void> >,
-                      typename boost::is_convertible< T,::boost::shared_ptr<const void> > > type;
-        };
+            : public mpl::false_
+        {};
+        template<typename T>
+        struct is_shared_ptr<boost::shared_ptr<T> >
+            : public mpl::true_
+        {};
 
         /**
          * Helper class for extracting the bare pointer from a shared_ptr
@@ -61,7 +57,8 @@ namespace RTT
          * In this case, Data is a pointer and the front element of Seq is a shared_ptr.
          */
         template<class Seq, class Data>
-        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::ds_type::result_t> >::type> {
+        struct GetPointerWrap<Seq, Data, typename boost::enable_if< boost::is_pointer<Data> >::type> {
+        //struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
             Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
         }; // shared_ptr type
 
@@ -84,7 +81,8 @@ namespace RTT
         }; // normal type
 
         template<class Seq, class Data>
-        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::ds_type::result_t> >::type> {
+        struct AssignHelper<Seq, Data, typename boost::enable_if< boost::is_pointer<typename mpl::front<Data>::type> >::type> {
+            //        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
             static void set(Seq , Data ) {} // nop
         }; // shared_ptr type
 
@@ -183,7 +181,7 @@ namespace RTT
             typedef bf::cons<ds_type, tail_type> type;
 
             typedef typename tail::atype atail_type;
-            typedef bf::cons<ads_type, tail_type> atype;
+            typedef bf::cons<ads_type, atail_type> atype;
 
             typedef typename tail::data_type arg_tail_type;
 

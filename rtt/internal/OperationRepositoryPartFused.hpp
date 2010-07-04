@@ -237,7 +237,7 @@ namespace RTT
                     assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
                     if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
-                    return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >()(args), blocking );
+                    return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args), blocking );
                 }
 
                 virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
