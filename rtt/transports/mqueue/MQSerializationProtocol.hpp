@@ -68,7 +68,7 @@ namespace RTT
             virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
             {
                 namespace io = boost::iostreams;
-                internal::AssignableDataSource<T>* d = boost::dynamic_pointer_cast< AssignableDataSource<T> >( source );
+                typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
                 if ( d ) {
                     // we use the boost iostreams library for re-using the blob buffer in the stream object.
                     // and the serialization library to write the data into stream.
@@ -96,7 +96,7 @@ namespace RTT
             }
 
             virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr sample) const {
-                DataSource<T>::shared_ptr tsample = boost::dynamic_pointer_cast< DataSource<T> >( sample );
+                typename internal::DataSource<T>::shared_ptr tsample = boost::dynamic_pointer_cast< internal::DataSource<T> >( sample );
                 if ( ! tsample ) {
                     log(Error) << "getSampleSize: sample has wrong type."<<endlog();
                     return 0;

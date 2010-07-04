@@ -81,7 +81,7 @@ namespace RTT
 
           virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
           {
-              internal::AssignableDataSource<T>* d = boost::dynamic_pointer_cast< AssignableDataSource<T> >( source );
+              typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
               if ( d )
                   return std::make_pair((void*) &(d->set()), int(sizeof(T)));
               return std::make_pair((void*)0,int(0));
