@@ -236,9 +236,6 @@ namespace RTT
                     log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
                     return false;
                 }
-
-                //output_half = ConnFactory::buildChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
-                //output_half = new ConnOutputEndpoint<T>( input_p, output_port.getPortID());
                 // local ports, create buffer here.
                 output_half = ConnFactory::buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
@@ -262,6 +259,10 @@ namespace RTT
             base::ChannelElementBase::shared_ptr channel_input =
                 ConnFactory::buildChannelInput<T>(output_port, input_port.getPortID(), output_half);
 
+            return ConnFactory::createAndCheck(output_port, input_port, channel_input, policy );
+        }
+
+        static bool createAndCheck(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy) {
             // Register the channel's input to the output port.
             if ( output_port.addConnection( input_port.getPortID(), channel_input, policy ) ) {
                 // notify input that the connection is now complete.
@@ -286,6 +287,12 @@ namespace RTT
         template<class T>
         static bool createStream(OutputPort<T>& output_port, ConnPolicy const& policy)
         {
+            StreamConnID *sid = new StreamConnID(policy.name_id);
+            RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput( output_port, sid, base::ChannelElementBase::shared_ptr() );
+            return createAndCheckStream(output_port, policy, chan, sid);
+        }
+
+        static bool createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id) {
             if (policy.transport == 0 ) {
                 log(Error) << "Need a transport for creating streams." <<endlog();
                 return false;
@@ -296,23 +303,22 @@ namespace RTT
                 log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
                 return false;
             }
-            types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
+            types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type->getProtocol(policy.transport) );
             if (ttt) {
-                int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
+                int size_hint = ttt->getSampleSize( output_port.getDataSource() );
                 policy.data_size = size_hint;
             } else {
                 log(Warning) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
             }
-            RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
-
-            chan = buildChannelInput( output_port, new StreamConnID(policy.name_id), chan);
-
-            if ( !chan ) {
+            RTT::base::ChannelElementBase::shared_ptr chan_stream = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
+            
+            if ( !chan_stream ) {
                 log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
                 return false;
             }
+            chan_stream->setOutput( chan );
 
-            if ( output_port.addConnection( new StreamConnID(policy.name_id), chan, policy) ) {
+            if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy) ) {
                 log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
                 return true;
             }
@@ -324,6 +330,12 @@ namespace RTT
         template<class T>
         static bool createStream(InputPort<T>& input_port, ConnPolicy const& policy)
         {
+            StreamConnID *sid = new StreamConnID(policy.name_id);
+            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, sid );
+            return createAndCheckStream(input_port, policy, outhalf, sid);
+        }
+
+        static bool createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr outhalf, StreamConnID* conn_id) {
             if (policy.transport == 0 ) {
                 log(Error) << "Need a transport for creating streams." <<endlog();
                 return false;
@@ -348,8 +360,6 @@ namespace RTT
             //
             ConnPolicy policy2 = policy;
             policy2.pull = false;
-            StreamConnID* conn_id = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, conn_id);
             // pass new name upwards.
             policy.name_id = policy2.name_id;
             conn_id->name_id = policy2.name_id;
@@ -376,6 +386,16 @@ namespace RTT
          */
         template<class T>
         static base::ChannelElementBase::shared_ptr createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, ConnPolicy const& policy) {
+            StreamConnID* conn_id = new StreamConnID(policy.name_id);
+            RTT::base::ChannelElementBase::shared_ptr output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id);
+            return createAndCheckOutOfBandConnection( output_port, input_port, policy, output_half, conn_id);
+        }
+        static base::ChannelElementBase::shared_ptr createAndCheckOutOfBandConnection( base::OutputPortInterface& output_port, 
+                                                                                       base::InputPortInterface& input_port, 
+                                                                                       ConnPolicy const& policy, 
+                                                                                       base::ChannelElementBase::shared_ptr output_half, 
+                                                                                       StreamConnID* conn_id) 
+        {
             // create input half using a transport.
             const types::TypeInfo* type = output_port.getTypeInfo();
             if ( type->getProtocol(policy.transport) == 0 ) {
@@ -387,13 +407,10 @@ namespace RTT
             // we force the creation of a buffer on input side
             ConnPolicy policy2 = policy;
             policy2.pull = false;
-            StreamConnID* conn_id = new StreamConnID(policy.name_id);
-
-            RTT::base::ChannelElementBase::shared_ptr output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id);
             conn_id->name_id = policy2.name_id;
 
-            types::TypeMarshaller<T>* ttt = dynamic_cast<types::TypeMarshaller<T>* > ( type->getProtocol(policy.transport) );
-            int size_hint = ttt->getSampleSize( output_port.getLastWrittenValue() );
+            types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller* > ( type->getProtocol(policy.transport) );
+            int size_hint = ttt->getSampleSize(  output_port.getDataSource() );
             policy2.data_size = size_hint;
             // XXX: this seems to be always true
             if ( input_port.isLocal() ) {
@@ -425,6 +442,7 @@ namespace RTT
             }
             // Important ! since we made a copy above, we need to set the original to the changed name_id.
             policy.name_id = policy2.name_id;
+            conn_id->name_id = policy2.name_id;
 
             return output_half;
 

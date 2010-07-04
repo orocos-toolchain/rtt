@@ -68,7 +68,7 @@ namespace RTT
          * @return
          */
         ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
-            : port(port), cid(output_id->clone())
+            : port(port), cid(output_id)
         {
             port->addConnection(output_id, this );
         }

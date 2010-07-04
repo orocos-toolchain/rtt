@@ -61,7 +61,7 @@ namespace RTT
        */
       template<class T>
       class MQTemplateProtocol
-          : public RTT::types::TypeMarshaller<T>
+          : public RTT::types::TypeMarshaller
       {
       public:
           /**
@@ -98,7 +98,7 @@ namespace RTT
             return false;
           }
 
-          virtual unsigned int getSampleSize(const T& ignored) const
+          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored) const
           {
               // re-implement this in case of complex types, like std::vector<T>.
               return sizeof(T);

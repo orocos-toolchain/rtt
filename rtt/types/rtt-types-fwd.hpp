@@ -21,7 +21,6 @@ namespace RTT {
         struct StdVectorTemplateTypeInfo;
         template<class S>
         struct TemplateConstructor;
-        template<class T>
         class TypeMarshaller;
         template<typename T, bool has_ostream>
         class BoostArrayTypeInfo;

@@ -95,12 +95,17 @@ namespace RTT
                 return false;
             }
 
-            virtual unsigned int getSampleSize(const T& sample) const {
+            virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr sample) const {
+                DataSource<T>::shared_ptr tsample = boost::dynamic_pointer_cast< DataSource<T> >( sample );
+                if ( ! tsample ) {
+                    log(Error) << "getSampleSize: sample has wrong type."<<endlog();
+                    return 0;
+                }
                 namespace io = boost::iostreams;
                 char sink[1];
                 io::stream<io::array_sink>  outbuf(sink,1);
                 binary_data_oarchive out( outbuf, false );
-                out << sample;
+                out << tsample->get();
                 //std::cout << "sample is "<< sample.size() <<" arch is " << out.getArchiveSize() <<std::endl;
                 return out.getArchiveSize();
             }

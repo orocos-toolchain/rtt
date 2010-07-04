@@ -58,7 +58,6 @@ namespace RTT
          * Objects implementing this interface have the capability to convert data sources
          * to and from a binary representation.
          */
-        template<class T>
         class TypeMarshaller: public RTT::types::TypeTransporter
         {
         public:
@@ -85,7 +84,7 @@ namespace RTT
              * Returns the size in bytes of a marshalled data element.
              * @return the size.
              */
-            virtual unsigned int getSampleSize(const T& sample) const = 0;
+            virtual unsigned int getSampleSize( base::DataSourceBase::shared_ptr sample) const = 0;
 
         };
 

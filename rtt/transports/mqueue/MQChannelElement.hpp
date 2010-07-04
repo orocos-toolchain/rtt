@@ -73,7 +73,7 @@ namespace RTT
         template<typename T>
         class MQChannelElement: public base::ChannelElement<T>
         {
-            types::TypeMarshaller<T> const& mtransport;
+            types::TypeMarshaller const& mtransport;
             typename internal::ValueDataSource<T>::shared_ptr data_source;
             mqd_t mqdes;
             char* buf;
@@ -87,12 +87,12 @@ namespace RTT
              * Create a channel element for remote data exchange.
              * @param transport The type specific object that will be used to marshal the data.
              */
-            MQChannelElement(base::PortInterface* port, types::TypeMarshaller<T> const& transport,
+            MQChannelElement(base::PortInterface* port, types::TypeMarshaller const& transport,
                              const ConnPolicy& policy, bool is_sender) :
                 mtransport(transport),
                 data_source(new internal::ValueDataSource<T>),
                 mis_sender(is_sender), minit_done(false),
-                max_size(policy.data_size ? policy.data_size : transport.getSampleSize( data_source->set() ) )
+                max_size(policy.data_size ? policy.data_size : transport.getSampleSize( data_source ) )
             {
                 Logger::In in("MQChannelElement");
                 std::stringstream namestr;
