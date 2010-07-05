@@ -293,52 +293,25 @@ BOOST_AUTO_TEST_CASE( testComposition )
      */
     std::vector<double> init(33, 1.0);
     Property<std::vector<double> > pvd("pvd","pvd desc", init);
-    Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
 
     //std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
 
     Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
-    Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
 
     BOOST_CHECK( pvd.get() == init );
-    BOOST_CHECK( pvd_cr.get() == init );
     BOOST_CHECK( pvd.set() == init );
-    BOOST_CHECK( pvd_cr.set() == init );
 
     BOOST_REQUIRE( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
-    BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
 
     // Compatible-type -assignment:
     BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd_cr.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd_cr2.getDataSource() ) );
 
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and back:
     BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
     BOOST_CHECK( pvd == pvd2 );
-    pvd2.value().clear();
-    deletePropertyBag( bag.value() );
-
-    BOOST_CHECK( typeDecomposition( pvd_cr.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    BOOST_CHECK( pvd_cr == pvd_cr2);
-    pvd_cr2.value().clear();
-    deletePropertyBag( bag.value() );
-
-    // Cross composition. (const ref to value and vice versa)
-    BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    BOOST_CHECK( pvd == pvd_cr2);
-    pvd_cr2.value().clear();
-    deletePropertyBag( bag.value() );
-
-    BOOST_CHECK( typeDecomposition( pvd_cr.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
-    BOOST_CHECK( pvd_cr == pvd2);
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
 }
@@ -352,22 +325,12 @@ BOOST_AUTO_TEST_CASE( testNewDecomposition )
     std::vector<double> init(33, 1.0);
     // these are the original sources:
     Property<std::vector<double> > pvd("pvd","pvd desc", init);
-    Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
-
-    //std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
-
-    // these are targets to compare the source with:
-    Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
-    Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
 
     BOOST_CHECK( pvd.get() == init );
-    BOOST_CHECK( pvd_cr.get() == init );
     BOOST_CHECK( pvd.set() == init );
-    BOOST_CHECK( pvd_cr.set() == init );
 
     BOOST_REQUIRE( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
-    BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
 
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and check refs:
