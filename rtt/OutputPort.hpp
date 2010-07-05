@@ -217,7 +217,7 @@ namespace RTT
             keepLastWrittenValue(true);
             typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
-                last_written_value->Set(sample);
+                last_written_value->set(sample);
             written = true;
 
             cmanager.delete_if( boost::bind(
