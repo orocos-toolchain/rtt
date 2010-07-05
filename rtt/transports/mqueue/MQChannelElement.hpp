@@ -52,6 +52,7 @@
 #include "../../Activity.hpp"
 #include "../../base/RunnableInterface.hpp"
 #include "../../types/TypeTransporter.hpp"
+#include "../../types/TypeMarshaller.hpp"
 #include "../../Logger.hpp"
 #include "Dispatcher.hpp"
 #include "../../base/ChannelElement.hpp"
