@@ -162,162 +162,62 @@ extern "C"
         return count;
     }
 
-	//typedef sem_t rt_sem_t;
+    // Semaphore functions
 
-    typedef struct {
-    	HANDLE lock; // used to lock acces to the count value of the semaphore
-    	HANDLE sem;
-    	int count;
-    } rt_sem_t;
-
-	inline int lockSem( rt_sem_t *m){
-		if( WaitForSingleObject(m->lock, INFINITE) == WAIT_OBJECT_0 )
-			return 1;
-		return 0;
-	}
-	inline int unlockSem(rt_sem_t *m){
-		if( !ReleaseMutex(m->lock) )
-			return 1;
-		return 0;
-	};
-
-    //typedef HANDLE rt_sem_t;
-
-    static inline void printSem(rt_sem_t* m){
-    	DWORD tid = GetCurrentThreadId();
-    	printf("T:%u -> S:%p  ", (unsigned int)tid,m);
-    }
+    typedef HANDLE rt_sem_t;
 
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
-        assert(m != NULL);
-        rt_sem_t sem;
-        sem.lock = CreateMutex(NULL, FALSE, NULL);
-        if( sem.lock == NULL )
-        	return -1;
-        sem.sem = CreateSemaphore(NULL, value, 100000, NULL);
-        if( sem.sem == NULL ){
-        	CloseHandle( sem.lock );
-        	return -1;
-        }
-        sem.count = value;
-        *m = sem;
-        // printSem(m);
-        // printf(" rtos_sem_init \n" );
-        return 0;
+        *m = CreateSemaphore(NULL, value, 100000, NULL);
+        return (*m != NULL) ? 0 : -1; 
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
     {
-    	// printSem(m);
-    	// printf(" rtos_sem_destroy \n" );
-    	DWORD res = CloseHandle(m->lock);
-    	res &= CloseHandle(m->sem);
-    	if( res==0 )
-    		return -1;
+        CloseHandle(*m);
         return 0;
     }
 
     static inline int rtos_sem_signal(rt_sem_t* m )
     {
-    	// printSem(m);
-    	// printf(" rtos_sem_signal " );
-    	if(!lockSem(m)) return -1;
-    	// printf(" L");
-    	BOOL res = ReleaseSemaphore(m->sem, 1, NULL);
-    	if( res == 0 ){
-    		// printf(" FAIL ");
-    		unlockSem(m);
-    		// printf("UL \n");
-    		return -1;
-    	}
-    	m->count++;
-    	//int count = m->count;
-    	// printf(" SUCCES count %i", count);
-    	unlockSem(m);
-    	// printf("UL \n");
-        return 0;
+        return (ReleaseSemaphore(*m, 1, NULL) == 0) ? -1 : 0;
     }
 
     static inline int rtos_sem_wait(rt_sem_t* m )
     {
-    	// printSem(m);
-    	// printf(" rtos_sem_wait " );
-    	if(!lockSem(m)) return -1;
-    	// printf(" L ");
-    	m->count--;
-    	int count = m->count;
-    	// printf(" count %i ", count);
-    	unlockSem(m);
-    	// printf(" UL ");
-    	DWORD res = WaitForSingleObject(m->sem, INFINITE);
-    	if( res != 0 ){
-    		// printf(" FAIL %i", count);
-        	if(!lockSem(m)) return -1;
-        	// printf(" L ");
-        	m->count++;
-        	count = m->count;
-        	// printf(" count %i", count);
-        	unlockSem(m);
-        	// printf(" UL \n");
-    		return -1;
-    	}
-    	// printf(" SUCCES \n");
-        return 0;
+        return (WaitForSingleObject(*m, INFINITE) == WAIT_FAILED) ? -1 : 0;
     }
 
     static inline int rtos_sem_trywait(rt_sem_t* m )
     {
-    	// printSem(m);
-        //return sem_trywait(m);
-    	// printf(" rtos_sem_try_timed \n");
-    	if(!lockSem(m)) return -1;
-    	DWORD res = WaitForSingleObject(m->sem, 0);
-    	if( res!=0 ){
-    		unlockSem(m);
-    		return -1;
-    	}
-    	m->count--;
-    	unlockSem(m);
-        return 0;
+        return (WaitForSingleObject(*m, 0) == WAIT_TIMEOUT) ? -1 : 0;
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
-    	// printSem(m);
-    	// printf("rtos_sem_wait_timed %li \n", (long)(delay/1000000LL) );
-
-    	if(!lockSem(m)) return -1;
-    	m->count--;
-    	unlockSem(m);
-      timeBeginPeriod(1);
-    	DWORD res = WaitForSingleObject(m->sem, (DWORD)(delay)/1000000LL);
-    	timeEndPeriod(1);
-      if( res==WAIT_OBJECT_0 ){
-    		return 0;
-    	}
-    	if(!lockSem(m)) return -1;
-    	m->count++;
-    	unlockSem(m);
-        return -1;
+        return (WaitForSingleObject(*m, (DWORD)(delay/1000000)) == WAIT_TIMEOUT) ? -1 : 0;
     }
 
     static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time )
     {
-    	// printSem(m);
-    	// printf("rtos_sem_wait_until %li \n", (long)((abs_time-rtos_get_time_ns())/1000000LL));
-    	return rtos_sem_wait_timed(m, (abs_time-rtos_get_time_ns()) );
+        if (abs_time < rtos_get_time_ns()) return -1;
+        NANO_TIME delay = abs_time - rtos_get_time_ns();
+        return rtos_sem_wait_timed(m, delay);
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )
     {
-    	// printSem(m);
-    	// printf(" rtos_sem_value " );
-    	int count;
-    	if(!lockSem(m)) return -1;
-    	count = m->count;
-    	unlockSem(m);
-        return count;
+      long previous;
+
+      switch (WaitForSingleObject(*m, 0)) 
+      {
+        case WAIT_OBJECT_0:
+          if (!ReleaseSemaphore(*m, 1, &previous)) return -1;
+          return previous + 1;
+        case WAIT_TIMEOUT: return 0;
+        default:
+          return -1;
+      }
     }
 
     // Mutex functions
@@ -349,14 +249,14 @@ extern "C"
 
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
-		EnterCriticalSection(m);
+		  EnterCriticalSection(m);
     	return 0;
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
     	LeaveCriticalSection(m);
-		return 0;
+		  return 0;
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
@@ -430,6 +330,8 @@ extern "C"
                                             TRUE,  // manual-reset
                                             FALSE, // non-signaled initially
                                             NULL); // unnamed
+
+      InitializeCriticalSection(&cond->waiters_count_lock_);
       return 0;
     }
 
@@ -437,6 +339,8 @@ extern "C"
     {
       CloseHandle(cond->events_[rt_cond_t::SIGNAL]);
       CloseHandle(cond->events_[rt_cond_t::BROADCAST]);
+
+      DeleteCriticalSection(&cond->waiters_count_lock_);
 
       return 0;
     }
@@ -461,7 +365,7 @@ extern "C"
 
       EnterCriticalSection (&cond->waiters_count_lock_);
       cond->waiters_count_--;
-      int last_waiter = result == WAIT_OBJECT_0 + rt_cond_t::BROADCAST && cond->waiters_count_ == 0;
+      bool last_waiter = result == WAIT_OBJECT_0 + rt_cond_t::BROADCAST && cond->waiters_count_ == 0;
       LeaveCriticalSection (&cond->waiters_count_lock_);
 
       // Some thread called <pthread_cond_broadcast>.
@@ -490,11 +394,10 @@ extern "C"
     {
       // Avoid race conditions.
       EnterCriticalSection (&cond->waiters_count_lock_);
-      int have_waiters = cond->waiters_count_ > 0;
+      bool have_waiters = cond->waiters_count_ > 0;
       LeaveCriticalSection (&cond->waiters_count_lock_);
 
-      if (have_waiters)
-        SetEvent (cond->events_[rt_cond_t::BROADCAST]);
+      if (have_waiters) SetEvent (cond->events_[rt_cond_t::BROADCAST]);
 
       return 0;
     }
@@ -503,15 +406,13 @@ extern "C"
     {
       // Avoid race conditions.
       EnterCriticalSection (&cond->waiters_count_lock_);
-      int have_waiters = cond->waiters_count_ > 0;
+      bool have_waiters = cond->waiters_count_ > 0;
       LeaveCriticalSection (&cond->waiters_count_lock_);
 
-      if (have_waiters)
-        SetEvent (cond->events_[rt_cond_t::SIGNAL]);
+      if (have_waiters) SetEvent (cond->events_[rt_cond_t::SIGNAL]);
 
       return 0;
     }
-
 
 #define rtos_printf printf
 
