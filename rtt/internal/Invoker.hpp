@@ -210,6 +210,42 @@ namespace RTT
 
         };
 
+        template<class F, class BaseImpl>
+        struct InvokerImpl<5,F,BaseImpl>
+            : public Return<F,BaseImpl>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+
+            /**
+             * Invoke this operator if the method has four arguments.
+             */
+            result_type call(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            {
+                return BaseImpl::template call_impl<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>(t1, t2, t3, t4, t5);
+            }
+
+            result_type ret(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            {
+                return BaseImpl::template ret_impl<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>(t1, t2, t3, t4, t5);
+            }
+
+            result_type ret()
+            {
+                return BaseImpl::ret_impl();
+            }
+
+            SendHandle<F> send(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            {
+                return BaseImpl::template send_impl<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>(t1, t2, t3, t4, t5);
+            }
+
+        };
+
    }
 }
 #endif
