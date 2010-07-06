@@ -66,7 +66,7 @@ namespace RTT
          * In this case, Data is a pure reference and the first element of Seq is an AssignableDataSource.
          */
         template<class Seq, class Data>
-        struct GetPointerWrap<Seq, Data, typename boost::enable_if< boost::is_reference<Data> >::type> {
+        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_pure_reference<Data> >::type> {
             Data operator()(Seq s) { return Data(bf::front(s)->set() ); /* Case of reference.*/ }
         }; // shared_ptr type
 
@@ -163,7 +163,7 @@ namespace RTT
             /**
              * The type of a single element of the vector.
              */
-            typedef typename mpl::if_<typename boost::is_reference<bare_type>::type,
+            typedef typename mpl::if_<typename is_pure_reference<bare_type>::type,
                     typename AssignableDataSource< ds_arg_type >::shared_ptr,
                     typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
 
@@ -333,7 +333,7 @@ namespace RTT
             /**
              * The type of a single element of the vector.
              */
-            typedef typename mpl::if_<typename boost::is_reference<bare_type>::type,
+            typedef typename mpl::if_<typename is_pure_reference<bare_type>::type,
                     typename AssignableDataSource< ds_arg_type >::shared_ptr,
                     typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
             typedef typename AssignableDataSource< ds_arg_type >::shared_ptr ads_type;

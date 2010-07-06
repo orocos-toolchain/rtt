@@ -11,6 +11,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/invoke_procedure.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace RTT
 {
@@ -26,9 +27,10 @@ namespace RTT
         template<typename Signature, class Enable=void>
         struct FusedFunctorDataSource
         : public DataSource<
-                  typename boost::remove_const<typename boost::function_traits<Signature>::result_type>::type >
+                  typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
           {
-              typedef typename boost::remove_const<typename boost::function_traits<Signature>::result_type>::type
+              //BOOST_STATIC_ASSERT( boost::mpl::false_::value );
+              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
                       result_type;
               typedef result_type value_t;
               typedef typename DataSource<value_t>::const_reference_t const_reference_t;
@@ -93,10 +95,11 @@ namespace RTT
           };
 
         template<typename Signature>
-        struct FusedFunctorDataSource<Signature, typename boost::enable_if< boost::is_reference<typename boost::function_traits<Signature>::result_type> >::type >
+        struct FusedFunctorDataSource<Signature, typename boost::enable_if< is_pure_reference<typename boost::function_traits<Signature>::result_type> >::type >
         : public AssignableDataSource<
                   typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
           {
+            //BOOST_STATIC_ASSERT( boost::mpl::false_::value );
               typedef typename boost::function_traits<Signature>::result_type
                       result_type;
               typedef typename remove_cr<result_type>::type value_t;

@@ -39,6 +39,9 @@
 #define ORO_MYSTD_HPP
 
 #include <boost/type_traits.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/logical.hpp>
+#include <boost/utility.hpp>
 #include <functional>
 #include <algorithm>
 #include <vector>
@@ -46,7 +49,7 @@
 // here we define some generally useful template stuff that is missing
 // from the STL..
 namespace RTT { namespace internal {
-
+    using namespace boost;
 
     // combines remove_reference and remove_const
     template<typename T>
@@ -55,6 +58,21 @@ namespace RTT { namespace internal {
       typedef typename boost::remove_const<
         typename boost::remove_reference<T>::type>::type type;
     };
+
+    template<typename T>
+    struct is_pure_reference
+    :public boost::mpl::false_
+    {};
+
+    template<typename T>
+    struct is_pure_reference<T&>
+    :public boost::mpl::true_
+    {};
+
+    template<typename T>
+    struct is_pure_reference<T const&>
+    :public boost::mpl::false_
+    {};
 
   template<typename iter>
   static void delete_all( iter a, iter b )
