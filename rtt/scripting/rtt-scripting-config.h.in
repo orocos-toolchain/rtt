@@ -1,7 +1,7 @@
 #ifndef RTT_SCRIPTING_CONFIG_H
 #define RTT_SCRIPTING_CONFIG_H
 
-#include "../../rtt-config.h"
+#include "../rtt-config.h"
 
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
