@@ -268,9 +268,14 @@ namespace RTT
 
         // correct priority
         // Hard & Soft:
-        if (*priority <= 0){
-            log(Warning) << "Forcing priority ("<<*priority<<") of thread to 1." <<endlog();
-            *priority = 1;
+#if ((CONFIG_XENO_VERSION_MAJOR*10000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 20500
+        const int minprio = 0;
+#else
+        const int minprio = 1;
+#endif
+        if (*priority < minprio){
+            log(Warning) << "Forcing priority ("<<*priority<<") of thread to " << minprio <<"." <<endlog();
+            *priority = minprio;
             ret = -1;
         }
         if (*priority > 99){
