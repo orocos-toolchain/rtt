@@ -132,7 +132,7 @@ namespace RTT {
         class OperationRepositoryPartFusedDS;
         template<typename Signature>
         class OperationRepositoryPartFused;
-        template<typename Signature>
+        template<typename Signature, class Enable>
         struct FusedFunctorDataSource;
         template<typename Signature>
         struct FusedMCallDataSource;

@@ -23,12 +23,12 @@ namespace RTT
          * data sources. The result type of this data source is the result type
          * of the called function.
          */
-        template<typename Signature>
+        template<typename Signature, class Enable=void>
         struct FusedFunctorDataSource
         : public DataSource<
-                  typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
+                  typename boost::remove_const<typename boost::function_traits<Signature>::result_type>::type >
           {
-              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
+              typedef typename boost::remove_const<typename boost::function_traits<Signature>::result_type>::type
                       result_type;
               typedef result_type value_t;
               typedef typename DataSource<value_t>::const_reference_t const_reference_t;
@@ -92,6 +92,83 @@ namespace RTT
               }
           };
 
+        template<typename Signature>
+        struct FusedFunctorDataSource<Signature, typename boost::enable_if< boost::is_reference<typename boost::function_traits<Signature>::result_type> >::type >
+        : public AssignableDataSource<
+                  typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
+          {
+              typedef typename boost::function_traits<Signature>::result_type
+                      result_type;
+              typedef typename remove_cr<result_type>::type value_t;
+              typedef typename DataSource<value_t>::const_reference_t const_reference_t;
+              typedef typename AssignableDataSource<value_t>::reference_t reference_t;
+              typedef create_sequence<
+                      typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+              typedef typename SequenceFactory::type DataSourceSequence;
+              typedef boost::function<Signature> call_type;
+              typedef typename SequenceFactory::data_type arg_type;
+              boost::function<Signature> ff;
+              DataSourceSequence args;
+              mutable RStore<result_type> ret;
+          public:
+              typedef boost::intrusive_ptr<FusedFunctorDataSource<Signature> >
+                      shared_ptr;
+
+              template<class Func>
+              FusedFunctorDataSource(Func g,
+                                     const DataSourceSequence& s = DataSourceSequence() ) :
+                  ff(g), args(s)
+              {
+              }
+
+              void setArguments(const DataSourceSequence& a1)
+              {
+                  args = a1;
+              }
+
+              value_t value() const
+              {
+                  return ret.result();
+              }
+
+              const_reference_t rvalue() const
+              {
+                  return ret.result();
+              }
+
+              value_t get() const
+              {
+                  // forward invoke to ret object, which stores return value.
+                  // this foo pointer dance is because older compilers don't handle using
+                  // &bf::invoke<call_type,arg_type> directly.
+                  typedef typename bf::result_of::invoke<call_type,arg_type>::type iret;
+                  typedef iret(*IType)(call_type, arg_type const&);
+                  IType foo = &bf::invoke<call_type,arg_type>;
+                  ret.exec( boost::bind(foo, boost::ref(ff), SequenceFactory::data(args)));
+                  SequenceFactory::update(args);
+                  return ret.result();
+              }
+
+              void set( typename AssignableDataSource<value_t>::param_t arg) {
+                  ret.result() = arg;
+              }
+
+              reference_t set() {
+                  return ret.result();
+              }
+
+              virtual FusedFunctorDataSource<Signature>* clone() const
+              {
+                  return new FusedFunctorDataSource<Signature> (ff, args);
+              }
+              virtual FusedFunctorDataSource<Signature>* copy(
+                                                          std::map<
+                                                                  const base::DataSourceBase*,
+                                                                  base::DataSourceBase*>& alreadyCloned) const
+              {
+                  return new FusedFunctorDataSource<Signature> (ff, SequenceFactory::copy(args, alreadyCloned));
+              }
+          };
         /**
          * Creates a data source that returns the result of a given function.
          * Use GenerateDataSource to create the arguments args from given data sources.
