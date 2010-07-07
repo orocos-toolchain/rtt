@@ -153,11 +153,12 @@ namespace RTT
               }
 
               void set( typename AssignableDataSource<value_t>::param_t arg) {
-                  ret.result() = arg;
+                  // we need to get the new reference before we set the arg.
+                  get(); ret.result() = arg;
               }
 
               reference_t set() {
-                  return ret.result();
+                  get(); return ret.result();
               }
 
               virtual FusedFunctorDataSource<Signature>* clone() const
