@@ -70,13 +70,12 @@ namespace RTT
         ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
             : port(port), cid(output_id)
         {
+            // cid is deleted/owned by the ConnectionManager.
             port->addConnection(output_id, this );
         }
 
         ~ConnOutputEndpoint()
         {
-            //this->disconnect(true); // inform port (if any) we're gone.
-            delete cid;
         }
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
