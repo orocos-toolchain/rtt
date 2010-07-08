@@ -42,10 +42,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
-#include "../base/DispatchInterface.hpp"
 #include "../interface/ServiceProvider.hpp"
 #include "ProgramExceptions.hpp"
 

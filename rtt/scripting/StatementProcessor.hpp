@@ -40,7 +40,6 @@
 #define ORO_EXECUTION_STATEMENT_PROCESSOR_HPP
 
 #include <string>
-#include "../base/DispatchInterface.hpp"
 #include "../scripting/rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 
