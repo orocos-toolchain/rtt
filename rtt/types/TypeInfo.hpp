@@ -186,31 +186,33 @@ namespace RTT
          */
 
         /**
-         * Returns the list of part names of this type.
+         * Returns the list of struct member names of this type.
+         * In case this type is not a struct, returns an empty list.
          */
         virtual std::vector<std::string> getMemberNames() const;
 
         /**
-         * Returns a part of a given item identified by its name.
-         * @param item The item of which to return a part
-         * @param name The name of a part within \a item
-         * @return null if no such part exists, an assignable datasource referencing that part otherwise.
+         * Returns a member of a given data source struct identified by its name.
+         * @param item The item of which to return a reference to a member
+         * @param name The name of a member within \a item. Is a name of a member in case of a struct
+         * or an index number in case of a sequence.
+         * @return null if no such member exists, an assignable datasource referencing that member otherwise.
          */
         virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const;
 
         /**
-         * Returns a part of a given item identified by a data source id.
-         * @param item The item of which to return a part
-         * @param name Or a string containing the name of a part, Or an unsigned int containing the
-         * index of the item to retrieve.
+         * Returns a member of a given data source struct identified by a data source id.
+         * @param item The item of which to return a member
+         * @param id   Or a string data source containing the name of a member if item is a struct, 
+         * Or an unsigned int data source containing the index of an element if item is a sequence
          */
         virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
-                                                         base::DataSourceBase::shared_ptr id) const;
+                                                           base::DataSourceBase::shared_ptr id) const;
 
         /**
-         * Compose a type from a DataSourceBase containing its basic parts.
+         * Compose a type (target) from a DataSourceBase (source) containing its members.
          * The default behavior tries to assign \a source to \a target. If that fails,
-         * it tries to decompose \a target into its parts and update \a target with the contents of source.
+         * it tries to decompose \a target into its members and update the members of \a target with the contents of source.
          *
          * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
          * multiple versions/possibilities to make a \a target from a \a source. For example, in

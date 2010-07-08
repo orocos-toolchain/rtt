@@ -92,72 +92,20 @@ namespace RTT
         };
 
     /**
-     * This helper class allows user types to be added to Orocos.
-     * It provides 'default' implementations for each conversion type.
+     * This template class allows user types to be added to Orocos.
+     * It provides 'default' implementations for virtual functions of TypeInfo.
      * For user defined types, this is very likely not satisfactory and
      * the user needs to override the methods of this class in a subclass
      * or provide specialised global functions.
+     *
      * @param T The user class type.
-     * @param ParamT The type used to pass the value as a parameter. This
-     * defaults to T, but if T allocates upon copy (like std::string or std::vector),
-     * ParamT tells Orocos how to pass it, probably by const& or &.
      * @param use_ostream When set to \a true, the class will use operator<<(std::ostream&, T)
      * to write out the type to a stream. When set to \a false, the class will use this function
      * and write '( \a type \a name )' to a stream instead. Defaults to \a false. Set to \a true
      * if your class \a T has the above mentioned function.
      * @see TypeInfoRepository.
-     * @see composeType
-     * @see decomposeType
      * @see operator<<
-     *
-     * @section compose composeTypeImpl() and decomposeTypeImpl()
-     * The decomposeTypeImpl function is a function which converts user data
-	 * into property bags of native C++ primitive types. The primitive types are then
-     * typically used to write the data to screen or to disk. The inverse operation
-     * is done by composeTypeImpl, which reassembles a Property from its composite parts.
-	 *
-	 * Every new user type used as a property will require these two
-	 * functions if it must be 'written to a file'. The subclass must implement these
-     * functions by using composeTypeImpl() and decomposeTypeImpl().
-     * such that class \a T is decomposed in primitive property types.
-	 *
-     * Example for type MyClass :
-     * \code
-     *  struct MyClass {
-     *      bool var1;
-     *      double var2;
-     *  };
-     *
-     *  bool decomposeTypeImpl(const MyClass &c, PropertyBag& result)
-     *  {
-     *      // Decode c into primitive properties Var1 and Var2 which are in a PropertyBag of the
-     *      // bag-type "MyClass" with the same name as the Property 'c'.
-     *	    result.setType("MyClass");
-     *
-     *      // Put var1 and var2 in the bag
-     *      result.add( new Property<bool>("Var1","Description", c.var1 );
-     *      result.add( new Property<double("Var2","Description", c.var2 );
-     *
-     *      return true; // done !
-     *  }
-     *  bool composeTypeImpl(const PropertyBag& bag, MyClass &result)
-     *  {
-     *      // Read the variables from the bag and write them to result.
-     *	    if ( bag.getType() != "MyClass") {
-     *         std::cerr << "Wrong type encountered when composing "<< this->getTypeName()<<std::endl;
-     *         return false;
-     *      }
-     *      if ( bag.find("Var1") == 0 || bag.find("Var2") == 0 ) {
-     *         std::cerr << "Missing properties when composing "<< this->getTypeName()<<std::endl;
-     *         return false;
-     *      }
-     *      // Read var1 and var2 from the bag
-     *      result.var1 = bag.getProperty<bool>("Var1")->get();
-     *      result.var2 = bag.getProperty<bool>("Var2")->get();
-     *
-     *      return true; // done !
-     *  }
-     * \endcode
+     * @see StructTypeInfo, SequenceTypeInfo
      */
     template<typename T, bool use_ostream = false>
     class TemplateTypeInfo
