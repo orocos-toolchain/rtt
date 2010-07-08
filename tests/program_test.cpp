@@ -111,6 +111,10 @@ BOOST_AUTO_TEST_CASE(testParseProgram)
     // a program which should never fail
     // test this methods.
     string prog = string("program x { \n")
+        + " do true\n"
+        + " do test.assert( true )\n"
+        + " do test.increase()\n"
+        + " do test.resetI()\n"
         + " do test.assert( test.isTrue( true ) )\n"
         + " do test.assert( test.i == 0 )\n"
         + " do test.increase()\n"

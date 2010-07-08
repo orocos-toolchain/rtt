@@ -50,7 +50,7 @@ namespace RTT
          */
         template<class Seq, class Data, class Enable = void >
         struct GetPointerWrap {
-            Data operator()(Seq s) { return Data(bf::front(s)->rvalue()); /* front(s) is a DataSource<Data> */}
+            Data operator()(Seq s) { bf::front(s)->evaluate(); return Data(bf::front(s)->rvalue()); /* front(s) is a DataSource<Data> */}
         }; // normal type
 
         /**
