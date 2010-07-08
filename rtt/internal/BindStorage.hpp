@@ -147,6 +147,35 @@ namespace RTT
             operator T&() { return *arg;}
         };
 
+        template<class T>
+        struct RStore<const T> {
+            T arg;
+            bool executed;
+            RStore() : arg(), executed(false) {}
+
+            bool isExecuted() const {
+                return executed;
+            }
+
+            //bool operator()() { return executed; }
+
+            T& result() { return arg; }
+            operator T&() { return arg;}
+
+            /**
+             * Stores the result of a function.
+             * The RStore<void> specialisation will not store anything, and
+             * just call f().
+             * @param f The function object to execute and store the results from
+             */
+            template<class F>
+            void exec(F f) {
+                arg = f();
+                executed = true;
+            }
+
+        };
+
         template<>
         struct RStore<void> {
             bool executed;

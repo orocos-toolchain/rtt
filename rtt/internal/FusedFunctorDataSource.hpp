@@ -30,9 +30,9 @@ namespace RTT
                   typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
           {
               //BOOST_STATIC_ASSERT( boost::mpl::false_::value );
-              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
+              typedef typename boost::function_traits<Signature>::result_type
                       result_type;
-              typedef result_type value_t;
+              typedef typename remove_cr<result_type>::type value_t;
               typedef typename DataSource<value_t>::const_reference_t const_reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
@@ -68,8 +68,7 @@ namespace RTT
                   return ret.result();
               }
 
-              value_t get() const
-              {
+              bool evaluate() const {
                   // forward invoke to ret object, which stores return value.
                   // this foo pointer dance is because older compilers don't handle using
                   // &bf::invoke<call_type,arg_type> directly.
@@ -78,6 +77,12 @@ namespace RTT
                   IType foo = &bf::invoke<call_type,arg_type>;
                   ret.exec( boost::bind(foo, boost::ref(ff), SequenceFactory::data(args)));
                   SequenceFactory::update(args);
+                  return true;
+              }
+
+              value_t get() const
+              {
+                  FusedFunctorDataSource<Signature>::evaluate();
                   return ret.result();
               }
 
@@ -139,8 +144,7 @@ namespace RTT
                   return ret.result();
               }
 
-              value_t get() const
-              {
+              bool evaluate() const {
                   // forward invoke to ret object, which stores return value.
                   // this foo pointer dance is because older compilers don't handle using
                   // &bf::invoke<call_type,arg_type> directly.
@@ -149,6 +153,11 @@ namespace RTT
                   IType foo = &bf::invoke<call_type,arg_type>;
                   ret.exec( boost::bind(foo, boost::ref(ff), SequenceFactory::data(args)));
                   SequenceFactory::update(args);
+                  return true;
+              }
+              value_t get() const
+              {
+                  FusedFunctorDataSource<Signature>::evaluate();
                   return ret.result();
               }
 
@@ -199,9 +208,9 @@ namespace RTT
         : public DataSource<
               typename remove_cr<typename boost::function_traits<Signature>::result_type>::type >
         {
-              typedef typename remove_cr<typename boost::function_traits<Signature>::result_type>::type
+              typedef typename boost::function_traits<Signature>::result_type
                       result_type;
-              typedef result_type value_t;
+              typedef typename remove_cr<result_type>::type value_t;
               typedef typename DataSource<value_t>::const_reference_t const_reference_t;
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
@@ -234,8 +243,7 @@ namespace RTT
                   return ret.result();
               }
 
-              value_t get() const
-              {
+              bool evaluate() const {
                   // put the member's object as first since SequenceFactory does not know about the MethodBase type.
                   typedef bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type> arg_type;
                   typedef typename AddMember<Signature,base::MethodBase<Signature>* >::type call_type;
@@ -247,6 +255,12 @@ namespace RTT
                   // we need to store the ret value ourselves.
                   ret.exec( boost::bind(foo, &base::MethodBase<Signature>::call, arg_type(ff.get(), SequenceFactory::data(args))) );
                   SequenceFactory::update(args);
+                  return true;
+              }
+
+              value_t get() const
+              {
+                  FusedMCallDataSource<Signature>::evaluate();
                   return ret.result();
               }
 
