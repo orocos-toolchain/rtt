@@ -13,7 +13,9 @@ namespace RTT {
          * Each modification of a part in the \a targetbag will modify \a source
          * too.
          * This function can only work if every part of the source
-         * is known by the RTT type system.
+         * is known by the RTT type system. Only the parts of source that are
+         * assignable will be decomposed. The read-only parts will be silently omitted.
+         *
          * @param source Contains a C++ type to be decomposed into a hierarchy of properties.
          * @param targetbag The bag in which to place the result.
          * @return True on success, false otherwise.
