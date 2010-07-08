@@ -40,7 +40,6 @@
 #include "TaskContextC.h"
 #include "CorbaMethodFactory.hpp"
 
-#include "../../base/CommandInterface.hpp"
 #include "../../types/Types.hpp"
 #include "../../extras/SequentialActivity.hpp"
 #include "corba.h"
