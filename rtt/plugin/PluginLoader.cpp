@@ -146,29 +146,45 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         path p = path(*it) / subdir;
         if (is_directory(p))
         {
+            log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
-                log(Debug) << "Scanning " << itr->path().string() << "..." <<endlog();
-                if (is_regular_file(itr->status()))
+                log(Debug) << "Scanning file " << itr->path().string() << " ...";
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()))
                     loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
+                else {
+                    if (is_symlink(itr->symlink_status()))
+                        log(Debug) << "is symlink: ignored."<<endlog();
+                    else 
+                        if (!is_regular_file(itr->status()))
+                            log(Debug) << "not a regular file: ignored."<<endlog();
+                }
             }
         }
         else
-            log(Debug) << "Not a path: " << p << endlog();
+            log(Debug) << "No such directory: " << p << endlog();
 
         // Repeat for types/OROCOS_TARGET:
         p = path(*it) / subdir / OROCOS_TARGET_NAME;
         if (is_directory(p))
         {
+            log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
-                log(Debug) << "Scanning " << itr->path().string() << "..." <<endlog();
-                if (is_regular_file(itr->status()))
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false );
+                log(Debug) << "Scanning file " << itr->path().string() << " ...";
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()))
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
+                else {
+                    if (is_symlink(itr->symlink_status()))
+                        log(Debug) << "is symlink: ignored."<<endlog();
+                    else 
+                        if (!is_regular_file(itr->status()))
+                            log(Debug) << "not a regular file: ignored."<<endlog();
+                }
             }
         }
         else
-            log(Debug) << "Not a path: " << p << endlog();
+            log(Debug) << "No such directory: " << p << endlog();
     }
 }
 
