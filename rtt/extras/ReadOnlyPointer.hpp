@@ -96,7 +96,7 @@ namespace RTT
         T* operator ->() const { return internal->value; }
 
         bool valid() const
-        { return internal; }
+        { return internal->value; }
 
         void reset(T* ptr)
         {
