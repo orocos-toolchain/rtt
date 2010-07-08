@@ -173,29 +173,26 @@ namespace RTT
       virtual ActionInterface* updateAction( DataSourceBase* other);
 
       /**
-       * Get a (const) reference data source to a part of the value of this
-       * data source. The part_name uses dots to delve into sub-parts,
-       * for example, if this data source contains a frame, the x coordinate
-       * of the position of that frame could be described as "pos.x". Or in
-       * case the 'pos' member was an array, where x is the zero'th argument,
-       * it could be retrieved by using "pos.0".
-       * @param part_name The name of the part to get access to.
-       * @return null if the part does not exist, \a this if part_name.empty(),
-       * and a reference data source to the part otherwise.
+       * Get a (const) reference data source to a member of the structure of this
+       * data source. You must call getMember() in turn on the returned member
+       * to access sub-members.
+       * @param member_name The name of the member to get access to.
+       * @return null if the member does not exist, \a this if member_name.empty(),
+       * and a reference data source to the member otherwise.
        */
-      virtual shared_ptr getMember( const std::string& part_name);
+      virtual shared_ptr getMember( const std::string& member_name);
 
       /**
-       * Same as above, but with run-time lookup of the part to use.
+       * Same as above, but with run-time lookup of the member to use.
        * Also takes an optional offset argument which can be used to offset
-       * the part in memory. This is necessary when using sequences of sequences.
-       * DataSources which are a sequence/offset part themselves must override this function to
-       * let the returned part take the offset into account.
+       * the member in memory. This is necessary when using sequences of sequences.
+       * DataSources which are a sequence/offset member themselves must override this function to
+       * let the returned member take the offset into account.
        */
-      virtual shared_ptr getMember( DataSourceBase::shared_ptr part_id, DataSourceBase::shared_ptr offset);
+      virtual shared_ptr getMember( DataSourceBase::shared_ptr member_id, DataSourceBase::shared_ptr offset);
 
       /**
-       * Returns the possible part names of this data source, or an empty
+       * Returns the names of all members of the structure contained in this data source, or an empty
        * list if none.
        * If this data source is a sequence, it will not return the allowed
        * index numbers.

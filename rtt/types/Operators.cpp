@@ -37,8 +37,6 @@
 
 #include "Operators.hpp"
 #include "OperatorTypes.hpp"
-#include "../internal/DataSourceAdaptor.hpp"
-
 #include <functional>
 
 // Cappellini Consonni Extension

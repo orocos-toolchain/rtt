@@ -14,7 +14,6 @@
 #include <boost/utility/enable_if.hpp>
 
 #include "DataSource.hpp"
-#include "DataSourceAdaptor.hpp"
 #include "Exceptions.hpp"
 #include "../interface/FactoryExceptions.hpp"
 #include "mystd.hpp"

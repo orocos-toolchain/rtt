@@ -41,7 +41,6 @@
 
 #include "mystd.hpp"
 #include "DataSource.hpp"
-#include "DataSourceAdaptor.hpp"
 #include "DataSourceTypeInfo.hpp"
 #include "AssignCommand.hpp"
 #include <vector>

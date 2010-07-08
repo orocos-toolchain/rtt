@@ -3,7 +3,6 @@
 
 #include "AssignCommand.hpp"
 #include "DataSourceTypeInfo.hpp"
-#include "DataSourceAdaptor.hpp"
 #include "../types/TypeTransporter.hpp"
 
 #include "../rtt-config.h"

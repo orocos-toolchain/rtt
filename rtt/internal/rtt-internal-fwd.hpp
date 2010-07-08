@@ -78,10 +78,6 @@ namespace RTT {
         struct MethodBinder;
         template<class F>
         struct ReturnBase;
-        template<class From, class To>
-        struct AssignableDataSourceAdaptor;
-        template<class From, class To>
-        struct DataSourceAdaptor;
         template<class FunctionT>
         class LocalMethodImpl;
         template<class FunctionT>

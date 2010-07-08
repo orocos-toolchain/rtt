@@ -41,7 +41,6 @@
 
 #include "Operators.hpp"
 #include "../internal/DataSources.hpp"
-#include "../internal/DataSourceAdaptor.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT

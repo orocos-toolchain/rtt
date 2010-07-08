@@ -262,7 +262,6 @@ BOOST_AUTO_TEST_CASE( testTypes )
         //"do test.print( ar.capacity )\n"+
         "do test.assertEqual( ar.capacity, 10)\n"+ // check keeping capacity: ar(10) vs ar2(2)
         //-- This fails because .capacity() gets a copy of the std::vector
-        // See DataSourceAdaptor.hpp:263 and :676 ('returns/make a copy'
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n";
 
