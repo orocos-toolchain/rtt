@@ -289,7 +289,6 @@ namespace RTT
 
         // we could implement here the interrupt shield logic.
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type) {
-            Logger::In in( t->name );
             // xenoptr was initialised from the thread wrapper.
             if (t->xenoptr != rt_task_self() ) {
                 return -1;
