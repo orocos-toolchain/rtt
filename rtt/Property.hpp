@@ -41,7 +41,6 @@
 #include "rtt-config.h"
 #include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#include "internal/PropertyCommands.hpp"
 #include "internal/DataSources.hpp"
 #include <boost/type_traits.hpp>
 
@@ -58,8 +57,8 @@ namespace RTT
 	 * @brief A property represents a named value of any type with a description.
      *
 	 * A property is a tuple of a name, a description and a variable of any
-	 * type. It's purpose is to provide an easy to manipulate parameter of an
-     * object by external entities. They can be grouped in PropertyBag objects
+	 * type. It's purpose is to provide a hierarchical parameter of a
+     * component. They are grouped in PropertyBag objects
      * and a Property can contain a PropertyBag itself.
      *
      * If you do not provide a name nor description when constructing the
@@ -309,15 +308,6 @@ namespace RTT
             return false;
         }
 
-        virtual base::ActionInterface* updateAction( const base::PropertyBase* other)
-        {
-            // try to update from identical type or from const_reference_t.
-            const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
-            if ( origin != 0 && _value )
-                return new internal::UpdatePropertyCommand<T>(this, origin);
-            return 0;
-        }
-
         virtual bool refresh( const base::PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
@@ -327,15 +317,6 @@ namespace RTT
             return false;
         }
 
-        virtual base::ActionInterface* refreshCommand( const base::PropertyBase* other)
-        {
-            if ( !_value )
-                return 0;
-            // refresh is just an update of the datasource.
-            base::DataSourceBase::shared_ptr sourcebase = other->getDataSource();
-            return _value->updateAction( sourcebase.get() );
-        }
-
         virtual bool copy( const base::PropertyBase* other )
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
@@ -343,14 +324,6 @@ namespace RTT
                 return this->copy( *origin );
             }
             return false;
-        }
-
-        virtual base::ActionInterface* copyCommand( const base::PropertyBase* other)
-        {
-            const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
-            if ( origin != 0 && _value )
-                return new internal::CopyPropertyCommand<T>(this, origin);
-            return 0;
         }
 
         /**

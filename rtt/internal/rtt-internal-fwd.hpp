@@ -105,12 +105,6 @@ namespace RTT {
         template<class T>
         class MemoryPool;
         template<class T>
-        class RefreshPropertyCommand;
-        template<class T>
-        class RefreshPropertyFromDSCommand;
-        template<class T>
-        class UpdatePropertyCommand;
-        template<class T>
         struct AStore;
         template<class T>
         struct DSRStore;

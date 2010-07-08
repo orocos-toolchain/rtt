@@ -132,14 +132,6 @@ namespace RTT
         virtual bool update( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a ActionInterface object which will update this Property
-         * with the value of another Property when execute()'ed.
-         * @return zero if the Property types do not match
-         * @todo: check if this method is necessary/used.
-         */
-        virtual ActionInterface* updateAction( const PropertyBase* other) = 0;
-
-        /**
          * Refresh the value of this Property with the value of an \a other Property.
          * Refresh does only the minimal update of the value, not adding extra
          * information, or in case of a Property<PropertyBag> not adding extra
@@ -152,14 +144,6 @@ namespace RTT
         virtual bool refresh( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a ActionInterface object which will refresh this Property
-         * with the value of another Property when execute()'ed. The resulting
-         * Command is real-time.
-         * @return zero if the Property types do not match
-         */
-        virtual ActionInterface* refreshCommand( const PropertyBase* other) = 0;
-
-        /**
          * Copy an \a other Property onto this property.
          * Copy does a full update of the name, description and value, adding extra
          * information if necessary, or in case of a Property<PropertyBag> adding all
@@ -170,13 +154,6 @@ namespace RTT
          * @return false if the Properties are of different type.
          */
         virtual bool copy( const PropertyBase* other ) = 0;
-
-        /**
-         * Generate a ActionInterface object which will copy this Property
-         * with the value of another Property when execute()'ed.
-         * @return zero if the Property types do not match
-         */
-        virtual ActionInterface* copyCommand( const PropertyBase* other) = 0;
 
         /**
          * Composes the data of this property with information found in a
