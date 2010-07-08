@@ -350,11 +350,6 @@ namespace RTT {
 
                 if ( active )
                     return false;
-                Logger::In in("Thread::start");
-
-                log(Debug) << "Thread '"
-                << rtos_task_get_name(&rtos_task) << "' started."
-                << endlog();
                 active = true;
 
                 bool result;
@@ -362,9 +357,6 @@ namespace RTT {
 
                 if (result == false || active == false) // detect call to stop() within initialize()
                 {
-                    log(Warning) << "Thread "
-                    << rtos_task_get_name(&rtos_task)
-                    << " refused to initialize()." << endlog();
                     active = false;
                     return false;
                 }
@@ -388,10 +380,6 @@ namespace RTT {
         {
             if (!active)
                 return false;
-
-            Logger::In in("Thread::stop");
-            log(Debug) << "Thread '"
-                    << rtos_task_get_name(&rtos_task) << "' stopping..."<<endlog();
 
             running = false;
 
@@ -427,9 +415,6 @@ namespace RTT {
 
             this->finalize();
             active = false;
-
-            log(Debug) << "Thread '"
-                    << rtos_task_get_name(&rtos_task) << "' stopped successfully."<<endlog();
             return true;
         }
 
