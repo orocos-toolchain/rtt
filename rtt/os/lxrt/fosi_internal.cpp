@@ -262,7 +262,6 @@ namespace RTT
         }
 
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int s) {
-            Logger::In in( t->name );
             if ( t->rtaitask == 0 || t->rtaitask != rt_buddy() ) {
                 return -1;
             }
