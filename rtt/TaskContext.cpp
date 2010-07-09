@@ -51,8 +51,6 @@
 #include "Method.hpp"
 
 #include "rtt-config.h"
-#include "marsh/MarshallingService.hpp"
-#include "scripting/ScriptingService.hpp"
 
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
 #include "extras/SequentialActivity.hpp"
