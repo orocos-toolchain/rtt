@@ -37,7 +37,7 @@
 #include "ProgramService.hpp"
 #include "StateMachineService.hpp"
 #include "../internal/DataSourceCommand.hpp"
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "CommandComposite.hpp"
 
 #include <iostream>

@@ -39,8 +39,8 @@
 #ifndef CONDITIONONCE_HPP
 #define CONDITIONONCE_HPP
 
-#include "../base/ConditionInterface.hpp"
-#include "../scripting/rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
@@ -51,7 +51,7 @@ namespace RTT
      * and afterwards always false (or vice versa).
      */
     class RTT_SCRIPTING_API ConditionOnce
-        : public base::ConditionInterface
+        : public ConditionInterface
     {
 
     public:
@@ -69,7 +69,7 @@ namespace RTT
 
         virtual void reset();
 
-        base::ConditionInterface* clone() const;
+        ConditionInterface* clone() const;
 
     private:
         /**

@@ -44,7 +44,7 @@
 #include "../base/DataSourceBase.hpp"
 #include "../base/AttributeBase.hpp"
 #include "../base/ExecutableInterface.hpp"
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 #include "rtt-scripting-fwd.hpp"
 

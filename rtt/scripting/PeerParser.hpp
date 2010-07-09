@@ -44,7 +44,7 @@
 #include "CommonParser.hpp"
 #include <queue>
 #include <string>
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../rtt-fwd.hpp"
 
 namespace RTT

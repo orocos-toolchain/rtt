@@ -48,7 +48,7 @@
 #include "../internal/DataSource.hpp"
 #include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
@@ -114,7 +114,7 @@ namespace RTT
          * failure. Use ext to get the data from the components.
          * @throw parse_exception
          */
-        base::ConditionInterface* parseCondition(const std::string& s, TaskContext* );
+        ConditionInterface* parseCondition(const std::string& s, TaskContext* );
 
         /**
         * @brief Parses the expression in s.

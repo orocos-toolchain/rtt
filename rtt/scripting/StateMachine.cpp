@@ -37,8 +37,8 @@
 #include "StateMachine.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSource.hpp"
-#include "../internal/CommandFunctors.hpp"
 #include "../interface/ServiceProvider.hpp"
+#include "CommandFunctors.hpp"
 #include <Logger.hpp>
 #include <functional>
 

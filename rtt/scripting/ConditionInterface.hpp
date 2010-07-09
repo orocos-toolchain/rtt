@@ -40,11 +40,11 @@
 #define CONDITIONINTERFACE_HPP
 
 #include <map>
-#include "../rtt-config.h"
-#include "rtt-base-fwd.hpp"
+#include "rtt-scripting-config.h"
+#include "../base/rtt-base-fwd.hpp"
 
 namespace RTT
-{ namespace base {
+{ namespace scripting {
 
     /**
      * @brief This interface represents the concept of
@@ -55,7 +55,7 @@ namespace RTT
      * level class and replace its use by internal::DataSource<bool>. That
      * would also cause the removal of most Condition* classes.
      */
-    class RTT_API ConditionInterface
+    class RTT_SCRIPTING_API ConditionInterface
     {
     public:
         virtual ~ConditionInterface();
@@ -102,7 +102,7 @@ namespace RTT
          * ConditionInterface uses a internal::DataSource, it is important that
          * you reimplement this function correctly though.
          */
-        virtual ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
 }}

@@ -40,7 +40,7 @@
 #ifndef CONDITIONINVERT_HPP
 #define CONDITIONINVERT_HPP
 
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -50,11 +50,11 @@ namespace RTT
      * A conditional that evaluates to the inverse of another Condition.
      */
     class RTT_SCRIPTING_API ConditionInvert
-        : public base::ConditionInterface
+        : public ConditionInterface
     {
-        base::ConditionInterface* mc;
+        ConditionInterface* mc;
     public:
-        ConditionInvert(base::ConditionInterface* c)
+        ConditionInvert(ConditionInterface* c)
             : mc(c)
         {
         }
@@ -69,12 +69,12 @@ namespace RTT
             return ! mc->evaluate();
         }
 
-        virtual base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
+        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         {
             return new ConditionInvert( mc->copy(alreadyCloned) );
         }
 
-        virtual base::ConditionInterface* clone() const
+        virtual ConditionInterface* clone() const
         {
             return new ConditionInvert( mc->clone() );
         }

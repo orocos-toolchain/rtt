@@ -38,8 +38,8 @@
 #ifndef CONDITIONCOMPOSITE_HPP
 #define CONDITIONCOMPOSITE_HPP
 
-#include "../scripting/rtt-scripting-config.h"
-#include "../base/ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
 
 namespace RTT { namespace scripting {
 
@@ -48,22 +48,22 @@ namespace RTT { namespace scripting {
    * Compose an 'AND' function of two Conditions.
    */
   class RTT_SCRIPTING_API ConditionBinaryCompositeAND
-    : public base::ConditionInterface
+    : public ConditionInterface
   {
-    base::ConditionInterface* lhs;
-    base::ConditionInterface* rhs;
+    ConditionInterface* lhs;
+    ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeAND( base::ConditionInterface* l, base::ConditionInterface* r )
+    ConditionBinaryCompositeAND( ConditionInterface* l, ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual base::ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeAND( lhs->clone(), rhs->clone() );
       }
@@ -95,22 +95,22 @@ namespace RTT { namespace scripting {
      * Compose an 'OR' function of two Conditions.
      */
   class RTT_SCRIPTING_API ConditionBinaryCompositeOR
-    : public base::ConditionInterface
+    : public ConditionInterface
   {
-    base::ConditionInterface* lhs;
-    base::ConditionInterface* rhs;
+    ConditionInterface* lhs;
+    ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeOR( base::ConditionInterface* l, base::ConditionInterface* r )
+    ConditionBinaryCompositeOR( ConditionInterface* l, ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual base::ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeOR( lhs->clone(), rhs->clone() );
       }
@@ -140,11 +140,11 @@ namespace RTT { namespace scripting {
   };
 
   class RTT_SCRIPTING_API ConditionCompositeNOT
-    : public base::ConditionInterface
+    : public ConditionInterface
   {
-    base::ConditionInterface* cond;
+    ConditionInterface* cond;
   public:
-    ConditionCompositeNOT( base::ConditionInterface* c )
+    ConditionCompositeNOT( ConditionInterface* c )
       : cond( c )
       {
       }

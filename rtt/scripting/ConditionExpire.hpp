@@ -39,7 +39,7 @@
 #ifndef CONDITIONEXPIRE_HPP
 #define CONDITIONEXPIRE_HPP
 
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 
 namespace RTT
@@ -52,7 +52,7 @@ namespace RTT
      */
 
     class RTT_SCRIPTING_API ConditionExpire
-        : public base::ConditionInterface
+        : public ConditionInterface
     {
         typedef os::TimeService::ticks ticks;
 
@@ -81,7 +81,7 @@ namespace RTT
             timestamp = hb->getTicks();
         }
 
-        virtual base::ConditionInterface* clone() const
+        virtual ConditionInterface* clone() const
         {
             return new ConditionExpire( time );
         }

@@ -39,7 +39,7 @@
 #ifndef ORO_DUMP_OBJECT_HPP
 #define ORO_DUMP_OBJECT_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../interface/rtt-interface-fwd.hpp"
 #include "../interface/ServiceProvider.hpp"
 

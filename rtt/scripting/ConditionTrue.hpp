@@ -39,8 +39,8 @@
 #ifndef CONDITIONTRUE_HPP
 #define CONDITIONTRUE_HPP
 
-#include "../scripting/rtt-scripting-config.h"
-#include "../base/ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -50,7 +50,7 @@ namespace RTT
      * A conditional that evaluates true
      */
     class RTT_SCRIPTING_API ConditionTrue
-    : public base::ConditionInterface
+    : public ConditionInterface
     {
 
         public:
@@ -65,7 +65,7 @@ namespace RTT
                 return true;
             }
 
-            virtual base::ConditionInterface* clone() const
+            virtual ConditionInterface* clone() const
             {
                 return new ConditionTrue;
             }

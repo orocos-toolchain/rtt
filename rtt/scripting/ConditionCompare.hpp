@@ -38,7 +38,7 @@
 #ifndef CONDITIONCOMPARE_HPP
 #define CONDITIONCOMPARE_HPP
 
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 namespace RTT
@@ -55,7 +55,7 @@ namespace RTT
    */
   template<typename T, typename compare_op>
   class ConditionCompare
-    : public base::ConditionInterface
+    : public ConditionInterface
   {
     typename internal::DataSource<T>::shared_ptr mdata1;
     typename internal::DataSource<T>::shared_ptr mdata2;
@@ -64,7 +64,7 @@ namespace RTT
       : mdata1( data1 ), mdata2( data2 )
       {
       }
-    virtual base::ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionCompare<T,compare_op>( mdata1.get(), mdata2.get() );
       }

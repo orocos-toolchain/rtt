@@ -38,8 +38,8 @@
 #ifndef CONDITIONBOOLPROPERTY_HPP
 #define CONDITIONBOOLPROPERTY_HPP
 
-#include "../scripting/rtt-scripting-config.h"
-#include "../base/ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
 #include "../Property.hpp"
 
 
@@ -54,7 +54,7 @@ namespace RTT
    * @deprecated Remove this low-level class since it's nowhere used.
    */
   class RTT_SCRIPTING_API ConditionBoolProperty
-    : public base::ConditionInterface
+    : public ConditionInterface
   {
     const Property<bool>& mprop;
   public:

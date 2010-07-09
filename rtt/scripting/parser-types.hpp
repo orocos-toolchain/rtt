@@ -37,7 +37,7 @@
 #ifndef PARSER_TYPES_HPP
 #define PARSER_TYPES_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 
 #include <boost/version.hpp>
 

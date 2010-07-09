@@ -38,7 +38,7 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 #include <string>
 

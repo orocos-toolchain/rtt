@@ -38,7 +38,7 @@
 #ifndef COMMANDCOUNTER_HPP
 #define COMMANDCOUNTER_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
 
 namespace RTT

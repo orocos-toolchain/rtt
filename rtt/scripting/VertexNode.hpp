@@ -38,7 +38,7 @@
 #ifndef VERTEXNODE_HPP
 #define VERTEXNODE_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include <map>
 #include "../base/ActionInterface.hpp"
 
@@ -132,7 +132,7 @@ namespace RTT
          * method will not be called.  The reason this is
          * here is because the node has to reset its
          * termination conditions at this point.  See the
-         * documentation of base::ConditionInterface::reset()
+         * documentation of ConditionInterface::reset()
          * for more information about this..
          */
          void startExecution();

@@ -106,7 +106,7 @@ namespace RTT
          * @param cond The Condition under which to return.
          * @param line The line number of that line in the function.
          */
-        void returnFunction( base::ConditionInterface* cond, int line );
+        void returnFunction( ConditionInterface* cond, int line );
 
         /**
          * Finish building the function and return the result.
@@ -119,11 +119,11 @@ namespace RTT
          */
         FunctionGraphPtr getFunction();
 
-        void startIfStatement( base::ConditionInterface* cond, int linenumber );
+        void startIfStatement( ConditionInterface* cond, int linenumber );
         void endIfBlock(int linenumber);
         void endElseBlock(int linenumber);
 
-        void startWhileStatement( base::ConditionInterface* cond, int linenumber );
+        void startWhileStatement( ConditionInterface* cond, int linenumber );
         void endWhileBlock(int linenumber);
 
         bool inLoop();
@@ -134,20 +134,20 @@ namespace RTT
          *
          * @return the 'new' build CommandNode.
          */
-        CommandNode addCommand( base::ConditionInterface* cond,  base::ActionInterface* com );
+        CommandNode addCommand( ConditionInterface* cond,  base::ActionInterface* com );
 
         /**
          * Add an edge from the build CommandNode to the given CommandNode
          * without changing the build CommandNode.
          *
          */
-        void addConditionEdge( base::ConditionInterface* cond, CommandNode vert );
+        void addConditionEdge( ConditionInterface* cond, CommandNode vert );
 
         /**
          * Add an edge between the given CommandNode and the build CommandNode.
          *
          */
-        void closeConditionEdge( CommandNode vert, base::ConditionInterface* cond );
+        void closeConditionEdge( CommandNode vert, ConditionInterface* cond );
 
         /**
          * Select an already added CommandNode.
@@ -185,7 +185,7 @@ namespace RTT
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( base::ConditionInterface* cond, FunctionGraphPtr fn, std::vector<base::DataSourceBase::shared_ptr> fnargs);
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraphPtr fn, std::vector<base::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -212,12 +212,12 @@ namespace RTT
          * @param line_nr The line number of the 'build' command.
          * @return The new build CommandNode.
          */
-        CommandNode proceedToNext( base::ConditionInterface* cond, int line_nr = 0 );
+        CommandNode proceedToNext( ConditionInterface* cond, int line_nr = 0 );
 
         /**
          * Connect the given CommandNode to the 'next' CommandNode.
          */
-        void connectToNext( CommandNode v, base::ConditionInterface* cond );
+        void connectToNext( CommandNode v, ConditionInterface* cond );
 
         /**
          * Return the build CommandNode.

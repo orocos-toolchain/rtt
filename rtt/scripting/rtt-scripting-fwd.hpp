@@ -23,6 +23,7 @@ namespace RTT {
         class ConditionDuration;
         class ConditionExpire;
         class ConditionFalse;
+        class ConditionInterface;
         class ConditionInvert;
         class ConditionOnce;
         class ConditionParser;

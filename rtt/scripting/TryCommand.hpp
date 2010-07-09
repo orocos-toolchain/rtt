@@ -39,9 +39,9 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../base/ActionInterface.hpp"
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "../Logger.hpp"
 #include "../internal/DataSource.hpp"
 
@@ -94,7 +94,7 @@ namespace RTT
      * @see TryCommand
      */
     class RTT_SCRIPTING_API TryCommandResult :
-        public base::ConditionInterface
+        public ConditionInterface
     {
         internal::DataSource<bool>::shared_ptr c;
         bool _invert;
@@ -112,9 +112,9 @@ namespace RTT
 
         bool evaluate();
 
-        base::ConditionInterface* clone() const;
+        ConditionInterface* clone() const;
 
-        base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
+        ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -155,7 +155,7 @@ namespace RTT
      * @see EvalCommand
      */
     class RTT_SCRIPTING_API EvalCommandResult :
-        public base::ConditionInterface
+        public ConditionInterface
     {
         internal::DataSource<bool>::shared_ptr c;
     public:
@@ -165,9 +165,9 @@ namespace RTT
 
         bool evaluate();
 
-        base::ConditionInterface* clone() const;
+        ConditionInterface* clone() const;
 
-        base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
+        ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     };
 }}
 

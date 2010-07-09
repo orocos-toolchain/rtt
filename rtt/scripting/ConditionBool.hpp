@@ -39,8 +39,8 @@
 #ifndef CONDITIONBOOL_HPP
 #define CONDITIONBOOL_HPP
 
-#include "../scripting/rtt-scripting-config.h"
-#include "../base/ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -50,7 +50,7 @@ namespace RTT
 
 
     class RTT_SCRIPTING_API ConditionBool :
-                public base::ConditionInterface
+                public ConditionInterface
     {
 
         public:

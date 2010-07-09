@@ -121,14 +121,14 @@ namespace RTT { namespace scripting
 
       // The implicit termination condition we just got for the
       // current command from the CommandParser..
-      base::ConditionInterface* implcond;
-      std::vector<base::ConditionInterface*> implcond_v;
+      ConditionInterface* implcond;
+      std::vector<ConditionInterface*> implcond_v;
       std::vector<base::DataSourceBase::shared_ptr> callfnargs;
 
       // last seen condition
-      base::ConditionInterface* mcondition;
+      ConditionInterface* mcondition;
       // try-block condition
-      base::ConditionInterface* try_cond;
+      ConditionInterface* try_cond;
 
       void seencondition();
 

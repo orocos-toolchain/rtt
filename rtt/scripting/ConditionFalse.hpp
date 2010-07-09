@@ -39,7 +39,7 @@
 #ifndef CONDITIONFALSE_HPP
 #define CONDITIONFALSE_HPP
 
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -50,7 +50,7 @@ namespace RTT
      */
 
     class RTT_SCRIPTING_API ConditionFalse
-                : public base::ConditionInterface
+                : public ConditionInterface
     {
 
         public:
@@ -65,7 +65,7 @@ namespace RTT
                 return false;
             }
 
-            virtual base::ConditionInterface* clone() const
+            virtual ConditionInterface* clone() const
             {
                 return new ConditionFalse;
             }

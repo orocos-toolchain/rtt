@@ -36,7 +36,7 @@
  ***************************************************************************/
 #include "EdgeCondition.hpp"
 #include "ConditionTrue.hpp"
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "../internal/DataSource.hpp"
 
 namespace RTT {

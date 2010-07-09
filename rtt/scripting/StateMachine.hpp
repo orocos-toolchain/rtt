@@ -39,9 +39,9 @@
 #ifndef HIERARCHICAL_STATE_MACHINE_HPP
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "StateInterface.hpp"
-#include "../base/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 #include "../base/ActionInterface.hpp"
 #include "../base/ExecutableInterface.hpp"
 #include "../base/DataSourceBase.hpp"
@@ -86,13 +86,13 @@ namespace RTT
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int), on a line (int), with a transition program
          */
-        typedef std::vector< boost::tuple<base::ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
+        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
-        typedef std::multimap< StateInterface*, std::pair<base::ConditionInterface*, int> > PreConditionMap;
+        typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
         typedef std::vector< boost::tuple<interface::ServiceProviderPtr,
                                                  std::string, std::vector<base::DataSourceBase::shared_ptr>,
                                                  StateInterface*,
-                                                 base::ConditionInterface*, boost::shared_ptr<ProgramInterface>,
+                                                 ConditionInterface*, boost::shared_ptr<ProgramInterface>,
                                                  Handle,
                                                  StateInterface*, boost::shared_ptr<ProgramInterface> > > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
@@ -410,7 +410,7 @@ namespace RTT
          * @param line
          *        The line number where this precondition was introduced.
          */
-        void preconditionSet( StateInterface* state, base::ConditionInterface* cnd, int line);
+        void preconditionSet( StateInterface* state, ConditionInterface* cnd, int line);
 
         /**
          * Express a possible transition from one state to another under
@@ -431,7 +431,7 @@ namespace RTT
          * @post  All transitions from \a from to \a to will succeed under
          *        condition \a cnd
          */
-        void transitionSet( StateInterface* from, StateInterface* to, base::ConditionInterface* cnd, int priority, int line);
+        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line);
 
         /**
          * Express a possible transition from one state to another under
@@ -456,7 +456,7 @@ namespace RTT
          *        condition \a cnd
          */
         void transitionSet( StateInterface* from, StateInterface* to,
-                            base::ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
+                            ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                             int priority, int line);
 
         /**
@@ -481,7 +481,7 @@ namespace RTT
         bool createEventTransition( interface::ServiceProviderPtr sp,
                                     const std::string& ename, std::vector<base::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
-                                    base::ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
+                                    ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
                                     StateInterface* elseto = 0, boost::shared_ptr<ProgramInterface> elseprog =
                                     boost::shared_ptr<ProgramInterface>() );
         /**
@@ -640,7 +640,7 @@ namespace RTT
          * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.
          * if from != current or in transition already, discard transition.
          */
-        bool eventTransition( StateInterface* from, base::ConditionInterface* c,
+        bool eventTransition( StateInterface* from, ConditionInterface* c,
                               ProgramInterface* p, StateInterface* to,
                               ProgramInterface* elsep, StateInterface* elseto );
 

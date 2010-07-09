@@ -39,8 +39,9 @@
 #define EDGECONDITION_HPP
 
 #include <map>
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../base/rtt-base-fwd.hpp"
+#include "rtt-scripting-fwd.hpp"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS
@@ -85,7 +86,7 @@ namespace RTT
          * check.
          * This EdgeCondition takes ownership of cond.
          */
-        EdgeCondition(base::ConditionInterface* cond );
+        EdgeCondition(ConditionInterface* cond );
 
         ~EdgeCondition();
 
@@ -98,7 +99,7 @@ namespace RTT
         /**
          * Reset the condition in this
          * EdgeCondition.  See the documentation
-         * of base::ConditionInterface::reset() for more
+         * of ConditionInterface::reset() for more
          * details..
          */
         void reset();
@@ -111,15 +112,15 @@ namespace RTT
         /**
          * Return the condition coupled with this termination clause.
          */
-        base::ConditionInterface* getCondition() const;
+        ConditionInterface* getCondition() const;
 
         int getRank() const { return rank; }
     protected:
 
-        void setCondition(base::ConditionInterface* cond);
+        void setCondition(ConditionInterface* cond);
 
     private:
-        base::ConditionInterface* condition;
+        ConditionInterface* condition;
         int rank;
     };
 

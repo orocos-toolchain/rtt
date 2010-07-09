@@ -85,12 +85,12 @@ namespace RTT { namespace scripting
      * should subsequently call reset(), otherwise it will be deleted
      * in the ConditionParser destructor..
      */
-      base::ConditionInterface* getParseResult();
+      ConditionInterface* getParseResult();
 
       /**
        * Retrieve the result as a command, condition pair.
        */
-      std::pair<base::ActionInterface*,base::ConditionInterface*> getParseResultAsCommand();
+      std::pair<base::ActionInterface*,ConditionInterface*> getParseResultAsCommand();
 
     void reset();
   };

@@ -98,7 +98,7 @@ namespace RTT { namespace scripting
       boost::shared_ptr<ProgramInterface> transProgram;
       StateDescription* elsestate;
       boost::shared_ptr<ProgramInterface> elseProgram;
-      base::ConditionInterface* curcondition;
+      ConditionInterface* curcondition;
 #if 0
       std::string curscvcmachinename;
       std::string curscvcparamname;

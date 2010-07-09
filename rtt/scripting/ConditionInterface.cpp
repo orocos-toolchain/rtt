@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  CommandFunctors.hpp
+  tag: Peter Soetens  Tue Jul 20 15:13:29 CEST 2004  ConditionInterface.cxx
 
-                        CommandFunctors.hpp -  description
+                        ConditionInterface.cxx -  description
                            -------------------
-    begin                : do november 02 2006
-    copyright            : (C) 2006 FMTC
-    email                : peter.soetens@fmtc.be
+    begin                : Tue July 20 2004
+    copyright            : (C) 2004 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,79 +36,18 @@
  ***************************************************************************/
 
 
-#ifndef ORO_COMMANDFUNCTORS_HPP
-#define ORO_COMMANDFUNCTORS_HPP
+#include "ConditionInterface.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/type_traits/function_traits.hpp>
+namespace RTT {
+    using namespace base;
+    using namespace scripting;
+    ConditionInterface::~ConditionInterface() {
+    }
 
-#include "../base/ActionInterface.hpp"
-#include "../base/ConditionInterface.hpp"
+    void ConditionInterface::reset() {
+    }
 
-namespace RTT
-{
-    namespace internal {
-
-        /**
-         * A functor with the base::ActionInterface, for the case where
-         * the functor is a bool(void).
-         */
-        class CommandFunction
-            :public base::ActionInterface
-        {
-        public:
-            typedef boost::function<bool(void)> Function;
-
-            Function com;
-
-            /**
-             *
-             */
-            CommandFunction(Function impl)
-                : com(impl)
-            {
-            }
-
-            virtual void readArguments() { }
-
-            virtual bool execute() { return com(); }
-
-            virtual CommandFunction* clone() const
-            {
-                return new CommandFunction( com );
-            }
-        };
-
-        /**
-         * A functor with the base::ConditionInterface, for the case where
-         * the functor is a bool(void).
-         */
-        class ConditionFunction
-            :public base::ConditionInterface
-        {
-        public:
-            typedef boost::function<bool(void)> Function;
-
-            Function con;
-            bool minvert;
-
-            /**
-             *
-             */
-            ConditionFunction(Function impl, bool invert=false)
-                : con(impl), minvert(invert)
-            {
-            }
-
-            virtual bool evaluate() { return con() != minvert; }
-
-            virtual ConditionFunction* clone() const
-            {
-                return new ConditionFunction( con, minvert );
-            }
-        };
+    ConditionInterface* ConditionInterface::copy( std::map<const DataSourceBase*, DataSourceBase*>& ) const {
+        return clone();
     }
 }
-
-#endif

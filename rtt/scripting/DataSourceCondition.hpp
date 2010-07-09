@@ -38,8 +38,9 @@
 #ifndef DATASOURCECONDITION_HPP
 #define DATASOURCECONDITION_HPP
 
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../internal/DataSource.hpp"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -51,21 +52,21 @@ namespace RTT
   class RTT_SCRIPTING_API DataSourceCondition
     : public internal::DataSource<bool>
   {
-      base::ConditionInterface* cond;
+      ConditionInterface* cond;
       mutable bool result;
   public:
       /**
        * DataSourceCondition takes ownership of the condition you pass
        * it.
        */
-      DataSourceCondition( base::ConditionInterface* c );
+      DataSourceCondition( ConditionInterface* c );
       DataSourceCondition( const DataSourceCondition& orig );
       ~DataSourceCondition();
       bool get() const;
       bool value() const;
       bool const& rvalue() const;
       void reset();
-      base::ConditionInterface* condition() const;
+      ConditionInterface* condition() const;
       virtual DataSourceCondition* clone() const;
       virtual DataSourceCondition* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
   };

@@ -41,7 +41,7 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include "CommandNOP.hpp"
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 #include "../base/AttributeBase.hpp"
 #include "ProgramInterface.hpp"
 

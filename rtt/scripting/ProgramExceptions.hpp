@@ -41,7 +41,7 @@
 
 #include <exception>
 #include <string>
-#include "../scripting/rtt-scripting-config.h"
+#include "rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {

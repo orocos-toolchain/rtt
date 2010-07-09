@@ -39,8 +39,8 @@
 #ifndef CONDITION_DS_DURATION_HPP
 #define CONDITION_DS_DURATION_HPP
 
-#include "../scripting/rtt-scripting-config.h"
-#include "../base/ConditionInterface.hpp"
+#include "rtt-scripting-config.h"
+#include "ConditionInterface.hpp"
 #include "../os/TimeService.hpp"
 #include "../internal/DataSource.hpp"
 
@@ -54,7 +54,7 @@ namespace RTT
      * The behaviour can be inverted upon construction.
      */
     class RTT_SCRIPTING_API ConditionDSDuration
-        : public base::ConditionInterface
+        : public ConditionInterface
     {
         typedef os::TimeService::nsecs nsecs;
         typedef os::TimeService::ticks ticks;
@@ -75,9 +75,9 @@ namespace RTT
 
         virtual void reset();
 
-        base::ConditionInterface* clone() const;
+        ConditionInterface* clone() const;
 
-        virtual base::ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
+        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
     private:
 
         /**

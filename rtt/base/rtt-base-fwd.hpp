@@ -8,9 +8,7 @@ namespace RTT {
         class AttributeBase;
         class BufferBase;
         class ChannelElementBase;
-        class ConditionInterface;
         class DataSourceBase;
-        class DispatchInterface;
         class DisposableInterface;
         class ExecutableInterface;
         class InputPortInterface;
