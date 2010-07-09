@@ -17,6 +17,7 @@ IF (BUILD_TESTING)
     # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
     INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
     INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
+    INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt/marsh ${PROJ_BINARY_DIR}/rtt/scripting )
     INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
     LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt )
