@@ -55,6 +55,7 @@ namespace RTT
      * The marshallers use this technique.
      * @see PropertyIntrospection to have a detailed type lookup
      * of a property.
+     * @deprecated DO NOT USE. Will be removed in 2.x release series.
      */
     class RTT_API PropertyBagVisitor
     {

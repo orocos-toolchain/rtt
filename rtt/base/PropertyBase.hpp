@@ -110,12 +110,14 @@ namespace RTT
         /**
          * A call on this method will lead to a call to the PropertyIntrospection
          * interface identifying this Property's proper type.
+         * @deprecated DO NOT USE. Will be removed in 2.x release series.
          */
         virtual void identify( PropertyIntrospection* pi) = 0;
 
         /**
          * A call on this method will lead to a call to the PropertyBagIntrospection
          * interface identifying this Property's proper type.
+         * @deprecated DO NOT USE. Will be removed in 2.x release series.
          */
         virtual void identify( PropertyBagVisitor* pi);
 

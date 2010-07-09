@@ -55,6 +55,7 @@ namespace RTT
 	 * @see PropertyBag
      * @see PropertyBagVisitor to only browse the contents of a PropertyBag
      * hierarchy.
+     * @deprecated DO NOT USE. Will be removed in 2.x release series.
 	 */
     class RTT_API PropertyIntrospection
         : public PropertyBagVisitor

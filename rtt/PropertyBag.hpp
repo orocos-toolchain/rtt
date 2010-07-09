@@ -264,11 +264,13 @@ namespace RTT
 
         /**
          * Identify the contents of this bag through introspection.
+         * @deprecated DO NOT USE. Will be removed in 2.x release series.
          */
         void identify( base::PropertyIntrospection* pi ) const;
 
         /**
          * Identify the contents of this bag through introspection.
+         * @deprecated DO NOT USE. Will be removed in 2.x release series.
          */
         void identify( base::PropertyBagVisitor* pi ) const;
 

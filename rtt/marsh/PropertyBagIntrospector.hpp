@@ -56,6 +56,7 @@ namespace RTT
     /**
      * @brief This class fills up a given bag with
      * the results of an introspection.
+     * @deprecated DO NOT USE. Will be removed in 2.x release series.
      */
     class RTT_MARSH_API PropertyBagIntrospector
         : public base::PropertyBagVisitor
