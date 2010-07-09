@@ -10,7 +10,6 @@ namespace RTT {
         class ConnectionBase;
         class ConnectionManager;
         class DataSourceCommand;
-        class DispatchAction;
         class GlobalEngine;
         class MethodC;
         class OffsetDataSource;
@@ -32,8 +31,6 @@ namespace RTT {
         typename Signature,
         typename TSlotFunction>
         class Signal;
-        template< class FunctionT>
-        struct Functor;
         template< class T, class ReadPolicy, class WritePolicy>
         class LockedQueue;
         template< class T, class ReadPolicy, class WritePolicy>
@@ -174,8 +171,6 @@ namespace RTT {
         class BinaryDataSource;
         template<typename function>
         class NArityDataSource;
-        template<typename function>
-        class TernaryDataSource;
     }
     namespace detail {
         using namespace internal;
