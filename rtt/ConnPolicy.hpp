@@ -104,14 +104,8 @@ namespace RTT {
          * @param pull In inter-process cases, should the consumer pull itself ?
          * @return the specified policy.
          */
-        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false)
-        {
-            ConnPolicy result(BUFFER, lock_policy);
-            result.init = init_connection;
-            result.pull = pull;
-            result.size = size;
-            return result;
-        }
+        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false);
+
         /**
          * Create a policy for a (lock-free) shared data connection of a given size.
          * @param lock_policy The locking policy
@@ -119,13 +113,7 @@ namespace RTT {
          * @param pull In inter-process cases, should the consumer pull data itself ?
          * @return the specified policy.
          */
-        static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false)
-        {
-            ConnPolicy result(DATA, lock_policy);
-            result.init = init_connection;
-            result.pull = pull;
-            return result;
-        }
+        static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false);
 
         /**
          * The default policy is data driven, lock-free and local.
@@ -135,8 +123,7 @@ namespace RTT {
          * @param lock_policy
          * @return
          */
-        explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE)
-            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
+        explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE);
 
         /** This is the type for the data holding element in the connection */
         int    type;

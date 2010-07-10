@@ -51,6 +51,26 @@ using namespace std;
 
 namespace RTT
 {
+    ConnPolicy ConnPolicy::buffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
+    {
+        ConnPolicy result(BUFFER, lock_policy);
+        result.init = init_connection;
+        result.pull = pull;
+        result.size = size;
+        return result;
+    }
+
+    ConnPolicy ConnPolicy::data(int lock_policy /*= LOCK_FREE*/, bool init_connection /*= true*/, bool pull /*= false*/)
+    {
+        ConnPolicy result(DATA, lock_policy);
+        result.init = init_connection;
+        result.pull = pull;
+        return result;
+    }
+
+    ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
+        : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
+
     bool composeProperty(const PropertyBag& bag, ConnPolicy& result)
     {
         Property<int> i;
