@@ -94,9 +94,6 @@ namespace RTT {
         template<class T>
         class AtomicQueue;
         template<class T>
-        class FixedSizeMemoryPool;
-        template<class T>
-        class MemoryPool;
         template<class T>
         struct AStore;
         template<class T>

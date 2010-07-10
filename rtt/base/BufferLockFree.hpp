@@ -42,7 +42,7 @@
 #include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicQueue.hpp"
-#include "../internal/MemoryPool.hpp"
+#include "../internal/TsPool.hpp"
 #include <vector>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -77,7 +77,7 @@ namespace RTT
         typedef T Item;
         internal::AtomicQueue<Item*> bufs;
         // is mutable because of reference counting.
-        mutable internal::FixedSizeMemoryPool<Item> mpool;
+        mutable internal::TsPool<Item> mpool;
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
