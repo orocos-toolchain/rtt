@@ -59,8 +59,8 @@ namespace RTT
         :public BufferInterface<T>
     {
     public:
-        typedef typename ReadInterface<T>::reference_t reference_t;
-        typedef typename WriteInterface<T>::param_t param_t;
+        typedef typename BufferInterface<T>::reference_t reference_t;
+        typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
@@ -121,14 +121,6 @@ namespace RTT
                 ++quant;
             }
             return quant;
-        }
-
-        value_t front() const
-        {
-            value_t item = value_t();
-            if ( !buf.empty() )
-                item = buf.front();
-            return item;
         }
 
         size_type capacity() const {

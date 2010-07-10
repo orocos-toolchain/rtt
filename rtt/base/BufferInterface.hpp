@@ -38,9 +38,10 @@
 #ifndef ORO_CORELIB_BUFFERINTERFACE_HPP
 #define ORO_CORELIB_BUFFERINTERFACE_HPP
 
-#include "ReadInterface.hpp"
-#include "WriteInterface.hpp"
+#include "BufferBase.hpp"
 #include <boost/shared_ptr.hpp>
+#include <boost/call_traits.hpp>
+#include <vector>
 
 namespace RTT
 { namespace base {
@@ -52,18 +53,65 @@ namespace RTT
      */
     template<class T>
     class BufferInterface :
-        public ReadInterface<T>,
-        public WriteInterface<T>
+        public BufferBase
     {
     public:
         typedef T value_t;
         typedef BufferBase::size_type size_type;
 
         typedef boost::shared_ptr< BufferInterface<T> > shared_ptr;
+        typedef typename boost::call_traits<T>::param_type param_t;
+        typedef typename boost::call_traits<T>::reference reference_t;
 
         virtual ~BufferInterface()
         {}
 
+        /**
+         * Read the oldest value from the buffer.
+         * @param item is to be set with a value from the buffer.
+         * @return true if something was read.
+         * @cts
+         * @rt
+         */
+        virtual bool Pop( reference_t item) = 0;
+
+        /**
+         * Read the whole buffer.
+         * @param items is to be filled with all values in the buffer,
+         * with \a items.begin() the oldest value.
+         * @return the number of items read.
+         * @cts
+         * @rt
+         */
+        virtual size_type Pop( std::vector<value_t>& items ) = 0;
+
+        /**
+         * Write a single value to the buffer.
+         * @param item the value to write
+         * @return false if the buffer is full.
+         * @cts
+         * @rt
+         */
+        virtual bool Push( param_t item) = 0;
+
+        /**
+         * Write a sequence of values to the buffer.
+         * @param items the values to write
+         * @return the number of values written (may be less than items.size())
+         * @cts
+         * @rt
+         */
+        virtual size_type Push( const std::vector<value_t>& items ) = 0;
+
+        /**
+         * Initializes this buffer with a data sample, such that for
+         * dynamical allocated types T, the buffer can reserve place
+         * to hold these elements.
+         * @post Calling this function causes all data in the buffer
+         * to be lost and the size being reset to zero.
+         * @nts
+         * @nrt
+         */
         virtual void data_sample( const T& sample ) = 0;
     };
 }}

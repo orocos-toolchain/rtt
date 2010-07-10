@@ -2,7 +2,6 @@
 #define ORO_CORELIB_ATOMIC_QUEUE_HPP
 
 #include "../os/CAS.hpp"
-#include "../base/BufferPolicy.hpp"
 #include <utility>
 
 namespace RTT
@@ -29,7 +28,7 @@ namespace RTT
      *
      * @ingroup CoreLibBuffers
      */
-    template<class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
+    template<class T>
     class AtomicQueue
     {
         const int _size;
@@ -56,9 +55,6 @@ namespace RTT
          * Therefore the read and write index can be read and written atomically.
          */
         volatile SIndexes _indxes;
-
-        WritePolicy write_policy;
-        ReadPolicy read_policy;
 
         /**
          * The loose ordering may cause missed items in our
@@ -154,7 +150,7 @@ namespace RTT
          * @param size The size of the queue, should be 1 or greater.
          */
         AtomicQueue( unsigned int size )
-            : _size(size+1), write_policy(size), read_policy(0)
+            : _size(size+1)
         {
             _buf= new C[_size];
             this->clear();
@@ -221,7 +217,6 @@ namespace RTT
         {
             if ( value == 0 )
                 return false;
-            write_policy.pop();
             CachePtrType loc;
             C null = 0;
             do {
@@ -230,7 +225,6 @@ namespace RTT
                     return false; //full
                 // if loc contains a zero, write it, otherwise, re-try.
             } while( !os::CAS(loc, null, value));
-            read_policy.push();
             return true;
         }
 
@@ -241,7 +235,6 @@ namespace RTT
          */
         bool dequeue( T& result )
         {
-            read_policy.pop();
             CachePtrType loc;
             C null = 0;
             do {
@@ -251,7 +244,6 @@ namespace RTT
                 result = *loc;
                 // if loc still contains result, clear it, otherwise, re-try.
             } while( result == 0 || !os::CAS(loc, result, null) );
-            write_policy.push();
             assert(result);
             return true;
         }
@@ -296,8 +288,6 @@ namespace RTT
                 _buf[i] = 0;
             }
             _indxes._value = 0;
-            write_policy.reset( _size - 1 );
-            read_policy.reset(0);
         }
 
     };

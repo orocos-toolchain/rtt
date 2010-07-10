@@ -40,7 +40,6 @@
 #define ORO_LOCKED_QUEUE_HPP
 
 #include <deque>
-#include "../base/BufferPolicy.hpp"
 #include "../os/Mutex.hpp"
 #include "../os/MutexLock.hpp"
 
@@ -53,15 +52,9 @@ namespace RTT
      * No memory allocation is done during read or write.
      * @param T The pointer type to be stored in the queue.
      * Example : \begincode LockedQueue<A*> \endcode is a queue which holds values of type A.
-     * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
-     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
-     * This does not influence partial filled queue behaviour.
-     * @param WritePolicy The Policy to block (wait) on \a full (during enqueue),
-     * using \a base::BlockingPolicy, or to return \a false, using \a base::NonBlockingPolicy (Default).
-     * This does not influence partial filled buffer behaviour.
      * @ingroup CoreLibBuffers
      */
-    template< class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
+    template< class T>
     class LockedQueue
     {
     public:
@@ -74,9 +67,6 @@ namespace RTT
         BufferType data;
 
         int cap;
-        WritePolicy write_policy;
-        ReadPolicy read_policy;
-
         int counter;
         int dcounter;
     public:
@@ -88,7 +78,6 @@ namespace RTT
 '        */
         LockedQueue(unsigned int lsize)
             : cap(lsize),
-              write_policy(lsize), read_policy(0),
               counter(0), dcounter(0)
         {
             data.resize(lsize);
@@ -142,14 +131,12 @@ namespace RTT
          */
         bool enqueue(const T& value)
         {
-            write_policy.pop();
             {
                 os::MutexLock locker(lock);
                 if (cap == data.size() )
                     return false;
                 data.push_back(value);
             }
-            read_policy.push();
             return true;
         }
 
@@ -162,7 +149,6 @@ namespace RTT
         int enqueueCounted(const T& value)
         {
             int ret;
-            write_policy.pop();
             {
                 os::MutexLock locker(lock);
                 if (cap == data.size() )
@@ -170,7 +156,6 @@ namespace RTT
                 data.push_back(value);
                 ret = ++counter;
             }
-            read_policy.push();
             return ret;
         }
 
@@ -181,15 +166,12 @@ namespace RTT
          */
         bool dequeue( T& result )
         {
-            read_policy.pop();
             {
                 os::MutexLock locker(lock);
                 if ( data.empty() )
                     return false;
                 result = data.front();
-                data.pop_front();
             }
-            write_policy.push();
             return true;
         }
 
@@ -202,16 +184,13 @@ namespace RTT
         int dequeueCounted( T& result )
         {
             int ret;
-            read_policy.pop();
             {
                 os::MutexLock locker(lock);
                 if ( data.empty() )
                     return 0;
                 result = data.front();
-                data.pop_front();
                 ret = ++dcounter;
             }
-            write_policy.push();
             return ret;
         }
 

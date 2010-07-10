@@ -60,12 +60,12 @@ namespace RTT
      * This object represents the default queue implementation used
      * by Orocos objects.
      */
-    template< class T, class ReadPolicy = base::NonBlockingPolicy, class WritePolicy = base::NonBlockingPolicy>
+    template< class T>
     class Queue
 #if defined(OROBLD_OS_NO_ASM)
-        : public LockedQueue<T,ReadPolicy,WritePolicy>
+        : public LockedQueue<T>
 #else
-        : public AtomicQueue<T,ReadPolicy,WritePolicy>
+        : public AtomicQueue<T>
 #endif
     {
     public:
@@ -76,9 +76,9 @@ namespace RTT
          */
         Queue( int qsize)
 #if defined(OROBLD_OS_NO_ASM)
-            : LockedQueue<T,ReadPolicy,WritePolicy>(qsize)
+            : LockedQueue<T>(qsize)
 #else
-            : AtomicQueue<T,ReadPolicy,WritePolicy>(qsize)
+            : AtomicQueue<T>(qsize)
 #endif
         {}
     };

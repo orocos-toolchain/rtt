@@ -20,21 +20,19 @@ namespace RTT {
         class PropertyIntrospection;
         class RunnableInterface;
         class TaskCore;
-        struct BlockingPolicy;
         struct DataBuf;
         struct MethodBaseInvoker;
-        struct NonBlockingPolicy;
         template <class T>
         class DataObjectInterface;
         template< class T >
         class DataObject;
-        template< class T, class ReadPolicy, class WritePolicy>
+        template< class T>
         class Buffer;
-        template< class T, class ReadPolicy, class WritePolicy>
+        template< class T>
         class BufferLockFree;
         template<class F>
         struct MethodBase;
-        template<class T, class ReadPolicy, class WritePolicy>
+        template<class T>
         class BufferLocked;
         template<class T>
         class BufferInterface;
@@ -46,10 +44,6 @@ namespace RTT {
         class DataObjectLocked;
         template<class T>
         class DataObjectUnSync;
-        template<class T>
-        class ReadInterface;
-        template<class T>
-        class WriteInterface;
         template<typename T>
         class ChannelElement;
     }

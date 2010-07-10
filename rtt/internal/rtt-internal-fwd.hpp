@@ -3,8 +3,6 @@
 
 namespace RTT {
     namespace internal {
-        class CommandFunction;
-        class ConditionFunction;
         class ConnFactory;
         class ConnID;
         class ConnectionBase;
@@ -31,9 +29,9 @@ namespace RTT {
         typename Signature,
         typename TSlotFunction>
         class Signal;
-        template< class T, class ReadPolicy, class WritePolicy>
+        template< class T>
         class LockedQueue;
-        template< class T, class ReadPolicy, class WritePolicy>
+        template< class T>
         class Queue;
         template< class T>
         class List;
@@ -93,10 +91,8 @@ namespace RTT {
         struct GetPointerWrap;
         template<class T, class Enable>
         struct DSWrap;
-        template<class T, class ReadPolicy, class WritePolicy>
-        class AtomicQueue;
         template<class T>
-        class CopyPropertyCommand;
+        class AtomicQueue;
         template<class T>
         class FixedSizeMemoryPool;
         template<class T>
@@ -129,10 +125,6 @@ namespace RTT {
         struct FusedMSendDataSource;
         template<typename Signature>
         struct FusedMSignal;
-        template<typename SignatureT, typename FunctorT>
-        class CommandFunctor;
-        template<typename SignatureT, typename FunctorT>
-        class ConditionFunctor;
         template<typename T, typename S>
         class AssignCommand;
         template<typename T>

@@ -55,13 +55,14 @@ namespace RTT
 
         typedef boost::shared_ptr< BufferBase > shared_ptr;
 
-        virtual ~BufferBase()
-        {}
+        virtual ~BufferBase();
 
         /**
          * Returns the maximum number of items that can be stored in the
          * buffer.
          * @return maximum number of items.
+         * @cts
+         * @rt
          */
         virtual size_type capacity() const = 0;
 
@@ -69,23 +70,31 @@ namespace RTT
          * Returns the actual number of items that are stored in the
          * buffer.
          * @return number of items.
+         * @cts
+         * @rt
          */
         virtual size_type size() const = 0;
 
         /**
          * Check if this buffer is empty.
          * @return true if size() == 0
+         * @cts
+         * @rt
          */
         virtual bool empty() const = 0;
 
         /**
          * Check if this buffer is full.
          * @return true if size() == capacity()
+         * @cts
+         * @rt
          */
         virtual bool full() const = 0;
 
         /**
          * Clears all contents of this buffer.
+         * @cts
+         * @rt
          */
         virtual void clear() = 0;
     };

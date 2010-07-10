@@ -45,7 +45,6 @@
 #include "../os/Mutex.hpp"
 #include "../os/MutexLock.hpp"
 #include "BufferInterface.hpp"
-#include "BufferPolicy.hpp"
 #include <deque>
 
 namespace RTT
@@ -53,19 +52,19 @@ namespace RTT
 
 
     /**
-     * Implements a very simple blocking threadsafe buffer, using mutexes (locks).
+     * Implements a very simple blocking thread-safe buffer, using mutexes (locks).
      *
      * @see BufferLockFree
      * @ingroup Ports
      */
-    template<class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+    template<class T>
     class BufferLocked
         :public BufferInterface<T>
     {
     public:
 
-        typedef typename ReadInterface<T>::reference_t reference_t;
-        typedef typename WriteInterface<T>::param_t param_t;
+        typedef typename BufferInterface<T>::reference_t reference_t;
+        typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
@@ -73,7 +72,7 @@ namespace RTT
          * Create a buffer of size \a size.
          */
         BufferLocked( size_type size, const T& initial_value = T() )
-            : cap(size), buf(), write_policy(size), read_policy(0)
+            : cap(size), buf()
         {
             data_sample(initial_value);
         }
@@ -91,42 +90,33 @@ namespace RTT
 
         bool Push( param_t item )
         {
-            write_policy.pop();
             os::MutexLock locker(lock);
             if (cap == (size_type)buf.size() ) {
-                write_policy.push();
                 return false;
             }
             buf.push_back( item );
-            read_policy.push();
             return true;
         }
 
         size_type Push(const std::vector<T>& items)
         {
-            write_policy.pop( items.size() );
             os::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
                 buf.push_back( *itl );
                 ++itl;
-                read_policy.push();
             }
-            write_policy.push( itl - items.begin() );
             return (itl - items.begin());
 
         }
         bool Pop( reference_t item )
         {
-            read_policy.pop();
             os::MutexLock locker(lock);
             if ( buf.empty() ) {
-                read_policy.push();
                 return false;
             }
             item = buf.front();
             buf.pop_front();
-            write_policy.push();
             return true;
         }
 
@@ -138,19 +128,8 @@ namespace RTT
                 items.push_back( buf.front() );
                 buf.pop_front();
                 ++quant;
-                read_policy.pop();
-                write_policy.push();
             }
             return quant;
-        }
-
-        value_t front() const
-        {
-            os::MutexLock locker(lock);
-            value_t item = value_t();
-            if ( !buf.empty() )
-                item = buf.front();
-            return item;
         }
 
         size_type capacity() const {
@@ -181,8 +160,6 @@ namespace RTT
         size_type cap;
         std::deque<T> buf;
         mutable os::Mutex lock;
-        WritePolicy write_policy;
-        ReadPolicy read_policy;
     };
 }}
 

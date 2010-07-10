@@ -40,7 +40,6 @@
 
 #include "../os/oro_atomic.h"
 #include "../os/CAS.hpp"
-#include "BufferPolicy.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicQueue.hpp"
 #include "../internal/MemoryPool.hpp"
@@ -58,33 +57,25 @@ namespace RTT
 
     /**
      * A Lock-free buffer implementation to read and write
-     * data of type \a T in a FIFO way. Optionally block (synchronize) on an
-     * \a empty of \a full buffer (See \a Policy below ). The
-     * default Policy is thus completely Asynchronous (non-blocking).
-     * No memory allocation is done during read or write, any number of threads
-     * may access this buffer concurrently.
+     * data of type \a T in a FIFO way.
+     * No memory allocation is done during read or write.
+     * Only one thread may read and one thread may write this buffer.
      * @param T The value type to be stored in the Buffer.
      * Example : BufferLockFree<A> is a buffer which holds values of type A.
-     * @param ReadPolicy The Policy to block (wait) on \a empty (during read),
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
-     * This does not influence partial filled buffer behaviour.
-     * @param WritePolicy The Policy to block (wait) on \a full (during write),
-     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
-     * This does not influence partial filled buffer behaviour.
      * @ingroup Ports
      */
-    template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy >
+    template< class T>
     class BufferLockFree
         : public BufferInterface<T>
     {
     public:
-        typedef typename ReadInterface<T>::reference_t reference_t;
-        typedef typename WriteInterface<T>::param_t param_t;
+        typedef typename BufferInterface<T>::reference_t reference_t;
+        typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
     private:
         typedef T Item;
-        internal::AtomicQueue<Item*,ReadPolicy,WritePolicy> bufs;
+        internal::AtomicQueue<Item*> bufs;
         // is mutable because of reference counting.
         mutable internal::FixedSizeMemoryPool<Item> mpool;
     public:
@@ -130,16 +121,6 @@ namespace RTT
                 mpool.deallocate( item );
         }
 
-        /**
-         * Write a single value to the buffer.
-         * @param d the value to write
-         * @return false if the buffer is full.
-         * @deprecated by Push( param_t item )
-         */
-        bool write( param_t d ) {
-            return this->Push( d );
-        }
-
         bool Push( param_t item)
         {
             Item* mitem = mpool.allocate();
@@ -155,17 +136,6 @@ namespace RTT
             return true;
         }
 
-        /**
-         * Write a sequence of values to the buffer.
-         * Block if full if Policy is BlockingPolicy.
-         * @param d the values to write
-         * @return the number of values written (may be less than d.size())
-         * @deprecated by Push(const std::vector<T>& item)
-         */
-        size_type write( const std::vector<T>& d) {
-            return this->Push( d );
-        }
-
         size_type Push(const std::vector<T>& items)
         {
             int towrite  = items.size();
@@ -177,30 +147,6 @@ namespace RTT
         }
 
 
-        /**
-         * Read the oldest value from the buffer.
-         * Block if empty if Policy is BlockingPolicy.
-         * @param res is to be filled with a value from the buffer.
-         * @return true if something was read.
-         * @deprecated by Pop( reference_t item )
-         */
-        bool read(T& res) {
-            return this->Pop( res );
-        }
-
-        value_t front() const {
-            Item* orig;
-            orig = bufs.lockfront(mpool);
-            // if orig == 0, then queue is empty
-            if (orig == 0)
-                return value_t();
-
-            // ok, copy, unlock and return front.
-            value_t ret = *orig;
-            mpool.unlock( orig );
-            return ret;
-        }
-
         bool Pop( reference_t item )
         {
             Item* ipop;
@@ -210,18 +156,6 @@ namespace RTT
             if (mpool.deallocate( ipop ) == false )
                 assert(false);
             return true;
-        }
-
-        /**
-         * Read the whole buffer. Block if empty if Policy is BlockingPolicy.
-         * @param res is to be filled with all values in the buffer,
-         * with res.begin() the oldest value.
-         * @return the number of items read.
-         * @deprecated by Pop( std::vector<T>& items )
-         */
-        size_type read(std::vector<T>& res)
-        {
-            return this->Pop( res );
         }
 
         size_type Pop(std::vector<T>& items )

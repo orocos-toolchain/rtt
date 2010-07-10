@@ -61,31 +61,29 @@ namespace RTT
      * This object represents the default thread-safe buffer implementation used
      * by Orocos objects.
      */
-    template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy >
+    template< class T>
     class Buffer
 #if defined(OROBLD_OS_NO_ASM)
-        : public BufferLocked<T,ReadPolicy,WritePolicy>
+        : public BufferLocked<T>
 #else
-        : public BufferLockFree<T,ReadPolicy,WritePolicy>
+        : public BufferLockFree<T>
 #endif
     {
     public:
-        typedef typename ReadInterface<T>::reference_t reference_t;
-        typedef typename WriteInterface<T>::param_t param_t;
+        typedef typename BufferInterface<T>::reference_t reference_t;
+        typedef typename BufferInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
     public:
         /**
-         * Create a queue of fixed size.
-         * Optionally, add the number of threads that may
-         * concurrently access this queue.
+         * Create a fifo queue of fixed size.
          */
         Buffer( int qsize, const T& initial_value = T())
 #if defined(OROBLD_OS_NO_ASM)
-            : BufferLocked<T,ReadPolicy,WritePolicy>(qsize, initial_value)
+            : BufferLocked<Ty>(qsize, initial_value)
 #else
-            : BufferLockFree<T,ReadPolicy,WritePolicy>(qsize, initial_value)
+            : BufferLockFree<T>(qsize, initial_value)
 #endif
         {}
     };
