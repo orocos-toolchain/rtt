@@ -67,8 +67,6 @@ namespace RTT
         BufferType data;
 
         int cap;
-        int counter;
-        int dcounter;
     public:
         typedef unsigned int size_type;
 
@@ -141,25 +139,6 @@ namespace RTT
         }
 
         /**
-         * Enqueue an item and return its 'ticket' number.
-         * @param value The value to enqueue.
-         * @return zero if the queue is full, the 'ticket' number otherwise.
-         * @deprecated <b> Do not use this function </b>
-         */
-        int enqueueCounted(const T& value)
-        {
-            int ret;
-            {
-                os::MutexLock locker(lock);
-                if (cap == data.size() )
-                    return 0;
-                data.push_back(value);
-                ret = ++counter;
-            }
-            return ret;
-        }
-
-        /**
          * Dequeue an item.
          * @param result The value dequeued.
          * @return false if queue is empty, true if dequeued.
@@ -173,25 +152,6 @@ namespace RTT
                 result = data.front();
             }
             return true;
-        }
-
-        /**
-         * Dequeue an item and return the same 'ticket' number when it was queued.
-         * @param value The value dequeued.
-         * @return zero if the queue is empty, the 'ticket' number otherwise.
-         * @deprecated <b> Do not use this function </b>
-         */
-        int dequeueCounted( T& result )
-        {
-            int ret;
-            {
-                os::MutexLock locker(lock);
-                if ( data.empty() )
-                    return 0;
-                result = data.front();
-                ret = ++dcounter;
-            }
-            return ret;
         }
 
         /**
