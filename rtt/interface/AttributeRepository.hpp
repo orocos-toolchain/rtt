@@ -53,8 +53,7 @@ namespace RTT
     /**
      * @brief A class for keeping track of Attribute, Constant
      * and Property objects of a TaskContext.
-     * It allows to store objects of these types and retrieve this type.
-     * It is used by the script parsers to browse the attributes and properties of a TaskContext.
+     * It allows plugins and remote components to browse the attributes and properties of a TaskContext.
      */
     class RTT_API AttributeRepository
     {
@@ -251,9 +250,7 @@ namespace RTT
         /**
          * Adds these attributes to this repository.
          */
-        void loadValues( AttributeObjects const& new_values) {
-            values.insert(values.end(), new_values.begin(), new_values.end());
-        }
+        void loadValues( AttributeObjects const& new_values);
 
         /**
          * Returns all attributes in this repository.

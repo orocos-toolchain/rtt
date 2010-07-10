@@ -142,6 +142,11 @@ namespace RTT {
         return ret;
     }
 
+    void AttributeRepository::loadValues( AttributeObjects const& new_values) {
+        values.insert(values.end(), new_values.begin(), new_values.end());
+    }
+
+
     PropertyBag* AttributeRepository::properties()
     {
         return &bag;
