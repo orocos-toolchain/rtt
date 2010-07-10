@@ -257,29 +257,6 @@ namespace RTT
         }
 
         /**
-         * Return the next to be read value and lock
-         * it in a MemoryPool, such that it is not freed.
-         * The returned pointer must be unlock()'ed by the
-         * user's code.
-         */
-        template<class MPoolType>
-        T lockfront(MPoolType& mp) const
-        {
-            CachePtrType loc=0;
-            bool was_locked = false;
-            do {
-                if (was_locked)
-                    mp.unlock(*loc);
-                loc = &_buf[_indxes._index[1] ];
-                if (*loc == 0)
-                    return 0;
-                was_locked = mp.lock(*loc);
-                // retry if lock failed or read moved.
-            } while( !was_locked || loc != &_buf[_indxes._index[1] ] ); // obstruction detection.
-            return *loc;
-        }
-
-        /**
          * Clear all contents of the Queue and thus make it empty.
          */
         void clear()
