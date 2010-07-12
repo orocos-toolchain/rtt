@@ -38,6 +38,9 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
 endif()
 
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
+
+# Necessary to play nice on win32 and Linux:
+set(CMAKE_DEBUG_LIB_SUFFIX "" CACHE STRING "The suffix applied to libraries compiled with debugging information. Defaults to 'd' on win32 and '' for all other platforms.")
     
 ###########################################################
 #                                                         #
@@ -242,7 +245,10 @@ if(OROCOS_TARGET STREQUAL "win32")
     # For boost::intrusive !
     find_package(Boost 1.36 REQUIRED)
   endif()
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
+  if ( CMAKE_DEBUG_LIB_SUFFIX STREQUAL "" )
+    set(CMAKE_DEBUG_LIB_SUFFIX "d" CACHE STRING "" FORCE)
+  endif() 
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")
