@@ -42,6 +42,10 @@ public:
     Property<double> pd;
     Property<std::string> ps;
     Property<char> pc;
+    Property<char> pc1;
+    Property<char> pc2;
+    Property<char> pc1ref;
+    Property<char> pc2ref;
 
     Property<PropertyBag> subbag1;
     Property<PropertyBag> subbag2;
@@ -50,6 +54,8 @@ public:
         : pf("pf","pfd", -1.0),pd("pd","pdd", +1.0),
           ps("ps","psd", "std::string"),
           pc("pc","pcd", 'c'),
+          pc1("pc1","pcd1", 'a'),
+          pc2("pc2","pcd1", 'b'),
           subbag1("s1", "s1d"),subbag2("s2", "s2d")
     {
         intref = 99;
@@ -57,6 +63,9 @@ public:
         pi2 = new Property<int>("pi2","pi2d", 0 );
         pi1ref =  dynamic_cast< Property<int>* >( pi1->clone() );
         pi2ref =  dynamic_cast< Property<int>* >( pi2->clone() );
+
+        pc1ref = pc1;
+        pc2ref = pc2;
 
         bag.add( pi1 );
         bag.add( pi2 );
@@ -97,7 +106,7 @@ bool operator==(const std::vector<double>& a, const std::vector<double>& b)
 
 BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
 
-BOOST_AUTO_TEST_CASE( testPrimitives )
+BOOST_AUTO_TEST_CASE( testCopyUpdate )
 {
     *pi1 = intref;
     *pi2 = 0;
@@ -129,6 +138,40 @@ BOOST_AUTO_TEST_CASE( testPrimitives )
     BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
     BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
     pi1->copy( pi1ref );
+}
+
+BOOST_AUTO_TEST_CASE( testCopyUpdateChar )
+{
+    pc2 = 'H';
+    PropertyBase* pcb2 = &pc2;
+
+    // update semantics
+    pc1.update( pc2 );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
+    pc2 = 'e';
+
+    // update with PropertyBase.
+    BOOST_CHECK( pc1.update( pcb2 ) );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
+    pc2 = 'l';
+
+    // copy semantics
+    pc1.copy( pc2 );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    pc1.copy( pc1ref );
+
+    // copy with PropertyBase.
+    BOOST_CHECK( pc1.copy( pcb2 ) );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    pc1.copy( pc1ref );
 }
 
 
