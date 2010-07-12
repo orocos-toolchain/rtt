@@ -112,7 +112,7 @@ void ErrorHandler(LPTSTR lpszFunction)
 	{
         const char* name = "main";
 	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-        main_task->threadId = 0;
+        main_task->threadId = GetCurrentThreadId();
         main_task->handle = 0;
 	    //pthread_attr_init( &(main_task->attr) );
 	    //struct sched_param sp;

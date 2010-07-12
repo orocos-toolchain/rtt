@@ -87,6 +87,20 @@ namespace RTT
             virtual result_type call(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
             virtual SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
         };
+
+        template<class F>
+        struct InvokerBaseImpl<5,F>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function<F>::arg1_type arg1_type;
+            typedef typename boost::function<F>::arg2_type arg2_type;
+            typedef typename boost::function<F>::arg3_type arg3_type;
+            typedef typename boost::function<F>::arg4_type arg4_type;
+            typedef typename boost::function<F>::arg5_type arg5_type;
+            virtual ~InvokerBaseImpl() {}
+            virtual result_type call(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
+            virtual SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
+        };
    }
 }
 #endif

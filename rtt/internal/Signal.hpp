@@ -49,6 +49,7 @@
 #include "signal2.hpp"
 #include "signal3.hpp"
 #include "signal4.hpp"
+#include "signal5.hpp"
 
 namespace RTT {
     namespace internal {
@@ -126,6 +127,24 @@ namespace RTT {
                         typename traits::arg4_type,
                         SlotFunction> type;
       };
+
+      template<typename Signature,
+               typename SlotFunction>
+      class real_get_signal_impl<5, Signature,
+                                 SlotFunction>
+      {
+        typedef boost::function_traits<Signature> traits;
+
+      public:
+        typedef signal5<typename traits::result_type,
+                        typename traits::arg1_type,
+                        typename traits::arg2_type,
+                        typename traits::arg3_type,
+                        typename traits::arg4_type,
+                        typename traits::arg5_type,
+                        SlotFunction> type;
+      };
+
 
       template<typename Signature,
                typename SlotFunction>

@@ -82,6 +82,21 @@ namespace RTT
             virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
             virtual result_type ret() = 0;
         };
+
+        template<class F>
+        struct ReturnBaseImpl<5,F>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+            virtual ~ReturnBaseImpl() {}
+
+            virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
+            virtual result_type ret() = 0;
+        };
     }
 }
 #endif

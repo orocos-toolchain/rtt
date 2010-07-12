@@ -234,6 +234,45 @@ namespace RTT
             ToInvoke impl;
         };
 
+        template<class F, class ToInvoke>
+        struct InvokerSignature<5,F,ToInvoke>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() { }
+
+            /**
+             * Invoke this operator if the method has four arguments.
+             */
+            result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
+            {
+                if (impl)
+                    return impl->call(t1, t2, t3, t4, t5);
+                return NA<result_type>::na();
+            }
+
+            result_type call(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) {
+                return operator()(a1,a2,a3,a4,a5);
+            }
+
+            SendHandle<F> send(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5)
+            {
+                if (impl)
+                    return impl->send(a1,a2,a3,a4,a5);
+                return SendHandle<F>();
+            }
+
+        protected:
+            ToInvoke impl;
+        };
+
     }
 }
 #endif

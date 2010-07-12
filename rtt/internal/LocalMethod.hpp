@@ -188,6 +188,15 @@ namespace RTT
                 return do_send(cl);
             }
 
+            template<class T1, class T2, class T3, class T4, class T5>
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5 ) {
+                // bind types from Storage<Function>
+                shared_ptr cl = this->cloneRT();
+                cl->store( a1,a2,a3,a4,a5 );
+                return do_send(cl);
+            }
+
+
             SendStatus collectIfDone_impl() {
                 if ( this->retv.isExecuted()) {
                     return SendSuccess;
@@ -228,6 +237,15 @@ namespace RTT
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
                 if ( this->retv.isExecuted()) {
                     bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) {
+                if ( this->retv.isExecuted()) {
+                    bf::vector_tie(a1,a2,a3,a4,a5) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
                     return SendNotReady;
@@ -362,6 +380,26 @@ namespace RTT
                 return NA<result_type>::na();
             }
 
+            template<class T1, class T2, class T3, class T4, class T5>
+            result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+            {
+                SendHandle<Signature> h;
+                if (met == OwnThread && myengine != caller) {
+                    h = send_impl(a1,a2,a3,a4,a5);
+                    if ( h.collect() == SendSuccess )
+                        return h.ret(a1,a2,a3,a4,a5);
+                    else
+                        throw SendFailure;
+                } else {
+                    if (this->msig) this->msig->emit(a1,a2,a3,a4,a5);
+                    if ( this->mmeth )
+                        return this->mmeth(a1,a2,a3,a4,a5);
+                    else
+                        return NA<result_type>::na();
+                }
+                return NA<result_type>::na();
+            }
+
             result_type ret_impl()
             {
                 return this->retv.result(); // may return void.
@@ -407,6 +445,16 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
+                if ( this->retv.isExecuted())
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->retv.result(); // may return void.
+            }
+
+            template<class T1,class T2, class T3, class T4, class T5>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+            {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4,T5> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5) );
                 if ( this->retv.isExecuted())
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->retv.result(); // may return void.

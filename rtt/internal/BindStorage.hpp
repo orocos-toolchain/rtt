@@ -398,6 +398,43 @@ namespace RTT
             }
         };
 
+        template<class ToBind>
+        struct BindStorageImpl<5, ToBind>
+        {
+            typedef typename boost::function_traits<ToBind>::result_type result_type;
+            typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
+            typedef typename boost::function_traits<ToBind>::arg2_type   arg2_type;
+            typedef typename boost::function_traits<ToBind>::arg3_type   arg3_type;
+            typedef typename boost::function_traits<ToBind>::arg4_type   arg4_type;
+            typedef typename boost::function_traits<ToBind>::arg5_type   arg5_type;
+            typedef RStore<result_type> RStoreType;
+
+            // stores the original function pointer
+            boost::function<ToBind> mmeth;
+            // Store the arguments.
+            mutable AStore<arg1_type> a1;
+            mutable AStore<arg2_type> a2;
+            mutable AStore<arg3_type> a3;
+            mutable AStore<arg4_type> a4;
+            mutable AStore<arg5_type> a5;
+            mutable RStore<result_type> retv;
+            typename Signal<ToBind>::shared_ptr msig;
+
+            // the list of all our storage.
+            bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>& > vStore;
+            BindStorageImpl() : vStore(retv,a1,a2,a3,a4,a5) {}
+            BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1,a2,a3,a4,a5) {}
+
+            void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5);}
+            void exec() {
+                if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get());
+                if (mmeth)
+                    retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()) ) );
+                else
+                    retv.executed = true;
+            }
+        };
+
 
         /**
          * A helper-class for the Command implementation which stores the
