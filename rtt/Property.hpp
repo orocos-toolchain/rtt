@@ -362,7 +362,7 @@ namespace RTT
                 return false;
             _description = orig.getDescription();
             _name = orig.getName();
-            *this = orig.rvalue();
+            _value->set( orig.rvalue() );
             return true;
         }
 
@@ -376,7 +376,7 @@ namespace RTT
                 return false;
             if ( _description.empty() )
                 _description = orig.getDescription();
-            *this = orig.rvalue();
+            _value->set( orig.rvalue() );
             return true;
         }
 
@@ -388,7 +388,7 @@ namespace RTT
         {
             if ( !ready() )
                 return false;
-            *this = orig.rvalue();
+            _value->set( orig.rvalue() );
             return true;
         }
 
