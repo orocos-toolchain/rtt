@@ -55,6 +55,8 @@ namespace RTT
         : public interface::ServiceProvider
     {
     public:
+        typedef boost::shared_ptr<MarshallingService> shared_ptr;
+
         /**
          * Creates a MarshallingService object and registers
          * the service to \a parent.

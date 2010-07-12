@@ -61,6 +61,7 @@ namespace RTT
         : public interface::ServiceProvider
     {
     public:
+        typedef boost::shared_ptr<ScriptingService> shared_ptr;
         /**
          * Creates a ScriptingService object and registers
          * the service to \a parent.

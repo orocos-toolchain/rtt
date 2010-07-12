@@ -61,7 +61,7 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    ServiceProvider::shared_ptr ScriptingService::Create(TaskContext* parent){
+    ScriptingService::shared_ptr ScriptingService::Create(TaskContext* parent){
         shared_ptr sp(new ScriptingService(parent));
         parent->provides()->addService( sp );
         return sp;

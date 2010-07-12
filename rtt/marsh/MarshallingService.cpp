@@ -53,7 +53,7 @@ ORO_SERVICE_NAMED_PLUGIN(RTT::marsh::MarshallingService, "marshalling")
 namespace RTT {
     using namespace detail;
 
-    ServiceProvider::shared_ptr MarshallingService::Create(TaskContext* parent){
+    MarshallingService::shared_ptr MarshallingService::Create(TaskContext* parent){
         shared_ptr sp(new MarshallingService(parent));
         parent->provides()->addService( sp );
         return sp;
