@@ -79,7 +79,7 @@ int __os_init(int argc, char** argv )
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
     initM = os::StartStopManager::Instance();
-    int ret = initM->start();
+    int ret = initM->start() ? 0 : 1;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
         unsigned int bit = 0;
