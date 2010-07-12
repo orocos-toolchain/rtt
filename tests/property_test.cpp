@@ -174,6 +174,16 @@ BOOST_AUTO_TEST_CASE( testCopyUpdateChar )
     pc1.copy( pc1ref );
 }
 
+BOOST_AUTO_TEST_CASE( testUpdateCharClone )
+{
+    PropertyBag target;
+    // step 1 : clone a new instance (non deep copy)
+    PropertyBase* temp = pc1.create();
+    // step 2 : deep copy clone with original, will never fail.
+    BOOST_CHECK( temp->update( &pc1 ) );
+    // step 3 : add result to target bag.
+    target.add( temp );
+}
 
 BOOST_AUTO_TEST_CASE( testfindProperty )
 {
