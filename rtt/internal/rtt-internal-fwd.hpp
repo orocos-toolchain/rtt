@@ -40,6 +40,8 @@ namespace RTT {
         template< class T>
         class ListLocked;
         template< class T>
+        class MWSRQueue;
+        template< class T>
         struct DataSourceTypeInfo;
         template< class TResult >
         struct AdaptAssignableDataSource;
@@ -91,6 +93,8 @@ namespace RTT {
         struct GetPointerWrap;
         template<class T, class Enable>
         struct DSWrap;
+        template<class T>
+        class AtomicMWSRQueue;
         template<class T>
         class AtomicQueue;
         template<class T>

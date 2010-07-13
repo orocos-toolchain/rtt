@@ -22,6 +22,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <internal/AtomicQueue.hpp>
+#include <internal/AtomicMWSRQueue.hpp>
 
 #include <Activity.hpp>
 
@@ -75,6 +76,7 @@ public:
 
 
 typedef AtomicQueue<Dummy*> QueueType;
+typedef AtomicMWSRQueue<Dummy*> MWSRQueueType;
 
 // Don't make queue size too large, we want to catch
 // overrun issues too.
@@ -227,11 +229,11 @@ struct LLFGrower : public RunnableInterface
 /**
  * A Worker Reads and writes the queue.
  */
+template<class T>
 struct AQWorker : public RunnableInterface
 {
     static os::Mutex m;
     bool stop;
-    typedef QueueType T;
     T* mlst;
     int appends;
     int erases;
@@ -271,20 +273,21 @@ struct AQWorker : public RunnableInterface
     }
 };
 
-os::Mutex AQWorker::m;
+template<class T>
+os::Mutex AQWorker<T>::m;
 
 /**
  * A grower stresses the 'overrun' case by flooding
  * the queue.
  */
+template<class T>
 struct AQGrower : public RunnableInterface
 {
     volatile bool stop;
-    typedef QueueType T;
     T* mlst;
-    int i;
+    int appends;
     Dummy* orig;
-    AQGrower(T* l ) : stop(false), mlst(l), i(0) {
+    AQGrower(T* l ) : stop(false), mlst(l), appends(0) {
         orig = new Dummy( 1,2,3);
     }
     ~AQGrower() {
@@ -299,7 +302,7 @@ struct AQGrower : public RunnableInterface
         Dummy* d = orig;
         while (stop == false ) {
             if ( mlst->enqueue(d) ) {
-                ++i;
+                ++appends;
             }
         }
     }
@@ -316,13 +319,13 @@ struct AQGrower : public RunnableInterface
  * An Eater stresses the 'underrun' case by emptying
  * the queue.
  */
+template<class T>
 struct AQEater : public RunnableInterface
 {
     volatile bool stop;
-    typedef QueueType T;
     T* mlst;
-    int i;
-    AQEater(T* l ) : stop(false), mlst(l), i(0) {}
+    int erases;
+    AQEater(T* l ) : stop(false), mlst(l), erases(0) {}
     bool initialize() {
         stop = false;
         return true;
@@ -334,7 +337,7 @@ struct AQEater : public RunnableInterface
             if ( mlst->dequeue(d) ) {
                 //if( *d != *orig)
                 //    BOOST_CHECK_EQUAL(*d, *orig); // exercise reading returned memory.
-                ++i;
+                ++erases;
             }
         }
     }
@@ -767,11 +770,11 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
 BOOST_AUTO_TEST_CASE( testAtomicQueue )
 {
     QueueType* qt = new QueueType(QS);
-    AQWorker* aworker = new AQWorker( qt );
-    AQWorker* bworker = new AQWorker( qt );
-    AQWorker* cworker = new AQWorker( qt );
-    AQGrower* grower = new AQGrower( qt );
-    AQEater* eater = new AQEater( qt );
+    AQWorker<QueueType>* aworker = new AQWorker<QueueType>( qt );
+    AQWorker<QueueType>* bworker = new AQWorker<QueueType>( qt );
+    AQWorker<QueueType>* cworker = new AQWorker<QueueType>( qt );
+    AQGrower<QueueType>* grower = new AQGrower<QueueType>( qt );
+    AQEater<QueueType>* eater = new AQEater<QueueType>( qt );
 
     {
         boost::scoped_ptr<Activity> athread( new Activity(20, aworker, "ActivityA" ));
@@ -809,9 +812,9 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
     }
 
     cout <<endl
-         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->i<<endl;
-    cout << "Total erases : " << aworker->erases + bworker->erases+ cworker->erases + qt->size() + eater->i <<endl;
-    if (aworker->appends + bworker->appends + cworker->appends+ grower->i != aworker->erases + bworker->erases+ cworker->erases + int(qt->size()) + eater->i) {
+         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->appends<<endl;
+    cout << "Total erases : " << aworker->erases + bworker->erases+ cworker->erases + qt->size() + eater->erases <<endl;
+    if (aworker->appends + bworker->appends + cworker->appends+ grower->appends != aworker->erases + bworker->erases+ cworker->erases + int(qt->size()) + eater->erases) {
         cout << "Mismatch detected !" <<endl;
     }
     int i = 0; // left-over count
@@ -833,8 +836,81 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
     BOOST_CHECK_EQUAL( qt->size(), 0 );
 
     // assert: sum queues == sum dequeues
-    BOOST_CHECK_EQUAL( aworker->appends + bworker->appends + cworker->appends + grower->i,
-                       aworker->erases + bworker->erases + cworker->erases + i + eater->i );
+    BOOST_CHECK_EQUAL( aworker->appends + bworker->appends + cworker->appends + grower->appends,
+                       aworker->erases + bworker->erases + cworker->erases + i + eater->erases );
+    delete aworker;
+    delete bworker;
+    delete cworker;
+    delete grower;
+    delete eater;
+}
+
+BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
+{
+    MWSRQueueType* qt = new MWSRQueueType(QS);
+    AQGrower<MWSRQueueType>* aworker = new AQGrower<MWSRQueueType>( qt );
+    AQGrower<MWSRQueueType>* bworker = new AQGrower<MWSRQueueType>( qt );
+    AQGrower<MWSRQueueType>* cworker = new AQGrower<MWSRQueueType>( qt );
+    AQGrower<MWSRQueueType>* grower = new AQGrower<MWSRQueueType>( qt );
+    AQEater<MWSRQueueType>* eater = new AQEater<MWSRQueueType>( qt );
+
+    {
+        boost::scoped_ptr<Activity> athread( new Activity(20, aworker, "ActivityA" ));
+        boost::scoped_ptr<Activity> bthread( new Activity(20, bworker, "ActivityB" ));
+        boost::scoped_ptr<Activity> cthread( new Activity(20, cworker, "ActivityC" ));
+        boost::scoped_ptr<Activity> gthread( new Activity(20, grower, "ActivityG"));
+        boost::scoped_ptr<Activity> ethread( new Activity(20, eater, "ActivityE"));
+
+        // avoid system lock-ups
+        athread->thread()->setScheduler(ORO_SCHED_OTHER);
+        bthread->thread()->setScheduler(ORO_SCHED_OTHER);
+        cthread->thread()->setScheduler(ORO_SCHED_OTHER);
+        gthread->thread()->setScheduler(ORO_SCHED_OTHER);
+        ethread->thread()->setScheduler(ORO_SCHED_OTHER);
+
+        log(Info) <<"Stressing multi-write/single-read..." <<endlog();
+        athread->start();
+        bthread->start();
+        cthread->start();
+        gthread->start();
+        ethread->start();
+        sleep(5);
+        athread->stop();
+        bthread->stop();
+        cthread->stop();
+        log(Info) <<"Stressing single-write/single-read..." <<endlog();
+        sleep(5);
+        gthread->stop();
+        ethread->stop();
+    }
+
+    cout <<endl
+         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->appends<<endl;
+    cout << "Total erases : " << eater->erases <<endl;
+    if (aworker->appends + bworker->appends + cworker->appends+ grower->appends != int(qt->size()) + eater->erases) {
+        cout << "Mismatch detected !" <<endl;
+    }
+    int i = 0; // left-over count
+    Dummy* d = 0;
+    BOOST_CHECK( qt->size() <= QS );
+    while( qt->size() != 0 ) {
+        BOOST_CHECK( qt->dequeue(d) == true);
+        BOOST_CHECK( d );
+        i++;
+        if ( i > QS ) {
+            BOOST_CHECK( i <= QS); // avoid infinite loop.
+            break;
+        }
+    }
+    cout << "Left in Queue: "<< i <<endl;
+    BOOST_CHECK( qt->dequeue(d) == false );
+    BOOST_CHECK( qt->dequeue(d) == false );
+    BOOST_CHECK( qt->isEmpty() );
+    BOOST_CHECK_EQUAL( qt->size(), 0 );
+
+    // assert: sum queues == sum dequeues
+    BOOST_CHECK_EQUAL( aworker->appends + bworker->appends + cworker->appends + grower->appends,
+                       i + eater->erases );
     delete aworker;
     delete bworker;
     delete cworker;

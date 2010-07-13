@@ -35,8 +35,6 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
 #ifndef ORO_QUEUE_HPP
 #define ORO_QUEUE_HPP
 
@@ -54,34 +52,36 @@
 #endif
 
 namespace RTT
-{ namespace internal {
-
-    /**
-     * This object represents the default queue implementation used
-     * by Orocos objects.
-     */
-    template< class T>
-    class Queue
-#if defined(OROBLD_OS_NO_ASM)
-        : public LockedQueue<T>
-#else
-        : public AtomicQueue<T>
-#endif
+{
+    namespace internal
     {
-    public:
+
         /**
-         * Create a queue of fixed size.
-         * Optionally, add the number of threads that may
-         * concurrently access this queue.
+         * This object represents the default Multi-Writer/Multi-Reader queue implementation used
+         * by Orocos objects.
          */
-        Queue( int qsize)
+        template<class T>
+        class Queue
+#if defined(OROBLD_OS_NO_ASM)
+                : public LockedQueue<T>
+#else
+                : public AtomicQueue<T>
+#endif
+        {
+        public:
+            /**
+             * Create a mw/sr queue of fixed size.
+             */
+            Queue(int qsize)
 #if defined(OROBLD_OS_NO_ASM)
             : LockedQueue<T>(qsize)
 #else
-            : AtomicQueue<T>(qsize)
+            : AtomicQueue<T> (qsize)
 #endif
-        {}
-    };
-}}
+            {
+            }
+        };
+    }
+}
 
 #endif
