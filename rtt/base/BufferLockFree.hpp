@@ -41,7 +41,7 @@
 #include "../os/oro_atomic.h"
 #include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
-#include "../internal/AtomicQueue.hpp"
+#include "../internal/AtomicMWSRQueue.hpp"
 #include "../internal/TsPool.hpp"
 #include <vector>
 
@@ -59,7 +59,7 @@ namespace RTT
      * A Lock-free buffer implementation to read and write
      * data of type \a T in a FIFO way.
      * No memory allocation is done during read or write.
-     * Only one thread may read and one thread may write this buffer.
+     * One thread may read and any number of threads may write this buffer.
      * @param T The value type to be stored in the Buffer.
      * Example : BufferLockFree<A> is a buffer which holds values of type A.
      * @ingroup Ports
@@ -75,7 +75,7 @@ namespace RTT
         typedef T value_t;
     private:
         typedef T Item;
-        internal::AtomicQueue<Item*> bufs;
+        internal::AtomicMWSRQueue<Item*> bufs;
         // is mutable because of reference counting.
         mutable internal::TsPool<Item> mpool;
     public:
