@@ -266,21 +266,20 @@ namespace RTT
                 prefix = prefix.substr( 0, prefix.rfind(".") );
             }
 
-            log(Info) << "Looking up Property " << tn.in() << " "<< pname;
             if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID)) {
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>(ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
                 assert(ctt);
                 // data source needs full remote path name
                 DataSourceBase::shared_ptr ds = ctt->createPropertyDataSource( serv, props[i].name.in() );
                 storeProperty( *parent->properties(), prefix, ti->buildProperty( pname, props[i].description.in(), ds));
-                log(Info) <<" found!"<<endlog();
+                log(Debug) << "Looked up Property " << tn.in() << " "<< pname <<": created."<<endlog();
             }
             else {
                 if ( string("PropertyBag") == tn.in() ) {
                     storeProperty(*parent->properties(), prefix, new Property<PropertyBag>( pname, props[i].description.in()) );
-                    log(Info) <<" created!"<<endlog();
+                    log(Debug) << "Looked up PropertyBag " << tn.in() << " "<< pname <<": created."<<endlog();
                 } else
-                    log(Info)<<" type not known :-("<<endlog();
+                    log(Error) << "Looked up Property " << tn.in() << " "<< pname <<": type not known. Check your RTT_COMPONENT_PATH."<<endlog();
             }
         }
 
@@ -296,9 +295,8 @@ namespace RTT
             // If the type is known, immediately build the correct attribute and datasource,
             CORBA::String_var tn = serv->getAttributeTypeName( CORBA::string_dup(attrs[i].in()) );
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
-            log(Info) << "Looking up Attribute " << tn.in();
             if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID) ) {
-                Logger::log() <<": found!"<<endlog();
+                log(Debug) << "Looking up Attribute " << tn.in() <<": found!"<<endlog();
                 CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>(ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
                 assert(ctt);
                 // this function should check itself for const-ness of the remote Attribute:
@@ -308,7 +306,8 @@ namespace RTT
                 else
                     parent->setValue( ti->buildConstant( attrs[i].in(), ds));
             } else {
-                Logger::log() <<": type not known :-("<<endlog();
+                log(Error) << "Looking up Attribute " << tn.in();
+                Logger::log() <<": type not known. Check your RTT_COMPONENT_PATH."<<endlog();
             }
         }
 
