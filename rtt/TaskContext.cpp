@@ -48,6 +48,7 @@
 
 #include "internal/DataSource.hpp"
 #include "internal/mystd.hpp"
+#include "internal/MWSRQueue.hpp"
 #include "Method.hpp"
 
 #include "rtt-config.h"
@@ -67,7 +68,7 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore( initial_state)
-           ,portqueue(64)
+           ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
@@ -81,7 +82,7 @@ namespace RTT
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
         :  TaskCore(parent, initial_state)
-           ,portqueue(64)
+           ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
@@ -392,12 +393,12 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        portqueue.enqueue( port );
+        portqueue->enqueue( port );
         this->getActivity()->trigger();
     }
 
     bool TaskContext::dataOnPortSize(unsigned int max) {
-        if ( isRunning() ) 
+        if ( isRunning() )
             return false;
         updated_ports.reserve(max);
         return true;
@@ -427,7 +428,7 @@ namespace RTT
         // When the user overrides this method, this code will never be called, so in the case of EventPorts, the portqueue will fill up
         // and remain as such.
         PortInterface* port = 0;
-        while ( portqueue.dequeue( port ) == true ) {
+        while ( portqueue->dequeue( port ) == true ) {
             if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
                 updated_ports.push_back(port);
             UserCallbacks::iterator it = user_callbacks.find(port);
