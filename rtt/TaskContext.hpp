@@ -605,7 +605,7 @@ namespace RTT
         friend class interface::DataFlowInterface;
         typedef std::vector< base::PortInterface* > PortList;
         PortList updated_ports;
-        internal::AtomicQueue<base::PortInterface*> portqueue;
+        internal::Queue<base::PortInterface*> portqueue;
         typedef std::map<base::PortInterface*, boost::shared_ptr<base::InputPortInterface::NewDataOnPortEvent> > UserCallbacks;
         UserCallbacks user_callbacks;
 
