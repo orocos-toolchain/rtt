@@ -194,6 +194,9 @@ namespace RTT
                                            void * (*start_routine)(void *),
                                            ThreadInterface* obj)
         {
+            // Xenomai would allocate only 32KB.
+            if (stack_size == 0)
+                stack_size = 256*1024; // We need 128KB for scripting and everything going through boost, so this seems a safe default.
             rtos_task_check_priority(&sched_type, &priority);
             XenoCookie* xcookie = (XenoCookie*)malloc( sizeof(XenoCookie) );
             xcookie->data = obj;
