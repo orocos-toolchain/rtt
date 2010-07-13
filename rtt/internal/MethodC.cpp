@@ -234,7 +234,10 @@ namespace RTT {
         if (s) {
             DataSourceBase::shared_ptr h = ofp->produceHandle();
             // evaluate and copy result of s to handle and pass handle to SendHandleC.
-            bool result = h->update( s.get() );
+#ifndef NDEBUG
+            bool result =
+#endif
+                    h->update( s.get() );
             assert( result );
             return SendHandleC( h, ofp, mname );
         }
