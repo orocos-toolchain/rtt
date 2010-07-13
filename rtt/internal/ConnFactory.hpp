@@ -277,7 +277,10 @@ namespace RTT
         {
             StreamConnID *sid = new StreamConnID(policy.name_id);
             RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, sid );
-            return createAndCheckStream(input_port, policy, outhalf, sid);
+            if ( createAndCheckStream(input_port, policy, outhalf, sid) )
+                return true;
+            input_port.removeConnection(sid);
+            return false;
         }
 
     protected:
@@ -300,10 +303,10 @@ namespace RTT
             return createAndCheckOutOfBandConnection( output_port, input_port, policy, output_half, conn_id);
         }
 
-        static base::ChannelElementBase::shared_ptr createAndCheckOutOfBandConnection( base::OutputPortInterface& output_port, 
-                                                                                       base::InputPortInterface& input_port, 
-                                                                                       ConnPolicy const& policy, 
-                                                                                       base::ChannelElementBase::shared_ptr output_half, 
+        static base::ChannelElementBase::shared_ptr createAndCheckOutOfBandConnection( base::OutputPortInterface& output_port,
+                                                                                       base::InputPortInterface& input_port,
+                                                                                       ConnPolicy const& policy,
+                                                                                       base::ChannelElementBase::shared_ptr output_half,
                                                                                        StreamConnID* conn_id);
     };
 

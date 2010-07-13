@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( testPortStreamsTimeout )
 
 BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
 {
-    // Test creating an input stream without an output stream available.
+    // Test creating an input/output stream with a wrong name
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
     policy.name_id = "data1"; // name must start with '/'
@@ -314,9 +314,9 @@ BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
     policy.pull = false;
     policy.size = 10;
     policy.name_id = "buffer1";
-    BOOST_CHECK( mr2->createStream( policy ) == false );
-    BOOST_CHECK( mr2->connected() == false );
-    mr2->disconnect();
+    BOOST_CHECK( mw2->createStream( policy ) == false );
+    BOOST_CHECK( mw2->connected() == false );
+    mw2->disconnect();
 }
 
 // copied from testPortStreams
