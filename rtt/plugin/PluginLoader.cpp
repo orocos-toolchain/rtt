@@ -150,12 +150,12 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()))
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status())) {
                     loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
-                else {
+                } else {
                     if (is_symlink(itr->symlink_status()))
                         log(Debug) << "is symlink: ignored."<<endlog();
-                    else 
+                    else
                         if (!is_regular_file(itr->status()))
                             log(Debug) << "not a regular file: ignored."<<endlog();
                 }
@@ -172,12 +172,12 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()))
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status())) {
                     loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
-                else {
+                } else {
                     if (is_symlink(itr->symlink_status()))
                         log(Debug) << "is symlink: ignored."<<endlog();
-                    else 
+                    else
                         if (!is_regular_file(itr->status()))
                             log(Debug) << "not a regular file: ignored."<<endlog();
                 }
@@ -251,7 +251,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
             log(Warning);
         else
             log(Debug);
-        log() <<"Plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
+        log() <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return false;
     }
 
@@ -260,7 +260,9 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     if (!handle) {
         string e( dlerror() );
         if (log_error)
-            log(Error) << "Could not load library '"<< p.string() <<"': "<< e <<endlog();
+            log(Error) << "could not load library '"<< p.string() <<"': "<< e <<endlog();
+        else
+            endlog();
         return false;
     }
 
