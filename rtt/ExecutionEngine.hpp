@@ -46,7 +46,6 @@
 #include "base/ActivityInterface.hpp"
 #include "base/DisposableInterface.hpp"
 #include "base/ExecutableInterface.hpp"
-#include "internal/Queue.hpp"
 #include "internal/List.hpp"
 #include <vector>
 #include <boost/function.hpp>
@@ -219,14 +218,14 @@ namespace RTT
         /**
          * Our Message queue
          */
-        internal::Queue<base::DisposableInterface*> mqueue;
+        internal::MWSRQueue<base::DisposableInterface*>* mqueue;
 
         std::vector<base::TaskCore*> children;
 
         /**
          * Stores all functions we're executing.
          */
-        internal::Queue<base::ExecutableInterface*>* f_queue;
+        internal::MWSRQueue<base::ExecutableInterface*>* f_queue;
 
         os::Mutex msg_lock;
         os::Condition msg_cond;

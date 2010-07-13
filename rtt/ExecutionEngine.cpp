@@ -42,6 +42,7 @@
 #include "base/TaskCore.hpp"
 #include "rtt-fwd.hpp"
 #include "os/MutexLock.hpp"
+#include "internal/MWSRQueue.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -66,8 +67,9 @@ namespace RTT
     using namespace boost;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
-        : taskc(owner), mqueue(ORONUM_EE_MQUEUE_SIZE),
-          f_queue( new Queue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
+        : taskc(owner),
+          mqueue(new MWSRQueue<DisposableInterface*>(ORONUM_EE_MQUEUE_SIZE) ),
+          f_queue( new MWSRQueue<ExecutableInterface*>(ORONUM_EE_MQUEUE_SIZE) )
     {
     }
 
@@ -196,7 +198,7 @@ namespace RTT
 
     bool ExecutionEngine::hasWork()
     {
-        return !mqueue.isEmpty();
+        return !mqueue->isEmpty();
     }
 
     void ExecutionEngine::processMessages()
@@ -205,8 +207,8 @@ namespace RTT
         // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
         {
-            while ( !mqueue.isEmpty() ) {
-                mqueue.dequeue( com );
+            while ( !mqueue->isEmpty() ) {
+                mqueue->dequeue( com );
                 com->executeAndDispose();
             }
             // there's no need to hold the lock during
@@ -224,7 +226,7 @@ namespace RTT
     bool ExecutionEngine::process( DisposableInterface* c )
     {
         if ( c && this->getActivity() && this->getActivity()->isActive() ) {
-            bool result = mqueue.enqueue( c );
+            bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
