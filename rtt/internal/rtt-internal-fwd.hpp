@@ -22,7 +22,7 @@ namespace RTT {
         template <typename function>
         class UnaryDataSource;
         template<
-            typename Signature 
+            typename Signature
         >
         class SubscriberBase;
         template<
@@ -93,7 +93,6 @@ namespace RTT {
         struct DSWrap;
         template<class T>
         class AtomicQueue;
-        template<class T>
         template<class T>
         struct AStore;
         template<class T>

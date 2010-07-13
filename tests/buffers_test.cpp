@@ -31,7 +31,7 @@
 #include <base/Buffer.hpp>
 #include <internal/ListLockFree.hpp>
 #include <base/DataObject.hpp>
-#include <internal/MemoryPool.hpp>
+#include <internal/TsPool.hpp>
 //#include <internal/SortedList.hpp>
 
 #include <os/Thread.hpp>
@@ -129,25 +129,18 @@ public:
     ThreadInterface* athread;
     ThreadInterface* bthread;
 
-    MemoryPool<Dummy>* mpool;
-    MemoryPool<std::vector<Dummy> >* vpool;
-    FixedSizeMemoryPool<Dummy>* fmpool;
-    FixedSizeMemoryPool<std::vector<Dummy> >* fvpool;
+    TsPool<Dummy>* mpool;
+    TsPool<std::vector<Dummy> >* vpool;
 
     BuffersMPoolTest()
     {
-        mpool = new MemoryPool<Dummy>(QS);
-        vpool = new MemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS) );
-
-        fmpool = new FixedSizeMemoryPool<Dummy>(QS);
-        fvpool = new FixedSizeMemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS));
+        mpool = new TsPool<Dummy>(QS);
+        vpool = new TsPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS) );
     }
 
     ~BuffersMPoolTest(){
         delete mpool;
         delete vpool;
-        delete fmpool;
-        delete fvpool;
     }
 };
 
@@ -457,159 +450,123 @@ BOOST_AUTO_TEST_CASE( testBufLockFree )
     Dummy* c = new Dummy(2.0, 1.0, 0.0);
     Dummy r;
 
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->front() == r ); // return default if empty.
+    BOOST_CHECK( lockfree->Pop(r) == false );
 
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
 
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
 
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->write( *c ) == false );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Push( *c ) == false );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
 
     // start writing again half-way
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
 
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( lockfree->Pop(r) );
     BOOST_CHECK( r == *d );
 
-    BOOST_CHECK( lockfree->front() == *d );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
-    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
+    BOOST_CHECK( lockfree->Pop(r) == false );
 
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->front() == *c );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( *c ) );
 
     std::vector<Dummy> v;
-    BOOST_CHECK( 5 == lockfree->read(v) );
+    BOOST_CHECK( 5 == lockfree->Pop(v) );
     BOOST_CHECK( v[0] == *c );
     BOOST_CHECK( v[1] == *d );
     BOOST_CHECK( v[2] == *c );
     BOOST_CHECK( v[3] == *d );
     BOOST_CHECK( v[4] == *c );
-    BOOST_CHECK( lockfree->front() == *d );
 
     BufferBase::size_type sz = 10;
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->write( v ) == (int)v.size() );
-    BOOST_CHECK( lockfree->write( *c ) );
-    BOOST_CHECK( lockfree->write( *d ) );
-    BOOST_CHECK( lockfree->write( v ) == 1 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_CHECK( lockfree->write( v ) == 0 );
-    BOOST_REQUIRE_EQUAL( sz, lockfree->read(v) );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( v ) == (int)v.size() );
+    BOOST_CHECK( lockfree->Push( *c ) );
+    BOOST_CHECK( lockfree->Push( *d ) );
+    BOOST_CHECK( lockfree->Push( v ) == 1 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_CHECK( lockfree->Push( v ) == 0 );
+    BOOST_REQUIRE_EQUAL( sz, lockfree->Pop(v) );
     BOOST_CHECK( v[0] == *c );
     BOOST_CHECK( v[1] == *d );
     BOOST_CHECK( v[2] == *c );
@@ -620,7 +577,7 @@ BOOST_AUTO_TEST_CASE( testBufLockFree )
     BOOST_CHECK( v[7] == *c );
     BOOST_CHECK( v[8] == *d );
     BOOST_CHECK( v[9] == *c );
-    BOOST_CHECK( 0 == lockfree->read(v) );
+    BOOST_CHECK( 0 == lockfree->Pop(v) );
     delete d;
     delete c;
 }
@@ -649,107 +606,34 @@ BOOST_FIXTURE_TEST_SUITE( BuffersMPoolTestSuite, BuffersMPoolTest )
 BOOST_AUTO_TEST_CASE( testMemoryPool )
 {
     // Test initial conditions.
-    MemoryPool<Dummy>::size_type sz = QS;
-    // for MemoryPool
-    BOOST_REQUIRE_EQUAL( sz, mpool->size() );
-    BOOST_REQUIRE_EQUAL( sz, vpool->size() );
-    // for FixedSizeMemoryPool
-    BOOST_REQUIRE_EQUAL( sz, fmpool->size() );
-    BOOST_REQUIRE_EQUAL( sz, fvpool->size() );
+    TsPool<Dummy>::size_type sz = QS;
     // Capacity test
     BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     BOOST_REQUIRE_EQUAL( sz, vpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz, fvpool->capacity() );
 
     // test default initialiser:
-    for (MemoryPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
+    for (TsPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
         // MemoryPool:
         std::vector<Dummy>* v = vpool->allocate();
         std::vector<Dummy>::size_type szv = QS;
         BOOST_REQUIRE_EQUAL( szv, v->size() );
         BOOST_REQUIRE_EQUAL( szv, v->capacity() );
         BOOST_CHECK(vpool->deallocate( v ));
-
-        // FixedSizeMemoryPool:
-        v = fvpool->allocate();
-        BOOST_REQUIRE_EQUAL( szv, v->size() );
-        BOOST_REQUIRE_EQUAL( szv, v->capacity() );
-        BOOST_CHECK( fvpool->deallocate( v ) );
     }
 
     // test Allocation.
     std::vector<Dummy*> mpv;
     // MemoryPool:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+    for (TsPool<Dummy>::size_type i = 0; i <sz; ++i ) {
         mpv.push_back( mpool->allocate() );
-        BOOST_REQUIRE_EQUAL( sz - i -1 , mpool->size());
         BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     }
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+    for (TsPool<Dummy>::size_type i = 0; i <sz; ++i ) {
         BOOST_CHECK(mpool->deallocate( mpv.front() ));
         mpv.erase( mpv.begin() );
-        BOOST_REQUIRE_EQUAL( i + 1 , mpool->size());
         BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     }
     BOOST_CHECK( mpv.size() == 0 );
-    // FixedSizeMemoryPool:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpv.push_back( fmpool->allocate() );
-        BOOST_REQUIRE_EQUAL( sz - i -1 , fmpool->size());
-        BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
-    }
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        BOOST_CHECK( fmpool->deallocate( mpv.front() ) );
-        mpv.erase( mpv.begin() );
-        BOOST_REQUIRE_EQUAL( i + 1 , fmpool->size());
-        BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
-    }
-
-    // test capacity increasing:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpool->reserve();
-        vpool->reserve();
-    }
-    BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz, mpool->size() );
-    BOOST_REQUIRE_EQUAL( sz, vpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz, vpool->size() );
-
-    // the following reserve() allocates new chunks.
-    mpool->reserve();
-    vpool->reserve();
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->size() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->size() );
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpool->reserve();
-        vpool->reserve();
-    }
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->size() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->capacity() );
-    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->size() );
-
-    // Extra:
-    // test default initialiser for extra reserved chunks:
-    std::vector< std::vector<Dummy>* > vv;
-    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
-        // MemoryPool:
-        std::vector<Dummy>* v = vpool->allocate();
-        std::vector<Dummy>::size_type szv = QS;
-        vv.push_back( v );
-        BOOST_REQUIRE_EQUAL( szv, v->size() );
-        BOOST_REQUIRE_EQUAL( szv, v->capacity() );
-    }
-    BOOST_REQUIRE_EQUAL( MemoryPool<Dummy>::size_type(0), vpool->size() );
-    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
-        // MemoryPool:
-        BOOST_CHECK( vpool->deallocate( vv.back() ) );
-        vv.erase( vv.end() - 1 );
-    }
-
 }
 
 #if 0

@@ -58,15 +58,17 @@ namespace RTT
 
             unsigned int pool_size, pool_capacity;
         public:
+
+            typedef unsigned int size_type;
             /**
              * Creates a fixed size memory pool holding \a ssize
              * blocks of memory that can hold an object of class \a T.
              */
-            TsPool(unsigned int ssize) :
+            TsPool(unsigned int ssize, const T& sample = T()) :
                 pool_size(0), pool_capacity(ssize)
             {
                 pool = new Item[ssize];
-                this->clear();
+                data_sample( sample );
             }
 
             ~TsPool()
@@ -129,7 +131,7 @@ namespace RTT
                     item = &pool[oldval.ptr.index];
                     newval.ptr.index = item->next.ptr.index;
                     newval.ptr.tag = oldval.ptr.tag + 1;
-                } while (!RTT::OS::CAS(&head.next.value, oldval.value, newval.value));
+                } while (!os::CAS(&head.next.value, oldval.value, newval.value));
                 return &item->value;
             }
 
@@ -149,7 +151,7 @@ namespace RTT
                     item->next.value = oldval.value;
                     head_next.ptr.index = (item - pool);
                     head_next.ptr.tag = oldval.ptr.tag + 1;
-                } while (!RTT::OS::CAS(&head.next.value, oldval.value, head_next.value));
+                } while (!os::CAS(&head.next.value, oldval.value, head_next.value));
                 return true;
             }
 
