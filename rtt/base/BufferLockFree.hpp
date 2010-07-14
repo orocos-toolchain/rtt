@@ -89,6 +89,11 @@ namespace RTT
             mpool.data_sample( initial_value );
         }
 
+        ~BufferLockFree() {
+            // free all items still in the buffer.
+            clear();
+        }
+
         virtual void data_sample( const T& sample )
         {
             mpool.data_sample(sample);

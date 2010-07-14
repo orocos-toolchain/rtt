@@ -613,30 +613,42 @@ BOOST_AUTO_TEST_CASE( testMemoryPool )
     // Capacity test
     BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     BOOST_REQUIRE_EQUAL( sz, vpool->capacity() );
+    BOOST_CHECK_EQUAL( sz, mpool->size());
+    BOOST_CHECK_EQUAL( sz, vpool->size());
 
     // test default initialiser:
     for (TsPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
         // MemoryPool:
         std::vector<Dummy>* v = vpool->allocate();
+        BOOST_CHECK_EQUAL( sz - 1, vpool->size());
         std::vector<Dummy>::size_type szv = QS;
         BOOST_REQUIRE_EQUAL( szv, v->size() );
         BOOST_REQUIRE_EQUAL( szv, v->capacity() );
         BOOST_CHECK(vpool->deallocate( v ));
+        BOOST_CHECK_EQUAL( sz, vpool->size());
     }
+    BOOST_CHECK_EQUAL( vpool->size(), QS);
 
     // test Allocation.
     std::vector<Dummy*> mpv;
     // MemoryPool:
     for (TsPool<Dummy>::size_type i = 0; i <sz; ++i ) {
         mpv.push_back( mpool->allocate() );
+        BOOST_CHECK_EQUAL( sz - i - 1, mpool->size());
+        BOOST_CHECK( mpv.back() );
         BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     }
+    BOOST_CHECK_EQUAL( mpool->size(), 0);
+    BOOST_CHECK_EQUAL( mpool->allocate(), (Dummy*)0 );
     for (TsPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        BOOST_CHECK_EQUAL( i , mpool->size());
         BOOST_CHECK(mpool->deallocate( mpv.front() ));
+        BOOST_CHECK_EQUAL( i + 1, mpool->size());
         mpv.erase( mpv.begin() );
         BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
     }
-    BOOST_CHECK( mpv.size() == 0 );
+    BOOST_CHECK_EQUAL( mpv.size(), 0 );
+    BOOST_CHECK_EQUAL( mpool->size(), QS);
 }
 
 #if 0

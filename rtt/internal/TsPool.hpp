@@ -73,16 +73,19 @@ namespace RTT
 
             ~TsPool()
             {
+#ifndef NDEBUG
                 /*Check pool consistency.*/
-                unsigned int i = 0;
+                unsigned int i = 0, endseen = 0;
                 for (; i < pool_capacity; i++)
                 {
                     if (pool[i].next.ptr.index == (unsigned short) -1)
                     {
-                        break;
+                        ++endseen;
                     }
                 }
-                assert(i==pool_capacity-1);
+                assert( endseen == 1);
+                assert( size() == pool_capacity && "TsPool: not all pieces were deallocated !" );
+#endif
                 delete[] pool;
             }
 
@@ -137,7 +140,7 @@ namespace RTT
 
             bool deallocate(T* Value)
             {
-                if (Value == 0)/*Todo: memory range pool?*/
+                if (Value == 0)
                 {
                     return false;
                 }
@@ -155,6 +158,29 @@ namespace RTT
                 return true;
             }
 
+            /**
+             * Return the number of elements that are available to be allocated.
+             * This function is not thread-safe and should not be used when concurrent
+             * allocate()/deallocate() functions are running.
+             * @return the number of elements left to allocate.
+             */
+            unsigned int size()
+            {
+                unsigned int ret = 0;
+                volatile Item* oldval;
+                oldval = &head;
+                while ( oldval->next.ptr.index != (unsigned short) -1) {
+                    ++ret;
+                    oldval = &pool[oldval->next.ptr.index];
+                    assert(ret <= pool_capacity); // abort on corruption due to concurrency.
+                }
+                return ret;
+            }
+
+            /**
+             * The maximum number of elements available for allocation.
+             * @return The maximum size.
+             */
             unsigned int capacity()
             {
                 return pool_capacity;
