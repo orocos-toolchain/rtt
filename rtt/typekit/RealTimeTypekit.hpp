@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#ifndef ORO_REALTIME_TOOLKIT_HPP
-#define ORO_REALTIME_TOOLKIT_HPP
+#ifndef ORO_REALTIME_TYPEKIT_HPP
+#define ORO_REALTIME_TYPEKIT_HPP
 
-#include "../typekit/rtt-typekit-config.h"
+#include "rtt-typekit-config.h"
 #include "../types/TypekitPlugin.hpp"
 
 namespace RTT
@@ -60,11 +60,6 @@ namespace RTT
         virtual bool loadConstructors();
         virtual bool loadGlobals();
     };
-
-    /**
-     * The single global instance of the RealTime Typekit.
-     */
-    extern RealTimeTypekitPlugin RealTimeTypekit;
 }}
 
 #endif
