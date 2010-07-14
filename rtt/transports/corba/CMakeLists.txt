@@ -27,7 +27,7 @@ IF(ENABLE_CORBA)
   # make -j<N> causes corruption of generated files because of overwriting
   ADD_CUSTOM_TARGET( idl DEPENDS ${CPPS} ${HPPS} COMMENT "Generating sources from .idl files")
 
-  MESSAGE("CPPS: ${CPPS}")
+  #MESSAGE("CPPS: ${CPPS}")
   #MESSAGE("HPPS: ${HPPS}")
   GLOBAL_ADD_INCLUDE( rtt/transports/corba ${HPPS} OrocosTypes.idl)
   #GLOBAL_ADD_SRC( ${CPPS} )
