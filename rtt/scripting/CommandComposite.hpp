@@ -38,6 +38,7 @@
 
 #include "../base/ActionInterface.hpp"
 #include <vector>
+#include "rtt-scripting-config.h"
 
 namespace RTT
 { namespace scripting {
