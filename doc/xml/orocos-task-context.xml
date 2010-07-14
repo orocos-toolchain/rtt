@@ -1163,13 +1163,10 @@ Printing Interface of 'the_input_port' :
 	  call updateHook).
 	</para>
 	<para>
-	  In the current implementation, addEventPort() must happen
-	  before you start() the TaskContext the first time.  Any
-	  ports added after your component has been started the first
-	  time will not cause them to wake up your component. So even
-	  stopping and starting wil not solve this. Therefor, it is
-	  recommended to only use addEventPort in your component's
-	  contructor or configureHook().
+	  If you call addEventPort(), your TaskContext will be stopped shortly
+	  in case it's running in order to be able to install the correct handles.
+	  This means your stopHook()/startHook() pair will be called. It's advised
+	  to not add new ports to a component with TaskState = 'Running'.
 	</para>
 	</note>
       </section>

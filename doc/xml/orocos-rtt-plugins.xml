@@ -175,8 +175,22 @@ Service 'scripting' loaded in MyPeer
 	There are very little requirements to make a library an
 	Orocos plugin. The interface of an Orocos plugin is shown
 	in the file <filename>rtt/plugin/Plugin.hpp</filename>.
-	The most important function is the <programlisting><function>bool loadRTTPlugin(RTT::TaskContext* c)</function></programlisting>
-	function. The <classname>RTT::plugin::PluginLoader</classname> looks for this
+	Take a look at that file for the full documentation of
+	the Plugin API.
+      </para>
+      <para>
+	The most important function is the <programlisting>
+extern "C"
+<function>bool loadRTTPlugin(RTT::TaskContext* c)</function>
+</programlisting>
+	function. Note that it <emphasis>must</emphasis> have the
+	<command>extern "C"</command> decoration in front of it,
+	otherwise, this function will not be found. The safest way
+	to achieve this correctly is to include the <filename>rtt/plugin/Plugin.hpp</filename> header
+	in your plugin code.
+      </para>
+      <para>
+	The <classname>RTT::plugin::PluginLoader</classname> looks for this
 	function in order to determine if the shared library is
 	an RTT plugin. If found, it is called with a  c = null argument
 	to give the plugin a chance to load into the application.
