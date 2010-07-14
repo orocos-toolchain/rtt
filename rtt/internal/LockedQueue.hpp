@@ -75,8 +75,7 @@ namespace RTT
          * @param lsize the capacity of the queue.
 '        */
         LockedQueue(unsigned int lsize)
-            : cap(lsize),
-              counter(0), dcounter(0)
+            : cap(lsize)
         {
             data.resize(lsize);
             data.resize(0);
