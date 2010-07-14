@@ -2,6 +2,7 @@
 #define EXECUTABLE_INTERFACE_HPP
 
 #include "../rtt-fwd.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
