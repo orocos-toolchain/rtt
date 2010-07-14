@@ -46,11 +46,17 @@
 #include "DataSourceStorage.hpp"
 #include "Invoker.hpp"
 
+#include <boost/fusion/include/vector_tie.hpp>
+#include <boost/fusion/include/filter_if.hpp>
+#include <boost/fusion/include/as_vector.hpp>
+
+
+
 namespace RTT
 {
     namespace internal
     {
-        namespace bf = boost::fusion;
+        namespace bf = ::boost::fusion;
 
         /**
          * A Method which executes a remote function directly.
