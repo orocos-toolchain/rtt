@@ -45,7 +45,6 @@
 namespace RTT
 { namespace types {
 
-
     /**
      * A class for representing a user type, and which can build
      * instances of that type.
@@ -203,7 +202,7 @@ namespace RTT
         /**
          * Returns a member of a given data source struct identified by a data source id.
          * @param item The item of which to return a member
-         * @param id   Or a string data source containing the name of a member if item is a struct, 
+         * @param id   Or a string data source containing the name of a member if item is a struct,
          * Or an unsigned int data source containing the index of an element if item is a sequence
          */
         virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,

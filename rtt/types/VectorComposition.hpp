@@ -40,6 +40,7 @@
 
 #include <vector>
 #include "../rtt-fwd.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace types {

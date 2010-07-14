@@ -34,7 +34,8 @@ namespace RTT
             }
 
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                using namespace internal;
+                typename AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
                 }
@@ -56,7 +57,8 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                using namespace internal;
+                typename AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
                 }
