@@ -1,6 +1,8 @@
 #ifndef ORO_ARRAYPARTDATASOURCE_HPP_
 #define ORO_ARRAYPARTDATASOURCE_HPP_
 
+#include "DataSource.hpp"
+
 namespace RTT
 {
     namespace internal

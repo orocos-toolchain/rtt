@@ -50,6 +50,8 @@ namespace RTT
 {
     namespace internal
     {
+        namespace bf = boost::fusion;
+
         /**
          * A Method which executes a remote function directly.
          * @param MethodT The function signature of the method. For example,

@@ -45,6 +45,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include "DataSources.hpp"
+#include "BindStorage.hpp"
 
 namespace RTT
 {

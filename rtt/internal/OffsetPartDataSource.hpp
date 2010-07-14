@@ -1,6 +1,8 @@
 #ifndef ORO_OFFSETPARTDATASOURCE_HPP_
 #define ORO_OFFSETPARTDATASOURCE_HPP_
 
+#include "DataSource.hpp"
+
 namespace RTT
 {
     namespace internal
