@@ -37,6 +37,13 @@ namespace RTT
          * Stores the blocking/non blocking flag for collect/collectIfDone.
          */
         internal::AssignableDataSource<bool>::shared_ptr b;
+
+	/**
+	 * Stores the OperationRepositoryPart pointer contained in this SendHandle
+	 */
+	interface::OperationRepositoryPart* orp;
+
+
     public:
         /**
          * The default constructor.
@@ -110,6 +117,12 @@ namespace RTT
          * Get the contained data source for send handle.
          */
         base::DataSourceBase::shared_ptr getSendHandleDataSource();
+
+	/**
+	 * Get the contained OperationRepositoryPart for SendHandle
+	 */
+	interface::OperationRepositoryPart* getOrp();
+
     };
 }}
 

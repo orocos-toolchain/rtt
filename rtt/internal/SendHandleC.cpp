@@ -76,10 +76,11 @@ namespace RTT {
             delete d;
             d = 0;
         }
+        this->orp = ofp;
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0)
+        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), orp( other.orp ? other.orp : NULL)
     {
     }
 
@@ -91,6 +92,7 @@ namespace RTT {
         d = ( other.d ? new D(*other.d) : 0 );
         s = other.s;
         b = other.b;
+        orp = other.orp;
         return *this;
     }
 
@@ -109,6 +111,7 @@ namespace RTT {
         if ( d && d->s ) {
             this->s = d->s;
             this->b = d->blocking;
+            this->orp = d->mofp;
             delete d;
             d = 0;
         }
@@ -170,4 +173,6 @@ namespace RTT {
 
 
     DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return s; }
+
+    OperationRepositoryPart* SendHandleC::getOrp() { return orp; }
 }
