@@ -129,9 +129,17 @@ namespace RTT {
                                 MutexLock lock(task->breaker);
                                 while(task->running && !task->prepareForExit )
                                 {
-                                    SCOPE_ON
-                                    task->step(); // one cycle
-                                    SCOPE_OFF
+                                    try
+                                    {
+                                        SCOPE_ON
+                                        task->step(); // one cycle
+                                        SCOPE_OFF
+                                    }
+                                    catch(...)
+                                    {
+                                        SCOPE_OFF
+                                        throw;
+                                    }
 
                                     // Check changes in period
                                     if ( cur_period != task->period) {
@@ -157,6 +165,7 @@ namespace RTT {
                                     break; // break while(1) {}
                             }
                             else // non periodic:
+                            try
                             {
                                 // this mutex guarantees that stop() waits
                                 // until loop() returns.
@@ -167,6 +176,11 @@ namespace RTT {
                                 task->loop();
                                 SCOPE_OFF
                                 task->inloop = false;
+                            }
+                            catch(...) {
+                                SCOPE_OFF
+                                task->inloop = false;
+                                throw;
                             }
                         }
                     } // while(1)
