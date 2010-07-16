@@ -179,7 +179,7 @@ namespace RTT
                 if (!connections->append(descriptor))
                 {
                     os::MutexLock locker(connection_resize_mtx);
-                    connections->grow(1);
+                    connections->reserve(connections->size() + 1);
                     connections->append(descriptor);
                 }
             } else {
