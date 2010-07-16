@@ -135,8 +135,18 @@ namespace RTT {
                 if ( pull ) {
                     try
                     { valid = remote_side->remoteSignal(); }
-                    catch(CORBA::Exception&)
-                    { valid = false; }
+#ifndef CORBA_IS_TAO
+                    catch(CORBA::SystemException& e)
+                    {
+                        log(Error) << "caught CORBA exception while signalling our remote endpoint: " << e._name() << " " << e.NP_minorString() << endlog();
+                        valid = false;
+                    }
+#endif
+                    catch(CORBA::Exception& e)
+                    {
+                        log(Error) << "caught CORBA exception while signalling our remote endpoint: " << e._name() << endlog();
+                        valid = false;
+                    }
                 } else {
                     typename base::ChannelElement<T>::value_t sample; // Not RT.
                     //log(Debug) <<"...read..."<<endlog();
@@ -220,7 +230,18 @@ namespace RTT {
                     else
                         return NoData;
                 }
-                catch(CORBA::Exception&) { return NoData; }
+#ifndef CORBA_IS_TAO
+                catch(CORBA::SystemException& e)
+                {
+                    log(Error) << "caught CORBA exception while reading a remote channel: " << e._name() << " " << e.NP_minorString() << endlog();
+                    return NoData;
+                }
+#endif
+                catch(CORBA::Exception& e)
+                {
+                    log(Error) << "caught CORBA exception while reading a remote channel: " << e._name() << endlog();
+                    return NoData;
+                }
             }
 
             /**
@@ -260,8 +281,16 @@ namespace RTT {
                     remote_side->write(ret.in()); 
                     return true;
                 }
+#ifndef CORBA_IS_TAO
+                catch(CORBA::SystemException& e)
+                {
+                    log(Error) << "caught CORBA exception while marshalling: " << e._name() << " " << e.NP_minorString() << endlog();
+                    return false;
+                }
+#endif
                 catch(CORBA::Exception& e)
                 {
+                    log(Error) << "caught CORBA exception while marshalling: " << e._name() << endlog();
                     return false;
                 }
             }
