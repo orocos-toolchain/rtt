@@ -3,7 +3,7 @@
  * It includes the correct target, on behalf of rtt-config.h
  */
 
-#define ORO_RTT_CONFIG_str(s) ORO_RTT_CONFIG__str(s)
+#define ORO_RTT_CONFIG_str(s) ORO_RTT_CONFIG__str(s-config.h)
 #define ORO_RTT_CONFIG_OS_str(s) ORO_RTT_CONFIG__str(../s/s.h)
 #define ORO_RTT_CONFIG__str(s) #s
 

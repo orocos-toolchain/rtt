@@ -218,7 +218,7 @@ create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RT
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/rtt-config.h.in ${PROJ_BINARY_DIR}/rtt/rtt-config.h @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/os/targets/rtt-target.h.in ${PROJ_BINARY_DIR}/rtt/os/targets/rtt-target.h @ONLY)
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/os/targets/target.in ${PROJ_BINARY_DIR}/rtt/os/targets/${OROCOS_TARGET} @ONLY)
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/os/targets/target-config.h.in ${PROJ_BINARY_DIR}/rtt/os/targets/${OROCOS_TARGET}-config.h @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/rtt/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
