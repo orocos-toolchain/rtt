@@ -185,6 +185,10 @@ if(OROCOS_TARGET STREQUAL "macosx")
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
 
+  # Force OFF on mqueue transport on macosx
+  message("Forcing ENABLE_MQ to OFF for macsox")
+  set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on macosx platform." FORCE)
+
   # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
   list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
