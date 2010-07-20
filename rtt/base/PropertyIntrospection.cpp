@@ -48,8 +48,19 @@ namespace RTT {
         if ( types::propertyDecomposition(v, res.value() ) ) {
             this->introspect( res );
             deletePropertyBag( res.value() );
-        }else
-            Logger::log() << Logger::Warning<< "Could not decompose "<< v->getName() << Logger::endl;
+            return;
+        }else if ( Types()->type("int") ) {
+            DataSourceBase::shared_ptr dsb = Types()->type("int")->convert( v->getDataSource() );
+            // convertible to int ?
+            if ( dsb ) {
+                DataSource<int>::shared_ptr ds = DataSource<int>::narrow( dsb.get() );
+                assert( ds );
+                Property<int> pint(v->getName(), v->getDescription(), ds->get() );
+                this->introspect( pint );
+                return;
+            }
+        }
+        Logger::log() << Logger::Warning<< "Could not decompose "<< v->getName() << Logger::endl;
         // drop.
     }
 
