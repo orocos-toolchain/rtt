@@ -52,15 +52,18 @@ namespace RTT {
         }else if ( Types()->type("int") ) {
             DataSourceBase::shared_ptr dsb = Types()->type("int")->convert( v->getDataSource() );
             // convertible to int ?
-            if ( dsb ) {
+            if ( dsb != v->getDataSource() ) {
                 DataSource<int>::shared_ptr ds = DataSource<int>::narrow( dsb.get() );
                 assert( ds );
                 Property<int> pint(v->getName(), v->getDescription(), ds->get() );
                 this->introspect( pint );
                 return;
+            } else {
+                log(Warning) << "Property " << dsb->getTypeName() << " "<< v->getName()<< "'s type is not known and not convertible to int. Dropping it." << endlog();
+                return;
             }
         }
-        Logger::log() << Logger::Warning<< "Could not decompose "<< v->getName() << Logger::endl;
+        log(Warning) << "Don't know type "<< dsb->getTypeName() << " of "<< v->getName() <<" and could not decompose it. Dropping it." << endlog();
         // drop.
     }
 
