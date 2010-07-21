@@ -63,7 +63,7 @@ namespace RTT {
                 return;
             }
         }
-        log(Warning) << "Don't know type "<< dsb->getTypeName() << " of "<< v->getName() <<" and could not decompose it. Dropping it." << endlog();
+        log(Warning) << "Don't know type "<< v->getType() << " of "<< v->getName() <<" and could not decompose it. Dropping it." << endlog();
         // drop.
     }
 
