@@ -225,6 +225,23 @@ namespace RTT
         }
 
         /**
+         * Add an operation object to the interface. This version exports an
+         * existing Operation object to the synchronous interface of the component
+         *
+         * @param op The operation object to add.
+         *
+         * @return The given parameter \a op
+         */
+        template<class Signature>
+        Operation<Signature>& addSynchronousOperation( Operation<Signature>& op )
+        {
+            if ( this->addLocalOperation( op ) == false )
+                return op;
+            this->add( op.getName(), new internal::SynchronousOperationRepositoryPartFused<Signature>( &op ) );
+            return op;
+        }
+
+        /**
          * Add an operation to the interface by means of a function.
          * The function \a func may be a \a free function (a 'C' function) or
          * an object member function, in which case serv may not be null
@@ -246,6 +263,30 @@ namespace RTT
             Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
             ownedoperations.push_back(op);
             return addOperation( *op );
+        }
+
+        /**
+         * Add an operation to the synchronous interface by means of a function.
+         * The function \a func may be a \a free function (a 'C' function) or
+         * an object member function, in which case serv may not be null
+         *
+         * @param name The name of the new operation
+         * @param func A pointer to a function, for example, &foo ('C' function) or &Bar::foo (C++ class function).
+         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
+         * or zero ('0') in case of a 'C' function.
+         * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
+         * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
+         *
+         * @return A newly created operation object, which you may further document or query.
+         */
+        template<class Func, class Service>
+        Operation< typename internal::GetSignature<Func>::Signature >&
+        addSynchronousOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        {
+            typedef typename internal::GetSignature<Func>::Signature Signature;
+            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
+            ownedoperations.push_back(op);
+            return addSynchronousOperation( *op );
         }
 
         /**

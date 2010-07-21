@@ -160,7 +160,7 @@ namespace RTT
             // Force resolution on the overloaded write method
             typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             ReadSample read_m = &InputPort<T>::read;
-            object->addOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
+            object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;
         }
     };

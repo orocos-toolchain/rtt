@@ -145,6 +145,82 @@ namespace RTT
             }
         };
 
+        /**
+         * OperationRepositoryPart implementation that only provides synchronous
+         * access to an operation. Only produce() can be called, the others will
+         * throw a no_asynchronous_operation_exception.
+         */
+        template<typename Signature>
+        class SynchronousOperationRepositoryPartFused
+            : public interface::OperationRepositoryPart
+        {
+            typedef typename boost::function_traits<Signature>::result_type result_type;
+            //! The factory for converting data sources to C++ types in call()
+            typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
+            //! The factory for converting data sources to C++ types in collect(). This includes SendHandle.
+            typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
+            Operation<Signature>* op;
+        public:
+            SynchronousOperationRepositoryPartFused( Operation<Signature>* o)
+                : op(o)
+            {
+            }
+
+            virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
+            { throw interface::no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
+            virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const
+            { throw interface::no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
+            virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
+            { throw interface::no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
+            virtual base::DataSourceBase::shared_ptr produceHandle() const
+            { throw interface::no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
+
+            virtual std::string description() const {
+                return OperationRepositoryPartHelper::description( op );
+            }
+
+            virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+                std::vector<std::string> types;
+                for (unsigned int i = 1; i <= SynchronousOperationRepositoryPartFused::arity(); ++i )
+                    types.push_back( SequenceFactory::GetType(i) );
+                return OperationRepositoryPartHelper::getArgumentList( op, SynchronousOperationRepositoryPartFused::arity(), types );
+            }
+
+            std::string resultType() const
+            {
+                return DataSourceTypeInfo<result_type>::getType() + DataSourceTypeInfo<result_type>::getQualifier();
+            }
+
+            unsigned int arity() const { return boost::function_traits<Signature>::arity; }
+
+            const types::TypeInfo* getArgumentType(unsigned int arg) const
+            {
+                if (arg == 0 )
+                    return internal::DataSourceTypeInfo<result_type>::getTypeInfo();
+                return SequenceFactory::GetTypeInfo(arg);
+            }
+
+            unsigned int collectArity() const { return boost::function_traits< typename CollectType<Signature>::type >::arity; }
+
+            const types::TypeInfo* getCollectType(unsigned int arg) const
+            {
+                return CollectSequenceFactory::GetTypeInfo(arg);
+            }
+
+            base::DataSourceBase::shared_ptr produce(
+                            const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
+            {
+                // convert our args and signature into a boost::fusion Sequence.
+                if ( args.size() != SynchronousOperationRepositoryPartFused::arity() )
+                    throw interface::wrong_number_of_args_exception(SynchronousOperationRepositoryPartFused::arity(), args.size() );
+                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+            }
+
+            boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
+                return op->getImplementation();
+            }
+        };
+
             /**
              * OperationRepositoryPart implementation that uses boost::fusion
              * to produce items. The methods invoked get their object pointer

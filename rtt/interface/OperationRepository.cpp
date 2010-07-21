@@ -52,6 +52,18 @@ int OperationRepository::getCollectArity(const std::string& name) const
     return i->second->collectArity();
 }
 
+bool OperationRepository::isSynchronous(const std::string& name) const
+{
+    if (!hasMember(name))
+        return false;
+    try {
+        produceHandle(name);
+    } catch(...) {
+        return true;
+    }
+    return false;
+}
+
 base::DataSourceBase::shared_ptr OperationRepository::produce(const std::string& name, const Arguments& args, ExecutionEngine* caller) const
 {
     map_t::const_iterator i = data.find(name);

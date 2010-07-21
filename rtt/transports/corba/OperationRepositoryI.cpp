@@ -174,8 +174,14 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
 
     vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
+    size_t drops=0;
     for (size_t i=0; i != flist.size(); ++i)
-        rlist[i] = CORBA::string_dup( flist[i].c_str() );
+        if ( !mfact->isSynchronous(flist[i]) ) {
+            rlist[i - drops] = CORBA::string_dup( flist[i].c_str() );
+        } else {
+            ++drops;
+        }
+    rlist->length( flist.size() - drops); // we don't show the synchronous operations.
     return rlist._retn();
 }
 
@@ -183,7 +189,7 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
     const char * operation)
 {
     CDescriptions_var ret = new CDescriptions();
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)))
         throw ::RTT::corba::CNoSuchNameException( operation );
     // operation found, convert args:
     OperationRepository::Descriptions args = mfact->getArgumentList( string(operation) );
@@ -199,7 +205,7 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
 char * RTT_corba_COperationRepository_i::getResultType (
     const char * operation)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     return CORBA::string_dup( mfact->getResultType( string(operation) ).c_str() );
 }
@@ -208,7 +214,7 @@ char* RTT_corba_COperationRepository_i::getArgumentType(
         const char* operation,
         CORBA::UShort nbr)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     if ( nbr > mfact->getPart(operation)->arity() )
         throw ::RTT::corba::CWrongArgumentException( nbr, mfact->getPart(operation)->arity() );
@@ -219,7 +225,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
         const char* operation,
         CORBA::UShort nbr)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     if ( nbr > mfact->getPart(operation)->collectArity() )
         throw ::RTT::corba::CWrongArgumentException( nbr, mfact->getPart(operation)->collectArity() );
@@ -230,7 +236,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
 ::CORBA::UShort RTT_corba_COperationRepository_i::getArity (
     const char * operation)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     return mfact->getPart(operation)->arity();
 }
@@ -238,7 +244,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
 ::CORBA::UShort RTT_corba_COperationRepository_i::getCollectArity (
     const char * operation)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     return mfact->getPart(operation)->collectArity();
 }
@@ -246,7 +252,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
 char * RTT_corba_COperationRepository_i::getDescription (
     const char * operation)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     return CORBA::string_dup( mfact->getDescription( string(operation) ).c_str() );
 }
@@ -255,6 +261,8 @@ void RTT_corba_COperationRepository_i::checkOperation (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
+        throw ::RTT::corba::CNoSuchNameException( operation );
     try {
         OperationRepositoryPart* mofp = mfact->getPart(operation);
         MethodC mc(mofp, operation, 0);
@@ -267,6 +275,8 @@ void RTT_corba_COperationRepository_i::checkOperation (
                 mc.arg(ds);
         }
         mc.check();
+    } catch (no_asynchronous_operation_exception& nao) {
+        throw ::RTT::corba::CNoSuchNameException(operation);
     } catch (name_not_found_exception& nnf) {
         throw ::RTT::corba::CNoSuchNameException(nnf.name.c_str());
     } catch (wrong_number_of_args_exception& wna) {
@@ -280,7 +290,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
     const char * operation,
     ::RTT::corba::CAnyArguments & args)
 {
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
@@ -315,6 +325,8 @@ void RTT_corba_COperationRepository_i::checkOperation (
         } else {
             orig.check(); // will throw
         }
+    } catch (no_asynchronous_operation_exception& nao) {
+        throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -330,7 +342,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
     const ::RTT::corba::CAnyArguments & args)
 {
     // This implementation is 90% identical to callOperation above, only deviating in the orig.ready() part.
-    if ( mfact->hasMember( string( operation ) ) == false )
+    if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
@@ -348,6 +360,8 @@ void RTT_corba_COperationRepository_i::checkOperation (
         } else {
             orig.check(); // will throw
         }
+    } catch (no_asynchronous_operation_exception& nao) {
+        throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( wrong_number_of_args_exception& wna ) {

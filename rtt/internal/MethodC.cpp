@@ -66,7 +66,11 @@ namespace RTT {
                 if ( sz == args.size() ) {
                     // may throw or return nill
                     m = ofp->produce(args, caller );
-                    s = ofp->produceSend(args, caller );
+                    try {
+                        s = ofp->produceSend(args, caller );
+                    } catch( no_asynchronous_operation_exception const& e) {
+                        // leave s empty.
+                    }
                     args.clear();
                     if ( !m )
                         return;
@@ -231,8 +235,14 @@ namespace RTT {
     }
 
     SendHandleC MethodC::send() {
+        DataSourceBase::shared_ptr h;
+        try {
+            h = ofp->produceHandle();
+        } catch( no_asynchronous_operation_exception const& nao) {
+            log(Error) <<"MethodC::send(): Can not send a synchronous operation." << endlog();
+            return SendHandleC();
+        }
         if (s) {
-            DataSourceBase::shared_ptr h = ofp->produceHandle();
             // evaluate and copy result of s to handle and pass handle to SendHandleC.
 #ifndef NDEBUG
             bool result =

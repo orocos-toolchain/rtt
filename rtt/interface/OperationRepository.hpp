@@ -70,6 +70,13 @@ namespace RTT
             int getCollectArity(const std::string& name) const;
 
             /**
+             * Query if a given operation is limited to sychronous invocation (own component thread)
+             * only.
+             * @return false if name not found or a normal operation, true if name exists but is synchronous.
+             */
+            bool isSynchronous(const std::string& name) const;
+
+            /**
              * Produce a DataSource that call()s an operation.
              * The DataSource will return the result of call().
              *
@@ -94,6 +101,8 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
+             *
              */
             base::DataSourceBase::shared_ptr produceSend(const std::string& name, const Arguments& args, ExecutionEngine* caller) const;
 
@@ -109,6 +118,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             base::DataSourceBase::shared_ptr produceHandle(const std::string& name) const;
 
@@ -126,6 +136,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
 
@@ -142,6 +153,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             Handle produceSignal(const std::string& name, base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
 

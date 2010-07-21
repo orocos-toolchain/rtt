@@ -110,6 +110,19 @@ namespace RTT
       virtual const char* what() const throw();
   };
 
+      /**
+       * Exception thrown when a factory is requested to
+       * produce an asynchronous object while it is not available for that operation.
+       */
+    struct RTT_EXPORT no_asynchronous_operation_exception
+        : public std::exception
+    {
+        std::string whatstr;
+        no_asynchronous_operation_exception( const std::string& what );
+        ~no_asynchronous_operation_exception() throw();
+        virtual const char* what() const throw();
+    };
+
     /**
      * Exception thrown when a factory is requested to
      * create an object, and one of the arguments needed to

@@ -108,6 +108,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const = 0;
 
@@ -117,6 +118,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             virtual base::DataSourceBase::shared_ptr produceHandle() const = 0;
 
@@ -132,6 +134,7 @@ namespace RTT
              * @throw wrong_number_of_args_exception
              * @throw wrong_types_of_args_exception
              * @throw name_not_found_exception
+             * @throw no_asynchronous_operation_exception
              */
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const = 0;
 
@@ -141,7 +144,8 @@ namespace RTT
              * @param func The function to execute
              * @param args The data sources to fill in with the arguments the operation was given.
              * The number of elements and their type must match the signature of the operation.
-             * @return
+             * @return A valid Signal Handle if the arguments were valid.
+             * @throw no_asynchronous_operation_exception
              */
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
 

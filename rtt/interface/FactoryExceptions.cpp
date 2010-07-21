@@ -65,6 +65,17 @@ namespace RTT {
         return whatstr.c_str();
     }
 
+    no_asynchronous_operation_exception::no_asynchronous_operation_exception(std::string const& what)
+          : whatstr(what)
+    {
+    }
+
+    no_asynchronous_operation_exception::~no_asynchronous_operation_exception() throw() {}
+
+    const char* no_asynchronous_operation_exception::what() const throw() {
+        return whatstr.c_str();
+    }
+
     wrong_number_of_args_exception::wrong_number_of_args_exception( int w, int r )
           : wanted( w ), received( r )
       {

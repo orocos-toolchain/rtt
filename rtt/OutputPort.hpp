@@ -302,8 +302,8 @@ namespace RTT
             WriteSample write_m = &OutputPort::write;
             typedef T (OutputPort<T>::*LastSample)() const;
             LastSample last_m = &OutputPort::getLastWrittenValue;
-            object->addOperation("write", write_m, this).doc("Writes a sample on the port.").arg("sample", "");
-            object->addOperation("last", last_m, this).doc("Returns last written value to this port.");
+            object->addSynchronousOperation("write", write_m, this).doc("Writes a sample on the port.").arg("sample", "");
+            object->addSynchronousOperation("last", last_m, this).doc("Returns last written value to this port.");
             return object;
         }
     };

@@ -75,10 +75,10 @@ ServiceProvider* PortInterface::createPortObject()
 {
 #ifndef ORO_EMBEDDED
     ServiceProvider* to = new ServiceProvider( this->getName(), iface->getParent() );
-    to->addOperation( "name",&PortInterface::getName, this).doc(
+    to->addSynchronousOperation( "name",&PortInterface::getName, this).doc(
             "Returns the port name.");
-    to->addOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");
-    to->addOperation("disconnect", &PortInterface::disconnect, this).doc("Disconnects this port from any connection it is part of.");
+    to->addSynchronousOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");
+    to->addSynchronousOperation("disconnect", &PortInterface::disconnect, this).doc("Disconnects this port from any connection it is part of.");
     return to;
 #else
     return 0;

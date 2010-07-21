@@ -193,7 +193,7 @@ namespace RTT
         peerparser.reset();
 
         try {
-            if ( meth == "collect" || meth == "collectIfDone") {
+            if ( (meth == "collect" || meth == "collectIfDone") && !ops->hasMember(mmethod) ) {
                 if ( ops->hasAttribute(obj) ) {
                     SendHandleAlias* sha = dynamic_cast<SendHandleAlias*>( peer->getValue(obj) );
                     if (sha) {
@@ -226,6 +226,10 @@ namespace RTT
                 throw parse_exception_wrong_type_of_argument
                     (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
+        catch( const std::exception& e)
+        {
+            throw parse_exception_fatal_semantic_error("While calling "+obj+"."+meth+": "+e.what());
+        }
     }
     assert( ret.get() );
   }
