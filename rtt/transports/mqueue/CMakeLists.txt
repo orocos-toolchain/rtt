@@ -57,8 +57,8 @@ IF ( BUILD_STATIC )
 ENDIF( BUILD_STATIC )
 
   SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
-  ADD_RTT_TYPEKIT( rtt-mqueue-typekit ${RTT_VERSION} MQLib.cpp)
-  target_link_libraries( rtt-mqueue-typekit-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
+  ADD_RTT_TYPEKIT( rtt-transport-mqueue ${RTT_VERSION} MQLib.cpp)
+  target_link_libraries( rtt-transport-mqueue-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-mqueue-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
   INSTALL(TARGETS orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic LIBRARY DESTINATION lib RUNTIME DESTINATION bin )

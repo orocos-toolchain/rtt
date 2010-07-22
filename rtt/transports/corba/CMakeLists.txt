@@ -72,8 +72,8 @@ IF ( BUILD_STATIC )
 ENDIF( BUILD_STATIC )
 
   SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
-  ADD_RTT_TYPEKIT(rtt-corba-typekit ${RTT_VERSION} CorbaLib.cpp)
-  target_link_libraries(rtt-corba-typekit-${OROCOS_TARGET}_plugin  orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
+  ADD_RTT_TYPEKIT(rtt-transport-corba ${RTT_VERSION} CorbaLib.cpp)
+  target_link_libraries(rtt-transport-corba-${OROCOS_TARGET}_plugin  orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
 
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
