@@ -219,10 +219,7 @@ namespace RTT
             {
                 for (int i = 0; i != _size; ++i)
                 {
-                    if (_buf[i] != 0)
-                    {
-                        _buf[i] = 0;
-                    }
+                    _buf[i] = 0;
                 }
                 _indxes._value = 0;
             }
