@@ -136,6 +136,7 @@ namespace RTT {
         TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
 
         const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
+        const std::string& DataSourceTypeInfo<UnknownType>::getTypeName() { return getTypeInfo()->getTypeName(); }
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
         TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() {
             if (!TypeInfoObject)
@@ -155,6 +156,7 @@ namespace RTT {
         const std::string DataSourceTypeInfo<void>::tname("void");
 
         const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
+        const std::string& DataSourceTypeInfo<void>::getTypeName() { return tname; }
         const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
         const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() {
             if (!TypeInfoObject)

@@ -73,6 +73,7 @@ namespace RTT
             static const std::string ptrqual;
             static const std::string cptrqual;
             static const std::string& getType();
+            static const std::string& getTypeName();
             static const std::string& getQualifier();
             // we drop the const qualifier in this specialisation, since it is
             // not registered in the type repository (which returns a non const in type() )
@@ -87,7 +88,8 @@ namespace RTT
         struct DataSourceTypeInfo<const T&> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
-            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static std::string getType()  { return getTypeName() + getQualifier(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::crefqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
@@ -96,7 +98,8 @@ namespace RTT
         struct DataSourceTypeInfo<T&> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
-            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static std::string getType()  { return getTypeName() + getQualifier(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::refqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
@@ -105,7 +108,8 @@ namespace RTT
         struct DataSourceTypeInfo<const T> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
-            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static std::string getType()  { return getTypeName() + getQualifier(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::cqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
@@ -114,7 +118,8 @@ namespace RTT
         struct DataSourceTypeInfo<T*> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
-            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static std::string getType()  { return getTypeName() + getQualifier(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::ptrqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
@@ -123,7 +128,8 @@ namespace RTT
         struct DataSourceTypeInfo<const T*> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
-            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static std::string getType()  { return getTypeName() + getQualifier(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::cptrqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
         };
@@ -146,9 +152,14 @@ namespace RTT
             static types::TypeInfo* TypeInfoObject;
 
             /**
-             * Return the unqualified typename.
+             * Return the qualified type.
              */
             static const std::string& getType();
+
+            /**
+             * Return the unqualified typename.
+             */
+            static const std::string& getTypeName();
 
             /**
              * Return the 'const', 'ref', 'pointer' qualifier for this type.
@@ -178,9 +189,14 @@ namespace RTT
             static types::TypeInfo* TypeInfoObject;
 
             /**
-             * Return the unqualified typename.
+             * Return the qualified type.
              */
             static const std::string& getType();
+
+            /**
+             * Return the unqualified typename.
+             */
+            static const std::string& getTypeName();
 
             /**
              * Return the 'const', 'ref', 'pointer' qualifier for this type.

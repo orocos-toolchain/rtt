@@ -206,7 +206,7 @@ namespace RTT
                     boost::dynamic_pointer_cast< typename ds_type::element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
                     //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
                 }
 
@@ -232,7 +232,7 @@ namespace RTT
                 typename AssignableDataSource<ds_arg_type>::shared_ptr a =
                     boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
                 }
 
                 args.erase(args.begin());
@@ -352,7 +352,7 @@ namespace RTT
                     boost::dynamic_pointer_cast< typename ds_type::element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(front) );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
                 }
 
                 return type(a);
@@ -367,7 +367,7 @@ namespace RTT
                     boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSource<ds_arg_type>::GetType(), front->getType() ), type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
                 }
 
                 return atype(a);
