@@ -33,11 +33,11 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethod)
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
 {
     // Tests using caller and sender
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine());
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine());
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine());
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -103,11 +103,11 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 {
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine());
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine());
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine());
+    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -234,11 +234,11 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this);
-    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this);
+    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this, tc->engine(), caller->engine(), OwnThread );
+    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this, tc->engine(), caller->engine(), OwnThread );
 
-    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this);
-    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this);
+    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this, tc->engine(), caller->engine(), OwnThread );
+    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this, tc->engine(), caller->engine(), OwnThread );
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );

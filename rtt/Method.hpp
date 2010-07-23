@@ -267,8 +267,8 @@ namespace RTT
          * @param object An object of the class which has \a meth as member function.
          */
         template<class M, class ObjectType>
-        Method(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object, ee, caller) ) ),
+        Method(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object, ee, caller, et) ) ),
               mname(name), mcaller(caller)
         {}
 
@@ -279,8 +279,8 @@ namespace RTT
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        Method(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth,ee,caller) ) ),
+        Method(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
+            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth,ee,caller, et) ) ),
               mname(name), mcaller(caller)
         {}
 #endif

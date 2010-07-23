@@ -303,7 +303,7 @@ namespace RTT
             {
                 SendHandle<Signature> h;
                 if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1);
+                    h = send_impl<T1>(a1);
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
                     if ( h.collect() == SendSuccess )
@@ -325,7 +325,7 @@ namespace RTT
             {
                 SendHandle<Signature> h;
                 if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2);
+                    h = send_impl<T1,T2>(a1,a2);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2);
                     else
@@ -345,7 +345,7 @@ namespace RTT
             {
                 SendHandle<Signature> h;
                 if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2,a3);
+                    h = send_impl<T1,T2,T3>(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3);
                     else
@@ -365,7 +365,7 @@ namespace RTT
             {
                 SendHandle<Signature> h;
                 if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2,a3,a4);
+                    h = send_impl<T1,T2,T3,T4>(a1,a2,a3,a4);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4);
                     else
@@ -385,7 +385,7 @@ namespace RTT
             {
                 SendHandle<Signature> h;
                 if (met == OwnThread && myengine != caller) {
-                    h = send_impl(a1,a2,a3,a4,a5);
+                    h = send_impl<T1,T2,T3,T4,T5>(a1,a2,a3,a4,a5);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4,a5);
                     else
