@@ -81,6 +81,11 @@ namespace RTT
         return arg;
     }
 
+    base::DataSourceBase::shared_ptr TypeInfo::convertType(base::DataSourceBase::shared_ptr source) const
+    {
+        return base::DataSourceBase::shared_ptr();
+    }
+
     bool TypeInfo::resize(base::DataSourceBase::shared_ptr arg, int size) const {
         return false;
     }

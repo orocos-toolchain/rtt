@@ -15,17 +15,16 @@ namespace RTT {
             this->introspect( res );
             deletePropertyBag( res.value() );
             return true;
-        }else if ( Types()->type("int")  && Types()->type("int") != v->getTypeInfo() ) {
-            DataSourceBase::shared_ptr dsb = Types()->type("int")->convert( v->getDataSource() );
-            // convertible to int ?
-            if ( dsb != v->getDataSource() ) {
-                DataSource<int>::shared_ptr ds = DataSource<int>::narrow( dsb.get() );
-                assert( ds );
-                Property<int> pint(v->getName(), v->getDescription(), ds->get() );
-                this->introspect( &pint );
+        }else {
+            DataSourceBase::shared_ptr dsb = v->getTypeInfo()->convertType( v->getDataSource() );
+            // convertible ?
+            if ( dsb ) {
+                base::PropertyBase* p = dsb->getTypeInfo()->buildProperty(v->getName(), v->getDescription(), dsb);
+                this->introspect( p );
+                delete p;
                 return true;
             } else {
-                log(Warning) << "Property " << dsb->getTypeName() << " "<< v->getName()<< "'s type is not known and not convertible to int. Dropping it." << endlog();
+                log(Warning) << "Property " << v->getType() << " "<< v->getName()<< "'s type is not known and not convertible. Dropping it." << endlog();
                 return false;
             }
         }

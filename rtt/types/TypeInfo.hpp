@@ -224,8 +224,16 @@ namespace RTT
          *
          * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
          * datasources and hierarchical properties.
+         * @see convertType to do the inverse operation.
          */
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
+
+        /**
+         * Specialize this function to return an alternate type which represents this one in a compatible way.
+         * For example, a short converts to an long or an enum to an int or a string.
+         * @return null if this type is not convertible to anything else.
+         */
+        virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
         /**
          * @}
          */
