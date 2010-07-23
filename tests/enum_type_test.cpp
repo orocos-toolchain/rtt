@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testEnumTypeInfo )
     DataSource<int>::shared_ptr dint = DataSource<int>::narrow( result.getItem(0)->getDataSource().get() );
     BOOST_CHECK_EQUAL(dint->get(), (int)A );
 
-    pbi.introspect( &pa);
+    pbi.introspect( &pb);
     BOOST_REQUIRE_EQUAL( result.size(), 2);
     BOOST_CHECK( result.getItem(1)->getTypeInfo() == Types()->type("int") );
     dint = DataSource<int>::narrow( result.getItem(1)->getDataSource().get() );

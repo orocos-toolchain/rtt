@@ -35,13 +35,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma implementation
-#endif
 #include "PropertyBagIntrospector.hpp"
+#include "../types/Types.hpp"
 
 using namespace RTT;
-using namespace RTT::marsh;
+using namespace RTT::detail;
 
 PropertyBagIntrospector::PropertyBagIntrospector( PropertyBag& bag )
 {
@@ -75,12 +73,11 @@ void PropertyBagIntrospector::introspect(const PropertyBag& v )
 
 void PropertyBagIntrospector::introspect(base::PropertyBase* v)
 {
-    // if it is decomposable, identify a new bag, otherwise add a clone.
-    Property<PropertyBag> res(v->getName(), v->getDescription() );
-    if ( types::typeDecomposition( v->getDataSource(), res.value() ))
-        res.identify( this );
-    else
-        mystack.top()->add( v->clone() );
+    if ( this->introspectAndDecompose(v) )
+        return; // nothing to do.
+
+    // unknown, so add it to the stack:
+    mystack.top()->add( v->clone() );
 }
 
 void PropertyBagIntrospector::introspect(Property<PropertyBag> &v)

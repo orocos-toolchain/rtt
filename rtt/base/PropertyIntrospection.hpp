@@ -63,11 +63,7 @@ namespace RTT
     protected:
         virtual void introspect(PropertyBase* p );
 
-        /**
-         * The default handler to execute when an unknown
-         * type is being decomposed.
-         */
-        void introspect_T(PropertyBase* t);
+        void introspect_T(PropertyBase* p);
     public:
         virtual ~PropertyIntrospection()
         {}
