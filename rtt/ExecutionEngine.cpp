@@ -112,8 +112,8 @@ namespace RTT
         ExecutableInterface* foo = 0;
         int nbr = f_queue->size(); // nbr to process.
         // 1. Fetch new ones from queue.
-        while ( !f_queue->isEmpty() ) {
-            f_queue->dequeue( foo );
+        while ( f_queue->dequeue(foo) ) {
+            assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
             } else {
@@ -207,8 +207,8 @@ namespace RTT
         // msg_lock may not be held when entering this function !
         DisposableInterface* com(0);
         {
-            while ( !mqueue->isEmpty() ) {
-                mqueue->dequeue( com );
+            while ( mqueue->dequeue(com) ) {
+                assert( com );
                 com->executeAndDispose();
             }
             // there's no need to hold the lock during
