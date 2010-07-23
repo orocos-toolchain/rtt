@@ -214,7 +214,7 @@ IF (BUILD_TESTING)
         ADD_UNIT_TEST(buffers_test EXTRA_TESTS "${TEST_LIBRARIES}")
     endif()
         
-    ADD_UNIT_TEST(method_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+    ADD_UNIT_TEST(method_test EXTRA_TESTS "" operations_fixture.cpp )
     if (ORO_REMOTING)
         ADD_UNIT_TEST(remote_method_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
     endif()
