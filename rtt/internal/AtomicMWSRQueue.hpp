@@ -91,22 +91,19 @@ namespace RTT
             {
                 SIndexes oldval, newval;
                 // read it:
-                result = _buf[_indxes._index[1]];
+                oldval._value = _indxes._value;
+                result = _buf[oldval._index[1]];
                 // return it if not yet written:
                 if ( !result )
                     return false;
-                _buf[_indxes._index[1]] = 0;
+                // got it, clear field.
+                _buf[oldval._index[1]] = 0;
 
                 // move pointer:
                 do
-                {
+                { 
                     oldval._value = _indxes._value;
                     newval._value = oldval._value;
-                    // check for empty or not written:
-                    if (newval._index[0] == newval._index[1] || result == 0)
-                    {
-                        return false;
-                    }
                     newval._index[1]++;
                     if (newval._index[1] >= _size)
                         newval._index[1] = 0;
