@@ -61,7 +61,6 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             continue;
         }
         // finally recurse or add it to the target bag:
-        aspart->evaluate(); // necessary to read the member in case it's a reference to something ! The Property will not call evaluate() itself.
         PropertyBase* newpb = part->getTypeInfo()->buildProperty(*it,"Part",aspart);
         if ( !newpb ) {
             log(Error)<< "Decomposition failed because Part '"<<*it<<"' is not known to type system."<<endlog();

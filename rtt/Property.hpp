@@ -135,7 +135,11 @@ namespace RTT
         Property( const Property<T>& orig)
             : base::PropertyBase(orig.getName(), orig.getDescription()),
               _value( orig._value ? orig._value->clone() : 0 )
-        {}
+        {
+            // need to do this on the clone() in order to have access to set()/rvalue() of the data source.
+            if (_value)
+                _value->evaluate();
+        }
 
         /**
          * Create a Property \b mirroring another PropertyBase.
@@ -168,7 +172,11 @@ namespace RTT
         Property(const std::string& name, const std::string& description,
                  typename internal::AssignableDataSource<DataSourceType>::shared_ptr datasource )
             : base::PropertyBase(name, description), _value( datasource )
-        {}
+        {
+            // need to do this on the datasource in order to have access to set()/rvalue() of the data source.
+            if (_value)
+                _value->evaluate();
+        }
 
         /**
          * Set the property's value.
