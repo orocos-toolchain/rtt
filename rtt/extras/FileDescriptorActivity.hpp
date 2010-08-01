@@ -104,14 +104,22 @@ namespace RTT { namespace extras {
         bool m_running;
         int  m_interrupt_pipe[2];
         int  m_timeout;
+        /** Lock that protects the access to m_fd_set and m_watched_fds */
+        mutable RTT::os::Mutex m_lock;
         fd_set m_fd_set;
         fd_set m_fd_work;
         bool m_has_error;
         bool m_has_timeout;
         base::RunnableInterface* runner;
 
-        static const int CMD_BREAK_LOOP = 0;
-        static const int CMD_TRIGGER    = 1;
+        static const int CMD_BREAK_LOOP  = 0;
+        static const int CMD_TRIGGER     = 1;
+        static const int CMD_UPDATE_SETS = 2;
+
+        /** Internal method that makes sure loop() takes into account
+         * modifications in the set of watched FDs
+         */
+        void triggerUpdateSets();
 
     public:
         /**
@@ -146,6 +154,8 @@ namespace RTT { namespace extras {
          * activity when stop() is called. Otherwise, the file descriptor is
          * left as-is.}
          *
+         * This method is thread-safe, i.e. it can be called from any thread
+         *
          * @param fd the file descriptor
          * @param close_on_stop if true, the FD will be closed automatically when the activity is stopped
          */
@@ -153,8 +163,7 @@ namespace RTT { namespace extras {
 
         /** Removes a file descriptor from the set of watched FDs
          *
-         * The FD is never closed, even though close_on_stop was set to true in
-         * watchFileDescriptor
+         * This method is thread-safe, i.e. it can be called from any thread
          */
         void unwatch(int fd);
 

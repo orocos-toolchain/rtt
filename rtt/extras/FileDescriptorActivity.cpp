@@ -64,6 +64,7 @@ using namespace extras;
 using namespace base;
 const int FileDescriptorActivity::CMD_BREAK_LOOP;
 const int FileDescriptorActivity::CMD_TRIGGER;
+const int FileDescriptorActivity::CMD_UPDATE_SETS;
 
 
 /**
@@ -81,6 +82,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     , runner(_r)
 {
     FD_ZERO(&m_fd_set);
+    m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
 }
 
 /**
@@ -99,6 +101,7 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     , runner(_r)
 {
     FD_ZERO(&m_fd_set);
+    m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
 }
 
 FileDescriptorActivity::~FileDescriptorActivity()
@@ -113,7 +116,7 @@ int FileDescriptorActivity::getTimeout() const
 void FileDescriptorActivity::setTimeout(int timeout)
 { m_timeout = timeout; }
 void FileDescriptorActivity::watch(int fd)
-{
+{ RTT::os::MutexLock lock(m_lock);
     if (fd < 0)
     {
         log(Error) << "negative file descriptor given to FileDescriptorActivity::watch" << endlog();
@@ -122,11 +125,17 @@ void FileDescriptorActivity::watch(int fd)
 
     m_watched_fds.insert(fd);
     FD_SET(fd, &m_fd_set);
+    triggerUpdateSets();
 }
 void FileDescriptorActivity::unwatch(int fd)
-{
+{ RTT::os::MutexLock lock(m_lock);
     m_watched_fds.erase(fd);
     FD_CLR(fd, &m_fd_set);
+    triggerUpdateSets();
+}
+void FileDescriptorActivity::triggerUpdateSets()
+{
+    write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
@@ -135,17 +144,11 @@ bool FileDescriptorActivity::hasError() const
 bool FileDescriptorActivity::hasTimeout() const
 { return m_has_timeout; }
 bool FileDescriptorActivity::isWatched(int fd) const
-{ return FD_ISSET(fd, &m_fd_set); }
+{ RTT::os::MutexLock lock(m_lock);
+    return FD_ISSET(fd, &m_fd_set); }
 
 bool FileDescriptorActivity::start()
 {
-    // Check that there is FDs set ...
-    if (m_watched_fds.empty())
-    {
-        log(Error) << "FileDescriptorActivity: no descriptors added to watch" << endlog();
-        return false;
-    }
-
     if (pipe(m_interrupt_pipe) == -1)
     {
         log(Error) << "FileDescriptorActivity: cannot create control pipe" << endlog();
@@ -156,6 +159,7 @@ bool FileDescriptorActivity::start()
     {
         close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]);
+        m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
         return false;
     }
     return true;
@@ -165,27 +169,40 @@ bool FileDescriptorActivity::trigger()
 { return write(m_interrupt_pipe[1], &CMD_TRIGGER, 1) == 1; }
 
 struct fd_watch {
-    int fd;
-    fd_watch(int fd) : fd(fd) {}
-    ~fd_watch() { close(fd); };
+    int& fd;
+    fd_watch(int& fd) : fd(fd) {}
+    ~fd_watch()
+    {
+        close(fd);
+        fd = -1;
+    };
 };
 
 void FileDescriptorActivity::loop()
 {
     int pipe = m_interrupt_pipe[0];
-    int max_fd = std::max(pipe, *m_watched_fds.rbegin());
     fd_watch watch_pipe_0(m_interrupt_pipe[0]);
     fd_watch watch_pipe_1(m_interrupt_pipe[1]);
 
     while(true)
     {
-        m_fd_work = m_fd_set;
+        int max_fd;
+        { RTT::os::MutexLock lock(m_lock);
+            if (m_watched_fds.empty())
+                max_fd = pipe;
+            else
+                max_fd = std::max(pipe, *m_watched_fds.rbegin());
+
+            m_fd_work = m_fd_set;
+        }
         FD_SET(pipe, &m_fd_work);
 
         int ret;
         m_running = false;
         if (m_timeout == 0)
+        {
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, NULL);
+        }
         else
         {
             timeval timeout = { m_timeout / 1000, (m_timeout % 1000) * 1000 };
@@ -205,6 +222,7 @@ void FileDescriptorActivity::loop()
             m_has_timeout = true;
         }
 
+        bool do_break = false, do_trigger = true, do_update_sets = false;
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe
 
@@ -213,14 +231,18 @@ void FileDescriptorActivity::loop()
             fd_set watch_pipe;
             timeval timeout;
 
-            bool do_break = false, do_trigger = false;
+            do_trigger = false;
             do
             {
                 boost::uint8_t code;
                 if (read(pipe, &code, 1) == 1)
                 {
                     if (code == CMD_BREAK_LOOP)
+                    {
                         do_break = true;
+                    }
+                    else if (code == CMD_UPDATE_SETS)
+                        do_update_sets = true;
                     else
                         do_trigger = true;
                 }
@@ -237,16 +259,19 @@ void FileDescriptorActivity::loop()
                 break;
         }
 
-        try
+        if (do_trigger)
         {
-            m_running = true;
-            step();
-            m_running = false;
-        }
-        catch(...)
-        {
-            m_running = false;
-            throw;
+            try
+            {
+                m_running = true;
+                step();
+                m_running = false;
+            }
+            catch(...)
+            {
+                m_running = false;
+                throw;
+            }
         }
     }
 }
