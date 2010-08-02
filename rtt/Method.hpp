@@ -113,17 +113,21 @@ namespace RTT
         {}
 
         /**
-         * Method objects may be copied.
+         * Method objects may be copied. A deep copy is made
+         * of the implementation object such that using this
+         * object does not interfere when using the original, m.
          *
          * @param m the original
          */
         Method(const Method& m)
-            : Base(m.impl),
+            : Base(m.impl ? boost::shared_ptr< base::MethodBase<Signature> >(m.impl->cloneI(m.mcaller)) : m.impl ),
               mname(m.mname), mcaller(m.mcaller)
         {}
 
         /**
-         * Method objects may be assigned
+         * Method objects may be assigned. A deep copy is made
+         * of the implementation object such that using this
+         * object does not interfere when using the original, m.
          *
          * @param m the original
          *
