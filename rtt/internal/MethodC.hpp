@@ -171,6 +171,16 @@ namespace RTT
         bool ready() const;
 
         /**
+         * Returns the factory which we use to produce the operation call.
+         */
+        interface::OperationRepositoryPart* getOrp() const;
+
+        /**
+         * Returns the name of the operation that will be called.
+         */
+        std::string const& getName() const;
+
+        /**
          * Get the contained data source for 'call'.
          */
         base::DataSourceBase::shared_ptr getCallDataSource();
