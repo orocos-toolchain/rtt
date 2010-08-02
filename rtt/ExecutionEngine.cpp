@@ -85,11 +85,15 @@ namespace RTT
         assert( children.empty() );
 
         ExecutableInterface* foo;
-        while ( !f_queue->isEmpty() ) {
-            if (f_queue->dequeue( foo ) )
-                foo->unloaded();
-        }
+        while ( f_queue->dequeue( foo ) )
+            foo->unloaded();
+
+        DisposableInterface* dis;
+        while ( mqueue->dequeue( dis ) )
+            dis->dispose();
+
         delete f_queue;
+        delete mqueue;
     }
 
     TaskCore* ExecutionEngine::getParent() {
