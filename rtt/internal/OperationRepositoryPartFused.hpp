@@ -125,14 +125,14 @@ namespace RTT
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
                                                                             boost::lambda::_1
                                                                             )
                                                                 )
                                    );
 #else
                 return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                            boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
                                                                             boost::lambda::_1
                                                                             )
                                                                 )
@@ -250,14 +250,14 @@ namespace RTT
                     // note: in boost 1.41.0+ the function make_unfused() is available.
     #if BOOST_VERSION >= 104100
                     return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
                                                                                 _1
                                                                                 )
                                                                     )
                                        );
     #else
                     return op->signals( boost::fusion::make_unfused_generic(boost::bind(&FusedMSignal<Signature>::invoke,
-                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args)),
+                                                                                boost::make_shared<FusedMSignal<Signature> >(func, SequenceFactory::assignable(args.begin())),
                                                                                 _1
                                                                                 )
                                                                     )

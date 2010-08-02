@@ -98,6 +98,10 @@ namespace RTT
             static void update(typename DataSource<typename remove_cr<T>::type >::shared_ptr s) { s->updated(); }
         };
 
+        /**
+         * Helper to convert a single data source base to a DataSource or AssignableDataSource.
+         * Used by create_sequence_impl.
+         */
         struct create_sequence_helper {
             template<class ds_arg_type, class ds_type>
             static ds_type sources(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr, std::string const& tname )
@@ -111,23 +115,20 @@ namespace RTT
                     ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
                     //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
                 }
-                return ds_type(a);
+                return a;
             }
 
             template<class ds_arg_type, class ads_type>
-            static ads_type assignable(std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr, std::string const& tname )
+            static ads_type assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr, std::string const& tname )
             {
                 typedef typename ads_type::element_type element_type;
-                base::DataSourceBase::shared_ptr front = args.front();
 
-                typename AssignableDataSource<ds_arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front ); // note: no conversion done, must be same type.
+                ads_type a =
+                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( *front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, tname, front->getType() ), ads_type());
+                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ads_type());
                 }
-
-                args.erase(args.begin());
-                return  ads_type(a);
+                return a;
             }
         };
 
@@ -246,21 +247,12 @@ namespace RTT
              * @param argnbr Leave as default. Used internally to count recursive calls.
              * @return a Fusion Sequence of DataSource<T>::shared_ptr objects
              */
-            static atype assignable(std::vector<base::DataSourceBase::shared_ptr> args, int argnbr = 1 )
+            static atype assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator args, int argnbr = 1 )
             {
-                assert( args.size() == size);
-                base::DataSourceBase::shared_ptr front = args.front();
-
-                typename AssignableDataSource<ds_arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front ); // note: no conversion done, must be same type.
-                if ( ! a ) {
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
-                }
-
-                args.erase(args.begin());
+                std::vector<base::DataSourceBase::shared_ptr>::const_iterator next = args;
                 return atype(
-                        ads_type(a),
-                        tail::assignable(args, ++argnbr));
+                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<bare_type>::getType()),
+                        tail::assignable(++next, argnbr + 1));
             }
 
             /**
@@ -367,29 +359,14 @@ namespace RTT
 
             static type sources(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr = 1)
             {
-                ds_type a =
-                    boost::dynamic_pointer_cast< typename ds_type::element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
-                if ( ! a ) {
-                    //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), (*front)->getType() ), type());
-                }
-
-                return type(a);
+                return type(
+                        create_sequence_helper::sources<ds_arg_type, ds_type>(front, argnbr, DataSourceTypeInfo<bare_type>::getType()));
             }
 
-            static atype assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 1)
+            static atype assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator args, int argnbr = 1)
             {
-                assert( args.size() == 1);
-                base::DataSourceBase::shared_ptr front = args.front();
-
-                typename AssignableDataSource<ds_arg_type>::shared_ptr a =
-                    boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( front );
-                if ( ! a ) {
-                    //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, DataSourceTypeInfo<bare_type>::getType(), front->getType() ), type());
-                }
-
-                return atype(a);
+                return atype(
+                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<bare_type>::getType()));
             }
 
             /**
@@ -451,9 +428,8 @@ namespace RTT
                 return type();
             }
 
-            static atype assignable(const std::vector<base::DataSourceBase::shared_ptr>& args, int argnbr = 0)
+            static atype assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator args, int argnbr = 0)
             {
-                assert( args.size() == 0);
                 return atype();
             }
 
