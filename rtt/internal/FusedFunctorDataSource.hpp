@@ -189,13 +189,17 @@ namespace RTT
          * will be the return type of the created data source.
          * @param args The arguments given to the function \a f
          * @return A new data source.
+         * @throw wrong_number_of_args_exception when args.size() is not equal to the arity of \a f.
+         * @throw wrong_types_of_args_exception when one or more types in args do not match the expected types in f.
          */
         template<class Function>
         base::DataSourceBase* newFunctorDataSource(Function f, const std::vector<base::DataSourceBase::shared_ptr>& args)
         {
             typedef typename boost::function_types::function_type<Function>::type Signature;
             typedef internal::create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
-            return new FusedFunctorDataSource<Signature>(f, SequenceFactory::sources(args));
+            if ( args.size() != boost::function_traits<Signature>::arity )
+                throw interface::wrong_number_of_args_exception(boost::function_traits<Signature>::arity, args.size() );
+            return new FusedFunctorDataSource<Signature>(f, SequenceFactory::sources(args.begin()));
         }
 
         /**
