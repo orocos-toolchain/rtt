@@ -2,3 +2,14 @@ build*
 .cproject
 .project
 .settings
+*vcproj*
+*.user
+*.dir
+cmake_install.cmake
+CTestTestfile.cmake
+CMakeFiles/
+*~
+cmake_uninstall.cmake
+install_manifest.txt
+CMakeCache.txt
+
