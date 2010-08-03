@@ -7,19 +7,10 @@
 #include "datasource_fixture.hpp"
 #include "marsh/PropertyBagIntrospector.hpp"
 #include "types/EnumTypeInfo.hpp"
+#include "marsh/PropertyLoader.hpp"
+#include "TaskContext.hpp"
 
 using namespace boost::lambda;
-
-class EnumTypeTest
-{
-public:
-    EnumTypeTest()
-    {
-    }
-    ~EnumTypeTest()
-    {
-    }
-};
 
 typedef enum
 {
@@ -37,6 +28,30 @@ struct EnumStringTypeInfo: public EnumTypeInfo<TheEnum>
     }
 };
 
+class EnumTypeTest
+{
+public:
+    TheEnum enum1;
+    TheEnum enum2;
+
+    AssignableDataSource<TheEnum>::shared_ptr a; //! Contains 'A'
+    AssignableDataSource<TheEnum>::shared_ptr b; //! Contains 'B'
+    TypeInfo* ti; //! Type info for enum
+    TypeInfo* ts; //! Type info for 'string'
+
+    EnumTypeTest()
+    {
+
+        a = new ValueDataSource<TheEnum>( A );
+        b = new ValueDataSource<TheEnum>( B );
+
+    }
+    ~EnumTypeTest()
+    {
+    }
+};
+
+
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE( EnumTypeTestSuite, EnumTypeTest )
 
@@ -44,9 +59,6 @@ BOOST_FIXTURE_TEST_SUITE( EnumTypeTestSuite, EnumTypeTest )
 BOOST_AUTO_TEST_CASE( testEnumIntConversion )
 {
     Types()->addType( new EnumTypeInfo<TheEnum>("TheEnum") );
-
-    AssignableDataSource<TheEnum>::shared_ptr a = new ValueDataSource<TheEnum>( A );
-    AssignableDataSource<TheEnum>::shared_ptr b = new ValueDataSource<TheEnum>( B );
 
     BOOST_REQUIRE( Types()->type("TheEnum") );
     BOOST_REQUIRE( Types()->type("int") );
@@ -82,11 +94,9 @@ BOOST_AUTO_TEST_CASE( testEnumIntConversion )
 BOOST_AUTO_TEST_CASE( testEnumStringConversion )
 {
     Types()->addType( new EnumStringTypeInfo() );
-    TypeInfo* ti = Types()->type("TheEnum");
-    TypeInfo* ts = Types()->type("string");
 
-    AssignableDataSource<TheEnum>::shared_ptr a = new ValueDataSource<TheEnum>( A );
-    AssignableDataSource<TheEnum>::shared_ptr b = new ValueDataSource<TheEnum>( B );
+    ti = Types()->type("TheEnum");
+    ts = Types()->type("string");
 
     BOOST_REQUIRE( ti );
     BOOST_REQUIRE( ts );
@@ -120,6 +130,58 @@ BOOST_AUTO_TEST_CASE( testEnumStringConversion )
     dstring = DataSource<string>::narrow( result.getItem(1)->getDataSource().get() );
 
     BOOST_CHECK_EQUAL(dstring->get(), "B" );
+}
+
+// Tests enum to file and back
+BOOST_AUTO_TEST_CASE( testEnumSaveIntProperties )
+{
+    PropertyLoader pl;
+    TaskContext tc("TC");
+    enum1 = A;
+    enum2 = B;
+    tc.addProperty("enum1", enum1 );
+    tc.addProperty("enum2", enum2 );
+
+    // Test saving to int.
+    Types()->addType( new EnumTypeInfo<TheEnum>("TheEnum") );
+
+    // saves A and B
+    BOOST_CHECK( pl.save("enum_type_test_int_save.cpf", &tc, true) );
+
+    enum1 = B;
+    enum2 = A;
+
+    // restores A and B
+    BOOST_CHECK( pl.load("enum_type_test_int_save.cpf", &tc) );
+
+    BOOST_CHECK_EQUAL( enum1, A);
+    BOOST_CHECK_EQUAL( enum2, B);
+}
+
+// Tests enum to file and back
+BOOST_AUTO_TEST_CASE( testEnumSaveStringProperties )
+{
+    PropertyLoader pl;
+    TaskContext tc("TC");
+    enum1 = A;
+    enum2 = B;
+    tc.addProperty("enum1", enum1 );
+    tc.addProperty("enum2", enum2 );
+
+    // Test saving to string.
+    Types()->addType( new EnumStringTypeInfo() );
+
+    // saves A and B
+    BOOST_CHECK( pl.save("enum_type_test_string_save.cpf", &tc, true) );
+
+    enum1 = B;
+    enum2 = A;
+
+    // restores A and B
+    BOOST_CHECK( pl.load("enum_type_test_string_save.cpf", &tc) );
+
+    BOOST_CHECK_EQUAL( enum1, A);
+    BOOST_CHECK_EQUAL( enum2, B);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
