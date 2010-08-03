@@ -66,15 +66,11 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     activity->fd = reader;
     activity->other_fd = other_reader;
 
-    // The activity should refuse starting if there is nothing to watch
-    BOOST_CHECK( !activity->isRunning() && !activity->isActive() );
-    BOOST_CHECK( !activity->start() );
-    BOOST_CHECK( !activity->isRunning() && !activity->isActive() );
+    BOOST_CHECK( activity->start() );
 
     // Add something to watch and check that it does start
     activity->watch(reader);
     activity->watch(other_reader);
-    BOOST_CHECK( activity->start() );
     usleep(USLEEP);
     BOOST_CHECK( !activity->isRunning() && activity->isActive() );
     BOOST_CHECK_EQUAL(0, activity->step_count);
