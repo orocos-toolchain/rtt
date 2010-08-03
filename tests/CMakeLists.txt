@@ -4,7 +4,7 @@ IF (BUILD_TESTING)
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
    endif()
 
-   find_package(Boost 1.33 REQUIRED unit_test_framework)
+   find_package(Boost 1.38 REQUIRED unit_test_framework)
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
