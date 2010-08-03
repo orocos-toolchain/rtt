@@ -1,15 +1,21 @@
 #ifndef DATASOURCE_TYPE_INFO_INL
 #define DATASOURCE_TYPE_INFO_INL
 
-#include "../types/Types.hpp"
+#include "../types/TypeInfo.hpp"
+#include "../types/TypeInfoRepository.hpp"
 
 namespace RTT
 {
     namespace internal {
         template< class T>
         const std::string& DataSourceTypeInfo<T>::getType() {
-			return getTypeInfo()->getTypeName();
-		}
+	    return getTypeInfo()->getTypeName();
+	}
+
+        template< class T>
+        const std::string& DataSourceTypeInfo<T>::getTypeName() {
+	    return getTypeInfo()->getTypeName();
+	}
 
         template< class T>
         const std::string& DataSourceTypeInfo<T>::getQualifier() {

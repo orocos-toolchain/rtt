@@ -335,8 +335,7 @@ namespace RTT
             }
 
             virtual base::MethodBase<MethodT>* cloneI(ExecutionEngine* caller) const {
-                RemoteMethod<MethodT>* rm = new RemoteMethod<MethodT>(*this);
-                rm->setCaller(caller);
+                RemoteMethod<MethodT>* rm = new RemoteMethod<MethodT>( this->mmeth.getOrp(), this->mmeth.getName(), caller);
                 return rm;
             }
         };

@@ -230,15 +230,34 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
 
 }
 
-BOOST_AUTO_TEST_CASE(testCRMethod)
+BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_ClientThread)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this, tc->engine(), caller->engine(), OwnThread );
-    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this, tc->engine(), caller->engine(), OwnThread );
+    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this, tc->engine(), caller->engine(), ClientThread );
+    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this, tc->engine(), caller->engine(), ClientThread );
 
-    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this, tc->engine(), caller->engine(), OwnThread );
-    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this, tc->engine(), caller->engine(), OwnThread );
+    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this, tc->engine(), caller->engine(), ClientThread );
+    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this, tc->engine(), caller->engine(), ClientThread );
+
+    BOOST_CHECK_EQUAL( -3.3, m0r() );
+    BOOST_CHECK_EQUAL( -3.3, m0cr() );
+
+    double value = 5.3;
+    BOOST_CHECK_EQUAL( 5.3*2, m1r(value) );
+    BOOST_CHECK_EQUAL( 5.3*2, value );
+    BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
+}
+
+BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_OwnThread)
+{
+    this->ret = -3.3;
+
+    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this,tc->engine(), caller->engine(), OwnThread);
+    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this,tc->engine(), caller->engine(), OwnThread);
+
+    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this,tc->engine(), caller->engine(), OwnThread);
+    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this,tc->engine(), caller->engine(), OwnThread);
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );

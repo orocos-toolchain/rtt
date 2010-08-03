@@ -102,6 +102,21 @@ public:
     }
 };
 
+class BuffersAtomicMWSRQueueTest
+{
+public:
+    AtomicMWSRQueue<Dummy*>* aqueue;
+
+    BuffersAtomicMWSRQueueTest()
+    {
+        aqueue = new AtomicMWSRQueue<Dummy*>(QS);
+    }
+    ~BuffersAtomicMWSRQueueTest(){
+        aqueue->clear();
+        delete aqueue;
+    }
+};
+
 class BuffersDataFlowTest
 {
 public:
@@ -257,7 +272,7 @@ struct AQWorker : public RunnableInterface
             if ( mlst->dequeue( d ) ) {
                 if( *d != *orig) {
                     os::MutexLock lock(m);
-                    BOOST_CHECK_EQUAL(*d, *orig); // exercise reading returned memory.
+                    assert(*d == *orig); // exercise reading returned memory.
                 }
                 ++erases;
             }
@@ -353,7 +368,7 @@ struct AQEater : public RunnableInterface
 
 BOOST_FIXTURE_TEST_SUITE( BuffersAtomicTestSuite, BuffersAQueueTest )
 
-BOOST_AUTO_TEST_CASE( testAtomic )
+BOOST_AUTO_TEST_CASE( testAtomicQueue )
 {
     /**
      * Single Threaded test for AtomicQueue.
@@ -391,55 +406,56 @@ BOOST_AUTO_TEST_CASE( testAtomic )
 
     delete d;
 }
+BOOST_AUTO_TEST_SUITE_END()
 
-#if 0
-BOOST_AUTO_TEST_CASE( testAtomicCounted )
+BOOST_FIXTURE_TEST_SUITE( BuffersMWSRQueueTestSuite, BuffersAtomicMWSRQueueTest )
+
+BOOST_AUTO_TEST_CASE( testAtomicMWSRQueue )
 {
     /**
      * Single Threaded test for AtomicQueue.
      */
-
-    Dummy* d = new Dummy;
-    Dummy* e = new Dummy;
+    Dummy* d = new Dummy();
     Dummy* c = d;
 
-    BOOST_CHECK( aqueue->dequeueCounted(c) == 0 );
-    BOOST_CHECK( c == d );
-
-    // monotonic increasing counts
-    int cache = 1;
-    for ( int i = 0; i < QS; ++i)
-        BOOST_CHECK( aqueue->enqueueCounted( d ) == cache++ );
-    BOOST_CHECK( aqueue->isFull() == true );
-    BOOST_CHECK( aqueue->isEmpty() == false );
-    BOOST_CHECK( aqueue->enqueueCounted( d ) == 0 );
-
-    BOOST_CHECK( aqueue->dequeueCounted( d ) == 1 );
-    BOOST_CHECK( aqueue->isFull() == false );
-
-    cache = 2;
-    for ( int i = 0; i < QS - 1 ; ++i)
-        BOOST_CHECK( aqueue->dequeueCounted( d ) == cache++ );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(0), aqueue->size() );
     BOOST_CHECK( aqueue->isFull() == false );
     BOOST_CHECK( aqueue->isEmpty() == true );
-
-    BOOST_CHECK( aqueue->enqueueCounted( d ) != 0 );
-    BOOST_CHECK( aqueue->enqueueCounted( e ) != 0 );
-    BOOST_CHECK( aqueue->enqueueCounted( d ) != 0 );
-    c = 0;
-    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
-    BOOST_CHECK( c == d );
-    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
-    BOOST_CHECK( c == e );
-    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
+    BOOST_CHECK( aqueue->dequeue(c) == false );
     BOOST_CHECK( c == d );
 
-    delete e;
+    for ( int i = 0; i < QS; ++i) {
+        BOOST_CHECK( aqueue->enqueue( d ) == true);
+        BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(i+1), aqueue->size() );
+        BOOST_CHECK( d );
+    }
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
+    BOOST_CHECK( aqueue->isFull() == true );
+    BOOST_CHECK( aqueue->isEmpty() == false );
+    BOOST_CHECK( aqueue->enqueue( d ) == false );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->size() );
+    d = 0;
+    aqueue->dequeue( d );
+    BOOST_CHECK( d ); // not null
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS-1), aqueue->size() );
+
+    for ( int i = 0; i < QS - 1 ; ++i) {
+        BOOST_CHECK( aqueue->dequeue( d ) == true);
+        BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS - 2 - i), aqueue->size() );
+        BOOST_CHECK( d );
+    }
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_CHECK( aqueue->isEmpty() == true );
+    BOOST_CHECK( aqueue->dequeue(d) == false );
+    BOOST_CHECK( d ); // not null
+
     delete d;
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_FIXTURE_TEST_SUITE( BuffersDataFlowTestSuite, BuffersDataFlowTest )
 
 BOOST_AUTO_TEST_CASE( testBufLockFree )
