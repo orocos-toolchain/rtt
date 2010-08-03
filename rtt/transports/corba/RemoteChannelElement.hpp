@@ -135,7 +135,7 @@ namespace RTT {
                 if ( pull ) {
                     try
                     { valid = remote_side->remoteSignal(); }
-#ifndef CORBA_IS_TAO
+#ifdef CORBA_IS_OMNIORB
                     catch(CORBA::SystemException& e)
                     {
                         log(Error) << "caught CORBA exception while signalling our remote endpoint: " << e._name() << " " << e.NP_minorString() << endlog();
@@ -230,7 +230,7 @@ namespace RTT {
                     else
                         return NoData;
                 }
-#ifndef CORBA_IS_TAO
+#ifdef CORBA_IS_OMNIORB
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while reading a remote channel: " << e._name() << " " << e.NP_minorString() << endlog();
@@ -281,7 +281,7 @@ namespace RTT {
                     remote_side->write(ret.in()); 
                     return true;
                 }
-#ifndef CORBA_IS_TAO
+#ifdef CORBA_IS_OMNIORB
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while marshalling: " << e._name() << " " << e.NP_minorString() << endlog();
