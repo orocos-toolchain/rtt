@@ -44,9 +44,9 @@ endif()
 ###########################################################
 
 #Hack: remove our own FindBoost.cmake if cmake < 2.6.2
-if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
-  execute_process( COMMAND cmake -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-  execute_process( COMMAND cmake -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
+if( ${CMAKE_MINOR_VERSION} LESS 7 AND ${CMAKE_PATCH_VERSION} LESS 2)
+  execute_process( COMMAND ${CMAKE_COMMAND} -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
+  execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
 endif()
 
 # Look for boost
