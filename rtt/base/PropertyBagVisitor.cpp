@@ -24,7 +24,7 @@ namespace RTT {
                 delete p;
                 return true;
             } else {
-                log(Warning) << "Property " << v->getType() << " "<< v->getName()<< "'s type is not known and not convertible. Dropping it." << endlog();
+                //log(Warning) << "Property " << v->getType() << " "<< v->getName()<< "'s type is not known and not convertible. Dropping it." << endlog();
                 return false;
             }
         }

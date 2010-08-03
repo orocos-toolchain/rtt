@@ -73,7 +73,7 @@ namespace RTT {
     void PropertyIntrospection::introspect_T(PropertyBase* p )
     {
         if (introspectAndDecompose(p) == false ) {
-            log(Warning) << "Don't know type "<< p->getType() << " of "<< p->getName() <<" and could not decompose it. Dropping it." << endlog();
+            log(Warning) << "Don't know type "<< p->getType() << " of "<< p->getName() <<" and could not convert or decompose it. Dropping it." << endlog();
             // drop.
         }
     }
