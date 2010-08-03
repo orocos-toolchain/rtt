@@ -213,7 +213,11 @@ namespace RTT
                 Data() : tag(0), tagged(0), val_("EventData") {}
                 volatile int tag;
                 mutable int tagged;
+#ifndef OROBLD_OS_NO_ASM
                 DataObjectLockFree<T> val_;
+#else
+                DataObjectLocked<T> val_;
+#endif
                 typedef T type;
                 operator bool() const {
                 	/*Check for work.*/
@@ -228,7 +232,9 @@ namespace RTT
                     return val_.Get();
                 }
                 void clear() {
+#ifndef OROBLD_OS_NO_ASM
                     if(OS::CAS(&tag, tagged, tagged+1))
+#endif
                     {
                     	/*Try to clear work. If pre-empted here by operator=() tag will be incremented toO.*/
                     	tagged++;
