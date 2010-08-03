@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( testStringContainerType )
     // test use of 'getAssignable()' to narrow:
     DataSourceBase::shared_ptr ds0 = atype->getMember("0");
     BOOST_REQUIRE( ds0 );
-    AssignableDataSource<char>::shared_ptr a0 = AssignableDataSource<char>::narrow( ds0->getTypeInfo()->getAssignable( ds0 ).get() );
+    AssignableDataSource<char>::shared_ptr a0 = AssignableDataSource<char>::narrow( ds0.get() );
     BOOST_REQUIRE( a0 );
 
     // Check individual part lookup by index:

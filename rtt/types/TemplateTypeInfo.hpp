@@ -207,7 +207,9 @@ namespace RTT
                     = boost::dynamic_pointer_cast< internal::AssignableDataSource<PropertyType> >( source );
                 if (ad)
                     return new Property<PropertyType>(name, desc, ad );
-                // else ?
+                else {
+                    log(Error) <<"Failed to build 'Property<"<< this->tname <<"> "<<name<<"' from given DataSourceBase. Returning default."<<endlog();
+                }
             }
             return new Property<PropertyType>(name, desc);
         }
@@ -217,11 +219,6 @@ namespace RTT
         }
         virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
             return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
-        }
-
-        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
-            log(Debug) << "Trying to make " << arg->getType() <<" assignable to "<< tname <<"..."<<endlog();
-            return boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(arg);
         }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {

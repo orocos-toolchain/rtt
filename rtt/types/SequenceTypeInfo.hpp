@@ -84,8 +84,7 @@ namespace RTT
 
             bool resize(base::DataSourceBase::shared_ptr arg, int size) const
             {
-                arg = this->getAssignable( arg );
-                if (arg) {
+                if (arg->isAssignable()) {
                     typename internal::AssignableDataSource<T>::shared_ptr asarg = internal::AssignableDataSource<T>::narrow( arg.get() );
                     asarg->set().resize( size );
                     asarg->updated();
