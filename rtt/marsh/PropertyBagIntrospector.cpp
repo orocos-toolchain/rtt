@@ -35,7 +35,63 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma implementation
-#endif
 #include "PropertyBagIntrospector.hpp"
+#include "../types/Types.hpp"
+
+using namespace RTT;
+using namespace RTT::detail;
+
+PropertyBagIntrospector::PropertyBagIntrospector( PropertyBag& bag )
+{
+    mystack.push( &bag );
+}
+
+PropertyBagIntrospector::~PropertyBagIntrospector()
+{
+    mystack.pop();
+}
+
+/**
+ * Reset to do a new introspection.
+ * @param new_bag The new bag to save the results in.
+ */
+void PropertyBagIntrospector::reset( PropertyBag& new_bag)
+{
+    mystack.pop();
+    mystack.push( &new_bag );
+}
+
+
+/**
+ * Use this entry function to inspect a bag.
+ * @param v the properties of this bag will be inspected.
+ */
+void PropertyBagIntrospector::introspect(const PropertyBag& v )
+{
+    v.identify(this);
+}
+
+void PropertyBagIntrospector::introspect(base::PropertyBase* v)
+{
+    if ( this->introspectAndDecompose(v) )
+        return; // nothing to do.
+
+    // unknown, so add it to the stack:
+    mystack.top()->add( v->clone() );
+}
+
+void PropertyBagIntrospector::introspect(Property<PropertyBag> &v)
+{
+    PropertyBag* cur_bag = mystack.top();
+    Property<PropertyBag>* bag_cl
+        = new Property<PropertyBag>( v.getName(),
+                                     v.getDescription(),
+                                     PropertyBag( v.get().getType() ) );
+    cur_bag->add( bag_cl );
+
+    mystack.push( &bag_cl->value() );
+
+    v.value().identify(this);
+
+    mystack.pop();
+}

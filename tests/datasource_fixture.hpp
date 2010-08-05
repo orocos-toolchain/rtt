@@ -3,6 +3,7 @@
 
 #include "unit.hpp"
 #include <boost/array.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
  * AType uses simple C types and C++ containers
@@ -120,6 +121,45 @@ std::ostream& operator<<(std::ostream& os, const CType& a)
     os <<"  >"<<endl <<"}";
     return os;
 }
+
+namespace boost {
+namespace serialization {
+
+template<class Archive>
+void serialize(Archive & ar, AType & g, const unsigned int version)
+{
+    ar & make_nvp("a", g.a);
+    ar & make_nvp("b", g.b);
+    ar & make_nvp("c", g.c );
+    ar & make_nvp("ai", g.ai );
+    ar & make_nvp("vd", g.vd );
+}
+
+template<class Archive>
+void serialize(Archive & ar, BType & g, const unsigned int version)
+{
+    ar & make_nvp("a", g.a);
+    ar & make_nvp("b", g.b);
+    ar & make_nvp("c", make_array(g.c,10) );
+    ar & make_nvp("ai", make_array(g.ai,5) );
+    ar & make_nvp("vd", make_array(g.vd,10) );
+
+    //ar & make_nvp("vvi", make_array( g.vvi, 4));
+}
+
+template<class Archive>
+void serialize(Archive & ar, CType & g, const unsigned int version)
+{
+    ar & make_nvp("a", g.a);
+    ar & make_nvp("b", g.b);
+    ar & make_nvp("av", g.av );
+    ar & make_nvp("bv", g.bv );
+}
+
+} // namespace serialization
+} // namespace boost
+
+
     /**
      * Only for unit tests: only returns new value in get() after updated() has been
      * called. Use this to test the calling of updated() after a set().
