@@ -23,7 +23,7 @@ BOOST_FIXTURE_TEST_SUITE( PropertyMarshTestSuite, PropertyMarshTest )
 //! Test writing some properties and reading the same file back in.
 BOOST_AUTO_TEST_CASE( testPropMarsh )
 {
-    std::string filename = ".testPropMarsh.cpf";
+    std::string filename = "testPropMarsh.tst";
 
     PropertyBag source; // to file
     PropertyBag target; // from file
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
 //! Test writing a vector to file and back in.
 BOOST_AUTO_TEST_CASE( testPropMarshVect )
 {
-    std::string filename = ".testPropMarshVect.cpf";
+    std::string filename = "testPropMarshVect.tst";
 
     PropertyBag source; // to file
     PropertyBag target; // from file

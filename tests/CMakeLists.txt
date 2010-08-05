@@ -45,8 +45,6 @@ IF (BUILD_TESTING)
     # Copy over CPF files.
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf
                    ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarshVectLegacy.cpf COPYONLY)
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/testPropMarsh.cpf
-                   ${RUNTIME_OUTPUT_DIRECTORY}/testPropMarsh.cpf COPYONLY)
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf
                    ${RUNTIME_OUTPUT_DIRECTORY}/property_loading.cpf COPYONLY)
 
@@ -251,7 +249,8 @@ IF (BUILD_TESTING)
         ADD_SUBDIRECTORY(types)
     endif()
     
-    ADD_CUSTOM_TARGET(check ctest -V
+    ADD_CUSTOM_TARGET(check ${CMAKE_COMMAND} -E remove *.tst core *.ior orocos.log
+      COMMAND ctest -V
       DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
 

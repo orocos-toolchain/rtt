@@ -33,7 +33,7 @@ BOOST_FIXTURE_TEST_SUITE( PropertyLoaderTest, LoaderTest )
  */
 BOOST_AUTO_TEST_CASE( testPropSaveLoad )
 {
-    std::string filename = "property_writing.cpf";
+    std::string filename = "property_writing.tst";
     tc.addProperty(pstring);
     tc.addProperty(pchar);
     tc.addProperty(pdouble);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testPropSaveLoad )
  */
 BOOST_AUTO_TEST_CASE( testPropUnknown )
 {
-    std::string filename = "property_unknown.cpf";
+    std::string filename = "property_unknown.tst";
     tc.addProperty(pints);
 
     BOOST_CHECK( pl.save(filename, &tc, true) ); // produces empty file.
