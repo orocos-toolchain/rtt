@@ -108,6 +108,8 @@ namespace RTT
         typedef std::vector<PortInterface*> PList;
         PList ports;
         bool mconnected;
+
+        std::string connectionName;
     public:
         typedef boost::intrusive_ptr<ConnectionInterface> shared_ptr;
 
@@ -189,6 +191,26 @@ namespace RTT
          */
         void signal();
 
+        /**
+         * Return the name of this connection if available.
+         *
+         * @return the name of the connection
+         */
+        std::string getConnectionName();
+
+        /**
+         * Set a new name for this connection.
+         *
+         * @param newConnectionName The new name to be set for this connection.
+         */
+        void setConnectionName(std::string newConnectionName);
+
+        /**
+         * Accessibility method to return all the port list associated with this connection.
+         *
+         * @return the port list for this connection
+         */
+        PList getPortList();
     };
 }
 
