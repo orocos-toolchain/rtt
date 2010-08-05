@@ -45,6 +45,12 @@
 
 using namespace boost;
 
+#ifdef WIN32
+    #ifdef NDEBUG
+        #pragma optimize( "", off)
+    #endif
+#endif
+
 namespace RTT
 {
   using namespace detail;
@@ -225,3 +231,9 @@ namespace RTT
     return std::make_pair( ret, cond_ret );
   }
 }
+
+#ifdef WIN32
+    #ifdef NDEBUG
+        #pragma optimize( "", on)
+    #endif
+#endif
