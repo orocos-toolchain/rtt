@@ -139,7 +139,10 @@ namespace RTT
                                                              base::DataSourceBase::shared_ptr id) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 if ( !data ) {
-                    log(Error) << "TypeInfo of type "<< this->getTypeName() <<" can't handle (non-assignable) types of type "<< item->getTypeInfo() <<endlog();
+                    if ( !item->isAssignable() )
+                        log(Error) << "Can't return reference to members of type "<< this->getTypeName() <<" since given object is not assignable." <<endlog();
+                    else
+                        log(Error) << "Consistency error: TypeInfo of type "<< this->getTypeName() <<" can't handle types of type "<< item->getType() <<endlog();
                     return base::DataSourceBase::shared_ptr();
                 }
 
@@ -165,10 +168,10 @@ namespace RTT
                     } catch(...) {}
                 }
                 if (id_name) {
-                    log(Error) << "TemplateContainerInfo: No such part : " << id_name->get() << endlog();
+                    log(Error) << "SequenceTypeInfo: No such part : " << id_name->get() << endlog();
                 }
                 if (id_indx) {
-                    log(Error) << "TemplateContainerInfo: Invalid index : " << id_indx->get() <<":"<< id_indx->getTypeName() << endlog();
+                    log(Error) << "SequenceTypeInfo: Invalid index : " << id_indx->get() <<":"<< id_indx->getTypeName() << endlog();
                 }
                 return base::DataSourceBase::shared_ptr();
             }
