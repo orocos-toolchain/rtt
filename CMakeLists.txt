@@ -113,4 +113,29 @@ IF (DOXYGEN_EXECUTABLE)
   CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 ENDIF (DOXYGEN_EXECUTABLE)
 
+###############################
+#                             #
+# Package configuration files #
+#                             #
+###############################
+
+set(CONFIG_FILE_PATH "lib/cmake/OrocosRTT") # Folder lib/cmake is searched by default in CMake >= 2.6.3
+set(IMPORTED_TARGET_PREFIX "ImportedTarget_")
+
+# Main package configuration file
+CONFIGURE_FILE(orocosrtt-config.cmake.in
+               orocosrtt-config.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocosrtt-config.cmake DESTINATION "${CONFIG_FILE_PATH}")
+
+# Version file
+CONFIGURE_FILE(orocosrtt-config-version.cmake.in
+               orocosrtt-config-version.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocosrtt-config-version.cmake DESTINATION "${CONFIG_FILE_PATH}")
+
+# Imported targets
+INSTALL(EXPORT OrocosRTT-${OROCOS_TARGET}-libraries DESTINATION "${CONFIG_FILE_PATH}"
+                                                    NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
+
+
+
 
