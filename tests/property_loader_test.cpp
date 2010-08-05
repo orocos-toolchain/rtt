@@ -110,4 +110,49 @@ BOOST_AUTO_TEST_CASE( testPropLoading )
     BOOST_CHECK_EQUAL(bagload2.get(), "3 3 3");
 }
 
+BOOST_AUTO_TEST_CASE( testPropStoring )
+{
+    tc.addProperty(pstring);
+    tc.addProperty(pchar);
+    tc.addProperty(pdouble);
+    tc.addProperty(pdoubles);
+    tc.addProperty("newbag", bag).doc("newbag doc"); // takes reference to bag (PropertyBag&)
+    bag.addProperty( pdouble );
+    bag.addProperty( pdoubles );
+    bag.addProperty( pbag ); // takes reference to bpag (PropertyBase&)
+    pbag.value().addProperty( pchar );
+
+    std::string filename = "property_storing.tst";
+    BOOST_REQUIRE( pl.store(filename, &tc) );
+
+    tc.properties()->clear();
+
+    // check by using load:
+    BOOST_REQUIRE( pl.load(filename, &tc) );
+
+    BOOST_CHECK( tc.provides()->hasProperty("pstring") );
+    BOOST_CHECK( tc.provides()->hasProperty("pchar") );
+    BOOST_CHECK( tc.provides()->hasProperty("pdouble") );
+    BOOST_CHECK( tc.provides()->hasProperty("pdoubles") );
+    BOOST_CHECK( tc.provides()->hasProperty("newbag"));
+    Property<PropertyBag> bag1 = tc.properties()->getProperty("newbag");
+    BOOST_REQUIRE( bag1.ready() );
+    BOOST_CHECK( bag1.getDescription() == "newbag doc");
+    PropertyBag& bag = bag1.value();
+    BOOST_CHECK_EQUAL( bag.size(), 3);
+    BOOST_CHECK( bag.find("pdouble"));
+    BOOST_CHECK( bag.find("pdoubles"));
+    BOOST_CHECK( bag.find("pbag"));
+    Property<double> bagdouble = bag.getProperty("pdouble");
+    Property<vector<double> > bagvector = bag.getProperty("pdoubles");
+
+    BOOST_REQUIRE(bagdouble.ready());
+    BOOST_CHECK_EQUAL( bagdouble.value(), 1.23456);
+    BOOST_REQUIRE(bagvector.ready());
+    BOOST_REQUIRE_EQUAL(bagvector.value().size(), 3);
+    BOOST_CHECK_EQUAL(bagvector.value()[0], 4.123);
+    BOOST_CHECK_EQUAL(bagvector.value()[1], 4.123);
+    BOOST_CHECK_EQUAL(bagvector.value()[2], 4.123);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

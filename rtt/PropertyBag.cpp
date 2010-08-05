@@ -41,6 +41,7 @@
 #include "PropertyBag.hpp"
 #include "Property.hpp"
 #include "types/PropertyDecomposition.hpp"
+#include "types/Types.hpp"
 #include "Logger.hpp"
 #include <algorithm>
 #include "rtt-fwd.hpp"
@@ -585,14 +586,27 @@ namespace RTT
                     {
 #ifndef NDEBUG
                         Logger::log() << Logger::Debug;
-                        Logger::log() << "updateProperties: created Property "
+                        Logger::log() << "updateProperties: creating Property "
                                       << (*sit)->getType() << " "<< (*sit)->getName()
                                       << "." << Logger::endl;
 #endif
-                        // step 1 : clone a new instance (non deep copy)
-                        PropertyBase* temp = (*sit)->create();
-                        // step 2 : deep copy clone with original, will never fail.
-                        temp->update( (*sit) );
+                        // step 1: test for composing a typed property bag:
+                        PropertyBase* temp = 0;
+                        Property<PropertyBag>* tester = dynamic_cast<Property<PropertyBag>* >(*sit);
+                        if (tester && tester->value().getType() != "PropertyBag") {
+                            if (TypeInfo* ti = types::Types()->type(tester->value().getType())) {
+                                temp = ti->buildProperty( tester->getName(), tester->getDescription() );
+                                assert(temp);
+                                bool res = temp->getTypeInfo()->composeType( tester->getDataSource(), temp->getDataSource() );
+                                if (!res ) return false;
+                            }
+                        }
+                        if (!temp) {
+                            // fallback : clone a new instance (non deep copy)
+                            temp = (*sit)->create();
+                            // deep copy clone with original, will never fail.
+                            temp->update( (*sit) );
+                        }
                         // step 3 : add result to target bag.
                         target.add( temp );
                     }
