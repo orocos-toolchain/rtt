@@ -41,7 +41,7 @@ namespace RTT
                 if ( args.size() != boost::function_traits<S>::arity )
                     return base::DataSourceBase::shared_ptr();
                 try {
-                    return new internal::FusedFunctorDataSource<S>(ff, SequenceFactory::sources(args) );
+                    return new internal::FusedFunctorDataSource<S>(ff, SequenceFactory::sources(args.begin()) );
                 } catch(...) // wrong argument types
                 {}
                 return base::DataSourceBase::shared_ptr();

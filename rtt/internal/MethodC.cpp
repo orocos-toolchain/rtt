@@ -258,6 +258,14 @@ namespace RTT {
         return m;
     }
 
+    OperationRepositoryPart* MethodC::getOrp() const {
+        return ofp;
+    }
+
+    string const& MethodC::getName() const {
+        return mname;
+    }
+
     DataSourceBase::shared_ptr MethodC::getCallDataSource() { return m; }
     DataSourceBase::shared_ptr MethodC::getSendDataSource() { return s; }
 }

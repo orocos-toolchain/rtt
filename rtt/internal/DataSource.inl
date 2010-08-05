@@ -31,14 +31,14 @@ namespace RTT
   template< typename T>
   std::string DataSource<T>::GetType()
   {
-      return DataSourceTypeInfo< T >::getType() + DataSourceTypeInfo< T >::getQualifier();
+      return DataSourceTypeInfo< T >::getTypeName() + DataSourceTypeInfo< T >::getQualifier();
 
   }
 
   template< typename T>
   std::string DataSource<T>::GetTypeName()
   {
-      return DataSourceTypeInfo< T >::getType();
+      return DataSourceTypeInfo< T >::getTypeName();
 
   }
 

@@ -30,6 +30,7 @@
 #include <scripting/Scripting.hpp>
 #include <interface/ServiceProvider.hpp>
 #include <types/GlobalsRepository.hpp>
+#include <types/Types.hpp>
 
 using namespace std;
 

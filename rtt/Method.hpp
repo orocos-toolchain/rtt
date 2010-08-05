@@ -113,17 +113,21 @@ namespace RTT
         {}
 
         /**
-         * Method objects may be copied.
+         * Method objects may be copied. A deep copy is made
+         * of the implementation object such that using this
+         * object does not interfere when using the original, m.
          *
          * @param m the original
          */
         Method(const Method& m)
-            : Base(m.impl),
+            : Base(m.impl ? boost::shared_ptr< base::MethodBase<Signature> >(m.impl->cloneI(m.mcaller)) : m.impl ),
               mname(m.mname), mcaller(m.mcaller)
         {}
 
         /**
-         * Method objects may be assigned
+         * Method objects may be assigned. A deep copy is made
+         * of the implementation object such that using this
+         * object does not interfere when using the original, m.
          *
          * @param m the original
          *
@@ -136,6 +140,8 @@ namespace RTT
             mname = m.mname;
             mcaller = m.mcaller;
             this->impl = m.impl;
+            if (this->impl)
+                this->impl.reset( this->impl->cloneI(mcaller) );
             return *this;
         }
 
@@ -143,7 +149,8 @@ namespace RTT
          * Initialise a nameless Method object from a local Operation.
          *
          * @param implementation The implementation of the operation which is to be used
-         * by the Method object.
+         * by the Method object. This object will be cloned such that the method uses
+         * its own implementation.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
@@ -153,9 +160,11 @@ namespace RTT
         {
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to construct Method from incompatible local operation."<< endlog();
-            } else
-                if (this->impl)
-                    this->impl->setCaller(mcaller);
+            } else {
+                if (this->impl) {
+                    this->impl.reset( this->impl->cloneI(mcaller) );
+                }
+            }
         }
 
         /**
@@ -382,8 +391,10 @@ namespace RTT
 #else
                 log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();
 #endif
-            } else
-                this->impl->setCaller(mcaller);
+            } else {
+                // finally clone and set caller on clone.
+                this->impl.reset( this->impl->cloneI(mcaller) );
+            }
         }
 
     };

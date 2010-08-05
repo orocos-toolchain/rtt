@@ -91,23 +91,22 @@ namespace RTT
             {
                 SIndexes oldval, newval;
                 // read it:
-                result = _buf[_indxes._index[1]];
+                oldval._value = _indxes._value;
+                result = _buf[oldval._index[1]];
                 // return it if not yet written:
                 if ( !result )
                     return false;
-                _buf[_indxes._index[1]] = 0;
+                // got it, clear field.
+                _buf[oldval._index[1]] = 0;
 
                 // move pointer:
                 do
                 {
+                    // re-read indxes, since we are the only reader,
+                    // _index[1] will not have changed since entry of this function
                     oldval._value = _indxes._value;
                     newval._value = oldval._value;
-                    // check for empty or not written:
-                    if (newval._index[0] == newval._index[1] || result == 0)
-                    {
-                        return false;
-                    }
-                    newval._index[1]++;
+                    ++newval._index[1];
                     if (newval._index[1] >= _size)
                         newval._index[1] = 0;
 
@@ -148,7 +147,9 @@ namespace RTT
                 // two cases where the queue is full :
                 // if wptr is one behind rptr or if wptr is at end
                 // and rptr at beginning.
-                return _indxes._index[0] == _indxes._index[1] - 1 || _indxes._index[0] == _indxes._index[1] + _size - 1;
+                SIndexes val;
+                val._value = _indxes._value;
+                return val._index[0] == val._index[1] - 1 || val._index[0] == val._index[1] + _size - 1;
             }
 
             /**
@@ -158,7 +159,9 @@ namespace RTT
             bool isEmpty() const
             {
                 // empty if nothing to read.
-                return _indxes._index[0] == _indxes._index[1];
+                SIndexes val;
+                val._value = _indxes._value;
+                return val._index[0] == val._index[1];
             }
 
             /**
@@ -174,7 +177,9 @@ namespace RTT
              */
             size_type size() const
             {
-                int c = (_indxes._index[0] - _indxes._index[1]);
+                SIndexes val;
+                val._value = _indxes._value;
+                int c = (val._index[0] - val._index[1]);
                 return c >= 0 ? c : c + _size;
             }
 
@@ -196,12 +201,19 @@ namespace RTT
 
             /**
              * Dequeue an item.
-             * @param value The value dequeued.
-             * @return false if queue is empty, true if dequeued.
+             * @param value Stores the dequeued value. It is unchanged when
+             * dequeue returns false and contains the dequeued value
+             * when it returns true.
+             * @return false if queue is empty, true if result was written.
              */
             bool dequeue(T& result)
             {
-                return advance_r(result);
+                T tmpresult;
+                if (advance_r(tmpresult) ) {
+                    result = tmpresult;
+                    return true;
+                }
+                return false;
             }
 
             /**

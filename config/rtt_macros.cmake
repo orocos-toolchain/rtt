@@ -64,7 +64,7 @@ macro(ADD_RTT_TYPEKIT name version)
   # Note: typkits don't get the symlinks
   install(TARGETS ${name}-${OROCOS_TARGET}_plugin
           ARCHIVE DESTINATION lib/orocos/types
-          LIBRARY DESTINATION lib/orocos/types NAMELINK_SKIP)
+          LIBRARY DESTINATION lib/orocos/types)
 
   get_target_property(TYPEKITLIB_DIR ${name}-${OROCOS_TARGET}_plugin LOCATION)
 

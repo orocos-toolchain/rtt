@@ -103,8 +103,8 @@ namespace RTT
                     // in _buf that aren't used.
                     return 0;
                 }
-                newval._index[0]++;
-                if ( newval._index[0] >= _size )
+                ++newval._index[0];
+                if ( newval._index[0] == _size )
                 	newval._index[0] = 0;
                 // if ptr is unchanged, replace it with newval.
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
@@ -130,8 +130,8 @@ namespace RTT
                     // that would have been read eventually after some writes.
                     return recover_r();
                 }
-                newval._index[1]++;
-                if ( newval._index[1] >= _size )
+                ++newval._index[1];
+                if ( newval._index[1] == _size )
                 	newval._index[1] = 0;
 
             } while ( !os::CAS( &_indxes._value, oldval._value, newval._value) );
@@ -170,7 +170,9 @@ namespace RTT
             // two cases where the queue is full :
             // if wptr is one behind rptr or if wptr is at end
             // and rptr at beginning.
-            return _indxes._index[0] == _indxes._index[1] - 1 || _indxes._index[0] == _indxes._index[1] + _size - 1;
+            SIndexes val;
+            val._value = _indxes._value;
+            return val._index[0] == val._index[1] - 1 || val._index[0] == val._index[1] + _size - 1;
         }
 
         /**
@@ -180,7 +182,9 @@ namespace RTT
         bool isEmpty() const
         {
             // empty if nothing to read.
-            return _indxes._index[0] == _indxes._index[1] && recover_r() == 0;
+            SIndexes val;
+            val._value = _indxes._value;
+            return val._index[0] == val._index[1] && recover_r() == 0;
         }
 
         /**
