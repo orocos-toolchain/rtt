@@ -60,8 +60,20 @@ namespace RTT
          * @param filename The file to read from.
          * @param target   The TaskContext to load the new properties into.
          * @return true on success, false on error, consult Logger output for messages.
+         * @see store() for dumping properties in a file.
          */
         bool load(const std::string& filename, TaskContext* target) const;
+
+        /**
+         * Stores all properties of a TaskContext in a new file or overwrite an existing one.
+         * The file given in filename will always be overwritten and any existing content
+         * will be lost.
+         * @param filename The file to store to.
+         * @param target   The TaskContext to read the properties from.
+         * @return true on success, false on error, consult Logger output for messages.
+         * @see load() for loading properties in a TaskContext.
+         */
+        bool store(const std::string& filename, TaskContext* target) const;
 
         /**
          * Read the XML cpf file and 'refresh' the matching properties of the given TaskContext.
@@ -71,6 +83,7 @@ namespace RTT
          * @param all   Configure all properties of \a target. Return an error
          * if not all properties were found in \a filename.
          * @return true on success, false on error, consult Logger output for messages.
+         * @see save() to create this file.
          */
         bool configure(const std::string& filename, TaskContext* target, bool all = true) const;
 
@@ -84,6 +97,7 @@ namespace RTT
          * @param all   Write out all properties of \a target to \a filename,
          * add missing ones if necessary.
          * @return true on success, false on error, consult Logger output for messages.
+         * @see configure() to re-read this file and update matching properties.
          */
         bool save(const std::string& filename, TaskContext* target, bool all = true) const;
 

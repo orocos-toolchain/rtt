@@ -174,6 +174,39 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
 }
 
+bool PropertyLoader::store(const std::string& filename, TaskContext* target) const
+{
+    Logger::In in("PropertyLoader::store");
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+    log(Error) << "No Property Marshaller configured !" << endlog();
+    return false;
+#else
+    // Write results
+    PropertyBag* compProps = target->properties();
+    PropertyBag allProps;
+
+    // decompose repos into primitive property types.
+    PropertyBagIntrospector pbi( allProps );
+    pbi.introspect( *compProps );
+
+    std::ofstream file( filename.c_str() );
+    if ( file )
+    {
+        OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
+        marshaller.serialize( allProps );
+        log(Info) << "Wrote "<< filename <<endlog();
+    }
+    else {
+        log(Error) << "Could not open file "<< filename <<" for writing."<<endlog();
+        deletePropertyBag( allProps );
+        return false;
+    }
+    // allProps contains copies (clone()), thus may be safely deleted :
+    deletePropertyBag( allProps );
+    return true;
+#endif
+}
+
 bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool all) const
 {
     Logger::In in("PropertyLoader::save");
@@ -188,51 +221,48 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
         return false;
     }
     PropertyBag allProps;
-    // Update exising file ?
-    {
-        // first check if the target file exists.
-        std::ifstream ifile( filename.c_str() );
-        // if target file does not exist, skip this step.
-        if ( ifile ) {
-            ifile.close();
-            log(Info) << target->getName()<<" updating of file "<< filename << endlog();
-            // The demarshaller itself will open the file.
-            OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
-            if ( demarshaller.deserialize( allProps ) == false ) {
-                // Parse error, abort writing of this file.
-                log(Error) << "While updating "<< target->getName() <<" : Failed to read "<< filename << endlog();
-                return false;
-            }
-        }
-        else
-            log(Info) << "Creating "<< filename << endlog();
-    }
+	PropertyBag  decompProps;
 
-    // Write results
-    PropertyBag* compProps = target->provides()->properties();
+	// first check if the target file exists.
+	std::ifstream ifile( filename.c_str() );
+	// if target file does not exist, skip this step.
+	if ( ifile ) {
+	    ifile.close();
+	    log(Info) << target->getName()<<" updating of file "<< filename << endlog();
+	    // The demarshaller itself will open the file.
+	    OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
+	    if ( demarshaller.deserialize( allProps ) == false ) {
+	        // Parse error, abort writing of this file.
+	        log(Error) << "While updating "<< target->getName() <<" : Failed to read "<< filename << endlog();
+	        return false;
+	    }
+	}
+	else
+	    log(Info) << "Creating "<< filename << endlog();
 
-    // decompose repos into primitive property types.
-    PropertyBag  decompProps;
-    PropertyBagIntrospector pbi( decompProps );
-    pbi.introspect( *compProps );
+	// Write results
+	PropertyBag* compProps = target->properties();
 
-    // merge with target file contents,
-    // override allProps.
-    bool updater = false;
-    if (all) {
-        log(Info) << "Writing all properties of "<<target->getName()<<" to file "<< filename << endlog();
-        updater = updateProperties( allProps, decompProps ); // add new.
-    }
-    else {
-        log(Info) << "Refreshing properties in file "<< filename << " with values of properties of "<<target->getName() << endlog();
-        updater = refreshProperties( allProps, decompProps ); // only refresh existing.
-    }
-    if (updater == false) {
-        log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
-        deletePropertyBag( allProps );
-        deletePropertyBag( decompProps );
-        return false;
-    }
+	// decompose repos into primitive property types.
+	PropertyBagIntrospector pbi( decompProps );
+	pbi.introspect( *compProps );
+
+	//Add target properties to existing properties
+	bool updater = false;
+	if (all) {
+	    log(Info) << "Writing all properties of "<<target->getName()<<" to file "<< filename << endlog();
+	    updater = updateProperties( allProps, decompProps ); // add new.
+	}
+	else {
+	    log(Info) << "Refreshing properties in file "<< filename << " with values of properties of "<<target->getName() << endlog();
+	    updater = refreshProperties( allProps, decompProps ); // only refresh existing.
+	}
+	if (updater == false) {
+	    log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
+	    deletePropertyBag( allProps );
+	    deletePropertyBag( decompProps );
+	    return false;
+	}
     // ok, finish.
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
