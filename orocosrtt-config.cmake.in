@@ -1,0 +1,97 @@
+########################################################################################################################
+#
+# CMake package configuration file for the OrocosRTT package.
+# This script imports targets and sets up the variables needed to use the package.
+# In case this file is installed in a nonstandard location, it can be specified using the OrocosRTT_DIR cache entry.
+#
+# This script sets the following variables:
+#  OrocosRTT_FOUND: Boolean that indicates if the package was found
+#  OrocosRTT_INCLUDE_DIRS: Paths to the necessary header files
+#  OrocosRTT_LIBRARIES: Libraries to link against to use this package
+#  OrocosRTT_DEFINITIONS: Definitions to use when compiling code that uses
+# TODO: components, example usage, use file, corba
+#
+########################################################################################################################
+
+
+########################################################################################################################
+#
+# Initialization
+#
+########################################################################################################################
+
+# Do nothing if already found.
+# This test is very important, otherwise running this script multiple times in the same project will try to add multiple
+# imported targets with the same name, yielding a configuration-time error
+if(OrocosRTT_FOUND)
+  return()
+endif()
+
+# Set the default target operating system, if unspecified
+if(NOT DEFINED OROCOS_TARGET)
+  set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
+  if(MSVC)
+    set(OROCOS_TARGET win32    CACHE STRING "${DOC_STRING}")
+  elseif(APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(OROCOS_TARGET macosx   CACHE STRING "${DOC_STRING}")
+  else()
+    set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
+  endif()
+endif()
+
+# Path to current file
+get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+# Prefix used to distinguish imported targets from regular ones
+set(PREFIX @IMPORTED_TARGET_PREFIX@)
+
+
+########################################################################################################################
+#
+# OrocosRTT core
+#
+########################################################################################################################
+
+# Import targets
+set(OrocosRTT_IMPORT_FILE "${SELF_DIR}/OrocosRTT-${OROCOS_TARGET}-libraries.cmake")
+if (NOT EXISTS "${OrocosRTT_IMPORT_FILE}")
+  message(FATAL_ERROR "Could not find an OrocosRTT installation for the ${OROCOS_TARGET} target. Missing file: ${OrocosRTT_IMPORT_FILE}")
+endif()
+include("${OrocosRTT_IMPORT_FILE}")
+
+# Package headers
+get_filename_component(OrocosRTT_INCLUDE_DIR "${SELF_DIR}/../../../include" ABSOLUTE)
+
+# Package libraries
+set(OrocosRTT_LIBRARY ${PREFIX}orocos-rtt-${OROCOS_TARGET})
+
+
+########################################################################################################################
+#
+# Components
+#
+########################################################################################################################
+
+
+
+
+########################################################################################################################
+#
+# Output variables generation
+#
+########################################################################################################################
+
+set(OrocosRTT_INCLUDE_DIRS ${OrocosRTT_INCLUDE_DIR})
+
+set(OrocosRTT_LIBRARIES ${OrocosRTT_LIBRARY})
+
+set(OrocosRTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")
+
+# Print success message
+if (NOT OrocosRTT_FIND_QUIETLY)
+  message(STATUS "Found OrocosRTT ${OrocosRTT_VERSION} for the ${OROCOS_TARGET} target.")
+endif()
+
+
+
+
