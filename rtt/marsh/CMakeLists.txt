@@ -1,9 +1,9 @@
 
 IF (PLUGINS_ENABLE_MARSHALLING)
   # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
-  INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
-  INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
-  INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR}/rtt/marsh )
+  INCLUDE_DIRECTORIES(BEFORE ${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
+  INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
+  INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt/marsh )
 
   GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp MarshallInterface.hpp )
   SET( CPPS PropertyMarshaller.cpp PropertyDemarshaller.cpp PropertyBagIntrospector.cpp)

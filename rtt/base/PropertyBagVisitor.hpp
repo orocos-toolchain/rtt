@@ -59,6 +59,15 @@ namespace RTT
      */
     class RTT_API PropertyBagVisitor
     {
+    protected:
+        /**
+         * The default handler to execute when an unknown
+         * type is being decomposed.
+         * @return true when it could be decomposed or converted to int
+         * or false otherwise.
+         */
+        bool introspectAndDecompose(PropertyBase* t);
+
     public:
         virtual ~PropertyBagVisitor()
         {}

@@ -81,6 +81,19 @@ namespace RTT
                 delete data;
         }
 
+    /** Smart pointer that allows safe sharing of data between multiple threads
+     *
+     * This smart pointer registers a memory area as being read-only. It can
+     * therefore be shared safely between threads without adding means of
+     * synchronization between the threads. Indeed: the value will *not* be
+     * changed between the threads.
+     *
+     * If a thread wants to modify the value in-place (i.e. not do any copying),
+     * it can get ownership of the object referenced by the ReadOnlyPointer by
+     * calling ReadOnlyPointer::write_access. If this smart pointer if the only
+     * owner of the memory zone, then no copy will be done. Otherwise, one copy
+     * is done to satisfy the caller.
+     */
     template<typename T>
     class ReadOnlyPointer
     {
@@ -95,9 +108,31 @@ namespace RTT
         typename traits::const_reference operator *() const { return *(internal->value); }
         T* operator ->() const { return internal->value; }
 
+        /** True if this refers to a non-NULL pointer */
         bool valid() const
         { return internal->value; }
 
+        /** Modifies the value referenced by this smart pointer
+         *
+         * After this call, \c ptr is owned by the smart pointer, and the caller
+         * should not modify the value referenced by \c ptr (i.e. it should be
+         * treated as read-only by the caller).
+         *
+         * This does not change the other instances of ReadOnlyPointer that were
+         * referencing the same memory zone as \c this. I.e. after the following
+         * snippet, ptr2 refers to value2 and ptr1 to value1.
+         *
+         * <code>
+         * T* value1 = new T;
+         * T* value2 = new T;
+         * ReadOnlyPointer<T> ptr1(value1);
+         * ReadOnlyPointer<T> ptr2(ptr1);
+         * ptr2->reset(value2);
+         * </code>
+         *
+         * If \c this is the only owner of the object it refers to, this object
+         * will be deleted.
+         */
         void reset(T* ptr)
         {
             boost::intrusive_ptr<Internal> safe = this->internal;
@@ -111,6 +146,7 @@ namespace RTT
             { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2) // we are sole owner
                 {
+                    delete safe->value;
                     safe->value = ptr;
                     return;
                 }
@@ -125,6 +161,15 @@ namespace RTT
             internal = new Internal(ptr);
         }
 
+        /** Gets write access to the pointed-to object if it does not require
+         * any copying
+         *
+         * This method is like write_access, except that it will return NULL if
+         * a copy is needed
+         *
+         * If non-NULL, it is the responsibility of the caller to delete the
+         * returned value.
+         */
         T* try_write_access()
         {
             boost::intrusive_ptr<Internal> safe = this->internal;
@@ -146,6 +191,17 @@ namespace RTT
             }
         }
 
+        /** Gets write access to the pointed-to object.
+         *
+         * If \c this is the only owner of that object, then no copy will be
+         * done *and* the pointer will be invalidated. Otherwise, the method
+         * returns a copy of the pointed-to object.
+         *
+         * If the copy might be a problem, one can use try_write_access to get
+         * the object only when a copy is not needed.
+         *
+         * It is the responsibility of the caller to delete the returned value.
+         */
         T* write_access()
         {
             boost::intrusive_ptr<Internal> safe = this->internal;

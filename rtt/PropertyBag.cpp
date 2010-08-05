@@ -452,19 +452,30 @@ namespace RTT
                         << tgtprop->getType() << " "<< tgtprop->getName()
                         << " from "<< srcprop->getType() << " "<< srcprop->getName()<< Logger::endl;
 #endif
-                if ( tgtprop->refresh( srcprop ) == false ) {
-                    // try composition:
-                    Property<PropertyBag> source = srcprop;
-                    if ( !srcprop || !tgtprop->compose( source.value())) {
-                        log(Error) << "Could not update, nor compose Property "
-                                   << tgtprop->getType() << " "<< srcprop->getName()
-                                   << ": type mismatch, can not refresh with type "
-                                   << srcprop->getType() << endlog();
-                        failure = true;
+                if ( tgtprop->refresh( srcprop ) == false) {
+                    // try conversion
+                    DataSourceBase::shared_ptr converted = tgtprop->getTypeInfo()->convert( srcprop->getDataSource() );
+                    if ( converted != srcprop->getDataSource() ) {
+                        PropertyBase* dummy = tgtprop->getTypeInfo()->buildProperty("","");
+                        dummy->getDataSource()->update(converted.get());
+                        assert(dummy);
+                        tgtprop->refresh(dummy);
+                        log(Debug) << "Converted Property "
+                                << tgtprop->getType() << " "<< srcprop->getName() << " to type " <<dummy->getType()
+                                << " from type "  << srcprop->getType() << endlog();
                     } else {
-                        log(Debug) << "Composed Property "
-                                      << tgtprop->getType() << " "<< srcprop->getName()
-                                      << " from type "  << srcprop->getType() << endlog();
+                        // try composition:
+                        if ( !tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), tgtprop->getDataSource())) {
+                            log(Error) << "Could not update, nor compose Property "
+                                    << tgtprop->getType() << " "<< srcprop->getName()
+                                    << ": type mismatch, can not refresh with type "
+                                    << srcprop->getType() << endlog();
+                            failure = true;
+                        } else {
+                            log(Debug) << "Composed Property "
+                                    << tgtprop->getType() << " "<< srcprop->getName()
+                                    << " from type "  << srcprop->getType() << endlog();
+                        }
                     }
                 }
                 // ok.
@@ -544,16 +555,27 @@ namespace RTT
 #endif
                     // no need to make new one, just update existing one
                     if ( (*mit)->update( (*sit) ) == false ) {
-                        // try composition:
-                        Property<PropertyBag> source = *sit;
-                        // if *sit is a bag, and we can decompose target, and we can update it, we have success, otherwise failure:
-                        if ( !source.ready() || ! (*mit)->compose( source.value() ) ) {
-                            Logger::log() << Logger::Error;
-                            Logger::log() << "updateProperties: Could not update, nor compose Property "
-                                          << (*mit)->getType() << " "<< (*mit)->getName()
-                                          << ": type mismatch, can not update with "
-                                          << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
-                            return false;
+                        // try conversion
+                        DataSourceBase::shared_ptr converted = (*mit)->getTypeInfo()->convert( (*sit)->getDataSource() );
+                        if ( converted != (*sit)->getDataSource() ) {
+                            PropertyBase* dummy = (*mit)->getTypeInfo()->buildProperty("","");
+                            dummy->getDataSource()->update(converted.get());
+                            assert(dummy);
+                            (*mit)->update(dummy);
+                            log(Debug) << "Converted Property "
+                                    << (*mit)->getType() << " "<< (*sit)->getName()
+                                    << " from type "  << (*sit)->getType() << endlog();
+                        } else {
+                            // try composition:
+                            // if *sit is a bag, and we can decompose target, and we can update it, we have success, otherwise failure:
+                            if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) ) {
+                                Logger::log() << Logger::Error;
+                                Logger::log() << "updateProperties: Could not update, nor compose Property "
+                                        << (*mit)->getType() << " "<< (*mit)->getName()
+                                        << ": type mismatch, can not update with "
+                                        << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
+                                return false;
+                            }
                         }
                     }
                     // ok.

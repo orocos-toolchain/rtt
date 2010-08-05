@@ -54,14 +54,13 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             log(Error) <<"propertyDecomposition: Inconsistent type info for "<< dsb->getTypeName() << ": reported to have part '"<<*it<<"' but failed to return it."<<endlog();
             continue;
         }
-        DataSourceBase::shared_ptr aspart = part->getTypeInfo()->getAssignable( part );
-        if (!aspart) {
+        if ( !part->isAssignable() ) {
             // For example: the case for size() and capacity() in SequenceTypeInfo
             //log(Debug)<<"propertyDecomposition: Part "<< *it << ":"<< part->getTypeName() << " is not changeable."<<endlog();
             continue;
         }
         // finally recurse or add it to the target bag:
-        PropertyBase* newpb = part->getTypeInfo()->buildProperty(*it,"Part",aspart);
+        PropertyBase* newpb = part->getTypeInfo()->buildProperty(*it,"Part",part);
         if ( !newpb ) {
             log(Error)<< "Decomposition failed because Part '"<<*it<<"' is not known to type system."<<endlog();
             continue;
@@ -88,14 +87,13 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             string indx = boost::lexical_cast<string>( i );
             DataSourceBase::shared_ptr item = dsb->getMember(indx);
             if (item) {
-                DataSourceBase::shared_ptr asitem = item->getTypeInfo()->getAssignable( item );
-                if (!asitem) {
+                if ( !item->isAssignable() ) {
                     // For example: the case for size() and capacity() in SequenceTypeInfo
                     log(Warning)<<"propertyDecomposition: Item '"<< indx << "' of type "<< dsb->getTypeName() << " is not changeable."<<endlog();
                     continue;
                 }
                 // finally recurse or add it to the target bag:
-                PropertyBase* newpb = item->getTypeInfo()->buildProperty( "Element" + indx,"Sequence Element",asitem);
+                PropertyBase* newpb = item->getTypeInfo()->buildProperty( "Element" + indx,"Sequence Element",item);
                 if (!propertyDecomposition( newpb, recurse_bag->value()) ) {
                     targetbag.ownProperty( newpb ); // leaf
                 } else {

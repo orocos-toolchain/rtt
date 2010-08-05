@@ -38,7 +38,7 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 if ( !data ) {
-                    log(Error) << "Could not get reference to Struct data source of type " + item->getTypeName()<<endlog();
+                    log(Error) << "Could not get reference to value of 'Struct' data source of type " + item->getTypeName() << " because it's not an AssignableDataSource."<<endlog();
                     return base::DataSourceBase::shared_ptr();
                 }
                 type_discovery in( item );

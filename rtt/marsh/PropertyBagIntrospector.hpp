@@ -35,8 +35,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef PROPERTYBAGINTROSPECTOR
-#define PROPERTYBAGINTROSPECTOR
+#ifndef PROPERTYBAGINTROSPECTOR_HPP
+#define PROPERTYBAGINTROSPECTOR_HPP
 
 #include "../marsh/rtt-marsh-config.h"
 #include "../PropertyBag.hpp"
@@ -44,10 +44,6 @@
 #include "../base/PropertyIntrospection.hpp"
 #include "../types/PropertyDecomposition.hpp"
 #include <stack>
-
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma interface
-#endif
 
 namespace RTT
 { namespace marsh {
@@ -70,61 +66,25 @@ namespace RTT
          *
          * @param bag The bag to safe the results in.
          */
-        PropertyBagIntrospector( PropertyBag& bag )
-        {
-            mystack.push( &bag );
-        }
+        PropertyBagIntrospector( PropertyBag& bag );
 
-        virtual ~PropertyBagIntrospector()
-        {
-            mystack.pop();
-        }
+        virtual ~PropertyBagIntrospector();
 
         /**
          * Reset to do a new introspection.
          * @param new_bag The new bag to save the results in.
          */
-        void reset( PropertyBag& new_bag)
-        {
-            mystack.pop();
-            mystack.push( &new_bag );
-        }
-
+        void reset( PropertyBag& new_bag);
 
         /**
          * Use this entry function to inspect a bag.
          * @param v the properties of this bag will be inspected.
          */
-        void introspect(const PropertyBag& v )
-        {
-            v.identify(this);
-        }
+        void introspect(const PropertyBag& v );
 
-        virtual void introspect(base::PropertyBase* v)
-        {
-            // if it is decomposable, identify a new bag, otherwise add a clone.
-            Property<PropertyBag> res(v->getName(), v->getDescription() );
-            if ( types::typeDecomposition( v->getDataSource(), res.value() ))
-                res.identify( this );
-            else
-                mystack.top()->add( v->clone() );
-        }
+        virtual void introspect(base::PropertyBase* v);
 
-        virtual void introspect(Property<PropertyBag> &v)
-        {
-            PropertyBag* cur_bag = mystack.top();
-            Property<PropertyBag>* bag_cl
-                = new Property<PropertyBag>( v.getName(),
-                                             v.getDescription(),
-                                             PropertyBag( v.get().getType() ) );
-            cur_bag->add( bag_cl );
-
-            mystack.push( &bag_cl->value() );
-
-            v.value().identify(this);
-
-            mystack.pop();
-        }
+        virtual void introspect(Property<PropertyBag> &v);
     };
 }}
 

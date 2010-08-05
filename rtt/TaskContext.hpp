@@ -150,6 +150,28 @@ namespace RTT
         base::ActivityInterface* getActivity();
 
         /**
+         * Get a pointer to the activity running this
+         * component.
+         *
+         * Unlike the non-template version, it converts it to the activity type
+         * provided.
+         *
+         * Example usage in a startHook():
+         * <code>
+         * RTT::extras::FileDescriptorActivity* fd_activity =
+         *    getActivity<RTT::extras::FileDescriptorActivity>();
+         * if (fd_activity)
+         * {
+         *    // do specific setup for FDActivity
+         * }
+         * </code>
+         *
+         * @return Our activity if it is of type T, NULL otherwise.
+         */
+        template<typename T>
+        T* getActivity() { return dynamic_cast<T*>(getActivity()); }
+
+        /**
          * Clear the complete interface of this Component.
          * This method removes all objects and all methods, commands,
          * events, properties and ports from the interface of this TaskContext.

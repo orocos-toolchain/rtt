@@ -10,3 +10,4 @@ build*
 *~
 class-dump.txt
 headers.txt
+*.sw?
