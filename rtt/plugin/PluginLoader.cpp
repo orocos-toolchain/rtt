@@ -200,6 +200,10 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
 
+    path p = name;
+    if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
+        return true;
+
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         path p = path(*it) / subdir / (name + SO_EXT);
