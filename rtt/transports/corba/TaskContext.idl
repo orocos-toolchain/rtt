@@ -138,6 +138,10 @@ module RTT
 
 	    /**
 	     * Get a service.
+             *
+             * Use 'this' as the name to get the task context's own service
+             * provider
+             *
 	     * @see RTT::TaskContext::provides()
 	     */
 	    CService getProvider( in string service_name );
