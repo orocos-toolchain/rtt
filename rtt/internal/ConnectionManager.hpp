@@ -132,7 +132,11 @@ namespace RTT
                 // The boost reference to pred is required
                 //boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1)(cur_channel);
                 if (connections)
+#ifdef MSVC
                     connections->apply(boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1));
+#else
+                    connections->apply(boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), boost::lambda::_1));
+#endif
             }
 
             /**
