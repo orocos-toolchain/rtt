@@ -111,6 +111,10 @@ public:
       void);
 
   virtual
+  ::CORBA::Boolean resetException(
+      void);
+
+  virtual
   ::CORBA::Boolean isActive (
       void);
 

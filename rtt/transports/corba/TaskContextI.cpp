@@ -109,6 +109,14 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->cleanup();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::resetException (
+    void)
+{
+    if (mtask->getTaskState() == RTT::TaskContext::Exception)
+        return mtask->recover();
+    return false;
+}
+
 ::CORBA::Boolean RTT_corba_CTaskContext_i::isActive (
     void)
 {

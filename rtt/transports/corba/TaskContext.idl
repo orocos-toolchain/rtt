@@ -79,6 +79,15 @@ module RTT
 	    boolean stop();
 
 	    /**
+	     * Asks the component to transition from an Exception state to the
+	     * Stopped state
+
+	     * @see RTT::base::TaskCore::exception() and
+	     * RTT::base::TaskCore::recover()
+	     */
+	    boolean resetException();
+
+	    /**
 	     * Cleanup this component.
 	     * @see RTT::base::TaskCore::cleanup()
 	     */
