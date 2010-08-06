@@ -159,7 +159,7 @@ namespace RTT
     bool TypeInfo::fromString( const std::string& value, DataSourceBase::shared_ptr out ) const
     {
         stringstream result(value);
-        return this->read( result, out );
+        return this->read( result, out ).good();
     }
 
     bool TypeInfo::addProtocol(int protocol_id, TypeTransporter* tt)

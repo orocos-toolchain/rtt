@@ -181,7 +181,7 @@ namespace RTT
 
   void ValueParser::seenfloatconstant( double i )
   {
-    ret = new ConstantDataSource<float>( i );
+    ret = new ConstantDataSource<float>( float(i) );
   }
 
   void ValueParser::seendoubleconstant( double i )

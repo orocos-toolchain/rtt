@@ -58,8 +58,9 @@ using namespace boost;
 namespace RTT
 {
     using namespace detail;
-    struct StatementProcessor::D
+    class StatementProcessor::D
     {
+	public:
         TaskContext* tc;
         std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> > comms;
         int seq;

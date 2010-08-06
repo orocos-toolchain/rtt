@@ -254,16 +254,14 @@ namespace RTT
             }
         };
 
-            double float_to_double( float val ) {return val;}
-            float double_to_float( double val ) {return val;}
-
-
+            double float_to_double( float val ) {return double(val);}
+            float double_to_float( double val ) {return float(val);}
             int float_to_int(float f) { return int(f); }
-            float int_to_float(int i) { return i; }
+            float int_to_float(int i) { return float(i); }
             int double_to_int(double f) { return int(f); }
-            double int_to_double(int i) { return i; }
-            unsigned int int_to_uint(int i) { return i; }
-            int uint_to_int(unsigned int ui) { return ui; }
+            double int_to_double(int i) { return double(i); }
+            unsigned int int_to_uint(int i) { return unsigned(i); }
+            int uint_to_int(unsigned int ui) { return int(ui); }
 #endif
 
         struct string_ctor
@@ -376,7 +374,7 @@ namespace RTT
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<int>() ) );
 #ifndef ORO_EMBEDDED
         // uint stuff
-        oreg->add( newUnaryOperator( "-", std::negate<unsigned int>() ) );
+        //oreg->add( newUnaryOperator( "-", std::negate<unsigned int>() ) ); Makes no sense !
         oreg->add( newUnaryOperator( "+", identity<unsigned int>() ) );
         oreg->add( newBinaryOperator( "*", std::multiplies<unsigned int>() ) );
         oreg->add( newBinaryOperator( "/", divides3<unsigned int,unsigned int,unsigned int>() ) ); // use our own divides<> which detects div by zero
