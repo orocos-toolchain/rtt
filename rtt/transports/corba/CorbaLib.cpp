@@ -45,6 +45,7 @@
 #include <omniORB4/poa.h>
 #endif
 
+#include "TransportPlugin.hpp"
 #include "CorbaTemplateProtocol.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
@@ -141,51 +142,47 @@ namespace RTT {
           }
         };
 
-        struct CorbaLibPlugin: public TransportPlugin
+        bool CorbaLibPlugin::registerTransport(std::string name, TypeInfo* ti)
         {
-            bool registerTransport(std::string name, TypeInfo* ti)
-            {
-                assert( name == ti->getTypeName() );
-                if ( name == "unknown_t") // register fallback also.
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol());
-                if ( name == "int" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<int>() );
-                if ( name == "double" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<double>() );
-                if ( name == "string" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
-                if ( name == "float" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<float>() );
-                if ( name == "uint" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<unsigned int>() );
-                //if ( name == "long" )
-                //    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<long>() );
+            assert( name == ti->getTypeName() );
+            if ( name == "unknown_t") // register fallback also.
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol());
+            if ( name == "int" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<int>() );
+            if ( name == "double" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<double>() );
+            if ( name == "string" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
+            if ( name == "float" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<float>() );
+            if ( name == "uint" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<unsigned int>() );
+            //if ( name == "long" )
+            //    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<long>() );
 //                if ( name == "PropertyBag" )
 //                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<PropertyBag>() );
-                if ( name == "bool" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<bool>() );
-                if ( name == "array" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
-                if ( name == "void" )
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
-                if ( name == "ConnPolicy")
-                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<ConnPolicy>() );
-                return false;
-            }
+            if ( name == "bool" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<bool>() );
+            if ( name == "array" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
+            if ( name == "void" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
+            if ( name == "ConnPolicy")
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<ConnPolicy>() );
+            return false;
+        }
 
-            std::string getTransportName() const {
-                return "CORBA";
-            }
+        std::string CorbaLibPlugin::getTransportName() const {
+            return "CORBA";
+        }
 
-            std::string getTypekitName() const {
-                return "rtt-types";
-            }
+        std::string CorbaLibPlugin::getTypekitName() const {
+            return "rtt-types";
+        }
 
-            std::string getName() const {
-                return "rtt-corba-types";
-            }
-
-        };
+        std::string CorbaLibPlugin::getName() const {
+            return "rtt-corba-types";
+        }
     }
 }
 
