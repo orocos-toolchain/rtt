@@ -45,6 +45,12 @@
 
 using namespace boost;
 
+#ifdef WIN32
+    #ifdef NDEBUG
+        #pragma optimize( "", off)
+    #endif
+#endif
+
 namespace RTT
 {
   using namespace detail;
