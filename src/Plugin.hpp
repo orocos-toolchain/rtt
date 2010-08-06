@@ -33,6 +33,8 @@
 #ifndef ORO_PLUGIN_HPP
 #define ORO_PLUGIN_HPP 1
 
+#include "rtt-config.h"
+
 /**
  * @file Plugin.hpp
  * This file defines the Orocos plugin API.
@@ -57,13 +59,13 @@ extern "C" {
      * @return true if the initialisation succeeded, false if the
      * plugin could not do so.
      */
-    bool loadRTTPlugin( RTT::TaskContext* t );
+    RTT_EXPORT bool loadRTTPlugin( RTT::TaskContext* t );
 
     /**
      * Return the unique name of this plugin. No two plugins with
      * the same name will be allowed to live in a single process.
      */
-    std::string getRTTPluginName();
+    RTT_EXPORT std::string getRTTPluginName();
 }
 
 #endif
