@@ -37,9 +37,6 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
   message(SEND_ERROR "OS_NO_ASM was turned on, but this requires Boost v1.36.0 or newer.")
 endif()
 
-# Necessary to play nice on win32 and Linux:
-set(CMAKE_DEBUG_LIB_SUFFIX "" CACHE STRING "The suffix applied to libraries compiled with debugging information. Defaults to 'd' on win32 and '' for all other platforms.")
-
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #
@@ -225,9 +222,7 @@ if(OROCOS_TARGET STREQUAL "win32")
     find_package(Boost 1.36 REQUIRED)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
-  if ( CMAKE_DEBUG_LIB_SUFFIX STREQUAL "" )
-    set(CMAKE_DEBUG_LIB_SUFFIX "d" CACHE STRING "" FORCE)
-  endif()
+  set(CMAKE_DEBUG_POSTFIX "d")
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")
