@@ -420,7 +420,7 @@ namespace RTT
     {
         // reuse transProgram to store else progr. See seenselect().
         //transProgram = finishProgram();
-        //transProgram->setProgramProcessor(curtemplate->getServiceProvider()->engine()->programs());
+        //transProgram->setProgramProcessor(curtemplate->getService()->engine()->programs());
     }
 
     void StateGraphParser::seenelse()
@@ -652,7 +652,7 @@ namespace RTT
 
         // retrieve _all_ defined variables and parameters, store them and cleanup the
         // valuechangeparser.
-        valuechangeparser->store( curtemplate->getServiceProvider() );
+        valuechangeparser->store( curtemplate->getService() );
         valuechangeparser->reset();
 
         // prepend the commands for initialising the subMachine
@@ -677,7 +677,7 @@ namespace RTT
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
             if (psc) {
                 // remove from parent
-                context->provides()->removeService( psc->getServiceProvider()->getName() );
+                context->provides()->removeService( psc->getService()->getName() );
             }
 
         }
@@ -798,12 +798,12 @@ namespace RTT
           for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
                it != curtemplate->getChildren().end(); ++it ) {
               ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
-              if (psc && psc->getServiceProvider() ) {
-                  context->provides()->removeService( psc->getServiceProvider()->getName() );
+              if (psc && psc->getService() ) {
+                  context->provides()->removeService( psc->getService()->getName() );
               }
           }
           // remove all 'this' data factories
-          curtemplate->getServiceProvider()->clear();
+          curtemplate->getService()->clear();
 
           // will also delete all children :
           curtemplate.reset();
@@ -837,7 +837,7 @@ namespace RTT
         // 'sc' acts as a stack for storing variables.
         curobject.reset( new StateMachineService(curtemplate, context ) );
         curobject->setName( curmachinename );
-        curtemplate->setServiceProvider( curobject ); // store.
+        curtemplate->setService( curobject ); // store.
 
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
@@ -900,7 +900,7 @@ namespace RTT
             ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already a Service named '" + curinstmachinename + "' ."));
 
         // Transfer ownership to the owning task.
-        context->provides()->addService( curinstantiatedmachine->getServiceProvider() );
+        context->provides()->addService( curinstantiatedmachine->getService() );
 
         curinstantiatedmachine.reset();
         curinstmachinename.clear();
@@ -917,7 +917,7 @@ namespace RTT
         // its methods.
 
         // Warning: use context->unmountService() since curinstantiatedmachine must owns it.
-        if ( !context->provides()->addService( curinstantiatedmachine->getServiceProvider() ) )
+        if ( !context->provides()->addService( curinstantiatedmachine->getService() ) )
             ORO_THROW( parse_exception_semantic_error(
                 "Name clash: name of instantiated machine \"" + curinstmachinename +
                 "\"  already used as object name in task '"+context->getName()+"'." ));
@@ -925,7 +925,7 @@ namespace RTT
         // SM child relation
         curtemplate->addChild( curinstantiatedmachine );
         // sub-Service relation.
-        curtemplate->getServiceProvider()->addService( curinstantiatedmachine->getServiceProvider() );
+        curtemplate->getService()->addService( curinstantiatedmachine->getService() );
 
         curinstantiatedmachine->setName(curinstmachinename, false ); // not recursive !
 
@@ -1033,7 +1033,7 @@ namespace RTT
         curinstmachineparams.clear();
 
         // set the TaskContext name to the instance name :
-        curinstantiatedmachine->getServiceProvider()->setName(curinstmachinename );
+        curinstantiatedmachine->getService()->setName(curinstmachinename );
     }
 
     void StateGraphParser::seenmachinevariable() {

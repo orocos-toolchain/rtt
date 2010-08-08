@@ -33,12 +33,12 @@
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "ServiceProviderS.h"
+#include "ServiceS.h"
 #else
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #endif
 
-#include "../../interface/ServiceProvider.hpp"
+#include "../../interface/Service.hpp"
 #include "AttributeRepositoryI.h"
 #include "OperationRepositoryI.h"
 
@@ -46,22 +46,22 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  RTT_corba_CServiceProvider_i
-    : public virtual POA_RTT::corba::CServiceProvider, public virtual PortableServer::RefCountServantBase,
+class  RTT_corba_CService_i
+    : public virtual POA_RTT::corba::CService, public virtual PortableServer::RefCountServantBase,
       public virtual RTT_corba_CAttributeRepository_i,
       public virtual RTT_corba_COperationRepository_i
 {
 protected:
     PortableServer::POA_var mpoa;
-    RTT::interface::ServiceProvider::shared_ptr mservice;
+    RTT::interface::Service::shared_ptr mservice;
 public:
   // Constructor 
-    RTT_corba_CServiceProvider_i ( RTT::interface::ServiceProviderPtr service, PortableServer::POA_ptr poa);
+    RTT_corba_CService_i ( RTT::interface::ServicePtr service, PortableServer::POA_ptr poa);
   
   // Destructor 
-  virtual ~RTT_corba_CServiceProvider_i (void);
+  virtual ~RTT_corba_CService_i (void);
   
-  virtual RTT::corba::CServiceProvider_ptr activate_this() {
+  virtual RTT::corba::CService_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
       return _this();
@@ -78,11 +78,11 @@ public:
       void);
   
   virtual
-  ::RTT::corba::CServiceProvider::CProviderNames * getProviderNames (
+  ::RTT::corba::CService::CProviderNames * getProviderNames (
       void);
   
   virtual
-  ::RTT::corba::CServiceProvider_ptr getService (
+  ::RTT::corba::CService_ptr getService (
       const char * name);
   
   virtual

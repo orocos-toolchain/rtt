@@ -31,14 +31,14 @@ namespace RTT
      *
      * @ingroup Services
      */
-    class RTT_API ServiceProvider
+    class RTT_API Service
         : public OperationRepository,
           public AttributeRepository,
-          public boost::enable_shared_from_this<ServiceProvider>
+          public boost::enable_shared_from_this<Service>
     {
     public:
         typedef OperationRepository Factory;
-        typedef boost::shared_ptr<ServiceProvider> shared_ptr;
+        typedef boost::shared_ptr<Service> shared_ptr;
         typedef std::vector<std::string> ProviderNames;
 
         /**
@@ -48,7 +48,7 @@ namespace RTT
          * @param name The name of this service.
          * @param owner The TaskContext that will execute the operations of this service.
          */
-        static ServiceProvider::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
+        static Service::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
 
         /**
          * Creates a service provider with a name and an owner.  Each
@@ -57,9 +57,9 @@ namespace RTT
          * @param name The name of this service.
          * @param owner The TaskContext that will execute the operations of this service.
          */
-        ServiceProvider(const std::string& name, TaskContext* owner = 0);
+        Service(const std::string& name, TaskContext* owner = 0);
 
-        virtual ~ServiceProvider();
+        virtual ~Service();
 
         /**
          * Returns the name of this service instance.
@@ -127,17 +127,17 @@ namespace RTT
         virtual void removeService( std::string const& service_name );
 
         /**
-         * Returns this ServiceProvider.
+         * Returns this Service.
          * @return a shared pointer from this.
          */
-        ServiceProvider::shared_ptr provides() { return shared_from_this(); }
+        Service::shared_ptr provides() { return shared_from_this(); }
 
         /**
          * Returns a sub-service provider which resorts under
          * this service provider.
          * @param service_name The name of the sub-service.
          */
-        ServiceProvider::shared_ptr provides(const std::string& service_name);
+        Service::shared_ptr provides(const std::string& service_name);
         /**
          * Returns a shared pointer to strictly a sub-service.
          * This method will not return the this pointer when

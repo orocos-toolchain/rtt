@@ -37,7 +37,7 @@
 #include "StateMachine.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSource.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "CommandFunctors.hpp"
 #include <Logger.hpp>
 #include <functional>
@@ -496,7 +496,7 @@ namespace RTT {
 
     }
 
-    bool StateMachine::createEventTransition( ServiceProviderPtr sp,
+    bool StateMachine::createEventTransition( ServicePtr sp,
                                               const std::string& ename, vector<DataSourceBase::shared_ptr> args,
                                               StateInterface* from, StateInterface* to,
                                               ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,

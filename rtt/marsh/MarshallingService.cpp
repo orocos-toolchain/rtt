@@ -60,7 +60,7 @@ namespace RTT {
     }
 
     MarshallingService::MarshallingService(TaskContext* parent)
-        : ServiceProvider("marshalling", parent)
+        : Service("marshalling", parent)
     {
         this->doc("Property marshalling interface. Use this service to read and write properties from/to a file.");
         this->addOperation("loadProperties",&MarshallingService::loadProperties, this).doc(

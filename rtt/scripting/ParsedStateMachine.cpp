@@ -30,7 +30,7 @@
 #include "../ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "StateMachineService.hpp"
 #include "../TaskContext.hpp"
 #include "../internal/mystd.hpp"
@@ -66,7 +66,7 @@ namespace RTT {
 
         // First copy the task such that commands and attributes can be correctly
         // copied. This also sets the EventProcessor for the SM.
-        ret->setServiceProvider( this->object->copy(ret, replacements, instantiate) );
+        ret->setService( this->object->copy(ret, replacements, instantiate) );
 
         // the parameters of the SC, similar to FunctionGraph's Arguments.
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
@@ -74,8 +74,8 @@ namespace RTT {
         {
             // What is sure, is that each param
             // must also be in the attributerepository.
-            assert( ret->getServiceProvider()->getValue( i->first ) );
-            ret->parametervalues[i->first] = ret->getServiceProvider()->getValue( i->first );
+            assert( ret->getService()->getValue( i->first ) );
+            ret->parametervalues[i->first] = ret->getService()->getValue( i->first );
         }
 
         //**********************
@@ -139,7 +139,7 @@ namespace RTT {
             StateInterface* fromState = statemapping[i->first];
             for ( EventList::const_iterator j = i->second.begin(); j != i->second.end(); ++j )
             {
-                ServiceProviderPtr sp = j->get<0>();
+                ServicePtr sp = j->get<0>();
                 string ename = j->get<1>();
                 vector<DataSourceBase::shared_ptr> origargs( j->get<2>() );
                 vector<DataSourceBase::shared_ptr> newargs;
@@ -265,15 +265,15 @@ namespace RTT {
 
         if ( recursive == false )
             return;
-        //this->getServiceProvider()->addPeer( this->getServiceProvider()->getPeer("states")->getPeer("task") );
+        //this->getService()->addPeer( this->getService()->getPeer("states")->getPeer("task") );
         for ( ChildList::const_iterator i = getChildren().begin(); i != getChildren().end(); ++i )
         {
             std::string subname = name + "." + (*i)->getName();
             ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->get() );
             psc->setName( subname, true );
             // we own our child:
-            psc->getServiceProvider()->setOwner( 0 );
-            this->getServiceProvider()->addService( psc->getServiceProvider() );
+            psc->getService()->setOwner( 0 );
+            this->getService()->addService( psc->getService() );
         }
     }
 
@@ -287,10 +287,10 @@ namespace RTT {
         *_text = text;
     }
 
-    StateMachineServicePtr ParsedStateMachine::getServiceProvider() const {
+    StateMachineServicePtr ParsedStateMachine::getService() const {
         return object;
     }
-    void ParsedStateMachine::setServiceProvider(StateMachineServicePtr tc) {
+    void ParsedStateMachine::setService(StateMachineServicePtr tc) {
         object = tc;
     }
 

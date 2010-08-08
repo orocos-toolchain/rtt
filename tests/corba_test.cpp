@@ -27,10 +27,10 @@
 #include <rtt/TaskContext.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
-#include <rtt/interface/ServiceProvider.hpp>
+#include <rtt/interface/Service.hpp>
 #include <rtt/transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
-#include <transports/corba/ServiceProviderC.h>
+#include <transports/corba/ServiceC.h>
 
 #include "operations_fixture.hpp"
 
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     tp = corba::TaskContextProxy::Create( ts->server() , true);
 
     // This test tests the callOperation() function of the server.
-    corba::CServiceProvider_var co = ts->server()->getProvider("methods");
+    corba::CService_var co = ts->server()->getProvider("methods");
     BOOST_CHECK( co.in() );
 
     corba::CAnyArguments_var any_args = new corba::CAnyArguments(0);

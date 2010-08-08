@@ -42,7 +42,7 @@
 
 #include "rtt-config.h"
 #include "plugin/PluginLoader.hpp"
-#include "interface/ServiceProvider.hpp"
+#include "interface/Service.hpp"
 #include "interface/ServiceRequester.hpp"
 #include "interface/DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
@@ -254,24 +254,24 @@ namespace RTT
 
         /**
          * These functions are used to create and manage services.
-         * Use provides() or requires() to access the ServiceProvider
+         * Use provides() or requires() to access the Service
          * or ServiceRequester objects that contain all service related functions.
          * @name Services
          * @{
          */
 
         /**
-         * Returns this ServiceProvider.
+         * Returns this Service.
          * @return a shared pointer from this.
          */
-        interface::ServiceProvider::shared_ptr provides() { return tcservice; }
+        interface::Service::shared_ptr provides() { return tcservice; }
 
         /**
          * Returns a sub-service provider which resorts under
          * this service provider.
          * @param service_name The name of the sub-service.
          */
-        interface::ServiceProvider::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
+        interface::Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
 
         /**
          * Returns the object that manages which methods this Task
@@ -493,7 +493,7 @@ namespace RTT
          */
         /**
          * Name and add a Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * @param name The name to give to the port.
          * @param port The port to add.
          */
@@ -504,7 +504,7 @@ namespace RTT
 
         /**
          * Add a Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * @param port The port to add.
          */
         base::PortInterface& addPort(base::PortInterface& port) {
@@ -513,7 +513,7 @@ namespace RTT
 
         /**
          * Name and add an Event triggering Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * @param name The name to give to the port.
          * @param port The port to add.
          * @param callback (Optional) provide a function which will be called asynchronously
@@ -529,7 +529,7 @@ namespace RTT
 
         /**
          * Add an Event triggering Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * @param port The port to add.
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
@@ -654,7 +654,7 @@ namespace RTT
         typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;
         LocalServices localservs;
 
-        interface::ServiceProvider::shared_ptr tcservice;
+        interface::Service::shared_ptr tcservice;
         interface::ServiceRequester*           tcrequests;
     private:
         // non copyable

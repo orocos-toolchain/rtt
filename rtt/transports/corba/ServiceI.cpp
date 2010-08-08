@@ -28,13 +28,13 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "ServiceProviderI.h"
+#include "ServiceI.h"
 
 using namespace RTT;
 using namespace RTT::detail;
 
 // Implementation skeleton constructor
-RTT_corba_CServiceProvider_i::RTT_corba_CServiceProvider_i ( RTT::interface::ServiceProvider::shared_ptr service, PortableServer::POA_ptr poa)
+RTT_corba_CService_i::RTT_corba_CService_i ( RTT::interface::Service::shared_ptr service, PortableServer::POA_ptr poa)
     : RTT_corba_CAttributeRepository_i( service.get(), PortableServer::POA::_duplicate( poa) ), 
       RTT_corba_COperationRepository_i( service.get(), PortableServer::POA::_duplicate( poa) ),
       mpoa(poa), mservice(service)
@@ -42,32 +42,32 @@ RTT_corba_CServiceProvider_i::RTT_corba_CServiceProvider_i ( RTT::interface::Ser
 }
 
 // Implementation skeleton destructor
-RTT_corba_CServiceProvider_i::~RTT_corba_CServiceProvider_i (void)
+RTT_corba_CService_i::~RTT_corba_CService_i (void)
 {
 }
 
-PortableServer::POA_ptr RTT_corba_CServiceProvider_i::_default_POA()
+PortableServer::POA_ptr RTT_corba_CService_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
-char * RTT_corba_CServiceProvider_i::getName (
+char * RTT_corba_CService_i::getName (
     void)
 {
     return CORBA::string_dup( mservice->getName().c_str() );
 }
 
-char * RTT_corba_CServiceProvider_i::getServiceDescription (
+char * RTT_corba_CService_i::getServiceDescription (
     void)
 {
     return CORBA::string_dup( mservice->doc().c_str() );
 }
 
-::RTT::corba::CServiceProvider::CProviderNames * RTT_corba_CServiceProvider_i::getProviderNames (
+::RTT::corba::CService::CProviderNames * RTT_corba_CService_i::getProviderNames (
     void)
 {
-    ServiceProvider::ProviderNames names = mservice->getProviderNames();
-    ::RTT::corba::CServiceProvider::CProviderNames_var result = new ::RTT::corba::CServiceProvider::CProviderNames();
+    Service::ProviderNames names = mservice->getProviderNames();
+    ::RTT::corba::CService::CProviderNames_var result = new ::RTT::corba::CService::CProviderNames();
     result->length( names.size() );
     for (unsigned int i=0; i != names.size(); ++i )
         result[i] = CORBA::string_dup( names[i].c_str() );
@@ -75,22 +75,22 @@ char * RTT_corba_CServiceProvider_i::getServiceDescription (
     return result._retn();
 }
 
-::RTT::corba::CServiceProvider_ptr RTT_corba_CServiceProvider_i::getService (
+::RTT::corba::CService_ptr RTT_corba_CService_i::getService (
     const char * service_name)
 {
-    ServiceProvider::shared_ptr provider = mservice->getService(service_name);
+    Service::shared_ptr provider = mservice->getService(service_name);
     if ( !provider )
-	return RTT::corba::CServiceProvider::_nil();
+	return RTT::corba::CService::_nil();
     
-    RTT_corba_CServiceProvider_i* serv_i;
-    RTT::corba::CServiceProvider_var serv;
-    serv_i = new RTT_corba_CServiceProvider_i( provider, mpoa );
+    RTT_corba_CService_i* serv_i;
+    RTT::corba::CService_var serv;
+    serv_i = new RTT_corba_CService_i( provider, mpoa );
     serv = serv_i->activate_this();
-    //CServiceProvider_i::registerServant(serv, mtask->provides(service_name));
-    return RTT::corba::CServiceProvider::_duplicate( serv.in() );
+    //CService_i::registerServant(serv, mtask->provides(service_name));
+    return RTT::corba::CService::_duplicate( serv.in() );
 }
 
-::CORBA::Boolean RTT_corba_CServiceProvider_i::hasService (
+::CORBA::Boolean RTT_corba_CService_i::hasService (
     const char * name)
 {
     return mservice->hasService( name );

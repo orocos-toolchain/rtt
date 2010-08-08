@@ -1,5 +1,5 @@
 #include "ServiceRequester.hpp"
-#include "ServiceProvider.hpp"
+#include "Service.hpp"
 #include "../internal/mystd.hpp"
 #include "../Logger.hpp"
 #include "../TaskContext.hpp"
@@ -48,7 +48,7 @@ namespace RTT
         return *mmethods.find(name)->second;
     }
 
-    bool ServiceRequester::connectTo( ServiceProvider::shared_ptr sp) {
+    bool ServiceRequester::connectTo( Service::shared_ptr sp) {
         for (Methods::iterator it = mmethods.begin(); it != mmethods.end(); ++it) {
             if ( !it->second->ready() ) {
                 if (sp->hasOperation( it->first )) {

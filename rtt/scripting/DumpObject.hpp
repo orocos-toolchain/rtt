@@ -41,11 +41,11 @@
 
 #include "rtt-scripting-config.h"
 #include "../interface/rtt-interface-fwd.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 
 namespace RTT { namespace scripting {
 
-RTT_SCRIPTING_API void DumpObject(interface::ServiceProvider::shared_ptr obj);
+RTT_SCRIPTING_API void DumpObject(interface::Service::shared_ptr obj);
 
 }}
 #endif

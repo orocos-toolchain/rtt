@@ -47,7 +47,7 @@
 #include "scripting/rtt-scripting-config.h"
 #include "ProgramExceptions.hpp"
 #include "StatementProcessor.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "Parser.hpp"
 #include "parse_exception.hpp"
 #include "../Method.hpp"
@@ -68,7 +68,7 @@ namespace RTT {
     }
 
     ScriptingService::ScriptingService( TaskContext* parent )
-        : ServiceProvider("scripting", parent),
+        : Service("scripting", parent),
           sproc(0)
     {
         this->doc("Orocos Scripting service. Use this service in order to load or query programs or state machines.");
@@ -120,7 +120,7 @@ namespace RTT {
             }
 #endif
         }
-        ServiceProvider::clear();
+        Service::clear();
     }
 
      StateMachine::Status::StateMachineStatus ScriptingService::getStateMachineStatus(const string& name) const

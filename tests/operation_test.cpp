@@ -2,7 +2,7 @@
 
 #include <rtt-fwd.hpp>
 #include <rtt/Operation.hpp>
-#include <rtt/interface/ServiceProvider.hpp>
+#include <rtt/interface/Service.hpp>
 #include <rtt/Method.hpp>
 #include <rtt/TaskContext.hpp>
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testOperationCreate )
 // Test adding and calling an operation (internal API)
 BOOST_AUTO_TEST_CASE( testOperationCall )
 {
-    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
+    Service::shared_ptr s =  make_shared<Service>("Service");
 
     tc.provides()->addService( s );
 
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
 // Test calling an operation (user API)
 BOOST_AUTO_TEST_CASE( testOperationCall2 )
 {
-    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
+    Service::shared_ptr s =  make_shared<Service>("Service");
 
     tc.provides()->addService( s );
 
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
 // Test adding an operation to the default service.
 BOOST_AUTO_TEST_CASE( testOperationAdd )
 {
-    ServiceProvider::shared_ptr s =  make_shared<ServiceProvider>("Service");
+    Service::shared_ptr s =  make_shared<Service>("Service");
 
     tc.provides()->addService( s );
     s->addOperation("top0", &OperationTest::func0, this);

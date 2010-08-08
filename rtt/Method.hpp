@@ -49,7 +49,7 @@
 #include "internal/InvokerSignature.hpp"
 #include "base/MethodBaseInvoker.hpp"
 #include "Logger.hpp"
-#include "interface/ServiceProvider.hpp"
+#include "interface/Service.hpp"
 #ifdef ORO_REMOTING
 #include "interface/OperationRepository.hpp"
 #include "internal/RemoteMethod.hpp"
@@ -189,11 +189,11 @@ namespace RTT
          * Initialise a named Method object from a Service.
          *
          * @param name The name of the operation to look for.
-         * @param service The ServiceProvider where the operation will be looked up.
+         * @param service The Service where the operation will be looked up.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        Method(const std::string& name, interface::ServiceProviderPtr service, ExecutionEngine* caller = 0)
+        Method(const std::string& name, interface::ServicePtr service, ExecutionEngine* caller = 0)
             : Base(),
               mname(name), mcaller(caller)
         {
@@ -246,11 +246,11 @@ namespace RTT
         /**
          * Named Method objects may be looked up in a Service.
          *
-         * @param service The ServiceProvider where the operation will be looked up.
+         * @param service The Service where the operation will be looked up.
          *
          * @return *this
          */
-        Method& operator=(interface::ServiceProviderPtr service)
+        Method& operator=(interface::ServicePtr service)
         {
             if ( !service ) {
                 log(Warning) << "Assigning Method from null service."<<endlog();

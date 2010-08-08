@@ -38,7 +38,7 @@
 
 #include "DataFlowInterface.hpp"
 #include "../Logger.hpp"
-#include "ServiceProvider.hpp"
+#include "Service.hpp"
 #include "../TaskContext.hpp"
 
 namespace RTT
@@ -59,15 +59,15 @@ namespace RTT
     PortInterface& DataFlowInterface::addPort(PortInterface& port) {
         this->addLocalPort(port);
         if (mparent && mparent->provides()->hasService( port.getName()) != 0) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing old instance." <<endlog();
             mparent->provides()->removeService(port.getName());
         }
 
         if (!mparent) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding Service." <<endlog();
             return port;
         }
-        ServiceProvider::shared_ptr ms( this->createPortObject( port.getName()) );
+        Service::shared_ptr ms( this->createPortObject( port.getName()) );
         if ( ms )
             mparent->provides()->addService( ms );
         // END NOTE.
@@ -91,15 +91,15 @@ namespace RTT
     InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addLocalEventPort(port);
         if (mparent && mparent->provides()->hasService( port.getName()) != 0) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as ServiceProvider. Replacing old instance." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing old instance." <<endlog();
             mparent->provides()->removeService(port.getName());
         }
 
         if (!mparent) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding ServiceProvider." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": DataFlowInterface not given to parent. Not adding Service." <<endlog();
             return port;
         }
-        ServiceProvider::shared_ptr ms( this->createPortObject( port.getName()) );
+        Service::shared_ptr ms( this->createPortObject( port.getName()) );
         if ( ms )
             mparent->provides()->addService( ms );
         return port;
@@ -188,11 +188,11 @@ namespace RTT
         return "";
     }
 
-    ServiceProvider* DataFlowInterface::createPortObject(const std::string& name) {
+    Service* DataFlowInterface::createPortObject(const std::string& name) {
         PortInterface* p = this->getPort(name);
         if ( !p )
             return 0;
-        ServiceProvider* to = p->createPortObject();
+        Service* to = p->createPortObject();
         if (to) {
             std::string d = this->getPortDescription(name);
             if ( !d.empty() )

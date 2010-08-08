@@ -6,7 +6,7 @@
 #include <Method.hpp>
 #include <Operation.hpp>
 #include <internal/RemoteMethod.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testMethodC_Send)
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
-    ServiceProviderPtr sp = tc->provides("methods");
+    ServicePtr sp = tc->provides("methods");
 
     double ret;
     MethodC mc0 = sp->create("m0", caller->engine() );
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
     Operation<double(int,double)> m2("m2");
     m2.calls(&OperationsFixture::m2, this);
 
-    ServiceProvider to("task");
+    Service to("task");
 
     BOOST_CHECK( !to.addOperation(m0).ready() );
     to.setOwner(tc);

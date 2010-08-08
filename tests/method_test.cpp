@@ -4,7 +4,7 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
     BOOST_CHECK( !m1.ready() );
     BOOST_CHECK( !m2.ready() );
 
-    ServiceProvider to("task");
+    Service to("task");
 
     // allow to add an operation even if no owner is set.
     BOOST_CHECK( to.addLocalOperation(m0) );
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_OwnThread)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    ServiceProviderPtr to (new ServiceProvider("task", tc) );
+    ServicePtr to (new Service("task", tc) );
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,

@@ -69,7 +69,7 @@ namespace RTT
     TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
         :  TaskCore( initial_state)
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
-           ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
+           ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
@@ -83,7 +83,7 @@ namespace RTT
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
         :  TaskCore(parent, initial_state)
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
-           ,tcservice(new ServiceProvider(name,this) ), tcrequests( new ServiceRequester(name,this) )
+           ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
@@ -104,7 +104,7 @@ namespace RTT
 //        MarshallingService::Create(this);
 //#endif
 
-        // from ServiceProvider
+        // from Service
         provides()->doc("The interface of this TaskContext.");
 
         this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (read properties etc).");

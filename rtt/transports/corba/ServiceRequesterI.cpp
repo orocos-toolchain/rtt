@@ -87,7 +87,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::connectTo (
-    ::RTT::corba::CServiceProvider_ptr svc)
+    ::RTT::corba::CService_ptr svc)
 {
     assert(false);
     return false;

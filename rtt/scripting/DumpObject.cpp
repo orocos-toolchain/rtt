@@ -40,8 +40,8 @@
 #include <vector>
 #include <string>
 #include "../base/DataSourceBase.hpp"
-#include "../interface/ServiceProvider.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
+#include "../interface/Service.hpp"
 #include "DumpObject.hpp"
 #include "rtt-fwd.hpp"
 
@@ -51,7 +51,7 @@ using namespace RTT::detail;
 
 namespace RTT { namespace scripting {
 
-void DumpObject(ServiceProvider::shared_ptr peer)
+void DumpObject(Service::shared_ptr peer)
 {
     if (!peer) { cerr << "Not dumping null task!"<<endl; return;}
 

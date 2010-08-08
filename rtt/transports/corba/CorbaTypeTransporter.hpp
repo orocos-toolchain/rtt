@@ -41,7 +41,7 @@
 
 #include "corba.h"
 #include "../../types/TypeTransporter.hpp"
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 
 namespace RTT {
 
@@ -96,8 +96,8 @@ namespace RTT {
          * Will create an assignable data source when the property or attribute
          * can be changed, a normal data source otherwise.
          */
-        virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) = 0;
-        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) = 0;
+        virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CService_ptr serv, const std::string& vname) = 0;
+        virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) = 0;
 	};
     }
 }

@@ -77,7 +77,7 @@ namespace RTT
 
         /**
          * Add a Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * If a port or service with the name already exists, addPort
          * will replace them with \a port and log a warning.
          * @param port The port to add.
@@ -87,7 +87,7 @@ namespace RTT
 
         /**
          * Add an Event triggering Port to the interface of this task and
-         * add a ServiceProvider with the same name of the port.
+         * add a Service with the same name of the port.
          * When data arrives on this port your TaskContext will be woken up
          * and updateHook will be executed.
          * @param port The port to add.
@@ -193,7 +193,7 @@ namespace RTT
          * Create a Service through which one can access a Port.
          * @param name The port name
          */
-        ServiceProvider* createPortObject(const std::string& name);
+        Service* createPortObject(const std::string& name);
 
         /**
          * All our ports.

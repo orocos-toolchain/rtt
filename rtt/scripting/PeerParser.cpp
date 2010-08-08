@@ -204,7 +204,7 @@ namespace RTT
         return _peer;
     }
 
-    ServiceProvider::shared_ptr PeerParser::taskObject()
+    Service::shared_ptr PeerParser::taskObject()
     {
         return mcurobject;
     }

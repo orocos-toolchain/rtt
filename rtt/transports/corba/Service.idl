@@ -18,7 +18,7 @@ module RTT
 	 * An Orocos Service which hosts operations, attributes and properties.
 	 * @ingroup CompIDL
 	 */
-	interface CServiceProvider : COperationRepository, CAttributeRepository
+	interface CService : COperationRepository, CAttributeRepository
 	{
 	    typedef sequence<string> CProviderNames;
 
@@ -40,7 +40,7 @@ module RTT
 	    /**
 	     * Get a child service this service provides.
 	     */
-	    CServiceProvider getService( in string name );
+	    CService getService( in string name );
 
 	    /**
 	     * Has this service a child service with given name ?

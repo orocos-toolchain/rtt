@@ -5,7 +5,7 @@
 //resolves LNK2005
 #include <tao/orb.idl>
 #endif
-#include "ServiceProvider.idl"
+#include "Service.idl"
 
 module RTT
 {
@@ -47,7 +47,7 @@ module RTT
 	     */
 	    boolean hasRequest( in string name );
 
-	    boolean connectTo( in CServiceProvider svc);
+	    boolean connectTo( in CService svc);
 
 	    boolean ready();
 

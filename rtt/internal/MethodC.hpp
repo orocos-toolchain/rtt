@@ -74,7 +74,7 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see interface::ServiceProvider
+         * @see interface::Service
          */
         MethodC( interface::OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller);
 

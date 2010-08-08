@@ -24,10 +24,10 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <rtt/Method.hpp>
-#include <rtt/interface/ServiceProvider.hpp>
+#include <rtt/interface/Service.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
-#include <transports/corba/ServiceProviderC.h>
+#include <transports/corba/ServiceC.h>
 #include <transports/corba/corba.h>
 #include <rtt/InputPort.hpp>
 #include <rtt/OutputPort.hpp>
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
     s = tp->server();
     BOOST_REQUIRE( s );
     // This test tests the callOperation() function of the server.
-    corba::CServiceProvider_var co = s->getProvider("methods");
+    corba::CService_var co = s->getProvider("methods");
     BOOST_CHECK( co.in() );
 
     corba::CAnyArguments_var any_args = new corba::CAnyArguments(0);

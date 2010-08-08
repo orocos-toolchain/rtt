@@ -38,7 +38,7 @@
 #include "TaskContextC.h"
 #endif
 
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #include "ServiceRequesterC.h"
 #include "ServicesC.h"
 #include "DataFlowC.h"
@@ -55,7 +55,7 @@ protected:
     PortableServer::POA_var mpoa;
     RTT::TaskContext* mtask;
 
-    RTT::corba::CServiceProvider_var mService;
+    RTT::corba::CService_var mService;
     RTT::corba::CServiceRequester_var mRequest;
     RTT::corba::CDataFlowInterface_var mDataFlow;
 
@@ -135,7 +135,7 @@ public:
       void);
 
   virtual
-  ::RTT::corba::CServiceProvider_ptr getProvider (
+  ::RTT::corba::CService_ptr getProvider (
       const char * service_name);
 
   virtual

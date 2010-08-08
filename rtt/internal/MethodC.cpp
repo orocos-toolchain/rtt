@@ -39,7 +39,7 @@
 #include "MethodC.hpp"
 #include "../interface/FactoryExceptions.hpp"
 #include "DataSourceCommand.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "../Logger.hpp"
 #include "Exceptions.hpp"
 #include <vector>
