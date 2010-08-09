@@ -8,7 +8,7 @@ IF (ENABLE_MARSHALLING)
            MarshallerAdaptors.hpp Orocos1Marshaller.hpp SimpleMarshaller.hpp TableMarshaller.hpp  XMLMarshaller.hpp
            XMLRPCMarshaller.hpp StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp
            )
-  GLOBAL_ADD_SRC( marsh/CPFDTD.cpp marsh/CPFMarshaller.cpp)
+  GLOBAL_ADD_SRC( marsh/CPFDTD.cpp marsh/CPFMarshaller.cpp marsh/EmptyMarshaller.cpp)
 
   IF (XERCES_FOUND AND NOT OS_NOEXCEPTIONS)
     GLOBAL_ADD_INCLUDE( rtt/marsh CPFDemarshaller.hpp)

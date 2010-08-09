@@ -50,20 +50,14 @@ namespace RTT
         : public Marshaller
     {
     public:
-        EmptyMarshaller()
-        {
-        }
+      EmptyMarshaller();
 
-        virtual ~EmptyMarshaller() {}
+      virtual ~EmptyMarshaller();
 
-        virtual void flush() {}
+      virtual void flush();
 
-        virtual void serialize(PropertyBase* v)
-        {
-        }
-        virtual void serialize(const PropertyBag &v)
-        {
-        }
-	};
+      virtual void serialize(PropertyBase* v);
+      virtual void serialize(const PropertyBag &v);
+    };
 }
 #endif
