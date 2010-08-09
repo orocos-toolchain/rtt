@@ -50,13 +50,15 @@ if( ${CMAKE_MINOR_VERSION} LESS 7 AND ${CMAKE_PATCH_VERSION} LESS 2)
 endif()
 
 # Look for boost
-find_package(Boost 1.33 REQUIRED)
+find_package(Boost 1.33 COMPONENTS filesystem system)
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
+else()
+  message(FATAL_ERROR "Boost not found on your system. See orocos-rtt.default.cmake (recommended) or set BOOST_ROOT.")
 endif()
 
 # Look for Xerces 
@@ -221,7 +223,7 @@ if(OROCOS_TARGET STREQUAL "win32")
     # For boost::intrusive !
     find_package(Boost 1.36 REQUIRED)
   endif()
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}) 
   set(CMAKE_DEBUG_POSTFIX "d")
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
