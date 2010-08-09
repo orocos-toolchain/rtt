@@ -14,6 +14,15 @@ OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)
 OPTION(OS_HAVE_STREAMS "Use C++ streams library." ON)
 OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the OS. The user implements ORO_main()." ON)
 OPTION(ORO_OS_USE_BOOST_THREAD "Use the Boost.Thread library. Currently only the mutex implementation is used." OFF)
+OPTION(ORO_OS_PLUGIN_LOADER "Use the plugin loader to load typekits and plugins." ON)
+
+if (ORO_OS_PLUGIN_LOADER)
+  if(NOT Boost_FILESYSTEM_FOUND OR NOT Boost_SYSTEM_FOUND)
+    message(SEND_ERROR "Boost filesystem and/or system library not found or not installed on your system. Disable ORO_OS_PLUGIN_LOADER to remove this dependency.")
+  endif()
+  # We link with this lib later on during target specs.
+endif()
+  
 
 if (ORO_OS_USE_BOOST_THREAD)
   if (NOT Boost_THREAD_FOUND)
@@ -187,10 +196,13 @@ ENDIF ( BUILD_STATIC )
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
     # Set accumulated compilation flags: (.so and .a)
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}"
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET} -DBOOST_ALL_NO_LIB"
     CLEAN_DIRECT_OUTPUT 1)
     
   target_link_libraries(orocos-rtt-dynamic_${OROCOS_TARGET} ${OROCOS-RTT_LIBRARIES})
+  if(ORO_OS_PLUGIN_LOADER)
+    target_link_libraries(orocos-rtt-dynamic_${OROCOS_TARGET} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+  endif()
 
 create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDE_DIRS}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
 create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RTT_DUMMY RTT_DUMMY RTT_USER_LINK_LIBS)
