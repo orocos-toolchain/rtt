@@ -17,10 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <windows.h>
-#include <stdio.h>
-
 #include "dlfcn.h"
+#include <stdio.h>
 
 /* Note:
  * MSDN says these functions are not thread-safe. We make no efforts to have
