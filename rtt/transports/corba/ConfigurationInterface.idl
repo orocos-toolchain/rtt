@@ -15,7 +15,7 @@ module RTT
 	 * of a service.
 	 * @ingroup CompIDL
 	 */
-	interface CAttributeRepository
+	interface CConfigurationInterface
 	{
 	    struct CProperty {
 		  string name;

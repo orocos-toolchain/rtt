@@ -99,7 +99,7 @@ namespace RTT
             StateMachineServicePtr tmp( new StateMachineService( newsc, this->mtc ) );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
-            AttributeRepository* dummy = AttributeRepository::copy( replacements, instantiate );
+            ConfigurationInterface* dummy = ConfigurationInterface::copy( replacements, instantiate );
             tmp->loadValues( dummy->getValues());
             delete dummy;
 

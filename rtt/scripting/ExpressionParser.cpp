@@ -563,8 +563,8 @@ namespace RTT
     // hack to drop-in a new instance of SendHandle:
     if (arg2->getTypeName() == "SendHandle" && mhandle) {
 //        cout << "Trying to replace SendHandle/..."<<endl;
-        AttributeRepository::AttributeObjects attrs = context->attributes()->getValues();
-        for( AttributeRepository::AttributeObjects::iterator it = attrs.begin(); it != attrs.end(); ++it) {
+        ConfigurationInterface::AttributeObjects attrs = context->attributes()->getValues();
+        for( ConfigurationInterface::AttributeObjects::iterator it = attrs.begin(); it != attrs.end(); ++it) {
             if ( (*it)->getDataSource() == arg2 ) { // since the parsestack only saves the DSB, we need to do lookup by DSB and not by name :-(
 //                cout << "Found !"<<endl;
                 string name = (*it)->getName();

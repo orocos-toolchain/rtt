@@ -39,12 +39,12 @@
 #ifndef ORO_GLOBALS_REPOSITORY_HPP
 #define ORO_GLOBALS_REPOSITORY_HPP
 
-#include "../interface/AttributeRepository.hpp"
+#include "../interface/ConfigurationInterface.hpp"
 
 namespace RTT {
     namespace types {
         /**
-         * An AttributeRepository for holding global variables.
+         * An ConfigurationInterface for holding global variables.
          * The RTT uses this to export enumerations to scripting,
          * but users may extend this as well for their own applications.
          *
@@ -52,7 +52,7 @@ namespace RTT {
          * globals, such that they become owned by the GlobalsRepository.
          */
         class RTT_API GlobalsRepository
-            : public interface::AttributeRepository
+            : public interface::ConfigurationInterface
         {
         public:
             typedef boost::shared_ptr<GlobalsRepository> shared_ptr;

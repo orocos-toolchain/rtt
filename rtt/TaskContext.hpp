@@ -373,7 +373,7 @@ namespace RTT
          * Adding and getting attributes from the TaskContext interface.
          * These functions all forward to the service provider representing
          * this TaskContext. Use attributes() to access the complete
-         * AttributeRepository interface of this TaskContext.
+         * ConfigurationInterface interface of this TaskContext.
          * @name Attributes
          * @{ */
         /**
@@ -430,9 +430,9 @@ namespace RTT
         }
 
         /**
-         * Returns the attributes of this TaskContext as an AttributeRepository.
+         * Returns the attributes of this TaskContext as an ConfigurationInterface.
          */
-        interface::AttributeRepository* attributes() { return this->provides().get(); }
+        interface::ConfigurationInterface* attributes() { return this->provides().get(); }
 
         /** @} */
 

@@ -9,7 +9,7 @@
 #include "../internal/UnMember.hpp"
 #include "../internal/GetSignature.hpp"
 
-#include "AttributeRepository.hpp"
+#include "ConfigurationInterface.hpp"
 #include "../Operation.hpp"
 #ifdef ORO_REMOTING
 #include "../internal/RemoteMethod.hpp"
@@ -33,7 +33,7 @@ namespace RTT
      */
     class RTT_API Service
         : public OperationRepository,
-          public AttributeRepository,
+          public ConfigurationInterface,
           public boost::enable_shared_from_this<Service>
     {
     public:

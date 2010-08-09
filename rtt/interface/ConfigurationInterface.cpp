@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeRepository.cxx
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  ConfigurationInterface.cxx
 
-                        AttributeRepository.cxx -  description
+                        ConfigurationInterface.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
@@ -37,7 +37,7 @@
 
 
 
-#include "AttributeRepository.hpp"
+#include "ConfigurationInterface.hpp"
 #include "../internal/mystd.hpp"
 #include <functional>
 #include <boost/bind.hpp>
@@ -47,19 +47,19 @@ namespace RTT {
     using namespace std;
     using namespace boost;
 
-  AttributeRepository::AttributeRepository()
+  ConfigurationInterface::ConfigurationInterface()
   {
   }
 
-  AttributeRepository::~AttributeRepository()
+  ConfigurationInterface::~ConfigurationInterface()
   {
       // we do not claim automatically ownership
       // call clear() manually to delete all contents.
   }
 
-    AttributeRepository* AttributeRepository::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool inst ) const
+    ConfigurationInterface* ConfigurationInterface::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool inst ) const
     {
-        AttributeRepository* ar = new AttributeRepository();
+        ConfigurationInterface* ar = new ConfigurationInterface();
         for ( map_t::const_iterator i = values.begin(); i != values.end(); ++i ) {
             ar->setValue((*i)->copy( repl, inst ) );
         }
@@ -67,7 +67,7 @@ namespace RTT {
     }
 
 
-  void AttributeRepository::clear()
+  void ConfigurationInterface::clear()
   {
     for ( map_t::iterator i = values.begin(); i != values.end(); ++i )
       delete *i;
@@ -75,7 +75,7 @@ namespace RTT {
     bag.clear();
   }
 
-  bool AttributeRepository::setValue( AttributeBase* value )
+  bool ConfigurationInterface::setValue( AttributeBase* value )
   {
       if ( !value->getDataSource() || value->getName().empty() )
           return false;
@@ -87,17 +87,17 @@ namespace RTT {
       return true;
   }
 
-    bool AttributeRepository::addProperty( PropertyBase& pb ) {
+    bool ConfigurationInterface::addProperty( PropertyBase& pb ) {
         if ( bag.find( pb.getName() ) )
             return false;
         bag.add( &pb );
         return true;
     }
-    void AttributeRepository::removeAttribute( const std::string& name ) {
+    void ConfigurationInterface::removeAttribute( const std::string& name ) {
         removeValue(name);
     }
 
-  bool AttributeRepository::removeValue( const std::string& name )
+  bool ConfigurationInterface::removeValue( const std::string& name )
   {
     map_t::iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
     if ( i != values.end() ) {
@@ -108,25 +108,25 @@ namespace RTT {
     return false;
   }
 
-  AttributeBase* AttributeRepository::getValue( const std::string& name ) const
+  AttributeBase* ConfigurationInterface::getValue( const std::string& name ) const
   {
     map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
     if ( i == values.end() ) return 0;
     else return *i;
   }
 
-  bool AttributeRepository::hasAttribute( const std::string& name ) const
+  bool ConfigurationInterface::hasAttribute( const std::string& name ) const
   {
     map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
     return i != values.end();
   }
 
-  bool AttributeRepository::hasProperty( const std::string& name ) const
+  bool ConfigurationInterface::hasProperty( const std::string& name ) const
   {
       return (bag.find(name) != 0);
   }
 
-    bool AttributeRepository::removeProperty( PropertyBase& p )
+    bool ConfigurationInterface::removeProperty( PropertyBase& p )
     {
         if ( bag.find( p.getName() ) ) {
             bag.remove(&p);
@@ -135,19 +135,19 @@ namespace RTT {
         return false;
     }
 
-    std::vector<std::string> AttributeRepository::getAttributeNames() const
+    std::vector<std::string> ConfigurationInterface::getAttributeNames() const
     {
         std::vector<std::string> ret;
         std::transform( values.begin(), values.end(), back_inserter(ret), bind(&AttributeBase::getName, _1) );
         return ret;
     }
 
-    void AttributeRepository::loadValues( AttributeObjects const& new_values) {
+    void ConfigurationInterface::loadValues( AttributeObjects const& new_values) {
         values.insert(values.end(), new_values.begin(), new_values.end());
     }
 
 
-    PropertyBag* AttributeRepository::properties()
+    PropertyBag* ConfigurationInterface::properties()
     {
         return &bag;
     }

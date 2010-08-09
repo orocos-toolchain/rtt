@@ -33,33 +33,33 @@
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "AttributeRepositoryS.h"
+#include "ConfigurationInterfaceS.h"
 #else
-#include "AttributeRepositoryC.h"
+#include "ConfigurationInterfaceC.h"
 #endif
 
-#include "../../interface/AttributeRepository.hpp"
+#include "../../interface/ConfigurationInterface.hpp"
 #include "../../PropertyBag.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  RTT_corba_CAttributeRepository_i
-  : public virtual POA_RTT::corba::CAttributeRepository
+class  RTT_corba_CConfigurationInterface_i
+  : public virtual POA_RTT::corba::CConfigurationInterface
 {
-     RTT::interface::AttributeRepository* mar;
+     RTT::interface::ConfigurationInterface* mar;
      RTT::PropertyBag* mbag;
      PortableServer::POA_var mpoa;
 
   public:
     //Constructor
-    RTT_corba_CAttributeRepository_i ( RTT::interface::AttributeRepository* ar, PortableServer::POA_ptr the_poa);
-    RTT_corba_CAttributeRepository_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
+    RTT_corba_CConfigurationInterface_i ( RTT::interface::ConfigurationInterface* ar, PortableServer::POA_ptr the_poa);
+    RTT_corba_CConfigurationInterface_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
   // Destructor
-  virtual ~RTT_corba_CAttributeRepository_i (void);
+  virtual ~RTT_corba_CConfigurationInterface_i (void);
 
-  virtual RTT::corba::CAttributeRepository_ptr activate_this() {
+  virtual RTT::corba::CConfigurationInterface_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
       return _this();
@@ -71,11 +71,11 @@ class  RTT_corba_CAttributeRepository_i
   ::RTT::base::DataSourceBase::shared_ptr getPropertyDataSource(const std::string& value_name);
 
   virtual
-  ::RTT::corba::CAttributeRepository::CAttributeNames * getAttributeList (
+  ::RTT::corba::CConfigurationInterface::CAttributeNames * getAttributeList (
       void);
 
   virtual
-  ::RTT::corba::CAttributeRepository::CPropertyNames * getPropertyList (
+  ::RTT::corba::CConfigurationInterface::CPropertyNames * getPropertyList (
       void);
 
   virtual

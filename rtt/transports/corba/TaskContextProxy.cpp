@@ -242,7 +242,7 @@ namespace RTT
         // first do properties:
         log(Debug) << "Fetching Properties."<<endlog();
         // a dot-separated list of subbags and items
-        CAttributeRepository::CPropertyNames_var props = serv->getPropertyList();
+        CConfigurationInterface::CPropertyNames_var props = serv->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
             if ( findProperty( *parent->properties(), string(props[i].name.in()), "." ) )
@@ -284,7 +284,7 @@ namespace RTT
         }
 
         log(Debug) << "Fetching Attributes."<<endlog();
-        CAttributeRepository::CAttributeNames_var attrs = serv->getAttributeList();
+        CConfigurationInterface::CAttributeNames_var attrs = serv->getAttributeList();
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( parent->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.

@@ -112,7 +112,7 @@
       <para>These Component interfaces are available:
       <itemizedlist>
 	<listitem><para>TaskContext interface: fully (TaskContext.idl)</para></listitem>
-	<listitem><para>Properties/Attributes interface: fully (AttributeRepository.idl)</para></listitem>
+	<listitem><para>Properties/Attributes interface: fully (ConfigurationInterface.idl)</para></listitem>
 	<listitem><para>Method/Operation interface: fully (OperationRepository.idl)</para></listitem>
 	<listitem><para>Service interface: fully (ServiceProvider.idl, ServiceRequester.idl)</para></listitem>
 	<listitem><para>Data Flow interface: fully (DataFlow.idl)</para></listitem>
@@ -343,7 +343,7 @@
 	<listitem><para><filename>ServiceProvider.idl</filename>: The interface of provided services by a component</para></listitem>
 	<listitem><para><filename>ServiceRequester.idl</filename>: The interface of required services by a component</para></listitem>
 	<listitem><para><filename>OperationRepository.idl</filename>: The interface for calling or sending operations.</para></listitem>
-	<listitem><para><filename>AttributeRepository.idl</filename>: The interface for attributes and properties.</para></listitem>
+	<listitem><para><filename>ConfigurationInterface.idl</filename>: The interface for attributes and properties.</para></listitem>
 	<listitem><para><filename>DataFlow.idl</filename>: The interface for communicating buffered or unbufferd data.</para></listitem>
       </itemizedlist> 
       All data is communicated with CORBA::Any types. The way of using

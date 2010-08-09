@@ -6,7 +6,7 @@
 #include <tao/orb.idl>
 #endif
 
-#include "AttributeRepository.idl"
+#include "ConfigurationInterface.idl"
 #include "OperationRepository.idl"
 
 module RTT
@@ -18,7 +18,7 @@ module RTT
 	 * An Orocos Service which hosts operations, attributes and properties.
 	 * @ingroup CompIDL
 	 */
-	interface CService : COperationRepository, CAttributeRepository
+	interface CService : COperationRepository, CConfigurationInterface
 	{
 	    typedef sequence<string> CProviderNames;
 

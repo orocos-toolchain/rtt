@@ -39,7 +39,7 @@
 #endif
 
 #include "../../interface/Service.hpp"
-#include "AttributeRepositoryI.h"
+#include "ConfigurationInterfaceI.h"
 #include "OperationRepositoryI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -48,7 +48,7 @@
 
 class  RTT_corba_CService_i
     : public virtual POA_RTT::corba::CService, public virtual PortableServer::RefCountServantBase,
-      public virtual RTT_corba_CAttributeRepository_i,
+      public virtual RTT_corba_CConfigurationInterface_i,
       public virtual RTT_corba_COperationRepository_i
 {
 protected:

@@ -1766,7 +1766,7 @@ Printing Interface of 'the_input_port' :
       <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's interface
-	(<classname>RTT::interface::AttributeRepository</classname>) like this :</para>
+	(<classname>RTT::interface::ConfigurationInterface</classname>) like this :</para>
       <para>
 	<programlisting>  #include &lt;rtt/Property.hpp>
   #include &lt;rtt/Attribute.hpp>
