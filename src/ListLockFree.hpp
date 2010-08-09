@@ -43,6 +43,7 @@
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
 #include <boost/intrusive_ptr.hpp>
+#include "rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -51,14 +52,11 @@
 namespace RTT
 {
     namespace detail {
-        struct IntrusiveStorage
+        struct RTT_API IntrusiveStorage
         {
             oro_atomic_t ref;
-            IntrusiveStorage() {
-                oro_atomic_set(&ref,0);
-            }
-            virtual ~IntrusiveStorage() {
-            }
+            IntrusiveStorage();
+            virtual ~IntrusiveStorage();
         };
     }
 }
