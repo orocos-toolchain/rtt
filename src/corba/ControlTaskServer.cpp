@@ -314,9 +314,10 @@ namespace RTT
     /**
      * Class which runs an orb in an Orocos thread.
      */
-    struct OrbRunner
+    class OrbRunner
         : public NonPeriodicActivity
     {
+	public:
         OrbRunner()
             : NonPeriodicActivity(RTT::OS::LowestPriority)
         {}
