@@ -43,14 +43,9 @@ endif()
 #                                                         #
 ###########################################################
 
-#Hack: remove our own FindBoost.cmake if cmake < 2.6.2
-if( ${CMAKE_MINOR_VERSION} LESS 7 AND ${CMAKE_PATCH_VERSION} LESS 2)
-  execute_process( COMMAND ${CMAKE_COMMAND} -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-  execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-endif()
-
-# Look for boost
-find_package(Boost 1.33 COMPONENTS filesystem system)
+# Look for boost We look up all components in one place because this macro does
+# not support multiple invocations in some CMake versions.
+find_package(Boost 1.38 COMPONENTS filesystem system unit_test_framework thread)
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
@@ -149,7 +144,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OS_HAS_TLSF TRUE)
 
   if (NOT Boost_THREAD_FOUND)
-	find_package(Boost 1.33 COMPONENTS thread REQUIRED)
+	message(SEND_ERROR "Boost thread library not found but required on macosx.")
   endif ()
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
 
@@ -220,8 +215,6 @@ if(OROCOS_TARGET STREQUAL "win32")
     endif()
     set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /bigobj ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
-    # For boost::intrusive !
-    find_package(Boost 1.36 REQUIRED)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}) 
   set(CMAKE_DEBUG_POSTFIX "d")
