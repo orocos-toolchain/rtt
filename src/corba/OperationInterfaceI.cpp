@@ -172,7 +172,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     try {
         MethodC orig(mfact, method);
         return (::RTT::Corba::Method_ptr)(mfact->produce(method, nargs )->method(ORO_CORBA_PROTOCOL_ID, &orig, mpoa.in() ));
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
@@ -204,7 +204,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     try {
         MethodC orig(mfact, method);
         return (RTT::Corba::Method_ptr)(mfact->produce(method, nargs )->method(ORO_CORBA_PROTOCOL_ID, &orig, mpoa.in() ));
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
@@ -312,7 +312,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         // servant uses that object:
         Orocos_Command_i* com = new Orocos_Command_i( orig, comc, mpoa.in() );
         return com->_this();
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::Corba::NoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
@@ -346,7 +346,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         // servant uses that object:
         Orocos_Command_i* com = new Orocos_Command_i( orig, comc, mpoa.in() );
         return com->_this();
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::Corba::NoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
