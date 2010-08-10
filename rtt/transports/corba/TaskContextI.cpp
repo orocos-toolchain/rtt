@@ -31,7 +31,7 @@
 #include "TaskContextI.h"
 #include "TaskContextServer.hpp"
 #include "TaskContextProxy.hpp"
-#include "ServiceProviderI.h"
+#include "ServiceI.h"
 #include "ServiceRequesterI.h"
 #include "ServicesI.h"
 #include "DataFlowI.h"
@@ -152,23 +152,23 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
 }
 
-::RTT::corba::CServiceProvider_ptr RTT_corba_CTaskContext_i::getProvider (
+::RTT::corba::CService_ptr RTT_corba_CTaskContext_i::getProvider (
     const char * service_name)
 {
     if ( mtask->provides()->hasService(service_name) == false)
-        return CServiceProvider::_nil();
+        return CService::_nil();
     // Creates service provider for "this"
     if ( CORBA::is_nil( mService ) ) {
-        log(Debug) << "Creating CServiceProvider for "<< mtask->getName()<<endlog();
-        RTT_corba_CServiceProvider_i* mserv;
-        mService_i = mserv = new RTT_corba_CServiceProvider_i( mtask->provides(), mpoa );
+        log(Debug) << "Creating CService for "<< mtask->getName()<<endlog();
+        RTT_corba_CService_i* mserv;
+        mService_i = mserv = new RTT_corba_CService_i( mtask->provides(), mpoa );
         mService = mserv->activate_this();
-        //CServiceProvider_i::registerServant(mService, mtask->provides());
+        //CService_i::registerServant(mService, mtask->provides());
     }
     // Now the this service is available, check for the service name:
     string svc(service_name);
     if ( svc == "this" )
-        return ::RTT::corba::CServiceProvider::_duplicate( mService.in() );
+        return ::RTT::corba::CService::_duplicate( mService.in() );
     return mService->getService( service_name );
 }
 

@@ -20,10 +20,10 @@
 
 #include <iostream>
 #include <rtt/Method.hpp>
-#include <rtt/interface/ServiceProvider.hpp>
+#include <rtt/interface/Service.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
-#include <transports/corba/ServiceProviderC.h>
+#include <transports/corba/ServiceC.h>
 #include <transports/corba/corba.h>
 #include <rtt/InputPort.hpp>
 #include <rtt/OutputPort.hpp>

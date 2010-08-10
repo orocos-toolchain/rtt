@@ -29,7 +29,7 @@
 #include "parse_exception.hpp"
 #include "ValueChangeParser.hpp"
 
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "../types/Types.hpp"
 #include "../Attribute.hpp"
 #include "../TaskContext.hpp"
@@ -70,7 +70,7 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc, CommonParser& cp, ServiceProvider::shared_ptr storage, TaskContext* caller )
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, CommonParser& cp, Service::shared_ptr storage, TaskContext* caller )
         : type( 0 ), context( pc ), mstore( storage ? storage : pc->provides() ),
           expressionparser( pc, caller, cp ), commonparser(cp), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
@@ -283,7 +283,7 @@ namespace RTT
         }
     }
 
-    void ValueChangeParser::store(ServiceProvider::shared_ptr o)
+    void ValueChangeParser::store(Service::shared_ptr o)
     {
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {

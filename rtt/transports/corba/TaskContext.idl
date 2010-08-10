@@ -7,7 +7,7 @@
  * Orocos Corba TaskContext Component.
  */
 
-#include "ServiceProvider.idl"
+#include "Service.idl"
 #include "ServiceRequester.idl"
 #include "DataFlow.idl"
 
@@ -128,7 +128,7 @@ module RTT
 	     * Get a provided service.
 	     * @see RTT::TaskContext::provides()
 	     */
-	    CServiceProvider getProvider( in string service_name );
+	    CService getProvider( in string service_name );
       
 	    /**
 	     * Get a required service.

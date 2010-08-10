@@ -24,7 +24,7 @@
 #include <scripting/Parser.hpp>
 #include <scripting/FunctionGraph.hpp>
 #include <scripting/ScriptingService.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <Method.hpp>
 
 class FunctionsFixture : public OperationsFixture

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeRepository.hpp
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  ConfigurationInterface.hpp
 
-                        AttributeRepository.hpp -  description
+                        ConfigurationInterface.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
@@ -55,15 +55,15 @@ namespace RTT
      * and Property objects of a TaskContext.
      * It allows plugins and remote components to browse the attributes and properties of a TaskContext.
      */
-    class RTT_API AttributeRepository
+    class RTT_API ConfigurationInterface
     {
     public:
 
         /**
-         * Create an empty AttributeRepository.
+         * Create an empty ConfigurationInterface.
          */
-        AttributeRepository();
-        ~AttributeRepository();
+        ConfigurationInterface();
+        ~ConfigurationInterface();
 
         /**
          * A vector containing the names of all attribute objects
@@ -245,7 +245,7 @@ namespace RTT
          * @see base::ActionInterface
          * @note this does not copy the properties() within this repository.
          */
-        AttributeRepository* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& repl, bool instantiate ) const;
+        ConfigurationInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
          * Adds these attributes to this repository.

@@ -2,7 +2,7 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <interface/ServiceRequester.hpp>
 
 #include "unit.hpp"

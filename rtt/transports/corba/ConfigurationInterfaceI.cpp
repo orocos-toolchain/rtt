@@ -28,8 +28,8 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "AttributeRepositoryI.h"
-#include "AttributeRepositoryC.h"
+#include "ConfigurationInterfaceI.h"
+#include "ConfigurationInterfaceC.h"
 #include "CorbaLib.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include <vector>
@@ -42,30 +42,30 @@ using namespace RTT::detail;
 using namespace std;
 
 // Implementation skeleton constructor
-RTT_corba_CAttributeRepository_i::RTT_corba_CAttributeRepository_i (AttributeRepository* ar, PortableServer::POA_ptr the_poa)
+RTT_corba_CConfigurationInterface_i::RTT_corba_CConfigurationInterface_i (ConfigurationInterface* ar, PortableServer::POA_ptr the_poa)
     :mar (ar), mbag(0), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-RTT_corba_CAttributeRepository_i::RTT_corba_CAttributeRepository_i (PropertyBag* bag, PortableServer::POA_ptr the_poa)
+RTT_corba_CConfigurationInterface_i::RTT_corba_CConfigurationInterface_i (PropertyBag* bag, PortableServer::POA_ptr the_poa)
     :mar (0), mbag(bag), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-PortableServer::POA_ptr RTT_corba_CAttributeRepository_i::_default_POA()
+PortableServer::POA_ptr RTT_corba_CConfigurationInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
 // Implementation skeleton destructor
-RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
+RTT_corba_CConfigurationInterface_i::~RTT_corba_CConfigurationInterface_i (void)
 {
-    // if no AttributeRepository, it must have been a PropertyBag.
+    // if no ConfigurationInterface, it must have been a PropertyBag.
     if ( mar == 0 )
         delete mbag;
 }
 
-::RTT::base::DataSourceBase::shared_ptr RTT_corba_CAttributeRepository_i::getPropertyDataSource(const std::string& value_name)
+::RTT::base::DataSourceBase::shared_ptr RTT_corba_CConfigurationInterface_i::getPropertyDataSource(const std::string& value_name)
 {
     if (!mar)
         return DataSourceBase::shared_ptr();
@@ -74,7 +74,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return DataSourceBase::shared_ptr();
 }
 
-::RTT::base::DataSourceBase::shared_ptr RTT_corba_CAttributeRepository_i::getAttributeDataSource(const std::string& value_name)
+::RTT::base::DataSourceBase::shared_ptr RTT_corba_CConfigurationInterface_i::getAttributeDataSource(const std::string& value_name)
 {
     if (!mar)
         return DataSourceBase::shared_ptr();
@@ -83,10 +83,10 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return DataSourceBase::shared_ptr();
 }
 
-::RTT::corba::CAttributeRepository::CAttributeNames * RTT_corba_CAttributeRepository_i::getAttributeList (
+::RTT::corba::CConfigurationInterface::CAttributeNames * RTT_corba_CConfigurationInterface_i::getAttributeList (
     void)
 {
-    ::RTT::corba::CAttributeRepository::CAttributeNames_var ret = new ::RTT::corba::CAttributeRepository::CAttributeNames();
+    ::RTT::corba::CConfigurationInterface::CAttributeNames_var ret = new ::RTT::corba::CConfigurationInterface::CAttributeNames();
     if ( !mar )
         return ret._retn();
     vector<string> names = mar->getAttributeNames();
@@ -96,10 +96,10 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ret._retn();
 }
 
-::RTT::corba::CAttributeRepository::CPropertyNames * RTT_corba_CAttributeRepository_i::getPropertyList (
+::RTT::corba::CConfigurationInterface::CPropertyNames * RTT_corba_CConfigurationInterface_i::getPropertyList (
     void)
 {
-    ::RTT::corba::CAttributeRepository::CPropertyNames_var ret = new ::RTT::corba::CAttributeRepository::CPropertyNames();
+    ::RTT::corba::CConfigurationInterface::CPropertyNames_var ret = new ::RTT::corba::CConfigurationInterface::CPropertyNames();
     if (mar)
         mbag = mar->properties();
 
@@ -111,7 +111,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     vector<string>::iterator dit = alldescs.begin();
     size_t index = 0;
     for( ; it != allprops.end(); ++it, ++index, ++dit) {
-        ::RTT::corba::CAttributeRepository::CProperty prop;
+        ::RTT::corba::CConfigurationInterface::CProperty prop;
         prop.name = CORBA::string_dup( it->c_str() );
         prop.description = CORBA::string_dup( dit->c_str() );
         ret[index] = prop;
@@ -119,7 +119,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ret._retn();
 }
 
-::CORBA::Any * RTT_corba_CAttributeRepository_i::getAttribute (
+::CORBA::Any * RTT_corba_CConfigurationInterface_i::getAttribute (
     const char * name)
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
@@ -131,7 +131,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ctt->createAny( ds );
 }
 
-::CORBA::Boolean RTT_corba_CAttributeRepository_i::setAttribute (
+::CORBA::Boolean RTT_corba_CConfigurationInterface_i::setAttribute (
     const char * name,
     const ::CORBA::Any & value)
 {
@@ -144,7 +144,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ctt->updateFromAny( &value, ds );
 }
 
-::CORBA::Any * RTT_corba_CAttributeRepository_i::getProperty (
+::CORBA::Any * RTT_corba_CConfigurationInterface_i::getProperty (
     const char * name)
 {
     if (mar)
@@ -153,7 +153,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
         return new CORBA::Any();
     DataSourceBase::shared_ptr ds = getPropertyDataSource(name);
     if ( !ds ) {
-        log(Error) <<"CAttributeRepository: no such property: " << name << ". Returning empty CORBA::Any."<<endlog();
+        log(Error) <<"CConfigurationInterface: no such property: " << name << ". Returning empty CORBA::Any."<<endlog();
         return new CORBA::Any();
     }
     const TypeInfo* ti = ds->getTypeInfo();
@@ -162,7 +162,7 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ctt->createAny( ds );
 }
 
-::CORBA::Boolean RTT_corba_CAttributeRepository_i::setProperty (
+::CORBA::Boolean RTT_corba_CConfigurationInterface_i::setProperty (
     const char * name,
     const ::CORBA::Any & value)
 {
@@ -177,20 +177,20 @@ RTT_corba_CAttributeRepository_i::~RTT_corba_CAttributeRepository_i (void)
     return ctt->updateFromAny( &value, ds );
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::hasAttribute (
+CORBA::Boolean RTT_corba_CConfigurationInterface_i::hasAttribute (
     const char * name)
 {
     return mar->hasAttribute( name );
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::isAttributeAssignable (
+CORBA::Boolean RTT_corba_CConfigurationInterface_i::isAttributeAssignable (
     const char * name)
 {
     if (mar->getValue(name))
         return mar->getValue(name)->getDataSource()->isAssignable();
     return 0;
 }
-char * RTT_corba_CAttributeRepository_i::getAttributeType (
+char * RTT_corba_CConfigurationInterface_i::getAttributeType (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
@@ -199,7 +199,7 @@ char * RTT_corba_CAttributeRepository_i::getAttributeType (
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::getAttributeTypeName (
+char * RTT_corba_CConfigurationInterface_i::getAttributeTypeName (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
@@ -208,7 +208,7 @@ char * RTT_corba_CAttributeRepository_i::getAttributeTypeName (
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::attributeToString (
+char * RTT_corba_CConfigurationInterface_i::attributeToString (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getAttributeDataSource( name );
@@ -219,7 +219,7 @@ char * RTT_corba_CAttributeRepository_i::attributeToString (
     return CORBA::string_dup( "na" );
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::attributeFromString (
+CORBA::Boolean RTT_corba_CConfigurationInterface_i::attributeFromString (
     const char* name, const char* value
   )
 {
@@ -227,19 +227,19 @@ CORBA::Boolean RTT_corba_CAttributeRepository_i::attributeFromString (
     if (!ds)
         return false;
     if ( ds->getTypeInfo()->fromString( value, ds ) ) {
-        RTT::log(RTT::Error) << "corba::CAttributeRepository: Could not assign string to "<< ds->getType() <<"." <<RTT::endlog();
+        RTT::log(RTT::Error) << "corba::CConfigurationInterface: Could not assign string to "<< ds->getType() <<"." <<RTT::endlog();
         return false;
     }
     return true;
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::hasProperty (
+CORBA::Boolean RTT_corba_CConfigurationInterface_i::hasProperty (
     const char * name)
 {
     // converts result to bool.
     return bool( getPropertyDataSource(name) );
 }
-char * RTT_corba_CAttributeRepository_i::getPropertyType (
+char * RTT_corba_CConfigurationInterface_i::getPropertyType (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
@@ -248,7 +248,7 @@ char * RTT_corba_CAttributeRepository_i::getPropertyType (
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::getPropertyTypeName (
+char * RTT_corba_CConfigurationInterface_i::getPropertyTypeName (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
@@ -257,7 +257,7 @@ char * RTT_corba_CAttributeRepository_i::getPropertyTypeName (
     return CORBA::string_dup( "na" );
 }
 
-char * RTT_corba_CAttributeRepository_i::propertyToString (
+char * RTT_corba_CConfigurationInterface_i::propertyToString (
     const char * name)
 {
     DataSourceBase::shared_ptr ds = getPropertyDataSource( name );
@@ -268,7 +268,7 @@ char * RTT_corba_CAttributeRepository_i::propertyToString (
     return CORBA::string_dup( "na" );
 }
 
-CORBA::Boolean RTT_corba_CAttributeRepository_i::propertyFromString (
+CORBA::Boolean RTT_corba_CConfigurationInterface_i::propertyFromString (
     const char* name, const char* value
   )
 {
@@ -276,7 +276,7 @@ CORBA::Boolean RTT_corba_CAttributeRepository_i::propertyFromString (
     if (!ds)
         return false;
     if ( ds->getTypeInfo()->fromString( value, ds ) ) {
-        RTT::log(RTT::Error) << "corba::CAttributeRepository: Could not assign string to "<< ds->getType() <<"." <<RTT::endlog();
+        RTT::log(RTT::Error) << "corba::CConfigurationInterface: Could not assign string to "<< ds->getType() <<"." <<RTT::endlog();
         return false;
     }
     return true;

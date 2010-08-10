@@ -25,10 +25,10 @@
 #include <Method.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <TaskContext.hpp>
 #include <scripting/Scripting.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <types/GlobalsRepository.hpp>
 #include <types/Types.hpp>
 
@@ -68,9 +68,9 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
     return b;
 }
 
-    ServiceProvider::shared_ptr TypesTest::createMethodFactory()
+    Service::shared_ptr TypesTest::createMethodFactory()
     {
-        ServiceProvider::shared_ptr to = ServiceProvider::Create("test");
+        Service::shared_ptr to = Service::Create("test");
         to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
         to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
         //to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");

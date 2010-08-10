@@ -57,7 +57,7 @@
 #endif
 
 #include "OrocosTypesC.h"
-#include "AttributeRepositoryC.h"
+#include "ConfigurationInterfaceC.h"
 #include "../../Logger.hpp"
 #include "../../internal/DataSourceTypeInfo.hpp"
 #include "CorbaLib.hpp"

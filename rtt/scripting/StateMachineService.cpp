@@ -99,7 +99,7 @@ namespace RTT
             StateMachineServicePtr tmp( new StateMachineService( newsc, this->mtc ) );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
-            AttributeRepository* dummy = AttributeRepository::copy( replacements, instantiate );
+            ConfigurationInterface* dummy = ConfigurationInterface::copy( replacements, instantiate );
             tmp->loadValues( dummy->getValues());
             delete dummy;
 
@@ -107,7 +107,7 @@ namespace RTT
         }
 
         StateMachineService::StateMachineService(ParsedStateMachinePtr statem, TaskContext* tc)
-            : ServiceProvider( statem->getName() ),
+            : Service( statem->getName() ),
               _this( new ValueDataSource<StateMachinePtr>( statem ) ),
               statemachine(statem),
               mtc(tc)
@@ -118,9 +118,9 @@ namespace RTT
 
     StateMachineService::~StateMachineService()
     {
-        // When the this ServiceProvider is deleted, make sure the program does not reference us.
+        // When the this Service is deleted, make sure the program does not reference us.
         if ( statemachine ) {
-            statemachine->setServiceProvider( StateMachineServicePtr() );
+            statemachine->setService( StateMachineServicePtr() );
         }
     }
     //ExecutionEngine* StateMachineService::engine() const { return mtc->engine(); }

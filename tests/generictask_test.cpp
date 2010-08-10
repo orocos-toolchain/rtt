@@ -23,7 +23,7 @@
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
 #include <Method.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <internal/RemoteMethod.hpp>
 
 #include <extras/SimulationActivity.hpp>
@@ -32,7 +32,7 @@
 #include <boost/function_types/function_type.hpp>
 
 #include <rtt-config.h>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 
 using namespace std;
 
@@ -63,9 +63,9 @@ bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
-ServiceProvider* Generic_TaskTest::createMethodFactory()
+Service* Generic_TaskTest::createMethodFactory()
 {
-    ServiceProvider* to = new ServiceProvider("methods");
+    Service* to = new Service("methods");
 
     to->addOperation("assert", &Generic_TaskTest::assertBool, this).doc("assert").arg("b", "bd");
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
     Operation<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
 
-    ServiceProvider to("task");
+    Service to("task");
 
     BOOST_CHECK( to.addMethod(&m0) );
     BOOST_CHECK( ! to.addMethod(&m0) );
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
-    ServiceProvider to("task");
+    Service to("task");
 
     Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
     Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    ServiceProvider to("task");
+    Service to("task");
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,

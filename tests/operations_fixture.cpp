@@ -3,7 +3,7 @@
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Operation.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 
 using namespace std;
 using namespace boost;
@@ -31,7 +31,7 @@ OperationsFixture::~OperationsFixture()
 
 void OperationsFixture::createMethodFactories(TaskContext* target)
 {
-    ServiceProvider::shared_ptr dat = ServiceProvider::Create("test");
+    Service::shared_ptr dat = Service::Create("test");
     dat->addAttribute("i", i);
     dat->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
     dat->addOperation("assertEqual", &OperationsFixture::assertEqual, this);
@@ -46,7 +46,7 @@ void OperationsFixture::createMethodFactories(TaskContext* target)
     dat->addOperation("printNumber", &OperationsFixture::printNumber, this).doc("Print message + number");
     target->provides()->addService( dat );
 
-    ServiceProvider::shared_ptr to = ServiceProvider::Create("methods");
+    Service::shared_ptr to = Service::Create("methods");
     // ClientThread
     to->addOperation("m0r", &OperationsFixture::m0r, this).doc("M0r");
     to->addOperation("m0cr", &OperationsFixture::m0cr, this).doc("M0cr");

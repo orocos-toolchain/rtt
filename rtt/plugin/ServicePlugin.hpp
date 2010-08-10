@@ -15,9 +15,9 @@ namespace RTT {
 
 
 /**
- * You can use this macro to make any ServiceProvider available as a
+ * You can use this macro to make any Service available as a
  * plugin.
- * @param SERVICE A class that inherits from ServiceProvider and takes a TaskContext*
+ * @param SERVICE A class that inherits from Service and takes a TaskContext*
  * as argument in a constructor.
  * @param NAME A string being the name of the plugin.
  *
@@ -30,7 +30,7 @@ namespace RTT {
         RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc);  \
         bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
-            RTT::interface::ServiceProvider::shared_ptr sp( new SERVICE( tc ) ); \
+            RTT::interface::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
         RTT_EXPORT std::string getRTTPluginName(); \
@@ -43,11 +43,11 @@ namespace RTT {
         } \
     }
 /**
- * You can use this macro to make any ServiceProvider available as a
+ * You can use this macro to make any Service available as a
  * plugin.
- * @param SERVICE A class that inherits from ServiceProvider and takes a TaskContext*
+ * @param SERVICE A class that inherits from Service and takes a TaskContext*
  * as argument in a constructor. The name of the plugin is equal to SERVICE, but the
- * name of the service (ie ServiceProvider::getName() ) may be different.
+ * name of the service (ie Service::getName() ) may be different.
  *
  * @note Do not use this macro inside a namespace !
  * For example: ORO_SERVICE_PLUGIN ( KDL::KDLService )
@@ -58,7 +58,7 @@ namespace RTT {
         RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc); \
         bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
-            RTT::interface::ServiceProvider::shared_ptr sp( new SERVICE( tc ) ); \
+            RTT::interface::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
         RTT_EXPORT std::string getRTTPluginName(); \

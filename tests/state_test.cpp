@@ -26,7 +26,7 @@
 #include <scripting/DumpObject.hpp>
 #include <scripting/Parser.hpp>
 
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <TaskContext.hpp>
 #include <Method.hpp>
 #include <Port.hpp>

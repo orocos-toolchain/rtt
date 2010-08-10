@@ -31,7 +31,7 @@
 #include "../Attribute.hpp"
 
 #include "../TaskContext.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "../types/GlobalsRepository.hpp"
 
 #include <boost/bind.hpp>
@@ -131,7 +131,7 @@ namespace RTT
   {
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
-    ServiceProvider::shared_ptr task = peerparser.taskObject();
+    Service::shared_ptr task = peerparser.taskObject();
     peerparser.reset();
     //std::cerr << "ValueParser: seenvar : "<< name
     //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;

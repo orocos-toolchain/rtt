@@ -37,7 +37,7 @@ public:
     TaskContext mtc;
     TaskContext ltc;
 
-    ServiceProvider* createObject(std::string a, CommandProcessor* cp);
+    Service* createObject(std::string a, CommandProcessor* cp);
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }

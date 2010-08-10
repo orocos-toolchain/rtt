@@ -204,7 +204,7 @@ namespace RTT
 
   }
 
-    void ProgramGraphParser::initBodyParser(const std::string& name, ServiceProvider::shared_ptr stck, int offset) {
+    void ProgramGraphParser::initBodyParser(const std::string& name, Service::shared_ptr stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );
         program_builder->startFunction(name);
@@ -228,7 +228,7 @@ namespace RTT
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
 
-    void ProgramGraphParser::setStack(ServiceProvider::shared_ptr st) {
+    void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;
     }
 

@@ -4,7 +4,7 @@
 #include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
 #include "../base/MethodBaseInvoker.hpp"
-#include "ServiceProvider.hpp"
+#include "Service.hpp"
 #include <map>
 #include <vector>
 #include <string>
@@ -17,11 +17,11 @@ namespace RTT
 
         /**
          * An object that expresses you wish to use a service.
-         * The ServiceRequester is symmetrical to the ServiceProvider.
-         * Where a ServiceProvider registers operations that a component can
+         * The ServiceRequester is symmetrical to the Service.
+         * Where a Service registers operations that a component can
          * execute ('provides'), the ServiceRequester registers the methods that a caller
          * wishes to call ('requires'). One method in a ServiceRequester maps
-         * to one operation in a ServiceProvider.
+         * to one operation in a Service.
          *
          * Typical use is to inherit from ServiceRequester and add named Method objects
          * to it using addMethod. @see RTT::Scripting for an example.
@@ -50,7 +50,7 @@ namespace RTT
              * this returns the service which was used when connectTo
              * first returned true.
              */
-            ServiceProvider::shared_ptr getReferencedService();
+            Service::shared_ptr getReferencedService();
 
             bool addMethod( base::MethodBaseInvoker& mbi);
 
@@ -84,12 +84,12 @@ namespace RTT
              *
              * You may call this function with different instances of sp to 'resolve'
              * missing functions, only the non-connected methods will be further filled in.
-             * @param sp An interface-compatible ServiceProvider.
+             * @param sp An interface-compatible Service.
              *
              * @return true if all methods of that are required are provided, false
              * if not all methods could yet be matched.
              */
-            bool connectTo(ServiceProvider::shared_ptr sp);
+            bool connectTo(Service::shared_ptr sp);
 
             /**
              * Returns true when all methods were resolved.
@@ -113,7 +113,7 @@ namespace RTT
 
             std::string mrname;
             TaskContext* mrowner;
-            ServiceProvider::shared_ptr mprovider;
+            Service::shared_ptr mprovider;
         };
 
     }

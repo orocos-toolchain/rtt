@@ -40,7 +40,7 @@
 #ifndef PROGRAM_SERVICE_HPP
 #define PROGRAM_SERVICE_HPP
 
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "FunctionGraph.hpp"
 #include "../internal/DataSources.hpp"
 
@@ -50,11 +50,11 @@ namespace RTT
     typedef boost::shared_ptr<ProgramService> ProgramServicePtr;
 
     /**
-     * @brief This class represents a program as an interface::ServiceProvider in
+     * @brief This class represents a program as an interface::Service in
      * the Orocos TaskContext system.
      */
     class ProgramService
-        : public interface::ServiceProvider
+        : public interface::Service
     {
         internal::ValueDataSource<ProgramInterfacePtr>::shared_ptr program;
         // Pointer to FunctionGraph needed to unload self.

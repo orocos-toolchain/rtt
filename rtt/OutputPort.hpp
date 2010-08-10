@@ -43,7 +43,7 @@
 #include "base/DataObject.hpp"
 #include "internal/Channels.hpp"
 #include "internal/ConnFactory.hpp"
-#include "interface/ServiceProvider.hpp"
+#include "interface/Service.hpp"
 #include "Method.hpp"
 
 #include "InputPort.hpp"
@@ -294,9 +294,9 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual interface::ServiceProvider* createPortObject()
+        virtual interface::Service* createPortObject()
         {
-            interface::ServiceProvider* object = base::OutputPortInterface::createPortObject();
+            interface::Service* object = base::OutputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
             typedef void (OutputPort<T>::*WriteSample)(T const&);
             WriteSample write_m = &OutputPort::write;

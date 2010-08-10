@@ -44,13 +44,13 @@
 namespace RTT {
     namespace interface {
         struct ArgumentDescription;
-        class AttributeRepository;
+        class ConfigurationInterface;
         class DataFlowInterface;
         class OperationRepository;
         class OperationRepositoryPart;
-        class ServiceProvider;
+        class Service;
         class ServiceRequester;
-        typedef boost::shared_ptr<ServiceProvider> ServiceProviderPtr;
+        typedef boost::shared_ptr<Service> ServicePtr;
     }
     namespace detail {
         using namespace interface;

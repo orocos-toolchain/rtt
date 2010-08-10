@@ -41,7 +41,7 @@
 #include "../base/AttributeBase.hpp"
 #include "ProgramService.hpp"
 #include "TaskContext.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 
 #include "CommandNOP.hpp"
 #include "ConditionFalse.hpp"
@@ -121,7 +121,7 @@ namespace RTT {
             delete *it;
     }
 
-    void FunctionGraph::setProgramService(ServiceProvider::shared_ptr myservice)
+    void FunctionGraph::setProgramService(Service::shared_ptr myservice)
     {
         context = myservice;
     }

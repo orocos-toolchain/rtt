@@ -44,7 +44,7 @@
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #include "DataFlowI.h"
 #include "../../internal/ConnID.hpp"
 #include "DataSourceProxy.hpp"
@@ -118,11 +118,11 @@ namespace RTT
             return false;
           }
 
-          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CService_ptr serv, const std::string& vname) {
               return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, true) );
           }
 
-          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
               if ( serv->isAttributeAssignable( CORBA::string_dup(vname.c_str()) ) ) {
                   return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, false) );
               }

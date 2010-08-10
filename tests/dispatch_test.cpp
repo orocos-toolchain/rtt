@@ -26,7 +26,7 @@
 #include <extras/SimulationThread.hpp>
 #include <Method.hpp>
 #include <Method.hpp>
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 
 using namespace std;
 
@@ -80,9 +80,9 @@ bool DispatchTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-ServiceProvider* DispatchTest::createObject(string a, CommandProcessor* cp)
+Service* DispatchTest::createObject(string a, CommandProcessor* cp)
 {
-    ServiceProvider* dat = new ServiceProvider(a);
+    Service* dat = new Service(a);
     dat->addOperation("assert", &DispatchTest::assertBool, this).doc("Assert").arg("bool", "");
     dat->addOperation("assertMsg", &DispatchTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
     dat->addOperation("isTrue", &DispatchTest::assertBool, this).doc("Identity function").arg("bool", "");

@@ -46,7 +46,7 @@
 #endif
 #include "../../interface/OperationRepository.hpp"
 #include "../../interface/FactoryExceptions.hpp"
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #include "CorbaConversion.hpp"
 #include "CorbaTypeTransporter.hpp"
 
@@ -56,13 +56,13 @@ namespace RTT
 
     /**
      * A local factory for creating remote Corba methods.
-     * It connects to an corba::ServiceProvider and translates
+     * It connects to an corba::Service and translates
      * C++ calls to corba idl.
      */
     class RTT_CORBA_API CorbaMethodFactory
         : public RTT::interface::OperationRepositoryPart
     {
-        corba::CServiceProvider_var mfact;
+        corba::CService_var mfact;
         PortableServer::POA_var mpoa;
         std::string method;
     public:
@@ -70,7 +70,7 @@ namespace RTT
         typedef std::vector<std::string> Members;
         typedef std::vector< interface::ArgumentDescription > CDescriptions;
 
-        CorbaMethodFactory( const std::string& method_name, corba::CServiceProvider_ptr fact, PortableServer::POA_ptr the_poa );
+        CorbaMethodFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
 
         virtual ~CorbaMethodFactory();
 

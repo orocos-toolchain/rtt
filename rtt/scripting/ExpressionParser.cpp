@@ -126,7 +126,7 @@ namespace RTT
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
-      ServiceProvider::shared_ptr ops  = peerparser.taskObject();
+      Service::shared_ptr ops  = peerparser.taskObject();
       peerparser.reset();
 
       // Check if it is a constructor
@@ -175,7 +175,7 @@ namespace RTT
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
     std::vector<DataSourceBase::shared_ptr> args = argspar->result();
-    ServiceProvider::shared_ptr peer = argspar->object();
+    Service::shared_ptr peer = argspar->object();
     delete argspar;
     assert(peer && "peer may never be null.");
     // separate track if we are handling a constructor:
@@ -187,7 +187,7 @@ namespace RTT
     } else {
         // plain method or collect/collectIfDone
 
-        ServiceProvider::shared_ptr ops = peer;
+        Service::shared_ptr ops = peer;
         // we already checked for the existence of this object and method
         // in seendataname()..
         peerparser.reset();
@@ -567,8 +567,8 @@ namespace RTT
     // hack to drop-in a new instance of SendHandle:
     if (arg2->getTypeName() == "SendHandle" && mhandle) {
 //        cout << "Trying to replace SendHandle/..."<<endl;
-        AttributeRepository::AttributeObjects attrs = context->attributes()->getValues();
-        for( AttributeRepository::AttributeObjects::iterator it = attrs.begin(); it != attrs.end(); ++it) {
+        ConfigurationInterface::AttributeObjects attrs = context->attributes()->getValues();
+        for( ConfigurationInterface::AttributeObjects::iterator it = attrs.begin(); it != attrs.end(); ++it) {
             if ( (*it)->getDataSource() == arg2 ) { // since the parsestack only saves the DSB, we need to do lookup by DSB and not by name :-(
 //                cout << "Found !"<<endl;
                 string name = (*it)->getName();

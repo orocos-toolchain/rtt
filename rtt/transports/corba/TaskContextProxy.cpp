@@ -217,14 +217,14 @@ namespace RTT
             }
         }
 
-        CServiceProvider_var serv = mtask->getProvider("this");
+        CService_var serv = mtask->getProvider("this");
         this->fetchServices(this->provides(), serv.in() );
 
         log(Debug) << "All Done."<<endlog();
     }
 
     // Recursively fetch remote objects and create local proxies.
-    void TaskContextProxy::fetchServices(ServiceProvider::shared_ptr parent, CServiceProvider_ptr serv)
+    void TaskContextProxy::fetchServices(Service::shared_ptr parent, CService_ptr serv)
     {
         log(Debug) << "Fetching "<<parent->getName()<<" Service:"<<endlog();
         // load command and method factories.
@@ -242,7 +242,7 @@ namespace RTT
         // first do properties:
         log(Debug) << "Fetching Properties."<<endlog();
         // a dot-separated list of subbags and items
-        CAttributeRepository::CPropertyNames_var props = serv->getPropertyList();
+        CConfigurationInterface::CPropertyNames_var props = serv->getPropertyList();
 
         for (size_t i=0; i != props->length(); ++i) {
             if ( findProperty( *parent->properties(), string(props[i].name.in()), "." ) )
@@ -284,7 +284,7 @@ namespace RTT
         }
 
         log(Debug) << "Fetching Attributes."<<endlog();
-        CAttributeRepository::CAttributeNames_var attrs = serv->getAttributeList();
+        CConfigurationInterface::CAttributeNames_var attrs = serv->getAttributeList();
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( parent->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
@@ -311,15 +311,15 @@ namespace RTT
             }
         }
 
-        CServiceProvider::CProviderNames_var plist = serv->getProviderNames();
+        CService::CProviderNames_var plist = serv->getProviderNames();
 
         for( size_t i =0; i != plist->length(); ++i) {
             if ( string( plist[i] ) == "this")
                 continue;
-            CServiceProvider_var cobj = serv->getService(plist[i]);
+            CService_var cobj = serv->getService(plist[i]);
             CORBA::String_var descr = cobj->getServiceDescription();
 
-            ServiceProvider::shared_ptr tobj = this->provides(std::string(plist[i]));
+            Service::shared_ptr tobj = this->provides(std::string(plist[i]));
             tobj->doc( descr.in() );
 
             // Recurse:

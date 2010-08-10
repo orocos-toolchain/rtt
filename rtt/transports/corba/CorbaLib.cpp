@@ -128,13 +128,13 @@ namespace RTT {
                 log(Error) << "Could create outputHalf for port "<<port.getName()<<": data type not known to CORBA Transport." <<Logger::endl;
                 return 0;
             }
-          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+          virtual base::DataSourceBase::shared_ptr createPropertyDataSource(CService_ptr serv, const std::string& vname) {
               CORBA::String_var tname = serv->getPropertyTypeName( CORBA::string_dup(vname.c_str()));
               log(Warning) << "Corba: Remote property '"<< vname << "' has unknown type " << tname.in()  << endlog();
               return base::DataSourceBase::shared_ptr( );
           }
 
-          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CServiceProvider_ptr serv, const std::string& vname) {
+          virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
               CORBA::String_var tname = serv->getAttributeTypeName( CORBA::string_dup( vname.c_str()));
               log(Warning) << "Corba: Remote attribute '"<< vname << "' has unknown type " << tname.in()  << endlog();
               return base::DataSourceBase::shared_ptr( );

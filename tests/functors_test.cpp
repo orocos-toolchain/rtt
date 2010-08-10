@@ -6,7 +6,7 @@
 #ifdef ORO_REMOTING
 #include <internal/RemoteMethod.hpp>
 #endif
-#include <interface/ServiceProvider.hpp>
+#include <interface/Service.hpp>
 #include <internal/DataSourceGenerator.hpp>
 
 #include "unit.hpp"
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     Operation<double(int,double)> m2("m2");
     m2.calls(&FunctorsTest::m2, this);
 
-    ServiceProvider to("task");
+    Service to("task");
 
     BOOST_CHECK( !to.addOperation(m0).ready() );
     to.setOwner(tc);
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 
 BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
-    ServiceProvider to("task");
+    Service to("task");
 
     Method<double(void)> m0("m0", &FunctorsTest::m0, this);
     Method<double(int)> m1("m1", &FunctorsTest::m1, this);
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
 
 BOOST_AUTO_TEST_CASE(testDSMethod)
 {
-    ServiceProvider to("task", tc);
+    Service to("task", tc);
 
     // A method of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,

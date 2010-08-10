@@ -50,7 +50,7 @@ namespace RTT
     using namespace detail;
 
     ProgramService::ProgramService(FunctionGraphPtr prog, TaskContext* tc)
-        : ServiceProvider( prog->getName(), tc),
+        : Service( prog->getName(), tc),
           program( new ValueDataSource<ProgramInterfacePtr>(prog) ),
           function(prog)
     {
@@ -74,7 +74,7 @@ namespace RTT
     }
 
     ProgramService::~ProgramService() {
-        // When the this ServiceProvider is deleted, make sure the program does not reference us.
+        // When the this Service is deleted, make sure the program does not reference us.
         FunctionGraphPtr prog = function;
         if ( prog ) {
             prog->setProgramService( ProgramServicePtr() );

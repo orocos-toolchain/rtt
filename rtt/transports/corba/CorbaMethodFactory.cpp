@@ -10,9 +10,9 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-CorbaMethodFactory::CorbaMethodFactory( const std::string& method_name, corba::CServiceProvider_ptr fact, PortableServer::POA_ptr the_poa )
+CorbaMethodFactory::CorbaMethodFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
     : RTT::interface::OperationRepositoryPart(),
-      mfact(corba::CServiceProvider::_duplicate(fact) ),
+      mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(method_name)
 {}
@@ -101,7 +101,7 @@ std::vector< interface::ArgumentDescription > CorbaMethodFactory::getArgumentLis
  */
 class CorbaMethodCall: public ActionInterface
 {
-    CServiceProvider_var mfact;
+    CService_var mfact;
     std::string mop;
     std::vector<base::DataSourceBase::shared_ptr> margs;
     ExecutionEngine* mcaller;
@@ -111,13 +111,13 @@ class CorbaMethodCall: public ActionInterface
     CorbaTypeTransporter* mctt;
     bool mdocall;
 public:
-    CorbaMethodCall(CServiceProvider_ptr fact,
+    CorbaMethodCall(CService_ptr fact,
                     std::string op,
                     std::vector<base::DataSourceBase::shared_ptr> const& args,
                     ExecutionEngine* caller,
                     CorbaTypeTransporter* ctt,
                     base::DataSourceBase::shared_ptr result, bool docall)
-    : mfact(CServiceProvider::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall)
+    : mfact(CService::_duplicate(fact)), mop(op), margs(args), mcaller(caller), mresult(result), mctt(ctt), mdocall(docall)
     {
     }
 
@@ -165,14 +165,14 @@ public:
 
     }
 
-    ActionInterface* clone() const { return new CorbaMethodCall(CServiceProvider::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
+    ActionInterface* clone() const { return new CorbaMethodCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
 
     virtual ActionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
         vector<DataSourceBase::shared_ptr> argcopy( margs.size() );
         unsigned int v=0;
         for (vector<DataSourceBase::shared_ptr>::iterator it = argcopy.begin(); it != argcopy.end(); ++it, ++v)
             argcopy[v] = (*it)->copy(alreadyCloned);
-        return new CorbaMethodCall(CServiceProvider::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall);
+        return new CorbaMethodCall(CService::_duplicate( mfact.in() ), mop, argcopy, mcaller, mctt, mresult->copy(alreadyCloned), mdocall);
     }
 };
 

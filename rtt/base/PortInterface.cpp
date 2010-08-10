@@ -37,7 +37,7 @@
 
 
 #include "PortInterface.hpp"
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "../Method.hpp"
 #include "../internal/ConnFactory.hpp"
 
@@ -71,10 +71,10 @@ int PortInterface::serverProtocol() const
 ConnID* PortInterface::getPortID() const
 { return new LocalConnID(this); }
 
-ServiceProvider* PortInterface::createPortObject()
+Service* PortInterface::createPortObject()
 {
 #ifndef ORO_EMBEDDED
-    ServiceProvider* to = new ServiceProvider( this->getName(), iface->getParent() );
+    Service* to = new Service( this->getName(), iface->getParent() );
     to->addSynchronousOperation( "name",&PortInterface::getName, this).doc(
             "Returns the port name.");
     to->addSynchronousOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");

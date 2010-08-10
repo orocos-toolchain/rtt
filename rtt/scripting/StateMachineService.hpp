@@ -40,7 +40,7 @@
 #ifndef STATEMACHINE_SERVICE_HPP
 #define STATEMACHINE_SERVICE_HPP
 
-#include "../interface/ServiceProvider.hpp"
+#include "../interface/Service.hpp"
 #include "ParsedStateMachine.hpp"
 
 namespace RTT
@@ -48,11 +48,11 @@ namespace RTT
     typedef boost::shared_ptr<StateMachineService> StateMachineServicePtr;
 
     /**
-     * @brief This class represents a stateMachine as a interface::ServiceProvider in
+     * @brief This class represents a stateMachine as a interface::Service in
      * the Orocos TaskContext system.
      */
     class StateMachineService
-        : public interface::ServiceProvider
+        : public interface::Service
     {
         // used when state machines are copied.
         // functions have a similar mechanism
@@ -67,7 +67,7 @@ namespace RTT
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext
-         * as a interface::ServiceProvider, with its commands and methods.
+         * as a interface::Service, with its commands and methods.
          */
         StateMachineService(ParsedStateMachinePtr statemachine, TaskContext* tc=0);
 

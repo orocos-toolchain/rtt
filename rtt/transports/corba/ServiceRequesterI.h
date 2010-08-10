@@ -85,7 +85,7 @@ public:
   
   virtual
   ::CORBA::Boolean connectTo (
-      ::RTT::corba::CServiceProvider_ptr svc);
+      ::RTT::corba::CService_ptr svc);
   
   virtual
   ::CORBA::Boolean ready (

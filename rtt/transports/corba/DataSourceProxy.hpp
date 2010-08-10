@@ -28,7 +28,7 @@ namespace RTT
         class DataSourceProxy
             : public internal::DataSource<T>
         {
-            corba::CServiceProvider_var mserv;
+            corba::CService_var mserv;
             const std::string mname;
             bool misproperty;
             mutable typename internal::DataSource<T>::value_t last_value;
@@ -44,8 +44,8 @@ namespace RTT
              * @throw NonExistingDataSource when name does not exist in s as a property (isproperty==true)
              * or attribute (isproperty==false).
              */
-            DataSourceProxy( corba::CServiceProvider_ptr s, const std::string& name, bool isproperty )
-                : mserv( corba::CServiceProvider::_duplicate( s ) ), mname(name), misproperty(isproperty)
+            DataSourceProxy( corba::CService_ptr s, const std::string& name, bool isproperty )
+                : mserv( corba::CService::_duplicate( s ) ), mname(name), misproperty(isproperty)
             {
                 assert( !CORBA::is_nil(s) );
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
@@ -80,7 +80,7 @@ namespace RTT
             }
 
             virtual internal::DataSource<T>* clone() const {
-                return new DataSourceProxy<T>( corba::CServiceProvider::_duplicate( mserv.in() ), mname, misproperty );
+                return new DataSourceProxy<T>( corba::CService::_duplicate( mserv.in() ), mname, misproperty );
             }
 
             virtual internal::DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
@@ -104,7 +104,7 @@ namespace RTT
             : public internal::AssignableDataSource<T>
         {
             typedef typename internal::AssignableDataSource<T>::value_t value_t;
-            corba::CServiceProvider_var mserv;
+            corba::CService_var mserv;
             const std::string mname;
             bool misproperty;
             typename internal::AssignableDataSource<value_t>::shared_ptr storage;
@@ -112,8 +112,8 @@ namespace RTT
             //mutable typename internal::DataSource<T>::value_t last_value;
 
         public:
-            ValueDataSourceProxy( corba::CServiceProvider_ptr serv, const std::string& name, bool isproperty)
-                : mserv( corba::CServiceProvider::_duplicate(serv) ), mname(name), misproperty(isproperty)
+            ValueDataSourceProxy( corba::CService_ptr serv, const std::string& name, bool isproperty)
+                : mserv( corba::CService::_duplicate(serv) ), mname(name), misproperty(isproperty)
             {
                 storage = new internal::ValueDataSource<value_t>();
                 assert( serv );
@@ -174,7 +174,7 @@ namespace RTT
             }
 
             virtual internal::AssignableDataSource<T>* clone() const {
-                return new ValueDataSourceProxy<T>( corba::CServiceProvider::_duplicate( mserv.in() ), mname, misproperty );
+                return new ValueDataSourceProxy<T>( corba::CService::_duplicate( mserv.in() ), mname, misproperty );
             }
 
             virtual internal::AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {

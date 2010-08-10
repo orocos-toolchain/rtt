@@ -1,4 +1,4 @@
-#include "ServiceProvider.hpp"
+#include "Service.hpp"
 #include "../TaskContext.hpp"
 #include <algorithm>
 #include "../internal/mystd.hpp"
@@ -11,25 +11,25 @@ namespace RTT {
     using namespace std;
     using namespace boost;
 
-    ServiceProvider::shared_ptr ServiceProvider::Create(const std::string& name, TaskContext* owner) {
-        return shared_ptr(new ServiceProvider(name,owner));
+    Service::shared_ptr Service::Create(const std::string& name, TaskContext* owner) {
+        return shared_ptr(new Service(name,owner));
     }
 
-    ServiceProvider::ServiceProvider(const std::string& name, TaskContext* owner)
+    Service::Service(const std::string& name, TaskContext* owner)
     : mname(name), mowner(owner), parent()
     {
     }
 
-    ServiceProvider::~ServiceProvider()
+    Service::~Service()
     {
         clear();
     }
 
-    vector<string> ServiceProvider::getProviderNames() const {
+    vector<string> Service::getProviderNames() const {
         return keys(services);
     }
 
-    bool ServiceProvider::addService( ServiceProvider::shared_ptr obj ) {
+    bool Service::addService( Service::shared_ptr obj ) {
         if ( services.find( obj->getName() ) != services.end() ) {
             log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
@@ -42,7 +42,7 @@ namespace RTT {
         return true;
     }
 
-    void ServiceProvider::removeService( string const& name) {
+    void Service::removeService( string const& name) {
         // carefully written to avoid destructor to call back on us when called from removeService.
         if ( services.count(name) ) {
             shared_ptr sp = services.find(name)->second;
@@ -51,28 +51,28 @@ namespace RTT {
         }
     }
 
-    ServiceProvider::shared_ptr ServiceProvider::provides(const std::string& service_name) {
+    Service::shared_ptr Service::provides(const std::string& service_name) {
         if (service_name == "this")
             return shared_from_this();
         shared_ptr sp = services[service_name];
         if (sp)
             return sp;
-        sp = boost::make_shared<ServiceProvider>(service_name, mowner);
+        sp = boost::make_shared<Service>(service_name, mowner);
         sp->setParent( shared_from_this() );
         services[service_name] = sp;
         return sp;
     }
 
-    ServiceProvider::shared_ptr ServiceProvider::getService(const std::string& service_name) {
+    Service::shared_ptr Service::getService(const std::string& service_name) {
         Services::iterator it = services.find(service_name);
         if (it != services.end() )
             return it->second;
         return shared_ptr();
     }
 
-    OperationRepositoryPart* ServiceProvider::getOperation( std::string name )
+    OperationRepositoryPart* Service::getOperation( std::string name )
     {
-        Logger::In in("ServiceProvider::getOperation");
+        Logger::In in("Service::getOperation");
         if ( this->hasMember(name ) ) {
             return this->getPart(name);
         }
@@ -80,7 +80,7 @@ namespace RTT {
         return 0;
     }
 
-    bool ServiceProvider::resetOperation(std::string name, base::OperationBase* impl)
+    bool Service::resetOperation(std::string name, base::OperationBase* impl)
     {
         if (!hasOperation(name))
             return false;
@@ -88,15 +88,15 @@ namespace RTT {
         return true;
     }
     
-    bool ServiceProvider::hasService(const std::string& service_name) {
+    bool Service::hasService(const std::string& service_name) {
         if (service_name == "this")
             return true;
         return services.find(service_name) != services.end();
     }
 
-    bool ServiceProvider::addLocalOperation( OperationBase& op )
+    bool Service::addLocalOperation( OperationBase& op )
     {
-        Logger::In in("ServiceProvider::addLocalOperation");
+        Logger::In in("Service::addLocalOperation");
         if ( op.getName().empty() ) {
             log(Error) << "Failed to add Operation: '"<< op.getName() <<"' has no name." <<endlog();
             return false;
@@ -111,14 +111,14 @@ namespace RTT {
         return true;
     }
 
-    boost::shared_ptr<base::DisposableInterface> ServiceProvider::getLocalOperation( std::string name ) {
+    boost::shared_ptr<base::DisposableInterface> Service::getLocalOperation( std::string name ) {
         if ( hasOperation(name) ) {
             return simpleoperations.find(name)->second->getImplementation();
         }
         return boost::shared_ptr<base::DisposableInterface>();
     }
 
-    void ServiceProvider::clear()
+    void Service::clear()
     {
         while ( !simpleoperations.empty() )
         {
@@ -135,19 +135,19 @@ namespace RTT {
         }
     }
 
-    std::vector<std::string> ServiceProvider::getOperationNames() const
+    std::vector<std::string> Service::getOperationNames() const
     {
         return keys(simpleoperations);
         //return getNames();
     }
 
-    bool ServiceProvider::hasOperation(const std::string& name) const
+    bool Service::hasOperation(const std::string& name) const
     {
         return simpleoperations.count(name) == 1;
         //return hasMember(name);
     }
 
-    void ServiceProvider::removeOperation(const std::string& name)
+    void Service::removeOperation(const std::string& name)
     {
         if (!hasOperation(name))
             return;
@@ -159,7 +159,7 @@ namespace RTT {
         simpleoperations.erase( name );
         OperationRepository::remove(name);
     }
-    void ServiceProvider::setOwner(TaskContext* new_owner) {
+    void Service::setOwner(TaskContext* new_owner) {
         for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)
             it->second->setOwner( new_owner ? new_owner->engine() : 0);
         mowner = new_owner;
@@ -168,11 +168,11 @@ namespace RTT {
             it->second->setOwner( new_owner );
     }
 
-    void ServiceProvider::setParent( ServiceProvider::shared_ptr p) {
+    void Service::setParent( Service::shared_ptr p) {
         parent = p;
     }
 
-    internal::MethodC ServiceProvider::create(std::string name, ExecutionEngine* caller) {
+    internal::MethodC Service::create(std::string name, ExecutionEngine* caller) {
         return internal::MethodC( getPart(name), name, caller );
     }
 
