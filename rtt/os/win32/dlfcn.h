@@ -26,11 +26,19 @@
  * To simplify use with Windows API, we treat them the same way.
  */
 
+#ifndef RTLD_LAZY
 #define RTLD_LAZY   0
+#endif
+#ifndef RTLD_NOW
 #define RTLD_NOW    0
+#endif
 
+#ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL (1 << 1)
+#endif
+#ifndef RTLD_LOCAL
 #define RTLD_LOCAL  (1 << 2)
+#endif
 
 /* These two were added in The Open Group Base Specifications Issue 6.
  * Note: All other RTLD_* flags in any dlfcn.h are not standard compliant.
