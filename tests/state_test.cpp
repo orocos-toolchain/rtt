@@ -40,8 +40,7 @@ using namespace std;
 #include <boost/test/floating_point_comparison.hpp>
 
 StateTest::StateTest()
-    :gtc("root"),
-     gtask( 0.01, gtc.engine() )
+    :gtc("root")
 {
 	setUp();
 }
@@ -50,6 +49,9 @@ StateTest::StateTest()
 void
 StateTest::setUp()
 {
+    SimulationThread::Instance()->stop();
+    gtc.setActivity( new SimulationActivity(0.01) );
+    BOOST_REQUIRE(SimulationThread::Instance()->isRunning() == false);
     d_event = Event<void(double)>("d_event");
     b_event = Event<void(bool)>("b_event");
     t_event = Event<void(void)>("t_event");
@@ -62,15 +64,14 @@ StateTest::setUp()
     gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
     gtc.events()->addEvent( &t_event, "T" );
     i = 0;
-    SimulationThread::Instance()->stop();
+    gtc.start();
 }
 
 
 void
 StateTest::tearDown()
 {
-    // if a test failed, we must still stop :
-    gtask.stop();
+    gtc.stop();
 }
 
 
@@ -275,14 +276,17 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
         ;
 
     // should fail each time
-    while ( i < 6 ) {
+    int safety = 0;
+    while ( i < 6 && safety < 7) {
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
         BOOST_CHECK( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
 
         this->finishState( &gtc, "x", false);
+        ++safety;
     }
+    BOOST_REQUIRE(safety <6);
 }
 BOOST_AUTO_TEST_CASE( testStateChildren)
 {
@@ -865,6 +869,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     BOOST_CHECK( tc->engine() );
     BOOST_CHECK( tc->engine()->states());
 
+    tc->start();
+
 #if 0
     // Classical way: use parser directly.
     Parser::ParsedStateMachines pg_list;
@@ -907,7 +913,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             BOOST_CHECK_MESSAGE( false , e.what());
             BOOST_REQUIRE_MESSAGE( false, "Uncaught Processor load exception" );
     }
-    BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
     BOOST_CHECK( sm );
     CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
@@ -915,7 +920,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     BOOST_CHECK( ca->execute()  );
-    BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
+    if (test)
+        BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     BOOST_CHECK( gtc.engine()->commands()->process( cs ) != 0 );

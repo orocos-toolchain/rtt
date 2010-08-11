@@ -53,7 +53,6 @@ public:
     Parser parser;
 #endif
     TaskContext gtc;
-    SimulationActivity gtask;
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
     Event<void(void)> t_event;

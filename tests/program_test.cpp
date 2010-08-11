@@ -35,8 +35,7 @@ using namespace std;
 #include <boost/test/floating_point_comparison.hpp>
 
 ProgramTest::ProgramTest()
-	: gtc("root"),
-	  gtask( 0.01, gtc.engine() )
+	: gtc("root")
 {
 	setUp();
 }
@@ -45,6 +44,9 @@ ProgramTest::ProgramTest()
 void
 ProgramTest::setUp()
 {
+    SimulationThread::Instance()->stop();
+    gtc.setActivity( new SimulationActivity(0.01) );
+
     Attribute<int> init_var("tvar_i");
     var_i = &init_var;
     const_i = new Constant<int>("tconst_i",-1);
@@ -58,15 +60,15 @@ ProgramTest::setUp()
     gtc.attributes()->addConstant( const_i );
     var_i.set(-1);
     i = 0;
-    SimulationThread::Instance()->stop();
+    gtc.start();
 }
 
 
 void
 ProgramTest::tearDown()
 {
+    gtc.stop();
     delete const_i;
-    gtask.stop();
 }
 
 
@@ -423,7 +425,6 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     ProgramInterfacePtr pi = *pg_list.begin();
 
     tc->engine()->programs()->loadProgram( pi );
-    BOOST_CHECK( gtask.start() );
     BOOST_CHECK( pi->start() );
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
@@ -457,7 +458,6 @@ void ProgramTest::loopProgram( ProgramInterfacePtr f)
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
-    BOOST_CHECK( gtask.stop() );
     BOOST_CHECK( tc->engine()->programs()->getProgram( prog_name )->stop() );
     tc->engine()->programs()->unloadProgram( prog_name );
 

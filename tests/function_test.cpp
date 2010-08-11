@@ -44,7 +44,7 @@ using namespace std;
 void
 FunctionTest::setUp()
 {
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    SimulationThread::Instance()->stop();
     // ltc has a test object
     gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
     gtask.start();
@@ -330,7 +330,7 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
     BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );
     BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
 
-    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK (SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         stringstream errormsg;
