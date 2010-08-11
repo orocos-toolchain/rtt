@@ -153,6 +153,13 @@ namespace RTT
                 return this->DataSourceStorage<MethodT>::getResult();
             }
 
+            template<class T1, class T2, class T3, class T4, class T5>
+            result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5 ) {
+                this->store( a1, a2, a3, a4, a5 );
+                mmeth.call();
+                return this->DataSourceStorage<MethodT>::getResult();
+            }
+
             SendHandle<Signature> send_impl() {
                 mhandle = mmeth.send();
                 // @todo: get remote collect from rt allocation.
@@ -269,6 +276,15 @@ namespace RTT
                     return SendNotReady;
             }
 
+            template<class T1, class T2, class T3, class T4, class T5>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
+                    bf::vector_tie(a1,a2,a3,a4,a5) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
             SendStatus collect_impl() {
                 return mhandle.collect();
             }
@@ -356,6 +372,16 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4,T5,T6,T7> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6), boost::ref(a7) );
+                if ( mhandle.collectIfDone() == SendSuccess )
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->getResult(); // may return void.
+            }
+
+            template<class T1,class T2, class T3, class T4, class T5>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+            {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4,T5> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5) );
                 if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->getResult(); // may return void.

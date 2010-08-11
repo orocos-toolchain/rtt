@@ -399,8 +399,45 @@ namespace RTT
                 ma6.arg(a6);
                 ma7.arg(a7);
             }
-        };
+        };        
+        
+        template<class DataType>
+        struct DataSourceStorageImpl<5, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
+        {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
+            typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
+            typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
+            typedef typename boost::function_traits<DataType>::arg3_type   arg3_type;
+            typedef typename boost::function_traits<DataType>::arg4_type   arg4_type;
+            typedef typename boost::function_traits<DataType>::arg5_type   arg5_type;
+            DataSourceArgStorage<arg1_type> ma1;
+            DataSourceArgStorage<arg2_type> ma2;
+            DataSourceArgStorage<arg3_type> ma3;
+            DataSourceArgStorage<arg4_type> ma4;
+            DataSourceArgStorage<arg5_type> ma5;
 
+            // the list of all our storage.
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& , AStore<arg5_type>& > vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
+
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma5.value) );
+            }
+            void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) {
+                ma1.arg(a1);
+                ma2.arg(a2);
+                ma3.arg(a3);
+                ma4.arg(a4);
+                ma5.arg(a5);
+            }
+        };
 
 
         /**

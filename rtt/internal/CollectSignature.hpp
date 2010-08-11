@@ -220,6 +220,39 @@ namespace RTT
         };
 
         template<class F, class ToCollect>
+        struct CollectSignature<5,F,ToCollect>
+        {
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+
+            CollectSignature() : cimpl() {}
+            CollectSignature(ToCollect implementation) : cimpl(implementation) {}
+            ~CollectSignature() { }
+
+            /**
+             * Collect this operator if the method has four arguments.
+             */
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg4_type t5)
+            {
+                if (cimpl)
+                    return cimpl->collect(t1, t2, t3, t4, t5);
+                return SendFailure;
+            }
+
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg4_type t5)
+            {
+                if (cimpl)
+                    return cimpl->collect(t1, t2, t3, t4, t5);
+                return SendFailure;
+            }
+        protected:
+            ToCollect cimpl;
+        };
+
+        template<class F, class ToCollect>
         struct CollectSignature<6,F,ToCollect>
         {
             typedef typename boost::function_traits<F>::arg1_type arg1_type;

@@ -246,6 +246,40 @@ namespace RTT
         };
 
 
+        template<class Ft, class BaseImpl>
+        struct CollectImpl<5,Ft,BaseImpl>
+        : public BaseImpl
+        {
+            typedef typename boost::function<Ft>::arg1_type arg1_type;
+            typedef typename boost::function<Ft>::arg2_type arg2_type;
+            typedef typename boost::function<Ft>::arg3_type arg3_type;
+            typedef typename boost::function<Ft>::arg4_type arg4_type;
+            typedef typename boost::function<Ft>::arg5_type arg5_type;
+            virtual ~CollectImpl() {}
+
+            /**
+             * Collect F without returning the results.
+             * @return
+             */
+            virtual SendStatus collect()
+            {
+                return BaseImpl::collect_impl();
+            }
+            /**
+             * Collect a void(arg1_type) F or
+             * arg1_type(void) F
+             * @return
+             */
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5)
+            {
+                return BaseImpl::collect_impl(a1,a2,a3,a4,a5);
+            }
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5)
+            {
+                return BaseImpl::collectIfDone_impl(a1,a2,a3,a4,a5);
+            }
+        };
+
     }
 }
 #endif

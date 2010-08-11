@@ -139,6 +139,14 @@ namespace RTT
             res.push_back( DSWrap<A7>()(a7));
             return res;
         }
+
+        template<class A1, class A2, class A3, class A4, class A5>
+        std::vector<base::DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5 )
+        {
+            std::vector<base::DataSourceBase::shared_ptr> res = operator()(a1,a2,a3,a4);
+            res.push_back( DSWrap<A5>()(a5));
+            return res;
+        }
     };
 }}
 
