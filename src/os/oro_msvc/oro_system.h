@@ -22,6 +22,7 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4715)	// Disable warning on "specified function can potentially not return a value"
+#pragma intrinsic(_InterlockedCompareExchange16)
 
 template<typename T> inline T oro_cmpxchg(volatile void * ptr, T old, T _new)
 {
