@@ -28,12 +28,22 @@ using namespace boost::filesystem;
 #ifdef  __APPLE__
 static const std::string SO_EXT(".dylib");
 #else
-# ifdef WIN32
+# ifdef _WIN32
 static const std::string SO_EXT(".dll");
 # else
 static const std::string SO_EXT(".so");
 # endif
 #endif
+
+// choose how the PATH looks like
+# ifdef _WIN32
+static const std::string delimiters(";");
+static const std::string default_delimiter(";");
+# else
+static const std::string delimiters(":;");
+static const std::string default_delimiter(":");
+# endif
+
 
 namespace {
     /**
@@ -64,7 +74,6 @@ namespace {
 vector<string> splitPaths(string const& str)
 {
     vector<string> paths;
-    string delimiters = ";:";
 
     // Skip delimiters at beginning.
     string::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -131,7 +140,7 @@ void PluginLoader::loadPlugins(string const& path_list) {
 
 void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + ":" + plugin_path);
+    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
@@ -183,7 +192,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + ":" + plugin_path);
+    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {
