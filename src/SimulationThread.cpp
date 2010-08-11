@@ -105,14 +105,12 @@ namespace RTT
 
     bool SimulationThread::start()
     {
-        maxsteps_ = 0;
-        return OS::PeriodicThread::start();
+        // must use start(maxsteps) to really start.
+        return false;
     }
 
     bool SimulationThread::start(unsigned int maxsteps)
     {
-        if (maxsteps == 0)
-            return false;
         maxsteps_ = maxsteps;
         return OS::PeriodicThread::start();
     }
