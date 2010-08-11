@@ -312,6 +312,95 @@ namespace RTT
                 ma4.arg(a4);
             }
         };
+        
+        template<class DataType>
+        struct DataSourceStorageImpl<6, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
+        {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
+            typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
+            typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
+            typedef typename boost::function_traits<DataType>::arg3_type   arg3_type;
+            typedef typename boost::function_traits<DataType>::arg4_type   arg4_type;
+            typedef typename boost::function_traits<DataType>::arg5_type   arg5_type;
+            typedef typename boost::function_traits<DataType>::arg6_type   arg6_type;
+            DataSourceArgStorage<arg1_type> ma1;
+            DataSourceArgStorage<arg2_type> ma2;
+            DataSourceArgStorage<arg3_type> ma3;
+            DataSourceArgStorage<arg4_type> ma4;
+            DataSourceArgStorage<arg5_type> ma5;
+            DataSourceArgStorage<arg6_type> ma6;
+
+            // the list of all our storage.
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& , AStore<arg5_type>& , AStore<arg6_type>&> vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
+
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma5.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma6.value) );
+            }
+            void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) {
+                ma1.arg(a1);
+                ma2.arg(a2);
+                ma3.arg(a3);
+                ma4.arg(a4);
+                ma5.arg(a5);
+                ma6.arg(a6);
+            }
+        };
+        
+        template<class DataType>
+        struct DataSourceStorageImpl<7, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
+        {
+            typedef typename boost::function_traits<DataType>::result_type result_type;
+            typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
+            typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
+            typedef typename boost::function_traits<DataType>::arg3_type   arg3_type;
+            typedef typename boost::function_traits<DataType>::arg4_type   arg4_type;
+            typedef typename boost::function_traits<DataType>::arg5_type   arg5_type;
+            typedef typename boost::function_traits<DataType>::arg6_type   arg6_type;
+            typedef typename boost::function_traits<DataType>::arg7_type   arg7_type;
+            DataSourceArgStorage<arg1_type> ma1;
+            DataSourceArgStorage<arg2_type> ma2;
+            DataSourceArgStorage<arg3_type> ma3;
+            DataSourceArgStorage<arg4_type> ma4;
+            DataSourceArgStorage<arg5_type> ma5;
+            DataSourceArgStorage<arg6_type> ma6;
+            DataSourceArgStorage<arg7_type> ma7;
+
+            // the list of all our storage.
+            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>&, AStore<arg7_type>&> vStore;
+            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
+
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
+                cc.arg( base::DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma5.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma6.value) );
+                cc.arg( base::DataSourceBase::shared_ptr(ma7.value) );
+            }
+            void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7) {
+                ma1.arg(a1);
+                ma2.arg(a2);
+                ma3.arg(a3);
+                ma4.arg(a4);
+                ma5.arg(a5);
+                ma6.arg(a6);
+                ma7.arg(a7);
+            }
+        };
+
 
 
         /**

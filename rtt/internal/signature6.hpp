@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal5.hpp
+  tag: FMTC  do nov 2 13:05:57 CET 2006  signature6.hpp
 
-                        signal5.hpp -  description
+                        signature6.hpp -  description
                            -------------------
-    begin                : Wed January 18 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.be
+    begin                : do november 02 2006
+    copyright            : (C) 2006 FMTC
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,11 +36,21 @@
  ***************************************************************************/
 
 
-#ifndef OROCOS_SIGNAL_SIGNAL5_HEADER
-#define OROCOS_SIGNAL_SIGNAL5_HEADER
+#define OROCOS_SIGNATURE_NUM_ARGS 6
+#define OROCOS_SIGNATURE_TEMPLATE_PARMS typename T1, typename T2, typename T3, typename T4, typename T5, typename T6
+#define OROCOS_SIGNATURE_TEMPLATE_ARGS T1, T2, T3, T4, T5, T6
+#define OROCOS_SIGNATURE_PARMS arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6
+#define OROCOS_SIGNATURE_ARGS boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6)
+#define OROCOS_SIGNATURE_ARG_TYPES typedef T1 arg1_type;typedef T2 arg2_type;typedef T3 arg3_type;typedef T4 arg4_type;typedef T5 arg5_type;typedef T6 arg6_type;
+#define OROCOS_SIGNATURE_TYPEDEFS typedef typename function_type::arg1_type arg1_type;typedef typename function_type::arg2_type arg2_type;typedef typename function_type::arg3_type arg3_type;typedef typename function_type::arg4_type arg4_type;typedef typename function_type::arg5_type arg5_type;typedef typename function_type::arg6_type arg6_type;
 
-#define OROCOS_SIGNATURE_TEMPLATE_HEADER "signal_template.hpp"
-#include "signature5.hpp"
-#undef OROCOS_SIGNATURE_TEMPLATE_HEADER
+#include "signature_template.hpp"
 
-#endif // OROCOS_SIGNAL_SIGNAL5_HEADER
+#undef OROCOS_SIGNATURE_TYPEDEFS
+#undef OROCOS_SIGNATURE_ARG_TYPES
+#undef OROCOS_SIGNATURE_ARGS
+#undef OROCOS_SIGNATURE_PARMS
+#undef OROCOS_SIGNATURE_TEMPLATE_ARGS
+#undef OROCOS_SIGNATURE_TEMPLATE_PARMS
+#undef OROCOS_SIGNATURE_NUM_ARGS
+

@@ -22,12 +22,18 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethod)
     Method<double(int,double)> m2("m2", &OperationsFixture::m2, this);
     Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this);
     Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this);
+    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this);
+    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this);
+    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -6.0, m5(1, 2.0, true,"hello",5.0) );
+    BOOST_CHECK_EQUAL( -7.0, m6(1, 2.0, true,"hello",5.0,'a') );
+    BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
 }
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
@@ -38,6 +44,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
     Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
     Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
     Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -46,6 +55,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -6.0, m5(1, 2.0, true,"hello",5.0) );
+    BOOST_CHECK_EQUAL( -7.0, m6(1, 2.0, true,"hello",5.0,'a') );
+    BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
 }
 
 BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
@@ -56,6 +68,10 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, 0, caller->engine());
     Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, 0, caller->engine());
     Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, 0, caller->engine());
+    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, 0, caller->engine());
+    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, 0, caller->engine());
+    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, 0, caller->engine());
+
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -64,6 +80,9 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     SendHandle<double(int,double)> h2 = m2.send(1, 2.0);
     SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, true);
     SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, true,"hello");
+    SendHandle<double(int,double,bool,std::string,float)> h5 = m5.send(1, 2.0, true,"hello",5.0);
+    SendHandle<double(int,double,bool,std::string,float,char)> h6 = m6.send(1, 2.0, true,"hello",5.0,'a');
+    SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> h7 = m7.send(1, 2.0, true,"hello",5.0,'a',7);
 
     double retn=0;
     BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
@@ -76,6 +95,12 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
 
     // collectIfDone will certainly succeed after collect
     BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
@@ -88,6 +113,12 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
 
     // the return value api.
     BOOST_CHECK_EQUAL( -1.0, h0.ret() );
@@ -95,10 +126,17 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret(1, 2.0, true,"hello",5.0) );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret(1, 2.0, true,"hello",5.0,'a') );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret(1, 2.0, true,"hello",5.0,'a',7) );
+
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );
     BOOST_CHECK_EQUAL( -4.0, h3.ret() );
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret() );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret() );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret() );
 }
 
 BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
@@ -108,6 +146,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
     Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
     Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
+    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -116,6 +157,10 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     SendHandle<double(int,double)> h2 = m2.send(1, 2.0);
     SendHandle<double(int,double,bool)> h3 = m3.send(1, 2.0, true);
     SendHandle<double(int,double,bool,std::string)> h4 = m4.send(1, 2.0, true,"hello");
+    SendHandle<double(int,double,bool,std::string,float)> h5 = m5.send(1, 2.0, true,"hello",5.0);
+    SendHandle<double(int,double,bool,std::string,float,char)> h6 = m6.send(1, 2.0, true,"hello",5.0,'a');
+    SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> h7 = m7.send(1, 2.0, true,"hello",5.0,'a',7);
+
 
     double retn=0;
     BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
@@ -128,6 +173,12 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
 
     // collectIfDone will certainly succeed after collect
     BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
@@ -140,6 +191,13 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
+
 
     // the return value api.
     BOOST_CHECK_EQUAL( -1.0, h0.ret() );
@@ -147,10 +205,17 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret(1, 2.0, true,"hello",5.0) );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret(1, 2.0, true,"hello",5.0,'a') );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret(1, 2.0, true,"hello",5.0,'a',7) );
+
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );
     BOOST_CHECK_EQUAL( -4.0, h3.ret() );
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret() );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret() );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret() );
 }
 
 BOOST_AUTO_TEST_CASE(testLocalMethodFactory)

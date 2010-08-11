@@ -1,3 +1,6 @@
+#define BOOST_FUSION_INVOKE_MAX_ARITY 8
+#define BOOST_FUSION_UNFUSED_MAX_ARITY 7
+
 #include "operations_fixture.hpp"
 #include <iostream>
 #include <TaskContext.hpp>
@@ -59,6 +62,9 @@ void OperationsFixture::createMethodFactories(TaskContext* target)
     to->addOperation("m2", &OperationsFixture::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
     to->addOperation("m3", &OperationsFixture::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     to->addOperation("m4", &OperationsFixture::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m5", &OperationsFixture::m5, this).doc("M5").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m6", &OperationsFixture::m6, this).doc("M6").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("m7", &OperationsFixture::m7, this).doc("M7").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
 
     // OwnThread
     to->addOperation("o0r", &OperationsFixture::m0r, this, OwnThread).doc("M0r");
@@ -71,5 +77,8 @@ void OperationsFixture::createMethodFactories(TaskContext* target)
     to->addOperation("o2", &OperationsFixture::m2, this, OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
     to->addOperation("o3", &OperationsFixture::m3, this, OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     to->addOperation("o4", &OperationsFixture::m4, this, OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("o5", &OperationsFixture::m5, this, OwnThread).doc("M5").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("o6", &OperationsFixture::m6, this, OwnThread).doc("M6").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
+    to->addOperation("o7", &OperationsFixture::m7, this, OwnThread).doc("M7").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
     target->provides()->addService( to );
 }

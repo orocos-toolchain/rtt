@@ -35,6 +35,9 @@ public:
     double m2(int i, double d) { if ( i == 1 && d == 2.0 ) return -3.0; else return 3.0; }
     double m3(int i, double d, bool c) { if ( i == 1 && d == 2.0 && c == true) return -4.0; else return 4.0; }
     double m4(int i, double d, bool c, std::string s) { if ( i == 1 && d == 2.0 && c == true && s == "hello") return -5.0; else return 5.0;  }
+    double m5(int i, double d, bool c, std::string s, float f) { if ( i == 1 && d == 2.0 && c == true && s == "hello" && f == 5.0f) return -6.0; else return 6.0;  }
+    double m6(int i, double d, bool c, std::string s, float f, char h) { if ( i == 1 && d == 2.0 && c == true && s == "hello" && f == 5.0f && h == 'a') return -7.0; else return 7.0;  }
+    double m7(int i, double d, bool c, std::string s, float f, char h, unsigned int st) { if ( i == 1 && d == 2.0 && c == true && s == "hello" && f == 5.0f && h == 'a', st == 7) return -8.0; else return 8.0;  }
 
     void print(const std::string& what) { cout << "print: " << what <<endl; }
     void printNumber(const std::string& what, int n) { cout << "print: " << what << n << endl; }

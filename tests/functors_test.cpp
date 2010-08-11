@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <TaskContext.hpp>
 #include <Method.hpp>
@@ -47,6 +46,21 @@ BOOST_AUTO_TEST_CASE(testClientThreadFunctor)
     dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
     BOOST_CHECK_EQUAL( -5.0, dsd->get());
 
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float>(1,2.0,true,"hello", 5.0f);
+    dsb  = tc->provides("methods")->produce("m5", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -6.0, dsd->get());
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float>(1,2.0,true,"hello", 5.0f, 'a');
+    dsb  = tc->provides("methods")->produce("m6", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -7.0, dsd->get());
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float>(1,2.0,true,"hello", 5.0f, 'a', (unsigned int)7);
+    dsb  = tc->provides("methods")->produce("m7", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -8.0, dsd->get());
+
     double d = 10.0;
     args = GenerateDataSource().operator()<double&>(d);
     dsb  = tc->provides("methods")->produce("m1r", args, caller->engine());
@@ -83,6 +97,21 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
     dsb  = tc->provides("methods")->produce("o4", args, caller->engine());
     dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
     BOOST_CHECK_EQUAL( -5.0, dsd->get());
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float>(1,2.0,true,"hello", 5.0f);
+    dsb  = tc->provides("methods")->produce("o5", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -6.0, dsd->get());
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float,char>(1,2.0,true,"hello", 5.0f, 'a');
+    dsb  = tc->provides("methods")->produce("o6", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -7.0, dsd->get());
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float,char,unsigned int>(1,2.0,true,"hello", 5.0f, 'a', (unsigned int)7);
+    dsb  = tc->provides("methods")->produce("o7", args, caller->engine());
+    dsd = dynamic_pointer_cast<DataSource<double> >(dsb);
+    BOOST_CHECK_EQUAL( -8.0, dsd->get());
 }
 
 
@@ -95,6 +124,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     SendHandle<double(int,double)> h2;
     SendHandle<double(int,double,bool)> h3;
     SendHandle<double(int,double,bool,std::string)> h4;
+    SendHandle<double(int,double,bool,std::string,float)> h5;
+    SendHandle<double(int,double,bool,std::string,float,char)> h6;
+    SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> h7;
     SendHandle<double(double&)> h1r;
 
     // Test the produceSend() and produceHandle() methods, which maps to send() for OwnThread case:
@@ -191,6 +223,49 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     h4 = dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string)> >* >( dsh.get() )->get();
     BOOST_CHECK( h4.ready() );
 
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float>(1,2.0,true,"hello",5.0f);
+    // Get send and handle functors:
+    dsb = tc->provides("methods")->produceSend("o5", args, caller->engine());
+    dsh= tc->provides("methods")->produceHandle("o5");
+    // Assign the handle of produceSend to the one of produceHandle:
+    update = dsh->updateAction( dsb.get() );
+    update->readArguments();
+    update->execute();
+    delete update;
+    // get the handle:
+    BOOST_REQUIRE( dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float)> >* >( dsh.get() ) );
+    h5 = dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float)> >* >( dsh.get() )->get();
+    BOOST_CHECK( h5.ready() );
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float,char>(1,2.0,true,"hello",5.0f,'a');
+    // Get send and handle functors:
+    dsb = tc->provides("methods")->produceSend("o6", args, caller->engine());
+    dsh= tc->provides("methods")->produceHandle("o6");
+    // Assign the handle of produceSend to the one of produceHandle:
+    update = dsh->updateAction( dsb.get() );
+    update->readArguments();
+    update->execute();
+    delete update;
+    // get the handle:
+    BOOST_REQUIRE( dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float,char)> >* >( dsh.get() ) );
+    h6 = dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float,char)> >* >( dsh.get() )->get();
+    BOOST_CHECK( h6.ready() );
+
+    args = GenerateDataSource().operator()<int,double,bool,std::string,float,char,unsigned int>(1,2.0,true,"hello",5.0f,'a',(unsigned int)7);
+    // Get send and handle functors:
+    dsb = tc->provides("methods")->produceSend("o7", args, caller->engine());
+    dsh= tc->provides("methods")->produceHandle("o7");
+    // Assign the handle of produceSend to the one of produceHandle:
+    update = dsh->updateAction( dsb.get() );
+    update->readArguments();
+    update->execute();
+    delete update;
+    // get the handle:
+    BOOST_REQUIRE( dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> >* >( dsh.get() ) );
+    h7 = dynamic_cast<DataSource<SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> >* >( dsh.get() )->get();
+    BOOST_CHECK( h7.ready() );
+
+
     double d = 10.0;
     args = GenerateDataSource().operator()<double&>(d);
     dsb = tc->provides("methods")->produceSend("o1r", args, caller->engine());
@@ -220,8 +295,12 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
-    BOOST_CHECK_EQUAL( SendSuccess, h4.collect(retn) );
-    BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h1r.collect(retn, rarg) );
     BOOST_CHECK_EQUAL( retn, 20.0 );
     BOOST_CHECK_EQUAL( rarg, 20.0 );
@@ -238,6 +317,12 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( retn, -4.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h4.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -5.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h5.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -6.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h6.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -7.0 );
+    BOOST_CHECK_EQUAL( SendSuccess, h7.collectIfDone(retn) );
+    BOOST_CHECK_EQUAL( retn, -8.0 );
     BOOST_CHECK_EQUAL( SendSuccess, h1r.collectIfDone(retn,rarg) );
     BOOST_CHECK_EQUAL( retn, 20.0 );
     BOOST_CHECK_EQUAL( rarg, 20.0 );
@@ -248,10 +333,17 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -3.0, h2.ret(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, h3.ret(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, h4.ret(1, 2.0, true,"hello") );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret(1, 2.0, true,"hello", 5.0f) );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret(1, 2.0, true,"hello", 5.0f, 'a') );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret(1, 2.0, true,"hello", 5.0f, 'a', (unsigned int)7) );
+
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );
     BOOST_CHECK_EQUAL( -4.0, h3.ret() );
     BOOST_CHECK_EQUAL( -5.0, h4.ret() );
+    BOOST_CHECK_EQUAL( -6.0, h5.ret() );
+    BOOST_CHECK_EQUAL( -7.0, h6.ret() );
+    BOOST_CHECK_EQUAL( -8.0, h7.ret() );
     BOOST_CHECK_EQUAL( 20.0, h1r.ret() );
 }
 #ifdef ORO_REMOTING_OLD

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal5.hpp
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal6.hpp
 
-                        signal5.hpp -  description
+                        signal6.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -36,11 +36,11 @@
  ***************************************************************************/
 
 
-#ifndef OROCOS_SIGNAL_SIGNAL5_HEADER
-#define OROCOS_SIGNAL_SIGNAL5_HEADER
+#ifndef OROCOS_SIGNAL_SIGNAL6_HEADER
+#define OROCOS_SIGNAL_SIGNAL6_HEADER
 
 #define OROCOS_SIGNATURE_TEMPLATE_HEADER "signal_template.hpp"
-#include "signature5.hpp"
+#include "signature6.hpp"
 #undef OROCOS_SIGNATURE_TEMPLATE_HEADER
 
-#endif // OROCOS_SIGNAL_SIGNAL5_HEADER
+#endif // OROCOS_SIGNAL_SIGNAL6_HEADER
