@@ -114,7 +114,7 @@
 	<listitem><para>TaskContext interface: fully (TaskContext.idl)</para></listitem>
 	<listitem><para>Properties/Attributes interface: fully (ConfigurationInterface.idl)</para></listitem>
 	<listitem><para>OperationCaller/Operation interface: fully (OperationRepository.idl)</para></listitem>
-	<listitem><para>Service interface: fully (ServiceProvider.idl, ServiceRequester.idl)</para></listitem>
+	<listitem><para>Service interface: fully (Service.idl, ServiceRequester.idl)</para></listitem>
 	<listitem><para>Data Flow interface: fully (DataFlow.idl)</para></listitem>
       </itemizedlist> 
       </para>
@@ -340,7 +340,7 @@
       The relevant files are:
       <itemizedlist>
 	<listitem><para><filename>TaskContext.idl</filename>: The main Component Interface file, providing CORBA access to a TaskContext.</para></listitem>
-	<listitem><para><filename>ServiceProvider.idl</filename>: The interface of provided services by a component</para></listitem>
+	<listitem><para><filename>Service.idl</filename>: The interface of services by a component</para></listitem>
 	<listitem><para><filename>ServiceRequester.idl</filename>: The interface of required services by a component</para></listitem>
 	<listitem><para><filename>OperationRepository.idl</filename>: The interface for calling or sending operations.</para></listitem>
 	<listitem><para><filename>ConfigurationInterface.idl</filename>: The interface for attributes and properties.</para></listitem>

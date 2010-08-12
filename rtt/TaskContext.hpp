@@ -267,8 +267,8 @@ namespace RTT
         interface::Service::shared_ptr provides() { return tcservice; }
 
         /**
-         * Returns a sub-service provider which resorts under
-         * this service provider.
+         * Returns a sub-Service which resorts under
+         * this Service.
          * @param service_name The name of the sub-service.
          */
         interface::Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
@@ -321,7 +321,7 @@ namespace RTT
 
         /**
          * Adding and getting operations from the TaskContext interface.
-         * These functions all forward to the service provider representing
+         * These functions all forward to the Service representing
          * this TaskContext. Use operations() to access the complete OperationRepository
          * interface of this TaskContext.
          * @name Operations
@@ -371,7 +371,7 @@ namespace RTT
 
         /**
          * Adding and getting attributes from the TaskContext interface.
-         * These functions all forward to the service provider representing
+         * These functions all forward to the Service representing
          * this TaskContext. Use attributes() to access the complete
          * ConfigurationInterface interface of this TaskContext.
          * @name Attributes
@@ -438,7 +438,7 @@ namespace RTT
 
         /**
          * Adding and getting properties from the TaskContext interface.
-         * These functions all forward to the service provider representing
+         * These functions all forward to the Service representing
          * this TaskContext. Use properties() to access the complete PropertyBag
          * interface of this TaskContext.
          * @name Properties

@@ -1339,7 +1339,7 @@ Printing Interface of 'the_input_port' :
       <para>
 	To add a C/C++ function to the operation interface, you
 	only need to register it with <function>addOperation()</function>,
-	defined in <classname>RTT::interface::ServiceProvider</classname>.
+	defined in <classname>RTT::interface::Service</classname>.
       </para>
       <para>
 	<programlisting>
@@ -2380,10 +2380,10 @@ Printing Interface of 'the_input_port' :
       In the previous sections, we saw that you could add an operation to a
       TaskContext, and retrieve it for use in a OperationCaller object. This manual
       registration and connection process can be automated by using the
-      service objects. There are two major players: <classname>RTT::interface::ServiceProvider</classname>
+      service objects. There are two major players: <classname>RTT::interface::Service</classname>
       and <classname>RTT::interface::ServiceRequester</classname>. The
       first manages operations, the second methods. We say that the
-      ServiceProvider <emphasis>provides</emphasis> operations, while
+      Service <emphasis>provides</emphasis> operations, while
       the ServiceRequester <emphasis>requires</emphasis> them. The first
       expresses what it can do, the second what it needs from others to do.
     </para>
@@ -2470,7 +2470,7 @@ Printing Interface of 'the_input_port' :
       Update hook then calls these methods.</para>
     <para> The remaining question is now: how is the connection done from client to
       server ? The <classname>RTT::interface::ServiceRequester</classname> has a method 
-      <function>connectTo(ServiceProvider*)</function> which does this connection from
+      <function>connectTo(Service*)</function> which does this connection from
       OperationCaller object to operation. If you wanted to hardcode this, it would look like:
       <programlisting>  bool configureHook() {
      requires("display")->connectTo( getPeer("server")->provides("display") );
@@ -2505,7 +2505,7 @@ Printing Interface of 'the_input_port' :
   // ...
   a_task->getProvider&lt;Marshalling&gt;("marshalling")->writeProperties( "PropertyFile.cpf" ); </programlisting>
        <para>
-	 In order to access a provided service, we need both the type of the provider, <classname>RTT::Marshalling</classname>
+	 In order to access a service, we need both the type of the provider, <classname>RTT::Marshalling</classname>
 	 and the run-time name of the service, by default "marshalling".
        </para>
        <para>

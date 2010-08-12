@@ -42,7 +42,7 @@ namespace RTT
         typedef std::vector<std::string> ProviderNames;
 
         /**
-         * Creates a service provider with a name and an owner.  Each
+         * Creates a Service with a name and an owner.  Each
          * service must be owned by a TaskContext and the owner can be
          * set afterwards with setOwner.
          * @param name The name of this service.
@@ -51,7 +51,7 @@ namespace RTT
         static Service::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
 
         /**
-         * Creates a service provider with a name and an owner.  Each
+         * Creates a Service with a name and an owner.  Each
          * service must be owned by a TaskContext and the owner can be
          * set afterwards with setOwner.
          * @param name The name of this service.
@@ -133,8 +133,8 @@ namespace RTT
         Service::shared_ptr provides() { return shared_from_this(); }
 
         /**
-         * Returns a sub-service provider which resorts under
-         * this service provider.
+         * Returns a sub-Service which resorts under
+         * this Service.
          * @param service_name The name of the sub-service.
          */
         Service::shared_ptr provides(const std::string& service_name);

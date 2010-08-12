@@ -28,8 +28,8 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef ORO_CORBA_SERVICEPROVIDERI_H_
-#define ORO_CORBA_SERVICEPROVIDERI_H_
+#ifndef ORO_CORBA_SERVICEI_H_
+#define ORO_CORBA_SERVICEI_H_
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
@@ -92,5 +92,6 @@ public:
 };
 
 
-#endif /* SERVICEPROVIDERI_H_  */
+#endif /* SERVICEI_H_  */
+
 

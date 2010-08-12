@@ -157,7 +157,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
 {
     if ( mtask->provides()->hasService(service_name) == false)
         return CService::_nil();
-    // Creates service provider for "this"
+    // Creates Service for "this"
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating CService for "<< mtask->getName()<<endlog();
         RTT_corba_CService_i* mserv;

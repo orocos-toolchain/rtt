@@ -128,7 +128,7 @@ module RTT
 	     */
 
 	    /**
-	     * Get a provided service.
+	     * Get a service.
 	     * @see RTT::TaskContext::provides()
 	     */
 	    CService getProvider( in string service_name );
