@@ -601,6 +601,10 @@ namespace RTT {
             return maxOverRun;
         }
 
+        void Thread::setWaitPolicy(int p)
+        {
+            rtos_task_set_wait_policy(&rtos_task, p);  
+        }
     }
 }
 

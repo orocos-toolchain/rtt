@@ -193,6 +193,9 @@ namespace RTT
             virtual void setMaxOverrun(int m);
 
             virtual int getMaxOverrun() const;
+
+            virtual void setWaitPolicy(int p);
+
         protected:
             /**
              * Exit and destroy the thread
