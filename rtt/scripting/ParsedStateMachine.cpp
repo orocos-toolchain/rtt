@@ -73,7 +73,7 @@ namespace RTT {
               i != parametervalues.end(); ++i )
         {
             // What is sure, is that each param
-            // must also be in the attributerepository.
+            // must also be in the ConfigurationInterface.
             assert( ret->getService()->getValue( i->first ) );
             ret->parametervalues[i->first] = ret->getService()->getValue( i->first );
         }

@@ -28,8 +28,8 @@
 // TAO_IDL - Generated from
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef ORO_CORBA_ATTRIBUTEREPOSITORYI_H_
-#define ORO_CORBA_ATTRIBUTEREPOSITORYI_H_
+#ifndef ORO_CORBA_CONFIGURATIONINTERFACEI_H_
+#define ORO_CORBA_CONFIGURATIONINTERFACEI_H_
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
@@ -135,5 +135,5 @@ class  RTT_corba_CConfigurationInterface_i
 };
 
 
-#endif /* ATTRIBUTEREPOSITORYI_H_  */
+#endif /* CONFIGURATIONINTERFACEI_H_  */
 

@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#ifndef ATTRIBUTEREPOSITORY_HPP
-#define ATTRIBUTEREPOSITORY_HPP
+#ifndef CONFIGURATIONINTERFACE_HPP
+#define CONFIGURATIONINTERFACE_HPP
 
 #include <memory>
 #include <map>
