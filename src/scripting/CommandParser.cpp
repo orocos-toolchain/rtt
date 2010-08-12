@@ -176,9 +176,9 @@ namespace RTT
             {
                 // if the method returns a boolean, construct it as a command
                 // which accepts/rejects the result.
-                DataSourceBase* dsb =  mfi->produce( mcurmethod, argsparser->result() );
-                DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
-                if ( dsb_res == 0 )
+                DataSourceBase::shared_ptr dsb =  mfi->produce( mcurmethod, argsparser->result() );
+                DataSource<bool>::shared_ptr dsb_res = DataSource<bool>::narrow( dsb.get() );
+                if ( dsb_res )
                     comcon.first =  new CommandDataSource( dsb );
                 else
                     comcon.first =  new CommandDataSourceBool( dsb_res );

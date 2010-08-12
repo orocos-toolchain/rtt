@@ -160,9 +160,9 @@ namespace RTT
         expressionparser.dropResult();
         assert( expr.get() );
         //assert( !expressionparser.hasResult() );
-        DataSource<int>::shared_ptr i = dynamic_cast<DataSource<int>* >( expr.get() );
+        DataSource<int>::shared_ptr i = boost::dynamic_pointer_cast<DataSource<int> >( expr );
         std::string typen = type->getTypeName();
-        if ( i.get() == 0 ) {
+        if ( !i ) {
             this->cleanup();
             throw parse_exception_semantic_error
                 ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getTypeName()+", expected an integer expression." );
