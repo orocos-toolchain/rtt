@@ -23,7 +23,7 @@ module RTT
          * IDL
 	 * @ingroup CompIDL
 	 */
-	enum CTaskState { Init, PreOperational, FatalError, ExceptionState, Stopped, Running, RunTimeError };
+	enum CTaskState { CInit, CPreOperational, CFatalError, CException, CStopped, CRunning, CRunTimeError };
 
 	/**
 	 * A CTaskContext is the main entry point of a distributed
