@@ -160,6 +160,11 @@ namespace RTT
       }
     }
 
+    INTERNAL_QUAL void rtos_task_set_wait_policy( RTOS_TASK* task, int policy )
+    {
+      // Do nothing
+    }
+
     INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
     {
       cyg_semaphore_wait(&(task->wakeup_sem));
