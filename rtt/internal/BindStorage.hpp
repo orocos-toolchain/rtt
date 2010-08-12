@@ -213,6 +213,10 @@ namespace RTT
         struct is_arg_return<AStore<T&> > : public mpl::true_
         {};
 
+        template<class T>
+        struct is_arg_return<AStore<T const &> > : public mpl::false_
+        {};
+
         template<>
         struct is_arg_return<RStore<void> > : public mpl::false_
         {};
@@ -231,6 +235,9 @@ namespace RTT
         struct is_out_arg<AStore<T&> > : public mpl::true_
         {};
 
+        template<class T>
+        struct is_out_arg<AStore<T const &> > : public mpl::false_
+        {};
 
         template<int, class T>
         struct BindStorageImpl;
