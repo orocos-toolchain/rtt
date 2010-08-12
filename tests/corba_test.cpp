@@ -30,7 +30,7 @@
 #include <rtt/interface/Service.hpp>
 #include <rtt/transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
-#include <transports/corba/ServiceC.h>
+#include <transports/corba/ServiceProviderC.h>
 
 #include "operations_fixture.hpp"
 

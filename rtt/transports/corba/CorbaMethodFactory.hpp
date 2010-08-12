@@ -46,7 +46,7 @@
 #endif
 #include "../../interface/OperationRepository.hpp"
 #include "../../interface/FactoryExceptions.hpp"
-#include "ServiceC.h"
+#include "ServiceProviderC.h"
 #include "CorbaConversion.hpp"
 #include "CorbaTypeTransporter.hpp"
 

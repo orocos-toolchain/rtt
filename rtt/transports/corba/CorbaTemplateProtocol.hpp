@@ -44,7 +44,7 @@
 #include "../../types/Types.hpp"
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
-#include "ServiceC.h"
+#include "ServiceProviderC.h"
 #include "DataFlowI.h"
 #include "../../internal/ConnID.hpp"
 #include "DataSourceProxy.hpp"

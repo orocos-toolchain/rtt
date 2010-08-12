@@ -5,7 +5,7 @@
 //resolves LNK2005
 #include <tao/orb.idl>
 #endif
-#include "Service.idl"
+#include "ServiceProvider.idl"
 
 module RTT
 {

@@ -28,7 +28,7 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
-#include "ServiceI.h"
+#include "ServiceProviderI.h"
 
 using namespace RTT;
 using namespace RTT::detail;

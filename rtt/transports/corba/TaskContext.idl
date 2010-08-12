@@ -7,7 +7,7 @@
  * Orocos Corba TaskContext Component.
  */
 
-#include "Service.idl"
+#include "ServiceProvider.idl"
 #include "ServiceRequester.idl"
 #include "DataFlow.idl"
 
