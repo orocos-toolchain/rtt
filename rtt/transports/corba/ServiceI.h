@@ -40,7 +40,7 @@
 
 #include "../../interface/Service.hpp"
 #include "ConfigurationInterfaceI.h"
-#include "OperationRepositoryI.h"
+#include "OperationInterfaceI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -49,7 +49,7 @@
 class  RTT_corba_CService_i
     : public virtual POA_RTT::corba::CService, public virtual PortableServer::RefCountServantBase,
       public virtual RTT_corba_CConfigurationInterface_i,
-      public virtual RTT_corba_COperationRepository_i
+      public virtual RTT_corba_COperationInterface_i
 {
 protected:
     PortableServer::POA_var mpoa;

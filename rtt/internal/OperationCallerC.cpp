@@ -51,7 +51,7 @@ namespace RTT {
     class OperationCallerC::D
     {
     public:
-        OperationRepositoryPart* ofp;
+        OperationInterfacePart* ofp;
         ExecutionEngine* caller;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
@@ -101,7 +101,7 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
+        D( OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller)
             : ofp(mr), caller(caller), mname(name), rta(), m(), s()
         {
             this->checkAndCreate();
@@ -124,7 +124,7 @@ namespace RTT {
     {
     }
 
-    OperationCallerC::OperationCallerC(OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
+    OperationCallerC::OperationCallerC(OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m(), ofp(mr), mname(name)
     {
         if ( d && d->m ) {
@@ -134,7 +134,7 @@ namespace RTT {
             d = 0;
         } else {
             if (mr == 0)
-                log(Error) <<"Can not construct OperationCallerC for '"<<name<<"' from null OperationRepositoryPart."<<endlog();
+                log(Error) <<"Can not construct OperationCallerC for '"<<name<<"' from null OperationInterfacePart."<<endlog();
         }
     }
 
@@ -268,7 +268,7 @@ namespace RTT {
         return m;
     }
 
-    OperationRepositoryPart* OperationCallerC::getOrp() const {
+    OperationInterfacePart* OperationCallerC::getOrp() const {
         return ofp;
     }
 

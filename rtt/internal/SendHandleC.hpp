@@ -39,9 +39,9 @@ namespace RTT
         internal::AssignableDataSource<bool>::shared_ptr b;
 
 	/**
-	 * Stores the OperationRepositoryPart pointer contained in this SendHandle
+	 * Stores the OperationInterfacePart pointer contained in this SendHandle
 	 */
-	interface::OperationRepositoryPart* orp;
+	interface::OperationInterfacePart* orp;
 
 
     public:
@@ -56,7 +56,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, interface::OperationRepositoryPart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr handle, interface::OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -119,9 +119,9 @@ namespace RTT
         base::DataSourceBase::shared_ptr getSendHandleDataSource();
 
 	/**
-	 * Get the contained OperationRepositoryPart for SendHandle
+	 * Get the contained OperationInterfacePart for SendHandle
 	 */
-	interface::OperationRepositoryPart* getOrp();
+	interface::OperationInterfacePart* getOrp();
 
     };
 }}

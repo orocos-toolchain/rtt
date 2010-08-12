@@ -40,7 +40,7 @@
 #define FUNCTIONFACTORY_HPP
 
 #include "../interface/ArgumentDescription.hpp"
-#include "../interface/OperationRepository.hpp"
+#include "../interface/OperationInterface.hpp"
 #include "../Property.hpp"
 #include "ProgramInterface.hpp"
 
@@ -55,7 +55,7 @@ namespace RTT
      * a FunctionGraph in an engine..
      */
     class FunctionFactory
-        : public interface::OperationRepositoryPart
+        : public interface::OperationInterfacePart
     {
         ProgramInterfacePtr func;
         ExecutionEngine* proc;

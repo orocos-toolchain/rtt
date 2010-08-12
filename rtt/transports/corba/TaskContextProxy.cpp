@@ -230,7 +230,7 @@ namespace RTT
         // load command and method factories.
         // methods:
         log(Debug) << "Fetching OperationCallers."<<endlog();
-        COperationRepository::COperationList_var objs;
+        COperationInterface::COperationList_var objs;
         objs = serv->getOperations();
         for ( size_t i=0; i < objs->length(); ++i) {
             if ( parent->hasMember( string(objs[i].in() )))

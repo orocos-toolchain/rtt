@@ -13,7 +13,7 @@ namespace RTT {
     class SendHandleC::D
     {
     public:
-        OperationRepositoryPart* mofp;
+        OperationInterfacePart* mofp;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
         DataSource<SendStatus>::shared_ptr s;
@@ -44,7 +44,7 @@ namespace RTT {
             this->checkAndCreate();
         }
 
-        D( base::DataSourceBase::shared_ptr sh, OperationRepositoryPart* ofp, const string& name)
+        D( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name)
             : mofp(ofp), mname(name), s(), msh(sh), blocking( new ValueDataSource<bool>(false) )
         {
             this->checkAndCreate();
@@ -67,7 +67,7 @@ namespace RTT {
     {
     }
 
-    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr sh, OperationRepositoryPart* ofp, const string& name )
+    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
         : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b()
     {
         if ( d->s ) {
@@ -174,5 +174,5 @@ namespace RTT {
 
     DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return s; }
 
-    OperationRepositoryPart* SendHandleC::getOrp() { return orp; }
+    OperationInterfacePart* SendHandleC::getOrp() { return orp; }
 }

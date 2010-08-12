@@ -1,15 +1,15 @@
-#include "OperationRepositoryPartFused.hpp"
+#include "OperationInterfacePartFused.hpp"
 
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
 
-string OperationRepositoryPartHelper::description(OperationBase* op) {
+string OperationInterfacePartHelper::description(OperationBase* op) {
     return op->getDescriptions().front();
 }
 
-vector<interface::ArgumentDescription> OperationRepositoryPartHelper::getArgumentList(OperationBase* op, const int arity, const vector<string>& arg_types ) {
+vector<interface::ArgumentDescription> OperationInterfacePartHelper::getArgumentList(OperationBase* op, const int arity, const vector<string>& arg_types ) {
     vector<string> descr = op->getDescriptions();
     vector<interface::ArgumentDescription> ret;
     // resize for undocumented arguments.

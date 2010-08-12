@@ -14,7 +14,7 @@
 
 /**
  * This test suite tests the functors (FusedMCall, FusedMCollect, FusedMSend,...)
- * indirectly by testing the produce API of OperationRepositoryPart.
+ * indirectly by testing the produce API of OperationInterfacePart.
  */
 BOOST_FIXTURE_TEST_SUITE(  FunctorsTestSuite,  OperationsFixture )
 

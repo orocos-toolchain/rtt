@@ -99,8 +99,8 @@ module RTT
        * You can use this to check if collect() or collectIfDone() return what you expect.
        * If no exception is thrown, the arguments are of the correct number
        * and type. The values in \a args are ignored and not stored, only the types of the anys are checked.
-       * One could obtain the same information by using COperationRepository::getCollectType()
-       * for 1..COperationRepository::getCollectArity().
+       * One could obtain the same information by using COperationInterface::getCollectType()
+       * for 1..COperationInterface::getCollectArity().
        */
       void checkArguments(in CAnyArguments args) raises (
                                  CWrongNumbArgException,
@@ -111,7 +111,7 @@ module RTT
      * Exposes the operations this service offers.
      * @ingroup CompIDL
      */
-    interface COperationRepository
+    interface COperationInterface
     {
 	typedef sequence<string> COperationList;
 

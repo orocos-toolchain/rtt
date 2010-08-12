@@ -6,7 +6,7 @@ namespace RTT
 
     SendHandleAlias::SendHandleAlias(const std::string& name,
                                      DataSourceBase::shared_ptr d,
-                                     OperationRepositoryPart* opf) :
+                                     OperationInterfacePart* opf) :
         base::AttributeBase(name), data(d), fact(opf)
     {
     }
@@ -16,7 +16,7 @@ namespace RTT
         return data;
     }
 
-    OperationRepositoryPart* SendHandleAlias::getFactory() const
+    OperationInterfacePart* SendHandleAlias::getFactory() const
     {
         return fact;
     }

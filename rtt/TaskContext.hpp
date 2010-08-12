@@ -322,7 +322,7 @@ namespace RTT
         /**
          * Adding and getting operations from the TaskContext interface.
          * These functions all forward to the Service representing
-         * this TaskContext. Use operations() to access the complete OperationRepository
+         * this TaskContext. Use operations() to access the complete OperationInterface
          * interface of this TaskContext.
          * @name Operations
          * @{ */
@@ -357,15 +357,15 @@ namespace RTT
          *
          * @return true if it could be found, false otherwise.
          */
-        interface::OperationRepositoryPart* getOperation( std::string name )
+        interface::OperationInterfacePart* getOperation( std::string name )
         {
             return tcservice->getOperation(name);
         }
 
         /**
-         * Returns the operations of this TaskContext as an OperationRepository.
+         * Returns the operations of this TaskContext as an OperationInterface.
          */
-        interface::OperationRepository* operations() { return this->provides().get(); }
+        interface::OperationInterface* operations() { return this->provides().get(); }
 
         /** @} */
 

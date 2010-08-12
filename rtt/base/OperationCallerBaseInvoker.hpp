@@ -27,11 +27,11 @@ namespace RTT
             virtual bool setImplementation(boost::shared_ptr<base::DisposableInterface> impl, ExecutionEngine* caller = 0) = 0;
             /**
              * Sets a new implementation for this method by using a service part.
-             * @param orp A part obtained from a service's OperationRepository.
+             * @param orp A part obtained from a service's OperationInterface.
              * @param caller The engine of the calling TaskContext.
              * @return true if the part could produce the correct OperationCallerBase type, false otherwise.
              */
-            virtual bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) = 0;
+            virtual bool setImplementationPart(interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0) = 0;
             /**
              * Sets the caller of this method after the implementation was set.
              * @param caller

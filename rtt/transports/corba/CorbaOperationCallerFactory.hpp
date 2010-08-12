@@ -44,7 +44,7 @@
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #endif
-#include "../../interface/OperationRepository.hpp"
+#include "../../interface/OperationInterface.hpp"
 #include "../../interface/FactoryExceptions.hpp"
 #include "ServiceC.h"
 #include "CorbaConversion.hpp"
@@ -60,7 +60,7 @@ namespace RTT
      * C++ calls to corba idl.
      */
     class RTT_CORBA_API CorbaOperationCallerFactory
-        : public RTT::interface::OperationRepositoryPart
+        : public RTT::interface::OperationInterfacePart
     {
         corba::CService_var mfact;
         PortableServer::POA_var mpoa;

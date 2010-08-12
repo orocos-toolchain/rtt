@@ -10,7 +10,7 @@
 #include "../internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
 #include "FactoryExceptions.hpp"
-#include "OperationRepositoryPart.hpp"
+#include "OperationInterfacePart.hpp"
 
 
 namespace RTT
@@ -22,10 +22,10 @@ namespace RTT
          * @brief Holds all exported operations of a component and is
          * able to produce callers for these operations.
          */
-        class RTT_API OperationRepository
+        class RTT_API OperationInterface
         {
         protected:
-            typedef std::map<std::string, OperationRepositoryPart*> map_t;
+            typedef std::map<std::string, OperationInterfacePart*> map_t;
             map_t data;
         public:
             /**
@@ -198,7 +198,7 @@ namespace RTT
              * @param name The name of the operation
              * @param part A part which creates the operation.
              */
-            void add(const std::string& name, OperationRepositoryPart* part);
+            void add(const std::string& name, OperationInterfacePart* part);
 
             /**
              * Remove an added operation from the interface
@@ -212,7 +212,7 @@ namespace RTT
              * @param name
              * @return
              */
-            OperationRepositoryPart* getPart(const std::string& name);
+            OperationInterfacePart* getPart(const std::string& name);
         };
     }
 }

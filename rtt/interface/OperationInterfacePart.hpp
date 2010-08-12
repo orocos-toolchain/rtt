@@ -18,7 +18,7 @@ namespace RTT
          * This class defines the interface for creating operation
          * objects without using C++ templates.
          *
-         * The OperationRepository offers the same interface as this class,
+         * The OperationInterface offers the same interface as this class,
          * but with operation names as first argument of each function.
          *
          * It is most used in conjunction with the OperationCallerC/SendHandleC
@@ -26,15 +26,15 @@ namespace RTT
          * collecting results of method invocations.
          *
          * A Part must be interpreted as one single operation of an
-         * OperationRepository.
+         * OperationInterface.
          *
          * This class serves as a base class for the template based classes
          * that implement the produce and query logic for a given operation.
          */
-        class OperationRepositoryPart
+        class OperationInterfacePart
         {
         public:
-            RTT_API virtual ~OperationRepositoryPart();
+            RTT_API virtual ~OperationInterfacePart();
 
             /**
              * Returns the description of this operation.

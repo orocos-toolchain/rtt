@@ -33,11 +33,11 @@
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "OperationRepositoryS.h"
+#include "OperationInterfaceS.h"
 #else
-#include "OperationRepositoryC.h"
+#include "OperationInterfaceC.h"
 #endif
-#include "../../interface/OperationRepository.hpp"
+#include "../../interface/OperationInterface.hpp"
 #include "../../internal/SendHandleC.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -49,11 +49,11 @@ class  RTT_corba_CSendHandle_i
   public virtual PortableServer::RefCountServantBase
 {
       RTT::internal::SendHandleC mhandle, morig;
-      RTT::interface::OperationRepositoryPart* mofp;
+      RTT::interface::OperationInterfacePart* mofp;
       std::vector<RTT::base::DataSourceBase::shared_ptr> cargs;
 public:
   // Constructor
-  RTT_corba_CSendHandle_i (RTT::internal::SendHandleC const& sh, RTT::interface::OperationRepositoryPart* ofp);
+  RTT_corba_CSendHandle_i (RTT::internal::SendHandleC const& sh, RTT::interface::OperationInterfacePart* ofp);
 
   // Destructor
   virtual ~RTT_corba_CSendHandle_i (void);
@@ -79,23 +79,23 @@ public:
           const ::RTT::corba::CAnyArguments & args);
 };
 
-class  RTT_corba_COperationRepository_i
-  : public virtual POA_RTT::corba::COperationRepository,
+class  RTT_corba_COperationInterface_i
+  : public virtual POA_RTT::corba::COperationInterface,
   public virtual PortableServer::RefCountServantBase
 {
-      RTT::interface::OperationRepository* mfact;
+      RTT::interface::OperationInterface* mfact;
       PortableServer::POA_var mpoa;
   public:
     //Constructor
-      RTT_corba_COperationRepository_i(RTT::interface::OperationRepository* mfact, PortableServer::POA_ptr the_poa);
+      RTT_corba_COperationInterface_i(RTT::interface::OperationInterface* mfact, PortableServer::POA_ptr the_poa);
 
       PortableServer::POA_ptr _default_POA();
 
   // Destructor
-  virtual ~RTT_corba_COperationRepository_i (void);
+  virtual ~RTT_corba_COperationInterface_i (void);
 
   virtual
-  RTT::corba::COperationRepository::COperationList * getOperations (
+  RTT::corba::COperationInterface::COperationList * getOperations (
       void);
 
   virtual

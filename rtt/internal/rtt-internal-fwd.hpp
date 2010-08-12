@@ -112,9 +112,9 @@ namespace RTT {
         template<typename BoundType>
         class UnboundDataSource;
         template<typename Signature,typename ObjT>
-        class OperationRepositoryPartFusedDS;
+        class OperationInterfacePartFusedDS;
         template<typename Signature>
-        class OperationRepositoryPartFused;
+        class OperationInterfacePartFused;
         template<typename Signature, class Enable>
         struct FusedFunctorDataSource;
         template<typename Signature>

@@ -11,7 +11,7 @@ using namespace RTT;
 using namespace RTT::detail;
 
 CorbaOperationCallerFactory::CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
-    : RTT::interface::OperationRepositoryPart(),
+    : RTT::interface::OperationInterfacePart(),
       mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(method_name)

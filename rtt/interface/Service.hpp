@@ -2,8 +2,8 @@
 #define ORO_SERVICE_PROVIDER_HPP
 
 #include "../rtt-config.h"
-#include "OperationRepository.hpp"
-#include "../internal/OperationRepositoryPartFused.hpp"
+#include "OperationInterface.hpp"
+#include "../internal/OperationInterfacePartFused.hpp"
 #include "../internal/LocalOperationCaller.hpp"
 #include "../internal/OperationCallerC.hpp"
 #include "../internal/UnMember.hpp"
@@ -32,12 +32,12 @@ namespace RTT
      * @ingroup Services
      */
     class RTT_API Service
-        : public OperationRepository,
+        : public OperationInterface,
           public ConfigurationInterface,
           public boost::enable_shared_from_this<Service>
     {
     public:
-        typedef OperationRepository Factory;
+        typedef OperationInterface Factory;
         typedef boost::shared_ptr<Service> shared_ptr;
         typedef std::vector<std::string> ProviderNames;
 
@@ -196,10 +196,10 @@ namespace RTT
          *
          * @param name The name of the operation to retrieve.
          *
-         * @return A pointer to an operation repository part or a null pointer if
+         * @return A pointer to an operation interface part or a null pointer if
          * \a name was not found.
          */
-        OperationRepositoryPart* getOperation( std::string name );
+        OperationInterfacePart* getOperation( std::string name );
 
         /**
          * Removes a previously added operation.
@@ -220,7 +220,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::OperationRepositoryPartFused<Signature>( &op ) );
+            this->add( op.getName(), new internal::OperationInterfacePartFused<Signature>( &op ) );
             return op;
         }
 
@@ -237,7 +237,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::SynchronousOperationRepositoryPartFused<Signature>( &op ) );
+            this->add( op.getName(), new internal::SynchronousOperationInterfacePartFused<Signature>( &op ) );
             return op;
         }
 
@@ -316,7 +316,7 @@ namespace RTT
                 assert(false);
                 return op; // should never be reached.
             }
-            this->add( op.getName(), new internal::OperationRepositoryPartFusedDS<Signature,ObjT>( sp, &op) );
+            this->add( op.getName(), new internal::OperationInterfacePartFusedDS<Signature,ObjT>( sp, &op) );
             return op;
         }
 

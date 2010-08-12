@@ -51,7 +51,7 @@
 #include "Logger.hpp"
 #include "interface/Service.hpp"
 #ifdef ORO_REMOTING
-#include "interface/OperationRepository.hpp"
+#include "interface/OperationInterface.hpp"
 #include "internal/RemoteOperationCaller.hpp"
 #endif
 
@@ -170,12 +170,12 @@ namespace RTT
         /**
          * Initialise a nameless OperationCaller object from an operation factory.
          *
-         * @param part The OperationRepositoryPart which is used
+         * @param part The OperationInterfacePart which is used
          * by the OperationCaller object to get the implementation.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        OperationCaller(interface::OperationRepositoryPart* part, ExecutionEngine* caller = 0)
+        OperationCaller(interface::OperationInterfacePart* part, ExecutionEngine* caller = 0)
             : Base(),
               mname(), mcaller(caller)
         {
@@ -229,7 +229,7 @@ namespace RTT
          *
          * @return *this
          */
-        OperationCaller& operator=(interface::OperationRepositoryPart* part)
+        OperationCaller& operator=(interface::OperationInterfacePart* part)
         {
             if (part == 0) {
                 log(Warning) << "Assigning OperationCaller from null part."<<endlog();
@@ -295,13 +295,13 @@ namespace RTT
 #endif
 #ifdef ORO_REMOTING
         /**
-         * Construct a OperationCaller from an operation repository part.
+         * Construct a OperationCaller from an operation interface part.
          *
          * @param name the name of this method
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        OperationCaller(std::string name, interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0)
+        OperationCaller(std::string name, interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0)
             : Base( OperationCallerBasePtr(new internal::RemoteOperationCaller<Signature>(orp,caller) ) ),
               mname(name)
         {}
@@ -338,7 +338,7 @@ namespace RTT
             return ready();
         }
 
-        bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
+        bool setImplementationPart(interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
             OperationCaller<Signature> tmp(orp, caller);
             if (tmp.ready())
                 *this = tmp;
@@ -370,7 +370,7 @@ namespace RTT
          * this method tries it using the operationrepository factories.
          * @param part
          */
-        void setupOperationCaller(interface::OperationRepositoryPart* part) {
+        void setupOperationCaller(interface::OperationInterfacePart* part) {
             if ( !this->impl ) {
 #ifdef ORO_REMOTING
                 // try differently

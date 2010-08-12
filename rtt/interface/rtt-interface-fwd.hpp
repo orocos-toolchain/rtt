@@ -46,8 +46,8 @@ namespace RTT {
         struct ArgumentDescription;
         class ConfigurationInterface;
         class DataFlowInterface;
-        class OperationRepository;
-        class OperationRepositoryPart;
+        class OperationInterface;
+        class OperationInterfacePart;
         class Service;
         class ServiceRequester;
         typedef boost::shared_ptr<Service> ServicePtr;

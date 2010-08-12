@@ -61,7 +61,7 @@ namespace RTT
         D* d;
         base::DataSourceBase::shared_ptr m;
         base::DataSourceBase::shared_ptr s;
-        interface::OperationRepositoryPart* ofp;
+        interface::OperationInterfacePart* ofp;
         std::string mname;
 
     public:
@@ -76,7 +76,7 @@ namespace RTT
          * The constructor.
          * @see interface::Service
          */
-        OperationCallerC( interface::OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller);
+        OperationCallerC( interface::OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A OperationCallerC is copyable by value.
@@ -173,7 +173,7 @@ namespace RTT
         /**
          * Returns the factory which we use to produce the operation call.
          */
-        interface::OperationRepositoryPart* getOrp() const;
+        interface::OperationInterfacePart* getOrp() const;
 
         /**
          * Returns the name of the operation that will be called.
