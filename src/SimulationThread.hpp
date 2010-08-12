@@ -79,7 +79,7 @@ namespace RTT
          * invocation of Instance will consider this parameter. The
          * others will ignore it.
          */
-        static SimulationThreadPtr Instance(double period = 0.001);
+        static SimulationThreadPtr Instance(double period = 0.01);
 
         /**
          * Releases the SimulationThread
