@@ -102,7 +102,7 @@ namespace RTT
                         log(Warning) << "No enum-to-string mapping defined for enum " << this->getTypeName() <<". Converting to int."<<endlog();
                         return new ValueDataSource<int>( ds->get() );
                     }
-                    ValueDataSource<string>::shared_ptr vds =  new ValueDataSource<string>( to_string.at(ds->get()) );
+                    ValueDataSource<string>::shared_ptr vds =  new ValueDataSource<string>( to_string.find(ds->get())->second );
                     return vds;
                 }
                 // convert string to enum
