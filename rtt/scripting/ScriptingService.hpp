@@ -361,7 +361,7 @@ namespace RTT
          */
 
         /**
-         * @name Script Program Methods
+         * @name Script Program OperationCallers
          * @{
          */
         /**
@@ -455,7 +455,7 @@ namespace RTT
          */
 
         /**
-         * @name Script State Machine Methods
+         * @name Script State Machine OperationCallers
          * @{
          */
         /**

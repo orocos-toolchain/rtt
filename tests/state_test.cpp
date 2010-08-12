@@ -28,7 +28,7 @@
 
 #include <interface/Service.hpp>
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <Port.hpp>
 #include <scripting/ScriptingService.hpp>
 #include "operations_fixture.hpp"
@@ -742,7 +742,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
     BOOST_REQUIRE( sm );
     this->runState("x", tc);
     checkState( "x", tc);
-    Method<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
     mo(3.33);
     checkState( "x", tc);
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
@@ -769,7 +769,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalTransitionProgram )
     this->runState("x", tc);
     checkState( "x", tc);
     // causes error state when received in INIT:
-    Method<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
     mo(3.33);
     checkState( "x", tc);
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
@@ -797,7 +797,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
     this->runState("x", tc);
     checkState( "x", tc);
     // causes error state when received in INIT:
-    Method<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
+    OperationCaller<void(double)> mo( tc->provides()->getOperation("o_event"), tc->engine());
     mo(3.33);
     checkState( "x", tc);
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
@@ -973,8 +973,8 @@ void StateTest::runState(const std::string& name, TaskContext* tc, bool test )
     StateMachinePtr sm = sa->getStateMachine(name);
     BOOST_REQUIRE( sm );
     sm->trace(true);
-    Method<bool(StateMachine*)> act = tc->provides(name)->getOperation("activate");
-    Method<bool(StateMachine*)> autom = tc->provides(name)->getOperation("automatic");
+    OperationCaller<bool(StateMachine*)> act = tc->provides(name)->getOperation("activate");
+    OperationCaller<bool(StateMachine*)> autom = tc->provides(name)->getOperation("automatic");
     BOOST_CHECK( act(sm.get()) );
     BOOST_CHECK( SimulationThread::Instance()->run(1) );
     BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );

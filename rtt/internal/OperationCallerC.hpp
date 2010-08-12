@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  MethodC.hpp
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  OperationCallerC.hpp
 
-                        MethodC.hpp -  description
+                        OperationCallerC.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -50,9 +50,9 @@ namespace RTT
 { namespace internal {
 
     /**
-     * A template-less manager for Method calls.
+     * A template-less manager for OperationCaller calls.
      */
-    class RTT_API MethodC
+    class RTT_API OperationCallerC
     {
         /**
          * The 'd' pointer pattern.
@@ -67,55 +67,55 @@ namespace RTT
     public:
         /**
          * The default constructor.
-         * Make a copy from another MethodC object
+         * Make a copy from another OperationCallerC object
          * in order to make it usable.
          */
-        MethodC();
+        OperationCallerC();
 
         /**
          * The constructor.
          * @see interface::Service
          */
-        MethodC( interface::OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller);
+        OperationCallerC( interface::OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
-         * A MethodC is copyable by value.
+         * A OperationCallerC is copyable by value.
          */
-        MethodC(const MethodC& other);
+        OperationCallerC(const OperationCallerC& other);
 
         /**
-         * A MethodC is assignable.
+         * A OperationCallerC is assignable.
          */
-        MethodC& operator=(const MethodC& other);
+        OperationCallerC& operator=(const OperationCallerC& other);
 
-        ~MethodC();
+        ~OperationCallerC();
 
         /**
-         * Add a datasource argument to the Method.
+         * Add a datasource argument to the OperationCaller.
          * @param a A DataSource which contents are consulted each time
          * when call() is called.
          */
-        MethodC& arg( base::DataSourceBase::shared_ptr a );
+        OperationCallerC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
-         * Add a constant argument to the Method.
+         * Add a constant argument to the OperationCaller.
          * @param a A value of which a copy is made and this value is used each time
          * in call().
          */
         template< class ArgT >
-        MethodC& argC( const ArgT a )
+        OperationCallerC& argC( const ArgT a )
         {
             return this->arg(base::DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
         }
 
         /**
-         * Add an argument by reference to the Method.
+         * Add an argument by reference to the OperationCaller.
          * @param a A value of which the reference is used and re-read each time
          * the method is called. Thus if the contents of the source of \a a changes,
          * call() will use the new contents.
          */
         template< class ArgT >
-        MethodC& arg( ArgT& a )
+        OperationCallerC& arg( ArgT& a )
         {
             return this->arg(base::DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT>( a ) ) );
         }
@@ -124,20 +124,20 @@ namespace RTT
          * Store the result of the method in a task's attribute.
          * @param r A task attribute in which the result is stored.
          */
-        MethodC& ret( base::AttributeBase* r );
+        OperationCallerC& ret( base::AttributeBase* r );
 
         /**
          * Store the result of the method in a DataSource.
          * @param r A data source in which the result is stored.
          */
-        MethodC& ret( base::DataSourceBase::shared_ptr r);
+        OperationCallerC& ret( base::DataSourceBase::shared_ptr r);
 
         /**
          * Store the result of the method in variable.
          * @param r A reference to the variable in which the result is stored.
          */
         template< class RetT >
-        MethodC& ret( RetT& r )
+        OperationCallerC& ret( RetT& r )
         {
             // this is semantically valid wrt Attribute::copy().
             base::AttributeBase* ta = new Attribute<RetT>("ret", new ReferenceDataSource<RetT>(r));

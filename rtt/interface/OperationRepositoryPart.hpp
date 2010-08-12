@@ -21,7 +21,7 @@ namespace RTT
          * The OperationRepository offers the same interface as this class,
          * but with operation names as first argument of each function.
          *
-         * It is most used in conjunction with the MethodC/SendHandleC
+         * It is most used in conjunction with the OperationCallerC/SendHandleC
          * classes to create objects that manage calling/sending methods and
          * collecting results of method invocations.
          *

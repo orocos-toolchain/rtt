@@ -9,7 +9,7 @@ namespace RTT {
         class ConnectionManager;
         class DataSourceCommand;
         class GlobalEngine;
-        class MethodC;
+        class OperationCallerC;
         class OffsetDataSource;
         class SendHandleC;
         class SignalBase;
@@ -72,21 +72,21 @@ namespace RTT {
         template<class F>
         struct InvokerBase;
         template<class F>
-        struct MethodBinder;
+        struct OperationCallerBinder;
         template<class F>
         struct ReturnBase;
         template<class FunctionT>
-        class LocalMethodImpl;
+        class LocalOperationCallerImpl;
         template<class FunctionT>
         struct GetSignature;
         template<class FunctionT>
         struct GetSignatureDS;
         template<class FunctionT>
-        struct LocalMethod;
-        template<class MethodT>
-        class RemoteMethod;
-        template<class MethodT>
-        class RemoteMethodImpl;
+        struct LocalOperationCaller;
+        template<class OperationCallerT>
+        class RemoteOperationCaller;
+        template<class OperationCallerT>
+        class RemoteOperationCallerImpl;
         template<class R>
         struct DataSourceResultStorage;
         template<class Seq, class Data, class Enable>

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:05 CET 2006  LocalMethod.hpp
+  tag: FMTC  do nov 2 13:06:05 CET 2006  LocalOperationCaller.hpp
 
-                        LocalMethod.hpp -  description
+                        LocalOperationCaller.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -44,13 +44,13 @@
 #include <boost/make_shared.hpp>
 #include <string>
 #include "Invoker.hpp"
-#include "../base/MethodBase.hpp"
+#include "../base/OperationCallerBase.hpp"
 #include "../base/OperationBase.hpp"
 #include "BindStorage.hpp"
 #include "../SendStatus.hpp"
 #include "../SendHandle.hpp"
 #include "../ExecutionEngine.hpp"
-#include "MethodBinder.hpp"
+#include "OperationCallerBinder.hpp"
 #include "GlobalEngine.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
 #include "../os/oro_allocator.hpp"
@@ -76,19 +76,19 @@ namespace RTT
          * and this will generate a SendFailure at caller side.
          */
         template<class FunctionT>
-        class LocalMethodImpl
-            : public base::MethodBase<FunctionT>,
+        class LocalOperationCallerImpl
+            : public base::OperationCallerBase<FunctionT>,
               public internal::CollectBase<FunctionT>,
               protected BindStorage<FunctionT>
         {
         public:
-            LocalMethodImpl() : myengine(GlobalEngine::Instance()), caller(GlobalEngine::Instance()) {}
+            LocalOperationCallerImpl() : myengine(GlobalEngine::Instance()), caller(GlobalEngine::Instance()) {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
             typedef boost::function_traits<Signature> traits;
 
-            typedef boost::shared_ptr<LocalMethodImpl> shared_ptr;
+            typedef boost::shared_ptr<LocalOperationCallerImpl> shared_ptr;
 
             virtual void setExecutor(ExecutionEngine* ee) {
                 if (met == OwnThread)
@@ -131,7 +131,7 @@ namespace RTT
              * not called, this object will not be destroyed.
              */
             void dispose() {
-                //this->~LocalMethodImpl();
+                //this->~LocalOperationCallerImpl();
                 //oro_rt_free(this);
                 self.reset();
             }
@@ -146,7 +146,7 @@ namespace RTT
                     return SendHandle<Signature>( cl );
                 } else {
                     // cleanup. Done by shared_ptr.
-                    //cl->~MethodBase();
+                    //cl->~OperationCallerBase();
                     //oro_rt_free(cl);
                     return SendHandle<Signature>();
                 }
@@ -204,7 +204,7 @@ namespace RTT
                     return SendNotReady;
             }
 
-            // collect_impl belongs in LocalMethodImpl because it would need
+            // collect_impl belongs in LocalOperationCallerImpl because it would need
             // to be repeated in each BindStorage spec.
             template<class T1>
             SendStatus collectIfDone_impl( T1& a1 ) {
@@ -472,7 +472,7 @@ namespace RTT
              * This refcount is real-time since both shared_ptr and object
              * were allocated with the rt_allocator class.
              */
-            typename base::MethodBase<FunctionT>::shared_ptr self;
+            typename base::OperationCallerBase<FunctionT>::shared_ptr self;
         };
 
         /**
@@ -480,30 +480,30 @@ namespace RTT
          *
          * Usage:
          @code
-         LocalMethod<double(int, double)> mymeth( &Class::foo, &c);
+         LocalOperationCaller<double(int, double)> mymeth( &Class::foo, &c);
          double result = mymeth( 3, 1.9);
          @endcode
         */
         template<class FunctionT>
-        struct LocalMethod
-            : public Invoker<FunctionT,LocalMethodImpl<FunctionT> >
+        struct LocalOperationCaller
+            : public Invoker<FunctionT,LocalOperationCallerImpl<FunctionT> >
         {
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef boost::function_traits<Signature> traits;
 
-            typedef boost::shared_ptr<LocalMethod> shared_ptr;
+            typedef boost::shared_ptr<LocalOperationCaller> shared_ptr;
 
             /**
-             * Create an empty LocalMethod object.
+             * Create an empty LocalOperationCaller object.
              * Use assignment to initialise it.
              * @see method
              */
-            LocalMethod()
+            LocalOperationCaller()
             {}
 
             /**
-             * Construct a LocalMethod from a class member pointer and an
+             * Construct a LocalOperationCaller from a class member pointer and an
              * object of that class.
              *
              * @param name The name of this method
@@ -511,24 +511,24 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              */
             template<class M, class ObjectType>
-            LocalMethod(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
+            LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();
-                this->mmeth = MethodBinder<Signature>()(meth, object);
+                this->mmeth = OperationCallerBinder<Signature>()(meth, object);
                 this->myengine = ee;
                 this->caller = caller;
                 this->met = et;
             }
 
             /**
-             * Construct a LocalMethod from a function pointer or function object.
+             * Construct a LocalOperationCaller from a function pointer or function object.
              *
              * @param name the name of this method
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalMethod(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
+            LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();
@@ -538,7 +538,7 @@ namespace RTT
                 this->met = et;
             }
 
-            boost::function<Signature> getMethodFunction() const
+            boost::function<Signature> getOperationCallerFunction() const
             {
                 return this->mmeth;
             }
@@ -547,19 +547,19 @@ namespace RTT
                 this->msig = sig;
             }
 
-            base::MethodBase<Signature>* cloneI(ExecutionEngine* caller) const
+            base::OperationCallerBase<Signature>* cloneI(ExecutionEngine* caller) const
             {
-                LocalMethod<Signature>* ret = new LocalMethod<Signature>(*this);
+                LocalOperationCaller<Signature>* ret = new LocalOperationCaller<Signature>(*this);
                 ret->setCaller( caller );
                 ret->setSignal( this->msig );
                 return ret;
             }
 
-            typename LocalMethodImpl<Signature>::shared_ptr cloneRT() const
+            typename LocalOperationCallerImpl<Signature>::shared_ptr cloneRT() const
             {
-                //void* obj = oro_rt_malloc(sizeof(LocalMethodImpl<Signature>));
-                //return new(obj) LocalMethod<Signature>(*this);
-                return boost::allocate_shared<LocalMethod<Signature> >(os::rt_allocator<LocalMethod<Signature> >(), *this);
+                //void* obj = oro_rt_malloc(sizeof(LocalOperationCallerImpl<Signature>));
+                //return new(obj) LocalOperationCaller<Signature>(*this);
+                return boost::allocate_shared<LocalOperationCaller<Signature> >(os::rt_allocator<LocalOperationCaller<Signature> >(), *this);
             }
         };
     }

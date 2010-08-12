@@ -22,7 +22,7 @@
 #include "../interface/OperationRepositoryPart.hpp"
 #include "../interface/FactoryExceptions.hpp"
 #include "../Operation.hpp"
-#include "../base/MethodBase.hpp"
+#include "../base/OperationCallerBase.hpp"
 
 /**
  * @file OperationRepositoryPart.hpp This file contains the code
@@ -97,13 +97,13 @@ namespace RTT
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != OperationRepositoryPartFused::arity() )
                     throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != OperationRepositoryPartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                return new FusedMSendDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceHandle() const {
@@ -213,7 +213,7 @@ namespace RTT
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != SynchronousOperationRepositoryPartFused::arity() )
                     throw interface::wrong_number_of_args_exception(SynchronousOperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
@@ -289,7 +289,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
+                    return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
@@ -300,7 +300,7 @@ namespace RTT
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
+                    return new FusedMSendDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceHandle() const {

@@ -80,5 +80,5 @@ public:
 
     ~OperationsFixture();
 
-    void createMethodFactories(TaskContext* target);
+    void createOperationCallerFactories(TaskContext* target);
 };

@@ -4,15 +4,15 @@
 #include "../rtt-config.h"
 #include "OperationRepository.hpp"
 #include "../internal/OperationRepositoryPartFused.hpp"
-#include "../internal/LocalMethod.hpp"
-#include "../internal/MethodC.hpp"
+#include "../internal/LocalOperationCaller.hpp"
+#include "../internal/OperationCallerC.hpp"
 #include "../internal/UnMember.hpp"
 #include "../internal/GetSignature.hpp"
 
 #include "ConfigurationInterface.hpp"
 #include "../Operation.hpp"
 #ifdef ORO_REMOTING
-#include "../internal/RemoteMethod.hpp"
+#include "../internal/RemoteOperationCaller.hpp"
 #endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
@@ -191,8 +191,8 @@ namespace RTT
 
         /**
          * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<Signature> object.
+         * use in a C++ OperationCaller object. Store the result of this
+         * function in a OperationCaller<Signature> object.
          *
          * @param name The name of the operation to retrieve.
          *
@@ -336,14 +336,14 @@ namespace RTT
         }
 
         /**
-         * Create a MethodC object, a template-less operation invocation
+         * Create a OperationCallerC object, a template-less operation invocation
          * object. This function is inferior to getOperation(std::string name).
          *
          * @param name The name of the operation
          *
          * @return An object which can invoke a operation.
          */
-        internal::MethodC create(std::string name, ExecutionEngine* caller);
+        internal::OperationCallerC create(std::string name, ExecutionEngine* caller);
 
         /**
          * Reset the implementation of a operation.

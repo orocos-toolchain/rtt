@@ -49,10 +49,10 @@ namespace RTT
     namespace internal
     {
         template<int, class F>
-        struct MethodBinderImpl;
+        struct OperationCallerBinderImpl;
 
         template<class F>
-        struct MethodBinderImpl<0,F>
+        struct OperationCallerBinderImpl<0,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -61,7 +61,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<1,F>
+        struct OperationCallerBinderImpl<1,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -70,7 +70,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<2,F>
+        struct OperationCallerBinderImpl<2,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -79,7 +79,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<3,F>
+        struct OperationCallerBinderImpl<3,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -88,7 +88,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<4,F>
+        struct OperationCallerBinderImpl<4,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -97,7 +97,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<5,F>
+        struct OperationCallerBinderImpl<5,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -106,7 +106,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<6,F>
+        struct OperationCallerBinderImpl<6,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -115,7 +115,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<7,F>
+        struct OperationCallerBinderImpl<7,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -124,7 +124,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<8,F>
+        struct OperationCallerBinderImpl<8,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -133,7 +133,7 @@ namespace RTT
         };
 
         template<class F>
-        struct MethodBinderImpl<9,F>
+        struct OperationCallerBinderImpl<9,F>
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
@@ -147,14 +147,14 @@ namespace RTT
          * returns a boost::function<F> object.
          *
          * There is no constructor and the operator() is
-         * implemented in the MethodBinderImpl base classes.
+         * implemented in the OperationCallerBinderImpl base classes.
          * @param F A function signature (like 'int(double)')
          * which is the signature of the member function to be bound
          * and the boost::function signature to return.
          */
         template<class F>
-        struct MethodBinder
-            : public MethodBinderImpl<boost::function_traits<F>::arity, F>
+        struct OperationCallerBinder
+            : public OperationCallerBinderImpl<boost::function_traits<F>::arity, F>
         {};
     }
 }

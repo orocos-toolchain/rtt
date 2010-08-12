@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteMethod.hpp
+  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteOperationCaller.hpp
 
-                        RemoteMethod.hpp -  description
+                        RemoteOperationCaller.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -41,8 +41,8 @@
 
 #include <boost/function.hpp>
 #include <string>
-#include "../base/MethodBase.hpp"
-#include "MethodC.hpp"
+#include "../base/OperationCallerBase.hpp"
+#include "OperationCallerC.hpp"
 #include "DataSourceStorage.hpp"
 #include "Invoker.hpp"
 
@@ -59,35 +59,35 @@ namespace RTT
         namespace bf = ::boost::fusion;
 
         /**
-         * A Method which executes a remote function directly.
-         * @param MethodT The function signature of the method. For example,
+         * A OperationCaller which executes a remote function directly.
+         * @param OperationCallerT The function signature of the method. For example,
          * bool( int, Frame, double)
          *
          */
-        template<class MethodT>
-        class RemoteMethodImpl
-            : public base::MethodBase<MethodT>,
-              public internal::CollectBase<MethodT>,
-              protected DataSourceStorage<MethodT>
+        template<class OperationCallerT>
+        class RemoteOperationCallerImpl
+            : public base::OperationCallerBase<OperationCallerT>,
+              public internal::CollectBase<OperationCallerT>,
+              protected DataSourceStorage<OperationCallerT>
         {
         protected:
-            MethodC mmeth;
+            OperationCallerC mmeth;
             SendHandleC mhandle;
         public:
-            typedef MethodT Signature;
-            typedef typename boost::function_traits<MethodT>::result_type result_type;
+            typedef OperationCallerT Signature;
+            typedef typename boost::function_traits<OperationCallerT>::result_type result_type;
 
             /**
              * The defaults are reset by the constructor.
              */
-            RemoteMethodImpl()
+            RemoteOperationCallerImpl()
                 : mmeth(), mhandle()
             {}
 
             /**
              * Create from a sendhandle.
              */
-            RemoteMethodImpl(SendHandleC handle)
+            RemoteOperationCallerImpl(SendHandleC handle)
                 : mmeth(), mhandle(handle)
             {}
 
@@ -102,75 +102,75 @@ namespace RTT
 
 
             /**
-             * Call this operator if the RemoteMethod takes no arguments.
+             * Call this operator if the RemoteOperationCaller takes no arguments.
              *
              * @return true if ready and succesfully sent.
              */
             result_type call_impl() {
                 mmeth.call();
-                return this->DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
             template<class T1>
             result_type call_impl( T1 a1 ) {
                 this->store( a1 );
                 mmeth.call();
-                return this->DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
             template<class T1, class T2>
             result_type call_impl( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
                 mmeth.call();
-                return this->DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
             template<class T1, class T2, class T3>
             result_type call_impl( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
                 mmeth.call();
-                return this->DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
             template<class T1, class T2, class T3, class T4>
             result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
                 mmeth.call();
-                return this->DataSourceStorage<MethodT>::getResult();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
             SendHandle<Signature> send_impl() {
                 mhandle = mmeth.send();
                 // @todo: get remote collect from rt allocation.
-                return SendHandle<Signature>( boost::make_shared< RemoteMethod<MethodT> >( mhandle ) );
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
 
             template<class T1>
             SendHandle<Signature> send_impl( T1 a1 ) {
                 this->store( a1 );
                 mhandle = mmeth.send();
-                return SendHandle<Signature>( boost::make_shared< RemoteMethod<MethodT> >( mhandle ) );
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
 
             template<class T1, class T2>
             SendHandle<Signature> send_impl( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
                 mhandle = mmeth.send();
-                return SendHandle<Signature>( boost::make_shared< RemoteMethod<MethodT> >( mhandle ) );
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
 
             template<class T1, class T2, class T3>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
                 mhandle = mmeth.send();
-                return SendHandle<Signature>( boost::make_shared< RemoteMethod<MethodT> >( mhandle ) );
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
 
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
                 mhandle = mmeth.send();
-                return SendHandle<Signature>( boost::make_shared< RemoteMethod<MethodT> >( mhandle ) );
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
 
             SendStatus collectIfDone_impl() {
@@ -292,34 +292,34 @@ namespace RTT
 
 
         /**
-         * A Method which is dispatched remotely to a MethodProcessor.
-         * @param MethodT The function signature of the method. For example,
+         * A OperationCaller which is dispatched remotely to a OperationCallerProcessor.
+         * @param OperationCallerT The function signature of the method. For example,
          * bool( int, Frame, double)
          *
          */
-        template<class MethodT>
-        class RemoteMethod
-            : public Invoker<MethodT,RemoteMethodImpl<MethodT> >
+        template<class OperationCallerT>
+        class RemoteOperationCaller
+            : public Invoker<OperationCallerT,RemoteOperationCallerImpl<OperationCallerT> >
         {
         public:
-            typedef MethodT Signature;
+            typedef OperationCallerT Signature;
 
             /**
-             * Create a RemoteMethod object which executes a remote method
+             * Create a RemoteOperationCaller object which executes a remote method
              *
              * @param name The name of this method.
              * @param com The OperationFactory for methods.
              */
-            RemoteMethod(interface::OperationRepositoryPart* of, std::string name, ExecutionEngine* caller)
+            RemoteOperationCaller(interface::OperationRepositoryPart* of, std::string name, ExecutionEngine* caller)
             {
                 // create the method.
-                this->mmeth = MethodC(of, name, caller);
+                this->mmeth = OperationCallerC(of, name, caller);
                 // add the arguments to the method.
                 this->initArgs( this->mmeth );
                 this->initRet(  this->mmeth );
             }
 
-            RemoteMethod(const SendHandleC& sh )
+            RemoteOperationCaller(const SendHandleC& sh )
             {
                 this->mhandle = sh;
             }
@@ -334,8 +334,8 @@ namespace RTT
                 return this->mmeth.call();
             }
 
-            virtual base::MethodBase<MethodT>* cloneI(ExecutionEngine* caller) const {
-                RemoteMethod<MethodT>* rm = new RemoteMethod<MethodT>( this->mmeth.getOrp(), this->mmeth.getName(), caller);
+            virtual base::OperationCallerBase<OperationCallerT>* cloneI(ExecutionEngine* caller) const {
+                RemoteOperationCaller<OperationCallerT>* rm = new RemoteOperationCaller<OperationCallerT>( this->mmeth.getOrp(), this->mmeth.getName(), caller);
                 return rm;
             }
         };

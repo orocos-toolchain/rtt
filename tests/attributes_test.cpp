@@ -29,7 +29,7 @@
 #include <extras/SimulationThread.hpp>
 
 #include <boost/function_types/function_type.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 
 using namespace std;
 using namespace RTT;

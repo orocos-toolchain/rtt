@@ -25,7 +25,7 @@
 #include <scripting/FunctionGraph.hpp>
 #include <scripting/ScriptingService.hpp>
 #include <interface/Service.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 
 class FunctionsFixture : public OperationsFixture
 {
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
  * Exports foo and foo_args and calls them from C++
  * Compare with testReturnExportFunction below that does
  * the same, but in scripting.
- * This code relies on RemoteMethod and MethodC
+ * This code relies on RemoteOperationCaller and OperationCallerC
  */
 BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 {
@@ -129,12 +129,12 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 
     this->doFunction( prog, tc );
     BOOST_CHECK( tc->getOperation("foo") );
-    Method<void(void)> foo = tc->getOperation("foo");
+    OperationCaller<void(void)> foo = tc->getOperation("foo");
     BOOST_CHECK( foo.ready() );
 
     foo();
 
-    Method<int(double)> foo_ret = tc->getOperation("foo_ret");
+    OperationCaller<int(double)> foo_ret = tc->getOperation("foo_ret");
     BOOST_CHECK( foo_ret.ready() );
 
     int i = 0;
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
     BOOST_CHECK_EQUAL( i, 3 );
 
     BOOST_CHECK( tc->getOperation("foo_args") );
-    Method<int(double,int)> foo_args = tc->getOperation("foo_args");
+    OperationCaller<int(double,int)> foo_args = tc->getOperation("foo_args");
     BOOST_CHECK( foo_args.ready() );
 
     // bug: the first return value is returned also the second time !

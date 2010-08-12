@@ -36,7 +36,7 @@ public:
     Parser parser;
     TaskContext* tc;
     ScriptingService* sa;
-    Service::shared_ptr createMethodFactory();
+    Service::shared_ptr createOperationCallerFactory();
     bool assertBool( bool );
     bool assertEqual( double, double );
     bool assertMsg( bool, const std::string& msg);

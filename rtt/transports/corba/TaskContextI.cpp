@@ -35,7 +35,7 @@
 #include "ServiceRequesterI.h"
 #include "ServicesI.h"
 #include "DataFlowI.h"
-#include "../../Method.hpp"
+#include "../../OperationCaller.hpp"
 #include "../../rtt-detail-fwd.hpp"
 
 

@@ -17,7 +17,7 @@ namespace RTT
      * a OperationFactoryPart::produceSend(), the part itself and
      * any arguments that must be provided to collect the results.
      *
-     * It is used by MethodC to pass on responsibility to collect
+     * It is used by OperationCallerC to pass on responsibility to collect
      * results to a separate object.
      */
     class RTT_API SendHandleC
@@ -78,7 +78,7 @@ namespace RTT
         SendHandleC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
-         * Add an argument by reference to the Method.
+         * Add an argument by reference to the OperationCaller.
          * @param a A value of which the reference is used and re-read each time
          * the method is called. Thus if the contents of the source of \a a changes,
          * call() will use the new contents.

@@ -72,7 +72,7 @@ public:
       void);
   
   virtual
-  ::RTT::corba::CMethodNames * getMethodNames (
+  ::RTT::corba::COperationCallerNames * getOperationCallerNames (
       void);
   
   virtual

@@ -60,7 +60,7 @@ usr/include/rtt/transports/mqueue/MQLib.hpp
 usr/include/rtt/transports/mqueue/binary_data_archive.hpp
 usr/include/rtt/transports/mqueue/Dispatcher.hpp
 usr/include/rtt/marsh
-usr/include/rtt/Method.hpp
+usr/include/rtt/OperationCaller.hpp
 usr/include/rtt/types
 usr/include/rtt/RTT.hpp
 usr/include/rtt/Handle.hpp

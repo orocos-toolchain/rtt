@@ -5,9 +5,9 @@
 #include <string>
 #include <boost/fusion/include/vector.hpp>
 #include "base/OperationBase.hpp"
-#include "internal/LocalMethod.hpp"
+#include "internal/LocalOperationCaller.hpp"
 #include "internal/Signal.hpp"
-#include "internal/MethodBinder.hpp"
+#include "internal/OperationCallerBinder.hpp"
 
 namespace RTT
 {
@@ -43,7 +43,7 @@ namespace RTT
         {
             // set null implementation such that we can
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalMethod<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
         }
 
         /**
@@ -136,9 +136,9 @@ namespace RTT
          * @return A reference to this object.
          */
         Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread ) {
-            // creates a Local Method
+            // creates a Local OperationCaller
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalMethod<Signature> >(func, this->mowner, null_e, et);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, this->mowner, null_e, et);
             if (signal)
                 impl->setSignal(signal);
             return *this;
@@ -154,9 +154,9 @@ namespace RTT
          */
         template<class Function, class Object>
         Operation& calls(Function func, Object o, ExecutionThread et = ClientThread ) {
-            // creates a Local Method or sets function
+            // creates a Local OperationCaller or sets function
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalMethod<Signature> >(func, o, this->mowner, null_e, et);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, this->mowner, null_e, et);
             if (signal)
                 impl->setSignal(signal);
             return *this;
@@ -168,10 +168,10 @@ namespace RTT
          * @return A reference to this object.
          */
         Handle signals(boost::function<Signature> func) {
-            // attaches a signal to a Local Method
+            // attaches a signal to a Local OperationCaller
             ExecutionEngine* null_e = 0;
             if (!impl)
-                impl = boost::make_shared<internal::LocalMethod<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
+                impl = boost::make_shared<internal::LocalOperationCaller<Signature> >( boost::function<Signature>(), this->mowner, null_e, OwnThread);
             if (!signal) {
                 signal = boost::make_shared<internal::Signal<Signature> >();
                 impl->setSignal( signal );
@@ -187,14 +187,14 @@ namespace RTT
          */
         template<class Function, class Object>
         Handle signals(Function func, Object o) {
-            return this->signals( internal::MethodBinder<Signature>()(func, o) );
+            return this->signals( internal::OperationCallerBinder<Signature>()(func, o) );
         }
 
         virtual base::DisposableInterface::shared_ptr getImplementation() { return impl; }
         virtual const base::DisposableInterface::shared_ptr getImplementation() const { return impl; }
 
-        virtual typename base::MethodBase<Signature>::shared_ptr getMethod() { return impl; }
-        virtual const typename base::MethodBase<Signature>::shared_ptr getMethod() const { return impl; }
+        virtual typename base::OperationCallerBase<Signature>::shared_ptr getOperationCaller() { return impl; }
+        virtual const typename base::OperationCallerBase<Signature>::shared_ptr getOperationCaller() const { return impl; }
 
         /**
          * You can signal this operation instead of calling it.
@@ -204,7 +204,7 @@ namespace RTT
          */
         typename internal::Signal<Signature>::shared_ptr signal;
     private:
-        typename internal::LocalMethod<Signature>::shared_ptr impl;
+        typename internal::LocalOperationCaller<Signature>::shared_ptr impl;
         virtual void ownerUpdated() {
             impl->setExecutor( this->mowner );
         }

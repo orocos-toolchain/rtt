@@ -43,7 +43,7 @@
 #include "internal/Channels.hpp"
 #include "internal/InputPortSource.hpp"
 #include "interface/Service.hpp"
-#include "Method.hpp"
+#include "OperationCaller.hpp"
 
 #include "OutputPort.hpp"
 

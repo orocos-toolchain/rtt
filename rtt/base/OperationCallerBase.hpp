@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  MethodBase.hpp
+  tag: FMTC  do nov 2 13:06:11 CET 2006  OperationCallerBase.hpp
 
-                        MethodBase.hpp -  description
+                        OperationCallerBase.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -53,12 +53,12 @@ namespace RTT
          * method implementations must inherit from this class.
          */
         template<class F>
-        struct MethodBase
+        struct OperationCallerBase
             : public internal::InvokerBase<F>,
               public DisposableInterface
         {
-            typedef boost::shared_ptr<MethodBase<F> > shared_ptr;
-            virtual ~MethodBase() {}
+            typedef boost::shared_ptr<OperationCallerBase<F> > shared_ptr;
+            virtual ~OperationCallerBase() {}
 
             virtual bool ready() const {
                 return true;
@@ -71,7 +71,7 @@ namespace RTT
              * @return a clone.
              * @nrt
              */
-            virtual MethodBase<F>* cloneI(ExecutionEngine* caller) const = 0;
+            virtual OperationCallerBase<F>* cloneI(ExecutionEngine* caller) const = 0;
             /**
              * Set an executor which will execute this method
              * when it is called or sent. If ee is set to 0,

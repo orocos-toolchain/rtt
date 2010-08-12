@@ -67,7 +67,7 @@ namespace RTT
     template<typename T>
     class InputPort;
     template<typename FunctionT>
-    class Method;
+    class OperationCaller;
     template<class Signature>
     class Operation;
     template<typename T>

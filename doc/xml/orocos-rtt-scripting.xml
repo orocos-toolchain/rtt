@@ -558,7 +558,7 @@
 	the other. However, when the program needs to wait for a result,
 	the Execution Engine temporarily postpones program execution and
 	will try again in the next execution period. This
-	happens typically when yield was called. Task Methods
+	happens typically when yield was called. Task OperationCallers
 	and expressions on the other hand typically do not impose a
 	yield, and thus are executed immediately after each other.
       </para>
@@ -689,7 +689,7 @@
       <section>
 	<title>Invoking Task Operations</title>
 	<para>
-	  Methods behave like calling C functions. They take
+	  OperationCallers behave like calling C functions. They take
 	  arguments and return a value immediately. They can be
 	  used in expressions or stand alone :</para>
 	  <programlisting>
@@ -706,7 +706,7 @@
   data = comp.getResult( arg1 ) * 20. / comp.value
 	  </programlisting>
 	<para>
-	  Methods are executed directly one after the other.
+	  OperationCallers are executed directly one after the other.
 	</para>
 	<warning>
 	  <para>

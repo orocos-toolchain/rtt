@@ -22,13 +22,13 @@ IF (NOT CORBA_IMPLEMENTATION)
   SET( CORBA_IMPLEMENTATION "TAO" CACHE STRING "The implementation of CORBA to use (allowed values: TAO or OMNIORB )" )
 ENDIF (NOT CORBA_IMPLEMENTATION)
 #
-# CORBA Remote Methods in C++
+# CORBA Remote OperationCallers in C++
 #
-OPTION( ORO_REMOTING "Enable transparant Remote Methods Calls in C++" ON )
+OPTION( ORO_REMOTING "Enable transparant Remote OperationCallers Calls in C++" ON )
 # Force remoting when CORBA is enabled.
 IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
   MESSAGE( "Forcing ORO_REMOTING to ON")
-  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
+  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote OperationCallers and Commands in C++" FORCE)
 ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
 
 # Is modified by target selection below

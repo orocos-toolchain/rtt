@@ -24,7 +24,7 @@ public:
     corba::TaskContextServer* ts;
     TaskContext* tp2;
     corba::TaskContextServer* ts2;
-    interface::Service* createMethodFactory();
+    interface::Service* createOperationCallerFactory();
 
     base::PortInterface* signalled_port;
     void new_data_listener(base::PortInterface* port);
@@ -64,9 +64,9 @@ public:
     void setUp();
     void tearDown();
 
-    void testRemoteMethodC();
-    void testRemoteMethod();
-    void testAnyMethod();
+    void testRemoteOperationCallerC();
+    void testRemoteOperationCaller();
+    void testAnyOperationCaller();
 
     void testDataFlowInterface();
 

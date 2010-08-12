@@ -60,7 +60,7 @@ namespace RTT
         ParsedStateMachinePtr statemachine;
         TaskContext* mtc;
 
-        void createMethodFactory();
+        void createOperationCallerFactory();
 
     public:
         StateMachineServicePtr copy(ParsedStateMachinePtr newsc, std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacements, bool instantiate );

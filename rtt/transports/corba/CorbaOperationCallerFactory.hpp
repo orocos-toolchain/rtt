@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaMethodFactory.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaOperationCallerFactory.hpp
 
-                        CorbaMethodFactory.hpp -  description
+                        CorbaOperationCallerFactory.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -59,7 +59,7 @@ namespace RTT
      * It connects to an corba::Service and translates
      * C++ calls to corba idl.
      */
-    class RTT_CORBA_API CorbaMethodFactory
+    class RTT_CORBA_API CorbaOperationCallerFactory
         : public RTT::interface::OperationRepositoryPart
     {
         corba::CService_var mfact;
@@ -70,9 +70,9 @@ namespace RTT
         typedef std::vector<std::string> Members;
         typedef std::vector< interface::ArgumentDescription > CDescriptions;
 
-        CorbaMethodFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
+        CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
 
-        virtual ~CorbaMethodFactory();
+        virtual ~CorbaOperationCallerFactory();
 
         virtual unsigned int arity() const;
 

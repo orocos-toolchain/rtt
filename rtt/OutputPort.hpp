@@ -44,7 +44,7 @@
 #include "internal/Channels.hpp"
 #include "internal/ConnFactory.hpp"
 #include "interface/Service.hpp"
-#include "Method.hpp"
+#include "OperationCaller.hpp"
 
 #include "InputPort.hpp"
 

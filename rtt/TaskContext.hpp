@@ -293,7 +293,7 @@ namespace RTT
         virtual bool connectServices( TaskContext* peer);
 
         /**
-         * Use this method to be able to make Method calls to services provided by this component.
+         * Use this method to be able to make OperationCaller calls to services provided by this component.
          * In case the service does not exist in this component, it tries to load the service using the plugin::PluginLoader class.
          * If all fails, a null pointer is returned.
          *
@@ -350,8 +350,8 @@ namespace RTT
 
         /**
          * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<\a Signature> object.
+         * use in a C++ OperationCaller object. Store the result of this
+         * function in a OperationCaller<\a Signature> object.
          *
          * @param name The name of the operation to retrieve.
          *

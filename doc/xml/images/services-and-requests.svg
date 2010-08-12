@@ -300,7 +300,7 @@
          y="675.92798"
          x="417.88181"
          sodipodi:role="line"
-         id="tspan19939">addMethod()</tspan></text>
+         id="tspan19939">addOperationCaller()</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:3.19999909;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Sstart);marker-end:url(#Arrow1Send);display:inline"
        d="M 382.65429,437.7221 297.26688,562.05652"

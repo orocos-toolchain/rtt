@@ -113,7 +113,7 @@
       <itemizedlist>
 	<listitem><para>TaskContext interface: fully (TaskContext.idl)</para></listitem>
 	<listitem><para>Properties/Attributes interface: fully (ConfigurationInterface.idl)</para></listitem>
-	<listitem><para>Method/Operation interface: fully (OperationRepository.idl)</para></listitem>
+	<listitem><para>OperationCaller/Operation interface: fully (OperationRepository.idl)</para></listitem>
 	<listitem><para>Service interface: fully (ServiceProvider.idl, ServiceRequester.idl)</para></listitem>
 	<listitem><para>Data Flow interface: fully (DataFlow.idl)</para></listitem>
       </itemizedlist> 

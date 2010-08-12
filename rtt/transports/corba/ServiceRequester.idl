@@ -13,7 +13,7 @@ module RTT
     {
 
 	typedef sequence<string> CRequestNames;
-	typedef sequence<string> CMethodNames;
+	typedef sequence<string> COperationCallerNames;
 
 	/**
 	 * An Orocos Required Service.
@@ -35,7 +35,7 @@ module RTT
 	    /**
 	     * Returns the methods required by this requester.
 	     */
-	    CMethodNames getMethodNames();
+	    COperationCallerNames getOperationCallerNames();
 
 	    /**
 	     * Get a child request this request provides.

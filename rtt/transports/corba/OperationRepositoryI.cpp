@@ -33,7 +33,7 @@
 #include "OperationRepositoryI.h"
 #include "AnyDataSource.hpp"
 #include "../../rtt-detail-fwd.hpp"
-#include "../../internal/MethodC.hpp"
+#include "../../internal/OperationCallerC.hpp"
 #include "../../internal/SendHandleC.hpp"
 
 using namespace RTT;
@@ -265,7 +265,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     try {
         OperationRepositoryPart* mofp = mfact->getPart(operation);
-        MethodC mc(mofp, operation, 0);
+        OperationCallerC mc(mofp, operation, 0);
         for (unsigned int i = 0; i < mofp->arity() && i < args.length(); ++i) {
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
@@ -294,7 +294,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        MethodC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, 0);
         vector<DataSourceBase::shared_ptr> results;
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
@@ -346,7 +346,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        MethodC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, 0);
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );

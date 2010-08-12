@@ -62,11 +62,11 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
     return result._retn();
 }
 
-::RTT::corba::CMethodNames * RTT_corba_CServiceRequester_i::getMethodNames (
+::RTT::corba::COperationCallerNames * RTT_corba_CServiceRequester_i::getOperationCallerNames (
     void)
 {
-    ServiceRequester::MethodNames names = mservice->getMethodNames();
-    ::RTT::corba::CMethodNames_var result = new ::RTT::corba::CMethodNames();
+    ServiceRequester::OperationCallerNames names = mservice->getOperationCallerNames();
+    ::RTT::corba::COperationCallerNames_var result = new ::RTT::corba::COperationCallerNames();
     result->length( names.size() );
     for (unsigned int i=0; i != names.size(); ++i )
         result[i] = CORBA::string_dup( names[i].c_str() );

@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 #include <interface/Service.hpp>
@@ -44,7 +44,7 @@ TypesTest::setUp()
     tc =  new TaskContext( "root" );
     tc->getProvider<Scripting>("scripting");
     sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
-    tc->provides()->addService( this->createMethodFactory() );
+    tc->provides()->addService( this->createOperationCallerFactory() );
     tc->setActivity( new SimulationActivity( 0.001 ));
     SimulationThread::Instance()->stop();
 }
@@ -68,7 +68,7 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
     return b;
 }
 
-    Service::shared_ptr TypesTest::createMethodFactory()
+    Service::shared_ptr TypesTest::createOperationCallerFactory()
     {
         Service::shared_ptr to = Service::Create("test");
         to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");

@@ -43,7 +43,7 @@
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED)
-#include "../Method.hpp"
+#include "../OperationCaller.hpp"
 #endif
 #include "PropertyLoader.hpp"
 

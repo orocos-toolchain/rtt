@@ -1013,7 +1013,7 @@
        xlink:href="#linearGradient650"
        x2="1.16666818"
        x1="1.22222710"
-       spreadMethod="repeat"
+       spreadOperationCaller="repeat"
        id="linearGradient654"
        gradientUnits="objectBoundingBox" />
     <linearGradient
@@ -1022,7 +1022,7 @@
        xlink:href="#linearGradient650"
        x2="1.16666901"
        x1="1.00000548"
-       spreadMethod="repeat"
+       spreadOperationCaller="repeat"
        id="linearGradient653"
        gradientUnits="objectBoundingBox" />
     <linearGradient
@@ -2416,7 +2416,7 @@
          sodipodi:role="line"
          id="tspan5265"
          x="646.72888"
-         y="145.64458">Methods</tspan></text>
+         y="145.64458">OperationCallers</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text7273"

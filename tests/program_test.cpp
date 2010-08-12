@@ -30,7 +30,7 @@
 #include <interface/Service.hpp>
 
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include "operations_fixture.hpp"
 
 #include <boost/test/unit_test.hpp>

@@ -50,7 +50,7 @@
 #include "../interface/Service.hpp"
 #include "Parser.hpp"
 #include "parse_exception.hpp"
-#include "../Method.hpp"
+#include "../OperationCaller.hpp"
 #include "../internal/mystd.hpp"
 #include "../plugin/ServicePlugin.hpp"
 
@@ -426,37 +426,37 @@ namespace RTT {
     void ScriptingService::createInterface()
     {
         addOperation("execute", &ScriptingService::execute, this).doc("Execute a line of code.").arg("Code", "A single statement.");
-        // Methods for loading programs
+        // OperationCallers for loading programs
         addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
         addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
         addOperation("unloadProgram", &ScriptingService::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
-        // Query Methods for programs
+        // Query OperationCallers for programs
         addOperation("getProgramList", &ScriptingService::getProgramList, this).doc("Get a list of all loaded program scripts.");
         addOperation("getProgramStatus", &ScriptingService::getProgramStatus, this).doc("Get the status of a program?").arg("Name", "The Name of the loaded Program");
         addOperation("getProgramStatusStr", &ScriptingService::getProgramStatusStr, this).doc("Get the status of a program as a human readable string.").arg("Name", "The Name of the loaded Program");
         addOperation("getProgramLine", &ScriptingService::getProgramLine, this).doc("Get the current line of execution of a program?").arg("Name", "The Name of the loaded Program");
         addOperation("getProgramText", &ScriptingService::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
 
-        // Methods for loading state machines
+        // OperationCallers for loading state machines
         addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
         addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
         addOperation("unloadStateMachine", &ScriptingService::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
-        // Query Methods for state machines
+        // Query OperationCallers for state machines
         addOperation("getStateMachineList", &ScriptingService::getStateMachineList, this).doc("Get a list of all loaded state machines");
         addOperation("getStateMachineStatus", &ScriptingService::getStateMachineStatus, this).doc("Get the status of a state machine?").arg("Name", "The Name of the loaded State Machine");
         addOperation("getStateMachineStatusStr", &ScriptingService::getStateMachineStatusStr, this).doc("Get the status of a state machine as a human readable string.");
         addOperation("getStateMachineLine", &ScriptingService::getStateMachineLine, this).doc("Get the current line of execution of a state machine?").arg("Name", "The Name of the loaded State Machine");
         addOperation("getStateMachineText", &ScriptingService::getStateMachineText, this).doc("Get the script of a StateMachine.").arg("Name", "The Name of the loaded StateMachine");
 
-        // Query Methods for programs
+        // Query OperationCallers for programs
         addOperation("hasProgram", &ScriptingService::hasProgram, this).doc("Is a program loaded?").arg("Name", "The Name of the loaded Program");
         addOperation("isProgramRunning", &ScriptingService::isProgramRunning, this).doc("Is a program running ?").arg("Name", "The Name of the Loaded Program");
         addOperation("isProgramPaused", &ScriptingService::isProgramPaused, this).doc("Is a program paused ?").arg("Name", "The Name of the Loaded Program");
         addOperation("inProgramError", &ScriptingService::inProgramError, this).doc("Is a program in error ?").arg("Name", "The Name of the Loaded Program");
 
-        // Query Methods for state machines
+        // Query OperationCallers for state machines
         addOperation("hasStateMachine", &ScriptingService::hasStateMachine, this).doc("Is a state machine loaded?").arg("Name", "The Name of the loaded State Machine");
         addOperation("isStateMachineActive", &ScriptingService::isStateMachineActive, this).doc("Is a state machine active ?").arg("Name", "The Name of the Loaded StateMachine");
         addOperation("isStateMachineRunning", &ScriptingService::isStateMachineRunning, this).doc("Is a state machine running ?").arg("Name", "The Name of the Loaded StateMachine");
@@ -465,14 +465,14 @@ namespace RTT {
         addOperation("inStateMachineState", &ScriptingService::inStateMachineState, this).doc("Is a state machine in a given state ?").arg("Name", "The Name of the Loaded StateMachine").arg("State", "The name of the state in which it could be.");
         addOperation("getStateMachineState", &ScriptingService::getStateMachineState, this).doc("Get the current state name of a state machine.").arg("Name", "The Name of the Loaded StateMachine");
 
-        // Methods for programs
+        // OperationCallers for programs
         addOperation("startProgram", &ScriptingService::startProgram, this).doc("Start a program").arg("Name", "The Name of the Loaded Program");
         addOperation("stopProgram", &ScriptingService::stopProgram , this).doc("Stop a program").arg("Name", "The Name of the Started Program");
 
         addOperation("stepProgram", &ScriptingService::stepProgram , this).doc("Step a single program instruction").arg("Name", "The Name of the Paused Program");
         addOperation("pauseProgram", &ScriptingService::pauseProgram , this).doc("Pause a program").arg("Name", "The Name of the Started Program");
 
-        // Methods for state machines
+        // OperationCallers for state machines
         // Activate/deactivate:
         addOperation("activateStateMachine", &ScriptingService::activateStateMachine , this).doc("Activate a StateMachine").arg("Name", "The Name of the Loaded StateMachine");
         addOperation("deactivateStateMachine", &ScriptingService::deactivateStateMachine , this).doc("Deactivate a StateMachine").arg("Name", "The Name of the Stopped StateMachine");

@@ -3,7 +3,7 @@
 
 #include "../rtt-config.h"
 #include "../rtt-fwd.hpp"
-#include "../base/MethodBaseInvoker.hpp"
+#include "../base/OperationCallerBaseInvoker.hpp"
 #include "Service.hpp"
 #include <map>
 #include <vector>
@@ -23,14 +23,14 @@ namespace RTT
          * wishes to call ('requires'). One method in a ServiceRequester maps
          * to one operation in a Service.
          *
-         * Typical use is to inherit from ServiceRequester and add named Method objects
-         * to it using addMethod. @see RTT::Scripting for an example.
+         * Typical use is to inherit from ServiceRequester and add named OperationCaller objects
+         * to it using addOperationCaller. @see RTT::Scripting for an example.
          */
         class RTT_API ServiceRequester
         {
         public:
             typedef std::vector<std::string> RequesterNames;
-            typedef std::vector<std::string> MethodNames;
+            typedef std::vector<std::string> OperationCallerNames;
             ServiceRequester(const std::string& name, TaskContext* owner = 0);
             virtual ~ServiceRequester();
 
@@ -52,11 +52,11 @@ namespace RTT
              */
             Service::shared_ptr getReferencedService();
 
-            bool addMethod( base::MethodBaseInvoker& mbi);
+            bool addOperationCaller( base::OperationCallerBaseInvoker& mbi);
 
-            MethodNames getMethodNames() const;
+            OperationCallerNames getOperationCallerNames() const;
 
-            base::MethodBaseInvoker& getMethod(const std::string& name);
+            base::OperationCallerBaseInvoker& getOperationCaller(const std::string& name);
 
             ServiceRequester* requires() { return this; }
 
@@ -108,8 +108,8 @@ namespace RTT
             Requests mrequests;
 
             /// Our methods
-            typedef std::map<std::string, base::MethodBaseInvoker*> Methods;
-            Methods mmethods;
+            typedef std::map<std::string, base::OperationCallerBaseInvoker*> OperationCallers;
+            OperationCallers mmethods;
 
             std::string mrname;
             TaskContext* mrowner;

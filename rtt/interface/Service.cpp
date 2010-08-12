@@ -172,8 +172,8 @@ namespace RTT {
         parent = p;
     }
 
-    internal::MethodC Service::create(std::string name, ExecutionEngine* caller) {
-        return internal::MethodC( getPart(name), name, caller );
+    internal::OperationCallerC Service::create(std::string name, ExecutionEngine* caller) {
+        return internal::OperationCallerC( getPart(name), name, caller );
     }
 
 }

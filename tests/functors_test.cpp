@@ -1,10 +1,10 @@
 
 #include <iostream>
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <Operation.hpp>
 #ifdef ORO_REMOTING
-#include <internal/RemoteMethod.hpp>
+#include <internal/RemoteOperationCaller.hpp>
 #endif
 #include <interface/Service.hpp>
 #include <internal/DataSourceGenerator.hpp>
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testClientThreadFunctor)
     BOOST_CHECK_EQUAL( 20.0, d ); // 2* &a
 }
 
-BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
+BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerCall)
 {
     // Test the produce() method, which maps to call() for OwnThread case:
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
 }
 
 
-BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
+BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
 {
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -256,10 +256,10 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
 }
 #ifdef ORO_REMOTING_OLD
 
-BOOST_AUTO_TEST_CASE(testMethodFactory)
+BOOST_AUTO_TEST_CASE(testOperationCallerFactory)
 {
     // Test the addition of 'simple' methods to the operation interface,
-    // and retrieving it back in a new Method object.
+    // and retrieving it back in a new OperationCaller object.
 
     Operation<double(void)> m0("m0");
     m0.calls(&FunctorsTest::m0, this);
@@ -278,18 +278,18 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     BOOST_CHECK( to.addOperation(m2).ready() );
 
     // test constructor
-    Method<double(void)> mm0 = to.getOperation<double(void)>("m0");
-    BOOST_CHECK( mm0.getMethodImpl() );
+    OperationCaller<double(void)> mm0 = to.getOperation<double(void)>("m0");
+    BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
-    Method<double(int)> mm1;
+    OperationCaller<double(int)> mm1;
     mm1 = to.getOperation<double(int)>("m1");
-    BOOST_CHECK( mm1.getMethodImpl() );
+    BOOST_CHECK( mm1.getOperationCallerImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.getOperation<double(int,double)>("m2");
-    BOOST_CHECK( mm2.getMethodImpl() );
+    OperationCaller<double(int,double)> mm2 = to.getOperation<double(int,double)>("m2");
+    BOOST_CHECK( mm2.getOperationCallerImpl() );
     BOOST_CHECK( mm2.ready() );
 
     // execute methods and check status:
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     BOOST_CHECK(to.addOperation( ovoid ).ready() == false);
 
     // wrong type 1:
-    Method<void(void)> mvoid;
+    OperationCaller<void(void)> mvoid;
     mvoid = to.getOperation<void(void)>("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
@@ -323,15 +323,15 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
 
 }
 
-BOOST_AUTO_TEST_CASE(testCRMethod)
+BOOST_AUTO_TEST_CASE(testCROperationCaller)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &FunctorsTest::m0r, this);
-    Method<const double&(void)> m0cr("m0cr", &FunctorsTest::m0cr, this);
+    OperationCaller<double&(void)> m0r("m0r", &FunctorsTest::m0r, this);
+    OperationCaller<const double&(void)> m0cr("m0cr", &FunctorsTest::m0cr, this);
 
-    Method<double(double&)> m1r("m1r", &FunctorsTest::m1r, this);
-    Method<double(const double&)> m1cr("m1cr", &FunctorsTest::m1cr, this);
+    OperationCaller<double(double&)> m1r("m1r", &FunctorsTest::m1r, this);
+    OperationCaller<double(const double&)> m1cr("m1cr", &FunctorsTest::m1cr, this);
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );
@@ -342,15 +342,15 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
     BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodFromDS)
+BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
 {
     Service to("task");
 
-    Method<double(void)> m0("m0", &FunctorsTest::m0, this);
-    Method<double(int)> m1("m1", &FunctorsTest::m1, this);
-    Method<double(int,double)> m2("m2", &FunctorsTest::m2, this);
-    Method<double(int,double,bool)> m3("m3", &FunctorsTest::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &FunctorsTest::m4, this);
+    OperationCaller<double(void)> m0("m0", &FunctorsTest::m0, this);
+    OperationCaller<double(int)> m1("m1", &FunctorsTest::m1, this);
+    OperationCaller<double(int,double)> m2("m2", &FunctorsTest::m2, this);
+    OperationCaller<double(int,double,bool)> m3("m3", &FunctorsTest::m3, this);
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", &FunctorsTest::m4, this);
 
     to.addOperation( &m0, "desc");
     to.addOperation( &m1, "desc", "a1", "d1");
@@ -359,15 +359,15 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     to.addOperation( &m4, "desc", "a1", "d1", "a2","d2","a3","d3", "a4","d4");
 
     double ret;
-    MethodC mc0( to.methods(), "m0");
+    OperationCallerC mc0( to.methods(), "m0");
     mc0.ret(ret);
-    MethodC mc1( to.methods(), "m1");
+    OperationCallerC mc1( to.methods(), "m1");
     mc1.argC(1).ret(ret);
-    MethodC mc2( to.methods(), "m2");
+    OperationCallerC mc2( to.methods(), "m2");
     mc2.argC(1).argC(2.0).ret(ret);
-    MethodC mc3( to.methods(), "m3");
+    OperationCallerC mc3( to.methods(), "m3");
     mc3.argC(1).argC(2.0).argC(false).ret(ret);
-    MethodC mc4( to.methods(), "m4");
+    OperationCallerC mc4( to.methods(), "m4");
     mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
 
     BOOST_CHECK( mc0.execute() );
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     BOOST_CHECK_EQUAL(-5.0, ret);
 }
 
-BOOST_AUTO_TEST_CASE(testDSMethod)
+BOOST_AUTO_TEST_CASE(testDSOperationCaller)
 {
     Service to("task", tc);
 
@@ -411,10 +411,10 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     //ptr.reset();
 
     double ret;
-    MethodC c0  = to.create("m0").ret(ret);
+    OperationCallerC c0  = to.create("m0").ret(ret);
     BOOST_CHECK( c0.execute() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to.create("m1").argC(1).ret(ret);
+    OperationCallerC c1  = to.create("m1").argC(1).ret(ret);
     BOOST_CHECK( c1.execute() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 

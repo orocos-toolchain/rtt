@@ -12,13 +12,13 @@ namespace RTT
         updateFile("updateFile"),
         writeProperty("writeProperty")
     {
-        addMethod(loadProperties);
-        addMethod(readProperties);
-        addMethod(updateProperties);
-        addMethod(readProperty);
-        addMethod(writeProperties);
-        addMethod(updateFile);
-        addMethod(writeProperty);
+        addOperationCaller(loadProperties);
+        addOperationCaller(readProperties);
+        addOperationCaller(updateProperties);
+        addOperationCaller(readProperty);
+        addOperationCaller(writeProperties);
+        addOperationCaller(updateFile);
+        addOperationCaller(writeProperty);
     }
 
     Marshalling::~Marshalling() {}

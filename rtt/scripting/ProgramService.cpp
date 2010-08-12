@@ -39,7 +39,7 @@
 
 #include "ProgramService.hpp"
 
-#include "../Method.hpp"
+#include "../OperationCaller.hpp"
 #include "../interface/FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSources.hpp"
@@ -57,10 +57,10 @@ namespace RTT
         this->doc("Orocos Program Script");
 
         // We need a weak pointer here in order to be able to unload programs that
-        // reference self. The only way we can use weak_ptr with Method/Operation is by putting it in the data source
+        // reference self. The only way we can use weak_ptr with OperationCaller/Operation is by putting it in the data source
         // of the first argument. We can not 'boost::bind' to a weak pointer, only to a shared_ptr.
         DataSource<ProgramInterfacePtr>* ptr = program.get();
-        // Methods :
+        // OperationCallers :
         addOperationDS("start", &ProgramInterface::start,ptr).doc("Start or continue this program.");
         addOperationDS("pause", &ProgramInterface::pause,ptr).doc("Pause this program.");
         addOperationDS("step", &ProgramInterface::step,ptr).doc("Step a paused program.");
