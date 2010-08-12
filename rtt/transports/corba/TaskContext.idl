@@ -18,9 +18,12 @@ module RTT
 
 	/**
 	 * Maps 1-to-1 to RTT::base::TaskCore::TaskState.
+         *
+         * Exception is renamed to ExceptionState as Exception is forbidden by
+         * IDL
 	 * @ingroup CompIDL
 	 */
-	enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeError };
+	enum CTaskState { CInit, CPreOperational, CFatalError, CException, CStopped, CRunning, CRunTimeError };
 
 	/**
 	 * A CTaskContext is the main entry point of a distributed
