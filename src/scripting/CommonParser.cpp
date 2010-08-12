@@ -44,13 +44,17 @@ namespace RTT {
     using boost::bind;
     using namespace detail;
 
+    // see parser-types.hpp
+    functor_parser<eol_skip_functor> eol_skip_p;
+
+    bool eol_skip_functor::skipeol = true;
+
     namespace {
         assertion<std::string> expect_eos("End of statement expected. Use a newline or ';' to separate statements.");
     }
 
     CommonParser::CommonParser()
-        : identchar( "a-zA-Z_0-9" ), skipeol(true),
-          skipper( eol_skip_functor(skipeol) )
+        : identchar( "a-zA-Z_0-9" )
     {
         // we reserve a few words
         keywords =

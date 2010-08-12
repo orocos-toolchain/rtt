@@ -119,8 +119,8 @@ namespace RTT
         str_p( "if" )
             >> condition
             >> expect_then( str_p("then") )
-            >> (callpart | returnpart | continuepart)[lambda::var(commonparser.skipeol) = false]
-            >> commonparser.eos[lambda::var(commonparser.skipeol) = true];
+            >> (callpart | returnpart | continuepart)[lambda::var(eol_skip_functor::skipeol) = false]
+            >> commonparser.eos[lambda::var(eol_skip_functor::skipeol) = true];
 
     continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
 

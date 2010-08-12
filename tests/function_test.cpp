@@ -320,11 +320,11 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_REQUIRE_MESSAGE( false , exc.what() );
+            BOOST_CHECK_MESSAGE( false , exc.what() );
         }
     if ( pg_list.empty() )
         {
-            BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
+            BOOST_CHECK_MESSAGE(false , "No program parsed in test.");
         }
     ProgramProcessor* pp = tc->engine()->programs();
     BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );

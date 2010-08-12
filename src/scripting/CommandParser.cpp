@@ -60,11 +60,11 @@ namespace RTT
         assertion<std::string> expect_methodname("Expected a method call on object.");
         assertion<std::string> expect_args( "Expected method call arguments between ()." );
     }
-    CommandParser::CommandParser( TaskContext* c, CommonParser& cp, bool as_action)
+  CommandParser::CommandParser( TaskContext* c, bool as_action)
       : mas_action( as_action ),
         dcom(0), retcommand( 0 ),
-        implicittermcondition( 0 ), peer(0), context( c ), commonparser(cp),
-        argsparser( 0 ), expressionparser( c, cp ), peerparser( c, cp, true )
+        implicittermcondition( 0 ), peer(0), context( c ),
+        argsparser( 0 ), expressionparser( c ), peerparser( c, true )
   {
     BOOST_SPIRIT_DEBUG_RULE( objectmethod );
     BOOST_SPIRIT_DEBUG_RULE( callcommand );

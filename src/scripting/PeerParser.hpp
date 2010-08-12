@@ -58,7 +58,7 @@ namespace RTT
      */
     class RTT_API PeerParser
     {
-        CommonParser& commonparser;
+        CommonParser commonparser;
         rule_t peerpath, peerlocator;
         std::queue<std::string> callqueue;
         OperationInterface* mcurobject;
@@ -71,14 +71,6 @@ namespace RTT
         RTT_HIDE void seenobjectname( iter_t begin, iter_t end );
         RTT_HIDE void locatepeer( iter_t begin, iter_t end );
 
-        enum PeerErrors { peer_not_found };
-        guard<PeerErrors> my_guard;
-
-        /**
-         * set by locatepeer, read by handle_no_peer
-         */
-        boost::iterator_difference<iter_t>::type advance_on_error;
-        RTT_HIDE error_status<> handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e );
     public:
         /**
          * Create a PeerParser which starts looking for peers from
@@ -87,7 +79,7 @@ namespace RTT
          * @param fullpath Set to true if the parser() must
          * resolve the full path.
          */
-        PeerParser(TaskContext* c, CommonParser& cp, bool fullpath=false);
+        PeerParser(TaskContext* c, bool fullpath=false);
 
         /**
          * After reset, peer() == current context and

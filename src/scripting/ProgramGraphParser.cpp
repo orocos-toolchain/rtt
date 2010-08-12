@@ -71,17 +71,16 @@ namespace RTT
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, CommonParser& cp)
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
       : rootc( t ),context( 0 ), fcontext(0), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
-        commonparser(cp),
-        conditionparser( rootc, commonparser ),
-        commandparser( rootc, commonparser, true ), // as_action == true
-        valuechangeparser( rootc, commonparser ),
-        expressionparser( rootc, commonparser ),
+        conditionparser( rootc ),
+        commandparser( rootc, true ), // as_action == true
+        valuechangeparser( rootc ),
+        expressionparser( rootc ),
         argsparser(0),
-        peerparser(rootc, commonparser),
+        peerparser(rootc),
         program_builder( new FunctionGraphBuilder() ),
         for_init_command(0),
         for_incr_command(0),
@@ -459,11 +458,11 @@ namespace RTT
   }
 
     void ProgramGraphParser::skip_eol() {
-        commonparser.skipeol = true;
+        eol_skip_functor::skipeol = true;
     }
 
     void ProgramGraphParser::noskip_eol() {
-        commonparser.skipeol = false;
+        eol_skip_functor::skipeol = false;
     }
 
   void ProgramGraphParser::startofnewstatement(const std::string& type)
@@ -618,9 +617,8 @@ namespace RTT
   {
       // end is not used !
     iter_t begin_copy = begin;
-    //skip_parser_t skip_parser = SKIP_PARSER;
-    //iter_pol_t iter_policy( skip_parser );
-    iter_pol_t iter_policy( ( comment_p( "#" ) | comment_p( "//" ) | comment_p( "/*", "*/" ) | (space_p - eol_p) | commonparser.skipper  ) );
+    skip_parser_t skip_parser = SKIP_PARSER;
+    iter_pol_t iter_policy( skip_parser );
     scanner_pol_t policies( iter_policy );
     scanner_t scanner( begin, end, policies );
     program_list.clear();
@@ -671,9 +669,8 @@ namespace RTT
   {
       // end is not used !
     iter_t begin_copy = begin;
-    //skip_parser_t skip_parser = SKIP_PARSER;
-    //iter_pol_t iter_policy( skip_parser );
-    iter_pol_t iter_policy( ( comment_p( "#" ) | comment_p( "//" ) | comment_p( "/*", "*/" ) | (space_p - eol_p) | commonparser.skipper  ) );
+    skip_parser_t skip_parser = SKIP_PARSER;
+    iter_pol_t iter_policy( skip_parser );
     scanner_pol_t policies( iter_policy );
     scanner_t scanner( begin, end, policies );
 

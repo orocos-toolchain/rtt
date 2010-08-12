@@ -62,8 +62,7 @@ namespace RTT
     our_pos_iter_t parsebegin( function.begin(), function.end(), filename );
     our_pos_iter_t parseend( function.end(), function.end(), filename );
     // The internal parser.
-    CommonParser cp;
-    ProgramGraphParser gram( parsebegin, c, cp );
+    ProgramGraphParser gram( parsebegin, c );
     ParsedFunctions ret = gram.parseFunction( parsebegin, parseend );
     return ret;
   }
@@ -75,8 +74,7 @@ namespace RTT
     our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
-    CommonParser cp;
-    ProgramGraphParser gram( parsebegin, c, cp );
+    ProgramGraphParser gram( parsebegin, c );
     ParsedPrograms ret = gram.parse( parsebegin, parseend );
 
     return ret;
@@ -112,9 +110,7 @@ namespace RTT
     our_pos_iter_t parsebegin( scopy.begin(), scopy.end(), "teststring" );
     our_pos_iter_t parseend( scopy.end(), scopy.end(), "teststring" );
 
-    CommonParser cp;
-    ConditionParser parser( tc, cp );
-    bool skipref=true;
+    ConditionParser parser( tc );
     try
     {
       parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
@@ -142,9 +138,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
-    CommonParser cp;
-    ExpressionParser parser( tc, cp );
-    bool skipref=true;
+    ExpressionParser parser( tc );
     try
     {
         parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
@@ -173,9 +167,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
-    CommonParser cp;
-    ValueChangeParser parser( tc, cp );
-    bool skipref=true;
+    ValueChangeParser parser( tc );
     try
     {
         parse( parsebegin, parseend, parser.variableChangeParser(), SKIP_PARSER );
@@ -208,9 +200,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
     our_pos_iter_t parseend( s.end(), s.end(), "input" );
 
-    CommonParser cp;
-    CommandParser parser( tc, cp, !dodispatch );
-    bool skipref=true;
+    CommandParser parser( tc, !dodispatch );
     try
     {
       boost_spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );

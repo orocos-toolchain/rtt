@@ -77,10 +77,6 @@ namespace RTT { namespace detail
        */
       rule_t eos;
       lexeme_rule_t leos;
-
-      //! Saves eol skipping state
-      bool skipeol;
-      functor_parser<eol_skip_functor> skipper;
       //@}
 
       CommonParser();

@@ -114,9 +114,7 @@ namespace RTT
         /**
          * By default, eol are skipped.
          */
-        eol_skip_functor(bool& skipref) : skipeol(skipref) {}
-        eol_skip_functor(eol_skip_functor const& orig) : skipeol( orig.skipeol ) {}
-        bool& skipeol;
+        static bool skipeol;
         typedef nil_t result_t;
 
         template <typename ScannerT>
@@ -144,11 +142,14 @@ namespace RTT
         }
     };
 
-    //! When using this macro, you must have a boolean variable skipref defined.
-    //! which is initialized to true.
+    /**
+     * Use this global parser to skip newlines inside statements.
+     */
+    extern functor_parser<eol_skip_functor> eol_skip_p;
+
 #   define SKIP_PARSER \
       ( comment_p( "#" ) | comment_p( "//" ) | \
-        comment_p( "/*", "*/" ) | (space_p - eol_p) | functor_parser<eol_skip_functor>( eol_skip_functor(skipref) ) )
+        comment_p( "/*", "*/" ) | (space_p - eol_p) | eol_skip_p  )
 
   // here are the typedef's for the scanner, and the rule types..
   //typedef __typeof__ ( SKIP_PARSER ) skip_parser_t;

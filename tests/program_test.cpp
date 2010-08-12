@@ -416,11 +416,11 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     }
     catch( const file_parse_exception& exc )
         {
-            BOOST_REQUIRE_MESSAGE( false, exc.what() );
+            BOOST_CHECK_MESSAGE( false, exc.what() );
         }
     if ( pg_list.empty() )
         {
-            BOOST_REQUIRE( false );
+            BOOST_CHECK( false );
         }
     ProgramInterfacePtr pi = *pg_list.begin();
 
