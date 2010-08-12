@@ -154,6 +154,13 @@ namespace RTT {
             void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );
 
             /**
+             * Set the wait policy of a thread.
+             * @param task The RTOS task to change.
+             * @param policy The wait policy.
+             */
+            void rtos_task_set_wait_policy( RTOS_TASK* task, int policy );
+
+            /**
              * This function is called by a periodic thread which
              * wants to go to sleep and wake up the next period.
              * @param task This must be RTOS_TASK struct of the calling thread.
