@@ -29,7 +29,7 @@
 #include "parse_exception.hpp"
 #include "ValueChangeParser.hpp"
 
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "../types/Types.hpp"
 #include "../Attribute.hpp"
 #include "../TaskContext.hpp"

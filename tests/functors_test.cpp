@@ -6,7 +6,7 @@
 #ifdef ORO_REMOTING
 #include <internal/RemoteOperationCaller.hpp>
 #endif
-#include <interface/Service.hpp>
+#include <Service.hpp>
 #include <internal/DataSourceGenerator.hpp>
 
 #include "unit.hpp"

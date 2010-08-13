@@ -38,7 +38,7 @@
 #include "ConfigurationInterfaceC.h"
 #endif
 
-#include "../../interface/ConfigurationInterface.hpp"
+#include "../../ConfigurationInterface.hpp"
 #include "../../PropertyBag.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -48,13 +48,13 @@
 class  RTT_corba_CConfigurationInterface_i
   : public virtual POA_RTT::corba::CConfigurationInterface
 {
-     RTT::interface::ConfigurationInterface* mar;
+     RTT::ConfigurationInterface* mar;
      RTT::PropertyBag* mbag;
      PortableServer::POA_var mpoa;
 
   public:
     //Constructor
-    RTT_corba_CConfigurationInterface_i ( RTT::interface::ConfigurationInterface* ar, PortableServer::POA_ptr the_poa);
+    RTT_corba_CConfigurationInterface_i ( RTT::ConfigurationInterface* ar, PortableServer::POA_ptr the_poa);
     RTT_corba_CConfigurationInterface_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
   // Destructor
   virtual ~RTT_corba_CConfigurationInterface_i (void);

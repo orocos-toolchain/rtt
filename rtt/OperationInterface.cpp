@@ -68,7 +68,7 @@ base::DataSourceBase::shared_ptr OperationInterface::produce(const std::string& 
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produce(args, caller);
 }
 
@@ -76,7 +76,7 @@ base::DataSourceBase::shared_ptr OperationInterface::produceSend(const std::stri
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produceSend(args, caller);
 }
 
@@ -84,7 +84,7 @@ base::DataSourceBase::shared_ptr OperationInterface::produceHandle(const std::st
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produceHandle();
 }
 
@@ -92,7 +92,7 @@ base::DataSourceBase::shared_ptr OperationInterface::produceCollect(const std::s
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produceCollect(args, blocking);
 }
 
@@ -100,7 +100,7 @@ Handle OperationInterface::produceSignal(const std::string& name, base::ActionIn
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), 0);
+        ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produceSignal(act, args);
 }
 
@@ -108,7 +108,7 @@ OperationInterface::Descriptions OperationInterface::getArgumentList(const std::
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), Descriptions());
+        ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
     return i->second->getArgumentList();
 }
 
@@ -116,7 +116,7 @@ std::string OperationInterface::getResultType(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), std::string());
+        ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
     return i->second->resultType();
 }
 
@@ -124,7 +124,7 @@ std::string OperationInterface::getDescription(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);
     if (i == data.end() || i->second == 0)
-        ORO_THROW_OR_RETURN(interface::name_not_found_exception(), std::string());
+        ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
     return i->second->description();
 }
 

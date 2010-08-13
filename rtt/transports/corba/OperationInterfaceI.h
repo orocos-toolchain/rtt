@@ -37,7 +37,7 @@
 #else
 #include "OperationInterfaceC.h"
 #endif
-#include "../../interface/OperationInterface.hpp"
+#include "../../OperationInterface.hpp"
 #include "../../internal/SendHandleC.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -49,11 +49,11 @@ class  RTT_corba_CSendHandle_i
   public virtual PortableServer::RefCountServantBase
 {
       RTT::internal::SendHandleC mhandle, morig;
-      RTT::interface::OperationInterfacePart* mofp;
+      RTT::OperationInterfacePart* mofp;
       std::vector<RTT::base::DataSourceBase::shared_ptr> cargs;
 public:
   // Constructor
-  RTT_corba_CSendHandle_i (RTT::internal::SendHandleC const& sh, RTT::interface::OperationInterfacePart* ofp);
+  RTT_corba_CSendHandle_i (RTT::internal::SendHandleC const& sh, RTT::OperationInterfacePart* ofp);
 
   // Destructor
   virtual ~RTT_corba_CSendHandle_i (void);
@@ -83,11 +83,11 @@ class  RTT_corba_COperationInterface_i
   : public virtual POA_RTT::corba::COperationInterface,
   public virtual PortableServer::RefCountServantBase
 {
-      RTT::interface::OperationInterface* mfact;
+      RTT::OperationInterface* mfact;
       PortableServer::POA_var mpoa;
   public:
     //Constructor
-      RTT_corba_COperationInterface_i(RTT::interface::OperationInterface* mfact, PortableServer::POA_ptr the_poa);
+      RTT_corba_COperationInterface_i(RTT::OperationInterface* mfact, PortableServer::POA_ptr the_poa);
 
       PortableServer::POA_ptr _default_POA();
 

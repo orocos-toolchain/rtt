@@ -37,7 +37,7 @@
 
 
 #include "PortInterface.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
 
@@ -89,7 +89,7 @@ void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
 }
 
-interface::DataFlowInterface* PortInterface::getInterface() const
+DataFlowInterface* PortInterface::getInterface() const
 {
     return iface;
 }

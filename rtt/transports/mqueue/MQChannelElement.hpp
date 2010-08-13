@@ -57,7 +57,7 @@
 #include "Dispatcher.hpp"
 #include "../../base/ChannelElement.hpp"
 #include "../../base/PortInterface.hpp"
-#include "../../interface/DataFlowInterface.hpp"
+#include "../../DataFlowInterface.hpp"
 
 namespace RTT
 {

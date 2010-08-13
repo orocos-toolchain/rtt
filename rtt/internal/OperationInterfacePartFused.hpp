@@ -19,8 +19,8 @@
 #include "DataSource.hpp"
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
-#include "../interface/OperationInterfacePart.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../OperationInterfacePart.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../Operation.hpp"
 #include "../base/OperationCallerBase.hpp"
 
@@ -36,7 +36,7 @@ namespace RTT
         class RTT_API OperationInterfacePartHelper {
         public:
             static std::string description(base::OperationBase* ob);
-            static std::vector<interface::ArgumentDescription> getArgumentList(base::OperationBase* ob, const int arity, std::vector<std::string> const& types);
+            static std::vector<ArgumentDescription> getArgumentList(base::OperationBase* ob, const int arity, std::vector<std::string> const& types);
         };
 
         /**
@@ -45,7 +45,7 @@ namespace RTT
          */
         template<typename Signature>
         class OperationInterfacePartFused
-            : public interface::OperationInterfacePart
+            : public OperationInterfacePart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
             //! The factory for converting data sources to C++ types in call()
@@ -63,7 +63,7 @@ namespace RTT
                 return OperationInterfacePartHelper::description( op );
             }
 
-            virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+            virtual std::vector<ArgumentDescription> getArgumentList() const {
                 std::vector<std::string> types;
                 for (unsigned int i = 1; i <= OperationInterfacePartFused::arity(); ++i )
                     types.push_back( SequenceFactory::GetType(i) );
@@ -96,13 +96,13 @@ namespace RTT
             {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != OperationInterfacePartFused::arity() )
-                    throw interface::wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
+                    throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
                 return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationInterfacePartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
+                if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
                 return new FusedMSendDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
@@ -114,14 +114,14 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                 const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                 assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
-                if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
+                if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
             }
 
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationInterfacePartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
+                if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
@@ -152,7 +152,7 @@ namespace RTT
          */
         template<typename Signature>
         class SynchronousOperationInterfacePartFused
-            : public interface::OperationInterfacePart
+            : public OperationInterfacePart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
             //! The factory for converting data sources to C++ types in call()
@@ -167,19 +167,19 @@ namespace RTT
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
             virtual base::DataSourceBase::shared_ptr produceHandle() const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
 
             virtual std::string description() const {
                 return OperationInterfacePartHelper::description( op );
             }
 
-            virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+            virtual std::vector<ArgumentDescription> getArgumentList() const {
                 std::vector<std::string> types;
                 for (unsigned int i = 1; i <= SynchronousOperationInterfacePartFused::arity(); ++i )
                     types.push_back( SequenceFactory::GetType(i) );
@@ -212,7 +212,7 @@ namespace RTT
             {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != SynchronousOperationInterfacePartFused::arity() )
-                    throw interface::wrong_number_of_args_exception(SynchronousOperationInterfacePartFused::arity(), args.size() );
+                    throw wrong_number_of_args_exception(SynchronousOperationInterfacePartFused::arity(), args.size() );
                 return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
@@ -231,7 +231,7 @@ namespace RTT
              */
             template<typename Signature,typename ObjT>
             class OperationInterfacePartFusedDS
-                : public interface::OperationInterfacePart
+                : public OperationInterfacePart
             {
                 typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
                 typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
@@ -272,17 +272,17 @@ namespace RTT
                     return op->getDescriptions().front();
                 }
 
-                virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+                virtual std::vector<ArgumentDescription> getArgumentList() const {
                     std::vector<std::string> const& descr = op->getDescriptions();
-                    std::vector<interface::ArgumentDescription> ret;
+                    std::vector<ArgumentDescription> ret;
                     for (unsigned int i =1; i < descr.size(); i +=2 )
-                        ret.push_back(interface::ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
+                        ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
                     return ret;
                 }
 
                 base::DataSourceBase::shared_ptr produce(ArgList const& args, ExecutionEngine* caller) const
                 {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
@@ -293,7 +293,7 @@ namespace RTT
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
@@ -311,13 +311,13 @@ namespace RTT
                 virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                     const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                     assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
-                    if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
+                    if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
                 }
 
                 virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);

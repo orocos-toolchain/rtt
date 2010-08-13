@@ -38,7 +38,7 @@
 #include "ServiceC.h"
 #endif
 
-#include "../../interface/Service.hpp"
+#include "../../Service.hpp"
 #include "ConfigurationInterfaceI.h"
 #include "OperationInterfaceI.h"
 
@@ -53,10 +53,10 @@ class  RTT_corba_CService_i
 {
 protected:
     PortableServer::POA_var mpoa;
-    RTT::interface::Service::shared_ptr mservice;
+    RTT::Service::shared_ptr mservice;
 public:
   // Constructor 
-    RTT_corba_CService_i ( RTT::interface::ServicePtr service, PortableServer::POA_ptr poa);
+    RTT_corba_CService_i ( RTT::ServicePtr service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CService_i (void);

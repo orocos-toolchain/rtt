@@ -5,7 +5,7 @@
 #include <boost/make_shared.hpp>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../interface/rtt-interface-fwd.hpp"
+#include "../rtt-interface-fwd.hpp"
 #include "../SendStatus.hpp"
 
 namespace RTT
@@ -41,7 +41,7 @@ namespace RTT
 	/**
 	 * Stores the OperationInterfacePart pointer contained in this SendHandle
 	 */
-	interface::OperationInterfacePart* orp;
+	OperationInterfacePart* orp;
 
 
     public:
@@ -56,7 +56,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, interface::OperationInterfacePart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -121,7 +121,7 @@ namespace RTT
 	/**
 	 * Get the contained OperationInterfacePart for SendHandle
 	 */
-	interface::OperationInterfacePart* getOrp();
+	OperationInterfacePart* getOrp();
 
     };
 }}

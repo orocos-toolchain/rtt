@@ -30,7 +30,7 @@
 #include "../ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "StateMachineService.hpp"
 #include "../TaskContext.hpp"
 #include "../internal/mystd.hpp"

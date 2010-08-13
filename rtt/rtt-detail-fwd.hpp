@@ -49,11 +49,6 @@ namespace RTT {
      */
     namespace internal {}
     /**
-     * Classes which form the dynamic interface of
-     * the TaskContext.
-     */
-    namespace interface {}
-    /**
      * Extra classes strictly not needed to build a control application, but
      * are handy in some cases, or serve as an example on how to extend the RTT.
      */
@@ -96,7 +91,6 @@ namespace RTT {
     namespace detail {
         using namespace base;
         using namespace internal;
-        using namespace interface;
         using namespace extras;
         using namespace marsh;
         using namespace os;

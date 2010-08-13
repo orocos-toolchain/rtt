@@ -310,7 +310,7 @@ namespace RTT
              * @param name The name of this method.
              * @param com The OperationFactory for methods.
              */
-            RemoteOperationCaller(interface::OperationInterfacePart* of, std::string name, ExecutionEngine* caller)
+            RemoteOperationCaller(OperationInterfacePart* of, std::string name, ExecutionEngine* caller)
             {
                 // create the method.
                 this->mmeth = OperationCallerC(of, name, caller);

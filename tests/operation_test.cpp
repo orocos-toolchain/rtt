@@ -2,7 +2,7 @@
 
 #include <rtt-fwd.hpp>
 #include <rtt/Operation.hpp>
-#include <rtt/interface/Service.hpp>
+#include <rtt/Service.hpp>
 #include <rtt/OperationCaller.hpp>
 #include <rtt/TaskContext.hpp>
 

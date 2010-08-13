@@ -39,7 +39,7 @@
 #include "../Port.hpp"
 #include "ConnFactory.hpp"
 #include "../base/InputPortInterface.hpp"
-#include "../interface/DataFlowInterface.hpp"
+#include "../DataFlowInterface.hpp"
 
 using namespace std;
 using namespace RTT;

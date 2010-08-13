@@ -41,7 +41,7 @@
 #include "../base/AttributeBase.hpp"
 #include "ProgramService.hpp"
 #include "TaskContext.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 
 #include "CommandNOP.hpp"
 #include "ConditionFalse.hpp"

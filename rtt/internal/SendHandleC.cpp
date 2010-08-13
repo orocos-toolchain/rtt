@@ -1,7 +1,7 @@
 #include "SendHandleC.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "DataSourceCommand.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "../Logger.hpp"
 #include "Exceptions.hpp"
 #include <vector>

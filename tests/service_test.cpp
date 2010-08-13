@@ -2,8 +2,8 @@
 #include <TaskContext.hpp>
 #include <OperationCaller.hpp>
 #include <Operation.hpp>
-#include <interface/Service.hpp>
-#include <interface/ServiceRequester.hpp>
+#include <Service.hpp>
+#include <ServiceRequester.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"

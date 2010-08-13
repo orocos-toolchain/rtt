@@ -27,7 +27,7 @@
 #include <rtt/TaskContext.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
-#include <rtt/interface/Service.hpp>
+#include <rtt/Service.hpp>
 #include <rtt/transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>

@@ -48,8 +48,6 @@
  */
 namespace RTT
 {
-    namespace interface {
-
     /**
      * Exception thrown when a factory is requested to
      * create an object with an unknown name.
@@ -141,6 +139,6 @@ namespace RTT
       ~non_lvalue_args_exception() throw();
       virtual const char* what() const throw();
   };
-}}
+}
 
 #endif

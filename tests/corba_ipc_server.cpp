@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include <rtt/OperationCaller.hpp>
-#include <rtt/interface/Service.hpp>
+#include <rtt/Service.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>

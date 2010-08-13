@@ -69,7 +69,7 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          CRemoteChannelElement_i* createChannelElement_i(interface::DataFlowInterface* sender,PortableServer::POA_ptr poa, bool is_pull) const
+          CRemoteChannelElement_i* createChannelElement_i(DataFlowInterface* sender,PortableServer::POA_ptr poa, bool is_pull) const
           { return new RemoteChannelElement<T>(*this, sender, poa, is_pull); }
 
           /**

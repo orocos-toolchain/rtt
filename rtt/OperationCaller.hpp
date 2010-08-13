@@ -49,9 +49,9 @@
 #include "internal/InvokerSignature.hpp"
 #include "base/OperationCallerBaseInvoker.hpp"
 #include "Logger.hpp"
-#include "interface/Service.hpp"
+#include "Service.hpp"
 #ifdef ORO_REMOTING
-#include "interface/OperationInterface.hpp"
+#include "OperationInterface.hpp"
 #include "internal/RemoteOperationCaller.hpp"
 #endif
 
@@ -175,7 +175,7 @@ namespace RTT
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        OperationCaller(interface::OperationInterfacePart* part, ExecutionEngine* caller = 0)
+        OperationCaller(OperationInterfacePart* part, ExecutionEngine* caller = 0)
             : Base(),
               mname(), mcaller(caller)
         {
@@ -193,7 +193,7 @@ namespace RTT
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        OperationCaller(const std::string& name, interface::ServicePtr service, ExecutionEngine* caller = 0)
+        OperationCaller(const std::string& name, ServicePtr service, ExecutionEngine* caller = 0)
             : Base(),
               mname(name), mcaller(caller)
         {
@@ -229,7 +229,7 @@ namespace RTT
          *
          * @return *this
          */
-        OperationCaller& operator=(interface::OperationInterfacePart* part)
+        OperationCaller& operator=(OperationInterfacePart* part)
         {
             if (part == 0) {
                 log(Warning) << "Assigning OperationCaller from null part."<<endlog();
@@ -250,7 +250,7 @@ namespace RTT
          *
          * @return *this
          */
-        OperationCaller& operator=(interface::ServicePtr service)
+        OperationCaller& operator=(ServicePtr service)
         {
             if ( !service ) {
                 log(Warning) << "Assigning OperationCaller from null service."<<endlog();
@@ -301,7 +301,7 @@ namespace RTT
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        OperationCaller(std::string name, interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0)
+        OperationCaller(std::string name, OperationInterfacePart* orp, ExecutionEngine* caller = 0)
             : Base( OperationCallerBasePtr(new internal::RemoteOperationCaller<Signature>(orp,caller) ) ),
               mname(name)
         {}
@@ -338,7 +338,7 @@ namespace RTT
             return ready();
         }
 
-        bool setImplementationPart(interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
+        bool setImplementationPart(OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
             OperationCaller<Signature> tmp(orp, caller);
             if (tmp.ready())
                 *this = tmp;
@@ -370,7 +370,7 @@ namespace RTT
          * this method tries it using the operationrepository factories.
          * @param part
          */
-        void setupOperationCaller(interface::OperationInterfacePart* part) {
+        void setupOperationCaller(OperationInterfacePart* part) {
             if ( !this->impl ) {
 #ifdef ORO_REMOTING
                 // try differently

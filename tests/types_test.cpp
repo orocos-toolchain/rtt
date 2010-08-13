@@ -25,10 +25,10 @@
 #include <OperationCaller.hpp>
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 #include <TaskContext.hpp>
 #include <scripting/Scripting.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 #include <types/GlobalsRepository.hpp>
 #include <types/Types.hpp>
 

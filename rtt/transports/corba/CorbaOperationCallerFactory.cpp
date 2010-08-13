@@ -11,7 +11,7 @@ using namespace RTT;
 using namespace RTT::detail;
 
 CorbaOperationCallerFactory::CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa )
-    : RTT::interface::OperationInterfacePart(),
+    : RTT::OperationInterfacePart(),
       mfact(corba::CService::_duplicate(fact) ),
       mpoa(PortableServer::POA::_duplicate(the_poa)),
       method(method_name)
@@ -61,7 +61,7 @@ std::string CorbaOperationCallerFactory::resultType() const {
         CORBA::String_var result = mfact->getResultType( method.c_str() );
         return std::string( result.in() );
     } catch ( corba::CNoSuchNameException& nsn ) {
-        throw interface::name_not_found_exception( nsn.name.in() );
+        throw name_not_found_exception( nsn.name.in() );
     }
     return std::string();
 }
@@ -71,22 +71,22 @@ std::string CorbaOperationCallerFactory::description() const {
         CORBA::String_var result = mfact->getDescription( method.c_str() );
         return std::string( result.in() );
     } catch ( corba::CNoSuchNameException& nsn ) {
-        throw interface::name_not_found_exception( nsn.name.in() );
+        throw name_not_found_exception( nsn.name.in() );
     }
     return std::string();
 }
 
-std::vector< interface::ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
+std::vector< ArgumentDescription > CorbaOperationCallerFactory::getArgumentList() const {
     CDescriptions ret;
     try {
         corba::CDescriptions_var result = mfact->getArguments( method.c_str() );
         ret.reserve( result->length() );
         for (size_t i=0; i!= result->length(); ++i)
-            ret.push_back( interface::ArgumentDescription(std::string( result[i].name.in() ),
+            ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
                                                           std::string( result[i].description.in() ),
                                                           std::string( result[i].type.in() ) ));
     } catch ( corba::CNoSuchNameException& nsn ) {
-        throw interface:: name_not_found_exception( nsn.name.in() );
+        throw  name_not_found_exception( nsn.name.in() );
     }
     return ret;
 }
@@ -208,11 +208,11 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
             return new ActionAliasDataSource<CORBA::Any_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, true), result.get() );
         }
     } catch ( corba::CNoSuchNameException& nsn ) {
-        throw interface:: name_not_found_exception( nsn.name.in() );
+        throw  name_not_found_exception( nsn.name.in() );
     } catch ( corba::CWrongNumbArgException& wa ) {
-        throw interface:: wrong_number_of_args_exception( wa.wanted, wa.received );
+        throw  wrong_number_of_args_exception( wa.wanted, wa.received );
     } catch ( corba::CWrongTypeArgException& wta ) {
-        throw interface:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
+        throw  wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
     }
     return 0; // not reached.
 }
@@ -233,11 +233,11 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
         DataSource<CSendHandle_var>::shared_ptr result = new ValueDataSource<CSendHandle_var>();
         return new ActionAliasDataSource<CSendHandle_var>(new CorbaOperationCallerCall(mfact.in(),method,args,caller, 0, result, false), result.get() );
     } catch ( corba::CNoSuchNameException& nsn ) {
-        throw interface:: name_not_found_exception( nsn.name.in() );
+        throw  name_not_found_exception( nsn.name.in() );
     } catch ( corba::CWrongNumbArgException& wa ) {
-        throw interface:: wrong_number_of_args_exception( wa.wanted, wa.received );
+        throw  wrong_number_of_args_exception( wa.wanted, wa.received );
     } catch ( corba::CWrongTypeArgException& wta ) {
-        throw interface:: wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
+        throw  wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
     }
     return 0; // not reached.
 }
@@ -317,13 +317,13 @@ public:
 base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const {
     unsigned int expected = mfact->getCollectArity(method.c_str());
     if (args.size() !=  expected + 1) {
-        throw interface::wrong_number_of_args_exception( expected + 1, args.size() );
+        throw wrong_number_of_args_exception( expected + 1, args.size() );
     }
     // isolate and check CSendHandle
     std::vector<base::DataSourceBase::shared_ptr> cargs( ++args.begin(), args.end() );
     DataSource<CSendHandle_var>::shared_ptr ds = DataSource<CSendHandle_var>::narrow( args.begin()->get() );
     if (!ds) {
-        throw interface::wrong_types_of_args_exception(0,"CSendHandle_var",(*args.begin())->getTypeName() );
+        throw wrong_types_of_args_exception(0,"CSendHandle_var",(*args.begin())->getTypeName() );
     }
     // check if args matches what CSendHandle expects.
     try {
@@ -337,9 +337,9 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceCollect(con
         }
         ds->get()->checkArguments( nargs.in() );
     } catch ( CWrongNumbArgException& wna) {
-        throw interface::wrong_number_of_args_exception(wna.wanted, wna.received);
+        throw wrong_number_of_args_exception(wna.wanted, wna.received);
     } catch ( CWrongTypeArgException& wta) {
-        throw interface::wrong_types_of_args_exception(wta.whicharg,wta.expected.in(), wta.received.in());
+        throw wrong_types_of_args_exception(wta.whicharg,wta.expected.in(), wta.received.in());
     }
     // All went well, produce collect DataSource:
     return new CorbaOperationCallerCollect( ds->get().in(),cargs, blocking);

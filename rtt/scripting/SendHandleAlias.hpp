@@ -2,7 +2,7 @@
 #define ORO_SENDHANDLEALIAS_HPP_
 
 #include "../base/AttributeBase.hpp"
-#include "../interface/OperationInterface.hpp"
+#include "../OperationInterface.hpp"
 #include "../rtt-fwd.hpp"
 
 
@@ -17,12 +17,12 @@ namespace RTT {
             : public base::AttributeBase
         {
             base::DataSourceBase::shared_ptr data;
-            interface::OperationInterfacePart* fact;
+            OperationInterfacePart* fact;
         public:
-            SendHandleAlias(const std::string& name, base::DataSourceBase::shared_ptr d, interface::OperationInterfacePart* opf );
+            SendHandleAlias(const std::string& name, base::DataSourceBase::shared_ptr d, OperationInterfacePart* opf );
 
             base::DataSourceBase::shared_ptr getDataSource() const;
-            interface::OperationInterfacePart* getFactory() const;
+            OperationInterfacePart* getFactory() const;
 
             SendHandleAlias* clone() const;
 

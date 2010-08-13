@@ -48,8 +48,7 @@
 #include "../PropertyBag.hpp"
 
 namespace RTT
-{ namespace interface {
-
+{
     /**
      * @brief A class for keeping track of Attribute, Constant
      * and Property objects of a TaskContext.
@@ -274,6 +273,6 @@ namespace RTT
         map_t values;
         PropertyBag bag;
     };
-}}
+}
 
 #endif

@@ -34,7 +34,7 @@ using namespace RTT;
 using namespace RTT::detail;
 
 // Implementation skeleton constructor
-RTT_corba_CServiceRequester_i::RTT_corba_CServiceRequester_i ( RTT::interface::ServiceRequester* service, PortableServer::POA_ptr poa )
+RTT_corba_CServiceRequester_i::RTT_corba_CServiceRequester_i ( RTT::ServiceRequester* service, PortableServer::POA_ptr poa )
     : mservice(service), mpoa(poa)
 {
 }

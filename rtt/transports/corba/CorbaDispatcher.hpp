@@ -45,7 +45,7 @@
 #include "../../Logger.hpp"
 #include "../../internal/List.hpp"
 #include "DataFlowI.h"
-#include "../../interface/DataFlowInterface.hpp"
+#include "../../DataFlowInterface.hpp"
 #include "../../TaskContext.hpp"
 
 namespace RTT {
@@ -56,7 +56,7 @@ namespace RTT {
          */
         class CorbaDispatcher : public Activity
         {
-            typedef std::map<interface::DataFlowInterface*,CorbaDispatcher*> DispatchMap;
+            typedef std::map<DataFlowInterface*,CorbaDispatcher*> DispatchMap;
             RTT_CORBA_API static DispatchMap DispatchI;
 
             typedef internal::List<base::ChannelElementBase::shared_ptr> RCList;
@@ -85,7 +85,7 @@ namespace RTT {
              * @param iface The interface to dispatch data flow messages for.
              * @return
              */
-            static CorbaDispatcher* Instance(interface::DataFlowInterface* iface) {
+            static CorbaDispatcher* Instance(DataFlowInterface* iface) {
                 if (!mlock)
                     mlock = new os::Mutex();
                 DispatchMap::iterator result = DispatchI.find(iface);
@@ -113,7 +113,7 @@ namespace RTT {
              * Releases and cleans up a specific interface from dispatching.
              * @param iface
              */
-            static void Release(interface::DataFlowInterface* iface) {
+            static void Release(DataFlowInterface* iface) {
                 DispatchMap::iterator result = DispatchI.find(iface);
                 if ( result != DispatchI.end() ) {
                     os::MutexLock lock(*mlock);

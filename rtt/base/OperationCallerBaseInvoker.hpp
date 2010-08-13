@@ -31,7 +31,7 @@ namespace RTT
              * @param caller The engine of the calling TaskContext.
              * @return true if the part could produce the correct OperationCallerBase type, false otherwise.
              */
-            virtual bool setImplementationPart(interface::OperationInterfacePart* orp, ExecutionEngine* caller = 0) = 0;
+            virtual bool setImplementationPart(OperationInterfacePart* orp, ExecutionEngine* caller = 0) = 0;
             /**
              * Sets the caller of this method after the implementation was set.
              * @param caller

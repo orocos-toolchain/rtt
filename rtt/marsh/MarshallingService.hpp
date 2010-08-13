@@ -43,7 +43,7 @@
 #include <string>
 #include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 
 namespace RTT
 { namespace marsh {
@@ -52,7 +52,7 @@ namespace RTT
      * Service which loads and saves properties of a TaskContext.
      */
     class RTT_MARSH_API MarshallingService
-        : public interface::Service
+        : public Service
     {
     public:
         typedef boost::shared_ptr<MarshallingService> shared_ptr;

@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue May 4 16:49:14 CEST 2004  ArgumentDescription.hpp
+  tag: Peter Soetens  Thu Oct 22 11:59:08 CEST 2009  rtt-interface-fwd.hpp
 
-                        ArgumentDescription.hpp -  description
+                        rtt-interface-fwd.hpp -  description
                            -------------------
-    begin                : Tue May 04 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Thu October 22 2009
+    copyright            : (C) 2009 Peter Soetens
+    email                : peter@thesourcworks.com
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,25 +35,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ARGUMENTDESCRIPTION_HPP
-#define ARGUMENTDESCRIPTION_HPP
 
-#include <string>
-#include "../rtt-config.h"
+#ifndef ORO_RTT_interface_FWD_HPP
+#define ORO_RTT_interface_FWD_HPP
 
-namespace RTT
-{ namespace interface {
+#include <boost/shared_ptr.hpp>
 
-    /**
-     * @brief Description of one Argument of a Command.
-     */
-    struct RTT_API ArgumentDescription
-    {
-        ArgumentDescription (const std::string _name, const std::string _desc, const std::string _type);
-        std::string name;
-        std::string description;
-        std::string type;
-    };
-}}
-
+namespace RTT {
+    struct ArgumentDescription;
+    class ConfigurationInterface;
+    class DataFlowInterface;
+    class OperationInterface;
+    class OperationInterfacePart;
+    class Service;
+    class ServiceRequester;
+    typedef boost::shared_ptr<Service> ServicePtr;
+}
 #endif

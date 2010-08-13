@@ -47,7 +47,7 @@
 #include "scripting/rtt-scripting-config.h"
 #include "ProgramExceptions.hpp"
 #include "StatementProcessor.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "Parser.hpp"
 #include "parse_exception.hpp"
 #include "../OperationCaller.hpp"

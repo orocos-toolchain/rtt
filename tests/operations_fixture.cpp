@@ -3,7 +3,7 @@
 #include <TaskContext.hpp>
 #include <OperationCaller.hpp>
 #include <Operation.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 using namespace std;
 using namespace boost;

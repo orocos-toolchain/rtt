@@ -84,7 +84,7 @@ namespace RTT { namespace scripting
       /**
        * The current subcontext of root where we are working in.
        */
-      interface::Service::shared_ptr context;
+      Service::shared_ptr context;
 
       /**
        * The current function context where we are working in.
@@ -180,7 +180,7 @@ namespace RTT { namespace scripting
       void seenprogramend();
       void programtext(iter_t, iter_t);
 
-      void setStack(interface::Service::shared_ptr st);
+      void setStack(Service::shared_ptr st);
       void setup();
       void setup2();
       void cleanup();
@@ -218,7 +218,7 @@ namespace RTT { namespace scripting
 
       std::vector<ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
 
-      void initBodyParser(const std::string& name, interface::Service::shared_ptr stck, int offset);
+      void initBodyParser(const std::string& name, Service::shared_ptr stck, int offset);
       rule_t& bodyParser();
       ProgramInterfacePtr bodyParserResult();
 

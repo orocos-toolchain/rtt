@@ -42,9 +42,9 @@
 
 #include "rtt-config.h"
 #include "plugin/PluginLoader.hpp"
-#include "interface/Service.hpp"
-#include "interface/ServiceRequester.hpp"
-#include "interface/DataFlowInterface.hpp"
+#include "Service.hpp"
+#include "ServiceRequester.hpp"
+#include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
 #include <boost/make_shared.hpp>
@@ -264,26 +264,26 @@ namespace RTT
          * Returns this Service.
          * @return a shared pointer from this.
          */
-        interface::Service::shared_ptr provides() { return tcservice; }
+        Service::shared_ptr provides() { return tcservice; }
 
         /**
          * Returns a sub-Service which resorts under
          * this Service.
          * @param service_name The name of the sub-service.
          */
-        interface::Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
+        Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
 
         /**
          * Returns the object that manages which methods this Task
          * requires to be implemented by another task.
          */
-        interface::ServiceRequester* requires() { return tcrequests; }
+        ServiceRequester* requires() { return tcrequests; }
 
         /**
          * Returns the object that manages which methods this Task
          * requires to be implemented by another service.
          */
-        interface::ServiceRequester* requires(const std::string& service_name) {
+        ServiceRequester* requires(const std::string& service_name) {
             return tcrequests->requires(service_name);
         }
 
@@ -357,7 +357,7 @@ namespace RTT
          *
          * @return true if it could be found, false otherwise.
          */
-        interface::OperationInterfacePart* getOperation( std::string name )
+        OperationInterfacePart* getOperation( std::string name )
         {
             return tcservice->getOperation(name);
         }
@@ -365,7 +365,7 @@ namespace RTT
         /**
          * Returns the operations of this TaskContext as an OperationInterface.
          */
-        interface::OperationInterface* operations() { return this->provides().get(); }
+        OperationInterface* operations() { return this->provides().get(); }
 
         /** @} */
 
@@ -432,7 +432,7 @@ namespace RTT
         /**
          * Returns the attributes of this TaskContext as an ConfigurationInterface.
          */
-        interface::ConfigurationInterface* attributes() { return this->provides().get(); }
+        ConfigurationInterface* attributes() { return this->provides().get(); }
 
         /** @} */
 
@@ -554,14 +554,14 @@ namespace RTT
         /**
          * Get the Data flow ports of this task.
          */
-        interface::DataFlowInterface* ports() {
+        DataFlowInterface* ports() {
             return &dataPorts;
         }
 
         /**
          * Get the Data flow ports of this task.
          */
-        const interface::DataFlowInterface* ports() const {
+        const DataFlowInterface* ports() const {
             return &dataPorts;
         }
 
@@ -624,7 +624,7 @@ namespace RTT
          */
         void setup();
 
-        friend class interface::DataFlowInterface;
+        friend class DataFlowInterface;
         typedef std::vector< base::PortInterface* > PortList;
         PortList updated_ports;
         internal::MWSRQueue<base::PortInterface*>* portqueue;
@@ -651,18 +651,18 @@ namespace RTT
          */
         void dataOnPortRemoved(base::PortInterface* port);
 
-        typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;
+        typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
         LocalServices localservs;
 
-        interface::Service::shared_ptr tcservice;
-        interface::ServiceRequester*           tcrequests;
+        Service::shared_ptr tcservice;
+        ServiceRequester*           tcrequests;
     private:
         // non copyable
         TaskContext( TaskContext& );
         /**
          * The task-local ports.
          */
-        interface::DataFlowInterface dataPorts;
+        DataFlowInterface dataPorts;
 
         /**
          * This pointer tracks our activity which is set by

@@ -26,7 +26,7 @@
 #include <extras/SimulationThread.hpp>
 #include <OperationCaller.hpp>
 #include <OperationCaller.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 using namespace std;
 

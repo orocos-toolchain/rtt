@@ -44,8 +44,8 @@
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #endif
-#include "../../interface/OperationInterface.hpp"
-#include "../../interface/FactoryExceptions.hpp"
+#include "../../OperationInterface.hpp"
+#include "../../FactoryExceptions.hpp"
 #include "ServiceC.h"
 #include "CorbaConversion.hpp"
 #include "CorbaTypeTransporter.hpp"
@@ -60,7 +60,7 @@ namespace RTT
      * C++ calls to corba idl.
      */
     class RTT_CORBA_API CorbaOperationCallerFactory
-        : public RTT::interface::OperationInterfacePart
+        : public RTT::OperationInterfacePart
     {
         corba::CService_var mfact;
         PortableServer::POA_var mpoa;
@@ -68,7 +68,7 @@ namespace RTT
     public:
         typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
         typedef std::vector<std::string> Members;
-        typedef std::vector< interface::ArgumentDescription > CDescriptions;
+        typedef std::vector< ArgumentDescription > CDescriptions;
 
         CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
 
@@ -86,7 +86,7 @@ namespace RTT
 
         virtual std::string description() const;
 
-        virtual std::vector< interface::ArgumentDescription > getArgumentList() const;
+        virtual std::vector< ArgumentDescription > getArgumentList() const;
 
         virtual base::DataSourceBase::shared_ptr produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const ;
         virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const;

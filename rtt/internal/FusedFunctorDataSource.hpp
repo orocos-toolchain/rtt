@@ -198,7 +198,7 @@ namespace RTT
             typedef typename boost::function_types::function_type<Function>::type Signature;
             typedef internal::create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
             if ( args.size() != boost::function_traits<Signature>::arity )
-                throw interface::wrong_number_of_args_exception(boost::function_traits<Signature>::arity, args.size() );
+                throw wrong_number_of_args_exception(boost::function_traits<Signature>::arity, args.size() );
             return new FusedFunctorDataSource<Signature>(f, SequenceFactory::sources(args.begin()));
         }
 

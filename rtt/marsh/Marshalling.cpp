@@ -3,7 +3,7 @@
 namespace RTT
 {
     Marshalling::Marshalling(TaskContext* owner)
-      : interface::ServiceRequester("marshalling",owner),
+      : ServiceRequester("marshalling",owner),
         loadProperties("loadProperties"),
         readProperties("readProperties"),
         updateProperties("updateProperties"),

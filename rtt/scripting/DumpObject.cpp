@@ -40,8 +40,8 @@
 #include <vector>
 #include <string>
 #include "../base/DataSourceBase.hpp"
-#include "../interface/Service.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
+#include "../Service.hpp"
 #include "DumpObject.hpp"
 #include "rtt-fwd.hpp"
 

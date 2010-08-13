@@ -42,7 +42,7 @@
 #include <string>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../interface/rtt-interface-fwd.hpp"
+#include "../rtt-interface-fwd.hpp"
 #include "../SendStatus.hpp"
 #include "SendHandleC.hpp"
 
@@ -61,7 +61,7 @@ namespace RTT
         D* d;
         base::DataSourceBase::shared_ptr m;
         base::DataSourceBase::shared_ptr s;
-        interface::OperationInterfacePart* ofp;
+        OperationInterfacePart* ofp;
         std::string mname;
 
     public:
@@ -74,9 +74,9 @@ namespace RTT
 
         /**
          * The constructor.
-         * @see interface::Service
+         * @see Service
          */
-        OperationCallerC( interface::OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller);
+        OperationCallerC( OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller);
 
         /**
          * A OperationCallerC is copyable by value.
@@ -173,7 +173,7 @@ namespace RTT
         /**
          * Returns the factory which we use to produce the operation call.
          */
-        interface::OperationInterfacePart* getOrp() const;
+        OperationInterfacePart* getOrp() const;
 
         /**
          * Returns the name of the operation that will be called.

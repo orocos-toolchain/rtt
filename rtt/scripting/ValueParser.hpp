@@ -42,7 +42,7 @@
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
-#include "../interface/ConfigurationInterface.hpp"
+#include "../ConfigurationInterface.hpp"
 
 #include <memory>
 #include <map>

@@ -6,7 +6,7 @@
 #include <OperationCaller.hpp>
 #include <Operation.hpp>
 #include <internal/RemoteOperationCaller.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"

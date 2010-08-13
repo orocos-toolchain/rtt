@@ -4,7 +4,7 @@
 #include <string>
 #include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
-#include "../interface/ServiceRequester.hpp"
+#include "../ServiceRequester.hpp"
 #include "../OperationCaller.hpp"
 
 namespace RTT
@@ -13,7 +13,7 @@ namespace RTT
      * Service requester to load and save properties of a TaskContext.
      */
     class RTT_MARSH_API Marshalling
-    : public interface::ServiceRequester
+    : public ServiceRequester
     {
         TaskContext* mparent;
     public:

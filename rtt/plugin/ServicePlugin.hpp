@@ -30,7 +30,7 @@ namespace RTT {
         RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc);  \
         bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
-            RTT::interface::Service::shared_ptr sp( new SERVICE( tc ) ); \
+            RTT::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
         RTT_EXPORT std::string getRTTPluginName(); \
@@ -58,7 +58,7 @@ namespace RTT {
         RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* tc); \
         bool loadRTTPlugin(RTT::TaskContext* tc) {    \
             if (tc == 0) return true; \
-            RTT::interface::Service::shared_ptr sp( new SERVICE( tc ) ); \
+            RTT::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
         RTT_EXPORT std::string getRTTPluginName(); \

@@ -40,7 +40,7 @@
 #include "ProgramService.hpp"
 
 #include "../OperationCaller.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../ExecutionEngine.hpp"
 #include "../internal/DataSources.hpp"
 

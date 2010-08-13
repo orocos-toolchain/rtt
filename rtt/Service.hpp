@@ -21,8 +21,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 namespace RTT
-{ namespace interface {
-
+{
     /**
      * This class allows storage and retrieval of operations,
      * attributes and properties provided by a component.
@@ -364,7 +363,7 @@ namespace RTT
         TaskContext* mowner;
         shared_ptr parent;
     };
-}}
+}
 
 
 #endif

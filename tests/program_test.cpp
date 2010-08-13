@@ -27,7 +27,7 @@
 #include <scripting/ScriptingService.hpp>
 #include <extras/SimulationThread.hpp>
 #include <extras/SimulationActivity.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 #include <TaskContext.hpp>
 #include <OperationCaller.hpp>

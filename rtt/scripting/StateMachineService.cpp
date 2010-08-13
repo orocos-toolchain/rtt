@@ -40,7 +40,7 @@
 #include "StateMachineService.hpp"
 
 #include "../Attribute.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../TaskContext.hpp"
 #include "../OperationCaller.hpp"
 

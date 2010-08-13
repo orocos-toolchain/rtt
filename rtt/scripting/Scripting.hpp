@@ -1,7 +1,7 @@
 #ifndef ORO_SCRIPTING_HPP_
 #define ORO_SCRIPTING_HPP_
 
-#include "../interface/ServiceRequester.hpp"
+#include "../ServiceRequester.hpp"
 #include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
 #include "../OperationCaller.hpp"
@@ -14,7 +14,7 @@ namespace RTT
      * The method interface of the scripting plugin.
      */
     class RTT_SCRIPTING_API Scripting
-        : public interface::ServiceRequester
+        : public ServiceRequester
     {
     public:
         Scripting(TaskContext* owner);
