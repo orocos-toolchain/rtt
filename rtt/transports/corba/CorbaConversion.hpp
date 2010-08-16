@@ -92,7 +92,7 @@ namespace RTT
          * @return true if the any was convertible to tp.
          */
         static bool update(const CORBA::Any& any, StdType tp) {
-            Logger::log() << Logger::Debug << "Failing conversion of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
+            Logger::log() << Logger::Error << "Failing conversion of type "<<internal::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
             return false;
         }
 
