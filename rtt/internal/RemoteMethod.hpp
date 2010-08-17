@@ -59,7 +59,10 @@ namespace RTT
         namespace bf = ::boost::fusion;
 
         /**
-         * A Method which executes a remote function directly.
+         * A Method implementation which executes a remote function
+         * which is encapsulated in a MethodC and SendHandleC object.
+         * Used as implementation class for RemoteMethod.
+         *
          * @param MethodT The function signature of the method. For example,
          * bool( int, Frame, double)
          *
@@ -292,7 +295,16 @@ namespace RTT
 
 
         /**
-         * A Method which is dispatched remotely to a MethodProcessor.
+         * A Method implementation which delegates C++ to datasource
+         * conversions when C++ code tries to call remote methods, only
+         * available in an OperationInterfacePart, and not through an
+         * OperationBase. The datasources created as such are not
+         * subject to copy/clone semantics since they only serve as
+         * proxies to C++ arguments on the stack, when the Method
+         * object is invoked. A MethodC object is used to keep track
+         * of all involved objects, and a SendHandleC object is used
+         * to track the results of asynchronous calls.
+         *
          * @param MethodT The function signature of the method. For example,
          * bool( int, Frame, double)
          *
