@@ -138,7 +138,7 @@ namespace RTT
             typedef R const& result_type;
             typedef R ds_type;
             DSRStore<result_type> retn;
-            typename AssignableDataSource<ds_type>::shared_ptr result;
+            typename ReferenceDataSource<ds_type>::shared_ptr result;
 
             DataSourceResultStorage()
                 : result( new ReferenceDataSource<ds_type>( retn.result() ) )
@@ -162,10 +162,11 @@ namespace RTT
         {
             AStore<A> arg;
             typedef typename remove_cr<A>::type ds_type;
-            typename ReferenceDataSource<ds_type>::shared_ptr value;
+            typename LateReferenceDataSource<ds_type>::shared_ptr value;
             DataSourceArgStorage()
-                : value( new ReferenceDataSource<ds_type>(arg.get()) )
+                : value( new LateReferenceDataSource<ds_type>() )
             {}
+            void newarg(A a) { arg(a); value->setPointer(&arg.get()); }
         };
 
         template<class A>
@@ -173,10 +174,11 @@ namespace RTT
         {
             AStore<A const&> arg;
             // without const&:
-            typename ConstReferenceDataSource<A>::shared_ptr value;
+            typename LateConstReferenceDataSource<A>::shared_ptr value;
             DataSourceArgStorage()
-                : value( new ConstReferenceDataSource<A>(arg.get()) )
+                : value( new LateConstReferenceDataSource<A>() )
             {}
+            void newarg(A const& a) { arg(a); value->setPointer(&arg.get());}
         };
 
         template<int, class T>
@@ -219,7 +221,7 @@ namespace RTT
             }
 
             void store(arg1_type a1) {
-                ma1.arg(a1);
+                ma1.newarg(a1);
             }
         };
 
@@ -244,8 +246,8 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma2.value) );
             }
             void store(arg1_type a1, arg2_type a2) {
-                ma1.arg(a1);
-                ma2.arg(a2);
+                ma1.newarg(a1);
+                ma2.newarg(a2);
             }
         };
 
@@ -273,9 +275,9 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma3.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3) {
-                ma1.arg(a1);
-                ma2.arg(a2);
-                ma3.arg(a3);
+                ma1.newarg(a1);
+                ma2.newarg(a2);
+                ma3.newarg(a3);
             }
         };
 
@@ -306,10 +308,10 @@ namespace RTT
                 cc.arg( base::DataSourceBase::shared_ptr(ma4.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
-                ma1.arg(a1);
-                ma2.arg(a2);
-                ma3.arg(a3);
-                ma4.arg(a4);
+                ma1.newarg(a1);
+                ma2.newarg(a2);
+                ma3.newarg(a3);
+                ma4.newarg(a4);
             }
         };
         

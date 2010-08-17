@@ -250,6 +250,113 @@ namespace RTT
     };
 
         /**
+         * A DataSource which is used to manipulate a reference to an
+         * external value, by means of a pointer, which can be set after
+         * the data source was created. It's the responsibility of the creator
+         * of this object that the data source is not used before the pointer
+         * is set using setPointer.
+         * @param T The result data type of get().
+         */
+        template<typename T>
+        class LateReferenceDataSource
+            : public AssignableDataSource<T>
+        {
+            // a reference to a value_t
+            typename AssignableDataSource<T>::value_t* mptr;
+        public:
+
+            typedef boost::intrusive_ptr<LateReferenceDataSource<T> > shared_ptr;
+
+            LateReferenceDataSource( typename AssignableDataSource<T>::value_t* ptr = 0)
+            :mptr(ptr) {}
+
+            void setPointer( typename AssignableDataSource<T>::value_t* ptr ) {
+                mptr = ptr;
+            }
+
+            typename DataSource<T>::result_t get() const
+            {
+                return *mptr;
+            }
+
+            typename DataSource<T>::result_t value() const
+            {
+                return *mptr;
+            }
+
+            void set( typename AssignableDataSource<T>::param_t t ) {
+                *mptr = t;
+            }
+
+            typename AssignableDataSource<T>::reference_t set()
+            {
+                return *mptr;
+            }
+
+            typename AssignableDataSource<T>::const_reference_t rvalue() const
+            {
+                return *mptr;
+            }
+
+            virtual LateReferenceDataSource<T>* clone() const {
+                return new LateReferenceDataSource<T>( mptr );
+            }
+
+            virtual LateReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>&  ) const {
+                return const_cast<LateReferenceDataSource<T>* >(this);
+            }
+        };
+
+            /**
+             * A DataSource which is used to manipulate a const reference to an
+             * external value, by means of a pointer, which can be set after
+             * the data source was created. It's the responsibility of the creator
+             * of this object that the data source is not used before the pointer
+             * is set using setPointer.
+             * @param T The result data type of get().
+             */
+            template<typename T>
+            class LateConstReferenceDataSource
+                : public DataSource<T>
+            {
+                // a reference to a value_t
+                const typename DataSource<T>::value_t* mptr;
+            public:
+
+                typedef boost::intrusive_ptr<LateConstReferenceDataSource<T> > shared_ptr;
+
+                LateConstReferenceDataSource(const typename DataSource<T>::value_t* ptr = 0)
+                :mptr(ptr) {}
+
+                void setPointer(const typename AssignableDataSource<T>::value_t* ptr ) {
+                    mptr = ptr;
+                }
+
+                typename DataSource<T>::result_t get() const
+                {
+                    return *mptr;
+                }
+
+                typename DataSource<T>::result_t value() const
+                {
+                    return *mptr;
+                }
+
+                typename DataSource<T>::const_reference_t rvalue() const
+                {
+                    return *mptr;
+                }
+
+                virtual LateConstReferenceDataSource<T>* clone() const {
+                    return new LateConstReferenceDataSource<T>( mptr );
+                }
+
+                virtual LateConstReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>&  ) const {
+                    return const_cast<LateConstReferenceDataSource<T>* >(this);
+                }
+            };
+
+                /**
          * A DataSource which is used to execute an action
          * and then return the value of another DataSource.
          * @param T The result data type of get().
