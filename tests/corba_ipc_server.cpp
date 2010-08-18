@@ -19,8 +19,8 @@
 
 
 #include <iostream>
-#include <rtt/Method.hpp>
-#include <rtt/interface/Service.hpp>
+#include <rtt/OperationCaller.hpp>
+#include <rtt/Service.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
@@ -48,7 +48,7 @@ public:
     TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
-        this->createMethodFactories( this );
+        this->createOperationCallerFactories( this );
         ts = corba::TaskContextServer::Create( this, true ); //use-naming
         this->start();
     }

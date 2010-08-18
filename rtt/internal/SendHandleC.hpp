@@ -5,7 +5,7 @@
 #include <boost/make_shared.hpp>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../interface/rtt-interface-fwd.hpp"
+#include "../rtt-interface-fwd.hpp"
 #include "../SendStatus.hpp"
 
 namespace RTT
@@ -17,7 +17,7 @@ namespace RTT
      * a OperationFactoryPart::produceSend(), the part itself and
      * any arguments that must be provided to collect the results.
      *
-     * It is used by MethodC to pass on responsibility to collect
+     * It is used by OperationCallerC to pass on responsibility to collect
      * results to a separate object.
      */
     class RTT_API SendHandleC
@@ -39,9 +39,9 @@ namespace RTT
         internal::AssignableDataSource<bool>::shared_ptr b;
 
 	/**
-	 * Stores the OperationRepositoryPart pointer contained in this SendHandle
+	 * Stores the OperationInterfacePart pointer contained in this SendHandle
 	 */
-	interface::OperationRepositoryPart* orp;
+	OperationInterfacePart* orp;
 
 
     public:
@@ -56,7 +56,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, interface::OperationRepositoryPart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -78,7 +78,7 @@ namespace RTT
         SendHandleC& arg( base::DataSourceBase::shared_ptr a );
 
         /**
-         * Add an argument by reference to the Method.
+         * Add an argument by reference to the OperationCaller.
          * @param a A value of which the reference is used and re-read each time
          * the method is called. Thus if the contents of the source of \a a changes,
          * call() will use the new contents.
@@ -119,9 +119,9 @@ namespace RTT
         base::DataSourceBase::shared_ptr getSendHandleDataSource();
 
 	/**
-	 * Get the contained OperationRepositoryPart for SendHandle
+	 * Get the contained OperationInterfacePart for SendHandle
 	 */
-	interface::OperationRepositoryPart* getOrp();
+	OperationInterfacePart* getOrp();
 
     };
 }}

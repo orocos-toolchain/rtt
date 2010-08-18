@@ -141,7 +141,7 @@ namespace RTT
         virtual TaskState getTaskState() const;
 
         /**
-         * @name Script Methods
+         * @name Script OperationCallers
          *
          * These TaskCore functions are exported in a TaskContext as script
          * methods and are for configuration, starting and stopping

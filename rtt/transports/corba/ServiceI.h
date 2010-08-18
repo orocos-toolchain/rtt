@@ -28,8 +28,8 @@
 // TAO_IDL - Generated from 
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1133
 
-#ifndef ORO_CORBA_SERVICEPROVIDERI_H_
-#define ORO_CORBA_SERVICEPROVIDERI_H_
+#ifndef ORO_CORBA_SERVICEI_H_
+#define ORO_CORBA_SERVICEI_H_
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
@@ -38,9 +38,9 @@
 #include "ServiceC.h"
 #endif
 
-#include "../../interface/Service.hpp"
+#include "../../Service.hpp"
 #include "ConfigurationInterfaceI.h"
-#include "OperationRepositoryI.h"
+#include "OperationInterfaceI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -49,14 +49,14 @@
 class  RTT_corba_CService_i
     : public virtual POA_RTT::corba::CService, public virtual PortableServer::RefCountServantBase,
       public virtual RTT_corba_CConfigurationInterface_i,
-      public virtual RTT_corba_COperationRepository_i
+      public virtual RTT_corba_COperationInterface_i
 {
 protected:
     PortableServer::POA_var mpoa;
-    RTT::interface::Service::shared_ptr mservice;
+    RTT::Service::shared_ptr mservice;
 public:
   // Constructor 
-    RTT_corba_CService_i ( RTT::interface::ServicePtr service, PortableServer::POA_ptr poa);
+    RTT_corba_CService_i ( RTT::ServicePtr service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CService_i (void);
@@ -92,5 +92,6 @@ public:
 };
 
 
-#endif /* SERVICEPROVIDERI_H_  */
+#endif /* SERVICEI_H_  */
+
 

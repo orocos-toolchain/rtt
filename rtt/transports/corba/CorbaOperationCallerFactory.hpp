@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaMethodFactory.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaOperationCallerFactory.hpp
 
-                        CorbaMethodFactory.hpp -  description
+                        CorbaOperationCallerFactory.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -44,8 +44,8 @@
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #endif
-#include "../../interface/OperationRepository.hpp"
-#include "../../interface/FactoryExceptions.hpp"
+#include "../../OperationInterface.hpp"
+#include "../../FactoryExceptions.hpp"
 #include "ServiceC.h"
 #include "CorbaConversion.hpp"
 #include "CorbaTypeTransporter.hpp"
@@ -59,8 +59,8 @@ namespace RTT
      * It connects to an corba::Service and translates
      * C++ calls to corba idl.
      */
-    class RTT_CORBA_API CorbaMethodFactory
-        : public RTT::interface::OperationRepositoryPart
+    class RTT_CORBA_API CorbaOperationCallerFactory
+        : public RTT::OperationInterfacePart
     {
         corba::CService_var mfact;
         PortableServer::POA_var mpoa;
@@ -68,11 +68,11 @@ namespace RTT
     public:
         typedef std::vector<base::DataSourceBase::shared_ptr> CArguments;
         typedef std::vector<std::string> Members;
-        typedef std::vector< interface::ArgumentDescription > CDescriptions;
+        typedef std::vector< ArgumentDescription > CDescriptions;
 
-        CorbaMethodFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
+        CorbaOperationCallerFactory( const std::string& method_name, corba::CService_ptr fact, PortableServer::POA_ptr the_poa );
 
-        virtual ~CorbaMethodFactory();
+        virtual ~CorbaOperationCallerFactory();
 
         virtual unsigned int arity() const;
 
@@ -86,7 +86,7 @@ namespace RTT
 
         virtual std::string description() const;
 
-        virtual std::vector< interface::ArgumentDescription > getArgumentList() const;
+        virtual std::vector< ArgumentDescription > getArgumentList() const;
 
         virtual base::DataSourceBase::shared_ptr produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const ;
         virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const;

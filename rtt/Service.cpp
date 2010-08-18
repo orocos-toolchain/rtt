@@ -70,7 +70,7 @@ namespace RTT {
         return shared_ptr();
     }
 
-    OperationRepositoryPart* Service::getOperation( std::string name )
+    OperationInterfacePart* Service::getOperation( std::string name )
     {
         Logger::In in("Service::getOperation");
         if ( this->hasMember(name ) ) {
@@ -128,7 +128,7 @@ namespace RTT {
         for_each(ownedoperations.begin(),ownedoperations.end(), lambda::delete_ptr() );
         ownedoperations.clear();
 
-        OperationRepository::clear();
+        OperationInterface::clear();
         while ( !services.empty() ) {
             if ( services.begin()->second->getParent() == shared_from_this() )
                 this->removeService( services.begin()->first );
@@ -157,7 +157,7 @@ namespace RTT {
             ownedoperations.erase(it);
         }
         simpleoperations.erase( name );
-        OperationRepository::remove(name);
+        OperationInterface::remove(name);
     }
     void Service::setOwner(TaskContext* new_owner) {
         for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)
@@ -172,8 +172,8 @@ namespace RTT {
         parent = p;
     }
 
-    internal::MethodC Service::create(std::string name, ExecutionEngine* caller) {
-        return internal::MethodC( getPart(name), name, caller );
+    internal::OperationCallerC Service::create(std::string name, ExecutionEngine* caller) {
+        return internal::OperationCallerC( getPart(name), name, caller );
     }
 
 }

@@ -38,7 +38,7 @@
 #include "ServiceRequesterC.h"
 #endif
 
-#include "../../interface/ServiceRequester.hpp"
+#include "../../ServiceRequester.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -48,11 +48,11 @@ class  RTT_corba_CServiceRequester_i
     : public virtual POA_RTT::corba::CServiceRequester, public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::interface::ServiceRequester* mservice;
+    RTT::ServiceRequester* mservice;
     PortableServer::POA_ptr mpoa;
 public:
   // Constructor 
-    RTT_corba_CServiceRequester_i (RTT::interface::ServiceRequester* service, PortableServer::POA_ptr poa);
+    RTT_corba_CServiceRequester_i (RTT::ServiceRequester* service, PortableServer::POA_ptr poa);
   
   // Destructor 
   virtual ~RTT_corba_CServiceRequester_i (void);
@@ -72,7 +72,7 @@ public:
       void);
   
   virtual
-  ::RTT::corba::CMethodNames * getMethodNames (
+  ::RTT::corba::COperationCallerNames * getOperationCallerNames (
       void);
   
   virtual

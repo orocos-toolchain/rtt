@@ -21,7 +21,7 @@ namespace RTT {
         class RunnableInterface;
         class TaskCore;
         struct DataBuf;
-        struct MethodBaseInvoker;
+        struct OperationCallerBaseInvoker;
         template <class T>
         class DataObjectInterface;
         template< class T >
@@ -31,7 +31,7 @@ namespace RTT {
         template< class T>
         class BufferLockFree;
         template<class F>
-        struct MethodBase;
+        struct OperationCallerBase;
         template<class T>
         class BufferLocked;
         template<class T>

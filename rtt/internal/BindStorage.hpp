@@ -204,7 +204,7 @@ namespace RTT
          * elements that don't need to be returned to the user when
          * collect or return is called. We only return AStore elements
          * that store a pure reference and RStore elements that are not void.
-         * @see LocalMethodImpl
+         * @see LocalOperationCallerImpl
          */
         template<class Arg>
         struct is_arg_return : public mpl::false_ {};

@@ -22,9 +22,9 @@
 
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
-#include <Method.hpp>
-#include <interface/Service.hpp>
-#include <internal/RemoteMethod.hpp>
+#include <OperationCaller.hpp>
+#include <Service.hpp>
+#include <internal/RemoteOperationCaller.hpp>
 
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
@@ -32,7 +32,7 @@
 #include <boost/function_types/function_type.hpp>
 
 #include <rtt-config.h>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 using namespace std;
 
@@ -43,7 +43,7 @@ void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addService( this->createMethodFactory() );
+    tc->addService( this->createOperationCallerFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
 }
 
@@ -63,7 +63,7 @@ bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
-Service* Generic_TaskTest::createMethodFactory()
+Service* Generic_TaskTest::createOperationCallerFactory()
 {
     Service* to = new Service("methods");
 
@@ -81,15 +81,15 @@ Service* Generic_TaskTest::createMethodFactory()
 BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTestSuite,  Generic_TaskTest )
 
 
-BOOST_AUTO_TEST_CASE(testRemoteMethod)
+BOOST_AUTO_TEST_CASE(testRemoteOperationCaller)
 {
     Operation<double(void)> m0;
-    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->provides("methods"),"m0") );
+    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteOperationCaller<double(void)>(tc->provides("methods"),"m0") );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
     Operation<double(int)> m1;
-    implementation.reset( new detail::RemoteMethod<double(int)>(tc->provides("methods"),"m1") );
+    implementation.reset( new detail::RemoteOperationCaller<double(int)>(tc->provides("methods"),"m1") );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
 
@@ -97,9 +97,9 @@ BOOST_AUTO_TEST_CASE(testRemoteMethod)
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodsC)
+BOOST_AUTO_TEST_CASE(testOperationCallersC)
 {
-    MethodC mc;
+    OperationCallerC mc;
     double r = 0.0;
     mc = tc->provides("methods")->create("m0").ret( r );
     BOOST_CHECK( mc.execute() );
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testMethodsC)
 #endif
 }
 
-BOOST_AUTO_TEST_CASE(testMethod)
+BOOST_AUTO_TEST_CASE(testOperationCaller)
 {
     Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
     Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
@@ -142,10 +142,10 @@ BOOST_AUTO_TEST_CASE(testMethod)
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodFactory)
+BOOST_AUTO_TEST_CASE(testOperationCallerFactory)
 {
     // Test the addition of 'simple' methods to the operation interface,
-    // and retrieving it back in a new Method object.
+    // and retrieving it back in a new OperationCaller object.
 
     Operation<double(void)> m0("m0", &Generic_TaskTest::m0, this);
     Operation<double(int)> m1("m1", &Generic_TaskTest::m1, this);
@@ -153,24 +153,24 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
 
     Service to("task");
 
-    BOOST_CHECK( to.addMethod(&m0) );
-    BOOST_CHECK( ! to.addMethod(&m0) );
-    BOOST_CHECK( to.addMethod(&m1) );
-    BOOST_CHECK( to.addMethod(&m2) );
+    BOOST_CHECK( to.addOperationCaller(&m0) );
+    BOOST_CHECK( ! to.addOperationCaller(&m0) );
+    BOOST_CHECK( to.addOperationCaller(&m1) );
+    BOOST_CHECK( to.addOperationCaller(&m2) );
 
     // test constructor
-    Operation<double(void)> mm0 = to.getMethod<double(void)>("m0");
-    BOOST_CHECK( mm0.getMethodImpl() );
+    Operation<double(void)> mm0 = to.getOperationCaller<double(void)>("m0");
+    BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
     Operation<double(int)> mm1;
-    mm1 = to.getMethod<double(int)>("m1");
-    BOOST_CHECK( mm1.getMethodImpl() );
+    mm1 = to.getOperationCaller<double(int)>("m1");
+    BOOST_CHECK( mm1.getOperationCallerImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Operation<double(int,double)> mm2 = to.getMethod<double(int,double)>("m2");
-    BOOST_CHECK( mm2.getMethodImpl() );
+    Operation<double(int,double)> mm2 = to.getOperationCaller<double(int,double)>("m2");
+    BOOST_CHECK( mm2.getOperationCallerImpl() );
     BOOST_CHECK( mm2.ready() );
 
     // start the activity, such that methods are accepted.
@@ -184,20 +184,20 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
     // test error cases:
     // Add uninitialised method:
     Operation<void(void)> mvoid;
-    BOOST_CHECK(to.addMethod( &mvoid ) == false);
+    BOOST_CHECK(to.addOperationCaller( &mvoid ) == false);
     mvoid = Operation<void(void)>("voidm");
-    BOOST_CHECK(to.addMethod( &mvoid ) == false);
+    BOOST_CHECK(to.addOperationCaller( &mvoid ) == false);
 
     // wrong type 1:
-    mvoid = to.getMethod<void(void)>("m1");
+    mvoid = to.getOperationCaller<void(void)>("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
-    mvoid = to.getMethod<void(bool)>("m1");
+    mvoid = to.getOperationCaller<void(bool)>("m1");
     // wrong type 3:
-    mvoid = to.getMethod<double(void)>("m0");
+    mvoid = to.getOperationCaller<double(void)>("m0");
     BOOST_CHECK( mvoid.ready() == false );
     // non existing
-    mvoid = to.getMethod<void(void)>("voidm");
+    mvoid = to.getOperationCaller<void(void)>("voidm");
     BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(testMethodFactory)
 
 }
 
-BOOST_AUTO_TEST_CASE(testCRMethod)
+BOOST_AUTO_TEST_CASE(testCROperationCaller)
 {
     this->ret = -3.3;
 
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testCRMethod)
 }
 
 
-BOOST_AUTO_TEST_CASE(testMethodFromDS)
+BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
 {
     Service to("task");
 
@@ -242,15 +242,15 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     to.addOperation( &m4 ).doc("desc").arg("a1", "d1").arg("a2", "d2").arg("a3", "d3").arg("a4", "d4");
 
     double ret;
-    MethodC mc0( to.methods(), "m0");
+    OperationCallerC mc0( to.methods(), "m0");
     mc0.ret(ret);
-    MethodC mc1( to.methods(), "m1");
+    OperationCallerC mc1( to.methods(), "m1");
     mc1.argC(1).ret(ret);
-    MethodC mc2( to.methods(), "m2");
+    OperationCallerC mc2( to.methods(), "m2");
     mc2.argC(1).argC(2.0).ret(ret);
-    MethodC mc3( to.methods(), "m3");
+    OperationCallerC mc3( to.methods(), "m3");
     mc3.argC(1).argC(2.0).argC(false).ret(ret);
-    MethodC mc4( to.methods(), "m4");
+    OperationCallerC mc4( to.methods(), "m4");
     mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
 
     BOOST_CHECK( mc0.execute() );
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     BOOST_CHECK_EQUAL(-5.0, ret);
 }
 
-BOOST_AUTO_TEST_CASE(testDSMethod)
+BOOST_AUTO_TEST_CASE(testDSOperationCaller)
 {
     Service to("task");
 
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
     boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
-    BOOST_CHECK( to.addMethodDS( wp.get(), meth0, "desc" ) );
-    BOOST_CHECK( to.addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
+    BOOST_CHECK( to.addOperationCallerDS( wp.get(), meth0, "desc" ) );
+    BOOST_CHECK( to.addOperationCallerDS( wp.get(), meth1, "desc", "a1", "d1" ) );
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     BOOST_CHECK( tsim->start()) ;
 
     double ret;
-    MethodC c0  = to.create("m0").ret(ret);
+    OperationCallerC c0  = to.create("m0").ret(ret);
     BOOST_CHECK( c0.execute() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to.create("m1").argC(1).ret(ret);
+    OperationCallerC c1  = to.create("m1").argC(1).ret(ret);
     BOOST_CHECK( c1.execute() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
 
 }
 
-BOOST_AUTO_TEST_CASE(testAddMethod)
+BOOST_AUTO_TEST_CASE(testAddOperationCaller)
 {
     Operation<double(void)> m0 = method("m0", &Generic_TaskTest::m0, this);
 

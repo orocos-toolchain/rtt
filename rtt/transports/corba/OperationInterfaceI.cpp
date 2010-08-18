@@ -30,17 +30,17 @@
 
 #include "CorbaLib.hpp"
 #include "CorbaTypeTransporter.hpp"
-#include "OperationRepositoryI.h"
+#include "OperationInterfaceI.h"
 #include "AnyDataSource.hpp"
 #include "../../rtt-detail-fwd.hpp"
-#include "../../internal/MethodC.hpp"
+#include "../../internal/OperationCallerC.hpp"
 #include "../../internal/SendHandleC.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
 using namespace std;
 
-RTT_corba_CSendHandle_i::RTT_corba_CSendHandle_i (SendHandleC const& sh, OperationRepositoryPart* ofp)
+RTT_corba_CSendHandle_i::RTT_corba_CSendHandle_i (SendHandleC const& sh, OperationInterfacePart* ofp)
 : mhandle(sh), morig(sh), mofp(ofp)
 {
     // this will always be correct:
@@ -151,26 +151,26 @@ void RTT_corba_CSendHandle_i::checkArguments (
 
 
 // Implementation skeleton constructor
-RTT_corba_COperationRepository_i::RTT_corba_COperationRepository_i (OperationRepository* gmf, PortableServer::POA_ptr the_poa)
+RTT_corba_COperationInterface_i::RTT_corba_COperationInterface_i (OperationInterface* gmf, PortableServer::POA_ptr the_poa)
     :mfact(gmf), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-PortableServer::POA_ptr RTT_corba_COperationRepository_i::_default_POA()
+PortableServer::POA_ptr RTT_corba_COperationInterface_i::_default_POA()
 {
     return PortableServer::POA::_duplicate(mpoa);
 }
 
 
 // Implementation skeleton destructor
-RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
+RTT_corba_COperationInterface_i::~RTT_corba_COperationInterface_i (void)
 {
 }
 
-::RTT::corba::COperationRepository::COperationList * RTT_corba_COperationRepository_i::getOperations (
+::RTT::corba::COperationInterface::COperationList * RTT_corba_COperationInterface_i::getOperations (
     void)
 {
-    RTT::corba::COperationRepository::COperationList_var rlist = new RTT::corba::COperationRepository::COperationList();
+    RTT::corba::COperationInterface::COperationList_var rlist = new RTT::corba::COperationInterface::COperationList();
 
     vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
@@ -185,14 +185,14 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
     return rlist._retn();
 }
 
-::RTT::corba::CDescriptions * RTT_corba_COperationRepository_i::getArguments (
+::RTT::corba::CDescriptions * RTT_corba_COperationInterface_i::getArguments (
     const char * operation)
 {
     CDescriptions_var ret = new CDescriptions();
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)))
         throw ::RTT::corba::CNoSuchNameException( operation );
     // operation found, convert args:
-    OperationRepository::Descriptions args = mfact->getArgumentList( string(operation) );
+    OperationInterface::Descriptions args = mfact->getArgumentList( string(operation) );
     ret->length( args.size() );
     for (size_t i =0; i != args.size(); ++i) {
         ret[i].name = CORBA::string_dup( args[i].name.c_str() );
@@ -202,7 +202,7 @@ RTT_corba_COperationRepository_i::~RTT_corba_COperationRepository_i (void)
     return ret._retn();
 }
 
-char * RTT_corba_COperationRepository_i::getResultType (
+char * RTT_corba_COperationInterface_i::getResultType (
     const char * operation)
 {
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
@@ -210,7 +210,7 @@ char * RTT_corba_COperationRepository_i::getResultType (
     return CORBA::string_dup( mfact->getResultType( string(operation) ).c_str() );
 }
 
-char* RTT_corba_COperationRepository_i::getArgumentType(
+char* RTT_corba_COperationInterface_i::getArgumentType(
         const char* operation,
         CORBA::UShort nbr)
 {
@@ -221,7 +221,7 @@ char* RTT_corba_COperationRepository_i::getArgumentType(
     return CORBA::string_dup( mfact->getPart( operation )->getArgumentType(nbr)->getTypeName().c_str() );
 }
 
-char* RTT_corba_COperationRepository_i::getCollectType(
+char* RTT_corba_COperationInterface_i::getCollectType(
         const char* operation,
         CORBA::UShort nbr)
 {
@@ -233,7 +233,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
 
 }
 
-::CORBA::UShort RTT_corba_COperationRepository_i::getArity (
+::CORBA::UShort RTT_corba_COperationInterface_i::getArity (
     const char * operation)
 {
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
@@ -241,7 +241,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
     return mfact->getPart(operation)->arity();
 }
 
-::CORBA::UShort RTT_corba_COperationRepository_i::getCollectArity (
+::CORBA::UShort RTT_corba_COperationInterface_i::getCollectArity (
     const char * operation)
 {
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
@@ -249,7 +249,7 @@ char* RTT_corba_COperationRepository_i::getCollectType(
     return mfact->getPart(operation)->collectArity();
 }
 
-char * RTT_corba_COperationRepository_i::getDescription (
+char * RTT_corba_COperationInterface_i::getDescription (
     const char * operation)
 {
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
@@ -257,15 +257,15 @@ char * RTT_corba_COperationRepository_i::getDescription (
     return CORBA::string_dup( mfact->getDescription( string(operation) ).c_str() );
 }
 
-void RTT_corba_COperationRepository_i::checkOperation (
+void RTT_corba_COperationInterface_i::checkOperation (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
     if ( mfact->hasMember( string( operation ) ) == false || mfact->isSynchronous(string(operation)) )
         throw ::RTT::corba::CNoSuchNameException( operation );
     try {
-        OperationRepositoryPart* mofp = mfact->getPart(operation);
-        MethodC mc(mofp, operation, 0);
+        OperationInterfacePart* mofp = mfact->getPart(operation);
+        OperationCallerC mc(mofp, operation, 0);
         for (unsigned int i = 0; i < mofp->arity() && i < args.length(); ++i) {
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
@@ -286,7 +286,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
     }
 }
 
-::CORBA::Any * RTT_corba_COperationRepository_i::callOperation (
+::CORBA::Any * RTT_corba_COperationInterface_i::callOperation (
     const char * operation,
     ::RTT::corba::CAnyArguments & args)
 {
@@ -294,7 +294,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        MethodC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, 0);
         vector<DataSourceBase::shared_ptr> results;
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
@@ -337,7 +337,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
     return new ::CORBA::Any();
 }
 
-::RTT::corba::CSendHandle_ptr RTT_corba_COperationRepository_i::sendOperation (
+::RTT::corba::CSendHandle_ptr RTT_corba_COperationInterface_i::sendOperation (
     const char * operation,
     const ::RTT::corba::CAnyArguments & args)
 {
@@ -346,7 +346,7 @@ void RTT_corba_COperationRepository_i::checkOperation (
         throw ::RTT::corba::CNoSuchNameException( operation );
     // convert Corba args to C++ args.
     try {
-        MethodC orig(mfact->getPart(operation), operation, 0);
+        OperationCallerC orig(mfact->getPart(operation), operation, 0);
         for (size_t i =0; i != args.length(); ++i) {
             const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );

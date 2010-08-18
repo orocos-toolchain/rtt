@@ -4,8 +4,8 @@
 #include <string>
 #include "../marsh/rtt-marsh-config.h"
 #include "../rtt-fwd.hpp"
-#include "../interface/ServiceRequester.hpp"
-#include "../Method.hpp"
+#include "../ServiceRequester.hpp"
+#include "../OperationCaller.hpp"
 
 namespace RTT
 {
@@ -13,7 +13,7 @@ namespace RTT
      * Service requester to load and save properties of a TaskContext.
      */
     class RTT_MARSH_API Marshalling
-    : public interface::ServiceRequester
+    : public ServiceRequester
     {
         TaskContext* mparent;
     public:
@@ -30,7 +30,7 @@ namespace RTT
          * component. This can be useful in combination with Orocos scripts when
          * the script requires additional properties from the parent TaskContext.
          */
-        Method<bool (const std::string& filename)> loadProperties;
+        OperationCaller<bool (const std::string& filename)> loadProperties;
 
         /**
          * Read the property file and 'refresh' \b all the properties of the TaskContext.
@@ -40,7 +40,7 @@ namespace RTT
          * @param filename The file to read from.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        Method<bool (const std::string& filename)> readProperties;
+        OperationCaller<bool (const std::string& filename)> readProperties;
 
         /**
          * Read the property file and 'refresh' \b some properties of the TaskContext.
@@ -51,7 +51,7 @@ namespace RTT
          * @param filename The file to read all the properties from.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        Method<bool (const std::string& filename)> updateProperties;
+        OperationCaller<bool (const std::string& filename)> updateProperties;
 
         /**
          * Read a single property from a file. The name may be a 'path' like
@@ -61,7 +61,7 @@ namespace RTT
          * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to lookup \a name.
          */
-        Method<bool (const std::string& name,const std::string& filename)> readProperty;
+        OperationCaller<bool (const std::string& name,const std::string& filename)> readProperty;
 
         /**
          * Write the property file with the properties of a TaskContext.
@@ -71,7 +71,7 @@ namespace RTT
          * @param filename The file to read from and write to (updating).
          * @return true on success, false on error, consult Logger output for messages.
          */
-        Method<bool (const std::string& filename)> writeProperties;
+        OperationCaller<bool (const std::string& filename)> writeProperties;
 
         /**
          * Write the property file with the properties of a TaskContext, which
@@ -82,7 +82,7 @@ namespace RTT
          * @param filename The file to read from and write to.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        Method<bool (const std::string& filename)> updateFile;
+        OperationCaller<bool (const std::string& filename)> updateFile;
 
         /**
          * Write a single property to a file. The name may be a 'path' like
@@ -92,7 +92,7 @@ namespace RTT
          * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to write \a name.
          */
-        Method<bool (const std::string& name, const std::string& filename)> writeProperty;
+        OperationCaller<bool (const std::string& name, const std::string& filename)> writeProperty;
 
     };
 }

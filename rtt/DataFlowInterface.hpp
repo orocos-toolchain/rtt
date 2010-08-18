@@ -47,7 +47,7 @@
 #include "../rtt-fwd.hpp"
 
 namespace RTT
-{ namespace interface {
+{
 
     /**
      * The Interface of a TaskContext which exposes its data-flow ports.
@@ -213,6 +213,6 @@ namespace RTT
 
     };
 
-}}
+}
 
 #endif

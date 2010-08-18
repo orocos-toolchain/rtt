@@ -43,7 +43,7 @@
 #include "os/rtt-os-fwd.hpp"
 #include "base/rtt-base-fwd.hpp"
 #include "internal/rtt-internal-fwd.hpp"
-#include "interface/rtt-interface-fwd.hpp"
+#include "rtt-interface-fwd.hpp"
 #include "plugin/rtt-plugin-fwd.hpp"
 #include "types/rtt-types-fwd.hpp"
 
@@ -67,7 +67,7 @@ namespace RTT
     template<typename T>
     class InputPort;
     template<typename FunctionT>
-    class Method;
+    class OperationCaller;
     template<class Signature>
     class Operation;
     template<typename T>

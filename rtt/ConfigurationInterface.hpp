@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#ifndef ATTRIBUTEREPOSITORY_HPP
-#define ATTRIBUTEREPOSITORY_HPP
+#ifndef CONFIGURATIONINTERFACE_HPP
+#define CONFIGURATIONINTERFACE_HPP
 
 #include <memory>
 #include <map>
@@ -48,8 +48,7 @@
 #include "../PropertyBag.hpp"
 
 namespace RTT
-{ namespace interface {
-
+{
     /**
      * @brief A class for keeping track of Attribute, Constant
      * and Property objects of a TaskContext.
@@ -274,6 +273,6 @@ namespace RTT
         map_t values;
         PropertyBag bag;
     };
-}}
+}
 
 #endif

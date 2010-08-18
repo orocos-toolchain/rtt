@@ -37,8 +37,8 @@
 
 
 #include "PortInterface.hpp"
-#include "../interface/Service.hpp"
-#include "../Method.hpp"
+#include "../Service.hpp"
+#include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
@@ -89,7 +89,7 @@ void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
 }
 
-interface::DataFlowInterface* PortInterface::getInterface() const
+DataFlowInterface* PortInterface::getInterface() const
 {
     return iface;
 }

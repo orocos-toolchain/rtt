@@ -45,7 +45,7 @@
 #include "rtt-scripting-config.h"
 #include "ProgramInterface.hpp"
 #include "StateMachine.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "ProgramExceptions.hpp"
 
 namespace RTT
@@ -58,7 +58,7 @@ namespace RTT
      * It can be found as the \a scripting object of a TaskContext.
      */
     class RTT_SCRIPTING_API ScriptingService
-        : public interface::Service
+        : public Service
     {
     public:
         typedef boost::shared_ptr<ScriptingService> shared_ptr;
@@ -361,7 +361,7 @@ namespace RTT
          */
 
         /**
-         * @name Script Program Methods
+         * @name Script Program OperationCallers
          * @{
          */
         /**
@@ -455,7 +455,7 @@ namespace RTT
          */
 
         /**
-         * @name Script State Machine Methods
+         * @name Script State Machine OperationCallers
          * @{
          */
         /**

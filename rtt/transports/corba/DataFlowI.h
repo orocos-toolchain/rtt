@@ -105,11 +105,11 @@ namespace RTT {
             : public POA_RTT::corba::CDataFlowInterface
             , public virtual PortableServer::RefCountServantBase
         {
-            interface::DataFlowInterface* mdf;
+            DataFlowInterface* mdf;
             PortableServer::POA_var mpoa;
 
             typedef std::list<
-                std::pair<RTT::corba::CDataFlowInterface_var, interface::DataFlowInterface*>
+                std::pair<RTT::corba::CDataFlowInterface_var, DataFlowInterface*>
                 > ServantMap;
             static ServantMap s_servant_map;
 
@@ -119,13 +119,13 @@ namespace RTT {
             ChannelList channel_list;
         public:
             // standard constructor
-            CDataFlowInterface_i(interface::DataFlowInterface* interface, PortableServer::POA_ptr poa);
+            CDataFlowInterface_i(DataFlowInterface* interface, PortableServer::POA_ptr poa);
             virtual ~CDataFlowInterface_i();
 
-            static void registerServant(CDataFlowInterface_ptr objref, interface::DataFlowInterface* obj);
-            static void deregisterServant(interface::DataFlowInterface* obj);
-            static interface::DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
-            static CDataFlowInterface_ptr getRemoteInterface(interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa);
+            static void registerServant(CDataFlowInterface_ptr objref, DataFlowInterface* obj);
+            static void deregisterServant(DataFlowInterface* obj);
+            static DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
+            static CDataFlowInterface_ptr getRemoteInterface(DataFlowInterface* dfi, PortableServer::POA_ptr poa);
 
             virtual RTT::corba::CDataFlowInterface_ptr activate_this() {
                  PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2

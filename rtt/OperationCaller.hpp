@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:07 CET 2006  Method.hpp
+  tag: FMTC  do nov 2 13:06:07 CET 2006  OperationCaller.hpp
 
-                        Method.hpp -  description
+                        OperationCaller.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -41,34 +41,34 @@
 
 #include <string>
 #include <boost/function.hpp>
-#include "base/MethodBase.hpp"
+#include "base/OperationCallerBase.hpp"
 #ifdef ORO_TEST_METHOD
 #include "internal/UnMember.hpp"
-#include "internal/LocalMethod.hpp"
+#include "internal/LocalOperationCaller.hpp"
 #endif
 #include "internal/InvokerSignature.hpp"
-#include "base/MethodBaseInvoker.hpp"
+#include "base/OperationCallerBaseInvoker.hpp"
 #include "Logger.hpp"
-#include "interface/Service.hpp"
+#include "Service.hpp"
 #ifdef ORO_REMOTING
-#include "interface/OperationRepository.hpp"
-#include "internal/RemoteMethod.hpp"
+#include "OperationInterface.hpp"
+#include "internal/RemoteOperationCaller.hpp"
 #endif
 
 namespace RTT
 {
     /**
-     * @defgroup Methods Method Interface
+     * @defgroup OperationCallers OperationCaller Interface
      * Invoking synchronous and asynchronous methods.
      * @ingroup RTTComponentInterface
      */
 
 
     /**
-     * A Method serves as a placeholder (aka 'proxy') for a remote
+     * A OperationCaller serves as a placeholder (aka 'proxy') for a remote
      * Operation. If you want to call an operation, you need a method to do it.
      *
-     * The Method has the exact same signature template argument as the operation
+     * The OperationCaller has the exact same signature template argument as the operation
      * it wishes to call.
      *
      * Asynchronous methods need a caller's ExecutionEngine to be able to process
@@ -76,14 +76,14 @@ namespace RTT
      * GlobalExecutionEngine is used instead.
      *
      * @ingroup RTTComponentInterface
-     * @ingroup Methods
+     * @ingroup OperationCallers
      */
     template<class SignatureT>
-    class Method
+    class OperationCaller
         : public internal::InvokerSignature<boost::function_traits<SignatureT>::arity,
                                           SignatureT,
-                                          boost::shared_ptr< base::MethodBase<SignatureT> > >,
-          public base::MethodBaseInvoker
+                                          boost::shared_ptr< base::OperationCallerBase<SignatureT> > >,
+          public base::OperationCallerBaseInvoker
     {
         std::string mname;
         ExecutionEngine* mcaller;
@@ -91,41 +91,41 @@ namespace RTT
         typedef SignatureT Signature;
         typedef internal::InvokerSignature<boost::function_traits<Signature>::arity,
                                          Signature,
-                                         boost::shared_ptr< base::MethodBase<Signature> > > Base;
+                                         boost::shared_ptr< base::OperationCallerBase<Signature> > > Base;
         typedef typename boost::function_traits<Signature>::result_type result_type;
         typedef boost::function_traits<Signature> traits;
-        typedef boost::shared_ptr< base::MethodBase<Signature> > MethodBasePtr;
+        typedef boost::shared_ptr< base::OperationCallerBase<Signature> > OperationCallerBasePtr;
 
         /**
-         * Create an empty Method object.
+         * Create an empty OperationCaller object.
          * Use assignment to initialise it.
          */
-        Method()
+        OperationCaller()
             : Base(), mname()
         {}
 
         /**
-         * Create an empty Method object.
+         * Create an empty OperationCaller object.
          * Use assignment to initialise it.
          */
-        Method(std::string name, ExecutionEngine* caller = 0)
+        OperationCaller(std::string name, ExecutionEngine* caller = 0)
             : Base(), mname(name), mcaller(caller)
         {}
 
         /**
-         * Method objects may be copied. A deep copy is made
+         * OperationCaller objects may be copied. A deep copy is made
          * of the implementation object such that using this
          * object does not interfere when using the original, m.
          *
          * @param m the original
          */
-        Method(const Method& m)
-            : Base(m.impl ? boost::shared_ptr< base::MethodBase<Signature> >(m.impl->cloneI(m.mcaller)) : m.impl ),
+        OperationCaller(const OperationCaller& m)
+            : Base(m.impl ? boost::shared_ptr< base::OperationCallerBase<Signature> >(m.impl->cloneI(m.mcaller)) : m.impl ),
               mname(m.mname), mcaller(m.mcaller)
         {}
 
         /**
-         * Method objects may be assigned. A deep copy is made
+         * OperationCaller objects may be assigned. A deep copy is made
          * of the implementation object such that using this
          * object does not interfere when using the original, m.
          *
@@ -133,7 +133,7 @@ namespace RTT
          *
          * @return *this
          */
-        Method& operator=(const Method& m)
+        OperationCaller& operator=(const OperationCaller& m)
         {
             if ( this == &m )
                 return *this;
@@ -146,20 +146,20 @@ namespace RTT
         }
 
         /**
-         * Initialise a nameless Method object from a local Operation.
+         * Initialise a nameless OperationCaller object from a local Operation.
          *
          * @param implementation The implementation of the operation which is to be used
-         * by the Method object. This object will be cloned such that the method uses
+         * by the OperationCaller object. This object will be cloned such that the method uses
          * its own implementation.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        Method(boost::shared_ptr<base::DisposableInterface> implementation, ExecutionEngine* caller = 0)
-            : Base( boost::dynamic_pointer_cast< base::MethodBase<Signature> >(implementation) ),
+        OperationCaller(boost::shared_ptr<base::DisposableInterface> implementation, ExecutionEngine* caller = 0)
+            : Base( boost::dynamic_pointer_cast< base::OperationCallerBase<Signature> >(implementation) ),
               mname(), mcaller(caller)
         {
             if ( !this->impl && implementation ) {
-                log(Error) << "Tried to construct Method from incompatible local operation."<< endlog();
+                log(Error) << "Tried to construct OperationCaller from incompatible local operation."<< endlog();
             } else {
                 if (this->impl) {
                     this->impl.reset( this->impl->cloneI(mcaller) );
@@ -168,99 +168,99 @@ namespace RTT
         }
 
         /**
-         * Initialise a nameless Method object from an operation factory.
+         * Initialise a nameless OperationCaller object from an operation factory.
          *
-         * @param part The OperationRepositoryPart which is used
-         * by the Method object to get the implementation.
+         * @param part The OperationInterfacePart which is used
+         * by the OperationCaller object to get the implementation.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        Method(interface::OperationRepositoryPart* part, ExecutionEngine* caller = 0)
+        OperationCaller(OperationInterfacePart* part, ExecutionEngine* caller = 0)
             : Base(),
               mname(), mcaller(caller)
         {
             if (part) {
-                 this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >( part->getLocalOperation() );
-                 setupMethod( part );
+                 this->impl = boost::dynamic_pointer_cast< base::OperationCallerBase<Signature> >( part->getLocalOperation() );
+                 setupOperationCaller( part );
             }
         }
 
         /**
-         * Initialise a named Method object from a Service.
+         * Initialise a named OperationCaller object from a Service.
          *
          * @param name The name of the operation to look for.
          * @param service The Service where the operation will be looked up.
          * @param caller The ExecutionEngine which will be used to call us
          * back in case of asynchronous communication. If zero, the global Engine is used.
          */
-        Method(const std::string& name, interface::ServicePtr service, ExecutionEngine* caller = 0)
+        OperationCaller(const std::string& name, ServicePtr service, ExecutionEngine* caller = 0)
             : Base(),
               mname(name), mcaller(caller)
         {
             if (service) {
-                 this->impl = boost::dynamic_pointer_cast< base::MethodBase<Signature> >( service->getLocalOperation(name) );
+                 this->impl = boost::dynamic_pointer_cast< base::OperationCallerBase<Signature> >( service->getLocalOperation(name) );
                  if (service->hasMember(name))
-                     setupMethod( service->getOperation(name) );
+                     setupOperationCaller( service->getOperation(name) );
             }
         }
 
         /**
-         * Method objects may be assigned to an implementation.
+         * OperationCaller objects may be assigned to an implementation.
          *
          * @param implementation the implementation.
          *
          * @return *this
          */
-        Method& operator=(boost::shared_ptr<base::DisposableInterface> implementation)
+        OperationCaller& operator=(boost::shared_ptr<base::DisposableInterface> implementation)
         {
             if (this->impl && this->impl == implementation)
                 return *this;
-            Method<Signature> tmp(implementation);
+            OperationCaller<Signature> tmp(implementation);
             if (tmp.ready())
                 *this = tmp;
             return *this;
         }
 
         /**
-         * Method objects may be assigned to a part responsible for production
+         * OperationCaller objects may be assigned to a part responsible for production
          * of an implementation.
          *
-         * @param part The part used by the Method to produce an implementation.
+         * @param part The part used by the OperationCaller to produce an implementation.
          *
          * @return *this
          */
-        Method& operator=(interface::OperationRepositoryPart* part)
+        OperationCaller& operator=(OperationInterfacePart* part)
         {
             if (part == 0) {
-                log(Warning) << "Assigning Method from null part."<<endlog();
+                log(Warning) << "Assigning OperationCaller from null part."<<endlog();
                 this->impl.reset();
             }
             if (this->impl && this->impl == part->getLocalOperation() )
                 return *this;
-            Method<Signature> tmp(part);
+            OperationCaller<Signature> tmp(part);
             if (tmp.ready())
                 *this = tmp;
             return *this;
         }
 
         /**
-         * Named Method objects may be looked up in a Service.
+         * Named OperationCaller objects may be looked up in a Service.
          *
          * @param service The Service where the operation will be looked up.
          *
          * @return *this
          */
-        Method& operator=(interface::ServicePtr service)
+        OperationCaller& operator=(ServicePtr service)
         {
             if ( !service ) {
-                log(Warning) << "Assigning Method from null service."<<endlog();
+                log(Warning) << "Assigning OperationCaller from null service."<<endlog();
                 this->impl.reset();
             }
             if (this->mname.empty()) {
-                log(Error) << "Can't initialise unnamed Method from service '"<<service->getName() <<"'."<<endlog();
+                log(Error) << "Can't initialise unnamed OperationCaller from service '"<<service->getName() <<"'."<<endlog();
                 return *this;
             }
-            Method<Signature> tmp(mname,service);
+            OperationCaller<Signature> tmp(mname,service);
             if (tmp.ready())
                 *this = tmp;
             return *this;
@@ -268,7 +268,7 @@ namespace RTT
 
 #ifdef ORO_TEST_METHOD
         /**
-         * Construct a Method from a class member pointer and an
+         * Construct a OperationCaller from a class member pointer and an
          * object of that class.
          *
          * @param name The name of this method
@@ -276,46 +276,46 @@ namespace RTT
          * @param object An object of the class which has \a meth as member function.
          */
         template<class M, class ObjectType>
-        Method(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth, object, ee, caller, et) ) ),
+        OperationCaller(std::string name, M meth, ObjectType object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
+            : Base( OperationCallerBasePtr(new internal::LocalOperationCaller<Signature>(meth, object, ee, caller, et) ) ),
               mname(name), mcaller(caller)
         {}
 
         /**
-         * Construct a Method from a function pointer or function object.
+         * Construct a OperationCaller from a function pointer or function object.
          *
          * @param name the name of this method
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        Method(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
-            : Base( MethodBasePtr(new internal::LocalMethod<Signature>(meth,ee,caller, et) ) ),
+        OperationCaller(std::string name, M meth, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0, ExecutionThread et = ClientThread)
+            : Base( OperationCallerBasePtr(new internal::LocalOperationCaller<Signature>(meth,ee,caller, et) ) ),
               mname(name), mcaller(caller)
         {}
 #endif
 #ifdef ORO_REMOTING
         /**
-         * Construct a Method from an operation repository part.
+         * Construct a OperationCaller from an operation interface part.
          *
          * @param name the name of this method
          * @param meth an pointer to a function or function object.
          */
         template<class M>
-        Method(std::string name, interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0)
-            : Base( MethodBasePtr(new internal::RemoteMethod<Signature>(orp,caller) ) ),
+        OperationCaller(std::string name, OperationInterfacePart* orp, ExecutionEngine* caller = 0)
+            : Base( OperationCallerBasePtr(new internal::RemoteOperationCaller<Signature>(orp,caller) ) ),
               mname(name)
         {}
 #endif
 
         /**
-         * Clean up the Method object.
+         * Clean up the OperationCaller object.
          */
-        ~Method()
+        ~OperationCaller()
         {
         }
 
         /**
-         * Check if this Method is ready for execution.
+         * Check if this OperationCaller is ready for execution.
          *
          * @return true if so.
          */
@@ -338,24 +338,24 @@ namespace RTT
             return ready();
         }
 
-        bool setImplementationPart(interface::OperationRepositoryPart* orp, ExecutionEngine* caller = 0) {
-            Method<Signature> tmp(orp, caller);
+        bool setImplementationPart(OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
+            OperationCaller<Signature> tmp(orp, caller);
             if (tmp.ready())
                 *this = tmp;
             return tmp.ready();
         }
 
         /**
-         * Returns the internal implementation of the Method object.
+         * Returns the internal implementation of the OperationCaller object.
          */
-        const MethodBasePtr getMethodImpl() const {
+        const OperationCallerBasePtr getOperationCallerImpl() const {
             return this->impl;
         }
 
         /**
-         * Sets the internal implementation of the Method object.
+         * Sets the internal implementation of the OperationCaller object.
          */
-        void setMethodImpl( MethodBasePtr new_impl) const {
+        void setOperationCallerImpl( OperationCallerBasePtr new_impl) const {
             this->impl = new_impl;
         }
 
@@ -370,26 +370,26 @@ namespace RTT
          * this method tries it using the operationrepository factories.
          * @param part
          */
-        void setupMethod(interface::OperationRepositoryPart* part) {
+        void setupOperationCaller(OperationInterfacePart* part) {
             if ( !this->impl ) {
 #ifdef ORO_REMOTING
                 // try differently
                 try {
-                    this->impl.reset( new internal::RemoteMethod<Signature>( part, mname, mcaller ));
+                    this->impl.reset( new internal::RemoteOperationCaller<Signature>( part, mname, mcaller ));
                 } catch( std::exception& e ) {
-                    log(Error) << "Constructing RemoteMethod for "<< mname <<" was not possible."<<endlog();
+                    log(Error) << "Constructing RemoteOperationCaller for "<< mname <<" was not possible."<<endlog();
                     log(Error) << "Probable cause: " << e.what() <<endlog();
                     return;
                 }
                 if (this->impl->ready()) {
-                    log(Debug) << "Constructed Method from remote implementation '"<< mname<<"'."<< endlog();
+                    log(Debug) << "Constructed OperationCaller from remote implementation '"<< mname<<"'."<< endlog();
                     this->impl->setCaller(mcaller);
                 } else {
                     this->impl.reset(); // clean up.
-                    log(Error) << "Tried to construct Method from incompatible operation '"<< mname<<"'."<< endlog();
+                    log(Error) << "Tried to construct OperationCaller from incompatible operation '"<< mname<<"'."<< endlog();
                 }
 #else
-                log(Error) << "Tried to construct remote Method but ORO_REMOTING was disabled."<< endlog();
+                log(Error) << "Tried to construct remote OperationCaller but ORO_REMOTING was disabled."<< endlog();
 #endif
             } else {
                 // finally clone and set caller on clone.
@@ -401,36 +401,36 @@ namespace RTT
 
 #ifdef ORO_TEST_METHOD
     /**
-     * Create a Method which executes a function locally.
+     * Create a OperationCaller which executes a function locally.
      *
-     * @param name The name of the resulting Method object
+     * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a member function to be executed.
      * @param object A pointer to the object which has the above member function.
      */
     template<class F, class O>
-    Method< typename internal::UnMember<F>::type > method(std::string name, F method, O object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
-        return Method<  typename internal::UnMember<F>::type >(name, method, object, ee, caller);
+    OperationCaller< typename internal::UnMember<F>::type > method(std::string name, F method, O object, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return OperationCaller<  typename internal::UnMember<F>::type >(name, method, object, ee, caller);
     }
 
     /**
-     * Create a Method which executes a function locally.
+     * Create a OperationCaller which executes a function locally.
      *
-     * @param name The name of the resulting Method object
+     * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a function to be executed.
      */
     template<class F>
-    Method<F> method(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
-        return Method<F>(name, method, ee, caller);
+    OperationCaller<F> method(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return OperationCaller<F>(name, method, ee, caller);
     }
     /**
-     * Create a Method which executes a function locally.
+     * Create a OperationCaller which executes a function locally.
      *
-     * @param name The name of the resulting Method object
+     * @param name The name of the resulting OperationCaller object
      * @param method A pointer to a function to be executed.
      */
     template<class F>
-    Method< typename internal::ArgMember<F>::type > method_ds(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
-        return Method<  typename internal::ArgMember<F>::type >(name, method, ee, caller);
+    OperationCaller< typename internal::ArgMember<F>::type > method_ds(std::string name, F method, ExecutionEngine* ee = 0, ExecutionEngine* caller = 0) {
+        return OperationCaller<  typename internal::ArgMember<F>::type >(name, method, ee, caller);
     }
 #endif
 }

@@ -70,7 +70,7 @@ namespace RTT {
 	     */
 	    bool pull;
 
-	    interface::DataFlowInterface* msender;
+	    DataFlowInterface* msender;
 
             PortableServer::ObjectId_var oid;
 
@@ -80,7 +80,7 @@ namespace RTT {
 	     * @param transport The type specific object that will be used to marshal the data.
 	     * @param poa The POA that manages the underlying CRemoteChannelElement_i.
 	     */
-	    RemoteChannelElement(CorbaTypeTransporter const& transport, interface::DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
+	    RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
 	    : CRemoteChannelElement_i(transport, poa),
 	      data_source(new internal::ValueDataSource<T>), valid(true), pull(is_pull),
 	      msender(sender)

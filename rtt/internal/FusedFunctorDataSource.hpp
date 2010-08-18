@@ -198,7 +198,7 @@ namespace RTT
             typedef typename boost::function_types::function_type<Function>::type Signature;
             typedef internal::create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
             if ( args.size() != boost::function_traits<Signature>::arity )
-                throw interface::wrong_number_of_args_exception(boost::function_traits<Signature>::arity, args.size() );
+                throw wrong_number_of_args_exception(boost::function_traits<Signature>::arity, args.size() );
             return new FusedFunctorDataSource<Signature>(f, SequenceFactory::sources(args.begin()));
         }
 
@@ -219,14 +219,14 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
-              typename base::MethodBase<Signature>::shared_ptr ff;
+              typename base::OperationCallerBase<Signature>::shared_ptr ff;
               DataSourceSequence args;
               mutable RStore<result_type> ret;
           public:
               typedef boost::intrusive_ptr<FusedMCallDataSource<Signature> >
                       shared_ptr;
 
-              FusedMCallDataSource(typename base::MethodBase<Signature>::shared_ptr g,
+              FusedMCallDataSource(typename base::OperationCallerBase<Signature>::shared_ptr g,
                                      const DataSourceSequence& s = DataSourceSequence() ) :
                   ff(g), args(s)
               {
@@ -248,16 +248,16 @@ namespace RTT
               }
 
               bool evaluate() const {
-                  // put the member's object as first since SequenceFactory does not know about the MethodBase type.
-                  typedef bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type> arg_type;
-                  typedef typename AddMember<Signature,base::MethodBase<Signature>* >::type call_type;
+                  // put the member's object as first since SequenceFactory does not know about the OperationCallerBase type.
+                  typedef bf::cons<base::OperationCallerBase<Signature>*, typename SequenceFactory::data_type> arg_type;
+                  typedef typename AddMember<Signature,base::OperationCallerBase<Signature>* >::type call_type;
                   // this foo pointer dance is because older compilers don't handle using
                   // &bf::invoke<call_type,arg_type> directly.
                   typedef typename bf::result_of::invoke<call_type,arg_type>::type iret;
                   typedef iret(*IType)(call_type, arg_type const&);
                   IType foo = &bf::invoke<call_type,arg_type>;
                   // we need to store the ret value ourselves.
-                  ret.exec( boost::bind(foo, &base::MethodBase<Signature>::call, arg_type(ff.get(), SequenceFactory::data(args))) );
+                  ret.exec( boost::bind(foo, &base::OperationCallerBase<Signature>::call, arg_type(ff.get(), SequenceFactory::data(args))) );
                   SequenceFactory::update(args);
                   return true;
               }
@@ -295,14 +295,14 @@ namespace RTT
               typedef create_sequence<
                       typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
               typedef typename SequenceFactory::type DataSourceSequence;
-              typename base::MethodBase<Signature>::shared_ptr ff;
+              typename base::OperationCallerBase<Signature>::shared_ptr ff;
               DataSourceSequence args;
               mutable SendHandle<Signature> sh; // mutable because of get() const
           public:
               typedef boost::intrusive_ptr<FusedMSendDataSource<Signature> >
                       shared_ptr;
 
-              FusedMSendDataSource(typename base::MethodBase<Signature>::shared_ptr g,
+              FusedMSendDataSource(typename base::OperationCallerBase<Signature>::shared_ptr g,
                                      const DataSourceSequence& s = DataSourceSequence() ) :
                   ff(g), args(s)
               {
@@ -325,8 +325,8 @@ namespace RTT
 
               value_t get() const
               {
-                  // put the member's object as first since SequenceFactory does not know about the MethodBase type.
-                  sh = bf::invoke(&base::MethodBase<Signature>::send, bf::cons<base::MethodBase<Signature>*, typename SequenceFactory::data_type>(ff.get(), SequenceFactory::data(args)));
+                  // put the member's object as first since SequenceFactory does not know about the OperationCallerBase type.
+                  sh = bf::invoke(&base::OperationCallerBase<Signature>::send, bf::cons<base::OperationCallerBase<Signature>*, typename SequenceFactory::data_type>(ff.get(), SequenceFactory::data(args)));
                   return sh;
               }
 
@@ -393,7 +393,7 @@ namespace RTT
 
               value_t get() const
               {
-                  // put the member's object as first since SequenceFactory does not know about the MethodBase type.
+                  // put the member's object as first since SequenceFactory does not know about the OperationCallerBase type.
                   if (isblocking->get())
                       ss = bf::invoke(&SendHandle<Signature>::CBase::collect, SequenceFactory::data(args));
                   else

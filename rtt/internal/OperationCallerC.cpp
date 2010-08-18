@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  MethodC.cxx
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  OperationCallerC.cxx
 
-                        MethodC.cxx -  description
+                        OperationCallerC.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -36,10 +36,10 @@
  ***************************************************************************/
 
 
-#include "MethodC.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "OperationCallerC.hpp"
+#include "../FactoryExceptions.hpp"
 #include "DataSourceCommand.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "../Logger.hpp"
 #include "Exceptions.hpp"
 #include <vector>
@@ -48,10 +48,10 @@ namespace RTT {
     using namespace detail;
 
 
-    class MethodC::D
+    class OperationCallerC::D
     {
     public:
-        OperationRepositoryPart* ofp;
+        OperationInterfacePart* ofp;
         ExecutionEngine* caller;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
@@ -60,7 +60,7 @@ namespace RTT {
         DataSourceBase::shared_ptr s;
 
         void checkAndCreate() {
-            Logger::In in("MethodC");
+            Logger::In in("OperationCallerC");
             if ( ofp ) {
                 size_t sz = ofp->arity();
                 if ( sz == args.size() ) {
@@ -78,7 +78,7 @@ namespace RTT {
                         try {
                             m = new DataSourceCommand( rta->updateAction( m.get() ) );
                         } catch( bad_assignment& ba ) {
-                            log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< rta->getType()<<endlog();
+                            log(Error) << "Error in OperationCallerC::ret : can not convert return value of type "<< m->getType() << " to given type "<< rta->getType()<<endlog();
                         }
 
                 }
@@ -101,7 +101,7 @@ namespace RTT {
             this->rta = d;
         }
 
-        D( OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
+        D( OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller)
             : ofp(mr), caller(caller), mname(name), rta(), m(), s()
         {
             this->checkAndCreate();
@@ -119,12 +119,12 @@ namespace RTT {
 
     };
 
-    MethodC::MethodC()
+    OperationCallerC::OperationCallerC()
         : d(0), m()
     {
     }
 
-    MethodC::MethodC(OperationRepositoryPart* mr, const std::string& name, ExecutionEngine* caller)
+    OperationCallerC::OperationCallerC(OperationInterfacePart* mr, const std::string& name, ExecutionEngine* caller)
         : d( mr ? new D( mr, name, caller) : 0 ), m(), ofp(mr), mname(name)
     {
         if ( d && d->m ) {
@@ -134,16 +134,16 @@ namespace RTT {
             d = 0;
         } else {
             if (mr == 0)
-                log(Error) <<"Can not construct MethodC for '"<<name<<"' from null OperationRepositoryPart."<<endlog();
+                log(Error) <<"Can not construct OperationCallerC for '"<<name<<"' from null OperationInterfacePart."<<endlog();
         }
     }
 
-    MethodC::MethodC(const MethodC& other)
+    OperationCallerC::OperationCallerC(const OperationCallerC& other)
         : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0), ofp(other.ofp), mname(other.mname)
     {
     }
 
-    MethodC& MethodC::operator=(const MethodC& other)
+    OperationCallerC& OperationCallerC::operator=(const OperationCallerC& other)
     {
         if ( &other == this )
             return *this;
@@ -156,17 +156,17 @@ namespace RTT {
         return *this;
     }
 
-    MethodC::~MethodC()
+    OperationCallerC::~OperationCallerC()
     {
         delete d;
     }
 
-    MethodC& MethodC::arg( DataSourceBase::shared_ptr a )
+    OperationCallerC& OperationCallerC::arg( DataSourceBase::shared_ptr a )
     {
         if (d)
             d->newarg( a );
         else {
-            Logger::log() <<Logger::Warning << "Extra argument discarded for MethodC."<<Logger::endl;
+            Logger::log() <<Logger::Warning << "Extra argument discarded for OperationCallerC."<<Logger::endl;
         }
         if ( d && d->m ) {
             this->m = d->m;
@@ -177,7 +177,7 @@ namespace RTT {
         return *this;
     }
 
-    MethodC& MethodC::ret( AttributeBase* r )
+    OperationCallerC& OperationCallerC::ret( AttributeBase* r )
     {
         if (d)
             d->ret( r );
@@ -186,15 +186,15 @@ namespace RTT {
                 try {
                     m = new DataSourceCommand(r->getDataSource()->updateAction( m.get() ) );
                 } catch( bad_assignment& ba ) {
-                    log(Error) << "Error in MethodC::ret : can not convert return value of type "<< m->getType() << " to given type "<< r->getDataSource()->getType()<<endlog();
+                    log(Error) << "Error in OperationCallerC::ret : can not convert return value of type "<< m->getType() << " to given type "<< r->getDataSource()->getType()<<endlog();
                 }
             } else
-                log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
+                log(Error) <<"Can not add return argument to invalid OperationCallerC."<<endlog();
         }
         return *this;
     }
 
-    MethodC& MethodC::ret(DataSourceBase::shared_ptr r)
+    OperationCallerC& OperationCallerC::ret(DataSourceBase::shared_ptr r)
     {
         if (d)
             d->ret( r );
@@ -203,17 +203,17 @@ namespace RTT {
             if (m)
                 m = new DataSourceCommand(r->updateAction( m.get() ) );
             else
-                log(Error) <<"Can not add return argument to invalid MethodC."<<endlog();
+                log(Error) <<"Can not add return argument to invalid OperationCallerC."<<endlog();
         }
         return *this;
     }
 
 
-    bool MethodC::call() {
+    bool OperationCallerC::call() {
         if (m)
             return m->evaluate();
         else {
-            Logger::log() <<Logger::Error << "call() called on incomplete MethodC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "call() called on incomplete OperationCallerC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->ofp->arity();
@@ -224,7 +224,7 @@ namespace RTT {
         return false;
     }
 
-    void MethodC::check() {
+    void OperationCallerC::check() {
         if (d) {
             // something went wrong, let producer throw
             if (d->ofp)
@@ -234,12 +234,12 @@ namespace RTT {
         }
     }
 
-    SendHandleC MethodC::send() {
+    SendHandleC OperationCallerC::send() {
         DataSourceBase::shared_ptr h;
         try {
             h = ofp->produceHandle();
         } catch( no_asynchronous_operation_exception const& nao) {
-            log(Error) <<"MethodC::send(): Can not send a synchronous operation." << endlog();
+            log(Error) <<"OperationCallerC::send(): Can not send a synchronous operation." << endlog();
             return SendHandleC();
         }
         if (s) {
@@ -252,7 +252,7 @@ namespace RTT {
             return SendHandleC( h, ofp, mname );
         }
         else {
-            Logger::log() <<Logger::Error << "send() called on incomplete MethodC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "send() called on incomplete OperationCallerC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->ofp->arity();
@@ -263,19 +263,19 @@ namespace RTT {
         return SendHandleC();
     }
 
-    bool MethodC::ready() const
+    bool OperationCallerC::ready() const
     {
         return m;
     }
 
-    OperationRepositoryPart* MethodC::getOrp() const {
+    OperationInterfacePart* OperationCallerC::getOrp() const {
         return ofp;
     }
 
-    string const& MethodC::getName() const {
+    string const& OperationCallerC::getName() const {
         return mname;
     }
 
-    DataSourceBase::shared_ptr MethodC::getCallDataSource() { return m; }
-    DataSourceBase::shared_ptr MethodC::getSendDataSource() { return s; }
+    DataSourceBase::shared_ptr OperationCallerC::getCallDataSource() { return m; }
+    DataSourceBase::shared_ptr OperationCallerC::getSendDataSource() { return s; }
 }

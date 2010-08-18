@@ -42,7 +42,7 @@
 #include "../base/AttributeBase.hpp"
 #include "../internal/DataSource.hpp"
 //#include "parse_exception.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
 
 #include "CommandNOP.hpp"

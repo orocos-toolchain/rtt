@@ -2,17 +2,17 @@
 #define ORO_SERVICE_PROVIDER_HPP
 
 #include "../rtt-config.h"
-#include "OperationRepository.hpp"
-#include "../internal/OperationRepositoryPartFused.hpp"
-#include "../internal/LocalMethod.hpp"
-#include "../internal/MethodC.hpp"
+#include "OperationInterface.hpp"
+#include "../internal/OperationInterfacePartFused.hpp"
+#include "../internal/LocalOperationCaller.hpp"
+#include "../internal/OperationCallerC.hpp"
 #include "../internal/UnMember.hpp"
 #include "../internal/GetSignature.hpp"
 
 #include "ConfigurationInterface.hpp"
 #include "../Operation.hpp"
 #ifdef ORO_REMOTING
-#include "../internal/RemoteMethod.hpp"
+#include "../internal/RemoteOperationCaller.hpp"
 #endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
@@ -21,8 +21,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 namespace RTT
-{ namespace interface {
-
+{
     /**
      * This class allows storage and retrieval of operations,
      * attributes and properties provided by a component.
@@ -32,17 +31,17 @@ namespace RTT
      * @ingroup Services
      */
     class RTT_API Service
-        : public OperationRepository,
+        : public OperationInterface,
           public ConfigurationInterface,
           public boost::enable_shared_from_this<Service>
     {
     public:
-        typedef OperationRepository Factory;
+        typedef OperationInterface Factory;
         typedef boost::shared_ptr<Service> shared_ptr;
         typedef std::vector<std::string> ProviderNames;
 
         /**
-         * Creates a service provider with a name and an owner.  Each
+         * Creates a Service with a name and an owner.  Each
          * service must be owned by a TaskContext and the owner can be
          * set afterwards with setOwner.
          * @param name The name of this service.
@@ -51,7 +50,7 @@ namespace RTT
         static Service::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
 
         /**
-         * Creates a service provider with a name and an owner.  Each
+         * Creates a Service with a name and an owner.  Each
          * service must be owned by a TaskContext and the owner can be
          * set afterwards with setOwner.
          * @param name The name of this service.
@@ -133,8 +132,8 @@ namespace RTT
         Service::shared_ptr provides() { return shared_from_this(); }
 
         /**
-         * Returns a sub-service provider which resorts under
-         * this service provider.
+         * Returns a sub-Service which resorts under
+         * this Service.
          * @param service_name The name of the sub-service.
          */
         Service::shared_ptr provides(const std::string& service_name);
@@ -191,15 +190,15 @@ namespace RTT
 
         /**
          * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<Signature> object.
+         * use in a C++ OperationCaller object. Store the result of this
+         * function in a OperationCaller<Signature> object.
          *
          * @param name The name of the operation to retrieve.
          *
-         * @return A pointer to an operation repository part or a null pointer if
+         * @return A pointer to an operation interface part or a null pointer if
          * \a name was not found.
          */
-        OperationRepositoryPart* getOperation( std::string name );
+        OperationInterfacePart* getOperation( std::string name );
 
         /**
          * Removes a previously added operation.
@@ -220,7 +219,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::OperationRepositoryPartFused<Signature>( &op ) );
+            this->add( op.getName(), new internal::OperationInterfacePartFused<Signature>( &op ) );
             return op;
         }
 
@@ -237,7 +236,7 @@ namespace RTT
         {
             if ( this->addLocalOperation( op ) == false )
                 return op;
-            this->add( op.getName(), new internal::SynchronousOperationRepositoryPartFused<Signature>( &op ) );
+            this->add( op.getName(), new internal::SynchronousOperationInterfacePartFused<Signature>( &op ) );
             return op;
         }
 
@@ -316,7 +315,7 @@ namespace RTT
                 assert(false);
                 return op; // should never be reached.
             }
-            this->add( op.getName(), new internal::OperationRepositoryPartFusedDS<Signature,ObjT>( sp, &op) );
+            this->add( op.getName(), new internal::OperationInterfacePartFusedDS<Signature,ObjT>( sp, &op) );
             return op;
         }
 
@@ -336,14 +335,14 @@ namespace RTT
         }
 
         /**
-         * Create a MethodC object, a template-less operation invocation
+         * Create a OperationCallerC object, a template-less operation invocation
          * object. This function is inferior to getOperation(std::string name).
          *
          * @param name The name of the operation
          *
          * @return An object which can invoke a operation.
          */
-        internal::MethodC create(std::string name, ExecutionEngine* caller);
+        internal::OperationCallerC create(std::string name, ExecutionEngine* caller);
 
         /**
          * Reset the implementation of a operation.
@@ -364,7 +363,7 @@ namespace RTT
         TaskContext* mowner;
         shared_ptr parent;
     };
-}}
+}
 
 
 #endif

@@ -89,7 +89,7 @@ namespace RTT
         typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
-        typedef std::vector< boost::tuple<interface::ServicePtr,
+        typedef std::vector< boost::tuple<ServicePtr,
                                                  std::string, std::vector<base::DataSourceBase::shared_ptr>,
                                                  StateInterface*,
                                                  ConditionInterface*, boost::shared_ptr<ProgramInterface>,
@@ -478,7 +478,7 @@ namespace RTT
          * @param sp
          *        The Service in which \a ename can be found.
          */
-        bool createEventTransition( interface::ServicePtr sp,
+        bool createEventTransition( ServicePtr sp,
                                     const std::string& ename, std::vector<base::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
                                     ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,

@@ -44,7 +44,7 @@
  */
 
 /**
- * @brief Contains TaskContext, Activity, Method, Command, Property, Event etc.
+ * @brief Contains TaskContext, Activity, OperationCaller, Command, Property, Event etc.
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
  * The Orocos Real-Time Toolkit Online Manual</a>

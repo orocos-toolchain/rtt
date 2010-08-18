@@ -49,7 +49,7 @@
 #include "internal/DataSource.hpp"
 #include "internal/mystd.hpp"
 #include "internal/MWSRQueue.hpp"
-#include "Method.hpp"
+#include "OperationCaller.hpp"
 
 #include "rtt-config.h"
 

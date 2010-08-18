@@ -54,7 +54,7 @@
 #include "../Attribute.hpp"
 #include "parse_exception.hpp"
 #include "../internal/DataSourceCommand.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../../Handle.hpp"
 
 

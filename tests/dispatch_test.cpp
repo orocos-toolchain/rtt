@@ -24,9 +24,9 @@
 #include <sstream>
 #include <scripting/FunctionGraph.hpp>
 #include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Method.hpp>
-#include <interface/Service.hpp>
+#include <OperationCaller.hpp>
+#include <OperationCaller.hpp>
+#include <Service.hpp>
 
 using namespace std;
 

@@ -23,8 +23,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include <rtt/Method.hpp>
-#include <rtt/interface/Service.hpp>
+#include <rtt/OperationCaller.hpp>
+#include <rtt/Service.hpp>
 #include <transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
@@ -181,15 +181,15 @@ BOOST_AUTO_TEST_CASE( setupServer )
     usleep(500000);
 }
 
-BOOST_AUTO_TEST_CASE( testRemoteMethodC )
+BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 {
     tp = corba::TaskContextProxy::Create( "peerRMC", false ); // no-ior
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
     BOOST_REQUIRE( tp );
 
-    // This test tests 'transparant' remote invocation of Orocos internal::MethodC objects.
-    internal::MethodC mc;
+    // This test tests 'transparant' remote invocation of Orocos internal::OperationCallerC objects.
+    internal::OperationCallerC mc;
     double r = 0.0;
     mc = tp->provides("methods")->create("vm0", tc->engine() );
     BOOST_CHECK( mc.call() );
@@ -209,19 +209,19 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 
 }
 
-BOOST_AUTO_TEST_CASE( testRemoteMethod )
+BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
 {
     tp = corba::TaskContextProxy::Create( "peerRM" , false);
     if (!tp )
         tp = corba::TaskContextProxy::CreateFromFile( "peerRM.ior");
     BOOST_REQUIRE(tp);
     // This test tests 'transparant' remote invocation of Orocos methods.
-    // This requires the internal::RemoteMethod class, which does not work yet.
-    RTT::Method<double(void)> m0 = tp->provides("methods")->getOperation("m0");
-    RTT::Method<double(int)> m1 = tp->provides("methods")->getOperation("m1");
-    RTT::Method<double(int,double)> m2 = tp->provides("methods")->getOperation("m2");
-    RTT::Method<double(int,double,bool)> m3 = tp->provides("methods")->getOperation("m3");
-    RTT::Method<double(int,double,bool,std::string)> m4 = tp->provides("methods")->getOperation("m4");
+    // This requires the internal::RemoteOperationCaller class, which does not work yet.
+    RTT::OperationCaller<double(void)> m0 = tp->provides("methods")->getOperation("m0");
+    RTT::OperationCaller<double(int)> m1 = tp->provides("methods")->getOperation("m1");
+    RTT::OperationCaller<double(int,double)> m2 = tp->provides("methods")->getOperation("m2");
+    RTT::OperationCaller<double(int,double,bool)> m3 = tp->provides("methods")->getOperation("m3");
+    RTT::OperationCaller<double(int,double,bool,std::string)> m4 = tp->provides("methods")->getOperation("m4");
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 
-BOOST_AUTO_TEST_CASE( testAnyMethod )
+BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 {
     double d;
     tp = corba::TaskContextProxy::Create( "peerAM" , false);

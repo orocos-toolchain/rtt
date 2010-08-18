@@ -19,13 +19,13 @@
 #include "DataSource.hpp"
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
-#include "../interface/OperationRepositoryPart.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../OperationInterfacePart.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../Operation.hpp"
-#include "../base/MethodBase.hpp"
+#include "../base/OperationCallerBase.hpp"
 
 /**
- * @file OperationRepositoryPart.hpp This file contains the code
+ * @file OperationInterfacePart.hpp This file contains the code
  * required to register operations as scriptable entities.
  */
 
@@ -33,19 +33,19 @@ namespace RTT
 {
     namespace internal {
 
-        class RTT_API OperationRepositoryPartHelper {
+        class RTT_API OperationInterfacePartHelper {
         public:
             static std::string description(base::OperationBase* ob);
-            static std::vector<interface::ArgumentDescription> getArgumentList(base::OperationBase* ob, const int arity, std::vector<std::string> const& types);
+            static std::vector<ArgumentDescription> getArgumentList(base::OperationBase* ob, const int arity, std::vector<std::string> const& types);
         };
 
         /**
-         * OperationRepositoryPart implementation that uses boost::fusion
+         * OperationInterfacePart implementation that uses boost::fusion
          * to produce items.
          */
         template<typename Signature>
-        class OperationRepositoryPartFused
-            : public interface::OperationRepositoryPart
+        class OperationInterfacePartFused
+            : public OperationInterfacePart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
             //! The factory for converting data sources to C++ types in call()
@@ -54,20 +54,20 @@ namespace RTT
             typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
             Operation<Signature>* op;
         public:
-            OperationRepositoryPartFused( Operation<Signature>* o)
+            OperationInterfacePartFused( Operation<Signature>* o)
                 : op(o)
             {
             }
 
             virtual std::string description() const {
-                return OperationRepositoryPartHelper::description( op );
+                return OperationInterfacePartHelper::description( op );
             }
 
-            virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+            virtual std::vector<ArgumentDescription> getArgumentList() const {
                 std::vector<std::string> types;
-                for (unsigned int i = 1; i <= OperationRepositoryPartFused::arity(); ++i )
+                for (unsigned int i = 1; i <= OperationInterfacePartFused::arity(); ++i )
                     types.push_back( SequenceFactory::GetType(i) );
-                return OperationRepositoryPartHelper::getArgumentList( op, OperationRepositoryPartFused::arity(), types );
+                return OperationInterfacePartHelper::getArgumentList( op, OperationInterfacePartFused::arity(), types );
             }
 
             std::string resultType() const
@@ -95,15 +95,15 @@ namespace RTT
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationRepositoryPartFused::arity() )
-                    throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                if ( args.size() != OperationInterfacePartFused::arity() )
+                    throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
+                return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationRepositoryPartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
+                return new FusedMSendDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             virtual base::DataSourceBase::shared_ptr produceHandle() const {
@@ -114,14 +114,14 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                 const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                 assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
-                if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
+                if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                 // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
             }
 
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != OperationRepositoryPartFused::arity() ) throw interface::wrong_number_of_args_exception(OperationRepositoryPartFused::arity(), args.size() );
+                if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
                 // note: in boost 1.41.0+ the function make_unfused() is available.
 #if BOOST_VERSION >= 104100
                 return op->signals( boost::fusion::make_unfused(boost::bind(&FusedMSignal<Signature>::invoke,
@@ -146,13 +146,13 @@ namespace RTT
         };
 
         /**
-         * OperationRepositoryPart implementation that only provides synchronous
+         * OperationInterfacePart implementation that only provides synchronous
          * access to an operation. Only produce() can be called, the others will
          * throw a no_asynchronous_operation_exception.
          */
         template<typename Signature>
-        class SynchronousOperationRepositoryPartFused
-            : public interface::OperationRepositoryPart
+        class SynchronousOperationInterfacePartFused
+            : public OperationInterfacePart
         {
             typedef typename boost::function_traits<Signature>::result_type result_type;
             //! The factory for converting data sources to C++ types in call()
@@ -161,29 +161,29 @@ namespace RTT
             typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
             Operation<Signature>* op;
         public:
-            SynchronousOperationRepositoryPartFused( Operation<Signature>* o)
+            SynchronousOperationInterfacePartFused( Operation<Signature>* o)
                 : op(o)
             {
             }
 
             virtual base::DataSourceBase::shared_ptr produceSend(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
             virtual base::DataSourceBase::shared_ptr produceHandle() const
-            { throw interface::no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
+            { throw no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
 
             virtual std::string description() const {
-                return OperationRepositoryPartHelper::description( op );
+                return OperationInterfacePartHelper::description( op );
             }
 
-            virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+            virtual std::vector<ArgumentDescription> getArgumentList() const {
                 std::vector<std::string> types;
-                for (unsigned int i = 1; i <= SynchronousOperationRepositoryPartFused::arity(); ++i )
+                for (unsigned int i = 1; i <= SynchronousOperationInterfacePartFused::arity(); ++i )
                     types.push_back( SequenceFactory::GetType(i) );
-                return OperationRepositoryPartHelper::getArgumentList( op, SynchronousOperationRepositoryPartFused::arity(), types );
+                return OperationInterfacePartHelper::getArgumentList( op, SynchronousOperationInterfacePartFused::arity(), types );
             }
 
             std::string resultType() const
@@ -211,9 +211,9 @@ namespace RTT
                             const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const
             {
                 // convert our args and signature into a boost::fusion Sequence.
-                if ( args.size() != SynchronousOperationRepositoryPartFused::arity() )
-                    throw interface::wrong_number_of_args_exception(SynchronousOperationRepositoryPartFused::arity(), args.size() );
-                return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
+                if ( args.size() != SynchronousOperationInterfacePartFused::arity() )
+                    throw wrong_number_of_args_exception(SynchronousOperationInterfacePartFused::arity(), args.size() );
+                return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(args.begin()) );
             }
 
             boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
@@ -222,7 +222,7 @@ namespace RTT
         };
 
             /**
-             * OperationRepositoryPart implementation that uses boost::fusion
+             * OperationInterfacePart implementation that uses boost::fusion
              * to produce items. The methods invoked get their object pointer
              * from the first data source, which contains a shared_ptr.
              * @param Signature The full signature, with the object pointer as
@@ -230,8 +230,8 @@ namespace RTT
              * @param ObjT The object pointer type used in Signature.
              */
             template<typename Signature,typename ObjT>
-            class OperationRepositoryPartFusedDS
-                : public interface::OperationRepositoryPart
+            class OperationInterfacePartFusedDS
+                : public OperationInterfacePart
             {
                 typedef create_sequence<typename boost::function_types::parameter_types<Signature>::type> SequenceFactory;
                 typedef create_sequence<typename boost::function_types::parameter_types<typename CollectType<Signature>::type>::type > CollectSequenceFactory;
@@ -240,7 +240,7 @@ namespace RTT
                 // the datasource that stores a weak pointer is itself stored by a shared_ptr.
                 typename DataSource<boost::shared_ptr<ObjT> >::shared_ptr mwp;
             public:
-                OperationRepositoryPartFusedDS( DataSource< boost::shared_ptr<ObjT> >* wp, Operation<Signature>* o)
+                OperationInterfacePartFusedDS( DataSource< boost::shared_ptr<ObjT> >* wp, Operation<Signature>* o)
                     : op( o ), mwp(wp)
                 {
                 }
@@ -272,35 +272,35 @@ namespace RTT
                     return op->getDescriptions().front();
                 }
 
-                virtual std::vector<interface::ArgumentDescription> getArgumentList() const {
+                virtual std::vector<ArgumentDescription> getArgumentList() const {
                     std::vector<std::string> const& descr = op->getDescriptions();
-                    std::vector<interface::ArgumentDescription> ret;
+                    std::vector<ArgumentDescription> ret;
                     for (unsigned int i =1; i < descr.size(); i +=2 )
-                        ret.push_back(interface::ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
+                        ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
                     return ret;
                 }
 
                 base::DataSourceBase::shared_ptr produce(ArgList const& args, ExecutionEngine* caller) const
                 {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMCallDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
+                    return new FusedMCallDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceSend( const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller ) const {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);
                     a2.push_back(mwp);
                     a2.insert(a2.end(), args.begin(), args.end());
                     // convert our args and signature into a boost::fusion Sequence.
-                    return new FusedMSendDataSource<Signature>(typename base::MethodBase<Signature>::shared_ptr(op->getMethod()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
+                    return new FusedMSendDataSource<Signature>(typename base::OperationCallerBase<Signature>::shared_ptr(op->getOperationCaller()->cloneI(caller)), SequenceFactory::sources(a2.begin()) );
                 }
 
                 virtual base::DataSourceBase::shared_ptr produceHandle() const {
@@ -311,13 +311,13 @@ namespace RTT
                 virtual base::DataSourceBase::shared_ptr produceCollect( const std::vector<base::DataSourceBase::shared_ptr>& args, DataSource<bool>::shared_ptr blocking ) const {
                     const unsigned int carity = boost::mpl::size<typename FusedMCollectDataSource<Signature>::handle_and_arg_types>::value;
                     assert( carity == collectArity() + 1 ); // check for arity functions. (this is actually a compile time assert).
-                    if ( args.size() != carity ) throw interface::wrong_number_of_args_exception(carity, args.size() );
+                    if ( args.size() != carity ) throw wrong_number_of_args_exception(carity, args.size() );
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
                 }
 
                 virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
-                    if ( args.size() != arity() ) throw interface::wrong_number_of_args_exception(arity(), args.size() );
+                    if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
                     ArgList a2;
                     a2.reserve(args.size()+1);

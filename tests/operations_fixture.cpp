@@ -1,9 +1,9 @@
 #include "operations_fixture.hpp"
 #include <iostream>
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <Operation.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 using namespace std;
 using namespace boost;
@@ -15,7 +15,7 @@ OperationsFixture::OperationsFixture()
     ret = 0.0;
     i = -1;
     tc = new TaskContext("root");
-    this->createMethodFactories(tc);
+    this->createOperationCallerFactories(tc);
     tc->provides()->addAttribute("ret", ret );
     caller = new TaskContext("caller");
     caller->start();
@@ -29,7 +29,7 @@ OperationsFixture::~OperationsFixture()
     delete caller;
 }
 
-void OperationsFixture::createMethodFactories(TaskContext* target)
+void OperationsFixture::createOperationCallerFactories(TaskContext* target)
 {
     Service::shared_ptr dat = Service::Create("test");
     dat->addAttribute("i", i);

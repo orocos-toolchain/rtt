@@ -331,7 +331,7 @@
 	    Position", "ToolType",...</para>
 	  </listitem>
 	  <listitem>
-	    <para><emphasis>Methods:</emphasis> Are callable by other
+	    <para><emphasis>OperationCallers:</emphasis> Are callable by other
 	    components to 'calculate' a result immediately, just like
 	    a 'C' function. For example: "getTrackingError()",
 	    "openGripper()", "writeData("filename")", "isMoving()",

@@ -39,7 +39,7 @@
 #include "RemotePorts.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include "DataFlowI.h"
-#include "../../interface/DataFlowInterface.hpp"
+#include "../../DataFlowInterface.hpp"
 #include <cassert>
 #include "CorbaConnPolicy.hpp"
 #include "RemoteConnID.hpp"
