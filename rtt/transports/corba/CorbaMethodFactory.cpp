@@ -179,12 +179,17 @@ public:
 base::DataSourceBase::shared_ptr CorbaMethodFactory::produce(const std::vector<base::DataSourceBase::shared_ptr>& args, ExecutionEngine* caller) const {
     corba::CAnyArguments_var nargs = new corba::CAnyArguments();
     nargs->length( args.size() );
+
+    // this part is only done to feed to checkOperation() with some defaults.
+    // We don't want to evaluate() the *real* data sources yet !
     for (size_t i=0; i < args.size(); ++i ) {
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
-        ctt->updateAny(args[i], nargs[i]);
+        DataSourceBase::shared_ptr tryout = ti->buildValue();
+        ctt->updateAny(tryout, nargs[i]);
     }
+    // check argument types and produce:
     try {
         // will throw if wrong args.
         mfact->checkOperation(method.c_str(), nargs.in() );
@@ -224,7 +229,8 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceSend(const std::vect
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
         assert( ctt );
-        ctt->updateAny(args[i], nargs[i]);
+        DataSourceBase::shared_ptr tryout = ti->buildValue();
+        ctt->updateAny(tryout, nargs[i]);
     }
     try {
         // will throw if wrong args.
@@ -333,7 +339,8 @@ base::DataSourceBase::shared_ptr CorbaMethodFactory::produceCollect(const std::v
             const types::TypeInfo* ti = cargs[i]->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             assert( ctt );
-            ctt->updateAny( cargs[i], nargs[i]);
+            DataSourceBase::shared_ptr tryout = ti->buildValue();
+            ctt->updateAny(tryout, nargs[i]);
         }
         ds->get()->checkArguments( nargs.in() );
     } catch ( CWrongNumbArgException& wna) {

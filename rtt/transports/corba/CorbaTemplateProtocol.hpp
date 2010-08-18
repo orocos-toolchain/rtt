@@ -79,7 +79,7 @@ namespace RTT
           {
               typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
               if ( d )
-                  return AnyConversion<PropertyType>::createAny( d->value());
+                  return AnyConversion<PropertyType>::createAny( d->get());
               return 0;
           }
 
@@ -90,7 +90,7 @@ namespace RTT
           {
               typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
               if ( d )
-                  return AnyConversion<PropertyType>::updateAny( d->value(), any);
+                  return AnyConversion<PropertyType>::updateAny( d->get(), any);
               return false;
           }
 

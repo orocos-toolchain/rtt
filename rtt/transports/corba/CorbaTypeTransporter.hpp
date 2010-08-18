@@ -57,12 +57,12 @@ namespace RTT {
 	{
 	public:
         /**
-         * Create an transportable object for a \a protocol which contains the value of \a source.
+         * Evaluate \a source and create an any which contains the value of \a source.
          */
         virtual CORBA::Any_ptr createAny(base::DataSourceBase::shared_ptr source) const = 0;
 
         /**
-         * Update a transportable object for a \a protocol which contains the value of \a source.
+         * Evaluate \a source and update an any which contains the value of \a source.
          */
         virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const = 0;
 
@@ -73,7 +73,7 @@ namespace RTT {
         virtual base::DataSourceBase::shared_ptr createDataSource(const CORBA::Any* any) const = 0;
 
         /**
-         * Update \a target with the contents of \a blob which is an object of a \a protocol.
+         * Update an assignable datasource \a target with the contents of \a blob.
          */
         virtual bool updateFromAny(const CORBA::Any* blob, base::DataSourceBase::shared_ptr target) const = 0;
 
