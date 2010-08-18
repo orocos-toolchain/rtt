@@ -40,7 +40,7 @@
 
 #include <string>
 #include <exception>
-#include "../rtt-config.h"
+#include "rtt-config.h"
 
 /**
  * \file FactoryExceptions.hpp This file contains some structs that can be thrown by both

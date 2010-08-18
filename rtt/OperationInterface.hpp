@@ -5,9 +5,9 @@
 #include <vector>
 #include <map>
 
-#include "../rtt-config.h"
-#include "../base/DataSourceBase.hpp"
-#include "../internal/DataSource.hpp"
+#include "rtt-config.h"
+#include "base/DataSourceBase.hpp"
+#include "internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
 #include "FactoryExceptions.hpp"
 #include "OperationInterfacePart.hpp"

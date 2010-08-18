@@ -1,7 +1,7 @@
 #include "Service.hpp"
-#include "../TaskContext.hpp"
+#include "TaskContext.hpp"
 #include <algorithm>
-#include "../internal/mystd.hpp"
+#include "internal/mystd.hpp"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
 #include <algorithm>

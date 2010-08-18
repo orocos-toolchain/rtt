@@ -1,18 +1,18 @@
 #ifndef ORO_SERVICE_PROVIDER_HPP
 #define ORO_SERVICE_PROVIDER_HPP
 
-#include "../rtt-config.h"
+#include "rtt-config.h"
 #include "OperationInterface.hpp"
-#include "../internal/OperationInterfacePartFused.hpp"
-#include "../internal/LocalOperationCaller.hpp"
-#include "../internal/OperationCallerC.hpp"
-#include "../internal/UnMember.hpp"
-#include "../internal/GetSignature.hpp"
+#include "internal/OperationInterfacePartFused.hpp"
+#include "internal/LocalOperationCaller.hpp"
+#include "internal/OperationCallerC.hpp"
+#include "internal/UnMember.hpp"
+#include "internal/GetSignature.hpp"
 
 #include "ConfigurationInterface.hpp"
-#include "../Operation.hpp"
+#include "Operation.hpp"
 #ifdef ORO_REMOTING
-#include "../internal/RemoteOperationCaller.hpp"
+#include "internal/RemoteOperationCaller.hpp"
 #endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>

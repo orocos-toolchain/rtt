@@ -43,9 +43,10 @@
 #include "os/rtt-os-fwd.hpp"
 #include "base/rtt-base-fwd.hpp"
 #include "internal/rtt-internal-fwd.hpp"
-#include "rtt-interface-fwd.hpp"
 #include "plugin/rtt-plugin-fwd.hpp"
 #include "types/rtt-types-fwd.hpp"
+#include <boost/shared_ptr.hpp>
+
 
 namespace RTT
 {
@@ -76,6 +77,13 @@ namespace RTT
     class Property;
     template<typename T>
     class SendHandle;
-
+    struct ArgumentDescription;
+    class ConfigurationInterface;
+    class DataFlowInterface;
+    class OperationInterface;
+    class OperationInterfacePart;
+    class Service;
+    class ServiceRequester;
+    typedef boost::shared_ptr<Service> ServicePtr;
 }
 #endif

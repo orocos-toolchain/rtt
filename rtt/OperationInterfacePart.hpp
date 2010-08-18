@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "../base/DataSourceBase.hpp"
-#include "../internal/DataSource.hpp"
+#include "base/DataSourceBase.hpp"
+#include "internal/DataSource.hpp"
 #include "ArgumentDescription.hpp"
 
 

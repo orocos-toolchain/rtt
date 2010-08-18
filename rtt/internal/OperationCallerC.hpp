@@ -42,7 +42,7 @@
 #include <string>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 #include "../SendStatus.hpp"
 #include "SendHandleC.hpp"
 

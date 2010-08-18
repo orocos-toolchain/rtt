@@ -45,7 +45,7 @@
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
-#include "../rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {

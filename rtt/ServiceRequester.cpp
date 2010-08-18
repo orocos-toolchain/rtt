@@ -1,8 +1,8 @@
 #include "ServiceRequester.hpp"
 #include "Service.hpp"
-#include "../internal/mystd.hpp"
-#include "../Logger.hpp"
-#include "../TaskContext.hpp"
+#include "internal/mystd.hpp"
+#include "Logger.hpp"
+#include "TaskContext.hpp"
 #include <boost/bind.hpp>
 
 #include <utility>

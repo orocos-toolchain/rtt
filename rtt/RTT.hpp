@@ -39,32 +39,22 @@
 
 /**
  * @file RTT.hpp
- * This file includes the commonly used header files from the
- * whole Orocos Real-Time Toolkit.
  */
 
 /**
- * @brief Contains TaskContext, Activity, OperationCaller, Command, Property, Event etc.
+ * @brief Contains TaskContext, Activity, OperationCaller, Operation, Property.
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
  * The Orocos Real-Time Toolkit Online Manual</a>
  */
 namespace RTT {}
 
-#ifdef OROPKG_CORELIB
-#include "internal/CoreLib.hpp"
-#endif
-#ifdef OROPKG_EXECUTION
-#include "extras/Execution.hpp"
-#endif
-#ifdef OROPKG_OS
-#include "os/OS.hpp"
-#endif
-#ifdef OROPKG_DEVICE_INTERFACE
-#include "extras/dev/DeviceInterface.hpp"
-#endif
-
 #include "rtt-fwd.hpp"
+#include "TaskContext.hpp"
+#include "Activity.hpp"
+#include "OperationCaller.hpp"
+#include "Operation.hpp"
+#include "Property.hpp"
 
 namespace BFL {
 }

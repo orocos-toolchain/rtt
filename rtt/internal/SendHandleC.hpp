@@ -5,7 +5,7 @@
 #include <boost/make_shared.hpp>
 #include "DataSources.hpp"
 #include "../Attribute.hpp"
-#include "../rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 #include "../SendStatus.hpp"
 
 namespace RTT

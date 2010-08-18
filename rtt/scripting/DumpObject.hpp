@@ -40,7 +40,7 @@
 #define ORO_DUMP_OBJECT_HPP
 
 #include "rtt-scripting-config.h"
-#include "../rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 #include "../Service.hpp"
 
 namespace RTT { namespace scripting {

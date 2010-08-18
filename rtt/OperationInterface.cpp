@@ -1,9 +1,9 @@
 #include "OperationInterface.hpp"
 #include "FactoryExceptions.hpp"
 #include <algorithm>
-#include "../internal/mystd.hpp"
-#include "../internal/Exceptions.hpp"
-#include "../Handle.hpp"
+#include "internal/mystd.hpp"
+#include "internal/Exceptions.hpp"
+#include "Handle.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
