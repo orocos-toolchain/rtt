@@ -97,10 +97,10 @@ namespace RTT {
                         return result->second;
                     // *really* not found, let's create it.
                     std::string name;
-                    if ( iface == 0 || iface->getParent() == 0)
+                    if ( iface == 0 || iface->getOwner() == 0)
                         name = "Global";
                     else
-                        name = iface->getParent()->getName();
+                        name = iface->getOwner()->getName();
                     name += ".CorbaDispatch";
                     DispatchI[iface] = new CorbaDispatcher( name );
                     DispatchI[iface]->start();

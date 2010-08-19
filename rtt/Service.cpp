@@ -18,6 +18,8 @@ namespace RTT {
     Service::Service(const std::string& name, TaskContext* owner)
     : mname(name), mowner(owner), parent()
     {
+        // Inform DataFlowInterface.
+        mservice = this;
     }
 
     Service::~Service()
@@ -87,7 +89,7 @@ namespace RTT {
         simpleoperations[name] = impl;
         return true;
     }
-    
+
     bool Service::hasService(const std::string& service_name) {
         if (service_name == "this")
             return true;
@@ -162,7 +164,8 @@ namespace RTT {
     void Service::setOwner(TaskContext* new_owner) {
         for( SimpleOperations::iterator it= simpleoperations.begin(); it != simpleoperations.end(); ++it)
             it->second->setOwner( new_owner ? new_owner->engine() : 0);
-        mowner = new_owner;
+
+        this->mowner = new_owner;
 
         for( Services::iterator it= services.begin(); it != services.end(); ++it)
             it->second->setOwner( new_owner );

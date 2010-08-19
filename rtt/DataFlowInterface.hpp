@@ -67,11 +67,11 @@ namespace RTT
         typedef std::vector<std::string> PortNames;
 
         /**
-         * Construct the DataFlow interface of a TaskContext.
-         * @param parent If not null, a internal::TaskObject will be added
+         * Construct the DataFlow interface of a Service.
+         * @param parent If not null, a Service will be added
          * to \a parent  for each port added to this interface.
          */
-        DataFlowInterface(TaskContext* parent = 0);
+        DataFlowInterface(Service* parent = 0 );
 
         ~DataFlowInterface();
 
@@ -141,7 +141,7 @@ namespace RTT
         /**
          * Returns the component this interface belongs to.
          */
-        TaskContext* getParent();
+        TaskContext* getOwner() const;
 
         /**
          * Add a Port to this task without registering a service for it.
@@ -200,9 +200,9 @@ namespace RTT
          */
         Ports mports;
         /**
-         * The parent TaskContext. May be null in exceptional cases.
+         * The parent Service. May be null in exceptional cases.
          */
-        TaskContext* mparent;
+        Service* mservice;
         /**
          * These handles contain the links from an event port's signal to
          * the TaskContext::dataOnPort method.

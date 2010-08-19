@@ -70,7 +70,6 @@ namespace RTT
         :  TaskCore( initial_state)
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
-           ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
@@ -84,7 +83,6 @@ namespace RTT
         :  TaskCore(parent, initial_state)
            ,portqueue( new MWSRQueue<PortInterface*>(64) )
            ,tcservice(new Service(name,this) ), tcrequests( new ServiceRequester(name,this) )
-           ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
 #elif defined(ORO_ACT_DEFAULT_ACTIVITY)
@@ -123,9 +121,6 @@ namespace RTT
         this->addOperation("update", &TaskContext::update, this, ClientThread).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
-
-        // See TaskContext::start().
-        updated_ports.reserve(0);
 
         // activity runs from the start.
         if (our_act)
@@ -359,7 +354,6 @@ namespace RTT
     void TaskContext::clear()
     {
         tcservice->clear();
-        this->ports()->clear();
     }
 
     bool TaskContext::ready()
@@ -397,17 +391,11 @@ namespace RTT
         this->getActivity()->trigger();
     }
 
-    bool TaskContext::dataOnPortSize(unsigned int max) {
-        if ( isRunning() )
-            return false;
-        updated_ports.reserve(max);
-        return true;
-    }
-
     void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {
         // creates a Signal that holds the connection for callback.
         // user_callbacks will only be emitted from updateHook().
 
+        MutexLock lock(mportlock);
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {
             user_callbacks[port] = boost::make_shared<InputPortInterface::NewDataOnPortEvent>();
@@ -416,6 +404,7 @@ namespace RTT
     }
 
     void TaskContext::dataOnPortRemoved(PortInterface* port) {
+        MutexLock lock(mportlock);
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {
             user_callbacks[port]->disconnect();
@@ -423,29 +412,15 @@ namespace RTT
         }
     }
 
-    void TaskContext::updateHook()
+    void TaskContext::prepareUpdateHook()
     {
-        // When the user overrides this method, this code will never be called, so in the case of EventPorts, the portqueue will fill up
-        // and remain as such.
+        MutexLock lock(mportlock);
         PortInterface* port = 0;
         while ( portqueue->dequeue( port ) == true ) {
-            if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
-                updated_ports.push_back(port);
             UserCallbacks::iterator it = user_callbacks.find(port);
             if (it != user_callbacks.end() )
                 it->second->emit(port); // fire the user callbacks.
         }
-        updateHook(updated_ports);
-        updated_ports.clear();
-    }
-
-    void TaskContext::updateHook(std::vector<PortInterface*> const& updated_ports)
-    {
-    }
-
-    bool TaskContext::isPortUpdated(base::PortInterface const& port) const
-    {
-        return find(updated_ports.begin(), updated_ports.end(), &port) != updated_ports.end();
     }
 }
 

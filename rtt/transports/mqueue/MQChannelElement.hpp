@@ -97,7 +97,7 @@ namespace RTT
             {
                 Logger::In in("MQChannelElement");
                 std::stringstream namestr;
-                namestr << '/' << port->getInterface()->getParent()->getName()
+                namestr << '/' << port->getInterface()->getOwner()->getName()
                         << '.' << port->getName() << '.'<<this << '@' << getpid();
 
                 if ( policy.name_id.empty() )

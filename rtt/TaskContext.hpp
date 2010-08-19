@@ -555,14 +555,14 @@ namespace RTT
          * Get the Data flow ports of this task.
          */
         DataFlowInterface* ports() {
-            return &dataPorts;
+            return tcservice.get();
         }
 
         /**
          * Get the Data flow ports of this task.
          */
         const DataFlowInterface* ports() const {
-            return &dataPorts;
+            return tcservice.get();
         }
 
         /**
@@ -571,34 +571,7 @@ namespace RTT
         virtual bool connectPorts( TaskContext* peer );
         /** @} */
 
-    protected:
-
-        /**
-         * Hook called in the Running state.
-         *
-         * This default implementation calls updateHook(updated_ports)
-         */
-        virtual void updateHook();
-
-        /**
-         * This method gets called when new data is available on some input ports. The ports
-         * are listed as argument to the method
-         *
-         * The default implementation does nothing;
-         */
-        virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
-
-        /**
-         * This method allows to test in updateHook() if a specific port has
-         * triggered this particular update.
-         *
-         * This works only in updateHook(), and allows only to test ports that
-         * have been added to the data flow interface using
-         * DataFlowInterface::addEventPort.
-         */
-        bool isPortUpdated(base::PortInterface const& port) const;
-
-    protected:
+    private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
@@ -625,8 +598,6 @@ namespace RTT
         void setup();
 
         friend class DataFlowInterface;
-        typedef std::vector< base::PortInterface* > PortList;
-        PortList updated_ports;
         internal::MWSRQueue<base::PortInterface*>* portqueue;
         typedef std::map<base::PortInterface*, boost::shared_ptr<base::InputPortInterface::NewDataOnPortEvent> > UserCallbacks;
         UserCallbacks user_callbacks;
@@ -651,18 +622,21 @@ namespace RTT
          */
         void dataOnPortRemoved(base::PortInterface* port);
 
+        /**
+         * Function that is called before updateHook, where the TC implementation
+         * can do bookkeeping with regard to event ports.
+         */
+        void prepareUpdateHook();
+
         typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
         LocalServices localservs;
 
         Service::shared_ptr tcservice;
         ServiceRequester*           tcrequests;
+        os::Mutex mportlock;
     private:
         // non copyable
         TaskContext( TaskContext& );
-        /**
-         * The task-local ports.
-         */
-        DataFlowInterface dataPorts;
 
         /**
          * This pointer tracks our activity which is set by

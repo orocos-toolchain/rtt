@@ -3,6 +3,7 @@
 
 #include "rtt-config.h"
 #include "OperationInterface.hpp"
+#include "DataFlowInterface.hpp"
 #include "internal/OperationInterfacePartFused.hpp"
 #include "internal/LocalOperationCaller.hpp"
 #include "internal/OperationCallerC.hpp"
@@ -33,6 +34,7 @@ namespace RTT
     class RTT_API Service
         : public OperationInterface,
           public ConfigurationInterface,
+          public DataFlowInterface,
           public boost::enable_shared_from_this<Service>
     {
     public:
