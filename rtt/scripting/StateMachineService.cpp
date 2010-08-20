@@ -49,7 +49,7 @@ namespace RTT
 
     using namespace detail;
 
-        void StateMachineService::createOperationCallerFactory() {
+        void StateMachineService::createOperationFactory() {
             // Add the state specific methods :
             // Special trick : we store the 'this' pointer in a DataSource, such that when
             // the created commands are copied, they also get the new this pointer.
@@ -112,7 +112,7 @@ namespace RTT
               statemachine(statem),
               mtc(tc)
         {
-            this->createOperationCallerFactory();
+            this->createOperationFactory();
             this->setOwner( tc );
         }
 
