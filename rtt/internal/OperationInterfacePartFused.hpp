@@ -273,10 +273,11 @@ namespace RTT
                 }
 
                 virtual std::vector<ArgumentDescription> getArgumentList() const {
-                    std::vector<std::string> const& descr = op->getDescriptions();
+                    std::vector<std::string> descr = op->getDescriptions();
                     std::vector<ArgumentDescription> ret;
+                    descr.resize( 1 + arity() * 2 );
                     for (unsigned int i =1; i < descr.size(); i +=2 )
-                        ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+1)) );
+                        ret.push_back(ArgumentDescription(descr[i],descr[i+1], SequenceFactory::GetType((i-1)/2+2)) );
                     return ret;
                 }
 
