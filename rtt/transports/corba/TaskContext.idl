@@ -79,6 +79,15 @@ module RTT
 	    boolean stop();
 
 	    /**
+	     * Asks the component to transition from an Exception state to the
+	     * Stopped state
+
+	     * @see RTT::base::TaskCore::exception() and
+	     * RTT::base::TaskCore::recover()
+	     */
+	    boolean resetException();
+
+	    /**
 	     * Cleanup this component.
 	     * @see RTT::base::TaskCore::cleanup()
 	     */
@@ -129,6 +138,10 @@ module RTT
 
 	    /**
 	     * Get a service.
+             *
+             * Use 'this' as the name to get the task context's own service
+             * provider
+             *
 	     * @see RTT::TaskContext::provides()
 	     */
 	    CService getProvider( in string service_name );
