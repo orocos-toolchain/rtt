@@ -216,10 +216,10 @@ namespace RTT {
     {
         StateMachine::unloading();
         // just kill off the interface.
-        if ( object == 0)
+        if ( !object )
             return;
-        if ( object->getParent() ) {
-            assert( object == object->getParent()->provides( object->getName() ) );
+        if ( object->getParent() && object->getParent()->hasService( object->getName() ) ){
+            assert( object == object->getParent()->getService( object->getName() ) );
             object->getParent()->removeService( object->getName() );
         }
         object.reset();
