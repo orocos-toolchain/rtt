@@ -66,10 +66,13 @@
 	</imageobject>
 	<caption>
 	  <para>
-	    Components run in (periodic) threads and can communicate
-	    transparently. The Orocos RTT does a 'best effort' to
-	    deliver the highest performance to the highest priority
-	    threads.
+	    Components are loaded into the process by a deployer,
+	    which gets its configuration through an XML file. 
+	    Communication between processes is transparant to the
+	    component, but your data must be known to Orocos
+	    (cfr 'typekits' and 'transports'). Most new users start
+	    with a single process however, using the 'deployer'
+	    application.
 	  </para>
 	</caption>
       </mediaobject>
