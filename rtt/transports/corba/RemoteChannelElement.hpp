@@ -189,7 +189,6 @@ namespace RTT {
                 // an oob channel may be sitting at our other end. If not, this is a nop.
                 base::ChannelElement<T>::disconnect(!writer_to_reader);
 
-                remote_side = 0;
                 mpoa->deactivate_object(oid);
             }
 
@@ -206,7 +205,6 @@ namespace RTT {
                 }
                 catch(CORBA::Exception&) {}
                 base::ChannelElement<T>::disconnect(writer_to_reader);
-                remote_side = 0;
                 mpoa->deactivate_object(oid);
             }
 
