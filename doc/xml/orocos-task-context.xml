@@ -158,7 +158,7 @@
       </mediaobject>
     </figure>
     <section>
-      <title>Setting up the TaskBrowser</title>
+      <title>Using the TaskBrowser</title>
       <para>
 	The way we interact with TaskContexts during development of an
 	Orocos application is through the <emphasis>Task
@@ -166,38 +166,13 @@
 	<classname>OCL::TaskBrowser</classname> is a powerful console
 	tool which helps you to explore, execute and debug
 	<classname>RTT::TaskContext</classname>s in running
-	programs. All you have to do is to create a TaskBrowser and
-	call its loop() method. 
+	programs. It is created for interactive deployers, such as
+	the <command>deployer</command> and the <command>deployer-corba</command>,
 	The TaskBrowser uses the GNU readline library to easily enter
 	commands to the tasks in your system. This means you can press
 	TAB to complete your commands or press the up arrow to scroll
 	through previous commands. 
       </para>
-      <note>
-	<para>
-	  The <classname>OCL::TaskBrowser</classname> is a component
-	  of its own which is found in the Orocos Component Library (OCL).
-	</para>
-      </note>
-      <programlisting>
-  #include &lt;ocl/TaskBrowser.hpp&gt;
-  #include &lt;rtt/os/main.h&gt;
-  // ...
-
-  using namespace Orocos;
-
-  int ORO_main( int, char** )
-  {
-      // Create your tasks
-      <classname>RTT::TaskContext</classname>* task = ...
-
-      // when all is setup :
-      <classname>OCL::TaskBrowser</classname> tbrowser( task );
-
-      tbrowser.loop();
-      return 0;
-  }
-      </programlisting>
     </section>
     <section>
       <title>Starting your First Application</title>
@@ -205,16 +180,44 @@
 	Now let's start the helloworld application. If you downloaded
 	OCL and compiled it from source, You can do this by
 	entering the helloworld subdirectory of your OCL build
-	directory and running <command>./helloworld</command>
+	directory and running <command>ORO_LOGLEVEL=5 ./helloworld</command>
       </para>
       <para>
-	In case you got OCL as a binary package, enter
-	<command>loadComponent("Hello","orocos-helloworld")</command>
-	at the prompt of the deployer application for your target:
-	<command>ORO_LOGLEVEL=5 deployer-gnulinux</command> for example. This
-	command loads the Orocos-HelloWorld component library and
-	creates a component with name "Hello" (<emphasis>Requires
-	OCL 1.4.1 or later</emphasis>).  Finally, type <command>cd
+	In case you got OCL as a binary package, create an 'helloworld.xml' XML file with
+	these contents:
+	<programlisting>  &lt;?xml version="1.0" encoding="UTF-8"?>
+  &lt;!DOCTYPE properties SYSTEM "cpf.dtd">
+  &lt;properties>
+    &lt;struct name="HelloWorld" type="OCL::HelloWorld">
+    &lt;/struct>
+  &lt;/properties> </programlisting>
+        and load it into the deployer using this command:
+	<command>deployer-gnulinux -s helloworld.xml -linfo</command>
+	This command loads the Orocos-HelloWorld component library and
+	creates a component with name "Hello". The difference between both
+	executables are shown in the figure below:
+      </para>
+      <figure id="fig-hello-world">
+	<title>
+	  Schematic Overview of the Hello Component.
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/HelloWorldDeployment" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/HelloWorldDeployment"  width="100%" scalefit="1"/>
+	  </imageobject>
+	  <caption>
+	    <para>'helloworld' is a static deployment of one component in a process, which
+	    means it is hard-coded in the helloworld.cpp file.
+	    Using the deployer application allows you to load it dynamically.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+      Finally, type <command>cd
 	Hello</command> to start with the exercise.
       </para>
       <screen>
@@ -264,13 +267,10 @@ TaskBrowser connects to all data ports of Hello
       <para>
 	Depending on what you type, the TaskBrowser will act
 	differently.  The built-in commands <command>cd</command>,
-	<command>help</command>, <command>quit</command> and
-	<command>ls</command> are seen as commands to the TaskBrowser
-	itself, if you typed something else, it tries to evaluate your
-	command to an expression and will print the result to the
-	console. If you did not type an expression, it tries to parse
-	it as a method call to a (peer) task. If that also fails, it means
-	you made a typo and it prints the syntax error to console.
+	<command>help</command>, <command>quit</command>,
+	<command>ls</command> etc,  are seen as commands to the TaskBrowser
+	itself, if you typed something else, it tries to execute your
+	command according to the Orocos scripting language syntax.
       </para>
       <screen>
  In Task Hello. (Status of last Command : none )
@@ -303,7 +303,7 @@ In Task Hello[R]
      string <emphasis>the_attribute</emphasis>  = Hello World
      string <emphasis>the_constant</emphasis>   = Hello World
 
-  OperationCallers      : activate cleanup configure error getPeriod inFatalError inRunTimeError isActive isConfigured isRunning resetError start stop the_command the_method trigger update
+  Operations      : activate cleanup configure error getPeriod inFatalError inRunTimeError isActive isConfigured isRunning resetError start stop the_command the_method trigger update
 
  Data Flow Ports:
  Out(C)      string <emphasis>the_results</emphasis>    =&gt;
@@ -325,14 +325,15 @@ In Task Hello[R]
       <para>
 	The first line shows the status between square brackets. The [R] here
 	means that the component is in the running state. Other states can 
-	be 'S' - stopped, 'U' - unconfigured, 'E' - run-time Error, 'F' - fatal error.
+	be 'S' - stopped, 'U' - unconfigured, 'E' - run-time Error, 'F' - fatal error,
+	'X' - exception.
       </para>
       <para>
 	First you get a list of the Properties and Attributes
 	(alphabetical) of the current component. Properties are meant
 	for configuration and can be written to disk. Attributes export
 	a C++ class value to the interface, to be usable by scripts or
-	for debugging.
+	for debugging and are not persistent.
       </para>
       <para>
 	Next, the methods of this component are listed: each component
@@ -400,7 +401,7 @@ Printing Interface of 'Hello' :
     </para>
     </section>
     <section>
-      <title>Calling a OperationCaller</title>
+      <title>Calling an Operation</title>
       <screen>
  In Task Hello[R]
  (type 'ls' for context info) :<command>the_method()</command>
@@ -416,7 +417,7 @@ Printing Interface of 'Hello' :
       </para>
     </section>
     <section>
-      <title>Sending a OperationCaller</title>
+      <title>Sending a Operation</title>
       <para>
 	When a method is <emphasis>sent</emphasis> to
 	the Hello component, it will execute it in its own thread on
@@ -551,7 +552,7 @@ Printing Interface of 'the_input_port' :
 
  Execution Interface:
   Attributes   : (none)
-  OperationCallers      : activate cleanup configure error getPeriod inFatalError inRunTimeError isActive isConfigured isRunning resetError start stop trigger update
+  Operations      : activate cleanup configure error getPeriod inFatalError inRunTimeError isActive isConfigured isRunning resetError start stop trigger update
 
  Data Flow Ports:
   In(C)      string the_results   (TaskBrowser not connected to this port)
@@ -624,10 +625,10 @@ Printing Interface of 'the_input_port' :
     </section>
   </section>
   <section id="basic-task">
-    <title>Setting Up a Basic Component</title>
+    <title>Creating a Basic Component</title>
     <para>
       Components are 
-      implemented by the <classname>RTT::TaskContext</classname> class.
+      implemented by subclassing the <classname>RTT::TaskContext</classname> class.
       It is useful speaking of a context because it defines
       the context in which an activity (a program) operates. 
       It defines the interface of the component, its properties,
@@ -639,32 +640,39 @@ Printing Interface of 'the_input_port' :
       This section walks you through the definition of an example component
       in order to show you how you could build your own component.
     </para>
-    <important>
-      <para>
-	The ready-to-execute code of this section can be found in the
-	'simple-task' RTT example on the <ulink
-	url="http://www.orocos.org/rtt/source">RTT Source code</ulink>
-	page of the Orocos.org website.
-      </para>
-    </important>
     <para>
-      A <classname>RTT::TaskContext</classname> is constructed as :
+      A  new component is constructed as :
     </para>
     <para>
       <programlisting>
   #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;ocl/Component.hpp&gt;
 
   // we assume this is done in all the following code listings :
   using namespace RTT;
 
-  <classname>RTT::TaskContext</classname> a_task("ATask");
+  class MyTask : public<classname>RTT::TaskContext</classname>
+  {
+  public:
+       ATask(const std::string&amp; name) : public TaskContext(name) {}
+  };
+
+  // requires -DRTT_COMPONENT :
+  OCL_CREATE_COMPONENT( MyTask );
       </programlisting>
     </para>
     <para>
-      The argument is the (unique) name of the component.
+      The constructor argument is the (unique) name of the component.
+      Compile this code with the '-DRTT_COMPONENT' flag and as a shared
+      library. You can load this component in a deployer by adding its
+      directory to the RTT_COMPONENT_PATH and verify that it has been 
+      found using <command>displayComponentTypes()</command> in the
+      TaskBrowser. Next type <command>loadComponent("the_task","MyTask")</command>
+      to load it into the process, or use an XML file such as in the
+      helloworld example above.
     </para>
     <para>
-      A task's interface consists of : OperationCallers, Ports,
+      A task's interface consists of : Operations, Ports,
       Attributes and Properties, which are all public.  We
       will refer to them as <emphasis>members</emphasis>.
     </para>
@@ -681,9 +689,8 @@ Printing Interface of 'the_input_port' :
 	</imageobject>
 	<caption>
 	  <para>
-	    The Execution Flow is formed by the processing of
-	    methods calls (which call in turn user
-	    functions).  The Data Flow is the propagation of data from
+	    The component offers services through operations, and requests
+	    them through operation callers. The Data Flow is the propagation of data from
 	    one task to another, where one producer can have multiple
 	    consumers.
 	  </para>
@@ -691,12 +698,13 @@ Printing Interface of 'the_input_port' :
       </mediaobject>
     </figure>
     <para>
-      When a TaskContext is running, it accepts messages using its
-      Execution Engine.  The Execution Engine will check periodically
+      The beating hart of the component is its Execution Engine will check (periodically)
       for new messages in it's queue and execute programs which are
       running in the task. When a TaskContext is created, the ExecutionEngine 
       is always running. The complete state flow of a TaskContext is shown in
-      <xref linkend="fig-component-states" />.
+      <xref linkend="fig-component-states" />. You can add code in the TaskContext
+      by implementing *Hook() functions, which will be called by the ExecutionEngine
+      when it is in a certain state or transitioning between states.
     </para>
     <figure id="fig-component-states">
       <title>
@@ -852,16 +860,14 @@ Printing Interface of 'the_input_port' :
 	by its internal Execution Engine.  To run a TaskContext, you
 	need to use one of the
 	<classname>RTT::base::ActivityInterface</classname> classes from the
-	RTT, most likely <classname>RTT::Activity</classname>
-	or <classname>RTT::extras::SlaveActivity</classname> create a threaded
-	or non-threaded activity respectively which executes your task.  This
+	RTT, most likely <classname>RTT::Activity</classname>.  This
 	relation is shown in <xref linkend="fig-task-execution" />.
 	The Activity class allocates a thread which executes the
 	Execution Engine. The chosen
 	<classname>Activity</classname> object will run
 	the Execution Engine, which will in turn call the
 	application's hooks above. When created, the TaskContext is assigned
-	the default <classname>RTT::Activity</classname> by default.
+	the <classname>RTT::Activity</classname> by default.
 	It offers an internal thread which can receive messagse
 	and process events but is not periodicly executing
 	updateHook().
@@ -1002,31 +1008,6 @@ Printing Interface of 'the_input_port' :
        <xref linkend="corelib-activities" /> in the CoreLib
        reference.</para>
       </section>
-    </section>
-    <section>
-      <title>Introducing the Orocos Component Interface</title>
-    <figure id="fig-a-task-context-interface">
-      <title>
-	TaskContext Interface
-      </title>
-      <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="images/ATaskContext" />
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ATaskContext"  width="100%" scalefit="1"/>
-	</imageobject>
-	<caption>
-	  <para>
-	    The Execution Flow is formed by the processing of
-	    methods and events (which call in turn user
-	    functions).  The Data Flow is the propagation of data from
-	    one task to another using ports. Configuration is done
-	    using properties and attributes.
-	  </para>
-	</caption>
-      </mediaobject>
-    </figure>
     </section>
     <section>
       <title>The Port Interface</title>
@@ -1705,7 +1686,7 @@ Printing Interface of 'the_input_port' :
 	communication or the Orocos Scripting variables, it is best to follow the
 	following guidelines :
 	<table id="method-args-table">
-	  <title>OperationCaller Return &amp; Argument Types</title>
+	  <title>Operation Return &amp; Argument Types</title>
 	  <tgroup cols="3">
 	    <thead>
 	      <row>
@@ -2317,7 +2298,7 @@ Printing Interface of 'the_input_port' :
       access its peers as such :</para>
     <para>
       <programlisting> // Script:
-  var bool result = CTask.aOperationCaller() </programlisting></para>
+  var bool result = CTask.aOperation() </programlisting></para>
     <para>
       The peer connection graph can be traversed at arbitrary
       depth. Thus you can access your peer's peers.
