@@ -69,27 +69,27 @@ void ChannelElementBase::disconnect(bool forward)
     if (forward)
     {
         shared_ptr output = this->output;
+        this->input = 0;
         this->output = 0;
         if (output)
             output->disconnect(true);
     }
     else
     {
-        // this is a trick: we raise & lower refcount on input (a pure pointer) here
-        // so if input was refcounted by no other before, we will delete it. Smart !
         shared_ptr input = this->input;
         this->input = 0;
+        this->output = 0;
         if (input)
             input->disconnect(false);
     }
 }
 
-ChannelElementBase* ChannelElementBase::getInput()
+ChannelElementBase::shared_ptr ChannelElementBase::getInput()
 { return input; }
 ChannelElementBase::shared_ptr ChannelElementBase::getOutput()
 { return output; }
 
-ChannelElementBase* ChannelElementBase::getInputEndPoint()
+ChannelElementBase::shared_ptr ChannelElementBase::getInputEndPoint()
 { return input ? input->getInputEndPoint() : this; }
 
 ChannelElementBase::shared_ptr ChannelElementBase::getOutputEndPoint()

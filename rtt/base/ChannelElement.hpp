@@ -95,7 +95,7 @@ namespace RTT { namespace base {
          */
         virtual FlowStatus read(reference_t sample)
         {
-            typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->input);
+            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(this->input);
             if (input)
                 return input->read(sample);
             else

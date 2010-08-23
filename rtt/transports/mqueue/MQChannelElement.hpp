@@ -127,7 +127,7 @@ namespace RTT
                 if (mis_sender) {
                     typename base::ChannelElement<T>::value_t sample; // XXX: real-time !
                     // this read should always succeed since signal() means 'data available in a data element'.
-                    base::ChannelElement<T>* input = dynamic_cast< base::ChannelElement<T>* >(this->input);
+                    typename base::ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< base::ChannelElement<T> >(this->input);
                     if( input->read(sample) == NewData )
                         return this->write(sample);
                 } else {

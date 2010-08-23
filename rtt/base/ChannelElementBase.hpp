@@ -64,8 +64,8 @@ namespace RTT { namespace base {
         friend void RTT_API intrusive_ptr_release( ChannelElementBase* e );
 
     protected:
-        ChannelElementBase* input;
-        shared_ptr          output;
+        shared_ptr input;
+        shared_ptr output;
 
         /** Increases the reference count */
         void ref();
@@ -94,7 +94,7 @@ namespace RTT { namespace base {
          * to setOutput().
          * @return
          */
-        ChannelElementBase* getInput();
+        ChannelElementBase::shared_ptr getInput();
 
         /**
          * Returns the first input channel element of this connection.
@@ -102,7 +102,7 @@ namespace RTT { namespace base {
          * or \a this if none.
          * @return getInput() ? getInput()->getInputEndPoint() : this
          */
-        ChannelElementBase* getInputEndPoint();
+        ChannelElementBase::shared_ptr getInputEndPoint();
 
 
         /**
