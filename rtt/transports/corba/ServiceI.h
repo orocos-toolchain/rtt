@@ -33,9 +33,9 @@
 
 #include "corba.h"
 #ifdef CORBA_IS_TAO
-#include "ServiceProviderS.h"
+#include "ServiceS.h"
 #else
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #endif
 
 #include "../../interface/Service.hpp"

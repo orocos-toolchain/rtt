@@ -38,7 +38,7 @@
 #include "TaskContextC.h"
 #endif
 
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 #include "ServiceRequesterC.h"
 #include "ServicesC.h"
 #include "DataFlowC.h"

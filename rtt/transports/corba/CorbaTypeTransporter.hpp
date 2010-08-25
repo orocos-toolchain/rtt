@@ -41,7 +41,7 @@
 
 #include "corba.h"
 #include "../../types/TypeTransporter.hpp"
-#include "ServiceProviderC.h"
+#include "ServiceC.h"
 
 namespace RTT {
 

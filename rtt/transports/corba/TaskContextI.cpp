@@ -31,7 +31,7 @@
 #include "TaskContextI.h"
 #include "TaskContextServer.hpp"
 #include "TaskContextProxy.hpp"
-#include "ServiceProviderI.h"
+#include "ServiceI.h"
 #include "ServiceRequesterI.h"
 #include "ServicesI.h"
 #include "DataFlowI.h"
