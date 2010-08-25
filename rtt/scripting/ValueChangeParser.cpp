@@ -275,7 +275,7 @@ namespace RTT
                 assert(ac);
                 assigncommands.push_back( ac );
             }
-            catch( const bad_assignment& e ) {
+            catch( const bad_assignment& ) {
                 this->cleanup();
                 throw parse_exception_semantic_error
                     ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );

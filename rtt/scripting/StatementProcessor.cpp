@@ -55,8 +55,9 @@ using namespace boost;
 namespace RTT
 {
     using namespace detail;
-    struct StatementProcessor::D
+    class StatementProcessor::D
     {
+	public:
         TaskContext* tc;
         D() {}
 

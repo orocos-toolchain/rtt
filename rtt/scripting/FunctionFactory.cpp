@@ -142,7 +142,7 @@ namespace RTT {
                 for (; dit != args.end(); ++dit, ++tit)
                     icom->add( (*tit)->getDataSource()->updateAction( dit->get() ) );
             }
-            catch( const bad_assignment& e) {
+            catch( const bad_assignment& ) {
                 delete icom;
                 int parnb = (dit - args.begin()) + 1;
                 throw wrong_types_of_args_exception(parnb, (*tit)->getDataSource()->getType() ,(*dit)->getType() );

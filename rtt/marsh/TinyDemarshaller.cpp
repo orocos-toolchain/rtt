@@ -353,7 +353,8 @@ namespace RTT
 
     using namespace detail;
 
-    struct TinyDemarshaller::D {
+    class TinyDemarshaller::D {
+    public:
         D(const std::string& f) : doc( f.c_str() ), loadOkay(false) {}
         TiXmlDocument doc;
         bool loadOkay;

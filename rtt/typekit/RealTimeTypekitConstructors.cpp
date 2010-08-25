@@ -122,26 +122,26 @@ namespace RTT
             const std::vector<double>& operator()( int size, double value ) const
             {
                 ptr->resize( size );
-		ptr->assign( size, value );
+                ptr->assign( size, value );
                 return *(ptr);
             }
         };
 
-            double float_to_double( float val ) {return val;}
-            float double_to_float( double val ) {return val;}
+        double float_to_double( float val ) {return double(val);}
+        float double_to_float( double val ) {return float(val);}
 
 
-            int float_to_int(float f) { return int(f); }
-            float int_to_float(int i) { return i; }
-            int double_to_int(double f) { return int(f); }
-            double int_to_double(int i) { return i; }
-            unsigned int int_to_uint(int i) { return i; }
-            int uint_to_int(unsigned int ui) { return ui; }
+        int float_to_int(float f) { return int(f); }
+        float int_to_float(int i) { return float(i); }
+        int double_to_int(double f) { return int(f); }
+        double int_to_double(int i) { return double(i); }
+        unsigned int int_to_uint(int i) { return (unsigned int)(i); }
+        int uint_to_int(unsigned int ui) { return int(ui); }
 #endif
-        bool flow_to_bool(FlowStatus fs) { return fs; }
-        bool send_to_bool(SendStatus ss) { return ss; }
-        bool int_to_bool(int i) { return i; }
-        int bool_to_int(bool b) { return b; }
+        bool flow_to_bool(FlowStatus fs) { return bool(fs); }
+        bool send_to_bool(SendStatus ss) { return bool(ss); }
+        bool int_to_bool(int i) { return bool(i); }
+        int bool_to_int(bool b) { return int(b); }
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>

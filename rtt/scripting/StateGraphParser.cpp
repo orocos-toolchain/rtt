@@ -742,7 +742,7 @@ namespace RTT
                 mpositer.get_position().file, mpositer.get_position().line,
                 mpositer.get_position().column );
         }
-        catch( const parser_error<GraphSyntaxErrors, iter_t>& e )
+        catch( const parser_error<GraphSyntaxErrors, iter_t>& )
         {
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
@@ -1006,7 +1006,7 @@ namespace RTT
             try {
                 paraminitcommands.push_back( i->second->getDataSource()->updateAction( j->second.get() ) );
             }
-            catch( const bad_assignment& e )
+            catch( const bad_assignment& )
                 {
                     throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
                 }

@@ -278,7 +278,7 @@ namespace RTT {
             for (; dit != fnargs.end(); ++dit, ++tit)
                 icom->add( (*tit)->getDataSource()->updateAction( dit->get() ) );
         }
-        catch( const bad_assignment& e) {
+        catch( const bad_assignment& ) {
             // cleanup allocated memory
             for (unsigned int i=0; i < newlist.size(); ++i)
                 delete newlist[i];

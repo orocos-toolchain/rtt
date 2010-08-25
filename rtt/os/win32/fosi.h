@@ -27,11 +27,6 @@
 
 #define HAVE_FOSI_API
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #ifdef _MSC_VER
 #include <cstdio>
 #include <cstdlib>
@@ -53,8 +48,6 @@ extern "C"
 #include "../oro_limits.h"
 #include "../../rtt-config.h"
 
-#include "dlfcn.h"
-
     // Time Related
 #ifdef _MSC_VER
 #include <ctime>
@@ -63,6 +56,13 @@ extern "C"
 #include <time.h>
 #include <unistd.h>
 #endif
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include "dlfcn.h"
 
     RTT_API unsigned int sleep(unsigned int seconds);
 	

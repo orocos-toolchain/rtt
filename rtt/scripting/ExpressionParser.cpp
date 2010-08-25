@@ -451,7 +451,7 @@ namespace RTT
       TimeService::Seconds total = 0;
     switch( *begin )
     {
-    case 's': total = tsecs;
+    case 's': total = TimeService::Seconds(tsecs);
         break;
     case 'm': total = tsecs / 1000.0;
         break;
