@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:18 CET 2006  ServicesI.h
+  tag: FMTC  do nov 2 13:05:57 CET 2006  signature7.hpp
 
-                        ServicesI.h -  description
+                        signature7.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
@@ -36,56 +36,22 @@
  ***************************************************************************/
 
 
-#ifndef ORO_CORBA_SERVICES_I_HPP
-#define ORO_CORBA_SERVICES_I_HPP
+#define OROCOS_SIGNATURE_NUM_ARGS 7
+#define OROCOS_SIGNATURE_TEMPLATE_PARMS typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7
+#define OROCOS_SIGNATURE_TEMPLATE_ARGS T1, T2, T3, T4, T5, T6, T7
+#define OROCOS_SIGNATURE_PARMS arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7
+#define OROCOS_SIGNATURE_ARGS boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6), boost::ref(a7)
+#define OROCOS_SIGNATURE_ARG_TYPES typedef T1 arg1_type;typedef T2 arg2_type;typedef T3 arg3_type;typedef T4 arg4_type;typedef T5 arg5_type;typedef T6 arg6_type;typedef T7 arg7_type;
+#define OROCOS_SIGNATURE_TYPEDEFS typedef typename function_type::arg1_type arg1_type;typedef typename function_type::arg2_type arg2_type;typedef typename function_type::arg3_type arg3_type;typedef typename function_type::arg4_type arg4_type;typedef typename function_type::arg5_type arg5_type;typedef typename function_type::arg6_type arg6_type;typedef typename function_type::arg7_type arg7_type;
 
-#include "Services.hpp"
-#include "ServicesC.h"
-#include "corba.h"
-#ifdef CORBA_IS_TAO
-#include "ServicesS.h"
-#endif
+#include "signature_template.hpp"
 
-#include "../../Logger.hpp"
-#include "TaskContextServer.hpp"
-#include <string>
+#undef OROCOS_SIGNATURE_TYPEDEFS
+#undef OROCOS_SIGNATURE_ARG_TYPES
+#undef OROCOS_SIGNATURE_ARGS
+#undef OROCOS_SIGNATURE_PARMS
+#undef OROCOS_SIGNATURE_TEMPLATE_ARGS
+#undef OROCOS_SIGNATURE_TEMPLATE_PARMS
+#undef OROCOS_SIGNATURE_NUM_ARGSPARMS
+#undef OROCOS_SIGNATURE_NUM_ARGS
 
-/**
- * Implementation.
- */
-class RTT_Corba_CServiceInterface_i
-    : public virtual POA_RTT::corba::CServiceInterface,
-      public virtual PortableServer::RefCountServantBase
-{
-    PortableServer::POA_var mpoa;
-
-public:
-    RTT_Corba_CServiceInterface_i(PortableServer::POA_ptr poa)
-	  : mpoa(PortableServer::POA::_duplicate(poa)) {}
-
-    PortableServer::POA_ptr _default_POA()
-    { return PortableServer::POA::_duplicate(mpoa); }
-
-    virtual char* getLogMessage()
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ))
-    {
-        std::string ret = RTT::log().getLogLine();
-        return CORBA::string_dup( ret.c_str() );
-    }
-
-    virtual CORBA::Boolean requestShutdown()
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ))
-    {
-        if ( RTT::corba::Services::MayShutdown == false)
-            return false;
-        RTT::corba::TaskContextServer::ShutdownOrb(false);
-        return true;
-    }
-
-};
-
-#endif

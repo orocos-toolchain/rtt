@@ -55,6 +55,7 @@ namespace RTT
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
         const char* name = "main";
+        main_task->wait_policy = ORO_WAIT_ABS;
 	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
         main_task->thread = pthread_self();
 	    pthread_attr_init( &(main_task->attr) );
@@ -83,6 +84,7 @@ namespace RTT
 					   ThreadInterface* obj)
 	{
         int rv; // return value
+        task->wait_policy = ORO_WAIT_ABS;
         rtos_task_check_priority( &sched_type, &priority );
         // Save priority internally, since the pthread_attr* calls are broken !
         // we will pick it up later in rtos_task_set_scheduler().
@@ -184,6 +186,11 @@ namespace RTT
         rtos_task_make_periodic(mytask, nanosecs);
 	}
 
+  INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
+  {
+    task->wait_policy = policy;
+  }
+
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{
 	    if ( task->period == 0 )
@@ -198,13 +205,24 @@ namespace RTT
             errno = 0;
         }
 
-        // program next period:
-        // 1. convert period to timespec
-        TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
-        // 2. Add ts to periodMark (danger: tn guards for overflows!)
-        NANO_TIME tn = (task->periodMark.tv_nsec + ts.tv_nsec);
-        task->periodMark.tv_nsec = tn % 1000000000LL;
-        task->periodMark.tv_sec += ts.tv_sec + tn / 1000000000LL;
+        if (task->wait_policy == ORO_WAIT_ABS)
+        {
+          // program next period:
+          // 1. convert period to timespec
+          TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
+          // 2. Add ts to periodMark (danger: tn guards for overflows!)
+          NANO_TIME tn = (task->periodMark.tv_nsec + ts.tv_nsec);
+          task->periodMark.tv_nsec = tn % 1000000000LL;
+          task->periodMark.tv_sec += ts.tv_sec + tn / 1000000000LL;
+        }
+        else
+        {
+          TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
+          TIME_SPEC now = ticks2timespec( rtos_get_time_ns() );
+          NANO_TIME tn = (now.tv_nsec + ts.tv_nsec);
+          task->periodMark.tv_nsec = tn % 1000000000LL;
+          task->periodMark.tv_sec = ts.tv_sec + now.tv_sec + tn / 1000000000LL;
+        }
 
 	    return now > wake ? -1 : 0;
 	}

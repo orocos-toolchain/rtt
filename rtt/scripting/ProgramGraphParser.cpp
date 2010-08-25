@@ -50,6 +50,12 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
+#ifdef WIN32
+    #ifdef NDEBUG
+        #pragma optimize( "", off)
+    #endif
+#endif
+
 namespace RTT
 {
   using namespace boost;

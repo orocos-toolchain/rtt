@@ -174,6 +174,67 @@ namespace RTT
             ToInvoke impl;
         };
 
+        template<class F, class ToInvoke>
+        struct ReturnSignature<6,F,ToInvoke>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+            typedef typename boost::function_traits<F>::arg6_type arg6_type;
+
+            ReturnSignature() : impl() {}
+            ReturnSignature(ToInvoke implementation) : impl(implementation) {}
+            ~ReturnSignature() { }
+
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) {
+                if (impl)
+                    return impl->ret( a1,a2,a3,a4,a5,a6 );
+                return NA<result_type>::na();
+            }
+
+            result_type ret() {
+                if (impl)
+                    return impl->ret();
+                return NA<result_type>::na();
+            }
+        protected:
+            ToInvoke impl;
+        };
+
+        template<class F, class ToInvoke>
+        struct ReturnSignature<7,F,ToInvoke>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+            typedef typename boost::function_traits<F>::arg6_type arg6_type;
+            typedef typename boost::function_traits<F>::arg7_type arg7_type;
+
+            ReturnSignature() : impl() {}
+            ReturnSignature(ToInvoke implementation) : impl(implementation) {}
+            ~ReturnSignature() { }
+
+            result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7) {
+                if (impl)
+                    return impl->ret( a1,a2,a3,a4,a5,a6,a7 );
+                return NA<result_type>::na();
+            }
+
+            result_type ret() {
+                if (impl)
+                    return impl->ret();
+                return NA<result_type>::na();
+            }
+        protected:
+            ToInvoke impl;
+        };
+
     }
 }
 #endif

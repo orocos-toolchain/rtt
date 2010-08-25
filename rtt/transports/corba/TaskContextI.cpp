@@ -33,7 +33,6 @@
 #include "TaskContextProxy.hpp"
 #include "ServiceI.h"
 #include "ServiceRequesterI.h"
-#include "ServicesI.h"
 #include "DataFlowI.h"
 #include "../../OperationCaller.hpp"
 #include "../../rtt-detail-fwd.hpp"

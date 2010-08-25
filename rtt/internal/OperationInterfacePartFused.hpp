@@ -1,5 +1,5 @@
-#ifndef ORO_OPERATION_REPOSITORY_PART_FUSED_HPP
-#define ORO_OPERATION_REPOSITORY_PART_FUSED_HPP
+#ifndef ORO_OPERATION_INTERFACE_PART_FUSED_HPP
+#define ORO_OPERATION_INTERFACE_PART_FUSED_HPP
 
 
 #include <boost/shared_ptr.hpp>
@@ -8,8 +8,16 @@
 // Fusion behaviour changed at Boost 1.42
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 104100
+// our code goes up to 7 FUSION_MAX_VECTOR_SIZE defaults to 10
+#ifndef BOOST_FUSION_UNFUSED_MAX_ARITY
+#define BOOST_FUSION_UNFUSED_MAX_ARITY FUSION_MAX_VECTOR_SIZE
+#endif
 #include <boost/fusion/functional/generation/make_unfused.hpp>
 #else
+// our code goes up to 7 FUSION_MAX_VECTOR_SIZE defaults to 10
+#ifndef BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY
+#define BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY FUSION_MAX_VECTOR_SIZE
+#endif
 #include <boost/fusion/include/make_unfused_generic.hpp>
 #endif
 

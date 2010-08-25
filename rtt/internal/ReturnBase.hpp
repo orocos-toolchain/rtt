@@ -97,6 +97,39 @@ namespace RTT
             virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
             virtual result_type ret() = 0;
         };
+
+        template<class F>
+        struct ReturnBaseImpl<6,F>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+            typedef typename boost::function_traits<F>::arg6_type arg6_type;
+            virtual ~ReturnBaseImpl() {}
+
+            virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) = 0;
+            virtual result_type ret() = 0;
+        };
+
+        template<class F>
+        struct ReturnBaseImpl<7,F>
+        {
+            typedef typename boost::function_traits<F>::result_type result_type;
+            typedef typename boost::function_traits<F>::arg1_type arg1_type;
+            typedef typename boost::function_traits<F>::arg2_type arg2_type;
+            typedef typename boost::function_traits<F>::arg3_type arg3_type;
+            typedef typename boost::function_traits<F>::arg4_type arg4_type;
+            typedef typename boost::function_traits<F>::arg5_type arg5_type;
+            typedef typename boost::function_traits<F>::arg6_type arg6_type;
+            typedef typename boost::function_traits<F>::arg7_type arg7_type;
+            virtual ~ReturnBaseImpl() {}
+
+            virtual result_type ret(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6, arg7_type a7) = 0;
+            virtual result_type ret() = 0;
+        };
     }
 }
 #endif

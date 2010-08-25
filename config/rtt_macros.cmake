@@ -72,6 +72,11 @@ macro(ADD_RTT_TYPEKIT name version)
     add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJ_BINARY_DIR}/rtt/types
           COMMAND ${CMAKE_COMMAND} -E copy ${TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
+  if (WIN32)
+    get_target_property(DEBUG_TYPEKITLIB_DIR ${name}-${OROCOS_TARGET}_plugin DEBUG_LOCATION)
+    add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${DEBUG_TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
+  endif()
   endif(PROJ_BINARY_DIR)
   
 endmacro(ADD_RTT_TYPEKIT name)
@@ -120,6 +125,11 @@ macro(ADD_RTT_PLUGIN name version)
     add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJ_BINARY_DIR}/rtt/plugins
           COMMAND ${CMAKE_COMMAND} -E copy ${PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins)
+  if (WIN32)
+    get_target_property(DEBUG_PLUGINLIB_DIR ${name}-${OROCOS_TARGET}_plugin DEBUG_LOCATION)
+    add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${DEBUG_PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types)
+  endif()
   endif(PROJ_BINARY_DIR)
   
 endmacro(ADD_RTT_PLUGIN name)

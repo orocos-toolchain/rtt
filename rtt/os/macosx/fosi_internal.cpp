@@ -54,6 +54,7 @@ namespace RTT
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
         main_task->priority = sp.sched_priority;
+        task->wait_policy = ORO_WAIT_ABS;
 	    return 0;
 	}
 
@@ -77,6 +78,7 @@ namespace RTT
             // Save priority internally, since the pthread_attr* calls are broken !
             // we will pick it up later in rtos_task_set_scheduler().
             task->priority = priority;
+            task->wait_policy = ORO_WAIT_ABS;
 
 	    // Set name
 	    if ( strlen(name) == 0 )
@@ -161,6 +163,11 @@ namespace RTT
 	    mytask->periodMark = rtos_get_time_ns() + nanosecs;
 	}
 
+  INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
+  {
+    task->wait_policy = policy;
+  }
+
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{
 	    if ( task->period == 0 )
@@ -171,7 +178,14 @@ namespace RTT
 	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
         // next wake-up time :
+      if (task->wait_policy == ORO_WAIT_ABS)
+      {
         task->periodMark += task->period;
+      }
+      else
+      {
+        task->periodMark = rtos_get_time_ns() + task->period;
+      }
 
 	    if ( timeRemaining > 0 ) {
 	        //rtos_printf("Waiting for %lld nsec\n",timeRemaining);

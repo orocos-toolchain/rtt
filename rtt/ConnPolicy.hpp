@@ -41,6 +41,7 @@
 
 #include <string>
 #include "rtt-fwd.hpp"
+#include "rtt-config.h"
 
 namespace RTT {
 
@@ -86,7 +87,7 @@ namespace RTT {
      * </ul>
      * @ingroup Ports
      */
-    class ConnPolicy
+    class RTT_API ConnPolicy
     {
     public:
         static const int DATA   = 0;

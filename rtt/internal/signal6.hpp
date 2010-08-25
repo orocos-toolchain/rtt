@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:18 CET 2006  Services.hpp
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal6.hpp
 
-                        Services.hpp -  description
+                        signal6.hpp -  description
                            -------------------
-    begin                : do november 02 2006
-    copyright            : (C) 2006 FMTC
-    email                : peter.soetens@fmtc.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,44 +36,11 @@
  ***************************************************************************/
 
 
-#ifndef ORO_CORBA_SERVICES_HPP
-#define ORO_CORBA_SERVICES_HPP
+#ifndef OROCOS_SIGNAL_SIGNAL6_HEADER
+#define OROCOS_SIGNAL_SIGNAL6_HEADER
 
-#include "corba.h"
-#ifdef CORBA_IS_TAO
-#include "orbsvcs/CosNamingC.h"
-#else
-#include "omniORB4/Naming.hh"
-#endif
+#define OROCOS_SIGNATURE_TEMPLATE_HEADER "signal_template.hpp"
+#include "signature6.hpp"
+#undef OROCOS_SIGNATURE_TEMPLATE_HEADER
 
-
-namespace RTT
-{ namespace corba {
-
-    /**
-     * Helper class which locates common CORBA services.
-     */
-    class RTT_CORBA_API Services
-    {
-    protected:
-        //! Handle to the name service.
-        static CosNaming::NamingContext_var naming_context_;
-
-    public:
-
-        /**
-         * Set this variable to false if the Orb may not be
-         * shutdown. The default is \a true.
-         */
-        static bool MayShutdown;
-
-        /**
-         * Lookup and return the root naming context ("NameService").
-         */
-        static CosNaming::NamingContext_ptr getNamingContext();
-    };
-
-}
-}
-
-#endif
+#endif // OROCOS_SIGNAL_SIGNAL6_HEADER

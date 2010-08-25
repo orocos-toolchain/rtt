@@ -1,5 +1,5 @@
 
-#define ORO_TEST_METHOD
+#define ORO_TEST_OPERATION_CALLER
 
 #include <iostream>
 #include <TaskContext.hpp>
@@ -53,6 +53,18 @@ BOOST_AUTO_TEST_CASE(testOperationCallerC_Call)
     mc = tc->provides("methods")->create("m4", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello"));
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -5.0 );
+
+    mc = tc->provides("methods")->create("m5", caller->engine()).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).ret( r );
+    BOOST_CHECK( mc.call() );
+    BOOST_CHECK( r == -6.0 );
+
+    mc = tc->provides("methods")->create("m6", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).argC('a');
+    BOOST_CHECK( mc.call() );
+    BOOST_CHECK( r == -7.0 );
+
+    mc = tc->provides("methods")->create("m7", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).argC('a').argC((unsigned int)7);
+    BOOST_CHECK( mc.call() );
+    BOOST_CHECK( r == -8.0 );
 }
 
 BOOST_AUTO_TEST_CASE(testOperationCallerC_Send)
@@ -104,6 +116,39 @@ BOOST_AUTO_TEST_CASE(testOperationCallerC_Send)
     BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
     BOOST_CHECK_EQUAL( r, 0.0 );
     BOOST_CHECK_EQUAL( cr, -5.0 );
+
+    mc = tc->provides("methods")->create("m5", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f);
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -6.0 );
+
+    mc = tc->provides("methods")->create("m6", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).argC('a');
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -7.0 );
+
+    mc = tc->provides("methods")->create("m7", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).argC('a').argC((unsigned int)7);
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    shc.arg(cr);
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
+    BOOST_CHECK_EQUAL( r, 0.0 );
+    BOOST_CHECK_EQUAL( cr, -8.0 );
 }
 
 BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
@@ -121,6 +166,12 @@ BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
     mc3.argC(1).argC(2.0).argC(true).ret(ret);
     OperationCallerC mc4 = sp->create("m4", caller->engine() );
     mc4.argC(1).argC(2.0).argC(true).argC(std::string("hello")).ret(ret);
+    OperationCallerC mc5 = sp->create("m5", caller->engine() );
+    mc5.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).ret(ret);
+    OperationCallerC mc6 = sp->create("m6", caller->engine() );
+    mc6.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).argC('a').ret(ret);
+    OperationCallerC mc7 = sp->create("m7", caller->engine() );
+    mc7.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).argC('a').argC((unsigned int)7).ret(ret);
 
     BOOST_CHECK( mc0.call() );
     BOOST_CHECK_EQUAL(-1.0, ret);
@@ -132,6 +183,12 @@ BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
     BOOST_CHECK_EQUAL(-4.0, ret);
     BOOST_CHECK( mc4.call() );
     BOOST_CHECK_EQUAL(-5.0, ret);
+    BOOST_CHECK( mc5.call() );
+    BOOST_CHECK_EQUAL(-6.0, ret);
+    BOOST_CHECK( mc6.call() );
+    BOOST_CHECK_EQUAL(-7.0, ret);
+    BOOST_CHECK( mc7.call() );
+    BOOST_CHECK_EQUAL(-8.0, ret);
 }
 
 BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)

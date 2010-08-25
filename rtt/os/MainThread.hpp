@@ -130,6 +130,8 @@ namespace RTT
 
         virtual int getMaxOverrun() const;
 
+        virtual void setWaitPeriodPolicy(int p);
+
         virtual void yield();
 
         /**

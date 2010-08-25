@@ -83,6 +83,35 @@ namespace RTT
             virtual ~ReturnImpl() {}
 
         };
+
+        template<class F, class BaseImpl>
+        struct ReturnImpl<6,F,BaseImpl>
+            : public Collect<F,BaseImpl>
+        {
+            typedef typename boost::function<F>::arg1_type arg1_type;
+            typedef typename boost::function<F>::arg2_type arg2_type;
+            typedef typename boost::function<F>::arg3_type arg3_type;
+            typedef typename boost::function<F>::arg4_type arg4_type;
+            typedef typename boost::function<F>::arg5_type arg5_type;
+            typedef typename boost::function<F>::arg6_type arg6_type;
+            virtual ~ReturnImpl() {}
+
+        };
+
+        template<class F, class BaseImpl>
+        struct ReturnImpl<7,F,BaseImpl>
+            : public Collect<F,BaseImpl>
+        {
+            typedef typename boost::function<F>::arg1_type arg1_type;
+            typedef typename boost::function<F>::arg2_type arg2_type;
+            typedef typename boost::function<F>::arg3_type arg3_type;
+            typedef typename boost::function<F>::arg4_type arg4_type;
+            typedef typename boost::function<F>::arg5_type arg5_type;
+            typedef typename boost::function<F>::arg6_type arg6_type;
+            typedef typename boost::function<F>::arg7_type arg7_type;
+            virtual ~ReturnImpl() {}
+
+        };
     }
 }
 #endif

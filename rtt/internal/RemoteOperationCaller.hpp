@@ -142,6 +142,27 @@ namespace RTT
                 return this->DataSourceStorage<OperationCallerT>::getResult();
             }
 
+            template<class T1, class T2, class T3, class T4, class T5, class T6>
+            result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6 ) {
+                this->store( a1, a2, a3, a4, a5, a6 );
+                mmeth.call();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+            result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7 ) {
+                this->store( a1, a2, a3, a4, a5, a6, a7 );
+                mmeth.call();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5>
+            result_type call_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5 ) {
+                this->store( a1, a2, a3, a4, a5 );
+                mmeth.call();
+                return this->DataSourceStorage<OperationCallerT>::getResult();
+            }
+
             SendHandle<Signature> send_impl() {
                 mhandle = mmeth.send();
                 // @todo: get remote collect from rt allocation.
@@ -172,6 +193,27 @@ namespace RTT
             template<class T1, class T2, class T3, class T4>
             SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5>
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5 ) {
+                this->store( a1, a2, a3, a4, a5 );
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5, class T6>
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6 ) {
+                this->store( a1, a2, a3, a4, a5, a6 );
+                mhandle = mmeth.send();
+                return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+            SendHandle<Signature> send_impl( T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7 ) {
+                this->store( a1, a2, a3, a4, a5, a6, a7 );
                 mhandle = mmeth.send();
                 return SendHandle<Signature>( boost::make_shared< RemoteOperationCaller<OperationCallerT> >( mhandle ) );
             }
@@ -214,6 +256,33 @@ namespace RTT
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
                 if (  mhandle.collectIfDone() == SendSuccess ) {
                     bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5, class T6>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6 ) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
+                    bf::vector_tie(a1,a2,a3,a4,a5,a6) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7 ) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
+                    bf::vector_tie(a1,a2,a3,a4,a5,a6,a7) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
+                    return SendSuccess;
+                } else
+                    return SendNotReady;
+            }
+
+            template<class T1, class T2, class T3, class T4, class T5>
+            SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) {
+                if (  mhandle.collectIfDone() == SendSuccess ) {
+                    bf::vector_tie(a1,a2,a3,a4,a5) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
                     return SendNotReady;
@@ -286,6 +355,36 @@ namespace RTT
             {
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
+                if ( mhandle.collectIfDone() == SendSuccess )
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->getResult(); // may return void.
+            }
+
+            template<class T1,class T2, class T3, class T4, class T5, class T6>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
+            {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4,T5,T6> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6) );
+                if ( mhandle.collectIfDone() == SendSuccess )
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->getResult(); // may return void.
+            }
+
+            template<class T1,class T2, class T3, class T4, class T5, class T6, class T7>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
+            {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4,T5,T6,T7> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6), boost::ref(a7) );
+                if ( mhandle.collectIfDone() == SendSuccess )
+                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
+                return this->getResult(); // may return void.
+            }
+
+            template<class T1,class T2, class T3, class T4, class T5>
+            result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+            {
+                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
+                bf::vector<T1,T2,T3,T4,T5> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5) );
                 if ( mhandle.collectIfDone() == SendSuccess )
                     as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(this->vStore);
                 return this->getResult(); // may return void.

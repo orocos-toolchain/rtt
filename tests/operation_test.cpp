@@ -16,18 +16,20 @@ using namespace RTT;
 class OperationTest
 {
 public:
-    OperationTest() : tc("TC"), op0r("op0r"), op0cr("op0cr"), op1r("op1r"), op1cr("op1cr"), op0("op0"), op1("op1"), op2("op2"), op3("op3"), op4("op4") {
+    OperationTest() : tc("TC"), op0r("op0r"), op0cr("op0cr"), op1r("op1r"), op1cr("op1cr"), op0("op0"), op1("op1"), op2("op2"), op3("op3"), op4("op4"), op5("op5") {
 
         tc.provides()->addOperation("op0", &OperationTest::func0, this);
         tc.provides()->addOperation("op1", &OperationTest::func1, this);
         tc.provides()->addOperation("op2", &OperationTest::func2, this);
         tc.provides()->addOperation("op3", &OperationTest::func3, this);
         tc.provides()->addOperation("op4", &OperationTest::func4, this);
+        tc.provides()->addOperation("op5", &OperationTest::func5, this);
         BOOST_CHECK( tc.provides()->getOperation("op0") );
         BOOST_CHECK( tc.provides()->getOperation("op1") );
         BOOST_CHECK( tc.provides()->getOperation("op2") );
         BOOST_CHECK( tc.provides()->getOperation("op3") );
         BOOST_CHECK( tc.provides()->getOperation("op4") );
+        BOOST_CHECK( tc.provides()->getOperation("op5") );
 
         tc.provides()->addOperation("op0r", &OperationTest::func0r, this);
 
@@ -51,6 +53,7 @@ public:
     double func2(int i, double d) { return 3.0; }
     double func3(int i, double d, bool c) { return 4.0; }
     double func4(int i, double d, bool c, std::string s) { return 5.0; }
+    double func5(int i, double d, bool c, std::string s, float f) { return 6.0; }
 
     // The return values of signals are intentionally distinct than these above.
     double sig0() { return sig=-1.0; }
@@ -58,6 +61,7 @@ public:
     double sig2(int i, double d) { return sig=-3.0; }
     double sig3(int i, double d, bool c) { return (sig=-4.0); }
     double sig4(int i, double d, bool c, std::string s) { return sig=-5.0; }
+    double sig5(int i, double d, bool c, std::string s, float f) { return sig=-6.0; }
 
     TaskContext tc;
 
@@ -73,6 +77,7 @@ public:
     Operation<double(int,double)> op2;
     Operation<double(int,double,bool)> op3;
     Operation<double(int,double,bool, std::string)> op4;
+    Operation<double(int,double,bool, std::string, float)> op5;
 };
 
 // Registers the fixture into the 'registry'
@@ -100,12 +105,14 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
     op2.calls( &OperationTest::func2, this);
     op3.calls( &OperationTest::func3, this);
     op4.calls( &OperationTest::func4, this);
+    op5.calls( &OperationTest::func5, this);
 
     s->addOperation( op0 );
     s->addOperation( op1 );
     s->addOperation( op2 );
     s->addOperation( op3 );
     s->addOperation( op4 );
+    s->addOperation( op5 );
 
     // Test calling an operation using a OperationCaller.
     OperationCaller<double(void)> m0("op0");
@@ -127,6 +134,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
     s->addOperation("op2", &OperationTest::func2, this);
     s->addOperation("op3", &OperationTest::func3, this);
     s->addOperation("op4", &OperationTest::func4, this);
+    s->addOperation("op5", &OperationTest::func5, this);
 
     // Test calling an operation using a OperationCaller.
     OperationCaller<double(void)> m0("op0");

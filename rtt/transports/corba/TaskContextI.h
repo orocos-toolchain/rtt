@@ -40,7 +40,6 @@
 
 #include "ServiceC.h"
 #include "ServiceRequesterC.h"
-#include "ServicesC.h"
 #include "DataFlowC.h"
 #include "../../TaskContext.hpp"
 

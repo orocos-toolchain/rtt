@@ -111,6 +111,7 @@ void ErrorHandler(LPTSTR lpszFunction)
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
         const char* name = "main";
+        main_task->wait_policy = ORO_WAIT_ABS;
 	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
         main_task->threadId = GetCurrentThreadId();
         main_task->handle = 0;
@@ -144,6 +145,7 @@ void ErrorHandler(LPTSTR lpszFunction)
         //int rv; // return value
         // TODO implement scheduler by using CreateProcess
         // Set name
+        task->wait_policy = ORO_WAIT_ABS;
         if (strlen(name) == 0)
             name = "Thread";
         task->name = strcpy((char*) malloc((strlen(name) + 1)
@@ -223,6 +225,11 @@ void ErrorHandler(LPTSTR lpszFunction)
       return t->period;
     }
 
+    INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
+    {
+      task->wait_policy = policy;
+    }
+
     INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
     {
       if ( task->period == 0 )
@@ -233,7 +240,6 @@ void ErrorHandler(LPTSTR lpszFunction)
       NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
       if ( timeRemaining > 0 ) {
-		//rtos_printf("Waiting for %lld nsec\n",timeRemaining);
  		TIME_SPEC ts( ticks2timespec( timeRemaining ) );
 		rtos_nanosleep( &ts , NULL );
       }
@@ -241,7 +247,10 @@ void ErrorHandler(LPTSTR lpszFunction)
       //                 rtos_printf( "GNULinux task did not get deadline !\n" );
 
       // next wake-up time :
-      task->periodMark += task->period;
+      if (task->wait_policy == ORO_WAIT_ABS)
+        task->periodMark += task->period;
+      else
+        task->periodMark = rtos_get_time_ns() + task->period;
 
       return 0;
     }

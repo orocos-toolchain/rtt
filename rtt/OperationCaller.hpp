@@ -36,13 +36,13 @@
  ***************************************************************************/
 
 
-#ifndef ORO_TASK_METHOD_HPP
-#define ORO_TASK_METHOD_HPP
+#ifndef ORO_TASK_OPERATION_CALLER_HPP
+#define ORO_TASK_OPERATION_CALLER_HPP
 
 #include <string>
 #include <boost/function.hpp>
 #include "base/OperationCallerBase.hpp"
-#ifdef ORO_TEST_METHOD
+#ifdef ORO_TEST_OPERATION_CALLER
 #include "internal/UnMember.hpp"
 #include "internal/LocalOperationCaller.hpp"
 #endif
@@ -266,7 +266,7 @@ namespace RTT
             return *this;
         }
 
-#ifdef ORO_TEST_METHOD
+#ifdef ORO_TEST_OPERATION_CALLER
         /**
          * Construct a OperationCaller from a class member pointer and an
          * object of that class.
@@ -399,7 +399,7 @@ namespace RTT
 
     };
 
-#ifdef ORO_TEST_METHOD
+#ifdef ORO_TEST_OPERATION_CALLER
     /**
      * Create a OperationCaller which executes a function locally.
      *
