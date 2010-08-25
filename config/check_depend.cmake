@@ -45,19 +45,17 @@ OPTION(PLUGINS_ENABLE "Enable plugins" ON)
 #                                                         #
 ###########################################################
 
-#Hack: remove our own FindBoost.cmake if cmake < 2.6.2
-if( ${CMAKE_MINOR_VERSION} LESS 7 AND ${CMAKE_PATCH_VERSION} LESS 2)
-  execute_process( COMMAND ${CMAKE_COMMAND} -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-  execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-endif()
+# Look for boost We look up all components in one place because this macro does
+# not support multiple invocations in some CMake versions.
+find_package(Boost 1.38 COMPONENTS filesystem system unit_test_framework thread serialization)
 
 # Look for boost
 if ( PLUGINS_ENABLE )
-    find_package(Boost 1.36 REQUIRED filesystem system serialization)
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
-else()
-    find_package(Boost 1.36 REQUIRED)
+  if (NOT Boost_FILESYSTEM_FOUND OR NOT Boost_SYSTEM_FOUND)
+    message(SEND_ERROR "Plugins require Boost Filesystem and System libraries, but they were not found.")
+  endif()
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
 endif()
 
 if(Boost_FOUND)
@@ -164,7 +162,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OS_HAS_TLSF TRUE)
 
   if (NOT Boost_THREAD_FOUND)
-	find_package(Boost 1.36 REQUIRED thread)
+	message(SEND_ERROR "Boost thread library not found but required on macosx.")
   endif ()
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
