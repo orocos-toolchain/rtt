@@ -49,36 +49,13 @@ void OperationsFixture::createOperationCallerFactories(TaskContext* target)
     dat->addOperation("printNumber", &OperationsFixture::printNumber, this).doc("Print message + number");
     target->provides()->addService( dat );
 
-    Service::shared_ptr to = Service::Create("methods");
-    // ClientThread
-    to->addOperation("m0r", &OperationsFixture::m0r, this).doc("M0r");
-    to->addOperation("m0cr", &OperationsFixture::m0cr, this).doc("M0cr");
-    to->addOperation("m1r", &OperationsFixture::m1r, this).doc("M1r");
-    to->addOperation("m1cr", &OperationsFixture::m1cr, this).doc("M1cr");
+    createOperationCallerFactories0(target);
+    createOperationCallerFactories1(target);
+    createOperationCallerFactories2(target);
+    createOperationCallerFactories3(target);
+    createOperationCallerFactories4(target);
+    createOperationCallerFactories5(target);
+    createOperationCallerFactories6(target);
+    createOperationCallerFactories7(target);
 
-    to->addOperation("vm0", &OperationsFixture::vm0, this).doc("VoidM0");
-    to->addOperation("m0", &OperationsFixture::m0, this).doc("M0");
-    to->addOperation("m1", &OperationsFixture::m1, this).doc("M1").arg("a", "ad");
-    to->addOperation("m2", &OperationsFixture::m2, this).doc("M2").arg("a", "ad").arg("a", "ad");
-    to->addOperation("m3", &OperationsFixture::m3, this).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("m4", &OperationsFixture::m4, this).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("m5", &OperationsFixture::m5, this).doc("M5").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("m6", &OperationsFixture::m6, this).doc("M6").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("m7", &OperationsFixture::m7, this).doc("M7").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-
-    // OwnThread
-    to->addOperation("o0r", &OperationsFixture::m0r, this, OwnThread).doc("M0r");
-    to->addOperation("o0cr", &OperationsFixture::m0cr, this, OwnThread).doc("M0cr");
-    to->addOperation("o1r", &OperationsFixture::m1r, this, OwnThread).doc("M1r");
-    to->addOperation("o1cr", &OperationsFixture::m1cr, this, OwnThread).doc("M1cr");
-
-    to->addOperation("o0", &OperationsFixture::m0, this, OwnThread).doc("M0");
-    to->addOperation("o1", &OperationsFixture::m1, this, OwnThread).doc("M1").arg("a", "ad");
-    to->addOperation("o2", &OperationsFixture::m2, this, OwnThread).doc("M2").arg("a", "ad").arg("a", "ad");
-    to->addOperation("o3", &OperationsFixture::m3, this, OwnThread).doc("M3").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("o4", &OperationsFixture::m4, this, OwnThread).doc("M4").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("o5", &OperationsFixture::m5, this, OwnThread).doc("M5").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("o6", &OperationsFixture::m6, this, OwnThread).doc("M6").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    to->addOperation("o7", &OperationsFixture::m7, this, OwnThread).doc("M7").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad").arg("a", "ad");
-    target->provides()->addService( to );
 }

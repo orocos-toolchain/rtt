@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <TaskContext.hpp>
+#include "unit.hpp"
 
 using namespace std;
 using namespace boost;
@@ -11,7 +12,7 @@ using namespace RTT::detail;
  * A test fixture that registers some operations to a tc
  * and provides also a caller tc.
  */
-class OperationsFixture {
+class RTT_UNIT_API OperationsFixture {
 public:
     OperationsFixture();
 
@@ -84,4 +85,12 @@ public:
     ~OperationsFixture();
 
     void createOperationCallerFactories(TaskContext* target);
+    void createOperationCallerFactories0(TaskContext* target);
+    void createOperationCallerFactories1(TaskContext* target);
+    void createOperationCallerFactories2(TaskContext* target);
+    void createOperationCallerFactories3(TaskContext* target);
+    void createOperationCallerFactories4(TaskContext* target);
+    void createOperationCallerFactories5(TaskContext* target);
+    void createOperationCallerFactories6(TaskContext* target);
+    void createOperationCallerFactories7(TaskContext* target);
 };
