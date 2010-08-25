@@ -120,9 +120,9 @@ namespace RTT
             return 0;
         }
 
-    void MainThread::setWaitPolicy(int p)
+    void MainThread::setWaitPeriodPolicy(int p)
     {
-        rtos_task_set_wait_policy(&main_task, p);
+        rtos_task_set_wait_period_policy(&main_task, p);
     }
 
     void MainThread::yield()

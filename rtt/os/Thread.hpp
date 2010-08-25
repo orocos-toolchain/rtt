@@ -194,7 +194,7 @@ namespace RTT
 
             virtual int getMaxOverrun() const;
 
-            virtual void setWaitPolicy(int p);
+            virtual void setWaitPeriodPolicy(int p);
 
         protected:
             /**

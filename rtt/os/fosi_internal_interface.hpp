@@ -158,7 +158,7 @@ namespace RTT {
              * @param task The RTOS task to change.
              * @param policy The wait policy.
              */
-            void rtos_task_set_wait_policy( RTOS_TASK* task, int policy );
+            void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy );
 
             /**
              * This function is called by a periodic thread which

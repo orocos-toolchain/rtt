@@ -225,7 +225,7 @@ void ErrorHandler(LPTSTR lpszFunction)
       return t->period;
     }
 
-    INTERNAL_QUAL void rtos_task_set_wait_policy( RTOS_TASK* task, int policy )
+    INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
     {
       task->wait_policy = policy;
     }

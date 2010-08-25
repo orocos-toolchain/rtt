@@ -348,7 +348,7 @@ namespace RTT
             //rt_task_set_period(&(mytask->xenotask), rt_timer_ns2ticks( nanosecs ));
         }
 
-        INTERNAL_QUAL void rtos_task_set_wait_policy( RTOS_TASK* task, int policy )
+        INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
         {
           // Do nothing
         }

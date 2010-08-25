@@ -314,7 +314,7 @@ namespace RTT
                 rt_set_period(mytask->rtaitask, nano2count( nanosecs ));
         }
 
-        INTERNAL_QUAL void rtos_task_set_wait_policy( RTOS_TASK* task, int policy )
+        INTERNAL_QUAL void rtos_task_set_wait_period_policy( RTOS_TASK* task, int policy )
         {
           // Do nothing
         }
