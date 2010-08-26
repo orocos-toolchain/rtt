@@ -58,6 +58,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
 
+#include <rtt/os/Mutex.hpp>
+#include <rtt/os/MutexLock.hpp>
+#include <list>
+
 
 namespace RTT
 {
@@ -73,6 +77,8 @@ namespace RTT
         class RTT_API ConnectionManager
         {
         public:
+            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr> ChannelDescriptor;
+
             /**
              * Creates a connection manager to manage the connections of \a port.
              * @param port The port whose connections to manage.
@@ -105,15 +111,19 @@ namespace RTT
 
             template<typename Pred>
             bool delete_if(Pred pred) {
-                if (connections)
-                    return connections->delete_if(pred);
-                if ( cur_channel.get<1>() )
-                    if ( pred( cur_channel ) ) {
-                        // delete
-                        cur_channel.get<1>() = 0; //.reset() only available in later boost versions.
-                        return true;
+                RTT::os::MutexLock lock(connection_lock);
+                bool result = false;
+                std::list<ChannelDescriptor>::iterator it = connections.begin();
+                while (it != connections.end())
+                {
+                    if (pred(*it))
+                    {
+                        result = true;
+                        it = connections.erase(it);
                     }
-                return false;
+                    else ++it;
+                }
+                return result;
             }
 
             /**
@@ -126,25 +136,37 @@ namespace RTT
              */
             template<typename Pred>
             void select_if(Pred pred) {
-                if ( cur_channel.get<1>() )
-                    if ( pred( cur_channel ) )
-                        return;
-                bool found = false;
+                RTT::os::MutexLock lock(connection_lock);
+                cur_channel = find_if(pred).second;
+            }
+
+            template<typename Pred>
+            std::pair<bool, ChannelDescriptor> find_if(Pred pred) {
+                ChannelDescriptor channel = cur_channel;
+                if ( channel.get<1>() )
+                    if ( pred( channel ) )
+                        return std::make_pair(true, channel);
+
                 // The boost reference to pred is required
                 //boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1)(cur_channel);
-                if (connections)
 #ifdef MSVC
-                    connections->apply(boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1));
+                std::list<ChannelDescriptor>::iterator result =
+                    std::find_if(connections.begin(), connections.end(), pred);
 #else
-                    connections->apply(boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), boost::lambda::_1));
+                std::list<ChannelDescriptor>::iterator result =
+                    std::find_if(connections.begin(), connections.end(), pred);
 #endif
+                if (result == connections.end())
+                    return std::make_pair(false, ChannelDescriptor());
+                else
+                    return std::make_pair(true, *result);
             }
 
             /**
              * Returns true if this manager manages only one connection.
              * @return
              */
-            bool isSingleConnection() const { return connections == 0 && cur_channel.get<1>(); }
+            bool isSingleConnection() const { return connections.size() == 1; }
 
             /**
              * Returns the first added channel or if select_if was called, the selected channel.
@@ -160,29 +182,9 @@ namespace RTT
              */
             void clear();
 
-            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr> ChannelDescriptor;
         protected:
 
-            /**
-             * Helper method for select_if
-             * @param pred The user's predicate
-             * @param descriptor the channel to check using the predicate.
-             * @param found will be set to true if the selection process should stop because
-             * a match was found.
-             */
-            template<typename Pred>
-            void select_helper(Pred pred, bool& found, const ChannelDescriptor& descriptor) {
-                if ( !found && pred(descriptor) ) {
-                    // new channel found, clear current.
-                    if ( cur_channel.get<1>() != descriptor.get<1>() ) {
-                        cur_channel.get<1>()->clear();
-                        cur_channel = descriptor;
-                    }
-                    found = true;
-                }
-            }
-
-            void checkDeletedConnections(bool reset_current);
+            void updateCurrentChannel(bool reset_current);
 
             /** Helper method for disconnect(PortInterface*)
              *
@@ -192,7 +194,7 @@ namespace RTT
              *
              * @returns true if the descriptor matches, false otherwise
              */
-            bool eraseIfMatchingPort(ConnID const* port_id, ChannelDescriptor& descriptor);
+            bool findMatchingPort(ConnID const* conn_id, ChannelDescriptor const& descriptor);
 
             /** Helper method for disconnect()
              *
@@ -212,12 +214,18 @@ namespace RTT
              * A list of all our connections. Only non-null if two or more connections
              * were added.
              */
-            List< ChannelDescriptor >* connections;
+            std::list< ChannelDescriptor > connections;
 
             /**
              * Optimisation in case only one channel is to be managed.
              */
             ChannelDescriptor cur_channel;
+
+            /**
+             * Lock that should be taken before the list of connections is
+             * accessed or modified
+             */
+            RTT::os::Mutex connection_lock;
         };
 
     }
