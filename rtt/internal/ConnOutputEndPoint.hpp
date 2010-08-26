@@ -70,13 +70,27 @@ namespace RTT
         ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
             : port(port), cid(output_id)
         {
-            // cid is deleted/owned by the ConnectionManager.
-            port->addConnection(output_id, this );
+            // cid is deleted/owned by the port's ConnectionManager.
         }
 
         ~ConnOutputEndpoint()
         {
         }
+
+        /** Called by the connection factory to check that the connection is
+         * properly set up. It is called when the channel is complete, so we can
+         * register ourselves on the port side now
+         *
+         * Before that, the channel might not be complete and therefore having
+         * the input port read on it would lead to crashes
+         */
+        bool inputReady()
+        {
+            // cid is deleted/owned by the ConnectionManager.
+            port->addConnection(cid, this);
+            return base::ChannelElement<T>::inputReady();
+        }
+
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
