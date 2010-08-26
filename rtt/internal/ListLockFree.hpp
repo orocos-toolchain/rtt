@@ -43,7 +43,7 @@
 #include "../os/oro_atomic.h"
 #include "../os/CAS.hpp"
 #include <boost/intrusive_ptr.hpp>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
