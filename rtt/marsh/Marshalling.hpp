@@ -33,6 +33,16 @@ namespace RTT
         OperationCaller<bool (const std::string& filename)> loadProperties;
 
         /**
+         * Stores all properties of parent TaskContext in a new file or overwrite an existing one.
+         * The file given in filename will always be overwritten and any existing content
+         * will be lost.
+         * @param filename The file to store to.
+         * @return true on success, false on error, consult Logger output for messages.
+         * @see loadProperties() for loading properties in a TaskContext.
+         */
+        OperationCaller<bool (const std::string& filename)> storeProperties;
+
+        /**
          * Read the property file and 'refresh' \b all the properties of the TaskContext.
          * There may be more properties in the file than properties in the TaskContext,
          * but all properties of the TaskContext must be present in \a filename.

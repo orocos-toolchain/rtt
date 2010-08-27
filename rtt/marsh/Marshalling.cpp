@@ -5,6 +5,7 @@ namespace RTT
     Marshalling::Marshalling(TaskContext* owner)
       : ServiceRequester("marshalling",owner),
         loadProperties("loadProperties"),
+        storeProperties("storeProperties"),
         readProperties("readProperties"),
         updateProperties("updateProperties"),
         readProperty("readProperty"),
@@ -13,6 +14,7 @@ namespace RTT
         writeProperty("writeProperty")
     {
         addOperationCaller(loadProperties);
+        addOperationCaller(storeProperties);
         addOperationCaller(readProperties);
         addOperationCaller(updateProperties);
         addOperationCaller(readProperty);
