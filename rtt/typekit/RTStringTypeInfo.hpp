@@ -1,28 +1,27 @@
-#include <string>
+#include "../rt_string.hpp"
 #include "../types/SequenceTypeInfo.hpp"
 
 namespace RTT
 {
     namespace types
     {
-
         /**
          * Standard string specialisation that removes decomposition.
          */
-        struct StdStringTypeInfo: public SequenceTypeInfo<std::string, true>
+        struct RTStringTypeInfo: public SequenceTypeInfo<rt_string, true>
         {
-            StdStringTypeInfo() :
-                SequenceTypeInfo<std::string, true> ("string")
+            RTStringTypeInfo() :
+                SequenceTypeInfo<rt_string, true> ("rt_string")
             {
             }
 
             base::AttributeBase* buildVariable(std::string name, int size) const
             {
-                string t_init(size, ' '); // we can't use the default char(), which is null !
+                rt_string t_init(size, ' '); // we can't use the default char(), which is null !
 
                 // returned type is identical to parent, but we set spaces.
-                base::AttributeBase* ret = SequenceTypeInfo<std::string, true>::buildVariable(name, size);
-                Attribute<std::string> tt = ret;
+                base::AttributeBase* ret = SequenceTypeInfo<rt_string, true>::buildVariable(name, size);
+                Attribute<rt_string> tt = ret;
                 tt.set(t_init);
                 return ret;
             }

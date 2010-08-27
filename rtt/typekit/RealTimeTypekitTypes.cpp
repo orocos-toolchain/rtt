@@ -40,6 +40,9 @@
 #include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
 #include "StdStringTypeInfo.hpp"
+#ifdef OS_RT_MALLOC
+#include "RTStringTypeInfo.hpp"
+#endif
 #include "BoolTypeInfo.hpp"
 #include "../types/TypeInfoName.hpp"
 
@@ -69,6 +72,9 @@ namespace RTT
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
         ti->addType( new StdStringTypeInfo() );
+#ifdef OS_RT_MALLOC
+        ti->addType( new RTStringTypeInfo() );
+#endif
 
         // load the Orocos specific types:
         loadOrocosTypes( ti );
