@@ -10,13 +10,13 @@
 #if BOOST_VERSION >= 104100
 // our code goes up to 7 FUSION_MAX_VECTOR_SIZE defaults to 10
 #ifndef BOOST_FUSION_UNFUSED_MAX_ARITY
-#define BOOST_FUSION_UNFUSED_MAX_ARITY FUSION_MAX_VECTOR_SIZE
+#define BOOST_FUSION_UNFUSED_MAX_ARITY 7
 #endif
 #include <boost/fusion/functional/generation/make_unfused.hpp>
 #else
 // our code goes up to 7 FUSION_MAX_VECTOR_SIZE defaults to 10
 #ifndef BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY
-#define BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY FUSION_MAX_VECTOR_SIZE
+#define BOOST_FUSION_UNFUSED_GENERIC_MAX_ARITY 7
 #endif
 #include <boost/fusion/include/make_unfused_generic.hpp>
 #endif
