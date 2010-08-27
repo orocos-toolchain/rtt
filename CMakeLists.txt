@@ -45,6 +45,9 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
   SET ( CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS}"  CACHE STRING "Specify here your additional link flags.")
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 
+# Export file name
+set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
+
 # Make compilation verbose
 #SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 
@@ -119,23 +122,22 @@ ENDIF (DOXYGEN_EXECUTABLE)
 #                             #
 ###############################
 
-set(CONFIG_FILE_PATH "lib/cmake/OrocosRTT") # Folder lib/cmake is searched by default in CMake >= 2.6.3
-set(IMPORTED_TARGET_PREFIX "ImportedTarget_")
+set(CONFIG_FILE_PATH "lib/cmake/orocos-rtt") # Folder lib/cmake is searched by default in CMake >= 2.6.3
+set(IMPORTED_TARGET_PREFIX "imported_") # Prefix used in other projects to distinguish imported targets from regular ones
 
 # Main package configuration file
-CONFIGURE_FILE(orocosrtt-config.cmake.in
-               orocosrtt-config.cmake @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocosrtt-config.cmake DESTINATION "${CONFIG_FILE_PATH}")
+CONFIGURE_FILE(orocos-rtt-config.cmake.in
+               orocos-rtt-config.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config.cmake DESTINATION "${CONFIG_FILE_PATH}")
 
 # Version file
-CONFIGURE_FILE(orocosrtt-config-version.cmake.in
-               orocosrtt-config-version.cmake @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocosrtt-config-version.cmake DESTINATION "${CONFIG_FILE_PATH}")
+CONFIGURE_FILE(orocos-rtt-config-version.cmake.in
+               orocos-rtt-config-version.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-version.cmake DESTINATION "${CONFIG_FILE_PATH}")
 
-# Imported targets
-INSTALL(EXPORT OrocosRTT-${OROCOS_TARGET}-libraries DESTINATION "${CONFIG_FILE_PATH}"
-                                                    NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
+# Exported targets
+INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
+                                      NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
 
-
-
-
+# Package use file
+INSTALL(FILES UseOROCOS-RTT.cmake DESTINATION "${CONFIG_FILE_PATH}")

@@ -52,7 +52,9 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-mqueue.pc.in ${CMAKE_CURR
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-mqueue-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h @ONLY)
 
 IF ( BUILD_STATIC )
-  INSTALL(TARGETS orocos-rtt-mqueue-${OROCOS_TARGET}_static ARCHIVE DESTINATION lib )
+  INSTALL(TARGETS             orocos-rtt-mqueue-${OROCOS_TARGET}_static
+          EXPORT              ${LIBRARY_EXPORT_FILE}
+          ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
   SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
@@ -60,7 +62,9 @@ ENDIF( BUILD_STATIC )
   target_link_libraries( rtt-transport-mqueue-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-mqueue-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
-  INSTALL(TARGETS orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
+  INSTALL(TARGETS             orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
+          EXPORT              ${LIBRARY_EXPORT_FILE}
+          LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h ${IDLS} DESTINATION include/rtt/transports/mqueue )
 
 ENDIF(ENABLE_MQ)

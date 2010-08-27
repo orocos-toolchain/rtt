@@ -214,12 +214,12 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/rtt/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/rtt/o
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
 INSTALL(TARGETS             orocos-rtt-${OROCOS_TARGET}_dynamic
-        EXPORT              OrocosRTT-${OROCOS_TARGET}-libraries
+        EXPORT              ${LIBRARY_EXPORT_FILE}
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin )
 IF(BUILD_STATIC)
   INSTALL(TARGETS             orocos-rtt-${OROCOS_TARGET}_static
-          EXPORT              OrocosRTT-${OROCOS_TARGET}-libraries
+          EXPORT              ${LIBRARY_EXPORT_FILE}
           ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
 

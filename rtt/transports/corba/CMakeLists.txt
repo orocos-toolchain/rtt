@@ -67,7 +67,9 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-corba.pc.in ${CMAKE_CURRE
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/rtt-corba-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h @ONLY)
 
 IF ( BUILD_STATIC )
-  INSTALL(TARGETS orocos-rtt-corba-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
+  INSTALL(TARGETS             orocos-rtt-corba-static_${OROCOS_TARGET}
+          EXPORT              ${LIBRARY_EXPORT_FILE}
+          ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
   SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
@@ -76,7 +78,11 @@ ENDIF( BUILD_STATIC )
 
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
-  INSTALL(TARGETS orocos-rtt-corba-${OROCOS_TARGET}_dynamic ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
+  INSTALL(TARGETS             orocos-rtt-corba-${OROCOS_TARGET}_dynamic
+          EXPORT              ${LIBRARY_EXPORT_FILE}
+          ARCHIVE DESTINATION lib
+          LIBRARY DESTINATION lib
+          RUNTIME DESTINATION bin )
   INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/TransportPlugin.hpp ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h ${IDLS} DESTINATION include/rtt/transports/corba )
 
 ENDIF(ENABLE_CORBA)
