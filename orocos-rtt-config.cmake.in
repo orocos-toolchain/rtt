@@ -20,6 +20,10 @@
 #  OROCOS-RTT_LIBRARIES: Libraries to link against to use OROCOS-RTT
 #  OROCOS-RTT_DEFINITIONS: Definitions to use when compiling code that uses OROCOS-RTT
 #
+#  OROCOS-RTT_COMPONENT_PATH: The component path of the installation (<prefix>/lib/orocos) + RTT_COMPONENT_PATH
+#  OROCOS-RTT_PLUGINS_PATH: The plugins path of the installation (<prefix>/lib/orocos/plugins) + RTT_COMPONENT_PATH * /plugins
+#  OROCOS-RTT_TYPES_PATH: The types path of the installation (<prefix>/lib/orocos/types) + RTT_COMPONENT_PATH * /types
+#
 #  OROCOS-RTT_CORBA_FOUND: Boolean that indicates if corba transport support is available
 #  OROCOS-RTT_CORBA_LIBRARIES: Libraries to link against to use OROCOS-RTT with corba transport support
 #
@@ -137,25 +141,30 @@ set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
 ########################################################################################################################
 
 # Default component search path
+get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos" ABSOLUTE)
 get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos/plugins" ABSOLUTE)
 get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos/types"   ABSOLUTE)
 
-list(APPEND OROCOS-RTT_COMPONENT_PATH "${OROCOS-RTT_PLUGINS_PATH}"
+list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
 
+# Append additional user-defined plugin search paths
+foreach(CUSTOM_PLUGIN_PATH $ENV{RTT_COMPONENT_PATH})
+  list(APPEND OROCOS-RTT_PLUGIN_PATH "${CUSTOM_COMPONENT_PATH}/plugins"
+                                        "${CUSTOM_COMPONENT_PATH}/types")
+endforeach()
 # Append additional user-defined component search paths
 foreach(CUSTOM_COMPONENT_PATH $ENV{RTT_COMPONENT_PATH})
-  list(APPEND OROCOS-RTT_COMPONENT_PATH "${CUSTOM_COMPONENT_PATH}/plugins"
-                                        "${CUSTOM_COMPONENT_PATH}/types")
+  list(APPEND OROCOS-RTT_COMPONENT_PATH "${CUSTOM_COMPONENT_PATH}")
 endforeach()
 
 # Find components
 foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS})
 
-  # Find individual component
+  # Find individual plugin
   string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
   find_library(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY NAMES ${COMPONENT} ${COMPONENT}-${OROCOS_TARGET}
-                                                     PATHS ${OROCOS-RTT_COMPONENT_PATH} NO_DEFAULT_PATH)
+                                                     PATHS ${OROCOS-RTT_PLUGIN_PATH} NO_DEFAULT_PATH)
   mark_as_advanced(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY)
 
   # Set *_FOUND variables and update a space-separated lists of found/missing components
@@ -171,7 +180,7 @@ endforeach()
 
 # Signal error if required components are not found
 if(OROCOS-RTT_FIND_REQUIRED AND MISSING_COMPONENTS)
-  message(FATAL_ERROR "Could not find the following required OROCOS-RTT components: ${MISSING_COMPONENTS}. You may want to append the plugins folder location to the RTT_COMPONENT_PATH environment variable. E.g., if the plugin is located at /path/to/plugins/libfoo-plugin.so, add /path/to to RTT_COMPONENT_PATH")
+  message(FATAL_ERROR "Could not find the following required OROCOS-RTT plugins: ${MISSING_COMPONENTS}. You may want to append the plugins folder location to the RTT_COMPONENT_PATH environment variable. E.g., if the plugin is located at /path/to/plugins/libfoo-plugin.so, add /path/to to RTT_COMPONENT_PATH")
 endif()
 
 
