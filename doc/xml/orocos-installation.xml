@@ -16,7 +16,7 @@
     </title>
     <subtitle><emphasis>Real-Time Toolkit Version &oversion;</emphasis></subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006,2007,2008,2009</year>
+      <year>2002,2003,2004,2005,2006,2007,2008,2009,2010</year>
       <holder>Peter Soetens</holder>
       <holder>FMTC</holder>
     </copyright>
@@ -92,6 +92,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Clarified instructions for non-standard environments, cleanups.</revremark>
       </revision>
+    <revision>
+    <revnumber>2.0.0</revnumber>
+	<date>28 Aug 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Update to 2.0.0 release.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -141,21 +147,12 @@
       <section id="vers-scheme">
 	<title>The versioning scheme</title>
 	<para>
-	  &orocos; uses the even/stable uneven/unstable
-	  version numbering scheme, just as the Linux kernel.
 	  A particular version is represented by three
-	  numbers separated by dots. An <emphasis>even</emphasis>
-	  middle number indicates a <emphasis>stable</emphasis>
-	  version. For example :
+	  numbers separated by dots.For example :
 	  <itemizedlist>
-	    <listitem><para>1.1.4 : Release 1, unstable (1), revision
-		4.</para></listitem>
-	    <listitem><para>1.2.1 : Release 1, stable   (2), revision
+	    <listitem><para>2.2.1 : Release 2, Feature update 2, bug-fix revision
 		1.</para></listitem>
-	  </itemizedlist> This numbering allows to develop and release
-	  two kinds of versions, where the unstable version is mainly
-	  for testing new features and designs and the stable version
-	  is for users wanting to run a reliable system.
+	  </itemizedlist>
 	</para>
       </section>
       <section id="build-deps">
@@ -175,17 +172,17 @@
 	    <tbody>
 	      <row>
 		<entry>CMake</entry>
-		<entry>2.6.0  (all platforms)</entry>
+		<entry>2.6.2  (all platforms)</entry>
 		<entry>See <ulink url="http://www.cmake.org/cmake/resources/software.html">resources on cmake.org</ulink>
 		for pre-compiled packages in case your distribution
 		does not support this version</entry>
 	      </row>
 	      <row>
-		<entry>Boost C++ Main Library</entry>
-		<entry>1.33.0 (1.36.0 or newer with MS Visual Studio)</entry>
+		<entry>Boost C++ Library</entry>
+		<entry>1.33.0</entry>
 		<entry><ulink
-		url="http://www.boost.org">Boost.org</ulink> Version
-		1.33.0 has a very efficient (time/space) lock-free
+		url="http://www.boost.org">Boost.org</ulink> from version
+		1.33.0 on has a very efficient (time/space) lock-free
 		smart pointer implementation which is used by
 		Orocos. 1.36.0 has boost::intrusive which we require on Windows with MSVS.</entry>
 	      </row>
@@ -195,7 +192,7 @@
 		<entry><ulink
 		url="http://www.boost.org">Boost.org</ulink> test
 		library ('unit_test_framework') is required if you build the RTT
-		from source and BUILD_TESTING=ON (default). The RTT libraries
+		from source and ENABLE_TESTS=ON (default). The RTT libraries
 		don't depend on this library, it is only used for building
 		our unit tests.</entry>
 	      </row>
@@ -208,10 +205,10 @@
 	      </row>
 	      <row>
 		<entry>Boost C++ Serialization Library</entry>
-		<entry>1.37.0 (MQueue transport only)</entry>
+		<entry>1.37.0</entry>
 		<entry><ulink
 		url="http://www.boost.org">Boost.org</ulink> serialization
-		library is required on gnulinux and Xenomai for implementing the MQueue transport.</entry>
+		library is required for the type system and the MQueue transport.</entry>
 	      </row>
 	      <row>
 		<entry>GNU gcc / g++ Compilers</entry>
@@ -228,7 +225,7 @@
 		<entry>Xerces C++ Parser</entry>
 		<entry>2.1 (Optional)</entry>
 		<entry><ulink url="http://xml.apache.org/xerces-c/">Xerces website</ulink>
-		Versions 2.1 until 2.6 are known to work. If not found, an internal
+		Versions 2.1 until 2.7 are known to work. If not found, an internal
 		XML parser is used.</entry>
 	      </row>
 	      <row>
@@ -299,7 +296,7 @@
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
-  cmake .. -DOROCOS_TARGET=&lt;target&gt; [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DLINUX_SOURCE_DIR=/usr/src/linux]
+  cmake .. -DOROCOS_TARGET=&lt;target&gt; [-DCMAKE_PATH_PREFIX=/opt/orocos] [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DLINUX_SOURCE_DIR=/usr/src/linux]
   make
   make install</command> </screen>
         </para>
@@ -309,6 +306,9 @@
 	    <listitem><para><option>OROCOS_TARGET</option>:
 	      &lt;target&gt; is one of 'gnulinux', 'lxrt', 'xenomai', 'macosx', 'win32'. When none is specified,
 	      'gnulinux' is used.</para></listitem>
+	    <listitem><para><option>CMAKE_PATH_PREFIX</option>: used to specify
+		places to look for libraries such as Boost, TAO/ACE etc.
+	    </para></listitem>
 	    <listitem><para><option>CMAKE_INSTALL_PREFIX</option>: specifies where
 	    to install the RTT.</para></listitem>
 	    <listitem><para><option>LINUX_SOURCE_DIR</option>: is required for RTAI/LXRT
@@ -339,10 +339,119 @@
 	The default directory is
 	<filename>/usr/local</filename>, but can be changed
 	with the <option>CMAKE_INSTALL_PREFIX</option> option : <screen>
-	cmake .. -DCMAKE_INSTALL_PREFIX=/opt/other/</screen></para>
+	cmake .. -DCMAKE_INSTALL_PREFIX=/opt/orocos/</screen></para>
 	<para>
 	If you choose not to install Orocos, you can find the build's result
-	in the <filename>build/src</filename> directory.
+	in the <filename>build/rtt</filename> directory.
+	</para>
+    </section>
+  </section>
+  <section id="getting-started">
+    <title>Getting Started with the Code</title>
+    <para>
+      This Section provides a short overview of how to proceed next using the
+      &orocos; Real-Time Toolkit.
+    </para>
+    <section>
+      <title>Examples</title>
+      <para>
+	To quickly test an &orocos; application, you can download the examples
+	from the webpage on <ulink url="http://www.orocos.org/ocl/source">
+	Component template</ulink>, which contains a suitable CMake
+	environment for building components
+	or <ulink url="http://www.orocos.org/rtt/source">RTT Examples</ulink>
+	which contains a variety of demo programs.
+      </para>
+    </section>
+    <section>
+      <title>Building components and applications</title>
+      <para>
+	You can quick-start build components using the Orocos
+	Component Template package which you can download from
+	<ulink url="http://www.orocos.org/ocl/source">
+	the OCL download page</ulink>, which uses CMake. 
+	If you do not wish to use CMake, you can use the example
+	below to write your own Makefiles.
+      </para>
+      <example>
+	  <title>A Makefile for an Orocos Application or Component</title>
+	  <para>
+	    You can compile your program with a Makefile
+	    resembling this one : 
+	    <programlisting>  OROPATH=/usr/local
+
+  all: myprogram mycomponent.so
+
+  # Build a purely RTT application for gnulinux (not recommended).
+  # Use the 'OCL' settings below if you use the TaskBrowser or other OCL functionality.
+  #
+  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --cflags`
+  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --libs`
+
+  myprogram: myprogram.cpp
+        g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram
+
+
+  # Building dynamic loadable components requires the OCL to be installed as well:
+  #
+  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --cflags`
+  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --libs`
+
+  mycomonent.so: mycomponent.cpp
+        g++ mycomponent.cpp ${CXXFLAGS} ${LDFLAGS} -fPIC -shared -DRTT_COMPONENT  -o mycomponent.so
+</programlisting>
+	    Where your replace <emphasis>gnulinux</emphasis> with the target
+	    for which you wish to compile. If you use parts of the OCL,
+	    use the flags from <filename>orocos-ocl-gnulinux</filename>.
+	  </para>
+	  <para>
+	    We strongly recommend reading the <ulink
+	    url="http://www.orocos.org/ocl/deployment">Deployment
+	    Component</ulink> manual for building and loading Orocos
+	    components into an application.
+	  </para>
+	  <para>
+	    These flags must be extended with compile and link options
+	    for your particular application. 
+	  </para>
+	  <para>
+	    <important>
+	      <para>The <option>LDFLAGS</option> option must be placed after
+	      the <filename>.cpp</filename> or <filename>.o</filename>
+	      files in the gcc command.</para>
+	    </important>
+	    <note>
+	      <para>Make sure you have read <xref linkend="install-configure" />
+	      for your target if you application has compilation or link errors
+	      ( for example when using LXRT ).
+	      </para>
+	    </note>
+	  </para>
+	</example>
+      </section>
+    <section>
+      <title>What about main() ?</title>
+      <para>
+	In case you also want to write an executable that runs
+	components, your main() function needs to be named
+	ORO_main().
+      </para>
+      <para>
+	Some care must be taken in initialising the realtime
+	environment. First of all, you need to provide a function
+	  <function>int ORO_main(int argc, char** argv)
+	    {...}</function>, defined in &lt;rtt/os/main.h&gt; which contains your program :
+      </para>
+	    <programlisting>  #include &lt;rtt/os/main.h&gt;
+	      
+  int ORO_main(int argc, char** argv)
+  {
+     // Your code, do not use 'exit()', use 'return' to 
+     // allow Orocos to cleanup system resources.
+  } </programlisting>
+        <para>
+	  If you do not use this function, it is possible that 
+	  some (OS dependent) Orocos functionality will not work.
 	</para>
     </section>
   </section>
@@ -358,7 +467,9 @@
 	installed in /sw/include, so you would specify 
         <screen>export CMAKE_INCLUDE_PATH=/sw/include;/boost/include</screen>
 	For libraries in not default locations, use
-	the <screen>export CMAKE_LIBRARY_PATH=/sw/libs;/boost/libs</screen> variable.  For more
+	the <screen>export CMAKE_LIBRARY_PATH=/sw/libs;/boost/lib</screen> variable. 
+	When your installation directory has a standard layout, you can also
+	use a single <screen>export CMAKE_PREFIX_PATH=/boost</screen> statement. For more
 	information,
 	see <ulink url="http://www.cmake.org/Wiki/CMake_Useful_Variables#Environment_Variables">cmake
 	useful variables</ulink> link.
@@ -416,30 +527,6 @@
 	    when using the CORBA transport.
 	  </para>
 	</section>
-	<section>
-	  <title>Embedded RTT flavour</title>
-	  <para>
-	    In order to run Orocos applications on embedded systems,
-	    one can turn the <option>OS_EMBEDDED</option> option on.
-	    Next press 'c' again and additional options will be
-	    presented which allow you to select what part of the RTT
-	    is used.  By default, the <option>OS_EMBEDDED</option>
-	    option already disables some 'fat' features. One can also
-	    choose to build the RTT as a static library
-	    (<option>BUILD_STATIC</option>).
-	  </para>
-	  <warning>
-	    <para> The Embedded flavour is not compatible with the
-	    Orocos Component Library (OCL) and should only be enabled
-	    for specific setups and only by users that understand the
-	    consequences of this flag.   
-	    </para>
-	  </warning>
-	  <para>
-	    Alternatively, when you can re-run cmake:
-	  </para>
-	  <screen>  cmake .. -DOS_EMBEDDED=ON</screen>
-	</section>
       </section>
     <section>
       <title>Configuring the target Operating System</title>
@@ -482,13 +569,8 @@
     <section id="general_setup_rtai">
       <title>Building for RTAI / LXRT</title>
       <para>
-	Read first the 'Getting Started' section from <ulink
-	  url="http://people.mech.kuleuven.be/~psoetens/portingtolxrt.html">this 
-	  page</ulink> if you are not familiar with RTAI installation
-      </para>
-      <para>
 	Orocos has been tested with RTAI 3.0, 3.1, 3.2, 3.3, 3.4, 3.5 and 3.6.
-	The last version, RTAI 3.6, is recommended for RTAI users.
+	The latest version of RTAI is recommended for RTAI users.
 	You can obtain it from 
 	<ulink url="http://www.rtai.org">
 	  the RTAI home page</ulink>.
@@ -617,7 +699,7 @@
       </para>
       <para>
 	You'll have to specify the install directory in the
-	<option>XENOMAI_INSTALL_DIR</option> option during 'ccmake'.
+	<option>CMAKE_PATH_PREFIX</option> option during 'cmake'.
       </para>
       <section>
 	<title>Loading Xenomai</title>
@@ -801,190 +883,6 @@
       </section>
     </section>
   </section>
-
-  <section id="getting-started">
-    <title>Getting Started with the Code</title>
-    <para>
-      This Section provides a short overview of how to proceed next using the
-      &orocos; Real-Time Toolkit.
-    </para>
-    <section>
-      <title>A quick test</title>
-      <para>
-	To quickly test an &orocos; application, you can download the examples
-	from the webpage on <ulink url="http://www.orocos.org/ocl/source">
-	Component template</ulink>, which contains a suitable CMake
-	environment for building components
-	or <ulink url="http://www.orocos.org/rtt/source">RTT Examples</ulink>
-	which contains a variety of demo programs.
-      </para>
-      <para>
-	If you built the RTT yourself, you can issue a 
-	<screen> cmake .. -DENABLE_TESTS=ON
- make check</screen> in the build directory, which will test the
-	RTT against your current target.
-      </para>
-    </section>
-    <section>
-      <title>What about main() ?</title>
-      <para>
-	The first question asked by many users is : How do I write a
-	test program to see how it works? 
-      </para>
-      <para>
-	Some care must be taken in initialising the realtime
-	environment. First of all, you need to provide a function
-	  <function>int ORO_main(int argc, char** argv)
-	    {...}</function>, defined in &lt;rtt/os/main.h&gt; which contains your program :
-      </para>
-	    <programlisting>  #include &lt;rtt/os/main.h&gt;
-	      
-  int ORO_main(int argc, char** argv)
-  {
-     // Your code, do not use 'exit()', use 'return' to 
-     // allow Orocos to cleanup system resources.
-  } </programlisting>
-        <para>
-	  If you do not use this function, it is possible that 
-	  some (OS dependent) Orocos functionality will not work.
-	</para>
-    </section>
-    <section>
-      <title>Building components and applications</title>
-      <para>
-	You can quick-start build components using the Orocos
-	Component Template package which you can download from
-	<ulink url="http://www.orocos.org/ocl/source">
-	the OCL download page</ulink>, which uses CMake. 
-	If you do not wish to use CMake, you can use the example
-	below to write your own Makefiles.
-      </para>
-      <example>
-	  <title>A Makefile for an Orocos Application or Component</title>
-	  <para>
-	    You can compile your program with a Makefile
-	    resembling this one : 
-	    <programlisting>  OROPATH=/usr/local
-
-  all: myprogram mycomponent.so
-
-  # Build a purely RTT application for gnulinux.
-  # Use the 'OCL' settings below if you use the TaskBrowser or other OCL functionality.
-  #
-  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --cflags`
-  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --libs`
-
-  myprogram: myprogram.cpp
-        g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram
-
-
-  # Building dynamic loadable components requires the OCL to be installed as well:
-  #
-  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --cflags`
-  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --libs`
-
-  mycomonent.so: mycomponent.cpp
-        g++ mycomponent.cpp ${CXXFLAGS} ${LDFLAGS} -fPIC -shared -DOCL_DLL_EXPORT  -o mycomponent.so
-</programlisting>
-	    Where your replace <emphasis>gnulinux</emphasis> with the target
-	    for which you wish to compile. If you use parts of the OCL,
-	    use the flags from <filename>orocos-ocl-gnulinux</filename>.
-	  </para>
-	  <para>
-	    We strongly recommend reading the <ulink
-	    url="http://www.orocos.org/ocl/deployment">Deployment
-	    Component</ulink> manual for building and loading Orocos
-	    components into an application.
-	  </para>
-	  <para>
-	    These flags must be extended with compile and link options
-	    for your particular application. 
-	  </para>
-	  <para>
-	    <important>
-	      <para>The <option>LDFLAGS</option> option must be placed after
-	      the <filename>.cpp</filename> or <filename>.o</filename>
-	      files in the gcc command.</para>
-	    </important>
-	    <note>
-	      <para>Make sure you have read <xref linkend="install-configure" />
-	      for your target if you application has compilation or link errors
-	      ( for example when using LXRT ).
-	      </para>
-	    </note>
-	  </para>
-	</example>
-      </section>
-    <section>
-      <title>Header Files Overview</title>
-      <para>
-	<table>
-	  <title>Header Files</title>
-	  <tgroup cols="2">
-	    <thead>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>Header</entry>
-		<entry>Summary</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry>rtt/*.hpp</entry>
-		<entry>The `Real-Time Toolkit' directory contains the 
-		headers which describe the public API.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/os/*.h, rtt/os/*.hpp</entry>
-		<entry>Not intended for normal users. The os headers
-		describe a limited set of OS primitives, like locking
-		a mutex or creating a thread. Read the OS manual
-		carefully before using these headers, they are mostly
-		used internally by the RTT.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/dev/*.hpp</entry>
-		<entry>C++ Headers for accessing hardware interfaces.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/corba/*.hpp</entry>
-		<entry>C++ Headers for CORBA support.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/scripting/*.hpp</entry>
-		<entry>C++ Headers for real-time scripting. Do not include these
-		directly as they are mainly for internal use.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/marsh/*.hpp</entry>
-		<entry>C++ Headers for XML configuration and converting
-		data to text and vice versa.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/dlib/*.hpp</entry>
-		<entry>C++ Headers for the experimental Distribution
-		Library which allows embedded systems to use some
-		RTT primitives over a network. This directory does not
-		contain such a library but only interface headers.
-		</entry>
-	      </row>
-	      <row>
-		<entry>rtt/impl/*.hpp</entry>
-		<entry>C++ Headers for internal use.
-		</entry>
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table>
-      </para>
-    </section>
-  </section>
   <section id="cross-compile">
     <title>Cross Compiling Orocos</title>
     <para>
@@ -1000,8 +898,7 @@
       running on Linux stations, but is not the official 'CMake' approach.
     </para>
     <para>
-      For having native cross compilation support, you must upgrade to
-      CMake 2.6.0 or later and follow the instructions on the
+      For having native cross compilation support, follow the instructions on the
       <ulink url="http://www.cmake.org/Wiki/CMake_Cross_Compiling">
       CMake Cross Compiling page</ulink>.
     </para>
