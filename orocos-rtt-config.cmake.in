@@ -142,6 +142,7 @@ set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
 ########################################################################################################################
 
 # Default component search path
+get_filename_component(OROCOS-RTT_PATH "${SELF_DIR}/../../.." ABSOLUTE)
 get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos" ABSOLUTE)
 get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos/plugins" ABSOLUTE)
 get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos/types"   ABSOLUTE)
