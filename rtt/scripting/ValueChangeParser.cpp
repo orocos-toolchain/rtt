@@ -84,11 +84,24 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( vardecl );
         BOOST_SPIRIT_DEBUG_RULE( baredecl );
 
+  // a macro using GCC's C++ extension typeof that is used to not have
+  // to specify impossibly long type names..  See the Boost.Spirit
+  // documentation for more details, as that's where I got it from..
+  // we use __typeof__ instead of typeof because it is not disabled by
+  // using gcc -ansi
+
+  //TODO: this typeof replaced by boost header might not work.
+#   define RULE( name, def ) \
+        boost_spirit::contiguous<boost_spirit::positive<boost_spirit::chset<char> > > name = (def)
+      //BOOST_TYPE_OF(( (def) ) name = (def)
+  // typeof is not a native c/c++ construct and is gcc specific
+  //__typeof__( (def) ) name = (def)
+
         // we can't use commonparser.identifier to parse a type name,
         // because that one is meant to be used for identifier used by the
         // user, and excludes keywords such as "int", "string" etc.
-        chset<> identchar( "a-zA-Z-_0-9" );
-        RULE( type_name, lexeme_d[ alpha_p >> *identchar ] );
+        chset<> identchar( "a-zA-Z-_0-9/<>" );
+        RULE( type_name, lexeme_d[ +identchar ] );
 
         valuechange_parsers =  constantdefinition
             | variabledefinition
