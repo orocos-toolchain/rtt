@@ -20,6 +20,7 @@
 #  OROCOS-RTT_LIBRARIES: Libraries to link against to use OROCOS-RTT
 #  OROCOS-RTT_DEFINITIONS: Definitions to use when compiling code that uses OROCOS-RTT
 #
+#  OROCOS-RTT_PATH: Path of the RTT installation directory (its CMAKE_INSTALL_PREFIX).
 #  OROCOS-RTT_COMPONENT_PATH: The component path of the installation (<prefix>/lib/orocos) + RTT_COMPONENT_PATH
 #  OROCOS-RTT_PLUGINS_PATH: The plugins path of the installation (<prefix>/lib/orocos/plugins) + RTT_COMPONENT_PATH * /plugins
 #  OROCOS-RTT_TYPES_PATH: The types path of the installation (<prefix>/lib/orocos/types) + RTT_COMPONENT_PATH * /types
