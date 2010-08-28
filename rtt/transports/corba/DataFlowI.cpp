@@ -49,6 +49,7 @@
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
 #include "CorbaConnPolicy.hpp"
+#include "CorbaLib.hpp"
 
 #include "RemotePorts.hpp"
 #include "RemoteConnID.hpp"
@@ -257,7 +258,7 @@ void CDataFlowInterface_i::removeConnection(
         	      ,::RTT::corba::CNoSuchPortException
         	    ))
 {
-    OutputPortInterface* writer = 
+    OutputPortInterface* writer =
         dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0) {
         log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
@@ -331,7 +332,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ConnPolicy policy2 = toRTT(corba_policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
-    CRemoteChannelElement_i* this_element = 
+    CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
 
     /*

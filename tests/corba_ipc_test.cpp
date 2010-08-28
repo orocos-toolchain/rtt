@@ -29,11 +29,14 @@
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
 #include <transports/corba/corba.h>
+#include <transports/corba/CorbaConnPolicy.hpp>
 #include <rtt/InputPort.hpp>
 #include <rtt/OutputPort.hpp>
 #include <rtt/TaskContext.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
+#include <transports/corba/CorbaLib.hpp>
+
 #include <string>
 #include <stdlib.h>
 
@@ -177,7 +180,8 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( setupServer )
 {
-    system("./corba-ipc-server &");
+    int i = system("./corba-ipc-server &");
+    BOOST_REQUIRE( i == 0 );
     usleep(500000);
 }
 
@@ -631,7 +635,8 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
 
 BOOST_AUTO_TEST_CASE( cleanupServer )
 {
-    system("kill -9 $(pidof corba-ipc-server)");
+    int i = system("kill -9 $(pidof corba-ipc-server)");
+    BOOST_CHECK( i == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

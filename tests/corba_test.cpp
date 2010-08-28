@@ -31,6 +31,7 @@
 #include <rtt/transports/corba/DataFlowI.h>
 #include <rtt/transports/corba/RemotePorts.hpp>
 #include <transports/corba/ServiceC.h>
+#include <transports/corba/CorbaLib.hpp>
 
 #include "operations_fixture.hpp"
 

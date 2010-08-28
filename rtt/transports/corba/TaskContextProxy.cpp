@@ -39,6 +39,7 @@
 #include "TaskContextServer.hpp"
 #include "TaskContextC.h"
 #include "CorbaOperationCallerFactory.hpp"
+#include "CorbaLib.hpp"
 
 #include "../../types/Types.hpp"
 #include "../../extras/SequentialActivity.hpp"

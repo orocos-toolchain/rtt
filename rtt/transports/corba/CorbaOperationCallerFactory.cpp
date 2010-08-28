@@ -1,5 +1,7 @@
 #include "CorbaOperationCallerFactory.hpp"
 #include "AnyDataSource.hpp"
+#include "CorbaLib.hpp"
+
 #include "../../types/Types.hpp"
 #include "../../internal/DataSources.hpp"
 #include "../../internal/DataSourceCommand.hpp"

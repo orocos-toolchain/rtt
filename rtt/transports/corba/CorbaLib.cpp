@@ -47,6 +47,7 @@
 
 #include "TransportPlugin.hpp"
 #include "CorbaTemplateProtocol.hpp"
+#include "RTTCorbaConversion.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
 
