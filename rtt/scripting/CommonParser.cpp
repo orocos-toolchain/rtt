@@ -48,6 +48,8 @@ namespace RTT {
         assertion<std::string> expect_eos("End of statement expected. Use a newline or ';' to separate statements.");
     }
 
+    CommonParser::~CommonParser() {}
+
     CommonParser::CommonParser()
         : identchar( "a-zA-Z_0-9" ), skipeol(true),
           skipper( eol_skip_functor(skipeol) )
