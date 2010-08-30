@@ -305,23 +305,26 @@ void RTT_corba_COperationInterface_i::checkOperation (
         }
         if ( orig.ready() ) {
             DataSourceBase::shared_ptr ds = orig.getCallDataSource();
-            // Call nomatter what:
-            ds->evaluate(); // equivalent to orig.call()
-            // Return results into args:
-            for (size_t i =0; i != args.length(); ++i) {
-                const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
-                CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-		ctt->updateAny(results[i], args[i]);
-            }
+            CORBA::Any* retany;
 
-            // Try to return result:
+            // Try to get the return result :
             const TypeInfo* ti = ds->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             if ( !ctt ) {
-                log(Warning) << "Could not return results of call to " << operation << ": unknown return type by CORBA transport."<<endlog();
-                return new CORBA::Any();
+                log(Warning) << "Could not return results of call to " << operation << ": unknown return type by CORBA transport."<<endlog();            
+                ds->evaluate(); // equivalent to orig.call()
+                retany = new CORBA::Any();
+            } else {
+                retany =  ctt->createAny( ds ); // call evaluate internally
             }
-            return ctt->createAny( ds );
+
+            // Return results into args:
+            for (size_t i =0; i != args.length(); ++i) {
+                const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
+                CorbaTypeTransporter* ctta = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
+		            ctta->updateAny(results[i], args[i]);
+            }
+            return retany;
         } else {
             orig.check(); // will throw
         }
