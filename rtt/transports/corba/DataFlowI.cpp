@@ -49,6 +49,7 @@
 #include "../../InputPort.hpp"
 #include "../../OutputPort.hpp"
 #include "CorbaConnPolicy.hpp"
+#include "CorbaLib.hpp"
 
 #include "RemotePorts.hpp"
 #include "RemoteConnID.hpp"
@@ -63,7 +64,7 @@ using namespace RTT::internal;
 
 CDataFlowInterface_i::ServantMap CDataFlowInterface_i::s_servant_map;
 
-CDataFlowInterface_i::CDataFlowInterface_i (RTT::interface::DataFlowInterface* interface, PortableServer::POA_ptr poa)
+CDataFlowInterface_i::CDataFlowInterface_i (RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa)
     : mdf(interface), mpoa(PortableServer::POA::_duplicate(poa))
 {
 }
@@ -72,7 +73,7 @@ CDataFlowInterface_i::~CDataFlowInterface_i ()
 {
 }
 
-void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::interface::DataFlowInterface* obj)
+void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::DataFlowInterface* obj)
 {
     s_servant_map.push_back(
             std::make_pair(
@@ -80,7 +81,7 @@ void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::i
                 obj)
             );
 }
-void CDataFlowInterface_i::deregisterServant(RTT::interface::DataFlowInterface* obj)
+void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
 {
     for (ServantMap::iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
@@ -93,7 +94,7 @@ void CDataFlowInterface_i::deregisterServant(RTT::interface::DataFlowInterface* 
     }
 }
 
-RTT::interface::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
+RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
 {
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
@@ -104,7 +105,7 @@ RTT::interface::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CData
     return NULL;
 }
 
-CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::interface::DataFlowInterface* dfi, PortableServer::POA_ptr poa)
+CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::DataFlowInterface* dfi, PortableServer::POA_ptr poa)
 {
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
@@ -127,7 +128,7 @@ CDataFlowInterface::CPortNames * CDataFlowInterface_i::getPorts() ACE_THROW_SPEC
 	      CORBA::SystemException
 	    ))
 {
-    ::RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
+    ::RTT::DataFlowInterface::PortNames ports = mdf->getPortNames();
 
     RTT::corba::CDataFlowInterface::CPortNames_var pn = new RTT::corba::CDataFlowInterface::CPortNames();
     pn->length( ports.size() );
@@ -142,7 +143,7 @@ CDataFlowInterface::CPortDescriptions* CDataFlowInterface_i::getPortDescriptions
 	      CORBA::SystemException
 	    ))
 {
-    RTT::interface::DataFlowInterface::PortNames ports = mdf->getPortNames();
+    RTT::DataFlowInterface::PortNames ports = mdf->getPortNames();
     RTT::corba::CDataFlowInterface::CPortDescriptions_var result = new RTT::corba::CDataFlowInterface::CPortDescriptions();
     result->length( ports.size() );
 
@@ -257,7 +258,7 @@ void CDataFlowInterface_i::removeConnection(
         	      ,::RTT::corba::CNoSuchPortException
         	    ))
 {
-    OutputPortInterface* writer = 
+    OutputPortInterface* writer =
         dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0) {
         log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
@@ -331,7 +332,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ConnPolicy policy2 = toRTT(corba_policy);
 
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
-    CRemoteChannelElement_i* this_element = 
+    CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
 
     /*
@@ -478,7 +479,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     CORBA_CHECK_THREAD();
     // Check if +reader_interface+ is local. If it is, use the non-CORBA
     // connection.
-    RTT::interface::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(reader_interface);
+    RTT::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(reader_interface);
     if (local_interface && policy.transport == 0)
     {
         InputPortInterface* reader =

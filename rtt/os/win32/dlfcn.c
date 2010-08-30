@@ -17,10 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <windows.h>
-#include <stdio.h>
-
 #include "dlfcn.h"
+#include <stdio.h>
 
 /* Note:
  * MSDN says these functions are not thread-safe. We make no efforts to have
@@ -291,8 +289,9 @@ void *dlsym( void *handle, const char *name )
                 }
             }
         }
-
-        CloseHandle( hModule );
+	/* We don't need to close hModule since GetModuleHandle()
+	 * Does not increment the refcount.
+	 */
     }
 
     if( symbol == NULL )

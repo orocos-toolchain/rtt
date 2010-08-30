@@ -22,13 +22,13 @@ IF (NOT CORBA_IMPLEMENTATION)
   SET( CORBA_IMPLEMENTATION "TAO" CACHE STRING "The implementation of CORBA to use (allowed values: TAO or OMNIORB )" )
 ENDIF (NOT CORBA_IMPLEMENTATION)
 #
-# CORBA Remote Methods in C++
+# CORBA Remote OperationCallers in C++
 #
-OPTION( ORO_REMOTING "Enable transparant Remote Methods Calls in C++" ON )
+OPTION( ORO_REMOTING "Enable transparant Remote OperationCallers Calls in C++" ON )
 # Force remoting when CORBA is enabled.
 IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
   MESSAGE( "Forcing ORO_REMOTING to ON")
-  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
+  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote OperationCallers and Commands in C++" FORCE)
 ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
 
 # Is modified by target selection below
@@ -38,9 +38,6 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
 endif()
 
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
-
-# Necessary to play nice on win32 and Linux:
-set(CMAKE_DEBUG_LIB_SUFFIX "" CACHE STRING "The suffix applied to libraries compiled with debugging information. Defaults to 'd' on win32 and '' for all other platforms.")
     
 ###########################################################
 #                                                         #
@@ -48,19 +45,17 @@ set(CMAKE_DEBUG_LIB_SUFFIX "" CACHE STRING "The suffix applied to libraries comp
 #                                                         #
 ###########################################################
 
-#Hack: remove our own FindBoost.cmake if cmake < 2.6.2
-if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
-  execute_process( COMMAND cmake -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-  execute_process( COMMAND cmake -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-endif()
+# Look for boost We look up all components in one place because this macro does
+# not support multiple invocations in some CMake versions.
+find_package(Boost 1.38 COMPONENTS filesystem system unit_test_framework thread serialization)
 
 # Look for boost
 if ( PLUGINS_ENABLE )
-    find_package(Boost 1.36 REQUIRED filesystem system serialization)
-    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
-else()
-    find_package(Boost 1.36 REQUIRED)
+  if (NOT Boost_FILESYSTEM_FOUND OR NOT Boost_SYSTEM_FOUND)
+    message(SEND_ERROR "Plugins require Boost Filesystem and System libraries, but they were not found.")
+  endif()
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
 endif()
 
 if(Boost_FOUND)
@@ -167,7 +162,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   set(OS_HAS_TLSF TRUE)
 
   if (NOT Boost_THREAD_FOUND)
-	find_package(Boost 1.36 REQUIRED thread)
+	message(SEND_ERROR "Boost thread library not found but required on macosx.")
   endif ()
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
@@ -240,15 +235,12 @@ if(OROCOS_TARGET STREQUAL "win32")
     set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
     set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
-    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /bigobj ${PARALLEL_FLAG}")
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
     # For boost::intrusive !
     find_package(Boost 1.36 REQUIRED)
   endif()
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}")
-  if ( CMAKE_DEBUG_LIB_SUFFIX STREQUAL "" )
-    set(CMAKE_DEBUG_LIB_SUFFIX "d" CACHE STRING "" FORCE)
-  endif() 
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")

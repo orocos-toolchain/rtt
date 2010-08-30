@@ -21,7 +21,7 @@
 #include <Logger.hpp>
 #include <base/RunnableInterface.hpp>
 
-#include <interface/EventService.hpp>
+#include <EventService.hpp>
 #include <internal/DataSourceGenerator.hpp>
 
 #include "eventservice_test.hpp"

@@ -87,7 +87,7 @@ namespace RTT
      * a Property by name :
      * @verbatim
      base::PropertyBase* pb = bag.find( "name" ).
-     Property<ClassT> pb = bag.getProperty<ClassT>( "name" ).
+     Property<ClassT> pb = bag.getProperty( "name" ).
      @endverbatim
      * Both will return null if no such property exists.
 	 * @see base::PropertyBase, Property, BagOperations

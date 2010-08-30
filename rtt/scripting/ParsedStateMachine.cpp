@@ -30,7 +30,7 @@
 #include "../ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "StateMachineService.hpp"
 #include "../TaskContext.hpp"
 #include "../internal/mystd.hpp"
@@ -73,7 +73,7 @@ namespace RTT {
               i != parametervalues.end(); ++i )
         {
             // What is sure, is that each param
-            // must also be in the attributerepository.
+            // must also be in the ConfigurationInterface.
             assert( ret->getService()->getValue( i->first ) );
             ret->parametervalues[i->first] = ret->getService()->getValue( i->first );
         }
@@ -216,10 +216,10 @@ namespace RTT {
     {
         StateMachine::unloading();
         // just kill off the interface.
-        if ( object == 0)
+        if ( !object )
             return;
-        if ( object->getParent() ) {
-            assert( object == object->getParent()->provides( object->getName() ) );
+        if ( object->getParent() && object->getParent()->hasService( object->getName() ) ){
+            assert( object == object->getParent()->getService( object->getName() ) );
             object->getParent()->removeService( object->getName() );
         }
         object.reset();

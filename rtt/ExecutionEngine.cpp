@@ -315,6 +315,7 @@ namespace RTT
         if ( taskc ) {
             if ( taskc->mTaskState == TaskCore::Running ) {
                 try {
+                    taskc->prepareUpdateHook();
                     taskc->updateHook();
                 } catch(...){
                     taskc->exception(); // calls stopHook,cleanupHook
@@ -334,15 +335,16 @@ namespace RTT
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             if ( (*it)->mTaskState == TaskCore::Running )
                 try {
-                    taskc->updateHook();
+                    (*it)->prepareUpdateHook();
+                    (*it)->updateHook();
                 } catch(...){
-                    taskc->exception();
+                    (*it)->exception();
                 }
             if (  (*it)->mTaskState == TaskCore::RunTimeError )
                 try {
-                    taskc->errorHook();
+                    (*it)->errorHook();
                 } catch(...) {
-                    taskc->exception(); // calls stopHook,cleanupHook
+                    (*it)->exception(); // calls stopHook,cleanupHook
                 }
             if ( !this->getActivity() || this->getActivity()->isRunning() ) return;
         }

@@ -123,6 +123,7 @@ namespace RTT {
 
     void CPFMarshaller<std::ostream>::introspect(Property<double> &v)
     {
+        (this->s)->precision(25);
         doWrite( v, "double");
     }
 

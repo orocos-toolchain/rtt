@@ -1,7 +1,7 @@
 FILE( GLOB CPPS [^.]*.cpp [^.]*.c)
 FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
-GLOBAL_ADD_INCLUDE( rtt/os ${HPPS})
+GLOBAL_ADD_INCLUDE( rtt/os ${HPPS} )
 GLOBAL_ADD_SRC( ${CPPS})
 
 # Supported Operating Systems
@@ -17,6 +17,7 @@ ADD_SUBDIRECTORY( oro_i386 )
 ADD_SUBDIRECTORY( oro_x86_64 )
 ADD_SUBDIRECTORY( oro_powerpc )
 ADD_SUBDIRECTORY( oro_msvc )
+ADD_SUBDIRECTORY( oro_noasm )
 
 # Target specific config files
 ADD_SUBDIRECTORY( targets )

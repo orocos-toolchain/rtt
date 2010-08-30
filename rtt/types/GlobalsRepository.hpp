@@ -39,7 +39,7 @@
 #ifndef ORO_GLOBALS_REPOSITORY_HPP
 #define ORO_GLOBALS_REPOSITORY_HPP
 
-#include "../interface/ConfigurationInterface.hpp"
+#include "../ConfigurationInterface.hpp"
 
 namespace RTT {
     namespace types {
@@ -52,7 +52,7 @@ namespace RTT {
          * globals, such that they become owned by the GlobalsRepository.
          */
         class RTT_API GlobalsRepository
-            : public interface::ConfigurationInterface
+            : public ConfigurationInterface
         {
         public:
             typedef boost::shared_ptr<GlobalsRepository> shared_ptr;

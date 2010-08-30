@@ -1,31 +1,31 @@
 
-#define ORO_TEST_METHOD
+#define ORO_TEST_OPERATION_CALLER
 
 #include <iostream>
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <Operation.hpp>
-#include <internal/RemoteMethod.hpp>
-#include <interface/Service.hpp>
+#include <internal/RemoteOperationCaller.hpp>
+#include <Service.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
 /**
- * This test suite tests the RTT::internal::RemoteMethod class
- * and its dependencies, being MethodC and SendHandleC.
+ * This test suite tests the RTT::internal::RemoteOperationCaller class
+ * and its dependencies, being OperationCallerC and SendHandleC.
  */
-BOOST_FIXTURE_TEST_SUITE(  RemoteMethodTestSuite,  OperationsFixture )
+BOOST_FIXTURE_TEST_SUITE(  RemoteOperationCallerTestSuite,  OperationsFixture )
 
-BOOST_AUTO_TEST_CASE(testRemoteMethod)
+BOOST_AUTO_TEST_CASE(testRemoteOperationCaller)
 {
-    Method<double(void)> m0("mo");
-    boost::shared_ptr<DisposableInterface> implementation( new RemoteMethod<double(void)>(tc->provides("methods")->getPart("m0"),"m0", caller->engine() ) );
+    OperationCaller<double(void)> m0("mo");
+    boost::shared_ptr<DisposableInterface> implementation( new RemoteOperationCaller<double(void)>(tc->provides("methods")->getPart("m0"),"m0", caller->engine() ) );
     m0 = implementation;
     BOOST_CHECK( m0.ready() );
 
-    Method<double(int)> m1;
-    implementation.reset( new RemoteMethod<double(int)>(tc->provides("methods")->getPart("m1"),"m1", caller->engine()) );
+    OperationCaller<double(int)> m1;
+    implementation.reset( new RemoteOperationCaller<double(int)>(tc->provides("methods")->getPart("m1"),"m1", caller->engine()) );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
 
@@ -34,9 +34,9 @@ BOOST_AUTO_TEST_CASE(testRemoteMethod)
     BOOST_CHECK_EQUAL( -1.0, m0() );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodC_Call)
+BOOST_AUTO_TEST_CASE(testOperationCallerC_Call)
 {
-    MethodC mc;
+    OperationCallerC mc;
     double r = 0.0;
     mc = tc->provides("methods")->create("m0", caller->engine()).ret( r );
     BOOST_CHECK( mc.call() );
@@ -67,9 +67,9 @@ BOOST_AUTO_TEST_CASE(testMethodC_Call)
     BOOST_CHECK( r == -8.0 );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodC_Send)
+BOOST_AUTO_TEST_CASE(testOperationCallerC_Send)
 {
-    MethodC mc;
+    OperationCallerC mc;
     SendHandleC shc;
     double r = 0.0;
     double cr = 0.0;
@@ -151,26 +151,26 @@ BOOST_AUTO_TEST_CASE(testMethodC_Send)
     BOOST_CHECK_EQUAL( cr, -8.0 );
 }
 
-BOOST_AUTO_TEST_CASE(testMethodFromDS)
+BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
 {
     ServicePtr sp = tc->provides("methods");
 
     double ret;
-    MethodC mc0 = sp->create("m0", caller->engine() );
+    OperationCallerC mc0 = sp->create("m0", caller->engine() );
     mc0.ret(ret);
-    MethodC mc1 = sp->create("m1", caller->engine() );
+    OperationCallerC mc1 = sp->create("m1", caller->engine() );
     mc1.argC(1).ret(ret);
-    MethodC mc2 = sp->create("m2", caller->engine() );
+    OperationCallerC mc2 = sp->create("m2", caller->engine() );
     mc2.argC(1).argC(2.0).ret(ret);
-    MethodC mc3 = sp->create("m3", caller->engine() );
+    OperationCallerC mc3 = sp->create("m3", caller->engine() );
     mc3.argC(1).argC(2.0).argC(true).ret(ret);
-    MethodC mc4 = sp->create("m4", caller->engine() );
+    OperationCallerC mc4 = sp->create("m4", caller->engine() );
     mc4.argC(1).argC(2.0).argC(true).argC(std::string("hello")).ret(ret);
-    MethodC mc5 = sp->create("m5", caller->engine() );
+    OperationCallerC mc5 = sp->create("m5", caller->engine() );
     mc5.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).ret(ret);
-    MethodC mc6 = sp->create("m6", caller->engine() );
+    OperationCallerC mc6 = sp->create("m6", caller->engine() );
     mc6.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).argC('a').ret(ret);
-    MethodC mc7 = sp->create("m7", caller->engine() );
+    OperationCallerC mc7 = sp->create("m7", caller->engine() );
     mc7.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).argC('a').argC((unsigned int)7).ret(ret);
 
     BOOST_CHECK( mc0.call() );
@@ -191,10 +191,10 @@ BOOST_AUTO_TEST_CASE(testMethodFromDS)
     BOOST_CHECK_EQUAL(-8.0, ret);
 }
 
-BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
+BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
 {
     // Test the addition of methods to the operation interface,
-    // and retrieving it back in a new Method object.
+    // and retrieving it back in a new OperationCaller object.
     // these operations may use the remoting facility to adapt
 
     Operation<double(void)> m0("m0");
@@ -214,18 +214,18 @@ BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
     BOOST_CHECK( to.addOperation(m2).ready() );
 
     // test constructor
-    Method<double(void)> mm0 = to.getOperation("m0");
-    BOOST_CHECK( mm0.getMethodImpl() );
+    OperationCaller<double(void)> mm0 = to.getOperation("m0");
+    BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
-    Method<double(int)> mm1;
+    OperationCaller<double(int)> mm1;
     mm1 = to.getOperation("m1");
-    BOOST_CHECK( mm1.getMethodImpl() );
+    BOOST_CHECK( mm1.getOperationCallerImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.getOperation("m2");
-    BOOST_CHECK( mm2.getMethodImpl() );
+    OperationCaller<double(int,double)> mm2 = to.getOperation("m2");
+    BOOST_CHECK( mm2.getOperationCallerImpl() );
     BOOST_CHECK( mm2.ready() );
 
     // execute methods and check status:
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(testRemoteMethodFactory)
     BOOST_CHECK(to.addOperation( ovoid ).ready() == true);
 
     // wrong type 1:
-    Method<void(void)> mvoid;
+    OperationCaller<void(void)> mvoid;
     mvoid = to.getOperation("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:

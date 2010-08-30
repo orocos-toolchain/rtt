@@ -114,7 +114,7 @@ namespace RTT
         bool executeUntil();
         bool executeStep();
 
-        interface::ServicePtr context;
+        ServicePtr context;
     public:
         /**
          * Create a FunctionGraph with a given name.
@@ -128,7 +128,7 @@ namespace RTT
 
         ~FunctionGraph();
 
-        void setProgramService(interface::ServicePtr myservice);
+        void setProgramService(ServicePtr myservice);
 
         /**
          * To be called after a function is constructed.

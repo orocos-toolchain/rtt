@@ -190,7 +190,7 @@ namespace os
     };
             
 
-    struct print_helper { printbufs printer; };
+    struct RTT_API print_helper { printbufs printer; };
 
     /**
      * The printstream is a stream for printing characters
@@ -211,7 +211,7 @@ namespace os
      */
     extern printstream cout;
     
-    struct string_helper { string_helper() : str() {}; string_helper(const std::string& _init) :  str(_init) {};  stringbufs str; };
+    struct RTT_API string_helper { string_helper() : str() {}; string_helper(const std::string& _init) :  str(_init) {};  stringbufs str; };
     
     /**
      * Stringstreams, are not guaranteed to be hard realtime.

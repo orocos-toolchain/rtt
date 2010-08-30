@@ -46,7 +46,7 @@
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
 #include "../types/Types.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 
 namespace RTT { namespace scripting
 {
@@ -101,7 +101,7 @@ namespace RTT { namespace scripting
         valuechange_parsers;
 
       TaskContext* context;
-      interface::Service::shared_ptr mstore;
+      Service::shared_ptr mstore;
       ExpressionParser expressionparser;
       CommonParser& commonparser;
 
@@ -123,7 +123,7 @@ namespace RTT { namespace scripting
        * the second argument. Defaults to tc.
        */
       ValueChangeParser( TaskContext* tc, CommonParser& cp,
-                         interface::Service::shared_ptr storage,
+                         Service::shared_ptr storage,
                          TaskContext* caller);
 
       /**
@@ -135,7 +135,7 @@ namespace RTT { namespace scripting
       /**
        * Store allDefinedNames() in an additional TaskContext.
        */
-      void store( interface::Service::shared_ptr other );
+      void store( Service::shared_ptr other );
 
     /**
      * This base::ActionInterface holds the command assigning a value to

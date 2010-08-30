@@ -38,7 +38,8 @@
 #include "TaskContextProxy.hpp"
 #include "TaskContextServer.hpp"
 #include "TaskContextC.h"
-#include "CorbaMethodFactory.hpp"
+#include "CorbaOperationCallerFactory.hpp"
+#include "CorbaLib.hpp"
 
 #include "../../types/Types.hpp"
 #include "../../extras/SequentialActivity.hpp"
@@ -229,14 +230,14 @@ namespace RTT
         log(Debug) << "Fetching "<<parent->getName()<<" Service:"<<endlog();
         // load command and method factories.
         // methods:
-        log(Debug) << "Fetching Methods."<<endlog();
-        COperationRepository::COperationList_var objs;
+        log(Debug) << "Fetching OperationCallers."<<endlog();
+        COperationInterface::COperationList_var objs;
         objs = serv->getOperations();
         for ( size_t i=0; i < objs->length(); ++i) {
             if ( parent->hasMember( string(objs[i].in() )))
                 continue; // already added.
             log(Debug) << "Providing operation: "<< objs[i].in() <<endlog();
-            parent->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), serv, ProxyPOA() ) );
+            parent->add( objs[i].in(), new CorbaOperationCallerFactory( objs[i].in(), serv, ProxyPOA() ) );
         }
 
         // first do properties:

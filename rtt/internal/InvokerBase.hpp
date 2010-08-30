@@ -25,7 +25,7 @@ namespace RTT
          * of all invocable method implementations.
          * Any invocable method implementation must inherit
          * from this class such that it can be used transparantly
-         * by the Method, Operation and SendHandle containers.
+         * by the OperationCaller, Operation and SendHandle containers.
          */
         template<class F>
         struct InvokerBase

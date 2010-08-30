@@ -6,7 +6,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include <interface/Service.hpp>
+#include <Service.hpp>
 #include <transports/mqueue/MQLib.hpp>
 #include <transports/mqueue/MQChannelElement.hpp>
 #include <transports/mqueue/MQTemplateProtocol.hpp>

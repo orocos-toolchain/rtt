@@ -56,6 +56,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lambda/lambda.hpp>
 
 
 namespace RTT

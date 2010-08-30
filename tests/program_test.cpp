@@ -27,10 +27,10 @@
 #include <scripting/ScriptingService.hpp>
 #include <extras/SimulationThread.hpp>
 #include <extras/SimulationActivity.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include "operations_fixture.hpp"
 
 #include <boost/test/unit_test.hpp>

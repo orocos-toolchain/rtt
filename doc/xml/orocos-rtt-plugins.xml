@@ -206,7 +206,7 @@ extern "C"
       <para>
         Services will typically do very little during the 'null
 	argument' call and do a lot more when a component (non-null c)
-	is given. A ServiceProvider will register a new instance of the
+	is given. A Service will register a new instance of the
 	service to the given component.
       </para>
       <para>
@@ -220,9 +220,9 @@ extern "C"
 	<title>Creating a Service Plugin</title>
 	<para>
 	  A Service Plugin can be created by writing a subclass
-	  of <classname>RTT::interface::ServiceProvider</classname>:
+	  of <classname>RTT::Service</classname>:
 	</para>
-	<programlisting>  #include &lt;rtt/interface/ServiceProvider.hpp>
+	<programlisting>  #include &lt;rtt/Service.hpp>
   #include &lt;rtt/plugin/ServicePlugin.hpp>
   #include &lt;iostream&gt;
 
@@ -231,11 +231,11 @@ extern "C"
   /**
    * A service that offers the HelloWorld() operation.
    */
-  class MyService : public <classname>RTT::interface::ServiceProvider</classname>
+  class MyService : public <classname>RTT::Service</classname>
   {
   public:
      MyService(RTT::TaskContext* c) 
-        : RTT::interface::ServiceProvider("myservice", c) {
+        : RTT::Service("myservice", c) {
         this->addOperation("HelloWorld", &amp;HelloWorld, this);
      }
 

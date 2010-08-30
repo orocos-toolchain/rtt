@@ -1,30 +1,30 @@
 
-#define ORO_TEST_METHOD
+#define ORO_TEST_OPERATION_CALLER
 
 #include <TaskContext.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 #include <Operation.hpp>
-#include <interface/Service.hpp>
+#include <Service.hpp>
 
 #include "unit.hpp"
 #include "operations_fixture.hpp"
 
 /**
- * This test suite tests the RTT::Method object's LocalMethod implementation.
+ * This test suite tests the RTT::OperationCaller object's LocalOperationCaller implementation.
  */
-BOOST_FIXTURE_TEST_SUITE(  MethodTestSuite,  OperationsFixture )
+BOOST_FIXTURE_TEST_SUITE(  OperationCallerTestSuite,  OperationsFixture )
 
-BOOST_AUTO_TEST_CASE(testClientThreadMethod)
+BOOST_AUTO_TEST_CASE(testClientThreadOperationCaller)
 {
     // Tests using no caller, no sender
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this);
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this);
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this);
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this);
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this);
-    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this);
-    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this);
-    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this);
+    OperationCaller<double(void)> m0("m0", &OperationsFixture::m0, this);
+    OperationCaller<double(int)> m1("m1", &OperationsFixture::m1, this);
+    OperationCaller<double(int,double)> m2("m2", &OperationsFixture::m2, this);
+    OperationCaller<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this);
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this);
+    OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this);
+    OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this);
+    OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -36,17 +36,17 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethod)
     BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
 }
 
-BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
+BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerCall)
 {
     // Tests using caller and sender
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -60,17 +60,17 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodCall)
     BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
 }
 
-BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
+BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
 {
     // we set the owner engine to zero and our caller engine to be able to send.
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this, 0, caller->engine());
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this, 0, caller->engine());
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, 0, caller->engine());
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, 0, caller->engine());
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, 0, caller->engine());
-    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, 0, caller->engine());
-    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, 0, caller->engine());
-    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, 0, caller->engine());
+    OperationCaller<double(void)> m0("m0", &OperationsFixture::m0, this, 0, caller->engine());
+    OperationCaller<double(int)> m1("m1", &OperationsFixture::m1, this, 0, caller->engine());
+    OperationCaller<double(int,double)> m2("m2", &OperationsFixture::m2, this, 0, caller->engine());
+    OperationCaller<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, 0, caller->engine());
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, 0, caller->engine());
+    OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, 0, caller->engine());
+    OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, 0, caller->engine());
+    OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, 0, caller->engine());
 
 
     BOOST_REQUIRE( tc->isRunning() );
@@ -139,16 +139,16 @@ BOOST_AUTO_TEST_CASE(testClientThreadMethodSend)
     BOOST_CHECK_EQUAL( -8.0, h7.ret() );
 }
 
-BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
+BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
 {
-    Method<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
-    Method<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(void)> m0("m0", &OperationsFixture::m0, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int)> m1("m1", &OperationsFixture::m1, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double)> m2("m2", &OperationsFixture::m2, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool)> m3("m3", &OperationsFixture::m3, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string)> m4("m4", &OperationsFixture::m4, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -218,10 +218,10 @@ BOOST_AUTO_TEST_CASE(testOwnThreadMethodSend)
     BOOST_CHECK_EQUAL( -8.0, h7.ret() );
 }
 
-BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
+BOOST_AUTO_TEST_CASE(testLocalOperationCallerFactory)
 {
-    // Test the addition of 'simple' methods to the operation interface,
-    // and retrieving it back in a new Method object.
+    // Test the addition of 'simple' operationCallers to the operation interface,
+    // and retrieving it back in a new OperationCaller object.
     // local operations do not use the remoting facility.
 
     Operation<double(void)> m0("m0");
@@ -249,21 +249,21 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
     BOOST_CHECK( to.addLocalOperation(m2) );
 
     // test constructor
-    Method<double(void)> mm0 = to.getLocalOperation("m0");
-    BOOST_CHECK( mm0.getMethodImpl() );
+    OperationCaller<double(void)> mm0 = to.getLocalOperation("m0");
+    BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
-    Method<double(int)> mm1;
+    OperationCaller<double(int)> mm1;
     mm1 = to.getLocalOperation("m1");
-    BOOST_CHECK( mm1.getMethodImpl() );
+    BOOST_CHECK( mm1.getOperationCallerImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.getLocalOperation("m2");
-    BOOST_CHECK( mm2.getMethodImpl() );
+    OperationCaller<double(int,double)> mm2 = to.getLocalOperation("m2");
+    BOOST_CHECK( mm2.getOperationCallerImpl() );
     BOOST_CHECK( mm2.ready() );
 
-    // execute methods and check status:
+    // execute operationCallers and check status:
     BOOST_CHECK_EQUAL( -1.0, mm0() );
 
     BOOST_CHECK_EQUAL( -2.0, mm1(1) );
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
     BOOST_CHECK(to.addLocalOperation( ovoid ) == true);
 
     // wrong type 1:
-    Method<void(void)> mvoid;
+    OperationCaller<void(void)> mvoid;
     mvoid = to.getLocalOperation("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
@@ -295,15 +295,15 @@ BOOST_AUTO_TEST_CASE(testLocalMethodFactory)
 
 }
 
-BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_ClientThread)
+BOOST_AUTO_TEST_CASE(testRefAndConstRefOperationCallerCall_ClientThread)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this, tc->engine(), caller->engine(), ClientThread );
-    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this, tc->engine(), caller->engine(), ClientThread );
+    OperationCaller<double&(void)> m0r("m0r", &OperationsFixture::m0r, this, tc->engine(), caller->engine(), ClientThread );
+    OperationCaller<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this, tc->engine(), caller->engine(), ClientThread );
 
-    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this, tc->engine(), caller->engine(), ClientThread );
-    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this, tc->engine(), caller->engine(), ClientThread );
+    OperationCaller<double(double&)> m1r("m1r", &OperationsFixture::m1r, this, tc->engine(), caller->engine(), ClientThread );
+    OperationCaller<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this, tc->engine(), caller->engine(), ClientThread );
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );
@@ -314,15 +314,15 @@ BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_ClientThread)
     BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
-BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_OwnThread)
+BOOST_AUTO_TEST_CASE(testRefAndConstRefOperationCallerCall_OwnThread)
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0r("m0r", &OperationsFixture::m0r, this,tc->engine(), caller->engine(), OwnThread);
-    Method<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this,tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double&(void)> m0r("m0r", &OperationsFixture::m0r, this,tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<const double&(void)> m0cr("m0cr", &OperationsFixture::m0cr, this,tc->engine(), caller->engine(), OwnThread);
 
-    Method<double(double&)> m1r("m1r", &OperationsFixture::m1r, this,tc->engine(), caller->engine(), OwnThread);
-    Method<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this,tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(double&)> m1r("m1r", &OperationsFixture::m1r, this,tc->engine(), caller->engine(), OwnThread);
+    OperationCaller<double(const double&)> m1cr("m1cr", &OperationsFixture::m1cr, this,tc->engine(), caller->engine(), OwnThread);
 
     BOOST_CHECK_EQUAL( -3.3, m0r() );
     BOOST_CHECK_EQUAL( -3.3, m0cr() );
@@ -333,11 +333,11 @@ BOOST_AUTO_TEST_CASE(testRefAndConstRefMethodCall_OwnThread)
     BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
-BOOST_AUTO_TEST_CASE(testDSMethod)
+BOOST_AUTO_TEST_CASE(testDSOperationCaller)
 {
     ServicePtr to (new Service("task", tc) );
 
-    // A method of which the first argument type is a pointer to the object
+    // A operationCaller of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,
     // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
     // requires this for copying state machines.
@@ -358,14 +358,14 @@ BOOST_AUTO_TEST_CASE(testDSMethod)
     BOOST_CHECK( to->addOperationDS( wp.get(), meth0).doc("desc" ).ready() );
     BOOST_CHECK( to->addOperationDS( wp.get(), meth1).doc("desc").arg("a1", "d1" ).ready() );
 
-    // this actually works ! the method will detect the deleted pointer.
+    // this actually works ! the operationCaller will detect the deleted pointer.
     //ptr.reset();
 
     double ret;
-    MethodC c0  = to->create("m0", tc->engine()).ret(ret);
+    OperationCallerC c0  = to->create("m0", tc->engine()).ret(ret);
     BOOST_CHECK( c0.call() );
     BOOST_CHECK_EQUAL( -1.0, ret );
-    MethodC c1  = to->create("m1", tc->engine()).argC(1).ret(ret);
+    OperationCallerC c1  = to->create("m1", tc->engine()).argC(1).ret(ret);
     BOOST_CHECK( c1.call() );
     BOOST_CHECK_EQUAL( -2.0, ret );
 

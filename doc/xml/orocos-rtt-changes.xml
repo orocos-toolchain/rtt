@@ -30,20 +30,16 @@
     <ulink
     url="http://www.orocos.org/wiki/rtt/rtt-20/rtt-200-beta1">RTT 2.0 Beta releases</ulink>.
   </para>
-  <!--
-  <para>
-    The <ulink
-    url="http://svn.mech.kuleuven.be/websvn/orocos/trunk/rtt/?op=log&amp;max=150&amp;">complete
-    changelog</ulink> is available as well.
-  </para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
 	<para>
 	  This release is binary incompatible with RTT
-	  &oldversion;.x. You need to recompile all your applications
-	  in order to upgrade to this release.
+	  &oldversion;.x. You need to upgrade and recompile all your applications
+	  in order to use this release. For all up-to-date information regarding
+	  upgrading existing applications, check out <ulink
+    url="http://www.orocos.org/wiki/rtt/rtt-20/rtt-20-renaming-table">RTT 2.0 Upgrading</ulink>.
 	</para>
       </listitem>
       <listitem>

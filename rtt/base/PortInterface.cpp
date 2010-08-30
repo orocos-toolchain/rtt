@@ -37,8 +37,8 @@
 
 
 #include "PortInterface.hpp"
-#include "../interface/Service.hpp"
-#include "../Method.hpp"
+#include "../Service.hpp"
+#include "../OperationCaller.hpp"
 #include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
@@ -74,7 +74,7 @@ ConnID* PortInterface::getPortID() const
 Service* PortInterface::createPortObject()
 {
 #ifndef ORO_EMBEDDED
-    Service* to = new Service( this->getName(), iface->getParent() );
+    Service* to = new Service( this->getName(), iface->getOwner() );
     to->addSynchronousOperation( "name",&PortInterface::getName, this).doc(
             "Returns the port name.");
     to->addSynchronousOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");
@@ -89,7 +89,7 @@ void PortInterface::setInterface(DataFlowInterface* dfi) {
     iface = dfi;
 }
 
-interface::DataFlowInterface* PortInterface::getInterface() const
+DataFlowInterface* PortInterface::getInterface() const
 {
     return iface;
 }

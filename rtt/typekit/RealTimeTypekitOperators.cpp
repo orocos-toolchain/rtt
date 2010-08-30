@@ -125,7 +125,6 @@ namespace RTT
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<int>() ) );
 #ifndef ORO_EMBEDDED
         // uint stuff
-        oreg->add( newUnaryOperator( "-", std::negate<unsigned int>() ) );
         oreg->add( newUnaryOperator( "+", identity<unsigned int>() ) );
         oreg->add( newBinaryOperator( "*", std::multiplies<unsigned int>() ) );
         oreg->add( newBinaryOperator( "/", divides3<unsigned int,unsigned int,unsigned int>() ) ); // use our own divides<> which detects div by zero

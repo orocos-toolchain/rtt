@@ -7,6 +7,7 @@
 #include "../../base/ActionInterface.hpp"
 #include "CorbaConversion.hpp"
 #include "CorbaTypeTransporter.hpp"
+#include "CorbaLib.hpp"
 #include <cassert>
 
 namespace RTT

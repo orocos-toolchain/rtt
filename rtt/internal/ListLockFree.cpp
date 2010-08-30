@@ -54,6 +54,13 @@ void RTT_API intrusive_ptr_release( RTT::internal::IntrusiveStorage* p ) {
 
 namespace RTT {
     using namespace internal;
+
+    IntrusiveStorage::IntrusiveStorage() {
+      oro_atomic_set(&ref,0);
+    }
+    IntrusiveStorage::~IntrusiveStorage() {
+    }
+
 #if defined(__GNUC__)
     // Force an instantiation, so that the compiler checks the syntax.
     template class ListLockFree<double>;

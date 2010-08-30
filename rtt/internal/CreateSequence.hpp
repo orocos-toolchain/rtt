@@ -15,7 +15,7 @@
 
 #include "DataSource.hpp"
 #include "Exceptions.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "mystd.hpp"
 
 #include <iostream>
@@ -112,7 +112,7 @@ namespace RTT
                     boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
                 if ( ! a ) {
                     //cout << typeid(DataSource<arg_type>).name() << endl;
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
+                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
                     //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
                 }
                 return a;
@@ -126,7 +126,7 @@ namespace RTT
                 ads_type a =
                     boost::dynamic_pointer_cast< AssignableDataSource<ds_arg_type> >( *front ); // note: no conversion done, must be same type.
                 if ( ! a ) {
-                    ORO_THROW_OR_RETURN(interface::wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ads_type());
+                    ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ads_type());
                 }
                 return a;
             }

@@ -1,0 +1,26 @@
+########################################################################################################################
+#
+# CMake version file for the OrocosRTT package.
+# This script checks whether the requested version matches exactly or is compatible with the installed package version.
+#
+# This script sets the following variables:
+#  PACKAGE_VERSION: Full provided version string
+#  PACKAGE_VERSION_COMPATIBLE: True if version is compatible
+#  PACKAGE_VERSION_EXACT: True if version is exact match
+#
+########################################################################################################################
+
+# Version string
+set(PACKAGE_VERSION @RTT_VERSION@)
+
+# Exact match test
+if(@RTT_VERSION@ VERSION_EQUAL PACKAGE_FIND_VERSION)
+  set(PACKAGE_VERSION_EXACT TRUE)
+endif()
+
+# Compatible version test
+if(NOT @RTT_VERSION@       VERSION_LESS PACKAGE_FIND_VERSION AND    # Installed version can't be lower than requested one
+       @RTT_VERSION_MAJOR@ EQUAL        PACKAGE_FIND_VERSION_MAJOR) # ...and major versions must coincide
+  set(PACKAGE_VERSION_COMPATIBLE TRUE)
+endif()
+

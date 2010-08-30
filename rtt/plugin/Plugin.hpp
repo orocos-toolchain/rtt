@@ -45,6 +45,7 @@
  * process exits.
  */
 #include <string>
+#include "../rtt-config.hpp"
 namespace RTT {
     class TaskContext;
 }
@@ -64,13 +65,13 @@ extern "C" {
      * t is zero, such that the plugin remains loaded in the process.
      * @return true if the loading succeeded, false otherwise.
      */
-    bool loadRTTPlugin( RTT::TaskContext* t );
+    RTT_EXPORT bool loadRTTPlugin( RTT::TaskContext* t );
 
     /**
      * Return the unique name of this plugin. No two plugins with
      * the same name will be allowed to live in a single process.
      */
-    std::string getRTTPluginName();
+    RTT_EXPORT std::string getRTTPluginName();
 
     /**
      * Returns the target name for which this plugin was built.
@@ -79,7 +80,7 @@ extern "C" {
      * string is returned, it is assumed that the loadRTTPlugin
      * function will check if this plugin may be loaded or not.
      */
-    std::string getRTTTargetName();
+    RTT_EXPORT std::string getRTTTargetName();
 }
 
 #endif

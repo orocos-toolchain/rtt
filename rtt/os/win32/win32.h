@@ -45,8 +45,15 @@
 
 // Include this windows stuff as soon as possible. We use LEAN_AND_MEAN because of the Winsock include madness
 
-#  define WIN32_LEAN_AND_MEAN
-#  define NOMINMAX 
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x400
+#endif
+# ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN 
+# endif
+# ifndef NOMINMAX
+#  define NOMINMAX
+# endif
 #  include <windows.h>
 #  undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
 #  include <mmsystem.h> // For timeBeginPeriod()

@@ -38,6 +38,7 @@
 #define COMMONPARSER_HPP
 
 #include "parser-types.hpp"
+#include "../rtt-config.h"
 
 namespace RTT { namespace scripting
 {
@@ -48,7 +49,7 @@ namespace RTT { namespace scripting
    * a keyword is wrongly used as an identifier. In current implementation
    * it almost never throws.
    */
-  class CommonParser
+  class RTT_API CommonParser
   {
       std::string lastparsedident;
   public:

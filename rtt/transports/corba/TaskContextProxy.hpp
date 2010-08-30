@@ -100,7 +100,7 @@ namespace RTT
          */
         TaskContextProxy( ::RTT::corba::CTaskContext_ptr t );
 
-        /** interface::CDataFlowInterface does not delete ports automatically, because they
+        /** CDataFlowInterface does not delete ports automatically, because they
          * can then be defined as members of the TaskContext classes.
          *
          * We must therefore delete in the proxy destructor the ones we are
@@ -117,7 +117,7 @@ namespace RTT
          */
         static PortableServer::POA_var proxy_poa;
 
-        void fetchServices(interface::Service::shared_ptr parent, CService_ptr mtask);
+        void fetchServices(Service::shared_ptr parent, CService_ptr mtask);
     public:
         ~TaskContextProxy();
 

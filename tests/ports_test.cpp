@@ -29,7 +29,7 @@
 #include <extras/SimulationThread.hpp>
 
 #include <boost/function_types/function_type.hpp>
-#include <Method.hpp>
+#include <OperationCaller.hpp>
 
 using namespace std;
 using namespace RTT;
@@ -463,9 +463,9 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     // Connect ports.
     wp1.createConnection( rp1 );
 
-    // Test Methods set/get
-    Method<void(double const&)> mset;
-    Method<FlowStatus(double&)> mget;
+    // Test OperationCallers set/get
+    OperationCaller<void(double const&)> mset;
+    OperationCaller<FlowStatus(double&)> mget;
 
     mset = tc->provides("Write")->getOperation("write");
     BOOST_CHECK( mset.ready() );

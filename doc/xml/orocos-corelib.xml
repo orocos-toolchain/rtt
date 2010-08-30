@@ -143,7 +143,7 @@
       The Core Primitives are:
       <itemizedlist>
 	<listitem><para>Thread-safe C++ implementations for periodic, non periodic and event driven activities</para></listitem>
-	<listitem><para>Synchronous/Asynchronous Method invocations</para></listitem>
+	<listitem><para>Synchronous/Asynchronous OperationCaller invocations</para></listitem>
 	<listitem><para>Synchronous callback handling</para></listitem>
 	<listitem><para>Property trees</para></listitem>
 	<listitem><para>Time measurement</para></listitem>
@@ -757,7 +757,7 @@ ORO_main( int argc, char** argv)
       first bag.</para>
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
-       <methodname>getProperty&lt;T&gt;</methodname> to
+       <methodname>getProperty(name)</methodname> to
        mirror a <classname>RTT::Property</classname>&lt;T&gt;. Mirroring allows
        you to change and read a property which is stored in a PropertyBag: the
        property object's value acts like the original. The name and description
@@ -780,7 +780,7 @@ ORO_main( int argc, char** argv)
   bag.add( &amp;bd );
 
   // setup mirrors:	
-  <classname>RTT::Property</classname>&lt;double&gt; weight = bag.getProperty&lt;double&gt;("Weight");
+  <classname>RTT::Property</classname>&lt;double&gt; weight = bag.getProperty("Weight");
   assert( weight.ready() );
 
   // values are mirrored:
@@ -791,7 +791,7 @@ ORO_main( int argc, char** argv)
   <classname>RTT::Property</classname>&lt;BirthDate&gt; bd_bis;
   assert( ! bd_bis.ready() );
   
-  bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate");
+  bd_bis = bag.getProperty("BirthDate");
   assert( bd_bis.ready() );
 
   // descriptions and names are not mirrored:

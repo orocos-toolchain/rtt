@@ -67,7 +67,7 @@
  * component which executes the the application code, reacts to events,
  * executes plugin functionality etc.  Scripting is enabled by the
  * scripting::ScriptingAccess, XML can be read by the
- * interface::MarshallingAccess. Many other classes are available as well.
+ * MarshallingAccess. Many other classes are available as well.
  *
  * @section rttcorba CORBA support (network communication)
  *

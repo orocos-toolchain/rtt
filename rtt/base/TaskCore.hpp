@@ -141,7 +141,7 @@ namespace RTT
         virtual TaskState getTaskState() const;
 
         /**
-         * @name Script Methods
+         * @name Script OperationCallers
          *
          * These TaskCore functions are exported in a TaskContext as script
          * methods and are for configuration, starting and stopping
@@ -425,6 +425,15 @@ namespace RTT
     private:
         // non copyable
         TaskCore( TaskCore& );
+
+        friend class TaskContext;
+        /**
+         * This is how the EE informs the TaskContext that it is about
+         * to run updateHook. This function might be replaced by another
+         * mechanism in the future and currently serves to handle
+         * event ports callbacks.
+         */
+        virtual void prepareUpdateHook();
     };
 }}
 

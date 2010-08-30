@@ -22,7 +22,7 @@
 
 
 #include <Event.hpp>
-#include <interface/EventService.hpp>
+#include <EventService.hpp>
 #include <extras/SlaveActivity.hpp>
 #include <string>
 

@@ -5,8 +5,10 @@ IF (BUILD_TESTING)
    if (NOT RUNTIME_OUTPUT_DIRECTORY)
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
    endif()
-   
-   find_package(Boost 1.33 REQUIRED unit_test_framework)
+   if ( NOT Boost_UNIT_TEST_FRAMEWORK_FOUND )
+     message(FATAL_ERROR "Can't build unit tests without Boost unit_test_framework.")
+   endif()
+
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
@@ -21,7 +23,20 @@ IF (BUILD_TESTING)
     INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
     LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt )
-    
+
+    # Setup fixtures library
+    FILE( GLOB OP_FIXTURES operations_fixture*.cpp )
+    ADD_LIBRARY( fixtures SHARED ${OP_FIXTURES} )
+    TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+    LIST(APPEND TEST_LIBRARIES fixtures)
+    SET_TARGET_PROPERTIES( fixtures PROPERTIES
+      DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
+      SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
+      VERSION "${RTT_VERSION}"
+      # Set accumulated compilation flags: (.so and .a)
+      COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
+      )
+
     IF(ENABLE_CORBA)
       INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_INCLUDE_DIRS})
       LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_LINK_DIRECTORIES})
@@ -105,7 +120,7 @@ IF (BUILD_TESTING)
     ENDIF()
 
     IF(ENABLE_CORBA)
-      ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp operations_fixture.cpp )
+      ADD_EXECUTABLE( corba-test test-runner-corba.cpp corba_test.cpp )
       TARGET_LINK_LIBRARIES( corba-test 
             orocos-rtt-${OROCOS_TARGET}_dynamic 
             orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
@@ -120,7 +135,7 @@ IF (BUILD_TESTING)
 
       # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
         IF (UNIX)
-          ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp operations_fixture.cpp )
+          ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
                 orocos-rtt-${OROCOS_TARGET}_dynamic 
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
@@ -212,12 +227,12 @@ IF (BUILD_TESTING)
         ADD_UNIT_TEST(buffers_test EXTRA_TESTS "${TEST_LIBRARIES}")
     endif()
         
-    ADD_UNIT_TEST(method_test EXTRA_TESTS "" operations_fixture.cpp )
+    ADD_UNIT_TEST(method_test EXTRA_TESTS "fixtures" )
     if (ORO_REMOTING)
-        ADD_UNIT_TEST(remote_method_test EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(remote_method_test EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
-    ADD_UNIT_TEST(functors_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-    ADD_UNIT_TEST(service_test ORO_EXTRA_TESTS "" operations_fixture.cpp )
+    ADD_UNIT_TEST(functors_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(service_test ORO_EXTRA_TESTS "fixtures" )
     ADD_UNIT_TEST(event_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(operation_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(taskstates_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
@@ -225,14 +240,14 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(attributes_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(dev_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     if(PLUGINS_ENABLE_SCRIPTING)
-        ADD_UNIT_TEST(scripting_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(scripting_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
         ADD_UNIT_TEST(types_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-        ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-        ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
-        ADD_UNIT_TEST(function_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(function_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
     if(PLUGINS_ENABLE_MARSHALLING)
-        ADD_UNIT_TEST(marshalling_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" operations_fixture.cpp )
+        ADD_UNIT_TEST(marshalling_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
         ADD_UNIT_TEST(property_loader_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
 	ADD_UNIT_TEST(property_marsh_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()

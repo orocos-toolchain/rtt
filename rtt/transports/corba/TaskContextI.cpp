@@ -34,7 +34,7 @@
 #include "ServiceI.h"
 #include "ServiceRequesterI.h"
 #include "DataFlowI.h"
-#include "../../Method.hpp"
+#include "../../OperationCaller.hpp"
 #include "../../rtt-detail-fwd.hpp"
 
 
@@ -108,6 +108,14 @@ char * RTT_corba_CTaskContext_i::getDescription (
     return mtask->cleanup();
 }
 
+::CORBA::Boolean RTT_corba_CTaskContext_i::resetException (
+    void)
+{
+    if (mtask->getTaskState() == RTT::TaskContext::Exception)
+        return mtask->recover();
+    return false;
+}
+
 ::CORBA::Boolean RTT_corba_CTaskContext_i::isActive (
     void)
 {
@@ -156,7 +164,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
 {
     if ( mtask->provides()->hasService(service_name) == false)
         return CService::_nil();
-    // Creates service provider for "this"
+    // Creates Service for "this"
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating CService for "<< mtask->getName()<<endlog();
         RTT_corba_CService_i* mserv;

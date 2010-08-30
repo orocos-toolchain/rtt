@@ -31,7 +31,7 @@
 #include "../Attribute.hpp"
 
 #include "../TaskContext.hpp"
-#include "../interface/Service.hpp"
+#include "../Service.hpp"
 #include "../types/GlobalsRepository.hpp"
 
 #include <boost/bind.hpp>
@@ -188,7 +188,7 @@ namespace RTT
 
   void ValueParser::seenfloatconstant( double i )
   {
-    ret = new ConstantDataSource<float>( i );
+    ret = new ConstantDataSource<float>( float(i) );
   }
 
   void ValueParser::seendoubleconstant( double i )

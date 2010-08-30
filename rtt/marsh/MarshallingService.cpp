@@ -43,7 +43,7 @@
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED)
-#include "../Method.hpp"
+#include "../OperationCaller.hpp"
 #endif
 #include "PropertyLoader.hpp"
 
@@ -63,22 +63,40 @@ namespace RTT {
         : Service("marshalling", parent)
     {
         this->doc("Property marshalling interface. Use this service to read and write properties from/to a file.");
-        this->addOperation("loadProperties",&MarshallingService::loadProperties, this).doc(
-                                  "Read, and create if necessary, Properties from a file.").arg(
-                                  "Filename","The file to read the (new) Properties from.");
-        this->addOperation("updateProperties", &MarshallingService::updateProperties, this).doc("Read some Properties from a file.").arg("Filename", "The file to read the Properties from.");
-        this->addOperation("readProperties", &MarshallingService::readProperties, this).doc("Read all Properties from a file.").arg("Filename", "The file to read the Properties from.");
-        this->addOperation("readProperty", &MarshallingService::readProperty, this).doc("Read a single Property from a file.").arg("Name", "The name of (or the path to) the property to read.").arg("Filename", "The file to read the Properties from.");
+        this->addOperation("loadProperties",&MarshallingService::loadProperties, this)
+                .doc("Read, and create if necessary, Properties from a file.")
+                .arg("Filename","The file to read the (new) Properties from.");
+        this->addOperation("storeProperties", &MarshallingService::storeProperties, this)
+                .doc("Store properties in a file and overwrite any existing content.")
+                .arg("Filename", "The file to write the Properties to.");
 
-        this->addOperation("updateFile", &MarshallingService::updateFile, this).doc("Write some Properties to a file.").arg("Filename", "The file to write the Properties to.");
-        this->addOperation("writeProperties", &MarshallingService::writeProperties, this).doc("Write all Properties to a file.").arg("Filename", "The file to write the Properties to.");
-        this->addOperation("writeProperty", &MarshallingService::writeProperty, this).doc("Write a single Properties to a file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
+        this->addOperation("readProperties", &MarshallingService::readProperties, this)
+                .doc("Read all Properties from a file. Returns false if one or more properties are missing or have a wrong type in that file.").arg("Filename", "The file to read the Properties from.");
+        this->addOperation("readProperty", &MarshallingService::readProperty, this)
+                .doc("Read a single Property from a file.").arg("Name", "The name of (or the path to) the property to read.").arg("Filename", "The file to read the Properties from.");
+
+        this->addOperation("updateProperties", &MarshallingService::updateProperties, this)
+                .doc("Read some Properties from a file. Updates only matching properties. Returns false upon type mismatch.")
+                .arg("Filename", "The file to read the Properties from.");
+        this->addOperation("updateFile", &MarshallingService::updateFile, this)
+                .doc("Write some Properties to a file, ie, only the ones that are already present in the file.").arg("Filename", "The file to write the Properties to.");
+
+        this->addOperation("writeProperties", &MarshallingService::writeProperties, this)
+                .doc("Write all Properties to a file, but keep existing ones in that file.").arg("Filename", "The file to write the Properties to.");
+        this->addOperation("writeProperty", &MarshallingService::writeProperty, this)
+                .doc("Write a single Property to a file and keep existing ones in that file.").arg("Name", "The name of (or the path to) the property to write.").arg("Filename", "The file to write the Properties to.");
     }
 
     bool MarshallingService::loadProperties(const std::string& filename) const
     {
         PropertyLoader pl;
         return pl.load( filename, mowner );
+    }
+
+    bool MarshallingService::storeProperties(const std::string& filename) const
+    {
+        PropertyLoader pl;
+        return pl.store( filename, mowner );
     }
 
     bool MarshallingService::readProperties(const std::string& filename) const

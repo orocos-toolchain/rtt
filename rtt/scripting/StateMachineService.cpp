@@ -40,16 +40,16 @@
 #include "StateMachineService.hpp"
 
 #include "../Attribute.hpp"
-#include "../interface/FactoryExceptions.hpp"
+#include "../FactoryExceptions.hpp"
 #include "../TaskContext.hpp"
-#include "../Method.hpp"
+#include "../OperationCaller.hpp"
 
 namespace RTT
 {
 
     using namespace detail;
 
-        void StateMachineService::createMethodFactory() {
+        void StateMachineService::createOperationFactory() {
             // Add the state specific methods :
             // Special trick : we store the 'this' pointer in a DataSource, such that when
             // the created commands are copied, they also get the new this pointer.
@@ -76,7 +76,7 @@ namespace RTT
                                  "When in reactive mode, evaluate transitions and go to a next state, or if none, run handle.");
             addOperationDS("reset", &StateMachine::reset,ptr).doc("Reset this StateMachine to the initial state");
             addOperationDS("stop", &StateMachine::stop,ptr).doc("Stop this StateMachine to the final state and enter request Mode.");
-            addOperationDS("reactive", &StateMachine::reactive,ptr).doc("Enter reactive mode (see requestState() and step() ).\n Method is done if ready for requestState() or step() method.");
+            addOperationDS("reactive", &StateMachine::reactive,ptr).doc("Enter reactive mode (see requestState() and step() ).\n OperationCaller is done if ready for requestState() or step() method.");
             addOperationDS("requestState", &StateMachine::requestState,ptr).doc("Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.").arg("State", "The state to make the transition to.");
 
             addOperationDS("inState", &StateMachine::inState,ptr).doc("Is the StateMachine in a given state ?").arg("State", "State Name");
@@ -112,7 +112,7 @@ namespace RTT
               statemachine(statem),
               mtc(tc)
         {
-            this->createMethodFactory();
+            this->createOperationFactory();
             this->setOwner( tc );
         }
 

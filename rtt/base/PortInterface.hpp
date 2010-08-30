@@ -45,7 +45,7 @@
 #include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
-#include "../interface/rtt-interface-fwd.hpp"
+#include "../rtt-fwd.hpp"
 
 namespace RTT
 { namespace base {
@@ -58,7 +58,7 @@ namespace RTT
     {
         std::string name;
         std::string mdesc;
-        interface::DataFlowInterface* iface;
+        DataFlowInterface* iface;
     protected:
         PortInterface(const std::string& name);
 
@@ -142,7 +142,7 @@ namespace RTT
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
-        virtual interface::Service* createPortObject();
+        virtual Service* createPortObject();
 
         /** Connects this port with \a other, using the given policy. Unlike
          * OutputPortInterface::createConnection, \a other can be the write port
@@ -189,12 +189,12 @@ namespace RTT
          * This allows advanced ports to track back to which component
          * they belong.
          */
-        void setInterface(interface::DataFlowInterface* iface);
+        void setInterface(DataFlowInterface* iface);
         /**
          * Returns the DataFlowInterface this port belongs to or null if it was not added
          * to such an interface.
          */
-        interface::DataFlowInterface* getInterface() const;
+        DataFlowInterface* getInterface() const;
 };
 
 }}

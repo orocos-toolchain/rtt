@@ -130,7 +130,7 @@ namespace RTT
             void getResult() {}
         };
 
-        //! @bug return of references are not supported yet in RemoteMethod.
+        //! @bug return of references are not supported yet in RemoteOperationCaller.
         //! The user receives a reference to a local variable.
         template<class R>
         struct DataSourceResultStorage<R const&>
@@ -394,7 +394,7 @@ namespace RTT
                 ma6.newarg(a6);
             }
         };
-        
+
         template<class DataType>
         struct DataSourceStorageImpl<7, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>

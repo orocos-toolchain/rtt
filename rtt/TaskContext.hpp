@@ -42,9 +42,9 @@
 
 #include "rtt-config.h"
 #include "plugin/PluginLoader.hpp"
-#include "interface/Service.hpp"
-#include "interface/ServiceRequester.hpp"
-#include "interface/DataFlowInterface.hpp"
+#include "Service.hpp"
+#include "ServiceRequester.hpp"
+#include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "base/TaskCore.hpp"
 #include <boost/make_shared.hpp>
@@ -264,26 +264,26 @@ namespace RTT
          * Returns this Service.
          * @return a shared pointer from this.
          */
-        interface::Service::shared_ptr provides() { return tcservice; }
+        Service::shared_ptr provides() { return tcservice; }
 
         /**
-         * Returns a sub-service provider which resorts under
-         * this service provider.
+         * Returns a sub-Service which resorts under
+         * this Service.
          * @param service_name The name of the sub-service.
          */
-        interface::Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
+        Service::shared_ptr provides(const std::string& service_name) { return tcservice->provides(service_name); }
 
         /**
          * Returns the object that manages which methods this Task
          * requires to be implemented by another task.
          */
-        interface::ServiceRequester* requires() { return tcrequests; }
+        ServiceRequester* requires() { return tcrequests; }
 
         /**
          * Returns the object that manages which methods this Task
          * requires to be implemented by another service.
          */
-        interface::ServiceRequester* requires(const std::string& service_name) {
+        ServiceRequester* requires(const std::string& service_name) {
             return tcrequests->requires(service_name);
         }
 
@@ -293,7 +293,7 @@ namespace RTT
         virtual bool connectServices( TaskContext* peer);
 
         /**
-         * Use this method to be able to make Method calls to services provided by this component.
+         * Use this method to be able to make OperationCaller calls to services provided by this component.
          * In case the service does not exist in this component, it tries to load the service using the plugin::PluginLoader class.
          * If all fails, a null pointer is returned.
          *
@@ -321,8 +321,8 @@ namespace RTT
 
         /**
          * Adding and getting operations from the TaskContext interface.
-         * These functions all forward to the service provider representing
-         * this TaskContext. Use operations() to access the complete OperationRepository
+         * These functions all forward to the Service representing
+         * this TaskContext. Use operations() to access the complete OperationInterface
          * interface of this TaskContext.
          * @name Operations
          * @{ */
@@ -350,28 +350,28 @@ namespace RTT
 
         /**
          * Get a previously added operation for
-         * use in a C++ Method object. Store the result of this
-         * function in a Method<\a Signature> object.
+         * use in a C++ OperationCaller object. Store the result of this
+         * function in a OperationCaller<\a Signature> object.
          *
          * @param name The name of the operation to retrieve.
          *
          * @return true if it could be found, false otherwise.
          */
-        interface::OperationRepositoryPart* getOperation( std::string name )
+        OperationInterfacePart* getOperation( std::string name )
         {
             return tcservice->getOperation(name);
         }
 
         /**
-         * Returns the operations of this TaskContext as an OperationRepository.
+         * Returns the operations of this TaskContext as an OperationInterface.
          */
-        interface::OperationRepository* operations() { return this->provides().get(); }
+        OperationInterface* operations() { return this->provides().get(); }
 
         /** @} */
 
         /**
          * Adding and getting attributes from the TaskContext interface.
-         * These functions all forward to the service provider representing
+         * These functions all forward to the Service representing
          * this TaskContext. Use attributes() to access the complete
          * ConfigurationInterface interface of this TaskContext.
          * @name Attributes
@@ -432,13 +432,13 @@ namespace RTT
         /**
          * Returns the attributes of this TaskContext as an ConfigurationInterface.
          */
-        interface::ConfigurationInterface* attributes() { return this->provides().get(); }
+        ConfigurationInterface* attributes() { return this->provides().get(); }
 
         /** @} */
 
         /**
          * Adding and getting properties from the TaskContext interface.
-         * These functions all forward to the service provider representing
+         * These functions all forward to the Service representing
          * this TaskContext. Use properties() to access the complete PropertyBag
          * interface of this TaskContext.
          * @name Properties
@@ -554,15 +554,15 @@ namespace RTT
         /**
          * Get the Data flow ports of this task.
          */
-        interface::DataFlowInterface* ports() {
-            return &dataPorts;
+        DataFlowInterface* ports() {
+            return tcservice.get();
         }
 
         /**
          * Get the Data flow ports of this task.
          */
-        const interface::DataFlowInterface* ports() const {
-            return &dataPorts;
+        const DataFlowInterface* ports() const {
+            return tcservice.get();
         }
 
         /**
@@ -571,34 +571,7 @@ namespace RTT
         virtual bool connectPorts( TaskContext* peer );
         /** @} */
 
-    protected:
-
-        /**
-         * Hook called in the Running state.
-         *
-         * This default implementation calls updateHook(updated_ports)
-         */
-        virtual void updateHook();
-
-        /**
-         * This method gets called when new data is available on some input ports. The ports
-         * are listed as argument to the method
-         *
-         * The default implementation does nothing;
-         */
-        virtual void updateHook(std::vector<base::PortInterface*> const& updated_ports);
-
-        /**
-         * This method allows to test in updateHook() if a specific port has
-         * triggered this particular update.
-         *
-         * This works only in updateHook(), and allows only to test ports that
-         * have been added to the data flow interface using
-         * DataFlowInterface::addEventPort.
-         */
-        bool isPortUpdated(base::PortInterface const& port) const;
-
-    protected:
+    private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
@@ -624,9 +597,7 @@ namespace RTT
          */
         void setup();
 
-        friend class interface::DataFlowInterface;
-        typedef std::vector< base::PortInterface* > PortList;
-        PortList updated_ports;
+        friend class DataFlowInterface;
         internal::MWSRQueue<base::PortInterface*>* portqueue;
         typedef std::map<base::PortInterface*, boost::shared_ptr<base::InputPortInterface::NewDataOnPortEvent> > UserCallbacks;
         UserCallbacks user_callbacks;
@@ -651,18 +622,21 @@ namespace RTT
          */
         void dataOnPortRemoved(base::PortInterface* port);
 
-        typedef std::map<std::string, boost::shared_ptr<interface::ServiceRequester> > LocalServices;
+        /**
+         * Function that is called before updateHook, where the TC implementation
+         * can do bookkeeping with regard to event ports.
+         */
+        void prepareUpdateHook();
+
+        typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
         LocalServices localservs;
 
-        interface::Service::shared_ptr tcservice;
-        interface::ServiceRequester*           tcrequests;
+        Service::shared_ptr tcservice;
+        ServiceRequester*           tcrequests;
+        os::Mutex mportlock;
     private:
         // non copyable
         TaskContext( TaskContext& );
-        /**
-         * The task-local ports.
-         */
-        interface::DataFlowInterface dataPorts;
 
         /**
          * This pointer tracks our activity which is set by

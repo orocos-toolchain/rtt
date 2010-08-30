@@ -18,9 +18,12 @@ module RTT
 
 	/**
 	 * Maps 1-to-1 to RTT::base::TaskCore::TaskState.
+         *
+         * Exception is renamed to ExceptionState as Exception is forbidden by
+         * IDL
 	 * @ingroup CompIDL
 	 */
-	enum CTaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeError };
+	enum CTaskState { CInit, CPreOperational, CFatalError, CException, CStopped, CRunning, CRunTimeError };
 
 	/**
 	 * A CTaskContext is the main entry point of a distributed
@@ -76,6 +79,15 @@ module RTT
 	    boolean stop();
 
 	    /**
+	     * Asks the component to transition from an Exception state to the
+	     * Stopped state
+
+	     * @see RTT::base::TaskCore::exception() and
+	     * RTT::base::TaskCore::recover()
+	     */
+	    boolean resetException();
+
+	    /**
 	     * Cleanup this component.
 	     * @see RTT::base::TaskCore::cleanup()
 	     */
@@ -125,7 +137,11 @@ module RTT
 	     */
 
 	    /**
-	     * Get a provided service.
+	     * Get a service.
+             *
+             * Use 'this' as the name to get the task context's own service
+             * provider
+             *
 	     * @see RTT::TaskContext::provides()
 	     */
 	    CService getProvider( in string service_name );

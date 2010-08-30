@@ -120,7 +120,7 @@ namespace RTT
     {
       parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
     }
-    catch( const parse_exception& e )
+    catch( const parse_exception& )
     {
       throw;
     }
@@ -150,7 +150,7 @@ namespace RTT
     {
         parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
     }
-    catch( const parse_exception& e )
+    catch( const parse_exception& )
     {
         throw;
     }
@@ -187,7 +187,7 @@ namespace RTT
     {
         parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
     }
-    catch( const parse_exception& e )
+    catch( const parse_exception& )
     {
         throw;
     }

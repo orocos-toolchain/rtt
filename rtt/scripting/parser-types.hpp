@@ -65,27 +65,12 @@ namespace RTT
   // might change some time in the future..
   typedef our_pos_iter_t iter_t;
 
-  // a macro using GCC's C++ extension typeof that is used to not have
-  // to specify impossibly long type names..  See the Boost.Spirit
-  // documentation for more details, as that's where I got it from..
-  // we use __typeof__ instead of typeof because it is not disabled by
-  // using gcc -ansi
-
-  //TODO: this typeof replaced by boost header might not work.
-#   define RULE( name, def ) \
-       boost_spirit::contiguous<boost_spirit::sequence<boost_spirit::alpha_parser,boost_spirit::kleene_star<boost_spirit::chset<char> > > > name = (def)
-      //BOOST_TYPE_OF(( (def) ) name = (def)
-  // typeof is not a native c/c++ construct and is gcc specific
-  //__typeof__( (def) ) name = (def)
-  
-
-
 #if 1
     /**
      * Parser used in skip parser. Set skipeol to 'true' to
      * skip newlines, set skipeol to false to not skip newlines.
      */
-    struct eol_skip_functor
+    struct RTT_API eol_skip_functor
     {
         /**
          * By default, eol are skipped.

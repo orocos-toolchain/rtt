@@ -2,8 +2,8 @@
 
 #include <rtt-fwd.hpp>
 #include <rtt/Operation.hpp>
-#include <rtt/interface/Service.hpp>
-#include <rtt/Method.hpp>
+#include <rtt/Service.hpp>
+#include <rtt/OperationCaller.hpp>
 #include <rtt/TaskContext.hpp>
 
 using namespace std;
@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
     s->addOperation( op4 );
     s->addOperation( op5 );
 
-    // Test calling an operation using a Method.
-    Method<double(void)> m0("op0");
+    // Test calling an operation using a OperationCaller.
+    OperationCaller<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
     m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
     s->addOperation("op4", &OperationTest::func4, this);
     s->addOperation("op5", &OperationTest::func5, this);
 
-    // Test calling an operation using a Method.
-    Method<double(void)> m0("op0");
+    // Test calling an operation using a OperationCaller.
+    OperationCaller<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
     m0 = s->getOperation("op0");
     BOOST_CHECK( m0.ready() );
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( testOperationAdd )
 // Test calling an operation of the default service.
 BOOST_AUTO_TEST_CASE( testOperationCall0 )
 {
-    // Test calling an operation using a Method.
-    Method<double(void)> m0("op0");
+    // Test calling an operation using a OperationCaller.
+    OperationCaller<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
     m0 = tc.getOperation("op0");
     BOOST_CHECK( m0.ready() );
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testOperationSignal )
 
     BOOST_CHECK( h.connected() );
     // Test signal when calling a method:
-    Method<double(void)> m0("op0");
+    OperationCaller<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
     m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( testOperationCallAndSignal )
 
     BOOST_CHECK( h.connected() );
     // Test signal when calling a method:
-    Method<double(void)> m0("op0");
+    OperationCaller<double(void)> m0("op0");
     BOOST_CHECK( m0.ready() == false );
     m0 = op0.getImplementation();
     BOOST_CHECK( m0.ready() );
