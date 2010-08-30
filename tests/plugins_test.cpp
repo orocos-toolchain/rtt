@@ -2,6 +2,7 @@
 #include "unit.hpp"
 
 #include "TaskContext.hpp"
+#include "plugin/Plugin.hpp"
 #include "plugin/PluginLoader.hpp"
 
 
