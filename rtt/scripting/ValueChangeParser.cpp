@@ -100,7 +100,7 @@ namespace RTT
         // we can't use commonparser.identifier to parse a type name,
         // because that one is meant to be used for identifier used by the
         // user, and excludes keywords such as "int", "string" etc.
-        chset<> identchar( "a-zA-Z-_0-9/<>" );
+        chset<> identchar( "a-zA-Z-_0-9/<>." );
         RULE( type_name, lexeme_d[ +identchar ] );
 
         valuechange_parsers =  constantdefinition
