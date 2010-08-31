@@ -1,10 +1,3 @@
-/**
- * GlobalEngine.cpp
- *
- *  Created on: Jan 29, 2010
- *      Author: kaltan
- */
-
 #include "GlobalEngine.hpp"
 #include "../Activity.hpp"
 

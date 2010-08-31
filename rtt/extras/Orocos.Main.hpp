@@ -72,8 +72,8 @@
  * @section rttcorba CORBA support (network communication)
  *
  * Components can be connected over a network using the CORBA classes.
- * Only two classes are required: RTT::corba::ControlTaskServer and
- * RTT::corba::ControlTaskProxy. The former exports a local TaskContext instance
+ * Only two classes are required: RTT::corba::TaskContextServer and
+ * RTT::corba::TaskContextProxy. The former exports a local TaskContext instance
  * to the network, using the CORBA Naming Service if available, the latter
  * represents a remote TaskContext (located using the name or IOR) and allows
  * local TaskContexts to communicate with the remote instance.
@@ -87,7 +87,5 @@
  * common devices (IO, encoders,...) from applications. The Device
  * Interface headers can be found in rtt/extras/dev.
  *
- * The device drivers are not implemented by the RTT, but provided by components.
- * See the Orocos Components Library (OCL) documentation for a list of supported
- * devices and examples.
+ * The device drivers are not implemented by the RTT, and fully optional to use.
  */

@@ -1,10 +1,3 @@
-/**
- * SequenceTypeInfo.cpp
- *
- *  Created on: May 11, 2010
- *      Author: kaltan
- */
-
 #include "SequenceTypeInfo.hpp"
 
 namespace RTT
