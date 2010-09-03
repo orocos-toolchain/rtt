@@ -147,39 +147,39 @@ namespace RTT
     opencurly = expect_opencurly( ch_p('{') );
     closecurly = expect_closecurly( ch_p('}') );
     semicolon = expect_semicolon( ch_p(';') );
-    condition = expect_condition( conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] );
+    condition = expect_condition( conditionparser.parser()[ boost::bind(&ProgramGraphParser::seencondition, this) ] );
 
     // program is the production rule of this grammar.  The
     // production rule is the rule that the entire input should be
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = *( program | function )[bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
+    production = *( program | function )[boost::bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
 
     // a function is very similar to a program, but it also has a name
     function = (
-       !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
-       >> (str_p( "function" ) | commonparser.identifier[bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
-       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
+       !str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)]
+       >> (str_p( "function" ) | commonparser.identifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
+       >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
        >> content
-       >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
+       >> expect_closefunction( ch_p('}') )[ boost::bind( &ProgramGraphParser::seenfunctionend, this ) ]
        );
 
     // the function's definition args :
     funcargs = ch_p('(') >> ( ch_p(')') | ((
-         valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
-             >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
+         valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]
+             >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
 
     // a program looks like "program { content }".
     program =
         str_p( "program" )
-      >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
+      >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> opencurly
       >> content
-      >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenprogramend, this ) ];
+      >> expect_closefunction( ch_p('}') )[ boost::bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
     content = *line;
@@ -189,23 +189,23 @@ namespace RTT
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
     //line = !( statement ) >> eol_p;
-    line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
+    line = statement[boost::bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[boost::bind(&ProgramGraphParser::skip_eol, this )];
 
     statement = valuechange | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | dostatement;
 
-    valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
+    valuechange = valuechangeparser.parser()[ boost::bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     // take into account deprecated 'do' and 'set'
     dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >>
             (
-              ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
-            | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
+              ( str_p("yield") | "nothing")[boost::bind(&ProgramGraphParser::seenyield,this)]
+            | expressionparser.parser()[ boost::bind(&ProgramGraphParser::seenstatement,this) ]
             );
 
     // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
         lexeme_d[str_p("try ")]
-         >> expect_command ( expressionparser.parser()[ bind( &ProgramGraphParser::seentrystatement, this ) ] )
+         >> expect_command ( expressionparser.parser()[ boost::bind( &ProgramGraphParser::seentrystatement, this ) ] )
          >> !catchpart;
 
   }
@@ -327,7 +327,7 @@ namespace RTT
       // Fake a 'return' statement at the last line.
       program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
       program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
-      shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
+      boost::shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
 
       // export the function in the context's interface.
       if (exportf) {

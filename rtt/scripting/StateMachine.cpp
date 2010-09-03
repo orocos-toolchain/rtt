@@ -535,7 +535,7 @@ namespace RTT {
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
         log(Debug) << "Creating Signal handler for Operation '"<< ename <<"'."<<Logger::endl;
-        handle = sp->produceSignal( ename, new CommandFunction( bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
 
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
@@ -745,7 +745,7 @@ namespace RTT {
         StateInterface* dummy = 0;
         transform( stateMap.begin(), stateMap.end(), back_inserter(sl), select1st<TransitionMap::value_type>() );
         sl.erase( find(sl.begin(), sl.end(), dummy) );
-        transform( sl.begin(), sl.end(), back_inserter(result), bind( &StateInterface::getName, _1 ) );
+        transform( sl.begin(), sl.end(), back_inserter(result), boost::bind( &StateInterface::getName, _1 ) );
         return result;
     }
 
@@ -867,7 +867,7 @@ namespace RTT {
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
-        this->transitionSet( from, to, cnd, shared_ptr<ProgramInterface>(), priority, line);
+        this->transitionSet( from, to, cnd, boost::shared_ptr<ProgramInterface>(), priority, line);
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to,

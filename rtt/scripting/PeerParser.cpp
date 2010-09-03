@@ -123,13 +123,13 @@ namespace RTT
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
             peerpath =
-                ( +(commonparser.notassertingidentifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
+                ( +(commonparser.notassertingidentifier >> ".")[boost::bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[boost::bind(&PeerParser::done, this)];
 
             // find as far as possible a peer without throwing an exception
             // outside our interface
             peerlocator =
-                my_guard( *((commonparser.notassertingidentifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
-                        [ bind(&PeerParser::handle_no_peer, this, _1, _2) ]
+                my_guard( *((commonparser.notassertingidentifier >> ".")[boost::bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
+                        [ boost::bind(&PeerParser::handle_no_peer, this, _1, _2) ]
                 ;
         }
 

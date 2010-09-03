@@ -65,37 +65,37 @@ namespace RTT
     // a function statement : "call functionname"
     funcstatement = (
       lexeme_d[str_p( "call " )]
-      >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
-      >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
-      )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
+      >> expect_ident( commonparser.identifier[boost::bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
+      >> !arguments[ boost::bind( &ProgramGraphParser::seencallfuncargs, this )]
+      )[ boost::bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
 
     // a return statement : "return"
     returnstatement =
-        (str_p( "return" )[bind(&ProgramGraphParser::noskip_eol, this )]
-        >> (  eps_p(commonparser.notassertingeos) | expressionparser.parser()[bind( &ProgramGraphParser::seenreturnvalue, this ) ] )[bind(&ProgramGraphParser::skip_eol, this )])[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
+        (str_p( "return" )[boost::bind(&ProgramGraphParser::noskip_eol, this )]
+        >> (  eps_p(commonparser.notassertingeos) | expressionparser.parser()[boost::bind( &ProgramGraphParser::seenreturnvalue, this ) ] )[boost::bind(&ProgramGraphParser::skip_eol, this )])[ boost::bind( &ProgramGraphParser::seenreturnstatement, this ) ];
 
     // break from a while or for loop,...
     breakstatement =
-        str_p( "break" )[ bind (&ProgramGraphParser::seenbreakstatement, this) ];
+        str_p( "break" )[ boost::bind (&ProgramGraphParser::seenbreakstatement, this) ];
 
-    catchpart = (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
-                 >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
+    catchpart = (str_p("catch") [boost::bind(&ProgramGraphParser::startcatchpart, this)]
+                 >> expect_ifblock( ifblock ) )[boost::bind(&ProgramGraphParser::seencatchpart, this)];
 
     forstatement = ( str_p("for") >> openbrace
-                     >> !(valuechangeparser.parser()[bind(&ProgramGraphParser::seenforinit, this)]
+                     >> !(valuechangeparser.parser()[boost::bind(&ProgramGraphParser::seenforinit, this)]
                           |
-                          expressionparser.parser()[bind(&ProgramGraphParser::seenforinit_expr, this)])>> semicolon
+                          expressionparser.parser()[boost::bind(&ProgramGraphParser::seenforinit_expr, this)])>> semicolon
                      >> condition >> semicolon >> !str_p("set ")
-                     >> !expressionparser.parser()[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
-                     ) [bind(&ProgramGraphParser::seenforstatement, this)]
-                                  >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endforstatement, this) ]);
+                     >> !expressionparser.parser()[boost::bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
+                     ) [boost::bind(&ProgramGraphParser::seenforstatement, this)]
+                                  >> expect_ifblock( ifblock[ boost::bind(&ProgramGraphParser::endforstatement, this) ]);
 
     ifstatement = (str_p("if")
                    >> condition
-                   >> expect_then( str_p("then")[bind(&ProgramGraphParser::seenifstatement, this)] )
-                   >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endifblock, this) ] )
+                   >> expect_then( str_p("then")[boost::bind(&ProgramGraphParser::seenifstatement, this)] )
+                   >> expect_ifblock( ifblock[ boost::bind(&ProgramGraphParser::endifblock, this) ] )
                    >> !( str_p("else") >> expect_elseblock(ifblock) )
-                   )[ bind(&ProgramGraphParser::endifstatement, this) ];
+                   )[ boost::bind(&ProgramGraphParser::endifstatement, this) ];
 
     // ifblock is used for a group of statements or one statement (see also whilestatement)
     ifblock = ( ch_p('{') >> *line >> closecurly ) | statement;
@@ -103,10 +103,10 @@ namespace RTT
     whilestatement =
         (str_p("while")
          >> condition )
-        [bind(&ProgramGraphParser::seenwhilestatement, this)]
-         >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ] );
+        [boost::bind(&ProgramGraphParser::seenwhilestatement, this)]
+         >> expect_ifblock( ifblock[ boost::bind(&ProgramGraphParser::endwhilestatement, this) ] );
 
-    continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
+    continuepart = str_p("continue")[ boost::bind( &ProgramGraphParser::seencontinue, this)];
 
   }
 }

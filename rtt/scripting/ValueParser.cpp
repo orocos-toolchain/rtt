@@ -73,38 +73,38 @@ namespace RTT
 
     const_float =
       strict_real_p [
-        bind( &ValueParser::seenfloatconstant, this, _1 ) ] >> ch_p('f');
+        boost::bind( &ValueParser::seenfloatconstant, this, _1 ) ] >> ch_p('f');
 
     const_double =
       strict_real_p [
-        bind( &ValueParser::seendoubleconstant, this, _1 ) ];
+        boost::bind( &ValueParser::seendoubleconstant, this, _1 ) ];
 
     const_int =
       int_p [
-        bind( &ValueParser::seenintconstant, this, _1 ) ];
+        boost::bind( &ValueParser::seenintconstant, this, _1 ) ];
 
     const_uint =
       uint_p [
-        bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
+        boost::bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
 
     const_bool =
       ( str_p( "true" ) | "false" )[
-        bind( &ValueParser::seenboolconstant, this, _1, _2 ) ];
+        boost::bind( &ValueParser::seenboolconstant, this, _1, _2 ) ];
 
-    const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[bind( &ValueParser::seennull,this)] |
-        confix_p( "'", (c_escape_ch_p[ bind( &ValueParser::seencharconstant, this, _1 ) ]) , "'" );
+    const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[boost::bind( &ValueParser::seennull,this)] |
+        confix_p( "'", (c_escape_ch_p[ boost::bind( &ValueParser::seencharconstant, this, _1 ) ]) , "'" );
 
     const_string = confix_p(
       ch_p( '"' ), *(
-        c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
-        ), '"' )[ bind( &ValueParser::seenstring, this ) ];
+        c_escape_ch_p[ boost::bind( &ValueParser::push_str_char, this, _1 ) ]
+        ), '"' )[ boost::bind( &ValueParser::seenstring, this ) ];
 
     named_constant =
-        ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
+        ( str_p("done")[boost::bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
-          ( peerparser.locator()[bind( &ValueParser::seenpeer, this) ]
+          ( peerparser.locator()[boost::bind( &ValueParser::seenpeer, this) ]
             >> propparser.locator()
-            >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) )
+            >> commonparser.identifier[boost::bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) )
         ;
   }
 
