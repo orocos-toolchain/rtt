@@ -19,6 +19,7 @@
 
 #include "dlfcn.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Note:
  * MSDN says these functions are not thread-safe. We make no efforts to have
