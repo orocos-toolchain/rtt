@@ -250,6 +250,38 @@
       </itemizedlist>
     </section>
     <section>
+      <title>POSIX MQueue Transport</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A new transport for hard real-time data flow communication between components
+	    on the same host but in different processes has been added. It is
+	    based on POSIX MQueues and is supported on the GNU/Linux and Xenomai targets.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>ROS Transport</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A code generator for ROS typekits is available, which turns ROS messages
+	    into Orocos types, which can be used in scripting and data flow communication.
+	  </para>
+	  <para>
+	    It is currently in beta-development, but no known issues exist at the moment.
+	    It allows to connect Orocos components to ROS nodes, without the need for
+	    a special deployer. The standard OCL DeploymentComponent can set up these
+	    connections.
+	  </para>
+	  <para>
+	    
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
       <title>Scripting</title>
       <itemizedlist>
 	<listitem>
