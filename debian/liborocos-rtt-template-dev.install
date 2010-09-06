@@ -1,8 +1,13 @@
-usr/lib/liborocos-rtt-@TARGET@.a
 usr/lib/liborocos-rtt-@TARGET@.so
-usr/lib/liborocos-rtt-mqueue-@TARGET@.a
 usr/lib/liborocos-rtt-mqueue-@TARGET@.so
+usr/lib/orocos/types/librtt-typekit-@TARGET@.so
+usr/lib/orocos/types/librtt-transport-corba-@TARGET@.so
+usr/lib/orocos/types/librtt-transport-mqueue-@TARGET@.so
+usr/lib/orocos/plugins/librtt-scripting-@TARGET@.so
+usr/lib/orocos/plugins/librtt-marshalling-@TARGET@.so
 usr/lib/pkgconfig/orocos-rtt-@TARGET@.pc
 usr/lib/pkgconfig/orocos-rtt-mqueue-@TARGET@.pc
 usr/include/rtt/os/targets/@TARGET@-config.h
 usr/include/rtt/os/@TARGET@
+usr/lib/cmake/orocos-rtt/orocos-rtt-@TARGET@-libraries-relwithdebinfo.cmake
+usr/lib/cmake/orocos-rtt/orocos-rtt-@TARGET@-libraries.cmake
