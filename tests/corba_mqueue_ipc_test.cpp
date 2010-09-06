@@ -97,6 +97,19 @@ void CorbaMQueueIPCTest::new_data_listener(base::PortInterface* port)
     usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
 
+bool wait_for_helper;
+#define wait_for( cond, times ) \
+    wait = 0; \
+    while( (wait_for_helper = !(cond)) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond );
+
+#define wait_for_equal( a, b, times ) \
+    wait = 0; \
+    while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
+
 void CorbaMQueueIPCTest::testPortDataConnection()
 {
     // This test assumes that there is a data connection mw1 => server => mr1

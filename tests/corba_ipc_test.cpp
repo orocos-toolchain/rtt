@@ -65,6 +65,8 @@ public:
     InputPort<double>*  mi;
     OutputPort<double>* mo;
 
+    int wait;
+
     void setUp();
     void tearDown();
 
@@ -91,6 +93,7 @@ CorbaTest::setUp()
     t2 = 0;
     ts2 = ts = 0;
     tp2 = tp = 0;
+    wait = 0;
 }
 
 
@@ -115,10 +118,25 @@ void CorbaTest::new_data_listener(base::PortInterface* port)
 
 
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
-    signalled_port = 0; \
+    signalled_port = 0; wait = 0;\
     code; \
+    while (read_port != signalled_port && wait++ != 5) \
     usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
+
+bool wait_for_helper;
+#define wait_for( cond, times ) \
+    wait = 0; \
+    while( (wait_for_helper = !(cond)) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond );
+
+#define wait_for_equal( a, b, times ) \
+    wait = 0; \
+    while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
+
 
 void CorbaTest::testPortDataConnection()
 {
@@ -520,8 +538,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // Check read of new data
     mo->write( 3.33 );
-    usleep(100000);
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    wait_for_equal( cce->read( sample.out() ), CNewData, 5 );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 
@@ -544,8 +561,7 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     result = 0.0;
     sample <<= 4.44;
     cce->write( sample.in() );
-    usleep(100000);
-    BOOST_CHECK_EQUAL( mi->read( result ), NewData );
+    wait_for_equal( mi->read( result ), NewData, 5 );
     BOOST_CHECK_EQUAL( result, 4.44 );
 
     // Check re-read of old data.
@@ -591,11 +607,10 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     // Check read of new data
     mo->write( 6.33 );
     mo->write( 3.33 );
-    usleep(100000);
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    wait_for_equal( cce->read( sample.out() ), CNewData, 5 );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 6.33);
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    wait_for_equal( cce->read( sample.out() ), CNewData, 10 );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 
@@ -620,10 +635,9 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     cce->write( sample.in() );
     sample <<= 4.44;
     cce->write( sample.in() );
-    usleep(500000);
-    BOOST_CHECK_EQUAL( mi->read( result ), NewData );
+    wait_for_equal( mi->read( result ), NewData, 5 );
     BOOST_CHECK_EQUAL( result, 6.44 );
-    BOOST_CHECK_EQUAL( mi->read( result ), NewData );
+    wait_for_equal( mi->read( result ), NewData, 5 );
     BOOST_CHECK_EQUAL( result, 4.44 );
 
     // Check re-read of old data.

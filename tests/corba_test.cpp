@@ -43,7 +43,7 @@ class CorbaTest : public OperationsFixture
 public:
     CorbaTest() :
         pint1("pint1", "", 3), pdouble1("pdouble1", "", -3.0),
-        aint1(3), adouble1(-3.0)
+        aint1(3), adouble1(-3.0), wait(0)
     {
     // connect DataPorts
         mi1 = new InputPort<double> ("mi");
@@ -103,6 +103,7 @@ public:
 
     int aint1;
     double adouble1;
+    int wait;
 
     // helper test functions
     void testPortDataConnection();
@@ -117,10 +118,24 @@ void CorbaTest::new_data_listener(base::PortInterface* port)
 
 
 #define ASSERT_PORT_SIGNALLING(code, read_port) \
-    signalled_port = 0; \
+    signalled_port = 0; wait = 0;\
     code; \
+    while (read_port != signalled_port && wait++ != 5) \
     usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
+
+bool wait_for_helper;
+#define wait_for( cond, times ) \
+    wait = 0; \
+    while( (wait_for_helper = !(cond)) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond );
+
+#define wait_for_equal( a, b, times ) \
+    wait = 0; \
+    while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
 
 void CorbaTest::testPortDataConnection()
 {
@@ -159,7 +174,6 @@ void CorbaTest::testPortBufferConnection()
     ASSERT_PORT_SIGNALLING(mo1->write(1.0), mi2);
     ASSERT_PORT_SIGNALLING(mo1->write(2.0), mi2);
     ASSERT_PORT_SIGNALLING(mo1->write(3.0), mi2);
-    ASSERT_PORT_SIGNALLING(mo1->write(4.0), 0);
     BOOST_CHECK( mi2->read(value) );
     BOOST_CHECK_EQUAL( 1.0, value );
     BOOST_CHECK( mi2->read(value) );
