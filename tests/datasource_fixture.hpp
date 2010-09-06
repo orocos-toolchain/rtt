@@ -1,3 +1,22 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  datasource_fixture.hpp
+
+                        datasource_fixture.hpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef ORO_DATASOURCE_FIXTURE_HPP_
 #define ORO_DATASOURCE_FIXTURE_HPP_
 
