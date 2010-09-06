@@ -94,15 +94,15 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const
             {
                 // Convert enum to string
-                typename DataSource<T>::shared_ptr ds = DataSource<T>::narrow( source.get() );
+                typename internal::DataSource<T>::shared_ptr ds = internal::DataSource<T>::narrow( source.get() );
                 if ( ds )
                 {
                     // if not available, just convert to int.
                     if ( to_string.count( ds->get() ) == 0 ) {
                         log(Warning) << "No enum-to-string mapping defined for enum " << this->getTypeName() <<". Converting to int."<<endlog();
-                        return new ValueDataSource<int>( ds->get() );
+                        return new internal::ValueDataSource<int>( ds->get() );
                     }
-                    ValueDataSource<string>::shared_ptr vds =  new ValueDataSource<string>( to_string.find(ds->get())->second );
+                    internal::ValueDataSource<string>::shared_ptr vds =  new internal::ValueDataSource<string>( to_string.find(ds->get())->second );
                     return vds;
                 }
                 // convert string to enum
