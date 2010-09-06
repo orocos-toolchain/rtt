@@ -5,7 +5,7 @@ IF(ENABLE_MQ)
   find_package(Boost 1.37 REQUIRED serialization)
 
 
-  FILE( GLOB CPPS Dispatcher.cpp )
+  FILE( GLOB CPPS Dispatcher.cpp MQSendRecv.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")

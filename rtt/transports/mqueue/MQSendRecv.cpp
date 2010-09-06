@@ -1,0 +1,217 @@
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <mqueue.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sstream>
+#include <cassert>
+#include <stdexcept>
+
+#include "MQSendRecv.hpp"
+#include "../../types/TypeTransporter.hpp"
+#include "../../types/TypeMarshaller.hpp"
+#include "../../Logger.hpp"
+#include "Dispatcher.hpp"
+#include "../../base/PortInterface.hpp"
+#include "../../DataFlowInterface.hpp"
+#include "../../TaskContext.hpp"
+
+using namespace RTT;
+using namespace RTT::detail;
+using namespace RTT::mqueue;
+
+
+MQSendRecv::MQSendRecv(types::TypeMarshaller const& transport) :
+    mqdata_source(), mtransport(transport), buf(0), mis_sender(false), minit_done(false), max_size(0), mdata_size(0)
+{
+}
+
+void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInterface* port, ConnPolicy const& policy,
+                             bool is_sender)
+{
+    Logger::In in("MQSendRecv");
+
+    mqdata_source = ds;
+    mdata_size = policy.data_size;
+    max_size = policy.data_size ? policy.data_size : mtransport.getSampleSize(mqdata_source);
+    mis_sender = is_sender;
+
+    std::stringstream namestr;
+    namestr << '/' << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
+
+    if (policy.name_id.empty())
+        policy.name_id = namestr.str();
+
+    struct mq_attr mattr;
+    mattr.mq_maxmsg = policy.size ? policy.size : 10;
+    mattr.mq_msgsize = max_size;
+    assert( max_size );
+    if (policy.name_id[0] != '/')
+        throw std::runtime_error("Could not open message queue with wrong name. Names must start with '/' and contain no more '/' after the first one.");
+    if (max_size <= 0)
+        throw std::runtime_error("Could not open message queue with zero message size.");
+    int oflag = O_CREAT;
+    if (mis_sender)
+        oflag |= O_WRONLY | O_NONBLOCK;
+    else
+        oflag |= O_RDONLY; //reading is always blocking (see mqReady() )
+    mqdes = mq_open(policy.name_id.c_str(), oflag, S_IREAD | S_IWRITE, &mattr);
+
+    if (mqdes < 0)
+    {
+        int the_error = errno;
+        log(Error) << "FAILED opening '" << policy.name_id << "' with message size " << mattr.mq_msgsize << ", buffer size " << mattr.mq_maxmsg << " for "
+                << (is_sender ? "writing :" : "reading :") << endlog();
+        // these are copied from the man page. They are more informative than the plain perrno() text.
+        switch (the_error)
+        {
+        case EACCES:
+            log(Error) << "The queue exists, but the caller does not have permission to open it in the specified mode." << endlog();
+            break;
+        case EINVAL:
+            // or the name is wrong...
+            log(Error) << "Wrong mqueue name given OR, In a process  that  is  unprivileged  (does  not  have  the "
+                    << "CAP_SYS_RESOURCE  capability),  attr->mq_maxmsg  must  be  less than or equal to the msg_max limit, and attr->mq_msgsize must be less than or equal to the msgsize_max limit.  In addition, even in a privileged process, "
+                    << "attr->mq_maxmsg cannot exceed the HARD_MAX limit.  (See mq_overview(7) for details of these limits.)" << endlog();
+            break;
+        case EMFILE:
+            log(Error) << "The process already has the maximum number of files and message queues open." << endlog();
+            break;
+        case ENAMETOOLONG:
+            log(Error) << "Name was too long." << endlog();
+            break;
+        case ENFILE:
+            log(Error) << "The system limit on the total number of open files and message queues has been reached." << endlog();
+            break;
+        case ENOSPC:
+            log(Error)
+                    << "Insufficient space for the creation of a new message queue.  This probably occurred because the queues_max limit was encountered; see mq_overview(7)."
+                    << endlog();
+            break;
+        case ENOMEM:
+            log(Error) << "Insufficient memory." << endlog();
+            break;
+        default:
+            log(Error) << "Submit a bug report. An unexpected mq error occured with errno=" << errno << ": " << strerror(errno) << endlog();
+        }
+        throw std::runtime_error("Could not open message queue: mq_open returned -1.");
+    }
+
+    log(Debug) << "Opened '" << policy.name_id << "' with mqdes='" << mqdes << "' for " << (is_sender ? "writing." : "reading.") << endlog();
+
+    buf = new char[max_size];
+    memset(buf, 0, max_size); // necessary to trick valgrind
+    mqname = policy.name_id;
+}
+
+MQSendRecv::~MQSendRecv()
+{
+}
+
+void MQSendRecv::cleanupStream()
+{
+    if (!mis_sender)
+    {
+        if (minit_done)
+        {
+            Dispatcher::Instance()->removeQueue(mqdes);
+            minit_done = false;
+        }
+    }
+    else
+    {
+        // sender unlinks to avoid future re-use of new readers.
+        mq_unlink(mqname.c_str());
+    }
+    // both sender and receiver close their end.
+    mq_close( mqdes);
+
+    if (buf)
+    {
+        delete[] buf;
+        buf = 0;
+    }
+}
+
+
+void MQSendRecv::mqNewSample()
+{
+    // only deduce if user did not specify it explicitly:
+    if (mdata_size == 0)
+        max_size = mtransport.getSampleSize(mqdata_source);
+    delete[] buf;
+    buf = new char[max_size];
+    memset(buf, 0, max_size); // necessary to trick valgrind
+}
+
+bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
+{
+    if (minit_done)
+        return true;
+
+    if (!mis_sender)
+    {
+        // Try to get the initial sample
+        struct timespec abs_timeout;
+        clock_gettime(CLOCK_REALTIME, &abs_timeout);
+        abs_timeout.tv_nsec += Seconds_to_nsecs(0.5);
+        abs_timeout.tv_sec += abs_timeout.tv_nsec / (1000*1000*1000);
+        abs_timeout.tv_nsec = abs_timeout.tv_nsec % (1000*1000*1000);
+        //abs_timeout.tv_sec +=1;
+        ssize_t ret = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout);
+        if (ret != -1)
+        {
+            if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+            {
+                minit_done = true;
+                // ok, now we can add the dispatcher.
+                Dispatcher::Instance()->addQueue(mqdes, chan);
+                return true;
+            }
+            else
+            {
+                log(Error) << "Failed to initialize MQ Channel Element with initial data sample." << endlog();
+                return false;
+            }
+        }
+        else
+        {
+            log(Error) << "Failed to receive initial data sample for MQ Channel Element." << endlog();
+            return false;
+        }
+    }
+    else
+    {
+        assert( !mis_sender ); // we must be receiver. we can only receive inputReady when we're on the input port side of the MQ.
+        return false;
+    }
+    return true;
+}
+
+
+bool MQSendRecv::mqRead()
+{
+    int bytes = 0;
+    if ((bytes = mq_receive(mqdes, buf, max_size, 0)) == -1)
+    {
+        //log(Debug) << "Tried read on empty mq!" <<endlog();
+        return false;
+    }
+    if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool MQSendRecv::mqWrite()
+{
+    std::pair<void*, int> blob = mtransport.fillBlob(mqdata_source, (void*) buf, max_size);
+    char* lbuf = (char*) blob.first;
+    if (mq_send(mqdes, lbuf, blob.second, 0))
+    {
+        //log(Error) << "Failed to write into MQChannel !" <<endlog();
+        return false;
+    }
+    return true;
+}
