@@ -61,9 +61,9 @@
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:window-maximized="1" />
@@ -82,32 +82,6 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <g
-       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;display:inline;font-family:Bitstream Vera Sans"
-       id="g1525"
-       transform="matrix(1.2713342,0,0,1.2713342,-320.87044,-494.12471)"
-       inkscape:export-filename="/home/sspr/src/documents/PhDtheses/psoetens/introduction/CameraWalkThroughSMInterface.png"
-       inkscape:export-xdpi="600"
-       inkscape:export-ydpi="600">
-      <path
-         id="path1529"
-         d="M 478.8331,613.79976 L 500.00599,613.79976"
-         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:3.12519693;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans" />
-      <path
-         inkscape:tile-cy="694.71527"
-         inkscape:tile-cx="177.35329"
-         inkscape:tile-h="221.40189"
-         inkscape:tile-w="221.40189"
-         d="m 178.33326,873.04907 c 0,29.76369 -24.12824,53.89192 -53.89192,53.89192 -29.763687,0 -53.891921,-24.12823 -53.891921,-53.89192 0,-29.76368 24.128234,-53.89192 53.891921,-53.89192 29.76368,0 53.89192,24.12824 53.89192,53.89192 z"
-         sodipodi:ry="53.891918"
-         sodipodi:rx="53.891918"
-         sodipodi:cy="873.04907"
-         sodipodi:cx="124.44134"
-         id="path1527"
-         style="font-size:70.64225769px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#00cdff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.92456627;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-         sodipodi:type="arc"
-         transform="matrix(0.254805,0,0,0.254805,434.9097,391.7857)" />
-    </g>
     <text
        xml:space="preserve"
        style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
@@ -221,8 +195,8 @@
          x="405.62674"
          y="230.33905">Recognition</tspan></text>
     <image
-       sodipodi:absref="/home/kaltan/src/git/orocos-rtt/doc/xml/images/red-retro-racer.png"
-       xlink:href="red-retro-racer.png"
+       sodipodi:absref="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/red-car.png"
+       xlink:href="red-car.png"
        y="282.12704"
        x="330.83295"
        width="157.77124"
@@ -300,13 +274,13 @@
            sodipodi:role="line"
            id="tspan4936">       entry {</tspan><tspan
            id="tspan3983"
+           y="362.42596"
+           x="586.13721"
+           sodipodi:role="line">           p = this.locateCar();</tspan><tspan
+           id="tspan3989"
            y="382.42596"
            x="586.13721"
-           sodipodi:role="line">           set p = this.locateCar();</tspan><tspan
-           id="tspan3989"
-           y="402.42596"
-           x="586.13721"
-           sodipodi:role="line">           do camera.moveTo( p );</tspan><tspan
+           sodipodi:role="line">           camera.moveTo( p );</tspan><tspan
            id="tspan3977"
            y="422.42596"
            x="586.13721"
@@ -346,7 +320,7 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       style="font-size:17.79867935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Bitstream Vera Sans"
        x="574.08429"
        y="441.80344"
        id="text4082"
@@ -360,8 +334,8 @@
          id="tspan4084">locateCar():</tspan><tspan
          sodipodi:role="line"
          x="574.08429"
-         y="464.05176"
-         id="tspan4086">method</tspan></text>
+         y="464.05179"
+         id="tspan4086">operation</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.71080136;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 650.17655,562.43712 C 651.84355,625.89451 552.401,616.21404 502.78658,592.08231 C 453.58123,568.14955 403.29834,500.09056 403.29834,391.48731"
@@ -475,5 +449,9 @@
          id="tspan4928"
          x="650.33765"
          y="128.03242">file: statemachine.osd</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 303.51222,268.11503 9.67267,16.75356 -8.34612,14.45591"
+       id="path2881" />
   </g>
 </svg>
