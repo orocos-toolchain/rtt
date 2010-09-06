@@ -4,5 +4,5 @@ usr/lib/liborocos-rtt-mqueue-@TARGET@.a
 usr/lib/liborocos-rtt-mqueue-@TARGET@.so
 usr/lib/pkgconfig/orocos-rtt-@TARGET@.pc
 usr/lib/pkgconfig/orocos-rtt-mqueue-@TARGET@.pc
-usr/include/rtt/os/targets/@TARGET@
+usr/include/rtt/os/targets/@TARGET@-config.h
 usr/include/rtt/os/@TARGET@
