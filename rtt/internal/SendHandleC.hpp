@@ -75,6 +75,10 @@ namespace RTT
          * Stores the blocking/non blocking flag for collect/collectIfDone.
          */
         internal::AssignableDataSource<bool>::shared_ptr b;
+        /**
+         * Stores the operation in order to avoid its premature destruction.
+         */
+        base::DataSourceBase::shared_ptr mop;
 
 	/**
 	 * Stores the OperationInterfacePart pointer contained in this SendHandle
@@ -94,7 +98,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr operation, base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.

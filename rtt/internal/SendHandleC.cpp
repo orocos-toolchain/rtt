@@ -105,8 +105,8 @@ namespace RTT {
     {
     }
 
-    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
-        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b()
+    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr op, base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
+        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b(), mop(op)
     {
         if ( d->s ) {
             this->s = d->s;
@@ -118,7 +118,7 @@ namespace RTT {
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), orp( other.orp ? other.orp : NULL)
+        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), mop(other.mop), orp( other.orp ? other.orp : NULL)
     {
     }
 
@@ -130,6 +130,7 @@ namespace RTT {
         d = ( other.d ? new D(*other.d) : 0 );
         s = other.s;
         b = other.b;
+        mop = other.mop;
         orp = other.orp;
         return *this;
     }
@@ -137,6 +138,13 @@ namespace RTT {
     SendHandleC::~SendHandleC()
     {
         delete d;
+        // force synchronisation. We may not cleanup mop (holds data!), until the op
+        // completed or failed.
+        // this snippet implements a collect():
+        if (s) {
+            b->set(true); // blocking
+            s->evaluate();
+        }
     }
 
     SendHandleC& SendHandleC::arg( DataSourceBase::shared_ptr a )
@@ -163,7 +171,7 @@ namespace RTT {
             return s->value();
         }
         else {
-            Logger::log() <<Logger::Error << "call() called on incomplete SendHandleC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "collect() called on incomplete SendHandleC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->mofp->collectArity();
@@ -183,7 +191,7 @@ namespace RTT {
             return s->value();
         }
         else {
-            Logger::log() <<Logger::Error << "send() called on incomplete SendHandleC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "collectIfDone() called on incomplete SendHandleC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->mofp->collectArity();
