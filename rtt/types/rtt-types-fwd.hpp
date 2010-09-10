@@ -11,17 +11,18 @@ namespace RTT {
         class TransportPlugin;
         class TypeInfo;
         class TypeInfoRepository;
+        class TypeMarshaller;
         class TypeTransporter;
         class TypekitPlugin;
         class TypekitRepository;
         class UnaryOp;
-        struct MyClass;
         struct TypeBuilder;
         template <typename T, bool has_ostream>
         struct StdVectorTemplateTypeInfo;
         template<class S>
         struct TemplateConstructor;
-        class TypeMarshaller;
+        template<class T>
+        struct EnumTypeInfo;
         template<typename T, bool has_ostream>
         class BoostArrayTypeInfo;
         template<typename T, bool has_ostream>

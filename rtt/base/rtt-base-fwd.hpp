@@ -33,9 +33,9 @@ namespace RTT {
         template<class F>
         struct OperationCallerBase;
         template<class T>
-        class BufferLocked;
-        template<class T>
         class BufferInterface;
+        template<class T>
+        class BufferLocked;
         template<class T>
         class BufferUnSync;
         template<class T>
