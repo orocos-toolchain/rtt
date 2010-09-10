@@ -1,10 +1,4 @@
 usr/include/rtt/os/rtt-os-fwd.hpp
-usr/include/rtt/Plugin.hpp
-usr/include/rtt/SequentialActivity.hpp
-usr/include/rtt/ToolkitPlugin.hpp
-usr/include/rtt/TransportPlugin.hpp
-usr/include/rtt/TypeStream-io.hpp
-usr/include/rtt/VectorTemplateComposition.hpp
 usr/include/rtt/os/Atomic.hpp
 usr/include/rtt/os/CAS.hpp
 usr/include/rtt/os/MainThread.hpp
