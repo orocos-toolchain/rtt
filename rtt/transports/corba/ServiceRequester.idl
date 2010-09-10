@@ -1,0 +1,59 @@
+#ifndef ORO_CORBA_SERVICE_REQUESTER_IDL
+#define ORO_CORBA_SERVICE_REQUESTER_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+#include "Service.idl"
+
+module RTT
+{
+    module corba
+    {
+
+	typedef sequence<string> CRequestNames;
+	typedef sequence<string> COperationCallerNames;
+
+	/**
+	 * An Orocos Required Service.
+	 * Exposes that this component requires certain services.
+	 * @ingroup CompIDL
+	 */
+	interface CServiceRequester
+	{
+	    /**
+	     * Return the name of this service.
+	     */
+	    string getRequestName();
+
+	    /**
+	     * Get a list of all the child requests this request offers.
+	     */
+	    CRequestNames getRequestNames( );
+
+	    /**
+	     * Returns the methods required by this requester.
+	     */
+	    COperationCallerNames getOperationCallerNames();
+
+	    /**
+	     * Get a child request this request provides.
+	     */
+	    CServiceRequester getRequest( in string name );
+
+	    /**
+	     * Has this request a child request with given name ?
+	     */
+	    boolean hasRequest( in string name );
+
+	    boolean connectTo( in CService svc);
+
+	    boolean ready();
+
+	    void disconnect();
+	};
+
+    };
+};
+#endif

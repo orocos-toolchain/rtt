@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 1.92.0 )
+SET( RTT_VERSION 2.0.99 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -44,6 +44,9 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
   SET ( CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS}"  CACHE STRING "Specify here your additional C flags.")
   SET ( CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS}"  CACHE STRING "Specify here your additional link flags.")
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
+
+# Export file name
+set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
 
 # Make compilation verbose
 #SET(CMAKE_VERBOSE_MAKEFILE TRUE)
@@ -93,7 +96,8 @@ INCLUDE(config/rtt_macros.cmake)
 #                                                         #
 ###########################################################
 
-ADD_SUBDIRECTORY(src)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+ADD_SUBDIRECTORY(rtt)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 
@@ -112,4 +116,28 @@ IF (DOXYGEN_EXECUTABLE)
   CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 ENDIF (DOXYGEN_EXECUTABLE)
 
+###############################
+#                             #
+# Package configuration files #
+#                             #
+###############################
 
+set(CONFIG_FILE_PATH "lib/cmake/orocos-rtt") # Folder lib/cmake is searched by default in CMake >= 2.6.3
+set(IMPORTED_TARGET_PREFIX "imported_") # Prefix used in other projects to distinguish imported targets from regular ones
+
+# Main package configuration file
+CONFIGURE_FILE(orocos-rtt-config.cmake.in
+               orocos-rtt-config.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config.cmake DESTINATION "${CONFIG_FILE_PATH}")
+
+# Version file
+CONFIGURE_FILE(orocos-rtt-config-version.cmake.in
+               orocos-rtt-config-version.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-version.cmake DESTINATION "${CONFIG_FILE_PATH}")
+
+# Exported targets
+INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
+                                      NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
+
+# Package use file
+INSTALL(FILES UseOROCOS-RTT.cmake DESTINATION "${CONFIG_FILE_PATH}")

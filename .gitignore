@@ -3,3 +3,11 @@ build*
 .project
 .settings
 *patch
+*.ior
+*.log
+*.gz
+*.bz2
+*~
+class-dump.txt
+headers.txt
+*.sw?

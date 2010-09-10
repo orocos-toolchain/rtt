@@ -17,101 +17,36 @@
  ***************************************************************************/
 
 
+#include "unit.hpp"
+#include "operations_fixture.hpp"
 
-#include "function_test.hpp"
 
-#include <iostream>
-#include <sstream>
+#include <scripting/Parser.hpp>
 #include <scripting/FunctionGraph.hpp>
-#include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Command.hpp>
-#include <internal/TaskObject.hpp>
+#include <scripting/ScriptingService.hpp>
+#include <Service.hpp>
+#include <OperationCaller.hpp>
 
-using namespace std;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-    FunctionTest::FunctionTest()
-        : gtc("root" ),
-          gtask( 0.01, gtc.engine() )
+class FunctionsFixture : public OperationsFixture
+{
+public:
+    FunctionsFixture()
+    : sa( new ScriptingService(tc) )
     {
-    	setUp();
+        tc->stop();
+        tc->setActivity(new SimulationActivity(0.01));
+        SimulationThread::Instance()->stop();
+        tc->start();
     }
+    Parser parser;
+    ScriptingService* sa;
 
+    void doFunction( const std::string& prog, TaskContext*, bool test=true );
+    void finishFunction( TaskContext* , std::string );
+    void loopProgram( ProgramInterfacePtr );
+};
 
-void
-FunctionTest::setUp()
-{
-    SimulationThread::Instance()->stop();
-    // ltc has a test object
-    gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
-    gtask.start();
-    i = 0;
-}
-
-
-void
-FunctionTest::tearDown()
-{
-}
-
-
-bool FunctionTest::assertBool( bool b) {
-    return b;
-}
-bool FunctionTest::assertMsg( bool b, const std::string& msg) {
-    if ( b == false )
-        cout << "Asserted :" << b << " with :" << msg << endl;
-    return b;
-}
-
-int FunctionTest::increase() {
-    return ++i;
-}
-
-void FunctionTest::reset() {
-    i = 0;
-}
-
-
-OperationInterface* FunctionTest::createObject(string a, CommandProcessor* cp)
-{
-    TaskObject* dat = new TaskObject(a);
-    dat->methods()->addMethod( method( "assert", &FunctionTest::assertBool, this),
-                              "Assert", "bool", "" );
-    dat->methods()->addMethod( method( "increase", &FunctionTest::increase, this),
-                                "Return increasing i"  );
-    dat->methods()->addMethod( method( "reset", &FunctionTest::reset, this),
-                              "Reset i" );
-    dat->methods()->addMethod( method( "assertMsg", &FunctionTest::assertMsg, this),
-                                 "Assert message", "bool", "", "text", "text"  );
-
-    dat->methods()->addMethod( method( "isTrue", &FunctionTest::assertBool, this),
-                              "Identity function", "bool", "" );
-    dat->methods()->addMethod( method( "i", &FunctionTest::getI, this),
-                         "Return the current number"  );
-
-    dat->commands()->addCommand( command( "instantDone", &FunctionTest::true_genCom,
-                                      &FunctionTest::true_gen, this, cp),
-                                      "returns immediately" );
-    dat->commands()->addCommand( command( "neverDone", &FunctionTest::true_genCom,
-                                    &FunctionTest::false_gen, this, cp),
-                                    "returns never" );
-    dat->commands()->addCommand( command( "instantNotDone", &FunctionTest::true_genCom,
-                                         &FunctionTest::true_gen, this, cp, false),
-                                         "returns never");
-    dat->commands()->addCommand( command( "instantFail", &FunctionTest::false_genCom,
-                                      &FunctionTest::true_gen, this, cp),
-                                      "fails immediately" );
-    dat->commands()->addCommand( command( "totalFail", &FunctionTest::false_genCom,
-                                    &FunctionTest::false_gen, this, cp),
-                                    "fails in command and condition" );
-    return dat;
-}
-
-BOOST_FIXTURE_TEST_SUITE( FunctionTestSuite, FunctionTest )
+BOOST_FIXTURE_TEST_SUITE( FunctionsFixtureSuite, FunctionsFixture )
 // Registers the fixture into the 'registry'
 
 BOOST_AUTO_TEST_CASE( testSimpleFunction)
@@ -120,13 +55,28 @@ BOOST_AUTO_TEST_CASE( testSimpleFunction)
         + " do test.assert( test.isTrue( true ) )\n"
         + "}\n"
         + "program x { \n"
-        //        + "   do test.assert( true )\n"
         + "   call foo\n"
-        //+ "   do test.assert( true )\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
+}
+
+BOOST_AUTO_TEST_CASE( testSimpleReturnFunction)
+{
+    string prog = string("int foo { \n")
+        + " test.assert( test.isTrue( true ) )\n"
+        + " return 3\n"
+        + "}\n"
+        + "\n"
+        + "program x { \n"
+        + "   test.assert(true);\n"
+        + "   call foo\n"
+        + "   test.assert(true);\n"
+        + "}";
+
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testExportFunction)
@@ -142,26 +92,126 @@ BOOST_AUTO_TEST_CASE( testExportFunction)
         + "   do this.foo_args()\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    BOOST_CHECK( tc->getOperation("foo") );
+    this->finishFunction( tc, "x");
 }
 
+#ifdef ORO_REMOTING
+/**
+ * Exports foo and foo_args and calls them from C++
+ * Compare with testReturnExportFunction below that does
+ * the same, but in scripting.
+ * This code relies on RemoteOperationCaller and OperationCallerC
+ */
+BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
+{
+    string prog = string("export function foo { \n")
+//                + "   test.print(\"foo()\")\n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
+        + "export int foo_ret(double d) { \n"
+//        + "   test.printNumber(\"foo_ret(double d), d is: \", d)\n"
+        + "   if (true) then\n"
+        + "     return 3\n"
+        + "   else\n"
+        + "     return 5\n"
+        + "}\n"
+        + "export int foo_args(double d, int v) { \n"
+//        + " test.printNumber(\"foo_args(double d, int v) v is: \", v)\n"
+        + " var double r = 10\n"
+        + " if ( d == 3.0 && v == 6) then\n"
+        + "     set r = +1\n"
+        + " else\n"
+        + "     set r = -1\n"
+        + " return r;\n"
+        + "}\n";
+
+    this->doFunction( prog, tc );
+    BOOST_CHECK( tc->getOperation("foo") );
+    OperationCaller<void(void)> foo = tc->getOperation("foo");
+    BOOST_CHECK( foo.ready() );
+
+    foo();
+
+    OperationCaller<int(double)> foo_ret = tc->getOperation("foo_ret");
+    BOOST_CHECK( foo_ret.ready() );
+
+    int i = 0;
+    i = foo_ret(3.0);
+    BOOST_CHECK_EQUAL( i, 3 );
+
+    BOOST_CHECK( tc->getOperation("foo_args") );
+    OperationCaller<int(double,int)> foo_args = tc->getOperation("foo_args");
+    BOOST_CHECK( foo_args.ready() );
+
+    // bug: the first return value is returned also the second time !
+    // it's like foo_args is called only the first time.
+    i = 0;
+    i = foo_args(-3.0, -6);
+    BOOST_CHECK_EQUAL( i, -1);
+
+    i = 0;
+    i = foo_args(3.0, 6);
+    BOOST_CHECK_EQUAL( i, +1);
+
+}
+#endif
+/**
+ * Compare to use case above that does the same,
+ * but in C++
+ */
+BOOST_AUTO_TEST_CASE( testReturnExportFunction)
+{
+    string prog = string("export function foo { \n")
+        + " do test.assert( test.isTrue( true ) )\n"
+        + "}\n"
+        + "export int foo_ret() { \n"
+        + "   if (true) then\n"
+        + "     return 3\n"
+        + "   else\n"
+        + "     return 5\n"
+        + "}\n"
+        + "export int foo_args(double d, int v) { \n"
+        + " do test.assert( test.isTrue( true ) )\n"
+        + " if ( d == 3.0 && v == 6) then\n"
+        + "     return +1\n" // 10
+        + " else\n"
+        + "     return -1\n"
+        + " return 4\n"
+        + "}\n"
+        + "program x { \n"
+        + "   this.foo()\n" // a void function
+        + "   this.foo_ret()\n"
+        + "   this.foo_args(3.0,6)\n"
+        + "   test.assertEqual(this.foo_ret(), 3 )\n"
+        + "   test.assertEqual(this.foo_args(3.0,6), 1)\n" // 20
+        + "   test.assertEqual(this.foo_args(0.0,0), -1)\n"
+        + "}";
+
+    this->doFunction( prog, tc );
+    BOOST_CHECK( tc->getOperation("foo") );
+    this->finishFunction( tc, "x");
+}
+
+#if 0
 // Test removing exported function in infinite loop.
 BOOST_AUTO_TEST_CASE( testRemoveFunction)
 {
     string prog = string("export function foo { \n")
-        + " while (true) { do nothing }\n"
+        + " while (true) { do nothing }\n" // this one yiels politely
         + "}\n"
         + "program x { \n"
-        + "   do this.foo()\n"
+        + "   this.foo()\n" // this will hang the program's execution being blocked in waitForMessages for foo() to return... should we use a yield point ? Was so before because it were commands...
+        //+ "   this.foo.send()\n" // send/collect not yet supported.
         + "}";
 
-    this->doFunction( prog, &gtc, false );
-    BOOST_CHECK( gtc.commands()->getCommand<bool(void)>("foo") );
+    this->doFunction( prog, tc, false );
+    BOOST_CHECK( tc->getOperation("foo") );
     // removing the program should lead to removal of the function from the PP.
-    this->finishFunction( &gtc, "x");
+    this->finishFunction( tc, "x");
 }
+#endif
 BOOST_AUTO_TEST_CASE( testRecFunction)
 {
     string prog = string("export function foo { \n")
@@ -172,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testRecFunction)
         + "}";
 
     try {
-        parser.parseProgram( prog, &gtc );
+        parser.parseProgram( prog, tc );
     }
     catch( ... )
         {
@@ -184,7 +234,7 @@ BOOST_AUTO_TEST_CASE( testRecFunction)
                 + "}";
             //progs = prog;
             try {
-                parser.parseProgram( prog, &gtc );
+                parser.parseProgram( prog, tc );
             }
             catch( ... )
                 {
@@ -207,8 +257,8 @@ BOOST_AUTO_TEST_CASE( testCallFunction)
         + "   call foo( 1, \"hello\", true)\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testFunctionStack)
@@ -236,8 +286,8 @@ BOOST_AUTO_TEST_CASE( testFunctionStack)
         +"  do test.assert( a == 0.0 )\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 
@@ -246,14 +296,14 @@ BOOST_AUTO_TEST_CASE( testFunctionExportArgs)
     // Test if the foo args are init'ed correctly.
     string prog =
         string("export function fooA(int a, string b, bool c) { \n")
-        + " do test.assert( c )\n"
-        + " do test.assert( a == 1 )\n"
-        + " do test.assert( b == \"A\" )\n"
+        + " do test.assertMsg( c, \"c not true\" )\n"
+        + " do test.assertMsg( a == 1, \"a not 1\" )\n"
+        + " do test.assertMsg( b == \"A\", \"b not A\" )\n"
         + "}\n"
         + "export function fooB(int a, string b, bool c) { \n"
-        + " do test.assert( !c )\n"
-        + " do test.assert( a == -1 )\n"
-        + " do test.assert( b == \"B\" )\n"
+        + " do test.assertMsg( !c, \"c not false\" )\n"
+        + " do test.assertMsg( a == -1, \"a not -1\" )\n"
+        + " do test.assertMsg( b == \"B\", \"b not B\"   )\n"
         + " do fooA(1, \"A\", true)\n"
         + "}\n"
         + "program x { \n"
@@ -263,8 +313,8 @@ BOOST_AUTO_TEST_CASE( testFunctionExportArgs)
 //         + "   call fooB(-1, \"B\", false)\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testFunctionCallArgs)
@@ -292,8 +342,8 @@ BOOST_AUTO_TEST_CASE( testFunctionCallArgs)
 //         + "   call fooB(-1, \"B\", false)\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 BOOST_AUTO_TEST_CASE( testFunctionFail)
@@ -320,47 +370,51 @@ BOOST_AUTO_TEST_CASE( testFunctionFail)
         + "   do test.assertMsg(success,\"Program script did not detect exported function failure.\")\n"
         + "}";
 
-    this->doFunction( prog, &gtc );
-    this->finishFunction( &gtc, "x");
+    this->doFunction( prog, tc );
+    this->finishFunction( tc, "x");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
+void FunctionsFixture::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_REQUIRE( tc->engine() );
-    BOOST_REQUIRE( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
-        {
-            BOOST_REQUIRE_MESSAGE( false , exc.what() );
-        }
+    {
+        BOOST_REQUIRE_MESSAGE( false , exc.what() );
+    }
+    catch( ... ) {
+        BOOST_REQUIRE_MESSAGE( false, "Unknown exception thrown by Parser.");
+    }
     if ( pg_list.empty() )
-        {
-            BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
-        }
-    ProgramProcessor* pp = tc->engine()->programs();
-    BOOST_REQUIRE( pp->loadProgram( *pg_list.begin() ) );
-    BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
+    {
+        // no program necessary here.
+        //BOOST_REQUIRE_MESSAGE(false , "No program parsed in test.");
+        return;
+    }
+
+    BOOST_REQUIRE( sa->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( sa->getProgram( (*pg_list.begin())->getName() )->start() );
 
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
-        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
+        errormsg << " on line " << sa->getProgram("x")->getLineNumber() <<" of program 'x' (or of a function 'called' by x)."<<endl;
+        BOOST_REQUIRE_MESSAGE( sa->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime Error Status encountered" + errormsg.str());
+        BOOST_REQUIRE_MESSAGE( sa->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled" + errormsg.str() );
     }
-    tc->stop();
 }
 
-void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
+void FunctionsFixture::finishFunction(TaskContext* tc, std::string prog_name)
 {
-    tc->engine()->programs()->getProgram( prog_name )->stop();
-    tc->engine()->programs()->unloadProgram( prog_name );
+    BOOST_REQUIRE( sa->getProgram(prog_name) );
+    sa->getProgram( prog_name )->stop();
+    sa->unloadProgram( prog_name );
 }
 
 

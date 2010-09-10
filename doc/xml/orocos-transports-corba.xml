@@ -12,7 +12,7 @@
     <title>Distributing Orocos Components with CORBA</title>
     <subtitle>The CORBA Transport Library</subtitle>
     <copyright>
-      <year>2006, 2007, 2008, 2009</year>
+      <year>2006, 2007, 2008, 2009, 2010</year>
       <holder>FMTC, Peter Soetens</holder>
     </copyright>
 
@@ -62,6 +62,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Renamed to orocos-transports-corba.xml and minor additions.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.07</revnumber>
+	<date>1 April 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Document new CORBA Transport API (RTT 2.0)</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -82,14 +88,14 @@
     <title>The CORBA Transport</title>
     <para>
       This transport allows Orocos components to live in separate processes,
-      distributed over an ethernet network and still communicate with each other.
-      The underlying framework (middleware) is CORBA, but no CORBA knowledge is
+      distributed over a network and still communicate with each other.
+      The underlying middleware is CORBA, but no CORBA knowledge is
       required to distribute Orocos components.
     </para>
     <para>
       The Corba transport provides:
       <itemizedlist>
-	<listitem><para>Connection and Communication of Orocos components over a network</para></listitem>
+	<listitem><para>Connection and communication of Orocos components over a network or between two processes on the same computer.</para></listitem>
 	<listitem><para>Clients (like visualisation) making a connection to any running Orocos component using the IDL interface.</para></listitem>
 	<listitem><para>Transparant use: no recompilation of existing components required.
 	The library acts as a run-time plugin.</para></listitem>
@@ -98,23 +104,18 @@
     <section>
       <title>Status</title>
       <para>
-	The Corba transport is work in progress and aims to make the whole
+	The Corba transport aims to make the whole
 	Orocos Component interface available over the network. Consult the
 	<emphasis>Component Builder's Manual</emphasis> for an overview of a Component's
 	interface.
       </para>
-      <para>These Component interfaces are currently available:
+      <para>These Component interfaces are available:
       <itemizedlist>
-	<listitem><para>Properties/Attributes interface: fully</para></listitem>
-	<listitem><para>Command interface: fully</para></listitem>
-	<listitem><para>Method interface: fully</para></listitem>
-	<listitem><para>Scripting interface: fully</para></listitem>
-	<listitem><para>Data Flow interface: fully</para></listitem>
-      </itemizedlist> 
-      </para>
-      <para>These interfaces are work in progress and not yet available:
-      <itemizedlist>
-	<listitem><para>Event interface</para></listitem>
+	<listitem><para>TaskContext interface: fully (TaskContext.idl)</para></listitem>
+	<listitem><para>Properties/Attributes interface: fully (ConfigurationInterface.idl)</para></listitem>
+	<listitem><para>OperationCaller/Operation interface: fully (OperationInterface.idl)</para></listitem>
+	<listitem><para>Service interface: fully (Service.idl, ServiceRequester.idl)</para></listitem>
+	<listitem><para>Data Flow interface: fully (DataFlow.idl)</para></listitem>
       </itemizedlist> 
       </para>
     </section>
@@ -163,18 +164,17 @@
     <section>
       <title>Limitations</title>
       <para>
-	Orocos Corba components are work in progress. The following limitations apply:
+	The following limitations apply:
 	<itemizedlist>
 	  <listitem><para>Components can only communicate standard C++
 	  types (double, int, string, etc.) and std::vector&lt;double>.
 	  Adding user types is possible using the 'Toolkit Plugin' feature
 	  ( see also 'Orocos Type System' ).
 	  </para></listitem>
-	  <listitem><para>Some Corba objects (for example 'commands')
-	  have a longer lifetime in memory than necessary. This does
-	  not cause harm in 'simple' setups, but is problematic when
-	  thousands of such objects are created. Try to re-use these
-	  objects as much as possible.
+	  <listitem><para>Interacting with a remote component using the CORBA transport
+	      will never be real-time. The only exception to this rule is when using the data flow
+	      transport. Reading and writing data ports is always real-time, the transport
+	      of the data itself is not a real-time process.
 	  </para></listitem>
 	</itemizedlist>
       </para>
@@ -194,7 +194,7 @@
       In order to setup your component to be available to other components
       <emphasis>transparantly</emphasis>, proceed as:
       <programlisting>  // server.cpp
-  #include &lt;rtt/transports/corba/ControlTaskServer.hpp>
+  #include &lt;rtt/transports/corba/TaskContextServer.hpp>
 
   #include &lt;rtt/Activity.hpp>
   #include &lt;rtt/TaskContext.hpp>
@@ -212,14 +212,14 @@
      mycomponent.start();
 
      // Setup Corba and Export:
-     <classname>RTT::corba::ControlTaskServer</classname>::InitOrb(argc, argv);
-     ControlTaskServer::Create( &amp;mycomponent );
+     <classname>RTT::corba::TaskContextServer</classname>::InitOrb(argc, argv);
+     TaskContextServer::Create( &amp;mycomponent );
 
      // Wait for requests:
-     ControlTaskServer::RunOrb();
+     TaskContextServer::RunOrb();
       
      // Cleanup Corba:
-     ControlTaskServer::DestroyOrb();
+     TaskContextServer::DestroyOrb();
      return 0;
   } </programlisting>
     </para>
@@ -227,8 +227,8 @@
       Next, in order to connect to your component, you need to create
       a 'proxy' in another file:
       <programlisting>  // client.cpp
-  #include &lt;rtt/transports/corba/ControlTaskServer.hpp>
-  #include &lt;rtt/transports/corba/ControlTaskProxy.hpp>
+  #include &lt;rtt/transports/corba/TaskContextServer.hpp>
+  #include &lt;rtt/transports/corba/TaskContextProxy.hpp>
 
   #include &lt;ocl/TaskBrowser.hpp>
   #include &lt;rtt/os/main.h>
@@ -239,22 +239,22 @@
   int ORO_main(int argc, char** argv)
   {
      // Setup Corba:
-     <classname>RTT::corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
+     <classname>RTT::corba::TaskContextProxy</classname>::InitOrb(argc, argv);
 
      // Setup a thread to handle call-backs to our components.
-     <classname>RTT::corba::ControlTaskProxy</classname>::ThreadOrb();
+     <classname>RTT::corba::TaskContextProxy</classname>::ThreadOrb();
 
      // Get a pointer to the component above
-     <classname>RTT::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
+     <classname>RTT::TaskContext</classname>* component = TaskContextProxy::Create( "HelloWorld" );
 
      // Interface it:
      <classname>OCL::TaskBrowser</classname> browse( component );
      browse.loop();
 
      // Stop ORB thread:
-     <classname>RTT::corba::ControlTaskServer</classname>::ShutdownOrb();
+     <classname>RTT::corba::TaskContextServer</classname>::ShutdownOrb();
      // Cleanup Corba:
-     ControlTaskProxy::DestroyOrb();
+     TaskContextProxy::DestroyOrb();
      return 0;
   } </programlisting>
     </para>
@@ -283,7 +283,7 @@
       <programlisting>
 	// Wait no more than 0.1 seconds for a response.
 	ApplicationSetup::InitORB(argc, argv, 0.1);</programlisting>
-      ControlTaskProxy and ControlTaskServer inherit from ApplicationSetup,
+      TaskContextProxy and TaskContextServer inherit from ApplicationSetup,
       so you might as well use these classes to scope InitORB.
     </para>
   </section>
@@ -339,11 +339,11 @@
     <para>
       The relevant files are:
       <itemizedlist>
-	<listitem><para><filename>ControlTask.idl</filename>: The main Component Interface file, providing CORBA access to a TaskContext.</para></listitem>
-	<listitem><para><filename>Operations.idl</filename>: The interface of method and command objects.</para></listitem>
-	<listitem><para><filename>OperationInterface.idl</filename>: The interface for accessing methods and commands.</para></listitem>
-	<listitem><para><filename>ScriptingAccess.idl</filename>: The interface for loading and running scripts.</para></listitem>
-	<listitem><para><filename>Attributes.idl</filename>: The interface for attributes and properties.</para></listitem>
+	<listitem><para><filename>TaskContext.idl</filename>: The main Component Interface file, providing CORBA access to a TaskContext.</para></listitem>
+	<listitem><para><filename>Service.idl</filename>: The interface of services by a component</para></listitem>
+	<listitem><para><filename>ServiceRequester.idl</filename>: The interface of required services by a component</para></listitem>
+	<listitem><para><filename>OperationInterface.idl</filename>: The interface for calling or sending operations.</para></listitem>
+	<listitem><para><filename>ConfigurationInterface.idl</filename>: The interface for attributes and properties.</para></listitem>
 	<listitem><para><filename>DataFlow.idl</filename>: The interface for communicating buffered or unbufferd data.</para></listitem>
       </itemizedlist> 
       All data is communicated with CORBA::Any types. The way of using
@@ -359,11 +359,11 @@
     </para>
     <para>
       The components are registered under the naming context path
-      "ControlTasks/<emphasis>ComponentName</emphasis>"
+      "TaskContexts/<emphasis>ComponentName</emphasis>"
       (<emphasis>id</emphasis> fields). The <emphasis>kind</emphasis>
       fields are left empty. Only the components which were explicitly
       exported in your code, using
-      <classname>RTT::corba::ControlTaskServer</classname>, are added
+      <classname>RTT::corba::TaskContextServer</classname>, are added
       to the Naming Service. Others write their address as an IOR to
       a file "<emphasis>ComponentName</emphasis>.ior", but you can 'browse'
       to other components using the exported name and then using 'getPeer()'

@@ -154,12 +154,12 @@ part is <emphasis>hidden</emphasis>.
 more <emphasis role="strong">coarse-grained</emphasis>: each component
 provides multiple &ldquo;services&rdquo; to multiple
 &ldquo;clients&rdquo;, and at each particular moment, the result of
-the requested service is not only determined by the
-information in the service request call and the functional state of the
-classes in the component, but (possibly to a very large extent) also
-by the <emphasis role="strong">session state</emphasis> of the
-provided service. That is, the state information that the servicing
-component stores not about itself, but about its 
+the requested service is not only determined by the information in the
+service request call and the functional state of the classes in the
+component, but (possibly to a very large extent) also by
+the <emphasis role="strong">session state</emphasis> of the
+service. That is, the state information that the servicing component
+stores not about itself, but about its
 <emphasis role="strong">interaction with the client</emphasis>.
 </para>
 <para>

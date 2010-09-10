@@ -22,13 +22,13 @@ IF (NOT CORBA_IMPLEMENTATION)
   SET( CORBA_IMPLEMENTATION "TAO" CACHE STRING "The implementation of CORBA to use (allowed values: TAO or OMNIORB )" )
 ENDIF (NOT CORBA_IMPLEMENTATION)
 #
-# CORBA Remote Methods in C++
+# CORBA Remote OperationCallers in C++
 #
-OPTION( ORO_REMOTING "Enable transparant Remote Methods and Commands in C++" ${ENABLE_CORBA} )
+OPTION( ORO_REMOTING "Enable transparant Remote OperationCallers Calls in C++" ON )
 # Force remoting when CORBA is enabled.
 IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
   MESSAGE( "Forcing ORO_REMOTING to ON")
-  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
+  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote OperationCallers and Commands in C++" FORCE)
 ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
 
 # Is modified by target selection below
@@ -37,21 +37,26 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
   message(SEND_ERROR "OS_NO_ASM was turned on, but this requires Boost v1.36.0 or newer.")
 endif()
 
+OPTION(PLUGINS_ENABLE "Enable plugins" ON)
+    
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #
 #                                                         #
 ###########################################################
 
-#Hack: remove our own FindBoost.cmake if cmake < 2.6.2
-if( ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 2)
-  execute_process( COMMAND cmake -E copy FindBoost.cmake FindBoost.cmake.bak WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-  execute_process( COMMAND cmake -E remove -f FindBoost.cmake WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/config" OUTPUT_QUIET ERROR_QUIET)
-endif()
+# Look for boost We look up all components in one place because this macro does
+# not support multiple invocations in some CMake versions.
+find_package(Boost 1.38 COMPONENTS filesystem system unit_test_framework thread serialization)
 
 # Look for boost
-find_package(Boost 1.33 REQUIRED)
-find_package(Boost 1.33 COMPONENTS program_options thread)
+if ( PLUGINS_ENABLE )
+  if (NOT Boost_FILESYSTEM_FOUND OR NOT Boost_SYSTEM_FOUND)
+    message(SEND_ERROR "Plugins require Boost Filesystem and System libraries, but they were not found.")
+  endif()
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_FILESYSTEM_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} ${Boost_SERIALIZATION_INCLUDE_DIRS})
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
+endif()
 
 if(Boost_FOUND)
   message("Boost found in ${Boost_INCLUDE_DIR}")
@@ -93,6 +98,7 @@ string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 if(OROCOS_TARGET STREQUAL "lxrt")
   set(OROPKG_OS_LXRT TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
   set(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "Path to Linux source dir (required for lxrt target)" FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(RTAI REQUIRED)
   find_package(Pthread REQUIRED)
@@ -100,7 +106,7 @@ if(OROCOS_TARGET STREQUAL "lxrt")
 
   if(RTAI_FOUND)
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
+    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
   endif()
 else()
@@ -110,6 +116,7 @@ endif()
 # Setup flags for Xenomai
 if(OROCOS_TARGET STREQUAL "xenomai")
   set(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
   find_package(Xenomai REQUIRED)
   find_package(Pthread REQUIRED)
@@ -118,10 +125,11 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   if(XENOMAI_FOUND)
     list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
-    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES}) 
+    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
     if (XENOMAI_POSIX_FOUND)
-      set(MQ_LDFLAGS "-Wl,@/usr/lib/posix.wrappers")
+      set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
+      set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
       set(MQ_INCLUDE_DIRS ${XENOMAI_POSIX_INCLUDE_DIRS})
       set(MQ_LIBRARIES ${XENOMAI_POSIX_LIBRARIES})
     endif()
@@ -133,13 +141,16 @@ endif()
 # Setup flags for GNU/Linux
 if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
+
+  find_package(Boost 1.36 COMPONENTS thread )
 
   find_package(Pthread REQUIRED)
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.
 
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt) 
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} rt dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
@@ -148,14 +159,34 @@ endif()
 # Setup flags for Mac-OSX
 if(OROCOS_TARGET STREQUAL "macosx")
   set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF TRUE)
 
-  find_package(Boost 1.33 COMPONENTS thread REQUIRED)
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_thread_INCLUDE_DIRS} )
+  if (NOT Boost_THREAD_FOUND)
+	message(SEND_ERROR "Boost thread library not found but required on macosx.")
+  endif ()
+
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
+
+  # add to list of libraries in pkgconfig file
+  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
+  # with that in pkgconfig, we take 1) the library for this build type, or
+  # 2) the library if only one is listed, or 3) we error out. 
+  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
+  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
+	if (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	  MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
+	endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
+	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY}})
+  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
 
-  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES}) 
+  # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
+  list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else()
   set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
@@ -165,6 +196,7 @@ endif()
 # Setup flags for ecos
 if(OROCOS_TARGET STREQUAL "ecos")
   set(OROPKG_OS_ECOS TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(OS_HAS_TLSF FALSE)
 
   # We can't really use 'UseEcos.cmake' because we're building a library
   # and not a final application
@@ -188,19 +220,25 @@ endif()
 
 if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  message("Forcing OS_HAS_TLSF to OFF for WIN32")
+  set(OS_HAS_TLSF FALSE)
+  # Force OFF on mqueue transport on WIN32 platform
+  message("Forcing ENABLE_MQ to OFF for WIN32")
+  set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on WIN32 platform." FORCE)
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
     set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
   endif()
   if (MSVC)
-    set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
-    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
-    # We force to ON
-    message("Forcing OS_NO_ASM to ON for MSVC.")
+    if (NOT MSVC80)
+    set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
+    set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
+    endif()
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
+    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
     # For boost::intrusive !
     find_package(Boost 1.36 REQUIRED)
-    set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")

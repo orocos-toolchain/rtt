@@ -16,55 +16,97 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
-
-
-
-#include "property_test.hpp"
-#include <boost/bind.hpp>
+#include <typeinfo>
 #include <marsh/PropertyBagIntrospector.hpp>
-#include <extras/MultiVector.hpp>
-#include <marsh/PropertyMarshaller.hpp>
-#include <marsh/PropertyDemarshaller.hpp>
 #include <internal/DataSourceTypeInfo.hpp>
-#include <rtt-config.h>
-#include <iostream>
+#include <types/PropertyDecomposition.hpp>
+#include <Property.hpp>
+#include <PropertyBag.hpp>
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "unit.hpp"
 
-// Registers the fixture into the 'registry'
-//CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
-
-using namespace RTT;
-using namespace RTT::detail;
-using namespace boost;
-using namespace std;
-
-void
-PropertyTest::setUp()
+class PropertyTest
 {
-    intref = 99;
-    pi1 = new Property<int>("pi1","pi1d", 0 );
-    pi2 = new Property<int>("pi2","pi2d", 0 );
-    pi1ref =  dynamic_cast< Property<int>* >( pi1->clone() );
-    pi2ref =  dynamic_cast< Property<int>* >( pi2->clone() );
+public:
+    PropertyBag bag1;
+    PropertyBag bag2;
+    PropertyBase* pb;
+    Property<int>* pi1;
+    Property<int>* pi2;
+    Property<int>* pi1ref;
+    Property<int>* pi2ref;
+    int intref;
+
+    PropertyBag bag;
+    Property<float> pf;
+    Property<double> pd;
+    Property<std::string> ps;
+    Property<char> pc;
+    Property<char> pc1;
+    Property<char> pc2;
+    Property<char> pc1ref;
+    Property<char> pc2ref;
+
+    Property<PropertyBag> subbag1;
+    Property<PropertyBag> subbag2;
+
+    PropertyTest()
+        : pf("pf","pfd", -1.0),pd("pd","pdd", +1.0),
+          ps("ps","psd", "std::string"),
+          pc("pc","pcd", 'c'),
+          pc1("pc1","pcd1", 'a'),
+          pc2("pc2","pcd1", 'b'),
+          subbag1("s1", "s1d"),subbag2("s2", "s2d")
+    {
+        intref = 99;
+        pi1 = new Property<int>("pi1","pi1d", 0 );
+        pi2 = new Property<int>("pi2","pi2d", 0 );
+        pi1ref =  dynamic_cast< Property<int>* >( pi1->clone() );
+        pi2ref =  dynamic_cast< Property<int>* >( pi2->clone() );
+
+        pc1ref = pc1;
+        pc2ref = pc2;
+
+        bag.add( pi1 );
+        bag.add( pi2 );
+        bag.add( &subbag1 );
+        subbag1.set().add( &subbag2 );
+        subbag1.set().add( &pf );
+        subbag1.set().add( &pd );
+
+        subbag2.set().add( &ps );
+        subbag2.set().add( &pc );
+
+    }
+    ~PropertyTest()
+    {
+        delete pi1;
+        delete pi2;
+        delete pi1ref;
+        delete pi2ref;
+    }
+};
+
+bool operator==(const std::vector<double>& a, const std::vector<double>& b)
+{
+    if ( a.size() != b.size() ) {
+        log(Error) << "Wrong vector sizes : " << a.size() <<" "<< b.size()<<endlog();
+        return false;
+    }
+    for(unsigned int i =0; i != a.size(); ++i)
+        {
+            if (a[i] != b[i]) {
+                log(Error) << "Wrong vector element: "<<a[i]<<" != "<<b[i]<<" i:" << i<<endlog();
+                return false;
+            }
+        }
+    return true;
 }
 
-
-void
-PropertyTest::tearDown()
-{
-    delete pi1;
-    delete pi2;
-    delete pi1ref;
-    delete pi2ref;
-}
 
 BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
 
-BOOST_AUTO_TEST_CASE( testPrimitives )
+BOOST_AUTO_TEST_CASE( testCopyUpdate )
 {
     *pi1 = intref;
     *pi2 = 0;
@@ -98,29 +140,53 @@ BOOST_AUTO_TEST_CASE( testPrimitives )
     pi1->copy( pi1ref );
 }
 
-
-BOOST_AUTO_TEST_CASE( testBags )
+BOOST_AUTO_TEST_CASE( testCopyUpdateChar )
 {
-    PropertyBag bag;
+    pc2 = 'H';
+    PropertyBase* pcb2 = &pc2;
 
-    Property<float> pf("pf","pfd", -1.0);
-    Property<double> pd("pd","pdd", +1.0);
-    Property<std::string> ps("ps","psd", "std::string");
-    Property<char> pc("pc","pcd", 'c');
+    // update semantics
+    pc1.update( pc2 );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
+    pc2 = 'e';
 
-    Property<PropertyBag> subbag1("s1", "s1d");
-    Property<PropertyBag> subbag2("s2", "s2d");
+    // update with PropertyBase.
+    BOOST_CHECK( pc1.update( pcb2 ) );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc1ref.getDescription(), pc1.getDescription() );
+    pc2 = 'l';
 
-    bag.add( pi1 );
-    bag.add( pi2 );
-    bag.add( &subbag1 );
-    subbag1.set().add( &subbag2 );
-    subbag1.set().add( &pf );
-    subbag1.set().add( &pd );
+    // copy semantics
+    pc1.copy( pc2 );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    pc1.copy( pc1ref );
 
-    subbag2.set().add( &ps );
-    subbag2.set().add( &pc );
+    // copy with PropertyBase.
+    BOOST_CHECK( pc1.copy( pcb2 ) );
+    BOOST_REQUIRE_EQUAL( pc2.get(), pc1.get() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getName(), pc1.getName() );
+    BOOST_REQUIRE_EQUAL( pc2ref.getDescription(), pc1.getDescription() );
+    pc1.copy( pc1ref );
+}
 
+BOOST_AUTO_TEST_CASE( testUpdateCharClone )
+{
+    PropertyBag target;
+    // step 1 : clone a new instance (non deep copy)
+    PropertyBase* temp = pc1.create();
+    // step 2 : deep copy clone with original, will never fail.
+    BOOST_CHECK( temp->update( &pc1 ) );
+    // step 3 : add result to target bag.
+    target.add( temp );
+}
+
+BOOST_AUTO_TEST_CASE( testfindProperty )
+{
     // non recursive search :
     BOOST_CHECK( bag.find( "pf" ) == 0 );
     BOOST_CHECK( bag.find( "s1" ) == &subbag1 );
@@ -137,24 +203,76 @@ BOOST_AUTO_TEST_CASE( testBags )
 
 }
 
-BOOST_AUTO_TEST_CASE( testBagOperations )
+// listProperties( bag, separator )
+BOOST_AUTO_TEST_CASE( testlistProperties )
 {
+    vector<string> result = listProperties( bag );
+    BOOST_CHECK_EQUAL( result.size(), 8);
+    // this test assumes this order, which is actually not
+    // guaranteed by PropertyBag:
+    BOOST_CHECK_EQUAL( result[0], string("pi1"));
+    BOOST_CHECK_EQUAL( result[1], string("pi2"));
+    BOOST_CHECK_EQUAL( result[2], string("s1"));
+    BOOST_CHECK_EQUAL( result[3], string("s1.s2"));
+    BOOST_CHECK_EQUAL( result[4], string("s1.s2.ps"));
+    BOOST_CHECK_EQUAL( result[5], string("s1.s2.pc"));
+    BOOST_CHECK_EQUAL( result[6], string("s1.pf"));
+    BOOST_CHECK_EQUAL( result[7], string("s1.pd"));
 }
 
-bool operator==(const std::vector<double>& a, const std::vector<double>& b)
+// storeProperty( bag, path, item, separator )
+BOOST_AUTO_TEST_CASE( teststoreProperty )
 {
-    if ( a.size() != b.size() ) {
-        log(Error) << "Wrong vector sizes : " << a.size() <<" "<< b.size()<<endlog();
-        return false;
-    }
-    for(unsigned int i =0; i != a.size(); ++i)
-        {
-            if (a[i] != b[i]) {
-                log(Error) << "Wrong vector element: "<<a[i]<<" != "<<b[i]<<" i:" << i<<endlog();
-                return false;
-            }
-        }
-    return true;
+    Property<int>* int1 = new Property<int>("int1","",3);
+    Property<int>* int2 = new Property<int>("int2","",6);
+    Property<int>* int3 = new Property<int>("int3","",9);
+    BOOST_CHECK( storeProperty(bag, "pp1", int1 ));
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1.int1"), int1 );
+
+    BOOST_CHECK( storeProperty(bag, "pp1.pp2", int2) );
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1.pp2.int2"), int2 );
+
+    BOOST_CHECK( removeProperty( bag, "pp1.pp2.int2") );
+    int2 = new Property<int>("int2","",6);
+
+    // re-add int2, but with different separator, and lots of them
+    BOOST_CHECK( storeProperty(bag, "##pp1###pp3##", int2, "#") );
+    BOOST_CHECK_EQUAL( findProperty(bag, "pp1#pp3#int2", "#"), int2 );
+
+    // top level store is equivalent to ownProperty:
+    BOOST_CHECK( storeProperty(bag, "", int3) );
+    BOOST_CHECK( findProperty(bag, "int3") );
+    BOOST_CHECK_EQUAL( bag.find("int3"), int3 );
+    BOOST_CHECK( bag.ownsProperty( int3 ) );
+
+    bag.removeProperty( int3 );
+    int3 = new Property<int>("int3","",9);
+
+    // same but with separator as path:
+    BOOST_CHECK( storeProperty(bag, "#", int3,"#") );
+    BOOST_CHECK( findProperty(bag, "int3") );
+    BOOST_CHECK_EQUAL( bag.find("int3"), int3 );
+    BOOST_CHECK( bag.ownsProperty( int3 ) );
+}
+
+// removeProperty( bag, path, item, separator )
+BOOST_AUTO_TEST_CASE( testremoveProperty )
+{
+    // check for wrong input:
+    BOOST_CHECK( removeProperty( bag, "qwerty" ) == false );
+    BOOST_CHECK( removeProperty( bag, "." ) == false );
+
+    // remove top level prop:
+    BOOST_CHECK( removeProperty( bag, "pi1" ) );
+    BOOST_CHECK( findProperty( bag, "pi1" ) == 0 );
+
+    // remove a leaf prop:
+    BOOST_CHECK( removeProperty( bag, "s1.s2.pc" ) );
+    BOOST_CHECK( findProperty( bag, "s1.s2.pc" ) == 0 );
+
+    // remove a bag:
+    BOOST_CHECK( removeProperty( bag, "s1.s2" ) );
+    BOOST_CHECK( findProperty( bag, "s1.s2" ) == 0 );
 }
 
 BOOST_AUTO_TEST_CASE( testRepository )
@@ -168,16 +286,15 @@ BOOST_AUTO_TEST_CASE( testRepository )
     	BOOST_MESSAGE("----------- loop names: " << *it);
         PropertyBase* target;
         Property<PropertyBag> bag("Result","D");
-        BOOST_CHECK( TypeInfoRepository::Instance()->type( *it ) );
+        BOOST_REQUIRE( TypeInfoRepository::Instance()->type( *it ) );
         target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
-        if ( target && target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
-            BOOST_CHECK( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
+        if ( target && typeDecomposition( target->getDataSource(), bag.value() ) )
+            BOOST_CHECK_MESSAGE( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ), "Failed composition for type "+target->getTypeInfo()->getTypeName() );
         deletePropertyBag( bag.value() );
         delete target;
     }
 
 }
-#include <typeinfo>
 
 BOOST_AUTO_TEST_CASE( testComposition )
 {
@@ -186,53 +303,55 @@ BOOST_AUTO_TEST_CASE( testComposition )
      */
     std::vector<double> init(33, 1.0);
     Property<std::vector<double> > pvd("pvd","pvd desc", init);
-    Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
 
     //std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
 
     Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
-    Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
 
     BOOST_CHECK( pvd.get() == init );
-    BOOST_CHECK( pvd_cr.get() == init );
     BOOST_CHECK( pvd.set() == init );
-    BOOST_CHECK( pvd_cr.set() == init );
 
-    BOOST_CHECK( pvd.getTypeInfo() );
+    BOOST_REQUIRE( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
-    BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
 
     // Compatible-type -assignment:
     BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd_cr.getDataSource() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd_cr2.getDataSource() ) );
 
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and back:
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
     BOOST_CHECK( pvd == pvd2 );
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
+}
 
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    BOOST_CHECK( pvd_cr == pvd_cr2);
-    pvd_cr2.value().clear();
-    deletePropertyBag( bag.value() );
+//! Tests v2 property decomposition using parts API.
+BOOST_AUTO_TEST_CASE( testNewDecomposition )
+{
+    /**
+     * test vector
+     */
+    std::vector<double> init(33, 1.0);
+    // these are the original sources:
+    Property<std::vector<double> > pvd("pvd","pvd desc", init);
 
-    // Cross composition. (const ref to value and vice versa)
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    BOOST_CHECK( pvd == pvd_cr2);
-    pvd_cr2.value().clear();
-    deletePropertyBag( bag.value() );
+    BOOST_CHECK( pvd.get() == init );
+    BOOST_CHECK( pvd.set() == init );
 
-    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
-    BOOST_CHECK( pvd_cr == pvd2);
-    pvd2.value().clear();
+    BOOST_REQUIRE( pvd.getTypeInfo() );
+    BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
+
+    Property<PropertyBag> bag("Result","Rd");
+    // Decompose to property bag and check refs:
+    BOOST_CHECK( propertyDecomposition( &pvd, bag.value() ) );
+
+    Property<double> pvalue = bag.value().getItem(3);
+    BOOST_REQUIRE( pvalue.ready() );
+    pvalue.set( 42 );
+
+    BOOST_CHECK( pvd.rvalue()[3] == 42 );
+
     deletePropertyBag( bag.value() );
 }
 
@@ -279,15 +398,15 @@ BOOST_AUTO_TEST_CASE( testUpdate )
     Property<int> p1c("p1","",0);
 
     // setup source tree
-    source.addProperty( &b1 );
-    b1.value().addProperty( &b2 );
-    b2.value().addProperty( &p1 );
+    source.addProperty( b1 );
+    b1.value().addProperty( b2 );
+    b2.value().addProperty( p1 );
 
     // update case:
     // setup target tree
-    target.addProperty( &b1c );
-    b1c.value().addProperty( &b2c );
-    b2c.value().addProperty( &p1c );
+    target.addProperty( b1c );
+    b1c.value().addProperty( b2c );
+    b2c.value().addProperty( p1c );
 
     BOOST_CHECK( p1.get() != p1c.get() );
 
@@ -300,126 +419,18 @@ BOOST_AUTO_TEST_CASE( testUpdate )
     target.removeProperty(&b1);
     BOOST_CHECK( updateProperty(target, source, "b1/b2/p1", "/") );
 
-    Property<PropertyBag>* bag = target.getProperty<PropertyBag>("b1");
+    Property<PropertyBag>* bag = target.getPropertyType<PropertyBag>("b1");
     BOOST_CHECK( bag );
     BOOST_CHECK( bag->getName() == "b1" );
-    bag = bag->get().getProperty<PropertyBag>("b2");
+    bag = bag->get().getPropertyType<PropertyBag>("b2");
     BOOST_CHECK( bag );
     BOOST_CHECK( bag->getName() == "b2" );
 
-    Property<int>* res = bag->get().getProperty<int>("p1");
+    Property<int>* res = bag->get().getPropertyType<int>("p1");
     BOOST_CHECK( res );
     BOOST_CHECK( res->getName() == "p1" );
     BOOST_CHECK( res->get() == -1 );
 
-}
-
-// This test does not yet test all types !
-BOOST_AUTO_TEST_CASE( testPropMarsh )
-{
-    std::string filename = ".property_test.cpf";
-
-    PropertyBag source; // to file
-    PropertyBag target; // from file
-
-    Property<PropertyBag> b1("b1","b1d");
-    Property<PropertyBag> b2("b2","b2d");
-    Property<int> p1("p1","p1d",-1);
-
-    // setup source tree
-    source.addProperty( &b1 );
-    b1.value().addProperty( &b2 );
-    b2.value().addProperty( &p1 );
-
-    {
-        // scope required such that file is closed
-        PropertyMarshaller pm( filename );
-        pm.serialize( source );
-    }
-
-    {
-        // scope required such that file is closed
-        PropertyDemarshaller pd( filename );
-        BOOST_CHECK( pd.deserialize( target ) );
-    }
-
-    Property<PropertyBag> bag = target.getProperty<PropertyBag>("b1");
-    BOOST_CHECK( bag.ready() );
-    BOOST_CHECK( bag.getDescription() == "b1d" );
-
-    bag = bag.rvalue().getProperty<PropertyBag>("b2");
-    BOOST_CHECK( bag.ready() );
-    BOOST_CHECK( bag.getDescription() == "b2d" );
-
-    Property<int> pi = bag.rvalue().getProperty<int>("p1");
-    BOOST_CHECK( pi.ready() );
-    BOOST_CHECK( pi.get() == -1 );
-    BOOST_CHECK( pi.getDescription() == "p1d" );
-    deletePropertyBag( target );
-}
-
-BOOST_AUTO_TEST_CASE( testPropMarshVect )
-{
-    std::string filename = ".property_test_vect.cpf";
-
-    PropertyBag source; // to file
-    PropertyBag target; // from file
-
-    Property<std::vector<double> >* p1 =  new Property<std::vector<double> >("p1","p1d", std::vector<double>(7, 1.234) );
-
-    // setup source tree
-    source.addProperty( p1 );
-
-    {
-        // scope required such that file is closed
-        PropertyMarshaller pm( filename );
-        pm.serialize( source );
-    }
-
-    p1->set() = std::vector<double>(3, 0.234);
-    {
-        // scope required such that file is closed
-        PropertyDemarshaller pd( filename );
-        BOOST_CHECK( pd.deserialize( target ) );
-    }
-
-    // check bag:
-    Property<PropertyBag> bag = target.getProperty<PropertyBag>("p1");
-    BOOST_CHECK( bag.ready() );
-    BOOST_CHECK( bag.getDescription() == "p1d" );
-    BOOST_CHECK( bag.rvalue().size() == 7 );
-
-    // update bag -> array.
-    BOOST_CHECK( updateProperties( source, target) );
-
-    //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1->ready() );
-    BOOST_CHECK( p1->rvalue().size() == 7 );
-    BOOST_CHECK( p1->rvalue()[0] == 1.234 );
-
-    // Test legacy:
-    deletePropertyBag( target );
-    p1->setName("driveLimits");
-    {
-        // scope required such that file is closed
-        PropertyDemarshaller pd( "property_test_vect.cpf" );
-        BOOST_CHECK( pd.deserialize( target ) );
-    }
-    bag = target.getProperty<PropertyBag>("driveLimits");
-    BOOST_CHECK( bag.ready() );
-    BOOST_CHECK( bag.rvalue().size() == 7 );
-
-    // update bag -> array.
-    BOOST_CHECK( updateProperties( source, target) );
-
-    //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1->ready() );
-    //cout << p1 << endl;
-    BOOST_CHECK( p1->rvalue().size() == 6 );
-    BOOST_CHECK( p1->rvalue()[0] == 1 );
-
-    deletePropertyBag( target );
-    deletePropertyBag( source );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -16,8 +16,11 @@
     </subtitle>
     <subtitle>&oversion;</subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006,2007</year>
+      <year>2002,2003,2004,2005,2006,2007,2008,2009,2010</year>
       <holder>Peter Soetens</holder>
+    </copyright>
+    <copyright>
+      <year>2006,2007,2008</year>
       <holder>FMTC</holder>
     </copyright>
 
@@ -50,9 +53,9 @@
     <para>
       This manual is for Software developers who wish to write their
       own software components using the Orocos Real-Time Toolkit.
-      There is also a CoreLib Reference Chapter at the end to find out
+      There is also a Core Primitives Reference Chapter at the end to find out
       the precise semantics of our communication primitives and other
-      important classes.  The Orocos hardware abstraction is included
+      important classes.  The Orocos hardware and OS abstraction is included
       as well. The HTML version of this manual links to the 
       API documentation of all classes.
     </para>
@@ -178,10 +181,10 @@
   </chapter>
 
   <chapter id="orocos-scripting">
-    <title>Orocos Scripting Reference</title>
-    <xi:include  href="orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
+    <title>Orocos RTT Scripting Reference</title>
+    <xi:include  href="orocos-rtt-scripting.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-program-parser.xml#xpointer(/article/section[*])"  
+    <xi:include  href="orocos-rtt-scripting.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
@@ -202,7 +205,7 @@
   </chapter>
 
   <chapter id="orocos-corelib">
-    <title>Core Library Reference</title>
+    <title>Core Primitives Reference</title>
     <xi:include  href="orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="orocos-corelib.xml#xpointer(/article/section[*])"  

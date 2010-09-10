@@ -3,12 +3,12 @@
 #
 if (ENABLE_CORBA)
   SET(CORBA_FOUND)
-    IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+    IF( CORBA_IMPLEMENTATION STREQUAL "TAO")
         # Look for TAO and ACE
 	if(${OROCOS_TARGET} MATCHES "win32")
 	  set(XTRA_TAO_LIBS AnyTypeCode ValueType) #note: capital T
 	endif()
-	if(${OROCOS_TARGET} MATCHES "macosx|gnulinux")
+	if(${OROCOS_TARGET} MATCHES "macosx|gnulinux|xenomai|lxrt")
 	  set(XTRA_TAO_LIBS AnyTypeCode Valuetype) #note: small T
 	endif()
         find_package(TAO REQUIRED IDL PortableServer CosNaming Messaging ${XTRA_TAO_LIBS})
@@ -31,10 +31,10 @@ if (ENABLE_CORBA)
 	    endif()
 
  	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS TAO_PortableServer TAO)
+	    set(CORBA_USER_LINK_LIBS ${TAO_CLIENT_LIBRARIES})
 
        ENDIF(NOT TAO_FOUND)
-    ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
+    ELSEIF(CORBA_IMPLEMENTATION STREQUAL "OMNIORB")
         find_package(OmniORB REQUIRED)
 	    SET(CORBA_FOUND ${OMNIORB4_FOUND})
         IF(NOT OMNIORB4_FOUND)
@@ -51,16 +51,16 @@ if (ENABLE_CORBA)
 	    SET(CORBA_IS_OMNIORB 1)
 
         # Including an Omniorb header is sufficient to depend on this library.
-        set(CORBA_USER_LINK_LIBS omniORB4 omnithread )
+        set(CORBA_USER_LINK_LIBS ${OMNIORB4_CLIENT_LIBRARIES} )
 
         ENDIF(NOT OMNIORB4_FOUND)
-    ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+    ELSE(CORBA_IMPLEMENTATION STREQUAL "TAO")
         MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")
-    ENDIF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+    ENDIF(CORBA_IMPLEMENTATION STREQUAL "TAO")
 
-	# Bail if we were required to find all components and missed at least one
-	IF (CORBA_FIND_REQUIRED AND NOT CORBA_FOUND)
+    # Bail if we were required to find all components and missed at least one
+    IF (CORBA_FIND_REQUIRED AND NOT CORBA_FOUND)
       MESSAGE (FATAL_ERROR "Could not find CORBA")
-	ENDIF ()
+    ENDIF ()
 
 endif (ENABLE_CORBA)

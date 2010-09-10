@@ -1,12 +1,31 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  corba_test.hpp
+
+                        corba_test.hpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
 #include <transports/corba/corba.h>
-#include <InputPort.hpp>
-#include <OutputPort.hpp>
-#include <TaskContext.hpp>
-#include <transports/corba/ControlTaskServer.hpp>
-#include <transports/corba/ControlTaskProxy.hpp>
+#include <rtt/InputPort.hpp>
+#include <rtt/OutputPort.hpp>
+#include <rtt/TaskContext.hpp>
+#include <transports/corba/TaskContextServer.hpp>
+#include <transports/corba/TaskContextProxy.hpp>
 #include <string>
 
 using namespace RTT;
@@ -21,13 +40,13 @@ public:
     TaskContext* tc;
     TaskContext* t2;
     TaskContext* tp;
-    corba::ControlTaskServer* ts;
+    corba::TaskContextServer* ts;
     TaskContext* tp2;
-    corba::ControlTaskServer* ts2;
-    TaskObject* createMethodFactory();
+    corba::TaskContextServer* ts2;
+    Service* createOperationCallerFactory();
 
-    PortInterface* signalled_port;
-    void new_data_listener(PortInterface* port);
+    base::PortInterface* signalled_port;
+    void new_data_listener(base::PortInterface* port);
 
     // Ports
     InputPort<double>*  mi1;
@@ -64,9 +83,9 @@ public:
     void setUp();
     void tearDown();
 
-    void testRemoteMethodC();
-    void testRemoteMethod();
-    void testAnyMethod();
+    void testRemoteOperationCallerC();
+    void testRemoteOperationCaller();
+    void testAnyOperationCaller();
 
     void testDataFlowInterface();
 

@@ -46,6 +46,7 @@ struct TestActivity
 {
     bool result, _dothrow;
     bool init, stepped, fini;
+    bool wasrunning, wasactive;
 
     ActivityInterface* owner;
 
@@ -61,7 +62,8 @@ struct TestActivity
     }
     void step() {
         stepped = true;
-        BOOST_CHECK(this->isRunning());
+        wasrunning = this->isRunning();
+        wasactive = this->isActive();
 #ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
@@ -76,6 +78,8 @@ struct TestActivity
         init = false;
         stepped = false;
         fini = false;
+        wasrunning=false;
+        wasactive=false;
     }
 };
 
@@ -85,6 +89,7 @@ struct TestRunner
     bool result;
     bool init, stepped, fini;
     bool looped, broke;
+    bool wasrunning, wasactive;
 
     TestRunner(bool fail)
     {
@@ -99,14 +104,14 @@ struct TestRunner
     }
     void step() {
         stepped = true;
-        BOOST_CHECK(getActivity()->isActive());
-        BOOST_CHECK(getActivity()->isRunning());
+        wasrunning=getActivity()->isRunning();
+        wasactive=getActivity()->isActive();
     }
 
     void loop() {
         looped = true;
-        BOOST_CHECK(getActivity()->isActive());
-        BOOST_CHECK(getActivity()->isRunning());
+        wasrunning=getActivity()->isRunning();
+        wasactive=getActivity()->isActive();
     }
 
     bool breakLoop() {
@@ -127,6 +132,8 @@ struct TestRunner
         fini = false;
         looped = false;
         broke = false;
+        wasrunning = false;
+        wasactive = false;
     }
 };
 
@@ -249,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testNonPeriodic )
     bprio = 15;
     rtsched = ORO_SCHED_OTHER;
     if ( os::CheckPriority( rtsched, bprio ) ) {
-        Activity m3task(ORO_SCHED_OTHER, 15);
+        Activity m3task(ORO_SCHED_OTHER, 15, 0.0);
         BOOST_CHECK( mtask.thread() != m3task.thread() );
         BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     }
@@ -281,6 +288,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( mtask.execute() );
     BOOST_CHECK( r.looped == true );
     BOOST_CHECK( mtask.execute() );
+    BOOST_CHECK( r.wasrunning );
+    BOOST_CHECK( r.wasactive );
 
     // stopping...
     BOOST_CHECK( mtask.stop() == true );
@@ -312,6 +321,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     // calls step()
     BOOST_CHECK( mslave.execute() );
     BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( r.wasrunning );
+    BOOST_CHECK( r.wasactive );
     BOOST_CHECK( mslave.execute() );
     BOOST_CHECK( !mslave.start() );
 
@@ -338,6 +349,8 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( mslave_p.isRunning() );
     BOOST_CHECK( mslave_p.execute() );
     BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( r.wasrunning );
+    BOOST_CHECK( r.wasactive );
     BOOST_CHECK( !mslave_p.start() );
 
     // stopping...
@@ -373,6 +386,8 @@ BOOST_AUTO_TEST_CASE( testSequential )
     // calls step()
     BOOST_CHECK( mtask.trigger() );
     BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( r.wasrunning );
+    BOOST_CHECK( r.wasactive );
     BOOST_CHECK( mtask.execute() == false );
 
     // stopping...
@@ -461,10 +476,14 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
 
     // switching hard/soft
     // do not ASSERT since the ret-value may be false...
-    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+    if ( tt->setScheduler(ORO_SCHED_OTHER) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
-    if ( tt->setScheduler(ORO_SCHED_RT) )
+    }
+    if ( tt->setScheduler(ORO_SCHED_RT) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
+    }
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
     tt->setScheduler(ORO_SCHED_OTHER);
@@ -485,10 +504,16 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    if ( tt->setScheduler(ORO_SCHED_RT) )
+#ifndef OROCOS_TARGET_XENOMAI // disabled until 'persistent' scheduler switching is implemented for Xenomai.
+    if ( tt->setScheduler(ORO_SCHED_RT) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
-    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+    }
+    if ( tt->setScheduler(ORO_SCHED_OTHER) ) {
+        usleep(100000);
         BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
+    }
+#endif
     Logger::log().setLogLevel( ll );
 
     // reconfigure periodicity when running.
@@ -537,9 +562,20 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     BOOST_CHECK( t_task_a->init );
 
     BOOST_CHECK( t_task_np->stepped );
+    BOOST_CHECK( t_task_np->wasrunning );
+    BOOST_CHECK( t_task_np->wasactive );
+
     BOOST_CHECK( t_task_np_bad->stepped );
+    BOOST_CHECK( t_task_np_bad->wasrunning );
+    BOOST_CHECK( t_task_np_bad->wasactive );
+
     BOOST_CHECK( t_task_p->stepped );
+    BOOST_CHECK( t_task_p->wasrunning );
+    BOOST_CHECK( t_task_p->wasactive );
+
     BOOST_CHECK( t_task_a->stepped );
+    BOOST_CHECK( t_task_a->wasrunning );
+    BOOST_CHECK( t_task_a->wasactive );
 
     // must be stopped since bad throwed an exception
     BOOST_CHECK( t_task_np->fini );
@@ -560,6 +596,8 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     BOOST_CHECK( t_task_np->isRunning() );
     BOOST_CHECK( t_task_np->init );
     BOOST_CHECK( t_task_np->stepped );
+    BOOST_CHECK( t_task_np->wasrunning );
+    BOOST_CHECK( t_task_np->wasactive );
 
     BOOST_CHECK(t_task_np->stop());
     BOOST_CHECK( t_task_np->fini );

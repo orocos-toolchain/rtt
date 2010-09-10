@@ -4,6 +4,7 @@
 
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
 # OMNIORB4_LIBRARIES    - Files to link against to use omniORB
+# OMNIORB4_CLIENT_LIBRARIES    - Files to link against if you included an omniORB header
 # OMNIORB4_IDL_COMPILER
 # OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_DIR          - (optional) Suggested installation directory to search
@@ -90,6 +91,8 @@ IF( OMNIORB4_IDL_COMPILER )
 
   SET( OMNIORB4_FOUND "YES" )
   SET(CORBA_IS_OMNIORB 1)
+  # OMNIORB4_CLIENT_LIBRARIES
+  list(APPEND OMNIORB4_CLIENT_LIBRARIES ${OMNIORB4_LIBRARY_omniORB4} ${OMNIORB4_LIBRARY_omnithread} )
 
   IF(NOT WIN32)
     SET(OMNIORB4_IDL_FLAGS "-bcxx -Wba -Wbh=.hh -Wbs=SK.cc -Wbd=DynSK.cc" CACHE STRING "Option for the omniorb4 idl compiler")
@@ -142,15 +145,15 @@ IF( OMNIORB4_FOUND )
   SET(CORBA_DEFINES "") #-DCORBA_IS_OMNIORB)
 
 ELSE( OMNIORB4_FOUND )
-  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
+  MESSAGE("No (complete) omniORB installation was not found. Please provide OMNIORB4_DIR:")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")
   MESSAGE("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5 ")
-  MESSAGE("Note: the following message is triggered by cmake on the first ")
-  MESSAGE("    undefined necessary PATH variable (e.g. OMNIORB4_INCLUDE_DIR).")
-  MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
-  MESSAGE("    simplest solution unless you have a really customized/odd")
-  MESSAGE("    omniORB installation...")
+  MESSAGE("Reason:")
+  MESSAGE("  OMNIORB4_INCLUDE_DIR: ${OMNIORB4_INCLUDE_DIR}")
+  MESSAGE("  OMNIORB4_LIBRARY_omniORB4: ${OMNIORB4_LIBRARY_omniORB4}" )
+  MESSAGE("  OMNIORB4_LIBRARY_omnithread: ${OMNIORB4_LIBRARY_omnithread}" )
+  MESSAGE("  OMNIORB4_IDL_COMPILER: ${OMNIORB4_IDL_COMPILER}" )
 
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )

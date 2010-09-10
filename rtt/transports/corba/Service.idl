@@ -1,0 +1,54 @@
+#ifndef ORO_CORBA_SERVICE_PROVIDER_IDL
+#define ORO_CORBA_SERVICE_PROVIDER_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
+#include "ConfigurationInterface.idl"
+#include "OperationInterface.idl"
+
+module RTT
+{
+    module corba
+    {
+
+	/**
+	 * An Orocos Service which hosts operations, attributes and properties.
+	 * @ingroup CompIDL
+	 */
+	interface CService : COperationInterface, CConfigurationInterface
+	{
+	    typedef sequence<string> CProviderNames;
+
+	    /**
+	     * Return the name of this service.
+	     */
+	    string getName();
+
+	    /**
+	     * Return the description of this service.
+	     */
+	    string getServiceDescription();
+
+	    /**
+	     * Get a list of all the child services this service offers.
+	     */
+	    CProviderNames getProviderNames( );
+
+	    /**
+	     * Get a child service this service provides.
+	     */
+	    CService getService( in string name );
+
+	    /**
+	     * Has this service a child service with given name ?
+	     */
+	    boolean hasService( in string name );
+
+	};
+
+    };
+};
+#endif

@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testPromotion )
         // should return a copy.
         write = ptr1.write_access();
 
-        BOOST_CHECK(!ptr1.valid());
+        //BOOST_CHECK(!ptr1.valid());
         BOOST_CHECK(write != value);
 
         BOOST_CHECK(MyStruct::copied);

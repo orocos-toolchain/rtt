@@ -1,0 +1,267 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+]
+>
+
+<article>
+  <articleinfo>
+    <title>Extending the Real-Time Toolkit with Plugins</title>
+    <copyright>
+      <year>2010</year>
+      <holder>Peter Soetens, The SourceWorks</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document is an introduction to using and creating plugins
+	for the RTT. A plugin extends the RTT with new data types or
+	new functions, which components can then use. Example plugins
+	are scripting engines, XML readers and writers or remote
+	communication libraries.
+      </para>
+      <para>
+        Typekits are plugins that are explained in the Typekit manual.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>2.0.0</revnumber>
+	<date>21 Jun 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Initial plugin manual</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+  <section>
+    <title>Loading Existing Plugins</title>
+    <para>
+      Existing plugins are fairly easy to use. The most important
+      thing to remember is to set the <option>RTT_COMPONENT_PATH</option>
+      environment variable which is a list of colon or semi-colon seprated
+      directories where to look for plugins. For example (in Linux):
+      <programlisting>
+	export RTT_COMPONENT_PATH=.:/opt/rtt/lib:/usr/local/lib/orocos
+      </programlisting>
+      Which looks for plugins in <filename>.</filename>, <filename>/opt/rtt/lib</filename>
+      and <filename>/usr/local/lib/orocos</filename>
+    </para>
+    <para>
+      When an Orocos application starts, it will look in these directories
+      and load any RTT plugin found there. The plugin directories
+      are typically structured as such:
+    </para><screen>
+ /usr/local/lib/orocos/        : component libraries
+                      /plugins : services
+                      /types   : typekits and transports
+  </screen>
+     <para> 
+       The RTT will know that the <filename>plugins</filename> directory contains normal
+       plugins, these are services useable by components if requested. The <filename>types</filename> directory contains
+       typekits and transports, which are immediately process-wide available
+       to every component.
+     </para>
+     <para> 
+       The <classname>RTT::plugin::PluginLoader</classname> assumes that every directory listed in
+       the <option>RTT_COMPONENT_PATH</option> has this structure, meaning, having
+       a <filename>plugins</filename> or a <filename>types</filename>
+       subdirectory. If neither exists, the directory is just ignored. The listed paths
+       are <emphasis>not recursed</emphasis> !
+     </para>
+     <note>
+       <para>As a special provision for multi-target environments
+       like Linux, if a directory <filename>plugins/</filename><emphasis>OROCOS_TARGET</emphasis> 
+       or <filename>types/</filename><emphasis>OROCOS_TARGET</emphasis>
+       exists, this directory is searched too.</para>
+     </note>
+     <para>
+       You can use the <filename>deployer</filename> application in order to list the found 
+       services, types and typekits using the <command>.services</command>,
+       <command>.types</command> and <command>.typekits</command> commands:
+       <screen>
+ In Task MyPeer[S]
+ (type 'ls' for context info) : <command>.services</command>
+Available Services:  marshalling scripting 
+
+ In Task MyPeer[S]
+ (type 'ls' for context info) : <command>.types</command>
+Available data types:  ConnPolicy FlowStatus PropertyBag SendHandle SendStatus array bool bools char double float int ints string strings uint void
+</screen>
+       The marshalling and scripting plugins are delivered by default by
+       the RTT.
+     </para>
+     <para>
+       Finally, you can load a new service into a component by using
+       the <command>.provide</command> command:
+       <screen>
+ (type 'ls' for context info) :<command>.provide scripting</command>
+Trying to locate service 'scripting'...
+338.268 [ Info   ][./taskb::main()] Loading Service scripting in TaskContext MyPeer
+Service 'scripting' loaded in MyPeer
+ </screen>
+        This allows you to extend a running component with new services.
+	Normally, you will already indicate that you want to use this
+	service in your component when writing it in C++, as shown in the
+	next section.
+     </para>
+  </section>
+  <section>
+    <title>Using Plugins in C++</title>
+      <para>
+	In order to use the functions that a plugin offers to a 
+	component, you need to 1. load the service, 2. call the functions !
+	Both steps can actually be combined, since the RTT loads
+	services as you need them. For example, in your component's 
+	configureHook():
+	<programlisting> #include &lt;rtt/scripting/Scripting.hpp>
+
+// ... in your component:
+   bool configureHook() {
+     boost::shared_ptr&lt;<classname>RTT::Scripting</classname>&gt; scripting = this->getProvider&lt;RTT::Scripting&gt;("scripting"); // 1.
+     if (scripting) {
+        bool result = scripting->loadStateMachines("statemachines.osd"); // 2.
+        //...
+     }
+  }</programlisting>
+      </para>
+      <para>
+        What happens here is this: In step 1., we use the
+        <classname>RTT::TaskContext</classname> function
+        <function>getProvider</function> to get an object to access
+        the "scripting" service.  What getProvider does is check if
+        "scripting" is provided by this component, if not, it looks it
+        up in the list of available plugins (see the
+        <command>.services</command> command in the taskbrowser) and
+        if found, loads it as a new service in the current component.
+      </para>
+      <para>
+	The <classname>RTT::Scripting</classname> class offers us
+	access to the loaded service by exposing all its methods as
+	Orocos RTT methods. This allows you to use the service
+	synchronously ('call') or asynchronously ('send'), which is
+	explained in the Component Builder's Manual.
+      </para>
+      <para>
+        In step 2., we use this Scripting object to access the loadStateMachines
+	function of the "scripting" service (see the <command>scripting</command> command in the
+	taskbrowser).
+      </para>
+      <para>
+	In case you only wanted to check if the "scripting" service
+	was offered by this component, use: 
+	<programlisting>  bool result = this->provides()->hasService("scripting")</programlisting>
+        in your component code.
+      </para>
+    </section>
+    <section>
+      <title>Writing your own plugins</title>
+      <para>
+	There are very little requirements to make a library an
+	Orocos plugin. The interface of an Orocos plugin is shown
+	in the file <filename>rtt/plugin/Plugin.hpp</filename>.
+	Take a look at that file for the full documentation of
+	the Plugin API.
+      </para>
+      <para>
+	The most important function is the <programlisting>
+extern "C"
+<function>bool loadRTTPlugin(RTT::TaskContext* c)</function>
+</programlisting>
+	function. Note that it <emphasis>must</emphasis> have the
+	<command>extern "C"</command> decoration in front of it,
+	otherwise, this function will not be found. The safest way
+	to achieve this correctly is to include the <filename>rtt/plugin/Plugin.hpp</filename> header
+	in your plugin code.
+      </para>
+      <para>
+	The <classname>RTT::plugin::PluginLoader</classname> looks for this
+	function in order to determine if the shared library is
+	an RTT plugin. If found, it is called with a  c = null argument
+	to give the plugin a chance to load into the application.
+	If it returns false or throws an exception, the library
+	is unloaded again.
+      </para>
+      <para>
+        Typekits will use this 'null argument' call to register
+	their types with the RTT type system, and refuse to
+	do any more work if the user attempts to load the
+	plugin in a specific component (non-null c).
+      </para>
+      <para>
+        Services will typically do very little during the 'null
+	argument' call and do a lot more when a component (non-null c)
+	is given. A Service will register a new instance of the
+	service to the given component.
+      </para>
+      <para>
+        For both typekits and services, there are predefined macros
+	that relieve you from writing the loadRTTPlugin function.
+	See the <filename>rtt/plugin/ServicePlugin.hpp</filename> file
+	and the <filename>rtt/types/TypekitPlugin.hpp</filename> file
+	for the respective macros.
+      </para>
+      <section>
+	<title>Creating a Service Plugin</title>
+	<para>
+	  A Service Plugin can be created by writing a subclass
+	  of <classname>RTT::Service</classname>:
+	</para>
+	<programlisting>  #include &lt;rtt/Service.hpp>
+  #include &lt;rtt/plugin/ServicePlugin.hpp>
+  #include &lt;iostream&gt;
+
+  using namespace RTT;
+
+  /**
+   * A service that offers the HelloWorld() operation.
+   */
+  class MyService : public <classname>RTT::Service</classname>
+  {
+  public:
+     MyService(RTT::TaskContext* c) 
+        : RTT::Service("myservice", c) {
+        this->addOperation("HelloWorld", &amp;HelloWorld, this);
+     }
+
+     void HelloWorld() {
+         std::cout &lt;&lt; "Hello World !" &lt;&lt; std::endl;
+     }
+  };
+
+  ORO_SERVICE_NAMED_PLUGIN(MyService, "myservice")</programlisting>
+	<para>
+	  See the Component Builder's Manual for detailed explanations
+	  about creating and using services.
+	</para>
+	<para>
+	  When you compile the above file into a library and put it
+	  in the plugins directory of your RTT_COMPONENT_PATH, it will be
+	  found by the RTT and you'll have access to a new service,
+	  called "myservice" and which offers one operation: "HelloWorld".
+	</para>
+      </section>
+      <section>
+	<title>Creating a Typekit Plugin</title>
+	<para>
+	  See the Typekit Plugin manual for adding your own
+	  data types to the RTT.
+	</para>
+      </section>
+    </section>
+</article>

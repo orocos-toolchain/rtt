@@ -8,7 +8,7 @@ fi
 
 echo "Updating sources to GPL + exception license ..."
 
-for m in $(for i in $(find src -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cpp"); do grep -L "Free Software" $i; done); do
+for m in $(for i in $(find rtt -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cpp"); do grep -L "Free Software" $i; done); do
    echo $m
    tools/scripts/header_gen.sh "$1" "$2" $m
 done

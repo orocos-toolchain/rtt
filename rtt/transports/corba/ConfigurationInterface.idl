@@ -1,0 +1,89 @@
+#ifndef ORO_CORBA_ATTRIBUTE_REPOSISTORY_IDL
+#define ORO_CORBA_ATTRIBUTE_REPOSISTORY_IDL
+
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
+module RTT
+{
+    module corba
+    {
+	/**
+	 * Exposes both attributes and properties
+	 * of a service.
+	 * @ingroup CompIDL
+	 */
+	interface CConfigurationInterface
+	{
+	    struct CProperty {
+		  string name;
+		  string description;
+	    };
+
+	    typedef sequence<CProperty> CPropertyNames;
+	    typedef sequence<string> CAttributeNames;
+
+	    CAttributeNames getAttributeList();
+
+	    CPropertyNames  getPropertyList();
+
+	    any getAttribute( in string name );
+
+	    boolean setAttribute( in string name, in any value );
+
+	    boolean hasAttribute( in string name );
+
+	    boolean hasProperty( in string name );
+
+	    /**
+	     * Get a property by name. You can scope the name for
+	     * entering sub-properties. For example 'controlparameters.gains.k'
+	     * to retrieve nested property with name 'k'.
+	     */
+	    any getProperty( in string name );
+
+	    /**
+	     * Set a property by name. You can scope the name for
+	     * entering sub-properties. For example 'controlparameters.gains.k'
+	     * to write nested property with name 'k'.
+	     */
+	    boolean setProperty( in string name, in any value );
+
+	    /**
+	     * Return the type of the attribute or property.
+	     */
+	    string getPropertyType(in string name);
+	    string getAttributeType(in string name);
+
+	    /**
+	     * Return the type name of the expression as it is known
+	     * to the Orocos Type System.
+	     */
+	    string getPropertyTypeName(in string name);
+	    string getAttributeTypeName(in string name);
+
+	    /**
+	     * Return the result of an attribute or property as a text string.
+	     */
+	    string attributeToString(in string name);
+	    string propertyToString(in string name);
+
+	    /**
+	     * Assign a given property or attribute a stringified value.
+	     * @return true if the assignment could be done.
+	     */
+	    boolean attributeFromString(in string name, in string value);
+	    boolean propertyFromString(in string name, in string value);
+	    /**
+	     * Returns true if the attribute can be changed.
+	     */
+	    boolean isAttributeAssignable(in string name);
+	};
+    };
+};
+
+
+#endif
+

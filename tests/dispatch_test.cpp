@@ -24,9 +24,9 @@
 #include <sstream>
 #include <scripting/FunctionGraph.hpp>
 #include <extras/SimulationThread.hpp>
-#include <Method.hpp>
-#include <Command.hpp>
-#include <internal/TaskObject.hpp>
+#include <OperationCaller.hpp>
+#include <OperationCaller.hpp>
+#include <Service.hpp>
 
 using namespace std;
 
@@ -49,9 +49,9 @@ DispatchTest::setUp()
     mtc.clear();
     gtc.clear();
     // ltc has a test object
-    ltc.addObject( this->createObject("test", ltc.engine()->commands()) );
+    ltc.addService( this->createObject("test", ltc.engine()) );
     // mtc has two methods.
-    mtc.addObject( this->createObject("test", mtc.engine()->commands()) );
+    mtc.addService( this->createObject("test", mtc.engine()) );
 
     gtc.addPeer( &mtc );
     mtc.connectPeers( &ltc );
@@ -80,27 +80,23 @@ bool DispatchTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-TaskObject* DispatchTest::createObject(string a, CommandProcessor* cp)
+Service* DispatchTest::createObject(string a, CommandProcessor* cp)
 {
-    TaskObject* dat = new TaskObject(a);
-    dat->methods()->addMethod( method( "assert", &DispatchTest::assertBool, this), "Assert", "bool", "" );
-    dat->methods()->addMethod( method( "assertMsg", &DispatchTest::assertMsg, this), "Assert message", "bool", "", "text", "text"  );
-    dat->methods()->addMethod( method( "isTrue", &DispatchTest::assertBool, this), "Identity function", "bool", "" );
-    dat->commands()->addCommand( command( "instantDone", &DispatchTest::true_genCom,
-                                      &DispatchTest::true_gen, this, cp),
-                                      "returns immediately" );
-    dat->commands()->addCommand( command( "neverDone", &DispatchTest::true_genCom,
-                                    &DispatchTest::false_gen, this, cp),
-                                    "returns never" );
-    dat->commands()->addCommand( command( "instantNotDone", &DispatchTest::true_genCom,
+    Service* dat = new Service(a);
+    dat->addOperation("assert", &DispatchTest::assertBool, this).doc("Assert").arg("bool", "");
+    dat->addOperation("assertMsg", &DispatchTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+    dat->addOperation("isTrue", &DispatchTest::assertBool, this).doc("Identity function").arg("bool", "");
+    dat->addOperation("instantDone", &DispatchTest::true_genCom, this).doc("returns immediately");
+addOperation("instantDoneDone", &DispatchTest::true_gen, this).doc("Returns true when instantDone is done.");
+    dat->addOperation("neverDone", &DispatchTest::true_genCom, this).doc("returns never");
+addOperation("neverDoneDone", &DispatchTest::false_gen, this).doc("Returns true when neverDone is done.");
+    dat->addCommand( command( "instantNotDone", &DispatchTest::true_genCom,
                                          &DispatchTest::true_gen, this, cp, false),
                                          "returns never");
-    dat->commands()->addCommand( command( "instantFail", &DispatchTest::false_genCom,
-                                      &DispatchTest::true_gen, this, cp),
-                                      "fails immediately" );
-    dat->commands()->addCommand( command( "totalFail", &DispatchTest::false_genCom,
-                                    &DispatchTest::false_gen, this, cp),
-                                    "fails in command and condition" );
+    dat->addOperation("instantFail", &DispatchTest::false_genCom, this).doc("fails immediately");
+addOperation("instantFailDone", &DispatchTest::true_gen, this).doc("Returns true when instantFail is done.");
+    dat->addOperation("totalFail", &DispatchTest::false_genCom, this).doc("fails in command and condition");
+addOperation("totalFailDone", &DispatchTest::false_gen, this).doc("Returns true when totalFail is done.");
     return dat;
 }
 

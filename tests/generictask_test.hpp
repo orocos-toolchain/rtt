@@ -32,7 +32,7 @@ class Generic_TaskTest
 public:
     TaskContext* tc;
     ActivityInterface* tsim;
-    TaskObject* createMethodFactory();
+    Service* createOperationCallerFactory();
 
     // ref/const-ref tests:
     double ret;
@@ -66,14 +66,14 @@ public:
     void setUp();
     void tearDown();
 
-    void testMethodsC();
-    void testRemoteMethod();
-    void testAddMethod();
-    void testCRMethod();
-    void testMethod();
-    void testMethodFromDS();
-    void testMethodFactory();
-    void testDSMethod();
+    void testOperationCallersC();
+    void testRemoteOperationCaller();
+    void testAddOperationCaller();
+    void testCROperationCaller();
+    void testOperationCaller();
+    void testOperationCallerFromDS();
+    void testOperationCallerFactory();
+    void testDSOperationCaller();
 };
 
 #endif

@@ -1,3 +1,22 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  corba_mqueue_test.cpp
+
+                        corba_mqueue_test.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 
 #include "corba_mqueue_test.hpp"
 
@@ -7,12 +26,12 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <transports/corba/DataFlowI.h>
-#include <transports/corba/RemotePorts.hpp>
-#include <transports/mqueue/MQLib.hpp>
-#include <transports/corba/CorbaConnPolicy.hpp>
+#include <rtt/transports/corba/RemotePorts.hpp>
+#include <rtt/transports/mqueue/MQLib.hpp>
+#include <rtt/transports/corba/CorbaConnPolicy.hpp>
 
 using namespace std;
-using corba::ControlTaskProxy;
+using corba::TaskContextProxy;
 
 void
 CorbaMQueueTest::setUp()
@@ -25,12 +44,12 @@ CorbaMQueueTest::setUp()
     mw2 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
-    tc->ports()->addPort( mr1 );
-    tc->ports()->addPort( mw1 );
+    tc->ports()->addPort( *mr1 );
+    tc->ports()->addPort( *mw1 );
 
     t2 = new TaskContext("other");
-    t2->ports()->addPort( mr2 );
-    t2->ports()->addPort( mw2 );
+    t2->ports()->addPort( *mr2 );
+    t2->ports()->addPort( *mw2 );
 
     ts2 = ts = 0;
     tp2 = tp = 0;
@@ -53,7 +72,7 @@ CorbaMQueueTest::tearDown()
     delete mw2;
 }
 
-void CorbaMQueueTest::new_data_listener(PortInterface* port)
+void CorbaMQueueTest::new_data_listener(base::PortInterface* port)
 {
     signalled_port = port;
 }
@@ -124,16 +143,11 @@ void CorbaMQueueTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueTestSuite,  CorbaMQueueTest )
 
 
-BOOST_AUTO_TEST_CASE( setupCorba )
-{
-    corba::ControlTaskProxy::InitOrb(0,0);
-}
-
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the differen port-to-port connections.
-    ts  = corba::ControlTaskServer::Create( tc, false ); //no-naming
-    ts2 = corba::ControlTaskServer::Create( t2, false ); //no-naming
+    ts  = corba::TaskContextServer::Create( tc, false ); //no-naming
+    ts2 = corba::TaskContextServer::Create( t2, false ); //no-naming
 
     // Create a default CORBA policy specification
     RTT::corba::CConnPolicy policy = toCORBA( RTT::ConnPolicy() );
@@ -193,12 +207,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ports->disconnectPort("mw");
     testPortDisconnected();
 #endif
-}
-
-BOOST_AUTO_TEST_CASE( cleanupCorba )
-{
-    corba::ControlTaskServer::ShutdownOrb(true);
-    corba::ControlTaskServer::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

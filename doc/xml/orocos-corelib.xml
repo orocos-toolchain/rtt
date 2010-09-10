@@ -9,9 +9,9 @@
 
 <article>
   <articleinfo>
-    <title>The Orocos Core Library Manual</title>
+    <title>The Orocos Core Primitives Manual</title>
     <copyright>
-      <year>2002-2009</year>
+      <year>2002-2010</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -111,6 +111,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Replaced PeriodicActivity and NonPeriodicActivity with Activity.</revremark>
       </revision>
+      <revision>
+	<revnumber>2.0</revnumber>
+	<date>Feb 6, 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Cleanup for RTT 2.0.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -131,48 +137,33 @@
     <title>Introduction</title>
     <para>
       This Chapter describes the semantics of the services
-      available in the &orocos; Core Library.
+      available as the &orocos; Core Primitives
     </para>
     <para>
-      The Core Library provides:
+      The Core Primitives are:
       <itemizedlist>
 	<listitem><para>Thread-safe C++ implementations for periodic, non periodic and event driven activities</para></listitem>
-	<listitem><para>Synchronous/Asynchronous Events</para></listitem>
-	<listitem><para>Asynchronous Commands</para></listitem>
-	<listitem><para>Synchronous Methods</para></listitem>
-	<listitem><para>Properties and XML configuration</para></listitem>
+	<listitem><para>Synchronous/Asynchronous OperationCaller invocations</para></listitem>
+	<listitem><para>Synchronous callback handling</para></listitem>
+	<listitem><para>Property trees</para></listitem>
 	<listitem><para>Time measurement</para></listitem>
 	<listitem><para>Application logging framework</para></listitem>
 	<listitem><para>Lock-free data exchange primitives such as FIFO buffers or shared data.</para></listitem>
       </itemizedlist> 
-      and additionally provides interfaces which are common for all real-time services.
-      The Core Library provides a hard real-time <emphasis>infrastructure</emphasis>:
     </para>
     <blockquote>
       <para>
 	<emphasis> The goal of the infrastructure is to keep
-	applications deterministic, by avoiding the classical pitfalls
+	applications deterministic and avoiding the classical pitfalls
 	of letting application programmers freely use threads and
-	mutexes as bare tools. Practice has indeed showed that most
-	programmers do not succeed in strictly decoupling the
-	functional and algorithmic parts of their code from the
-	OS-specific primitives used to execute them.</emphasis>
+	mutexes as bare tools.</emphasis>
       </para>
     </blockquote>
     <para>
-      Of course, the real-time performance depends not only on
-      the underlying operating system 
-      <emphasis>but also on the hardware.</emphasis> Hardware devices are abstracted
-      in the Orocos Device Interface.
-    </para>
-    <para>
       The following sections will first introduce the reader to creating
       Activities, which execute functions in a thread, in the system. 
-      Events allow callback functions to be executed when state changes
-      occur. Commands are used to send instructions between threads.
-      The following sections explain useful classes which
-      are used throughout the framework such as the TimeService and
-      Properties.
+      Signals allow synchronous callback functions to be executed when other
+      primitives are used. Operations are used to expose services.
     </para>
   </section>
   <section id="corelib-activities">
@@ -199,7 +190,7 @@
 	  <listitem>
 	    <para>
 	      Implementing the
-	      <classname>RTT::RunnableInterface</classname> in
+	      <classname>RTT::base::RunnableInterface</classname> in
 	      another class ( functions initialize(), step() or
 	      loop()/breakLoop() and finalize() ). The
 	      RunnableInterface object (i.e. run_impl) can be assigned
@@ -213,7 +204,7 @@
   #include &lt;rtt/Activity.hpp>
 
   class MyPeriodicFunction
-	: public <classname>RTT::RunnableInterface</classname>
+	: public <classname>RTT::base::RunnableInterface</classname>
   {
   public:
     // ...
@@ -309,14 +300,14 @@
 	Activity, the user can implement
 	<function>initialize()</function>, <function>loop()</function>
 	and <function>finalize()</function> functions in a
-	<classname>RTT::RunnableInterface</classname> which will be used by
+	<classname>RTT::base::RunnableInterface</classname> which will be used by
 	the activity for executing the user's functions. Alternatively,
 	you can reimplement said functions in a derived class of
 	Activity.
       </para>
       <programlisting>  int priority = 5;
   
-  <classname>RTT::RunnableInterface</classname>* blocking_activity = ...
+  <classname>RTT::base::RunnableInterface</classname>* blocking_activity = ...
   <classname>RTT::Activity</classname> activity( priority, blocking_activity );
   activity.start(); // calls blocking_activity->initialize()
 
@@ -373,7 +364,7 @@
       <title>Custom or Slave Activities</title>
       <para>
 	If none of the above activity schemes fit you, you can always fall back on
-	the <classname>RTT::SlaveActivity</classname>, which lets the user
+	the <classname>RTT::extras::SlaveActivity</classname>, which lets the user
 	control when the activity is executed. A special function <function>bool execute()</function>
 	is implemented which will execute <function>RunnableInterface::step()</function>
 	or <function>RunnableInterface::loop()</function> when called by the user.
@@ -384,7 +375,7 @@
   // a 'master', any ActivityInterface (even SlaveActivity):
   <classname>RTT::Activity</classname> master_one(9, 0.001 );
   // a 'slave', takes over properties (period,...) of 'master_one':
-  <classname>RTT::SlaveActivity</classname> slave_one( &amp;master_one );
+  <classname>RTT::extras::SlaveActivity</classname> slave_one( &amp;master_one );
 
   slave_one.start();   // fail: master not running.
   slave_one.execute(); // fail: slave not running.
@@ -395,9 +386,9 @@
   
   // <emphasis>Without master</emphasis>
   // a 'slave' without explicit master, with period of 1KHz.
-  <classname>RTT::SlaveActivity</classname> slave_two( 0.001 );
+  <classname>RTT::extras::SlaveActivity</classname> slave_two( 0.001 );
   // a 'slave' without explicit master, not periodic.
-  <classname>RTT::SlaveActivity</classname> slave_three;
+  <classname>RTT::extras::SlaveActivity</classname> slave_three;
 
   slave_two.start();   // ok: start periodic without master
   slave_two.execute(); // ok, calls 'step()', repeat...
@@ -432,13 +423,13 @@
 	Each Orocos Activity (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
 	interface which gives a non-zero pointer to a
-	<classname>RTT::OS::ThreadInterface</classname> object which provides
+	<classname>RTT::os::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
 	control the real-timeness of the thread which runs this activity. A
 	non periodic activity's thread will return a period of zero.
       </para>
       <para>
-	A <classname>RTT::RunnableInterface</classname> can get the same information
+	A <classname>RTT::base::RunnableInterface</classname> can get the same information
 	through the <function>this->getActivity()->thread()</function> method calls.
       </para>
       <para>
@@ -455,7 +446,7 @@ ORO_main( int argc, char** argv)
 {
   // ... create any kind of Activity like above.
 
-  <classname>RTT::ActivityInterface</classname>* act = ...
+  <classname>RTT::base::ActivityInterface</classname>* act = ...
 
   // stop the thread and all its activities:
   act->thread()->stop();
@@ -476,126 +467,48 @@ ORO_main( int argc, char** argv)
       </para>
     </section>
   </section>
-  <section id="corelib-commands">
-    <title>Commands</title>
-    <para>
-      Commands offer a thread-safe real-time means of message passing
-      between threads.
-    </para>
-    <section>
-      <title>The Command Processor</title>
-      <para>
-	The <classname>RTT::CommandProcessor</classname> is
-	responsible for accepting command requests from other
-	(real-time) tasks. It uses a non-blocking queue to store
-	incoming requests and fetch-and-execute them in its periodic
-	step.
-      </para>
-      <figure><title>Tasks Sending Commands</title>
-	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="images/CommandExecution" />
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/CommandExecution"  width="100%" scalefit="1"/>
-	  </imageobject>
-	  <caption>
-	    <para>
-	      Tasks of different threads communicate by sending
-	      commands to each other's Command Processors. When Task T1,
-	      running in Thread (a), requests that T2, running
-	      in Thread (b) processes a command, the command
-	      is stored in a command queue of that task's Command Processor.
-	      When T2 runs its Command Processor, the queue is checked and
-	      the command is executed. T1 can optionally check if
-	      the command was accepted and executed, using a
-	      Completion Condition ( see TaskContext and Program
-	      Parser manuals. )
-	    </para>
-	  </caption>
-	</mediaobject>
-      </figure>
-    </section>
-  </section>
   <section id="corelib-events">
-    <title>Events</title>
+    <title>Signals</title>
     <para>
-      An <classname>RTT::Event</classname> is an object to
-      which one can connect callback functions. When the Event is
+      An <classname>RTT::internal::Signal</classname> is an object to
+      which one can connect callback functions. When the Signal is
       raised, the connected functions are called one after the
-      other. An Event can carry data and deliver it to the function's
-      arguments. Orocos allows two possibilities of calling the
-      function : synchronous and asynchronous. The former means that
-      when the event is called, all synchronous handlers are
-      called in the same thread. The latter means that the data is
-      stored and the callback function is called in another
-      thread. The thread which will execute the deferred callback is
-      chosen at connection or setup time.
+      other. An Signal can carry data and deliver it to the function's
+      arguments.
     </para>
-    <figure><title>Event Handling</title>
-    <mediaobject>
-      <imageobject role="html">
-	<imagedata fileref="images/TaskEventSerialisation" />
-      </imageobject>
-      <imageobject role="fo">
-	<imagedata fileref="images/hires/TaskEventSerialisation"  width="100%" scalefit="1"/>
-      </imageobject>
-      <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
-      runs in PeriodicThread (b). At some time, A1 registers a
-      synchronous and asynchronous callback function ( reaction ) with
-      activity A2's Event. When A2 emits the Event, the
-      synchronous Event callback is executed first ( within Thread (b)
-      ), while the asynchronous ( deferred ) callback is queued and
-      executed after A1 has run, in Thread (a).  </para></caption>
-    </mediaobject>
-    </figure>
     <para>
-      The Orocos Event extends the signal semantics with asynchronous event handling. 
-      Any kind of function can be connected to the event as long as it has the
-      same signature as the Event. 'Raising', 'firing' or 'emitting' an Orocos Event is
-      done by using the <methodname>()</methodname> operator.
+      Any kind of function can be connected to the signal as long as it has the
+      same signature as the Signal. 'Raising', 'firing' or 'emitting' an Orocos Signal is
+      done by using <methodname>operator()</methodname>.
     </para>
     <section>
-      <title>Event Basics</title>
+      <title>Signal Basics</title>
       <example id="core-event-example">
-      <title>Using Events</title>
+      <title>Using Signals</title>
       <para>
-	An Event must always be given a name upon construction. Providing it a
-	name tells Orocos that it should be initialised as a full functioning
-	object.
-	This example shows how a synchronous and asynchronous handler
-	are connected to an Event.
+	This example shows how a handler is connected to an Signal.
       </para>
       </example>
       <para>
-      <programlisting> #include &lt;rtt/Event.hpp>
+      <programlisting> #include &lt;rtt/internal/Signal.hpp>
 
  using boost::bind;
 
  class SafetyStopRobot {
  public:
     void handle_now() {
-        // Synchronous Handler code
         std::cout &lt;&lt; " Putting the robot in a safe state fast !" &lt;&lt; std::endl;
     }
  };
 
- class NotifyUser {
- public:
-    void handle_later() {
-        //Asynchronous Completer code
-        std::cout &lt;&lt; "The program stopped the robot !"&lt;&lt;std::endl;
-    }
- };
-
  SafetyStopRobot safety;
- NotifyUser      notify;</programlisting>
+ </programlisting>
       </para>
       <para>
-      Now we will connect these handler functions to an event. Each event-handler connection
+      Now we will connect the handler function to a signal. Each event-handler connection
       is stored in a Handle object, for later reference and connection management.
       <programlisting> // The &lt;..> means the callback functions must be of type "void foo(void)"
- <classname>RTT::Event</classname>&lt;void(void)> emergencyStop("EmergencyStop");
+ <classname>RTT::internal::Signal</classname>&lt;void(void)> emergencyStop;
  // Use ready() to see if the event is initialised.
  assert( emergencyStop.ready() );
  <classname>RTT::Handle</classname> emergencyHandle;
@@ -603,35 +516,20 @@ ORO_main( int argc, char** argv)
 
  // boost::bind is a way to connect the method of an object instance to
  // an event.
- std::cout &lt;&lt; "Register appropriate handlers to the Emergency Stop Event\n";
+ std::cout &lt;&lt; "Register appropriate handlers to the Emergency Stop Signal\n";
  emergencyHandle = 
    emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety));
- assert( emergencyHandle.connected() );
-
- notifyHandle = 
-   emergencyStop.connect( bind( &amp;NotifyUser::handle_later, &amp;notify),
-                          CompletionProcessor::Instance() );
- assert( notifyHandle.connected() );</programlisting>
+ assert( emergencyHandle.connected() );</programlisting>
       </para>
       <para>
       Finally, we emit the event and see how the handler functions are called:
       <programlisting> std::cout &lt;&lt; "Emit/Call the event\n";
- emergencyStop();
-
- // Disconnecting the notify callback...
- notifyHandle.disconnect();
-
- // Only synchronous callback :
- std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
- emergencyStop(); // User not notified</programlisting></para>
+ emergencyStop();</programlisting></para>
       <para>
 	The program will output these messages:
       <screen>
-     Register appropriate handlers to the Emergency Stop Event
+     Register appropriate handlers to the Emergency Stop Signal
      Emit the event
-      Putting the robot in a safe state fast !
-     The program stopped the robot !
-     Doing a quiet safety stop...
       Putting the robot in a safe state fast !
       </screen>
       </para>
@@ -642,68 +540,58 @@ ORO_main( int argc, char** argv)
 	'bind' the member function to an object :
 	<programlisting>  ClassName object;
   boost::bind( &amp;ClassName::FunctionName, &amp;object)	</programlisting>
-	Where ClassName::FunctionName must have the same signature as the Event.
-	When the Event is called,
+	Where ClassName::FunctionName must have the same signature as the Signal.
+	When the Signal is called,
 	<programlisting>
   object->FunctionName( args )</programlisting>
-	is executed by the Event.
+	is executed by the Signal.
       </para>
       <para>When you want to call free ( C ) functions, you do not need bind :
-	<programlisting>  Event&lt;void(void)> event;
+	<programlisting>  Signal&lt;void(void)> event;
   void foo() { ... }
   event.connect( &amp;foo );</programlisting>
       </para>
     <para>
-      Whether your <function>handle()</function> and <function>complete()</function>
-      methods contain deterministic code or not is up to you. It depends on the choice of the
-      Event type and in which thread it is executed. A good rule of thumb is to make
-      all Synchronous handling/completing deterministic time and do all the rest in 
-      the Asynchronous part, which will be executed by the
-      another thread.
-    </para>
-    <para>
-      You must choose the type of <classname>RTT::Event</classname> upon
+      You must choose the type of <classname>RTT::internal::Signal</classname> upon
       construction. This can no longer be changed once the
-      <classname>RTT::Event</classname> is created. The type is the
-      same for the synchronous and asynchronous methods. If the type changes,
+      <classname>RTT::internal::Signal</classname> is created. If the type changes,
       the event() method must given other arguments. For example :
       <example>
-	<title>Event Types</title>
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(void)> e_1("e_1");
+	<title>Signal Types</title>
+	<programlisting>  <classname>RTT::internal::Signal</classname>&lt;void(void)> e_1;
   e_1();
 
-  <classname>RTT::Event</classname>&lt;void(int)>  e_2("e_2");
+  <classname>RTT::internal::Signal</classname>&lt;void(int)>  e_2;
   e_2( 3 );
 
-  <classname>RTT::Event</classname>&lt;void(double,double,double)>  positionEvent("p");
-  positionEvent( x, y, z);</programlisting>
+  <classname>RTT::internal::Signal</classname>&lt;void(double,double,double)>  positionSignal;
+  positionSignal( x, y, z);</programlisting>
       </example>
     </para>
     <para>
-      Furthermore, you need to setup the connect call differently if the Event
+      Furthermore, you need to setup the connect call differently if the Signal
       carries one or more arguments :
       <programlisting>  SomeClass someclass;
 
-  Event&lt;void(int, float)&gt; event("event");
+  Signal&lt;void(int, float)&gt; event;
 
-  // notice that for each Event argument, you need to supply _1, _2, _3, etc...
+  // notice that for each Signal argument, you need to supply _1, _2, _3, etc...
   event.connect( boost::bind( &amp;SomeClass::foo, someclass, _1, _2 ) );
 
   event( 1, 2.0 );</programlisting>
     </para>
     <important>
     <para>
-      The return type for synchronous and asynchronous callbacks is ignored
-      and can not be recovered.
+      The return type of callbacks is ignored and can not be recovered.
     </para>
     </important>
     </section>
     <section>
       <title><function>setup()</function> and the <classname>RTT::Handle</classname> object</title>
       <para>
-	Event connections can be managed by using a Handle which both <function>connect()</function>
+	Signal connections can be managed by using a Handle which both <function>connect()</function>
 	and <function>setup()</function> return :
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event("event");
+	<programlisting>  <classname>RTT::internal::Signal</classname>&lt;void(int, float)&gt; event;
   <classname>RTT::Handle</classname> eh;
 
   // store the connection in 'eh'
@@ -720,7 +608,7 @@ ORO_main( int argc, char** argv)
 	</programlisting>
 	Handle objects can be copied and will all show the same status.
 	To have a connection setup, but not connected, one can write :
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event)("event");
+	<programlisting>  <classname>RTT::internal::Signal</classname>&lt;void(int, float)&gt; event;
   <classname>RTT::Handle</classname> eh;
 
   // setup : store the connection in 'eh'
@@ -735,124 +623,8 @@ ORO_main( int argc, char** argv)
 	be established and no memory is leaked. If you do not use 'eh' to connect
 	and destroy this object, the connection is also cleaned up. If you use
 	'eh' to connect and then destroy 'eh', you can never terminate the connection,
-	except by destroying the Event itself.
+	except by destroying the Signal itself.
       </para>
-    </section>
-    <section>
-      <title>Choosing the Asynchronous Thread</title>
-      <note>
-	<para>When you use the TaskContext, the thread of the TaskContext is
-	automatically chosen and you do not need to supply an event processor
-	as described below.</para>
-      </note>
-      <para>
-	As mentioned before, the asynchronous callback is executed in
-	another thread than the event caller.  The Event
-	implementation provides one thread for asynchronous execution,
-	the <classname>RTT::CompletionProcessor</classname>. You can
-	intercept asynchronous events in your thread using the
-	<classname>RTT::EventProcessor</classname> class.
-      </para>
-      <note>
-	<para>
-	  For brevity, we will not use boost::bind in the following
-	  examples and only use 'free' ( <emphasis>C</emphasis> ) functions as callbacks.
-	  Asynchronous callbacks are bound in the same way as synchronous
-	  callbacks ( <xref linkend="core-event-example"/> ) :
-	  <programlisting>  void syn_func( int, double ) { /* .. */ }
-  void asyn_func( int, double )  { /* .. */ }</programlisting>
-	</para>
-      </note>
-      <para>
-	The default thread which executes asynchronous callbacks
-	is called the <classname>RTT::CompletionProcessor</classname>. This is a non real-time
-	thread, which means that the reaction time is not bounded.
-	If you want to execute the callback in another thread,
-	an additional argument can be given in the
-	<methodname>connect</methodname> or <methodname>setup</methodname> method :
-	<programlisting>
-  EventProcessor eproc;
-  Activity my_act(1, 0.01, &amp;eproc );
-  my_act.start();
-
-  event.connect( &amp;asyn_func, &amp;eproc );</programlisting>
-	The above lists how the an EventProcessor will execute the
-	asyn_func if event is emitted. The EventProcessor is not a thread
-	itself, but an object which can be executed by an activity. If you
-	want to both process events and insert application code in the same
-	activity object, you'll need to call the EventProcessor's initialize(), step() 
-	and finalize() functions manually. See the <classname>RTT::RunnableInterface</classname>
-	documentation.
-      </para>
-      <note>
-	<para>Event handlers can have no more than
-	4 arguments in the current implementation, but more
-	can be added upon request. Since a struct or class can be used as
-	arguments, the need is fairly low though.</para>
-      </note>
-    </section>
-    <section>
-      <title>Event Overrun Policy</title>
-      <para>
-	An Event can only be emitted by one thread at the same time.
-	The synchronous handlers will always be executed
-	as much times as the event is emitted. This is not the case
-	for asynchronous handlers. If an Event is emitted multiple
-	times before the completion thread executes, the asynchronous
-	handler will be called only once in the completion thread's execution
-	step.
-      </para>
-      <para>
-	The question that rises is with which arguments this handler
-	is called. The user can choose between the first (default) and
-	the last. The first is chosen as default because this causes the least
-	overhead in execution time. To choose which policy is used,
-	an optional parameter can be given during connect :
-      </para>
-      <programlisting>  event.connect( &amp;asyn_func, eproc, Event::OnlyLast );
-  event.connect( &amp;asyn_func, eproc, Event::OnlyFirst ); // default
-  event.connect( &amp;asyn_func, eproc ); // same as previous line</programlisting>
-    </section>
-    <section>
-      <title>The Completion Processor</title>
-      <para>
-	The <classname>RTT::CompletionProcessor</classname> is an
-	optional lowest priority, not real-time thread in the &orocos;
-	framework. It is only created if the user did not specify a thread
-	in which to process events. 
-      </para>
-      <para>
-	Its purpose is to execute asynchronous event callbacks
-	that have to be `completed' when no other work has to be
-	done. The only constraint it imposes is that all functions it
-	executes must require finite time to complete (it cannot
-	detect timeouts). You can get its thread pointer like this :
-	<programlisting> #include &lt;rtt/CompletionProcessor.hpp>
-
-  ActivityInterface* cp = CompletionProcessor::Instance()</programlisting>
-      </para>
-      <para>
-	The CompletionProcessor is a non periodic <classname>RTT::Activity</classname>, thus not consuming
-	time resources when no Events need to be processed. If you need a 
-	hard real-time CompletionProcessor, set the scheduler of the Activity ( see
-	<xref linkend="corelib-non-periodic-activity" /> ),
-	and add an EventProcessor object in <methodname>run()</methodname>.
-      </para>
-      <para>
-	If you want to process Events in your own
-	RunnableInterface implementation, you need to manually call
-	the step() method of the EventProcessor :
-      </para>
-      <programlisting>  // in your implementation :
-  void loop() {
-     while ( ... ) {
-        // &lt; do non periodic stuff &gt;
-   
-        // process any pending Events :
-        eproc.step();
-     }
-  }
-  // ...  </programlisting>
     </section>
   </section>
   <section>
@@ -860,7 +632,7 @@ ORO_main( int argc, char** argv)
     <section>
       <title>The TimeService</title>
       <para>
-	The <classname>RTT::TimeService</classname> is implemented using the
+	The <classname>RTT::os::TimeService</classname> is implemented using the
 	Singleton design pattern.
 	You can query it for the current (virtual) time in clock ticks or in seconds.
 	The idea here is that it is responsible for synchronising with other (distributed)
@@ -868,7 +640,7 @@ ORO_main( int argc, char** argv)
 	is not yet implemented though.
       </para>
       <para>
-	When the <classname>RTT::SimulationThread</classname> is used and started, it will change the TimeService's
+	When the <classname>RTT::extras::SimulationThread</classname> is used and started, it will change the TimeService's
 	clock with each period ( to simulate time progress).
 	Also other threads (!) In the system will notice this change, but
 	time is guaranteed to increase monotonously.
@@ -878,10 +650,10 @@ ORO_main( int argc, char** argv)
       <title>Usage Example</title>
       <para>
 	Also take a look at the interface documentation.
-	<programlisting>  #include &lt;rtt/TimeService.hpp>
+	<programlisting>  #include &lt;rtt/os/TimeService.hpp>
   #include &lt;rtt/Time.hpp>
 
-  TimeService::ticks timestamp = <classname>RTT::TimeService</classname>::Instance()->getTicks();
+  TimeService::ticks timestamp = <classname>RTT::os::TimeService</classname>::Instance()->getTicks();
   //...
 
   Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
@@ -899,7 +671,7 @@ ORO_main( int argc, char** argv)
     </para>
     <para>
       The advantages of this class come clear when building Orocos Components,
-      since it allows a component to export internal data. 
+      since it allows a component to make internal data to its scripts.
     </para>
     <para>
       <example><title>Creating attributes</title> 
@@ -985,7 +757,7 @@ ORO_main( int argc, char** argv)
       first bag.</para>
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
-       <methodname>getProperty&lt;T&gt;</methodname> to
+       <methodname>getProperty(name)</methodname> to
        mirror a <classname>RTT::Property</classname>&lt;T&gt;. Mirroring allows
        you to change and read a property which is stored in a PropertyBag: the
        property object's value acts like the original. The name and description
@@ -1008,7 +780,7 @@ ORO_main( int argc, char** argv)
   bag.add( &amp;bd );
 
   // setup mirrors:	
-  <classname>RTT::Property</classname>&lt;double&gt; weight = bag.getProperty&lt;double&gt;("Weight");
+  <classname>RTT::Property</classname>&lt;double&gt; weight = bag.getProperty("Weight");
   assert( weight.ready() );
 
   // values are mirrored:
@@ -1019,7 +791,7 @@ ORO_main( int argc, char** argv)
   <classname>RTT::Property</classname>&lt;BirthDate&gt; bd_bis;
   assert( ! bd_bis.ready() );
   
-  bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate");
+  bd_bis = bag.getProperty("BirthDate");
   assert( bd_bis.ready() );
 
   // descriptions and names are not mirrored:
@@ -1034,21 +806,21 @@ ORO_main( int argc, char** argv)
 	Marshalling is converting a property C++ object to a format
 	suitable for transportation or storage, like XML. Demarshalling
 	reconstructs the property again from the stored format. In
-	Orocos, the <classname>RTT::Marshaller</classname>
+	Orocos, the <classname>RTT::marsh::Marshaller</classname>
 	interface defines how properties can be marshalled.  The
 	available marshallers (property to file) in Orocos are the
-	<classname>RTT::TinyMarshaller</classname>,
-	<classname>RTT::XMLMarshaller</classname>,
-	<classname>RTT::XMLRPCMarshaller</classname>,
-	<classname>RTT::INIMarshaller</classname> and the
-	RTT::CPFMarshaller (only if Xerces is available).  
+	<classname>RTT::marsh::TinyMarshaller</classname>,
+	<classname>RTT::marsh::XMLMarshaller</classname>,
+	<classname>RTT::marsh::XMLRPCMarshaller</classname>,
+	<classname>RTT::marsh::INIMarshaller</classname> and the
+	RTT::marsh::CPFMarshaller (only if Xerces is available).  
       </para>
       <para>
 	The inverse operation (file to property) is currently
 	supported by two demarshallers:
-	<classname>RTT::TinyDemarshaller</classname> and the
-	RTT::CPFDemarshaller (only if Xerces is available).  They
-	implement the <classname>RTT::Demarshaller</classname>
+	<classname>RTT::marsh::TinyDemarshaller</classname> and the
+	RTT::marsh::CPFDemarshaller (only if Xerces is available).  They
+	implement the <classname>RTT::marsh::Demarshaller</classname>
 	interface.
       </para>
       <para>
@@ -1059,28 +831,25 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	In order to read/write portably (XML) files, use the
-	<classname>RTT::PropertyMarshaller</classname> and
-	<classname>RTT::PropertyDemarshaller</classname> classes which
+	<classname>RTT::marsh::PropertyMarshaller</classname> and
+	<classname>RTT::marsh::PropertyDemarshaller</classname> classes which
 	use the default marshaller behind the scenes.
       </para>
     </section>
   </section>
-  <section id="corelib-nameserver">
-    <title>The NameServer</title>
-    <section>
-      <title>Introduction</title>
+  <section id="corelib-extras">
+    <title>Extra Stuff</title>
+    <section id="corelib-nameserver">
+      <title>The NameServer</title>
       <para>
 	The name server class in the &orocos; framework stores (name, object) pairs
 	of only one (base) class type of object in the local process. It is mainly used
 	in the device abstraction layer such that device drivers are created in one place
 	and can be used in different places throughout the program.
       </para>
-    </section>
-    <section>
-      <title>Using the NameServer</title>
       <para>
 	The local object server is called
-	<classname>RTT::NameServer</classname>.  The most
+	<classname>RTT::dev::NameServer</classname>.  The most
 	common usage syntax is given below.
       </para>
       <note><para>
@@ -1089,7 +858,7 @@ ORO_main( int argc, char** argv)
 	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>  // A NameServer collecting pointers to ClassA objects
-  <classname>RTT::NameServer</classname>&lt; ClassA* &gt; nameserver;
+  <classname>RTT::dev::NameServer</classname>&lt; ClassA* &gt; nameserver;
   ClassA my_a;
   nameserver.registerObject( &amp;my_a, "ATeam" );
   // ...
@@ -1119,14 +888,10 @@ ORO_main( int argc, char** argv)
   <section id="corelib-buffers-data">
     <title>Buffers and DataObjects</title>
     <para>
-      Orocos provides some basic inter-thread buffering mechanisms in the
-      <filename>rtt/buffers</filename> package.
-    </para>
-    <para>
       The difference between Buffers and DataObjects is that DataObjects
       always contain a single value, while buffers may be empty, full or contain
       a number of values.
-      Thus a <classname>RTT::DataObject</classname> always returns the last value written (and a
+      Thus a <classname>RTT::internal::DataObject</classname> always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
@@ -1148,8 +913,8 @@ ORO_main( int argc, char** argv)
     <section id="corelib-buffers">
       <title>Buffers</title>
       <para>
-	The <classname>RTT::BufferInterface</classname>&lt;T&gt; provides
-	the interface for Orocos buffers. Currently the <classname>RTT::BufferLockFree</classname>&lt;T&gt;
+	The <classname>RTT::base::BufferInterface</classname>&lt;T&gt; provides
+	the interface for Orocos buffers. Currently the <classname>RTT::base::BufferLockFree</classname>&lt;T&gt;
 	is a typed buffer of type <emphasis>T</emphasis> and works as
 	a FIFO queue for storing elements of type T.
 	It is lock-free, non blocking and read and writes
@@ -1162,7 +927,7 @@ ORO_main( int argc, char** argv)
   // A Buffer may also contain a class, instead of the simple
   // double in this example
   // A buffer with size 10:
-  <classname>RTT::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
+  <classname>RTT::base::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
   if ( my_Buf.Push( 3.14 ) ) {
      // ok. not full.
   }
@@ -1179,7 +944,7 @@ ORO_main( int argc, char** argv)
     <section id="corelib-data-objects">
       <title>DataObjects</title>
       <para>
-	The data inside the <classname>RTT::DataObject</classname>s can be any valid C++ type,
+	The data inside the <classname>RTT::base::DataObject</classname>s can be any valid C++ type,
 	so mostly people use classes or structs, because these carry
 	more semantics than just (vectors of) doubles. The default
 	constructor of the data is called when the DataObject is
@@ -1191,7 +956,7 @@ ORO_main( int argc, char** argv)
 
   // A DataObject may also contain a class, instead of the simple
   // double in this example
-  <classname>RTT::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
+  <classname>RTT::base::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
   my_Do.Set( 3.14 ); 
   double  contents; 
   my_Do.Get( contents );   // contents == 3.14
@@ -1199,7 +964,7 @@ ORO_main( int argc, char** argv)
 	</example>
       </para>
       <para>
-	The virtual <classname>RTT::DataObjectInterface</classname> interface
+	The virtual <classname>RTT::base::DataObjectInterface</classname> interface
 	provides the <function>Get()</function> and
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and

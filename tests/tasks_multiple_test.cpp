@@ -36,21 +36,21 @@ using namespace RTT;
         nr_of_np = TimerThread::MAX_ACTIVITIES/2;
         runningP = 1;
         runningNp = 1; // see step() why it's 1 and not 0
-        errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called\n";
-        errStepNP = "Not all NonPreemptibleActivity::step() functions were called\n";
-        errFinNP = "Not all NonPreemptibleActivity::finalize() or finalize() functions were called\n";
-        errInitP ="Not all PreemptibleActivity::init() functions were called\n";
-        errStepP ="Not all PreemptibleActivity::step() functions were called\n";
-        errFinP ="Not all PreemptibleActivity::finalize() functions were called\n";
+        errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called.";
+        errStepNP = "Not all NonPreemptibleActivity::step() functions were called.";
+        errFinNP = "Not all NonPreemptibleActivity::finalize() or finalize() functions were called.";
+        errInitP ="Not all PreemptibleActivity::init() functions were called.";
+        errStepP ="Not all PreemptibleActivity::step() functions were called.";
+        errFinP ="Not all PreemptibleActivity::finalize() functions were called.";
 
         log(Info) << "Creating "<< nr_of_np << " High priority and "<< nr_of_p << " Low priority activities."<<endlog();
 
         np_tasks.reserve(nr_of_np);
         p_tasks.reserve(nr_of_p);
         for (unsigned int i=0; i< nr_of_np/2; ++i)
-            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.001 ) );
+            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.004 ) );
         for (unsigned int i=0; i< nr_of_np/2; ++i)
-            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.001*8) );
+            np_tasks.push_back( new DummyNPTask( os::HighestPriority, 0.004*2) );
         for (unsigned int i=0; i< nr_of_p/3; ++i)
             p_tasks.push_back( new DummyPTask( os::HighestPriority - os::IncreasePriority, 0.032 ) );
         for (unsigned int i=0; i< nr_of_p/3; ++i)
