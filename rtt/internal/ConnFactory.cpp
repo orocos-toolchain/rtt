@@ -143,9 +143,9 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
         log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
         return false;
     }
-    chan_stream->setOutput( chan );
+    chan->setOutput( chan_stream );
 
-    if ( output_port.addConnection( new StreamConnID(policy.name_id), chan_stream, policy) ) {
+    if ( output_port.addConnection( new StreamConnID(policy.name_id), chan, policy) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
         return true;
     }
