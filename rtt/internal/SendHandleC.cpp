@@ -48,6 +48,23 @@ namespace RTT {
     using namespace detail;
 
 
+    /**
+     * This is a custom deleter that blocks on an asynchronous
+     * operation
+     */
+    struct SendHandleC::OperationKeeper
+    {
+	DataSource<SendStatus>::shared_ptr ms;
+	AssignableDataSource<bool>::shared_ptr mb;
+	OperationKeeper(DataSource<SendStatus>::shared_ptr s, AssignableDataSource<bool>::shared_ptr b) : ms(s), mb(b) {}
+	~OperationKeeper() {
+		if (ms) {
+			mb->set(true); // blocking
+			ms->evaluate();
+		}
+	}
+    };
+
     class SendHandleC::D
     {
     public:
@@ -111,6 +128,7 @@ namespace RTT {
         if ( d->s ) {
             this->s = d->s;
             this->b = d->blocking;
+            this->mopkeeper.reset( new OperationKeeper( s, b) );
             delete d;
             d = 0;
         }
@@ -118,7 +136,7 @@ namespace RTT {
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), mop(other.mop), orp( other.orp ? other.orp : NULL)
+        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), mop(other.mop), mopkeeper(other.mopkeeper), orp( other.orp ? other.orp : NULL)
     {
     }
 
@@ -131,6 +149,7 @@ namespace RTT {
         s = other.s;
         b = other.b;
         mop = other.mop;
+        mopkeeper = other.mopkeeper;
         orp = other.orp;
         return *this;
     }
@@ -138,13 +157,10 @@ namespace RTT {
     SendHandleC::~SendHandleC()
     {
         delete d;
-        // force synchronisation. We may not cleanup mop (holds data!), until the op
+        // force synchronisation in case we are the last SendHandleC. We may not cleanup mop (holds data!), until the op
         // completed or failed.
-        // this snippet implements a collect():
-        if (s) {
-            b->set(true); // blocking
-            s->evaluate();
-        }
+        // Reduce refcount on mopkeeper
+        mopkeeper.reset();
     }
 
     SendHandleC& SendHandleC::arg( DataSourceBase::shared_ptr a )
@@ -158,6 +174,7 @@ namespace RTT {
             this->s = d->s;
             this->b = d->blocking;
             this->orp = d->mofp;
+            this->mopkeeper.reset( new OperationKeeper( s, b) );
             delete d;
             d = 0;
         }

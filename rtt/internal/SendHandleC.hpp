@@ -80,10 +80,13 @@ namespace RTT
          */
         base::DataSourceBase::shared_ptr mop;
 
-	/**
-	 * Stores the OperationInterfacePart pointer contained in this SendHandle
-	 */
-	OperationInterfacePart* orp;
+        struct OperationKeeper;
+        boost::shared_ptr<OperationKeeper> mopkeeper;
+
+        /**
+         * Stores the OperationInterfacePart pointer contained in this SendHandle
+         */
+        OperationInterfacePart* orp;
 
 
     public:
