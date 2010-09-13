@@ -182,12 +182,15 @@
 	  and that you have 'sourced' the <filename>env.sh</filename> file in your shell. You
 	  can use typegen as such:
 	  <screen>  cd myproject/src
-  typegen MyData.hpp -o typekit
+  typegen -o types myproject MyData.hpp
 	  </screen>
-	  Which will create a directory 'typekit' which contains all necessary files to 
-	  build the typekit for all classes and structs defined in <filename>MyData.hpp</filename>.
+	  Which will create a directory <filename>types</filename> which contains all necessary files to 
+	  build the typekit with name <emphasis>myproject</emphasis> for all classes and structs defined in <filename>MyData.hpp</filename>.
+	  You can list more than one header such that they are handled by the same typekit.
+	</para>
+	<para>
 	  To test your typekit, you can do afterwards:
-	  <screen>  cd myproject/src/typekit
+	  <screen>  cd myproject/src/types
   CMAKE_INSTALL_PREFIX=/opt/orocos CMAKE_PREFIX_PATH=/opt/orocos cmake .
   make install
 	  </screen>
