@@ -207,6 +207,7 @@
 	<title>Using <command>rosgen</command></title>
 	<para>Under development. Consult the mailinglist or the wiki pages for this tool.</para>
       </section>
+    </section>
   </section>
   <section>
     <title>Creating a Typekit in C++</title>
