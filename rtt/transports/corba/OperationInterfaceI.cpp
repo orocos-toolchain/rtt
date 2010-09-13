@@ -187,6 +187,11 @@ void RTT_corba_CSendHandle_i::checkArguments (
     }
 }
 
+void RTT_corba_CSendHandle_i::dispose (
+    void)
+{
+    return;
+}
 
 // Implementation skeleton constructor
 RTT_corba_COperationInterface_i::RTT_corba_COperationInterface_i (OperationInterface* gmf, PortableServer::POA_ptr the_poa)

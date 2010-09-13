@@ -105,6 +105,13 @@ module RTT
       void checkArguments(in CAnyArguments args) raises (
                                  CWrongNumbArgException,
                                  CWrongTypeArgException);
+
+      /**
+       * Clients need to call this after they have finished using this
+       * CSendHandle object. After dispose(), this object may no longer
+       * be used.
+       */
+      void dispose();
     };
 
     /**
