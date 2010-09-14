@@ -308,9 +308,18 @@ void RTT_corba_COperationInterface_i::checkOperation (
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
-            DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
-            if (ds)
-                mc.arg(ds);
+            if (ctt) {
+		DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
+		if (ds)
+			mc.arg(ds);
+		else {
+			log(Error) << "Registered transport for type "<< ti->getTypeName()
+					<< " could not create data source from Any (argument "<< i+1
+					<<"): calling operation '"<< operation <<"' will fail." <<endlog();
+		}
+            } else {
+		throw wrong_types_of_args_exception(i+1,"type known to CORBA", ti->getTypeName());
+            }
         }
         mc.check();
     } catch (no_asynchronous_operation_exception& nao) {
