@@ -42,6 +42,9 @@
 
 #include "CorbaConversion.hpp"
 #include "OrocosTypesC.h"
+#include "TaskContextC.h"
+#include "TaskContextServer.hpp"
+#include "TaskContextProxy.hpp"
 #include "CorbaConnPolicy.hpp"
 
 namespace RTT
@@ -258,6 +261,41 @@ namespace RTT
             return true;
         }
     };
+
+    template<>
+    struct RTT_CORBA_API AnyConversion<RTT::TaskContext*>
+    {
+        typedef RTT::corba::CTaskContext_ptr CorbaType;
+        typedef RTT::TaskContext* StdType;
+
+        static bool update(const CORBA::Any& any, StdType& _value) {
+		RTT::corba::CTaskContext_var task;
+		if ( any >>= task ) {
+			_value = TaskContextProxy::Create( task.in() );
+			return true;
+		}
+		return true;
+        }
+
+        static CORBA::Any_ptr createAny( const StdType& t ) {
+            CORBA::Any_ptr ret = new CORBA::Any();
+            *ret <<= TaskContextServer::CreateServer(t,false,false);
+            return ret;
+        }
+
+        static bool updateAny( const StdType& t, CORBA::Any& any ) {
+		if (t) {
+			RTT::corba::CTaskContext_var task = TaskContextServer::CreateServer(t, false, false );
+			any <<= task;
+		} else {
+			// null in any.
+			RTT::corba::CTaskContext_var task;
+			any <<= task;
+		}
+		return true;
+        }
+    };
+
 
     template<>
     struct RTT_CORBA_API AnyConversion< std::vector<double> >

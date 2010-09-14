@@ -167,7 +167,8 @@ namespace RTT
             if ( DataSourceTypeInfo<UnknownType>::getTypeInfo() != this )
                 return DataSourceTypeInfo<UnknownType>::getTypeInfo()->getProtocol( protocol_id );
             else {
-                log(Warning) << "A protocol with id "<<protocol_id<<" did not register a fall-back handler for unknown types!"<<endlog();
+                log(Warning) << "The protocol with id "<<protocol_id<<" did not register a fall-back handler for unknown types!"<<endlog();
+                log(Warning) << "  triggered by: "<< getTypeName() << " which does not have a transport."<<endlog();
                 return 0; // That transport did not register a fall-back !
             }
         }

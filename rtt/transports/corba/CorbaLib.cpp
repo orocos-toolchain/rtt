@@ -172,6 +172,9 @@ namespace RTT {
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
             if ( name == "ConnPolicy")
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<ConnPolicy>() );
+            if ( name == "TaskContext")
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<TaskContext*>() );
+
             return false;
         }
 

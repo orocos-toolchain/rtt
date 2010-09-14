@@ -36,6 +36,7 @@
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
 #include <transports/corba/CorbaLib.hpp>
+#include <rtt/internal/DataSourceTypeInfo.hpp>
 
 #include <string>
 #include <stdlib.h>
@@ -43,10 +44,10 @@
 using namespace RTT;
 using namespace RTT::detail;
 
-class CorbaTest
+class CorbaTest : public TaskContext
 {
 public:
-    CorbaTest() { this->setUp(); }
+    CorbaTest() : TaskContext("CorbaTest") { this->setUp(); }
     ~CorbaTest() { this->tearDown(); }
 
     TaskContext* tc;
@@ -64,6 +65,7 @@ public:
     // Ports
     InputPort<double>*  mi;
     OutputPort<double>* mo;
+    bool is_calling, is_sending;
 
     int wait;
 
@@ -74,6 +76,21 @@ public:
     void testPortDataConnection();
     void testPortBufferConnection();
     void testPortDisconnected();
+
+    void callBackPeer(TaskContext* peer, string const& opname) {
+	OperationCaller<void(TaskContext*, string const&)> op1 = peer->getOperation(opname);
+
+	if (!is_calling) {
+		is_calling = true;
+		op1(this, "callBackPeer");
+	}
+
+	if (!is_sending) {
+		is_sending = true;
+		SendHandle<void(TaskContext*, string const&)> handle = op1.send(this, "callBackPeerOwn");
+	}
+    }
+
 };
 
 using namespace std;
@@ -94,6 +111,10 @@ CorbaTest::setUp()
     ts2 = ts = 0;
     tp2 = tp = 0;
     wait = 0;
+    is_calling = false, is_sending = false;
+
+    addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
+    addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
 }
 
 
@@ -250,6 +271,24 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
+}
+
+/**
+ * Tests synchronous/asynchronous callbacks to self from a remote peer.
+ * For example A->B->A or even A->B->A->B
+ */
+BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
+{
+    tp = corba::TaskContextProxy::Create( "peerRMCb" , false);
+    if (!tp )
+        tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
+    BOOST_REQUIRE(tp);
+
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() != 0 );
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() !=  RTT::internal::DataSourceTypeInfo<UnknownType>::getTypeInfo());
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
+
+    this->callBackPeer(tp, "callBackPeer");
 }
 
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
