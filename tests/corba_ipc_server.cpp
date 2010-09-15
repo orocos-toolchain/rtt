@@ -46,8 +46,9 @@ public:
     InputPort<double>  mi1;
     OutputPort<double> mo1;
     bool is_calling, is_sending;
+    int cbcount;
 
-    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false) {
+    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false), cbcount(0) {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
@@ -69,17 +70,25 @@ public:
     corba::TaskContextServer* ts;
 
     void callBackPeer(TaskContext* peer, string const& opname) {
-	OperationCaller<void(TaskContext*, string const&)> op1 = peer->getOperation(opname);
+    	int count = ++cbcount;
+    	log(Info) << "Server executes callBackPeer():"<< count <<endlog();
+    	OperationCaller<void(TaskContext*, string const&)> op1 =
+				peer->getOperation(opname);
+		if (!is_calling) {
+			is_calling = true;
+			log(Info) << "Server calls back peer:" << count << endlog();
+			op1(this, "callBackPeerOwn");
+			log(Info) << "Server finishes call back peer:" << count << endlog();
+		}
 
-	if (!is_calling) {
-		is_calling = true;
-		op1(this, "callBackPeerOwn");
-	}
-
-	if (!is_sending) {
-		is_sending = true;
-		SendHandle<void(TaskContext*, string const&)> handle = op1.send(this, "callBackPeer");
-	}
+		if (!is_sending) {
+			is_sending = true;
+			log(Info) << "Server sends back peer:" << count << endlog();
+			SendHandle<void(TaskContext*, string const&)> handle = op1.send(
+					this, "callBackPeer");
+			log(Info) << "Server finishes send back peer:" << count << endlog();
+		}
+		log(Info) << "Server finishes callBackPeer():" << count << endlog();
     }
 
 };

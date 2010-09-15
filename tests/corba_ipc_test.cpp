@@ -66,8 +66,9 @@ public:
     InputPort<double>*  mi;
     OutputPort<double>* mo;
     bool is_calling, is_sending;
+    SendHandle<void(TaskContext*, string const&)> handle;
 
-    int wait;
+    int wait, cbcount;
 
     void setUp();
     void tearDown();
@@ -79,16 +80,23 @@ public:
 
     void callBackPeer(TaskContext* peer, string const& opname) {
 	OperationCaller<void(TaskContext*, string const&)> op1 = peer->getOperation(opname);
-
+	int count = ++cbcount;
+	log(Info) << "Test executes callBackPeer():"<< count <<endlog();
 	if (!is_calling) {
 		is_calling = true;
+		log(Info) << "Test calls server:" << count <<endlog();
 		op1(this, "callBackPeer");
+		log(Info) << "Test finishes server call:"<<count <<endlog();
 	}
 
 	if (!is_sending) {
 		is_sending = true;
-		SendHandle<void(TaskContext*, string const&)> handle = op1.send(this, "callBackPeerOwn");
+		log(Info) << "Test sends server:"<<count <<endlog();
+		BOOST_CHECK_MESSAGE(true, "Test sends server:");
+		handle = op1.send(this, "callBackPeerOwn");
+		log(Info) << "Test finishes server send:"<< count <<endlog();
 	}
+	log(Info) << "Test finishes callBackPeer():"<< count <<endlog();
     }
 
 };
@@ -110,7 +118,7 @@ CorbaTest::setUp()
     t2 = 0;
     ts2 = ts = 0;
     tp2 = tp = 0;
-    wait = 0;
+    wait = cbcount = 0;
     is_calling = false, is_sending = false;
 
     addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
@@ -289,6 +297,11 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
 
     this->callBackPeer(tp, "callBackPeer");
+
+    BOOST_CHECK( is_calling );
+    BOOST_CHECK( is_sending );
+    BOOST_CHECK( handle.ready() );
+    BOOST_CHECK_EQUAL( handle.collectIfDone(), SendSuccess );
 }
 
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
