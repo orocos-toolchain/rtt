@@ -169,6 +169,7 @@ namespace RTT {
         ownedoperations.clear();
 
         OperationInterface::clear();
+        ConfigurationInterface::clear();
         while ( !services.empty() ) {
         	this->removeService( services.begin()->first );
         }
