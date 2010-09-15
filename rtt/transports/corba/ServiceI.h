@@ -92,6 +92,9 @@ class  RTT_corba_CService_i
 protected:
     PortableServer::POA_var mpoa;
     RTT::Service::shared_ptr mservice;
+    // child services
+    typedef std::vector<std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var> > Servants;
+    Servants mservs;
 public:
   // Constructor 
     RTT_corba_CService_i ( RTT::ServicePtr service, PortableServer::POA_ptr poa);

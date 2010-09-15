@@ -92,6 +92,7 @@ RTT_corba_CTaskContext_i::RTT_corba_CTaskContext_i (RTT::TaskContext* orig, Port
 // Implementation skeleton destructor
 RTT_corba_CTaskContext_i::~RTT_corba_CTaskContext_i (void)
 {
+    //CDataFlowInterface_i::deregisterServant(mtask->ports()); causes invalid read (freed already)
 }
 
 void RTT_corba_CTaskContext_i::shutdownCORBA() {
@@ -192,7 +193,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
         RTT::corba::CDataFlowInterface_i* mserv;
         mDataFlow_i = mserv = new RTT::corba::CDataFlowInterface_i( mtask->ports(), mpoa );
         mDataFlow = mserv->activate_this();
-        CDataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
+        CDataFlowInterface_i::registerServant( CDataFlowInterface::_duplicate(mDataFlow), mtask->ports());
     }
     return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
 }

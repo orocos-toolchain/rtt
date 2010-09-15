@@ -159,10 +159,6 @@ namespace RTT
         static CTaskContext_ptr CreateServer(TaskContext* tc, bool use_naming = true, bool require_name_service = false);
 
         /**
-<<<<<<< HEAD:src/transports/corba/TaskContextServer.hpp
-         * Get the Corba Object of this CTaskContext.
-         * If you want to store this reference, you must \b _duplicate it.
-=======
          * Deletes a TaskContext server for a given taskcontext.
          * If no such server exists, this method silently does nothing.
          */
@@ -170,7 +166,7 @@ namespace RTT
 
         /**
          * Get the Corba Object of this TaskContext.
->>>>>>> 71aed95... corba: Added CleanupServer to give deployment a function to cleanup corba servers.:src/corba/TaskContextServer.hpp
+         * If you want to store this reference, you must \b _duplicate it.
          * This object universally identifies the remote TaskContextServer
          * and can be used to tell other (remote) objects where to find it.
          */

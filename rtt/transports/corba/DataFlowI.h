@@ -108,6 +108,9 @@ namespace RTT {
             DataFlowInterface* mdf;
             PortableServer::POA_var mpoa;
 
+            /** Keeps track of servants, such that we can dispose them
+             * at the end.
+             */
             typedef std::list<
                 std::pair<RTT::corba::CDataFlowInterface_var, DataFlowInterface*>
                 > ServantMap;
@@ -124,7 +127,13 @@ namespace RTT {
 
             static void registerServant(CDataFlowInterface_ptr objref, DataFlowInterface* obj);
             static void deregisterServant(DataFlowInterface* obj);
+            static void clearServants();
             static DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
+
+            /**
+             * Returns an object reference to a remote interface. In case you wish to keep
+             * this object reference, you need to duplicate it.
+             */
             static CDataFlowInterface_ptr getRemoteInterface(DataFlowInterface* dfi, PortableServer::POA_ptr poa);
 
             virtual RTT::corba::CDataFlowInterface_ptr activate_this() {

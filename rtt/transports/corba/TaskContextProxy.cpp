@@ -713,7 +713,7 @@ namespace RTT
     corba::CTaskContext_ptr TaskContextProxy::server() const {
         if ( CORBA::is_nil(mtask) )
             return CTaskContext::_nil();
-        return corba::CTaskContext::_duplicate(mtask);
+        return mtask.in();
     }
 
     PortableServer::POA_ptr TaskContextProxy::ProxyPOA() {
