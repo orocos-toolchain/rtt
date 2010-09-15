@@ -269,9 +269,10 @@ namespace RTT
         typedef RTT::TaskContext* StdType;
 
         static bool update(const CORBA::Any& any, StdType& _value) {
-		RTT::corba::CTaskContext_var task;
+		RTT::corba::CTaskContext_ptr task;
 		if ( any >>= task ) {
-			_value = TaskContextProxy::Create( task.in() );
+			// read-only insertion, we duplicate the _ptr in Create:
+			_value = TaskContextProxy::Create( task );
 			return true;
 		}
 		return true;
@@ -279,18 +280,17 @@ namespace RTT
 
         static CORBA::Any_ptr createAny( const StdType& t ) {
             CORBA::Any_ptr ret = new CORBA::Any();
+            // copying insertion:
             *ret <<= TaskContextServer::CreateServer(t,false,false);
             return ret;
         }
 
         static bool updateAny( const StdType& t, CORBA::Any& any ) {
 		if (t) {
-			RTT::corba::CTaskContext_var task = TaskContextServer::CreateServer(t, false, false );
-			any <<= task;
+			// copying insertion:
+			any <<= TaskContextServer::CreateServer(t, false, false );
 		} else {
-			// null in any.
-			RTT::corba::CTaskContext_var task;
-			any <<= task;
+			// leave any.
 		}
 		return true;
         }
