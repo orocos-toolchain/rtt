@@ -448,6 +448,7 @@ static __inline__ bhdr_t *process_area(void *area, size_t size)
 /******************************************************************/
 
 static char *mp = NULL;         /* Default memory pool. */
+static int  init_check = 0;          /* Init detection */
 
 /******************************************************************/
 size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
@@ -467,7 +468,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     }
     tlsf = (tlsf_t *) mem_pool;
     /* Check if already initialised */
-    if (tlsf->tlsf_signature == TLSF_SIGNATURE) {
+    if (init_check) {
         mp = mem_pool;
         b = GET_NEXT_BLOCK(mp, ROUNDUP_SIZE(sizeof(tlsf_t)));
         return b->size & BLOCK_SIZE;
@@ -479,6 +480,7 @@ size_t init_memory_pool(size_t mem_pool_size, void *mem_pool)
     memset(mem_pool, 0, sizeof(tlsf_t));
 
     tlsf->tlsf_signature = TLSF_SIGNATURE;
+    init_check = 1;
 
     TLSF_CREATE_LOCK(&tlsf->lock);
 
