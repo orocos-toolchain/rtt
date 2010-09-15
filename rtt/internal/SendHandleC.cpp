@@ -59,7 +59,7 @@ namespace RTT {
 	OperationKeeper(DataSource<SendStatus>::shared_ptr s, AssignableDataSource<bool>::shared_ptr b) : ms(s), mb(b) {}
 	~OperationKeeper() {
 		if (ms) {
-			mb->set(true); // blocking
+			mb->set(false); // blocking
 			ms->evaluate();
 		}
 	}
