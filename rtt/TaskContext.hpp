@@ -581,7 +581,7 @@ namespace RTT
          * This can be used to bypass the isRunning() check
          * regular setActivity() does.
          */
-        void forceActivity( ActivityInterface* new_act);
+        void forceActivity( base::ActivityInterface* new_act);
     private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
