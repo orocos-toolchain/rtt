@@ -317,6 +317,12 @@ public:
     {
     }
 
+    ~CorbaOperationCallerCollect() {
+    	try {
+    		msh->dispose();
+    	} catch(...) {}
+    }
+
     SendStatus value() const { return mss; }
 
     SendStatus const& rvalue() const { return mss; }

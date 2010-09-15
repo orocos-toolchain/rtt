@@ -190,6 +190,7 @@ void RTT_corba_CSendHandle_i::checkArguments (
 void RTT_corba_CSendHandle_i::dispose (
     void)
 {
+	this->_remove_ref();
     return;
 }
 
