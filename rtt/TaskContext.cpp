@@ -337,11 +337,23 @@ namespace RTT
             new_act = new Activity();
 #endif
         }
+        new_act->stop();
         our_act->stop();
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
         our_act->start();
         return true;
+    }
+
+    void TaskContext::forceActivity(ActivityInterface* new_act)
+    {
+    	if (!new_act)
+    		return;
+    	new_act->stop();
+        our_act->stop();
+        our_act.reset( new_act );
+        our_act->run( this->engine() );
+        our_act->start();
     }
 
     ActivityInterface* TaskContext::getActivity()

@@ -134,9 +134,11 @@ namespace RTT
          * not hold a pointer to it after this call. Use
          * getActivity() lateron to retrieve a safe pointer to it.
          * @param new_act The new activity for this TaskContext,
-         * which becomes owned by this TaskContext.
+         * which becomes owned by this TaskContext, in case this method
+         * returns true.
          * @return false if this->isRunning(). You can not change the
-         * activity of a TaskContext once it is running.
+         * activity of a TaskContext once it is running. In that case,
+         * new_act is not destroyed.
          * @note This function may not be called from the current
          * ExecutionEngine thread (OwnThread), another thread (ClientThread) must call this function.
          */
@@ -571,6 +573,15 @@ namespace RTT
         virtual bool connectPorts( TaskContext* peer );
         /** @} */
 
+    protected:
+        /**
+         * Forces the current activity to become \a new_act,
+         * even if this TaskContext is still running.
+         *
+         * This can be used to bypass the isRunning() check
+         * regular setActivity() does.
+         */
+        void forceActivity( ActivityInterface* new_act);
     private:
 
         typedef std::map< std::string, TaskContext* > PeerMap;
@@ -634,7 +645,7 @@ namespace RTT
         Service::shared_ptr tcservice;
         ServiceRequester*           tcrequests;
         os::Mutex mportlock;
-    private:
+
         // non copyable
         TaskContext( TaskContext& );
 
