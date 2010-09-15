@@ -361,12 +361,12 @@ BOOST_AUTO_TEST_CASE(testDSOperationCaller)
     // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
     // requires this for copying state machines.
 
-    Operation<double(OperationsFixture*)> meth0("m0");
+    Operation<double(shared_ptr<OperationsFixture>)> meth0("m0");
     meth0.calls( boost::bind(&OperationsFixture::m0, _1));
 
     //method_ds("m0", &OperationsFixture::m0);
 
-    Operation<double(OperationsFixture*,int)> meth1("m1");
+    Operation<double(shared_ptr<OperationsFixture>,int)> meth1("m1");
     meth1.calls(boost::bind(&OperationsFixture::m1, _1,_2));
 
     //method_ds("m1", &OperationsFixture::m1);
