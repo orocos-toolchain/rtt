@@ -163,7 +163,11 @@ namespace RTT
     {
         Logger::In in("TaskContextProxy");
         this->clear();
-        this->setActivity( new SequentialActivity() );
+        // We can't use setActivity() since that would check isRunning() first.
+        our_act->stop();
+        our_act.reset( new SequentialActivity() );
+        our_act->run( this->engine() );
+        our_act->start();
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
