@@ -79,7 +79,7 @@ public:
     void testPortDisconnected();
 
     void callBackPeer(TaskContext* peer, string const& opname) {
-	OperationCaller<void(TaskContext*, string const&)> op1 = peer->getOperation(opname);
+	OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), this->engine());
 	int count = ++cbcount;
 	log(Info) << "Test executes callBackPeer():"<< count <<endlog();
 	if (!is_calling) {
@@ -92,7 +92,6 @@ public:
 	if (!is_sending) {
 		is_sending = true;
 		log(Info) << "Test sends server:"<<count <<endlog();
-		BOOST_CHECK_MESSAGE(true, "Test sends server:");
 		handle = op1.send(this, "callBackPeerOwn");
 		log(Info) << "Test finishes server send:"<< count <<endlog();
 	}
@@ -297,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
     BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
 
     this->callBackPeer(tp, "callBackPeer");
-
+    sleep(1); //asyncronous processing...
     BOOST_CHECK( is_calling );
     BOOST_CHECK( is_sending );
     BOOST_CHECK( handle.ready() );

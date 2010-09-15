@@ -72,8 +72,7 @@ public:
     void callBackPeer(TaskContext* peer, string const& opname) {
     	int count = ++cbcount;
     	log(Info) << "Server executes callBackPeer():"<< count <<endlog();
-    	OperationCaller<void(TaskContext*, string const&)> op1 =
-				peer->getOperation(opname);
+    	OperationCaller<void(TaskContext*, string const&)> op1 (peer->getOperation(opname), this->engine());
 		if (!is_calling) {
 			is_calling = true;
 			log(Info) << "Server calls back peer:" << count << endlog();
