@@ -139,7 +139,7 @@ namespace RTT
             std::string newname( nm.in() );
             this->provides()->setName( newname );
             Logger::log() << Logger::Info << "Successfully connected to TaskContextServer '"+newname+"'."<<endlog();
-            proxies[this] = mtask;
+            proxies[this] = mtask.in();
         }
         catch (CORBA::Exception &e) {
             log(Error)<< "CORBA exception raised when resolving Object !" << endlog();
@@ -168,7 +168,7 @@ namespace RTT
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
             this->provides()->setName( name );
-            proxies[this] = mtask;
+            proxies[this] = mtask.in();
         }
         catch (CORBA::Exception &e) {
             log(Error) << "CORBA exception raised when creating TaskContextProxy!" << Logger::nl;
@@ -248,7 +248,7 @@ namespace RTT
         for (size_t i=0; i != props->length(); ++i) {
             if ( findProperty( *parent->properties(), string(props[i].name.in()), "." ) )
                 continue; // previously added.
-            if ( !serv->hasProperty( CORBA::string_dup(props[i].name.in() ) ) ) {
+            if ( !serv->hasProperty( props[i].name.in() ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
                 continue;
             }
@@ -289,12 +289,12 @@ namespace RTT
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( parent->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
-            if ( !serv->hasAttribute( CORBA::string_dup( attrs[i].in() ) ) ) {
+            if ( !serv->hasAttribute( attrs[i].in() ) ) {
                 log(Error) <<"Attribute '"<< string(attrs[i].in()) << "' present in getAttributeList() but not accessible."<<endlog();
                 continue;
             }
             // If the type is known, immediately build the correct attribute and datasource,
-            CORBA::String_var tn = serv->getAttributeTypeName( CORBA::string_dup(attrs[i].in()) );
+            CORBA::String_var tn = serv->getAttributeTypeName( attrs[i].in() );
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
             if ( ti && ti->hasProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                 log(Debug) << "Looking up Attribute " << tn.in() <<": found!"<<endlog();
@@ -302,7 +302,7 @@ namespace RTT
                 assert(ctt);
                 // this function should check itself for const-ness of the remote Attribute:
                 DataSourceBase::shared_ptr ds = ctt->createAttributeDataSource( serv, attrs[i].in() );
-                if ( serv->isAttributeAssignable( CORBA::string_dup( attrs[i].in() ) ) )
+                if ( serv->isAttributeAssignable( attrs[i].in() ) )
                     parent->setValue( ti->buildAttribute( attrs[i].in(), ds));
                 else
                     parent->setValue( ti->buildConstant( attrs[i].in(), ds));
@@ -333,8 +333,12 @@ namespace RTT
         try {
             // Destroy the POA, waiting until the destruction terminates
             //poa->destroy (1, 1);
-            orb->destroy();
-            std::cerr <<"Orb destroyed."<<std::endl;
+        	if (orb) {
+        		orb->destroy();
+        		rootPOA = 0;
+        		orb = 0;
+        		std::cerr <<"Orb destroyed."<<std::endl;
+        	}
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Init : CORBA exception raised!" << Logger::nl;
