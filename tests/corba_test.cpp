@@ -426,8 +426,9 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 	    ports->getPortType("mi"));
 
     // And check type names
+	CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(ports->getDataType("mo")));
+	    string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )

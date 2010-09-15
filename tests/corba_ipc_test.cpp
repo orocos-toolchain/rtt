@@ -397,8 +397,9 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 	    ports->getPortType("mi"));
 
     // And check type names
+    CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(ports->getDataType("mo")));
+	    string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
@@ -604,7 +605,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
+
+    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy) );
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
