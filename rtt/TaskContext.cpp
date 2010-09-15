@@ -152,7 +152,7 @@ namespace RTT
             }
             // Do not call this->disconnect() !!!
             // Ports are probably already destructed by user code.
-
+            delete portqueue;
         }
 
     bool TaskContext::connectPorts( TaskContext* peer )
