@@ -28,6 +28,7 @@
 #include <rtt/InputPort.hpp>
 #include <rtt/OutputPort.hpp>
 #include <rtt/TaskContext.hpp>
+#include <rtt/plugin/PluginLoader.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
 #include <string>
@@ -70,6 +71,7 @@ int ORO_main(int argc, char** argv)
 {
     corba::TaskContextProxy::InitOrb(argc,argv);
 
+    PluginLoader::Instance()->loadTypekits("../rtt");
     {
         TheServer ctest1("peerRMC");
         TheServer ctest2("peerRM");

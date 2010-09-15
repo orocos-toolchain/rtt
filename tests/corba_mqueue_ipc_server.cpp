@@ -57,6 +57,9 @@ public:
 int ORO_main(int argc, char** argv)
 {
     corba::TaskContextProxy::InitOrb(argc,argv);
+
+    PluginLoader::Instance()->loadTypekits("../rtt");
+
     {
         TheServer cmt("other");
         corba::TaskContextServer::RunOrb();
