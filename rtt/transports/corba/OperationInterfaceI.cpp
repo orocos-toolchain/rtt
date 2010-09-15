@@ -374,7 +374,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             for (size_t i =0; i != args.length(); ++i) {
                 const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
                 CorbaTypeTransporter* ctta = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-		            ctta->updateAny(results[i], args[i]);
+                ctta->updateAny(results[i], args[i]);
             }
             return retany;
         } else {
