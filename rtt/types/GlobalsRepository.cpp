@@ -48,3 +48,10 @@ GlobalsRepository::shared_ptr GlobalsRepository::Instance() {
     mInstance.reset( new GlobalsRepository() );
     return mInstance;
 }
+
+void GlobalsRepository::Release() {
+	if (mInstance) {
+		mInstance->clear();
+		mInstance.reset();
+	}
+}

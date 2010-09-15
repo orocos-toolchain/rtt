@@ -81,6 +81,8 @@ namespace RTT
         map_t::const_iterator i = data.begin();
         for( ; i != data.end(); ++i )
             delete i->second;
+        delete DataSourceTypeInfo<UnknownType>::TypeInfoObject;
+        DataSourceTypeInfo<UnknownType>::TypeInfoObject = 0;
     }
 
 
