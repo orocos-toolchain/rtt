@@ -160,6 +160,7 @@ IF (BUILD_TESTING)
             COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
             )
       ENDIF()
+      ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
     ENDIF(ENABLE_CORBA)
 
     IF(ENABLE_MQ)
