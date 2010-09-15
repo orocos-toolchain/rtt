@@ -45,13 +45,16 @@ public:
     // Ports
     InputPort<double>  mi1;
     OutputPort<double> mo1;
+    bool is_calling, is_sending;
 
-    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
+    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false) {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
         ts = corba::TaskContextServer::Create( this, true ); //use-naming
         this->start();
+        addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
+        addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);
     }
     ~TheServer() {
         this->stop();
@@ -64,6 +67,20 @@ public:
     }
 
     corba::TaskContextServer* ts;
+
+    void callBackPeer(TaskContext* peer, string const& opname) {
+	OperationCaller<void(TaskContext*, string const&)> op1 = peer->getOperation(opname);
+
+	if (!is_calling) {
+		is_calling = true;
+		op1(this, "callBackPeerOwn");
+	}
+
+	if (!is_sending) {
+		is_sending = true;
+		SendHandle<void(TaskContext*, string const&)> handle = op1.send(this, "callBackPeer");
+	}
+    }
 
 };
 
@@ -81,6 +98,7 @@ int ORO_main(int argc, char** argv)
         TheServer ctest6("peerPP");
         TheServer ctest7("peerDH");
         TheServer ctest8("peerBH");
+        TheServer ctest9("peerRMCb");
 
         // wait for shutdown.
         corba::TaskContextServer::RunOrb();
