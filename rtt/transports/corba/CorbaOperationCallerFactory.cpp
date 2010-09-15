@@ -324,7 +324,7 @@ public:
             // only try to collect if we didn't do so before:
             if ( mss != SendSuccess ) {
                 corba::CAnyArguments_var nargs;
-                if ( misblocking.get() ) {
+                if ( misblocking->get() ) {
                     mss = SendStatus( msh->collect( nargs.out() ) );
                 } else {
                     mss = SendStatus( msh->collectIfDone( nargs.out() ) );
