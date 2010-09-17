@@ -410,6 +410,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
         }
         if ( orig.ready() ) {
             SendHandleC resulthandle = orig.send();
+            // we may not destroy the SendHandle, before the operation completes:
+            resulthandle.setAutoCollect(true);
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
             CSendHandle_var ret = ret_i->_this();
             return ret._retn();

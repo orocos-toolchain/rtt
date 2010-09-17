@@ -433,6 +433,8 @@ namespace RTT
             RemoteOperationCaller(const SendHandleC& sh )
             {
                 this->mhandle = sh;
+                // no need to collect on remote operations.
+                this->mhandle.setAutoCollect(false);
             }
 
             virtual void readArguments() {}

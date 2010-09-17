@@ -159,6 +159,22 @@ namespace RTT
         bool ready() const;
 
         /**
+         * When set to 'on', the destruction of this SendHandleC
+         * will cause a call to collect() before all data in
+         * data sources is destroyed. This is \b required for
+         * in-process operation calls, since destruction of the
+         * data sources would lead to memory corruption of the operation's
+         * arguments. When set to 'off', no such collection is done,
+         * which is useful in remote/inter-process communication,
+         * in which the data lives in a copy in the other process
+         * anyway. Since RTT uses this same class for both situations,
+         * we need a flag to distinguish.
+         *
+         * Defaults to 'on', which is the safe default if unspecified.
+         */
+        void setAutoCollect(bool on_off);
+
+        /**
          * Get the contained data source for send handle.
          */
         base::DataSourceBase::shared_ptr getSendHandleDataSource();

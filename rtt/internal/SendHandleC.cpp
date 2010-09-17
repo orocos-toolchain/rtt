@@ -56,10 +56,11 @@ namespace RTT {
     {
 	DataSource<SendStatus>::shared_ptr ms;
 	AssignableDataSource<bool>::shared_ptr mb;
-	OperationKeeper(DataSource<SendStatus>::shared_ptr s, AssignableDataSource<bool>::shared_ptr b) : ms(s), mb(b) {}
+	bool autocollect;
+	OperationKeeper(DataSource<SendStatus>::shared_ptr s, AssignableDataSource<bool>::shared_ptr b) : ms(s), mb(b), autocollect(true) {}
 	~OperationKeeper() {
-		if (ms) {
-			mb->set(false); // blocking
+		if (ms && autocollect) {
+			mb->set(true); // blocking
 			ms->evaluate();
 		}
 	}
@@ -222,6 +223,11 @@ namespace RTT {
     bool SendHandleC::ready() const
     {
         return s;
+    }
+
+    void SendHandleC::setAutoCollect(bool on_off) {
+    	if (mopkeeper)
+    		mopkeeper->autocollect = on_off;
     }
 
     void SendHandleC::check() {
