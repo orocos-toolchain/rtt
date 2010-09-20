@@ -103,6 +103,7 @@ include("${OROCOS-RTT_IMPORT_FILE}")
 
 # Path to headers
 get_filename_component(OROCOS-RTT_INCLUDE_DIRS "${SELF_DIR}/../../../include" ABSOLUTE)
+list( APPEND OROCOS-RTT_INCLUDE_DIRS @OROCOS-RTT_INCLUDE_DIRS@ @CORBA_INCLUDE_DIRS@ @MQ_INCLUDE_DIRS@ )
 
 # Core RTT libraries
 set(OROCOS-RTT_TARGET "${PREFIX}orocos-rtt-${OROCOS_TARGET}_dynamic")
