@@ -106,6 +106,11 @@ namespace RTT
          * "CORBA://rtt-types"
          */
         static bool hasTransport( const std::string& transportname );
+
+        /**
+         * Removes all Typekits and transports from memory.
+         */
+        static void Release();
     };
 
 }}

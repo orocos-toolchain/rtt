@@ -225,7 +225,8 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produce(const std:
     for (size_t i=0; i < args.size(); ++i ) {
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-        assert( ctt );
+        if (!ctt)
+		throw wrong_types_of_args_exception(i+1,"type known to CORBA transport", ti->getTypeName());
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
@@ -268,7 +269,8 @@ base::DataSourceBase::shared_ptr CorbaOperationCallerFactory::produceSend(const 
     for (size_t i=0; i < args.size(); ++i ) {
         const types::TypeInfo* ti = args[i]->getTypeInfo();
         CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*>( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-        assert( ctt );
+        if (!ctt)
+		throw wrong_types_of_args_exception(i+1,"type known to CORBA transport", ti->getTypeName());
         DataSourceBase::shared_ptr tryout = ti->buildValue();
         ctt->updateAny(tryout, nargs[i]);
     }
@@ -315,6 +317,12 @@ public:
     {
     }
 
+    ~CorbaOperationCallerCollect() {
+    	try {
+    		msh->dispose();
+    	} catch(...) {}
+    }
+
     SendStatus value() const { return mss; }
 
     SendStatus const& rvalue() const { return mss; }
@@ -324,7 +332,7 @@ public:
             // only try to collect if we didn't do so before:
             if ( mss != SendSuccess ) {
                 corba::CAnyArguments_var nargs;
-                if ( misblocking.get() ) {
+                if ( misblocking->get() ) {
                     mss = SendStatus( msh->collect( nargs.out() ) );
                 } else {
                     mss = SendStatus( msh->collectIfDone( nargs.out() ) );

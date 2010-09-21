@@ -187,6 +187,12 @@ void RTT_corba_CSendHandle_i::checkArguments (
     }
 }
 
+void RTT_corba_CSendHandle_i::dispose (
+    void)
+{
+	this->_remove_ref();
+    return;
+}
 
 // Implementation skeleton constructor
 RTT_corba_COperationInterface_i::RTT_corba_COperationInterface_i (OperationInterface* gmf, PortableServer::POA_ptr the_poa)
@@ -308,9 +314,18 @@ void RTT_corba_COperationInterface_i::checkOperation (
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
-            DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
-            if (ds)
-                mc.arg(ds);
+            if (ctt) {
+		DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
+		if (ds)
+			mc.arg(ds);
+		else {
+			log(Error) << "Registered transport for type "<< ti->getTypeName()
+					<< " could not create data source from Any (argument "<< i+1
+					<<"): calling operation '"<< operation <<"' will fail." <<endlog();
+		}
+            } else {
+		throw wrong_types_of_args_exception(i+1,"type known to CORBA", ti->getTypeName());
+            }
         }
         mc.check();
     } catch (no_asynchronous_operation_exception& nao) {
@@ -360,7 +375,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             for (size_t i =0; i != args.length(); ++i) {
                 const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
                 CorbaTypeTransporter* ctta = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-		            ctta->updateAny(results[i], args[i]);
+                ctta->updateAny(results[i], args[i]);
             }
             return retany;
         } else {
@@ -395,6 +410,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
         }
         if ( orig.ready() ) {
             SendHandleC resulthandle = orig.send();
+            // we may not destroy the SendHandle, before the operation completes:
+            resulthandle.setAutoCollect(true);
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
             CSendHandle_var ret = ret_i->_this();
             return ret._retn();

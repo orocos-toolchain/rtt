@@ -75,11 +75,18 @@ namespace RTT
          * Stores the blocking/non blocking flag for collect/collectIfDone.
          */
         internal::AssignableDataSource<bool>::shared_ptr b;
+        /**
+         * Stores the operation in order to avoid its premature destruction.
+         */
+        base::DataSourceBase::shared_ptr mop;
 
-	/**
-	 * Stores the OperationInterfacePart pointer contained in this SendHandle
-	 */
-	OperationInterfacePart* orp;
+        struct OperationKeeper;
+        boost::shared_ptr<OperationKeeper> mopkeeper;
+
+        /**
+         * Stores the OperationInterfacePart pointer contained in this SendHandle
+         */
+        OperationInterfacePart* orp;
 
 
     public:
@@ -94,7 +101,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr operation, base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -150,6 +157,22 @@ namespace RTT
          * Returns true if this handle is ready for execution.
          */
         bool ready() const;
+
+        /**
+         * When set to 'on', the destruction of this SendHandleC
+         * will cause a call to collect() before all data in
+         * data sources is destroyed. This is \b required for
+         * in-process operation calls, since destruction of the
+         * data sources would lead to memory corruption of the operation's
+         * arguments. When set to 'off', no such collection is done,
+         * which is useful in remote/inter-process communication,
+         * in which the data lives in a copy in the other process
+         * anyway. Since RTT uses this same class for both situations,
+         * we need a flag to distinguish.
+         *
+         * Defaults to 'on', which is the safe default if unspecified.
+         */
+        void setAutoCollect(bool on_off);
 
         /**
          * Get the contained data source for send handle.

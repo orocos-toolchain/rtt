@@ -83,7 +83,10 @@ namespace RTT
 
 
     /** This class provides the basic tools to create channels that represent
-     * connections between two ports
+     * connections between two ports.
+     *
+     * The ports and type transports use these functions to setup connections.
+     * The interface may change as the needs of these 'users' change.
      */
     class RTT_API ConnFactory
     {
@@ -170,6 +173,16 @@ namespace RTT
             return endpoint;
         }
 
+        /**
+         * Extended version of buildChannelInput that also installs
+         * a buffer after the channel input endpoint, according to a \a policy.
+         * @param port The output port to which the connection will be added by client code.
+         * @param conn_id A unique connection id which identifies this connection
+         * @param policy The policy dictating which kind of buffer must be installed.
+         * The transport and other parameters are ignored.
+         * @param output_channel Optional. If present, the buffer will be connected
+         * to this element.
+         */
         template<typename T>
         static base::ChannelElementBase* buildBufferedChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr output_channel)
         {
@@ -197,6 +210,15 @@ namespace RTT
             return endpoint;
         }
 
+        /**
+         * Extended version of buildChannelOutput that also installs
+         * a buffer before the channel output endpoint, according to a \a policy.
+         * @param port The input port to which the connection is added.
+         * @param conn_id A unique connection id which identifies this connection
+         * @param policy The policy dictating which kind of buffer must be installed.
+         * The transport and other parameters are ignored.
+         * @param initial_value The value to use to initialize the connection's storage buffer.
+         */
         template<typename T>
         static base::ChannelElementBase* buildBufferedChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
         {
@@ -237,7 +259,7 @@ namespace RTT
                     return false;
                 }
                 // local ports, create buffer here.
-                output_half = ConnFactory::buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                output_half = buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -246,9 +268,9 @@ namespace RTT
                 // than plain memory, rare case, but we accept it. The unit tests use this for example
                 // to test the OOB transports.
                 if ( !input_port.isLocal() ) {
-                    output_half = ConnFactory::createRemoteConnection( output_port, input_port, policy);
+                    output_half = createRemoteConnection( output_port, input_port, policy);
                 } else
-                    output_half = ConnFactory::createOutOfBandConnection<T>( output_port, *input_p, policy);
+                    output_half = createOutOfBandConnection<T>( output_port, *input_p, policy);
             }
 
             if (!output_half)
@@ -257,11 +279,18 @@ namespace RTT
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
             base::ChannelElementBase::shared_ptr channel_input =
-                ConnFactory::buildChannelInput<T>(output_port, input_port.getPortID(), output_half);
+                buildChannelInput<T>(output_port, input_port.getPortID(), output_half);
 
-            return ConnFactory::createAndCheckConnection(output_port, input_port, channel_input, policy );
+            return createAndCheckConnection(output_port, input_port, channel_input, policy );
         }
 
+        /**
+         * Creates, attaches and checks an outbound stream to an Output port.
+         *
+         * @param output_port The port to connect the stream to.
+         * @param policy The policy dictating which transport to use.
+         * @return true if the stream could be created and connected to output_port.
+         */
         template<class T>
         static bool createStream(OutputPort<T>& output_port, ConnPolicy const& policy)
         {
@@ -270,8 +299,16 @@ namespace RTT
             return createAndCheckStream(output_port, policy, chan, sid);
         }
 
+        /** @warning This helper function will be moved to the protected: scope in the next major release */
         static bool createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id);
 
+        /**
+         * Creates, attaches and checks an inbound stream to an Input port.
+         *
+         * @param input_port The port to connect the stream to.
+         * @param policy The policy dictating which transport to use.
+         * @return true if the stream could be created and connected to input_port.
+         */
         template<class T>
         static bool createStream(InputPort<T>& input_port, ConnPolicy const& policy)
         {
@@ -295,6 +332,7 @@ namespace RTT
          * This means that both input and output port are present in the same process.
          * This function is used when the policy dictates a transport protocol, but both
          * ports are local.
+         * @return a channel element chain with a channel output endpoint, but no channel input endpoint.
          */
         template<class T>
         static base::ChannelElementBase::shared_ptr createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, ConnPolicy const& policy) {

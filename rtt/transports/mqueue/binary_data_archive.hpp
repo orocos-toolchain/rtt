@@ -191,10 +191,21 @@ namespace RTT
 #endif
             template<class T>
             void load_override(const boost::serialization::nvp<T> & t, int){
-                 T x;
+                T& x(t.value());
                  * this >> x;
-                 t.value() = x;
              }
+
+            /**
+             * Specialisation that covers a boost serialization array created with make_array()
+             * @param t
+             * @return *this
+             */
+            template<class T>
+            void load_override(const boost::serialization::array<T> &t, int)
+            {
+                boost::serialization::array<T> tmp(t.address(), t.count());
+                *this >> tmp;
+            }
 
             /**
              * Loading Archive Concept::operator>>

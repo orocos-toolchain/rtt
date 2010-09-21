@@ -192,12 +192,12 @@ namespace RTT
         {
             Logger::In in("TypeInfoName");
             // Install the type info object for T.
-            if ( internal::DataSourceTypeInfo<T>::TypeInfoObject != 0) {
+            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
-                              << internal::DataSourceTypeInfo<T>::TypeInfoObject->getTypeName()
+                              << internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
             }
-            internal::DataSourceTypeInfo<T>::TypeInfoObject = this;
+            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
     };
 

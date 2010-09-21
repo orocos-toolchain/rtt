@@ -123,7 +123,7 @@ namespace RTT
           }
 
           virtual base::DataSourceBase::shared_ptr createAttributeDataSource(CService_ptr serv, const std::string& vname) {
-              if ( serv->isAttributeAssignable( CORBA::string_dup(vname.c_str()) ) ) {
+              if ( serv->isAttributeAssignable( vname.c_str() ) ) {
                   return base::DataSourceBase::shared_ptr( new ValueDataSourceProxy<PropertyType>( serv, vname, false) );
               }
               else {

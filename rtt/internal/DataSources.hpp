@@ -374,7 +374,7 @@ namespace RTT
             : action(act), alias(ds)
               {}
 
-            ~ActionAliasDataSource() {}
+            ~ActionAliasDataSource() { delete action; }
 
             bool evaluate() const {
                 // since get() may return a copy, we override evaluate() to
@@ -434,7 +434,7 @@ namespace RTT
                 : action(act), alias(ds)
                   {}
 
-                ~ActionAliasAssignableDataSource() {}
+                ~ActionAliasAssignableDataSource() { delete action;}
 
                 bool evaluate() const {
                     // since get() may return a copy, we override evaluate() to

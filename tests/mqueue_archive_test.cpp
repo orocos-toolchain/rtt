@@ -116,5 +116,37 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     rtos_disable_rt_warning();
 }
 
+/**
+ * For serializing C-Style arrays created with make_nvp("array", make_array() )
+ */
+BOOST_AUTO_TEST_CASE( testMakeArrayBinaryDataArchive )
+{
+    char sink[1000];
+    memset( sink, 0, 1000);
+    double c[10] = {-1,1,2,3,4,5,6,7,8,9};
+    double r[10] = {0,0,0,0,0,0,0,0,0,0};
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_sink>  outbuf(sink,1000);
+    binary_data_oarchive out( outbuf );
+    out & make_nvp("array", make_array(c, 10) );
+
+    unsigned int stored = out.getArchiveSize();
+    BOOST_CHECK( stored >= 10*sizeof(double) );
+    rtos_disable_rt_warning();
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_source>  inbuf(sink,1000);
+    binary_data_iarchive in( inbuf );
+    array<double> ma = make_array(r, 10);
+    in & make_nvp("array", make_array(r, 10) );
+
+    BOOST_CHECK_EQUAL(r[0], c[0]);
+    BOOST_CHECK_EQUAL(r[4], c[4]);
+    BOOST_CHECK_EQUAL(r[9], c[9]);
+    BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
+    rtos_disable_rt_warning();
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 

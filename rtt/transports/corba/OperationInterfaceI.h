@@ -115,6 +115,9 @@ public:
   virtual
   void checkArguments (
           const ::RTT::corba::CAnyArguments & args);
+
+  virtual
+  void dispose ();
 };
 
 class  RTT_corba_COperationInterface_i

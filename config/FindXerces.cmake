@@ -30,10 +30,9 @@ endif()
 # Find headers and libraries
 find_path(XERCES_INCLUDE_DIR       NAMES xercesc/dom/DOM.hpp ${XERCES_INCLUDE_PATH})
 find_library(XERCES_C_LIBRARY      NAMES xerces-c            ${XERCES_LIBRARY_PATH})
-find_library(XERCES_DEPDOM_LIBRARY NAMES xerces-depdom       ${XERCES_LIBRARY_PATH})
 
 # Set Xerces_FOUND honoring the QUIET and REQUIRED arguments
-find_package_handle_standard_args(Xerces DEFAULT_MSG XERCES_C_LIBRARY XERCES_DEPDOM_LIBRARY XERCES_INCLUDE_DIR)
+find_package_handle_standard_args(Xerces DEFAULT_MSG XERCES_C_LIBRARY XERCES_INCLUDE_DIR)
 
 # Output variables
 if(XERCES_FOUND)
@@ -41,10 +40,8 @@ if(XERCES_FOUND)
   set(XERCES_INCLUDE_DIRS ${XERCES_INCLUDE_DIR})
 
   # Libraries
-  set(XERCES_LIBRARIES ${XERCES_C_LIBRARY}
-                       ${XERCES_DEPDOM_LIBRARY})
-
+  set(XERCES_LIBRARIES ${XERCES_C_LIBRARY})
 endif()
 
 # Advanced options for not cluttering the cmake UIs
-mark_as_advanced(XERCES_INCLUDE_DIR XERCES_C_LIBRARY XERCES_DEPDOM_LIBRARY)
+mark_as_advanced(XERCES_INCLUDE_DIR XERCES_C_LIBRARY)

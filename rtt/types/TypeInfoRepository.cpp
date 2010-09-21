@@ -44,6 +44,7 @@
 #include "TypeTransporter.hpp"
 #include "TransportPlugin.hpp"
 #include "../internal/mystd.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
 
 namespace RTT
 {
@@ -80,6 +81,8 @@ namespace RTT
         map_t::const_iterator i = data.begin();
         for( ; i != data.end(); ++i )
             delete i->second;
+        delete DataSourceTypeInfo<UnknownType>::TypeInfoObject;
+        DataSourceTypeInfo<UnknownType>::TypeInfoObject = 0;
     }
 
 
@@ -121,6 +124,9 @@ namespace RTT
         for( ; i != data.end(); ++i )
             if ( tr->registerTransport( i->first , i->second ) )
                 log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
+        // give chance to register fallback protocol:
+        if ( tr->registerTransport("unknown_t", DataSourceTypeInfo<UnknownType>::getTypeInfo() ) == false )
+		log(Info) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
     }
 
     void TypeInfoRepository::logTypeInfo() const

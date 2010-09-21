@@ -58,6 +58,10 @@ namespace RTT {
             typedef boost::shared_ptr<GlobalsRepository> shared_ptr;
 
             static shared_ptr Instance();
+            /**
+             * Frees all globals.
+             */
+            static void Release();
         private:
             static shared_ptr mInstance;
         };            

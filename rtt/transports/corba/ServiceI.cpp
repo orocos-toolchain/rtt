@@ -118,12 +118,21 @@ char * RTT_corba_CService_i::getServiceDescription (
 {
     Service::shared_ptr provider = mservice->getService(service_name);
     if ( !provider )
-	return RTT::corba::CService::_nil();
+    	return RTT::corba::CService::_nil();
+
+    // check for existing service
+    for(Servants::iterator it = mservs.begin(); it != mservs.end(); ++it) {
+    	CORBA::String_var sname = it->first->getName();
+    	if ( sname.in() == service_name )
+    		return  RTT::corba::CService::_duplicate( it->first.in() );
+    }
+    // not found: new service
     
     RTT_corba_CService_i* serv_i;
     RTT::corba::CService_var serv;
     serv_i = new RTT_corba_CService_i( provider, mpoa );
     serv = serv_i->activate_this();
+    mservs.push_back( pair<RTT::corba::CService_var,PortableServer::ServantBase_var>( RTT::corba::CService::_duplicate(serv.in()), serv_i ) );
     //CService_i::registerServant(serv, mtask->provides(service_name));
     return RTT::corba::CService::_duplicate( serv.in() );
 }

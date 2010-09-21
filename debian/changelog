@@ -1,3 +1,15 @@
+orocos-rtt (2.0.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Peter Soetens <peter@thesourceworks.com>  Mon, 13 Sep 2010 17:22:42 +0200
+
+orocos-rtt (2.0.0-1) karmic; urgency=low
+
+  * New upstream release
+
+ -- Peter Soetens <peter@thesourceworks.com>  Mon, 06 Sep 2010 13:40:46 +0200
+
 orocos-rtt (1.99.2-1) unstable; urgency=low
 
   * New upstream release

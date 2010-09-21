@@ -131,7 +131,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
     RTT::base::ChannelElementBase* buf = 0;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
-        CChannelElement_var ret = dataflow->buildChannelOutput(CORBA::string_dup(getName().c_str()), cpolicy);
+        CChannelElement_var ret = dataflow->buildChannelOutput(getName().c_str(), cpolicy);
         if ( CORBA::is_nil(ret) ) {
             return 0;
         }
@@ -242,7 +242,8 @@ bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RT
     try {
         CConnPolicy cpolicy = toCORBA(policy);
         // this dynamic CDataFlowInterface lookup is tricky, we re/ab-use the DataFlowInterface pointer of sink !
-        if ( dataflow->createConnection( this->getName().c_str(), CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() ), sink.getName().c_str(), cpolicy ) ) {
+        CDataFlowInterface_ptr cdfi = CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() );
+        if ( dataflow->createConnection( this->getName().c_str(), cdfi , sink.getName().c_str(), cpolicy ) ) {
             policy.name_id = cpolicy.name_id;
             return true;
         }

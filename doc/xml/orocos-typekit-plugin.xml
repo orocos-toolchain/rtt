@@ -29,6 +29,12 @@
 
     <revhistory>
       <revision>
+	<revnumber>2.0.1</revnumber>
+	<date>7 Sept 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated status of typegen</revremark>
+      </revision>
+      <revision>
 	<revnumber>2.0.0</revnumber>
 	<date>21 Jun 2010</date>
 	<authorinitials>ps</authorinitials>
@@ -65,9 +71,9 @@
     <title>The Orocos Type System : Typekits</title>
     <para>
       Most applications define their own classes or structs to exchange
-      data between components. It is possible to tell the RTT about these
+      data between components. It is easy to tell the RTT about these
       user defined types such that they can be displayed, stored to XML,
-      used in the scripting engine or even transfered over a network
+      used in the scripting engine and transfered between processes or over a network
       connection.
     </para>
 
@@ -96,8 +102,8 @@
       <title>Generating Typekits</title>
       <para>
 	There are two tools available to generate Typekits for users.
-	The first one is orogen, which generates typekits from existing C++
-	structs. The second is based on ROS, and generates typekits
+	The primary one is typegen, which generates typekits from existing C++
+	structs defined in headers. The second is based on ROS, and generates typekits
 	for ROS Messages (which are used in ros topics).
       </para>
       <para>
@@ -115,22 +121,24 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry>orogen</entry>
+		<entry>typegen</entry>
 		<entry>
 		  <itemizedlist>
 		  <listitem><para>Works with existing C++ classes</para></listitem>
 		  <listitem><para>Stable and tested</para></listitem>
 		  <listitem><para>Usable with the CORBA transport</para></listitem>
+		  <listitem><para>Usable with the mqueue transport</para></listitem>
+		  <listitem><para>Usable for scripting, XML.</para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
 		  <itemizedlist>
-		  <listitem><para>Can not be used with classes with virtual functions.</para></listitem>
-		  <listitem><para>Requires manual ruby setup</para></listitem>
+		  <listitem><para>Requires to be built with 'autoproj'</para></listitem>
+		  <listitem><para>Does not provide scripting constructors or operators</para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
-		  Being ported to RTT 2.x, Available for RTT 1.x
+		  Available for RTT 2.x, Available for RTT 1.x
 		</entry>
 	      </row>
 	      <row>
@@ -146,7 +154,8 @@
 		  <listitem><para>Can not be used with existing C++ data types</para></listitem>
 		  <listitem><para>Experimental.</para></listitem>
 		  <listitem><para>Depends on ROS</para></listitem>
-		  <listitem><para>Not compatible with the CORBA transport</para></listitem>
+		  <listitem><para>Not compatible with the CORBA or mqueue transport</para></listitem>
+		  <listitem><para>Does not provide scripting constructors or operators</para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
@@ -157,17 +166,59 @@
 	  </tgroup>
 	</table>	
       </para>
-      <note>
+      <important>
 	<para>
-	  These tools are under development and will mature during the
-	  2.x release cycles. In the meantime, users can fall back on
-	  writing typekits manually as described below.
+	  These tools are mature for most applications and users
+	  should only write typekits by hand if they want to extend
+	  beyond what typegen/rosgen offer. In practice, this means
+	  adding specialized constructors or operators for scripting
+	  for certain data types.
 	</para>
-      </note>
+      </important>
+      <section>
+	<title>Using <command>typegen</command></title>
+	<para>
+	  Typegen requires that you have built the Orocos Toolchain with <command>autoproj</command>
+	  and that you have 'sourced' the <filename>env.sh</filename> file in your shell. You
+	  can use typegen as such:
+	  <screen>  cd myproject/src
+  typegen -o types myproject MyData.hpp
+	  </screen>
+	  Which will create a directory <filename>types</filename> which contains all necessary files to 
+	  build the typekit with name <emphasis>myproject</emphasis> for all classes and structs defined in <filename>MyData.hpp</filename>.
+	  You can list more than one header such that they are handled by the same typekit.
+	</para>
+	<para>
+	  To test your typekit, you can do afterwards:
+	  <screen>  cd myproject/src/types
+  CMAKE_INSTALL_PREFIX=/opt/orocos CMAKE_PREFIX_PATH=/opt/orocos cmake .
+  make install
+	  </screen>
+	  These variables tell cmake where to find Orocos and where to install the typekit:
+	  <itemizedlist>
+	    <listitem><para> CMAKE_INSTALL_PREFIX : where to install to (a single directory)</para></listitem>
+	    <listitem><para> CMAKE_PREFIX_PATH : where to look for the installed Orocos Toolchain (a list of directories, similar to the PATH variable)</para></listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+	  After make install finishes, you will see that your data types show up in the 
+	  deployer and taskbrowser applications, provided that the RTT_COMPONENT_PATH
+	  variable contains the '/opt/orocos/lib/orocos' directory (= CMAKE_PREFIX_PATH + lib/orocos ).
+	</para>
+      </section>
+      <section>
+	<title>Using <command>rosgen</command></title>
+	<para>Under development. Consult the mailinglist or the wiki pages for this tool.</para>
+      </section>
     </section>
   </section>
   <section>
     <title>Creating a Typekit in C++</title>
+      <important>
+	<para>
+	  Only continue here if you are sure you can not use typegen/rosgen !
+	</para>
+      </important>
     <para>
       In case you don't use any of the typekit generators, you need to
       write a typekit yourself. This has been simplified in RTT

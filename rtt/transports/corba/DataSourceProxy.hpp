@@ -90,9 +90,9 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert( ctp ); // only call this from CorbaTempateTypeInfo.
-                if ( misproperty && ! mserv->hasProperty( CORBA::string_dup(name.c_str())))
+                if ( misproperty && ! mserv->hasProperty( name.c_str()))
                     throw NonExistingDataSource();
-                if ( !misproperty && ! mserv->hasAttribute( CORBA::string_dup(name.c_str())))
+                if ( !misproperty && ! mserv->hasAttribute( name.c_str()))
                     throw NonExistingDataSource();
             }
 
@@ -107,9 +107,9 @@ namespace RTT
             virtual typename internal::DataSource<T>::result_t get() const {
                 CORBA::Any_var res;
                 if ( misproperty ) {
-                    res = mserv->getProperty( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getProperty( mname.c_str() );
                 } else {
-                    res = mserv->getAttribute( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getAttribute( mname.c_str() );
                 }
                 internal::ReferenceDataSource<T> rds(last_value);
                 rds.ref();
@@ -159,9 +159,9 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert(ctp);
-                if ( misproperty && !mserv->hasProperty( CORBA::string_dup(name.c_str())) )
+                if ( misproperty && !mserv->hasProperty( name.c_str()) )
                     throw NonExistingDataSource();
-                if ( !misproperty && ( !mserv->hasAttribute( CORBA::string_dup(name.c_str()))  || !mserv->isAttributeAssignable( CORBA::string_dup(name.c_str())) ))
+                if ( !misproperty && ( !mserv->hasAttribute( name.c_str())  || !mserv->isAttributeAssignable( name.c_str()) ))
                     throw NonExistingDataSource();
                 this->get(); // initialize such that value()/rvalue() return a sane value !
             }
@@ -178,9 +178,9 @@ namespace RTT
             virtual typename internal::DataSource<T>::result_t get() const {
                 CORBA::Any_var res;
                 if ( misproperty ) {
-                    res = mserv->getProperty( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getProperty( mname.c_str() );
                 } else {
-                    res = mserv->getAttribute( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getAttribute( mname.c_str() );
                 }
                 internal::ReferenceDataSource<T> rds( storage->set() );
                 rds.ref();
@@ -195,9 +195,9 @@ namespace RTT
                 CORBA::Any_var toset = ctp->createAny(&vds);
                 bool res;
                 if ( misproperty ) {
-                    res = mserv->setProperty( CORBA::string_dup( mname.c_str() ), toset.in() );
+                    res = mserv->setProperty( mname.c_str(), toset.in() );
                 } else {
-                    res = mserv->setAttribute( CORBA::string_dup( mname.c_str() ), toset.in() );
+                    res = mserv->setAttribute( mname.c_str(), toset.in() );
                 }
                 storage->set( t );
             }

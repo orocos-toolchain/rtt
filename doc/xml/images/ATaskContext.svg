@@ -16,7 +16,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.47pre4 r22446"
    version="1.0"
-   sodipodi:docname="ComponentArch-4.svg"
+   sodipodi:docname="ATaskContext.svg"
    inkscape:export-filename="/media/disk/XUM/2009/ComponentArch-2-1.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
@@ -1421,14 +1421,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.75738243"
-     inkscape:cx="471.14776"
+     inkscape:cx="302.8048"
      inkscape:cy="384.10833"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -1441,7 +1441,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2423,13 +2423,13 @@
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="646.72888"
+       x="684.72888"
        y="145.64458"
        id="text5263"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5265"
-         x="646.72888"
+         x="684.72888"
          y="145.64458">OperationCallers</tspan></text>
     <text
        sodipodi:linespacing="125%"

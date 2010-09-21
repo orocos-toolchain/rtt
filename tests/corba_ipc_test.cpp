@@ -36,6 +36,7 @@
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
 #include <transports/corba/CorbaLib.hpp>
+#include <rtt/internal/DataSourceTypeInfo.hpp>
 
 #include <string>
 #include <stdlib.h>
@@ -43,10 +44,10 @@
 using namespace RTT;
 using namespace RTT::detail;
 
-class CorbaTest
+class CorbaTest : public TaskContext
 {
 public:
-    CorbaTest() { this->setUp(); }
+    CorbaTest() : TaskContext("CorbaTest") { this->setUp(); }
     ~CorbaTest() { this->tearDown(); }
 
     TaskContext* tc;
@@ -64,8 +65,10 @@ public:
     // Ports
     InputPort<double>*  mi;
     OutputPort<double>* mo;
+    bool is_calling, is_sending;
+    SendHandle<void(TaskContext*, string const&)> handle;
 
-    int wait;
+    int wait, cbcount;
 
     void setUp();
     void tearDown();
@@ -74,6 +77,27 @@ public:
     void testPortDataConnection();
     void testPortBufferConnection();
     void testPortDisconnected();
+
+    void callBackPeer(TaskContext* peer, string const& opname) {
+	OperationCaller<void(TaskContext*, string const&)> op1( peer->getOperation(opname), this->engine());
+	int count = ++cbcount;
+	log(Info) << "Test executes callBackPeer():"<< count <<endlog();
+	if (!is_calling) {
+		is_calling = true;
+		log(Info) << "Test calls server:" << count <<endlog();
+		op1(this, "callBackPeer");
+		log(Info) << "Test finishes server call:"<<count <<endlog();
+	}
+
+	if (!is_sending) {
+		is_sending = true;
+		log(Info) << "Test sends server:"<<count <<endlog();
+		handle = op1.send(this, "callBackPeerOwn");
+		log(Info) << "Test finishes server send:"<< count <<endlog();
+	}
+	log(Info) << "Test finishes callBackPeer():"<< count <<endlog();
+    }
+
 };
 
 using namespace std;
@@ -93,7 +117,11 @@ CorbaTest::setUp()
     t2 = 0;
     ts2 = ts = 0;
     tp2 = tp = 0;
-    wait = 0;
+    wait = cbcount = 0;
+    is_calling = false, is_sending = false;
+
+    addOperation("callBackPeer", &CorbaTest::callBackPeer, this,ClientThread);
+    addOperation("callBackPeerOwn", &CorbaTest::callBackPeer, this,OwnThread);
 }
 
 
@@ -252,6 +280,29 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCaller )
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
 }
 
+/**
+ * Tests synchronous/asynchronous callbacks to self from a remote peer.
+ * For example A->B->A or even A->B->A->B
+ */
+BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCallback )
+{
+    tp = corba::TaskContextProxy::Create( "peerRMCb" , false);
+    if (!tp )
+        tp = corba::TaskContextProxy::CreateFromFile( "peerRMC.ior");
+    BOOST_REQUIRE(tp);
+
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() != 0 );
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo() !=  RTT::internal::DataSourceTypeInfo<UnknownType>::getTypeInfo());
+    BOOST_REQUIRE( RTT::internal::DataSourceTypeInfo<TaskContext*>::getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) != 0 );
+
+    this->callBackPeer(tp, "callBackPeer");
+    sleep(1); //asyncronous processing...
+    BOOST_CHECK( is_calling );
+    BOOST_CHECK( is_sending );
+    BOOST_CHECK( handle.ready() );
+    BOOST_CHECK_EQUAL( handle.collectIfDone(), SendSuccess );
+}
+
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
 {
     double d;
@@ -346,8 +397,9 @@ BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 	    ports->getPortType("mi"));
 
     // And check type names
+    CORBA::String_var cstr = ports->getDataType("mo");
     BOOST_CHECK_EQUAL(string("double"),
-	    string(ports->getDataType("mo")));
+	    string(cstr.in()));
 }
 
 BOOST_AUTO_TEST_CASE( testPortConnections )
@@ -553,7 +605,8 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
 
     // test unbuffered Corba write --> C++ read
     cce = ports->buildChannelOutput("mi", policy);
-    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy)  );
+
+    mi->connectTo( tp->ports()->getPort("mo"), toRTT(policy) );
     sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 

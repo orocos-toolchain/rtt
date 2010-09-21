@@ -169,9 +169,9 @@ namespace RTT {
         ownedoperations.clear();
 
         OperationInterface::clear();
+        ConfigurationInterface::clear();
         while ( !services.empty() ) {
-            if ( services.begin()->second->getParent() == shared_from_this() )
-                this->removeService( services.begin()->first );
+        	this->removeService( services.begin()->first );
         }
     }
 

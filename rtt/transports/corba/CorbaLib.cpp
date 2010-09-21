@@ -73,6 +73,7 @@ namespace RTT {
                     Logger::In in("CorbaFallBackProtocol");
                     log(Error) << "Could not send data of type '"<< source->getTypeName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
                 }
+                source->evaluate();
                 return new CORBA::Any();
             }
 
@@ -82,6 +83,7 @@ namespace RTT {
                     Logger::In in("CorbaFallBackProtocol");
                     log(Error) << "Could not send data of type '"<< source->getTypeName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
                 }
+                source->evaluate();
                 return false;
             }
 
@@ -170,6 +172,9 @@ namespace RTT {
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
             if ( name == "ConnPolicy")
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<ConnPolicy>() );
+            if ( name == "TaskContext")
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<TaskContext*>() );
+
             return false;
         }
 

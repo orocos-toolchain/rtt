@@ -129,32 +129,104 @@ BOOST_AUTO_TEST_CASE( testOnlyExportFunction)
 
     this->doFunction( prog, tc );
     BOOST_CHECK( tc->getOperation("foo") );
-    OperationCaller<void(void)> foo = tc->getOperation("foo");
-    BOOST_CHECK( foo.ready() );
 
-    foo();
+    // Test call:
+    {
+    	OperationCaller<void(void)> foo( tc->getOperation("foo"), caller->engine());
+    	BOOST_CHECK( foo.ready() );
 
-    OperationCaller<int(double)> foo_ret = tc->getOperation("foo_ret");
-    BOOST_CHECK( foo_ret.ready() );
+    	foo();
+    }
+#if 0
+    // Test pure send:
+    {
+    	OperationCaller<void(void)> foo( tc->getOperation("foo"), caller->engine());
+    	BOOST_CHECK( foo.ready() );
 
-    int i = 0;
-    i = foo_ret(3.0);
-    BOOST_CHECK_EQUAL( i, 3 );
+    	foo.send();
+    }
 
-    BOOST_CHECK( tc->getOperation("foo_args") );
-    OperationCaller<int(double,int)> foo_args = tc->getOperation("foo_args");
-    BOOST_CHECK( foo_args.ready() );
+    // Test send + collect:
+    {
+    	OperationCaller<void(void)> foo( tc->getOperation("foo"), caller->engine());
+    	BOOST_CHECK( foo.ready() );
 
-    // bug: the first return value is returned also the second time !
-    // it's like foo_args is called only the first time.
-    i = 0;
-    i = foo_args(-3.0, -6);
-    BOOST_CHECK_EQUAL( i, -1);
+    	SendHandle<void(void)> sh = foo.send();
+    	BOOST_CHECK_EQUAL( sh.collect(), SendSuccess);
+    }
+#endif
+    // Test call:
+    {
+    	OperationCaller<int(double)> foo_ret( tc->getOperation("foo_ret"), caller->engine());
+    	BOOST_CHECK( foo_ret.ready() );
 
-    i = 0;
-    i = foo_args(3.0, 6);
-    BOOST_CHECK_EQUAL( i, +1);
+    	int i = 0;
+    	i = foo_ret(3.0);
+    	BOOST_CHECK_EQUAL( i, 3 );
+    }
+#if 0
+    // Test pure send:
+    {
+    	OperationCaller<int(double)> foo_ret( tc->getOperation("foo_ret"), caller->engine());
+    	BOOST_CHECK( foo_ret.ready() );
 
+    	int i = 0;
+    	foo_ret.send(3.0);
+    }
+
+    // Test send + collect:
+    {
+    	OperationCaller<int(double)> foo_ret( tc->getOperation("foo_ret"), caller->engine());
+    	BOOST_CHECK( foo_ret.ready() );
+
+    	int i = 0;
+    	SendHandle<int(double)> sh = foo_ret.send(3.0);
+    	BOOST_CHECK_EQUAL( sh.collect(i), SendSuccess);
+    	BOOST_CHECK_EQUAL( i, 3 );
+    }
+#endif
+    // Test call:
+    {
+    	BOOST_CHECK( tc->getOperation("foo_args") );
+    	OperationCaller<int(double,int)> foo_args( tc->getOperation("foo_args"), caller->engine());
+    	BOOST_CHECK( foo_args.ready() );
+
+    	int i = 0;
+    	i = foo_args(-3.0, -6);
+    	BOOST_CHECK_EQUAL( i, -1);
+
+    	i = 0;
+    	i = foo_args(3.0, 6);
+    	BOOST_CHECK_EQUAL( i, +1);
+    }
+#if 0
+    // Test pure send:
+    {
+    	BOOST_CHECK( tc->getOperation("foo_args") );
+    	OperationCaller<int(double,int)> foo_args( tc->getOperation("foo_args"), caller->engine());
+    	BOOST_CHECK( foo_args.ready() );
+
+    	foo_args.send(-3.0, -6);
+    	foo_args.send(3.0, 6);
+    }
+
+    // Test send + collect:
+    {
+    	BOOST_CHECK( tc->getOperation("foo_args") );
+    	OperationCaller<int(double,int)> foo_args( tc->getOperation("foo_args"), caller->engine());
+    	BOOST_CHECK( foo_args.ready() );
+
+    	int i = 0;
+    	SendHandle<int(double,int)> sh = foo_args.send(-3.0, -6);
+    	BOOST_CHECK_EQUAL( sh.collect(i), SendSuccess);
+    	BOOST_CHECK_EQUAL( i, -1);
+
+    	i = 0;
+    	sh = foo_args.send(3.0, 6);
+    	BOOST_CHECK_EQUAL( sh.collect(i), SendSuccess);
+    	BOOST_CHECK_EQUAL( i, +1);
+    }
+#endif
 }
 #endif
 /**
