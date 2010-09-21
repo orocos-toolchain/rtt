@@ -406,7 +406,7 @@ namespace RTT
 
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing TaskContextServer for "<<tc->getName()<<endlog();
-            return servers.find(tc)->second->server();
+            return CTaskContext::_duplicate( servers.find(tc)->second->server() );
         }
 
         for (TaskContextProxy::PMap::iterator it = TaskContextProxy::proxies.begin(); it != TaskContextProxy::proxies.end(); ++it)
@@ -419,7 +419,7 @@ namespace RTT
         log(Info) << "Creating new TaskContextServer for "<<tc->getName()<<endlog();
         try {
             TaskContextServer* cts = new TaskContextServer(tc, use_naming, require_name_service);
-            return cts->server();
+            return CTaskContext::_duplicate( cts->server() );
         }
         catch( IllegalServer& is ) {
             cerr << is.what() << endl;
