@@ -2,8 +2,9 @@
 IF(ENABLE_MQ)
   MESSAGE( "Building MQueue Transport library (Requires Boost >= 1.37.0).")
 
-  find_package(Boost 1.37 REQUIRED serialization)
-
+  if (NOT Boost_SERIALIZATION)
+    MESSAGE(SEND_ERROR "Can't build MQueue transport without Boost Serialization. Please install serialiation or disable MQUEUE.")
+  endif()
 
   FILE( GLOB CPPS Dispatcher.cpp MQSendRecv.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)

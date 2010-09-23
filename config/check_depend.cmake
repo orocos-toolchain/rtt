@@ -58,12 +58,14 @@ if ( PLUGINS_ENABLE )
   list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
 endif()
 
-if(Boost_FOUND)
+if(Boost_INCLUDE_DIR)
   message("Boost found in ${Boost_INCLUDE_DIR}")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
-endif()
+else(Boost_INCLUDE_DIR)
+  message(FATAL_ERROR "Boost_INCLUDE_DIR not found ! Add it to your CMAKE_PREFIX_PATH !")
+endif(Boost_INCLUDE_DIR)
 
 # Look for Xerces 
 
