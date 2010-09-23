@@ -125,9 +125,7 @@ namespace RTT
          */
         template<class T>
         Property<T>& addProperty( const std::string& name, T& attr) {
-            Property<T>* p = new Property<T>(name,"", new internal::ReferenceDataSource<T>(attr));
-            this->properties()->ownProperty( p );
-            return *p;
+            return this->properties()->addProperty( name, attr );
         }
 
         /**
