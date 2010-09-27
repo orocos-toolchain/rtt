@@ -397,7 +397,7 @@ namespace RTT
 
         MutexLock lock(mportlock);
         UserCallbacks::iterator it = user_callbacks.find(port);
-        if (it != user_callbacks.end() ) {
+        if (it == user_callbacks.end() ) {
             user_callbacks[port] = boost::make_shared<InputPortInterface::NewDataOnPortEvent>();
         }
         user_callbacks[port]->connect(callback);
