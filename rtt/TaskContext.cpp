@@ -94,30 +94,22 @@ namespace RTT
 
     void TaskContext::setup()
     {
-//        // Temporarily until plugins are implemented:
-//#if defined(PLUGINS_ENABLE_SCRIPTING)
-//        ScriptingService::Create(this);
-//#endif
-//#if defined(PLUGINS_ENABLE_MARSHALLING)
-//        MarshallingService::Create(this);
-//#endif
-
         // from Service
         provides()->doc("The interface of this TaskContext.");
 
-        this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (read properties etc).");
+        this->addOperation("configure", &TaskContext::configure, this, ClientThread).doc("Configure this TaskContext (= configureHook() ).");
         this->addOperation("isConfigured", &TaskContext::isConfigured, this, ClientThread).doc("Is this TaskContext configured ?");
-        this->addOperation("start", &TaskContext::start, this, ClientThread).doc("Start the Execution Engine of this TaskContext (= activate + updateHook() ).");
-        this->addOperation("activate", &TaskContext::activate, this, ClientThread).doc("Activate the Execution Engine of this TaskContext (= events and commands).");
-        this->addOperation("stop", &TaskContext::stop, this, ClientThread).doc("Stop the Execution Engine of this TaskContext.");
-        this->addOperation("isRunning", &TaskContext::isRunning, this, ClientThread).doc("Is the Execution Engine executing this TaskContext ?");
+        this->addOperation("start", &TaskContext::start, this, ClientThread).doc("Start this TaskContext (= startHook() + updateHook() ).");
+        this->addOperation("activate", &TaskContext::activate, this, ClientThread).doc("Activate the Execution Engine of this TaskContext.");
+        this->addOperation("stop", &TaskContext::stop, this, ClientThread).doc("Stop this TaskContext (= stopHook() ).");
+        this->addOperation("isRunning", &TaskContext::isRunning, this, ClientThread).doc("Is this TaskContext started ?");
         this->addOperation("getPeriod", &TaskContext::getPeriod, this, ClientThread).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
         this->addOperation("setPeriod", &TaskContext::setPeriod, this, ClientThread).doc("Set the execution period in seconds.").arg("s", "Period in seconds.");
-        this->addOperation("isActive", &TaskContext::isActive, this, ClientThread).doc("Is the Execution Engine of this TaskContext processing events and commands ?");
+        this->addOperation("isActive", &TaskContext::isActive, this, ClientThread).doc("Is the Execution Engine of this TaskContext active ?");
         this->addOperation("inFatalError", &TaskContext::inFatalError, this, ClientThread).doc("Check if this TaskContext is in the FatalError state.");
-        this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state.");
+        this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state (= errorHook() ).");
         this->addOperation("inRunTimeError", &TaskContext::inRunTimeError, this, ClientThread).doc("Check if this TaskContext is in the RunTimeError state.");
-        this->addOperation("cleanup", &TaskContext::cleanup, this, ClientThread).doc("Reset this TaskContext to the PreOperational state (write properties etc).");
+        this->addOperation("cleanup", &TaskContext::cleanup, this, ClientThread).doc("Reset this TaskContext to the PreOperational state ( =cleanupHook() ).");
         this->addOperation("update", &TaskContext::update, this, ClientThread).doc("Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
 
         this->addOperation("trigger", &TaskContext::trigger, this, ClientThread).doc("Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task.");
