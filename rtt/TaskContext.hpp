@@ -519,8 +519,6 @@ namespace RTT
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
-         * @note This function will temporarily stop your TaskContext and
-         * re-start it in case it was running.
          */
         base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
             port.setName(name);
@@ -534,8 +532,6 @@ namespace RTT
          * @param callback (Optional) provide a function which will be called asynchronously
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
-         * @note This function will temporarily stop your TaskContext and
-         * re-start it in case it was running.
          */
         base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
             return ports()->addEventPort(port,callback);
