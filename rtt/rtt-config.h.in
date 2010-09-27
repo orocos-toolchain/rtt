@@ -65,7 +65,7 @@
 #   define RTT_HIDE   
 #  else
 #   define RTT_API	 __declspec(dllimport)
-#   define RTT_EXPORT __declspec(dllimport)
+#   define RTT_EXPORT __declspec(dllexport)
 #   define RTT_HIDE 
 #  endif
 # else
