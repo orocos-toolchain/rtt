@@ -37,6 +37,14 @@ if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
     "See orocos-rtt.default.cmake")
 endif ()
 
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  IF (MSVC)
+    SET(CMAKE_INSTALL_PREFIX
+      "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
+      )
+  ENDIF(MSVC)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
 IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
