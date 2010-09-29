@@ -1,3 +1,2 @@
-usr/lib/liborocos-rtt-corba-@TARGET@.a
 usr/lib/liborocos-rtt-corba-@TARGET@.so
 usr/lib/pkgconfig/orocos-rtt-corba-@TARGET@.pc

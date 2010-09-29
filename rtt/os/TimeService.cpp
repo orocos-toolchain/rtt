@@ -16,12 +16,6 @@
 *                                                                         *
 ***************************************************************************/
 
-/**
- * TODO : use smart pointers for the heartbeat or a noncopyable pointer
- *        and count Instance()/Release() references
- *
- */
-
 #include "os/fosi.h"
 #include "TimeService.hpp"
 

@@ -1,8 +1,8 @@
-           The Orocos Real-Time Toolkit v1.99.4 (2.0.0-beta4).
+           The Orocos Real-Time Toolkit v2.0.0.
            ===================================================
 
-This is the forth beta release of the upcoming RTT 2.0.0 release cycle. It is incomplete
-and unsuitable for production use. See http://www.orocos.org/wiki/rtt/rtt-20/rtt-200-beta1
+This is the first release of the RTT 2.0 release cycle. It is part of
+the Orocos Toolchain v2.0, see http://www.orocos.org/toolchain
 for all necessary information.
 
  *******************************************************************

@@ -1,3 +1,22 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  corba_mqueue_ipc_test.cpp
+
+                        corba_mqueue_ipc_test.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 
 #include "corba_mqueue_test.hpp"
 
@@ -96,6 +115,19 @@ void CorbaMQueueIPCTest::new_data_listener(base::PortInterface* port)
     code; \
     usleep(100000); \
     BOOST_CHECK( read_port == signalled_port );
+
+bool wait_for_helper;
+#define wait_for( cond, times ) \
+    wait = 0; \
+    while( (wait_for_helper = !(cond)) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK( cond );
+
+#define wait_for_equal( a, b, times ) \
+    wait = 0; \
+    while( (wait_for_helper = ((a) != (b))) && wait++ != times ) \
+      usleep(100000); \
+    if (wait_for_helper) BOOST_CHECK_EQUAL( a, b );
 
 void CorbaMQueueIPCTest::testPortDataConnection()
 {

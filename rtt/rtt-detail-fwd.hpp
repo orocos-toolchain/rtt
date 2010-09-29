@@ -41,7 +41,8 @@
 
 namespace RTT {
     /**
-     * Base classes used by higher level code.
+     * Base classes of RTT classes. Not to be used directly, but they
+     * are part of the public API through inheritance.
      */
     namespace base {}
     /**
@@ -49,7 +50,7 @@ namespace RTT {
      */
     namespace internal {}
     /**
-     * Extra classes strictly not needed to build a control application, but
+     * Extra classes not neccesary to build an Orocos application, but
      * are handy in some cases, or serve as an example on how to extend the RTT.
      */
     namespace extras {}
@@ -66,11 +67,11 @@ namespace RTT {
      */
     namespace scripting {}
     /**
-     * Classes for describing and handling user data types.
+     * Classes for typekits, i.e. describing and handling user data types.
      */
     namespace types {}
     /**
-     * Classes and functions for creating plugins.
+     * Classes and functions for creating and loading plugins.
      */
     namespace plugin {}
     /**
@@ -79,9 +80,10 @@ namespace RTT {
     namespace corba {}
 
     /**
-     * Implementation specific classes, not intended for normal users.  
+     * Convenient short notation for every sub-namespace of RTT.
      *
-     * The detail namespace is intended for use in the .cpp files of
+     * The detail namespace contains all classes of each sub-namespace.
+     * It is intended for use in the .cpp files of
      * the RTT (or any advanced user of it). The prefered workflow is
      * to include headers from various sub-packages of RTT \b and
      * include this header.  By writing 'using namespace detail;', all

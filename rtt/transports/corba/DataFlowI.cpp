@@ -71,13 +71,14 @@ CDataFlowInterface_i::CDataFlowInterface_i (RTT::DataFlowInterface* interface, P
 
 CDataFlowInterface_i::~CDataFlowInterface_i ()
 {
+	channel_list.clear();
 }
 
 void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::DataFlowInterface* obj)
 {
     s_servant_map.push_back(
             std::make_pair(
-                CDataFlowInterface_var(RTT::corba::CDataFlowInterface::_duplicate(objref)),
+                CDataFlowInterface_var(objref),
                 obj)
             );
 }
@@ -92,6 +93,11 @@ void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
             return;
         }
     }
+}
+
+void CDataFlowInterface_i::clearServants()
+{
+		s_servant_map.clear();
 }
 
 RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
@@ -115,6 +121,7 @@ CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::DataFlowInt
     }
     CDataFlowInterface_i* servant = new CDataFlowInterface_i(dfi, poa );
     CDataFlowInterface_ptr server = servant->_this();
+    servant->_remove_ref();
     registerServant( server, dfi);
     return server;
 }
@@ -376,7 +383,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     this_element->_remove_ref();
 
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
-    channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), end->getOutputEndPoint()));
+    channel_list.push_back( ChannelList::value_type(this_element->_this(), end->getOutputEndPoint()));
 
     CRemoteChannelElement_var proxy = this_element->_this();
     return proxy._retn();
@@ -457,10 +464,13 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     // Attach to our output port:
     port->addConnection( new SimpleConnID(), start->getInputEndPoint(), policy2);
 
-    // Finally, store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
-    channel_list.push_back( ChannelList::value_type(RTT::corba::CChannelElement::_duplicate(this_element->_this()), start->getInputEndPoint()));
+    // DO NOT DO THIS: _remove_ref() is tied to the refcount of the ChannelElementBase !
+    //this_element->_remove_ref();
 
-    return RTT::corba::CChannelElement::_duplicate(this_element->_this());
+    // Finally, store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
+    channel_list.push_back( ChannelList::value_type(this_element->_this(), start->getInputEndPoint()));
+
+    return this_element->_this();
 }
 
 

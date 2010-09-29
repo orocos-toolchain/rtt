@@ -6,7 +6,7 @@ Quick Installation
 ==================
 
 The Orocos RTT requires the 'cmake' program to be present, version
-2.6.0 or later is required. http://www.cmake.org
+2.6.2 or later is required. http://www.cmake.org
 
 Download the latest version from http://www.orocos.org/rtt
 

@@ -155,23 +155,51 @@ namespace RTT
             }
         };
 
-        //! Partial specialisations for storing a reference or not reference
+        //! Partial specialisations for storing a (const) reference or not reference
+        //! The trick here is to take a (const) reference data source to something that was
+        //! already a reference, and copy to a value data source for something that
+        //! is plain value. As such, we keep the same 'lifetime' expectations as
+        //! with standard C++ method calls.
         //! Wraps around AStore
         template<class A>
         struct DataSourceArgStorage
         {
-            AStore<A> arg;
+            typedef typename remove_cr<A>::type ds_type;
+            typedef AStore<A&> Store;
+            typename ValueDataSource<ds_type>::shared_ptr value;
+            AStore<A&> arg;
+            DataSourceArgStorage()
+                : value( new ValueDataSource<ds_type>() )
+            {}
+            // We store the copy of 'a' in the data source, such that
+            // that copy is always valid memory (refcounted). If we
+            // would store it in 'arg' and use a LateReferenceDataSource,
+            // we would loose/corrupt the data if this object is destroyed.
+            // This is acceptable for ref/constref cases, but not for
+            // value cases, which are often living on the stack and by
+            // definition short lived.
+            void newarg(A a) { arg( value->set() ); value->set(a); }
+        };
+
+        //! Partial specialisations for storing a reference.
+        template<class A>
+        struct DataSourceArgStorage<A &>
+        {
+            typedef AStore<A&> Store;
+            AStore<A&> arg;
             typedef typename remove_cr<A>::type ds_type;
             typename LateReferenceDataSource<ds_type>::shared_ptr value;
             DataSourceArgStorage()
                 : value( new LateReferenceDataSource<ds_type>() )
             {}
-            void newarg(A a) { arg(a); value->setPointer(&arg.get()); }
+            void newarg(A& a) { arg(a); value->setPointer(&arg.get()); }
         };
 
+        //! Partial specialisations for storing a const reference.
         template<class A>
         struct DataSourceArgStorage<A const&>
         {
+            typedef AStore<A const&> Store;
             AStore<A const&> arg;
             // without const&:
             typename LateConstReferenceDataSource<A>::shared_ptr value;
@@ -209,9 +237,12 @@ namespace RTT
             typedef typename boost::function_traits<DataType>::result_type result_type;
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             DataSourceArgStorage<arg1_type> ma1;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>& > vStore;
+            // the list of all our storage. We need this vector for returning the
+            // results to collect(). We use boost::fusion magic to copy selected parts
+            // from R/AStore back to the args of collect(...).
+            bf::vector< DSRStore<result_type>&, AStore1& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg) {}
 
@@ -234,9 +265,11 @@ namespace RTT
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
             DataSourceArgStorage<arg1_type> ma1;
             DataSourceArgStorage<arg2_type> ma2;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg) {}
 
@@ -262,9 +295,12 @@ namespace RTT
             DataSourceArgStorage<arg1_type> ma1;
             DataSourceArgStorage<arg2_type> ma2;
             DataSourceArgStorage<arg3_type> ma3;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
+            typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
 
@@ -294,9 +330,13 @@ namespace RTT
             DataSourceArgStorage<arg2_type> ma2;
             DataSourceArgStorage<arg3_type> ma3;
             DataSourceArgStorage<arg4_type> ma4;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
+            typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
+            typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
 
@@ -330,9 +370,14 @@ namespace RTT
             DataSourceArgStorage<arg3_type> ma3;
             DataSourceArgStorage<arg4_type> ma4;
             DataSourceArgStorage<arg5_type> ma5;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
+            typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
+            typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
+            typedef typename DataSourceArgStorage<arg5_type>::Store AStore5;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& , AStore<arg5_type>& > vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& , AStore5& > vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
 
@@ -370,9 +415,15 @@ namespace RTT
             DataSourceArgStorage<arg4_type> ma4;
             DataSourceArgStorage<arg5_type> ma5;
             DataSourceArgStorage<arg6_type> ma6;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
+            typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
+            typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
+            typedef typename DataSourceArgStorage<arg5_type>::Store AStore5;
+            typedef typename DataSourceArgStorage<arg6_type>::Store AStore6;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& , AStore<arg5_type>& , AStore<arg6_type>&> vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& , AStore5& , AStore6&> vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
 
@@ -414,9 +465,16 @@ namespace RTT
             DataSourceArgStorage<arg5_type> ma5;
             DataSourceArgStorage<arg6_type> ma6;
             DataSourceArgStorage<arg7_type> ma7;
+            typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
+            typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
+            typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
+            typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
+            typedef typename DataSourceArgStorage<arg5_type>::Store AStore5;
+            typedef typename DataSourceArgStorage<arg6_type>::Store AStore6;
+            typedef typename DataSourceArgStorage<arg7_type>::Store AStore7;
 
             // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>&, AStore<arg7_type>&> vStore;
+            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4&, AStore5&, AStore6&, AStore7&> vStore;
             DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
             DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
 

@@ -1,3 +1,22 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  mqueue_archive_test.cpp
+
+                        mqueue_archive_test.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
@@ -93,6 +112,38 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     in >> ma; // +0 alloc
 
     BOOST_CHECK_EQUAL(c, "123456789");
+    BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
+    rtos_disable_rt_warning();
+}
+
+/**
+ * For serializing C-Style arrays created with make_nvp("array", make_array() )
+ */
+BOOST_AUTO_TEST_CASE( testMakeArrayBinaryDataArchive )
+{
+    char sink[1000];
+    memset( sink, 0, 1000);
+    double c[10] = {-1,1,2,3,4,5,6,7,8,9};
+    double r[10] = {0,0,0,0,0,0,0,0,0,0};
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_sink>  outbuf(sink,1000);
+    binary_data_oarchive out( outbuf );
+    out & make_nvp("array", make_array(c, 10) );
+
+    unsigned int stored = out.getArchiveSize();
+    BOOST_CHECK( stored >= 10*sizeof(double) );
+    rtos_disable_rt_warning();
+
+    rtos_enable_rt_warning();
+    io::stream<io::array_source>  inbuf(sink,1000);
+    binary_data_iarchive in( inbuf );
+    array<double> ma = make_array(r, 10);
+    in & make_nvp("array", make_array(r, 10) );
+
+    BOOST_CHECK_EQUAL(r[0], c[0]);
+    BOOST_CHECK_EQUAL(r[4], c[4]);
+    BOOST_CHECK_EQUAL(r[9], c[9]);
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
     rtos_disable_rt_warning();
 }

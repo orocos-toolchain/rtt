@@ -47,6 +47,8 @@
 #include "os/MainThread.hpp"
 #include "os/StartStopManager.hpp"
 #include "../internal/GlobalEngine.hpp"
+#include "../types/GlobalsRepository.hpp"
+#include "../types/TypekitRepository.hpp"
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
@@ -154,6 +156,10 @@ void __os_exit(void)
 #endif
 
     internal::GlobalEngine::Release();
+
+    types::GlobalsRepository::Release();
+
+    types::TypekitRepository::Release();
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
     initM->stop();

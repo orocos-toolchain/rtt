@@ -1,3 +1,22 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:54:57 CEST 2010  method_test.cpp
+
+                        method_test.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
 
 #define ORO_TEST_OPERATION_CALLER
 
@@ -342,12 +361,12 @@ BOOST_AUTO_TEST_CASE(testDSOperationCaller)
     // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
     // requires this for copying state machines.
 
-    Operation<double(OperationsFixture*)> meth0("m0");
+    Operation<double(shared_ptr<OperationsFixture>)> meth0("m0");
     meth0.calls( boost::bind(&OperationsFixture::m0, _1));
 
     //method_ds("m0", &OperationsFixture::m0);
 
-    Operation<double(OperationsFixture*,int)> meth1("m1");
+    Operation<double(shared_ptr<OperationsFixture>,int)> meth1("m1");
     meth1.calls(boost::bind(&OperationsFixture::m1, _1,_2));
 
     //method_ds("m1", &OperationsFixture::m1);

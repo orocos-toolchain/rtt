@@ -28,6 +28,7 @@
 #include <rtt/InputPort.hpp>
 #include <rtt/OutputPort.hpp>
 #include <rtt/TaskContext.hpp>
+#include <rtt/plugin/PluginLoader.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
 #include <string>
@@ -44,13 +45,17 @@ public:
     // Ports
     InputPort<double>  mi1;
     OutputPort<double> mo1;
+    bool is_calling, is_sending;
+    int cbcount;
 
-    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo") {
+    TheServer(string name) : TaskContext(name), mi1("mi"), mo1("mo"), is_calling(false), is_sending(false), cbcount(0) {
         ports()->addEventPort( mi1 );
         ports()->addPort( mo1 );
         this->createOperationCallerFactories( this );
         ts = corba::TaskContextServer::Create( this, true ); //use-naming
         this->start();
+        addOperation("callBackPeer", &TheServer::callBackPeer, this,ClientThread);
+        addOperation("callBackPeerOwn", &TheServer::callBackPeer, this,OwnThread);
     }
     ~TheServer() {
         this->stop();
@@ -64,12 +69,34 @@ public:
 
     corba::TaskContextServer* ts;
 
+    void callBackPeer(TaskContext* peer, string const& opname) {
+    	int count = ++cbcount;
+    	log(Info) << "Server executes callBackPeer():"<< count <<endlog();
+    	OperationCaller<void(TaskContext*, string const&)> op1 (peer->getOperation(opname), this->engine());
+		if (!is_calling) {
+			is_calling = true;
+			log(Info) << "Server calls back peer:" << count << endlog();
+			op1(this, "callBackPeerOwn");
+			log(Info) << "Server finishes call back peer:" << count << endlog();
+		}
+
+		if (!is_sending) {
+			is_sending = true;
+			log(Info) << "Server sends back peer:" << count << endlog();
+			SendHandle<void(TaskContext*, string const&)> handle = op1.send(
+					this, "callBackPeer");
+			log(Info) << "Server finishes send back peer:" << count << endlog();
+		}
+		log(Info) << "Server finishes callBackPeer():" << count << endlog();
+    }
+
 };
 
 int ORO_main(int argc, char** argv)
 {
     corba::TaskContextProxy::InitOrb(argc,argv);
 
+    PluginLoader::Instance()->loadTypekits("../rtt");
     {
         TheServer ctest1("peerRMC");
         TheServer ctest2("peerRM");
@@ -79,6 +106,7 @@ int ORO_main(int argc, char** argv)
         TheServer ctest6("peerPP");
         TheServer ctest7("peerDH");
         TheServer ctest8("peerBH");
+        TheServer ctest9("peerRMCb");
 
         // wait for shutdown.
         corba::TaskContextServer::RunOrb();

@@ -131,5 +131,12 @@ namespace RTT {
         return false;
     }
 
-
+    void TypekitRepository::Release() {
+    	for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
+    	             it != Transports.end(); ++it)
+    		delete *it;
+        for (std::vector<TypekitPlugin*>::const_iterator it = Typekits.begin();
+             it != Typekits.end(); ++it)
+        	delete *it;
+    }
 }

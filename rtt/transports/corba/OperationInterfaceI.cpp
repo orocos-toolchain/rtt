@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  OperationInterfaceI.cpp
+
+                        OperationInterfaceI.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -149,6 +187,12 @@ void RTT_corba_CSendHandle_i::checkArguments (
     }
 }
 
+void RTT_corba_CSendHandle_i::dispose (
+    void)
+{
+	this->_remove_ref();
+    return;
+}
 
 // Implementation skeleton constructor
 RTT_corba_COperationInterface_i::RTT_corba_COperationInterface_i (OperationInterface* gmf, PortableServer::POA_ptr the_poa)
@@ -270,9 +314,18 @@ void RTT_corba_COperationInterface_i::checkOperation (
             const TypeInfo* ti = mofp->getArgumentType(i+1);
             assert(ti);
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
-            DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
-            if (ds)
-                mc.arg(ds);
+            if (ctt) {
+		DataSourceBase::shared_ptr ds = ctt->createDataSource(&args[i]);
+		if (ds)
+			mc.arg(ds);
+		else {
+			log(Error) << "Registered transport for type "<< ti->getTypeName()
+					<< " could not create data source from Any (argument "<< i+1
+					<<"): calling operation '"<< operation <<"' will fail." <<endlog();
+		}
+            } else {
+		throw wrong_types_of_args_exception(i+1,"type known to CORBA", ti->getTypeName());
+            }
         }
         mc.check();
     } catch (no_asynchronous_operation_exception& nao) {
@@ -311,7 +364,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             const TypeInfo* ti = ds->getTypeInfo();
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
             if ( !ctt ) {
-                log(Warning) << "Could not return results of call to " << operation << ": unknown return type by CORBA transport."<<endlog();            
+                log(Warning) << "Could not return results of call to " << operation << ": unknown return type by CORBA transport."<<endlog();
                 ds->evaluate(); // equivalent to orig.call()
                 retany = new CORBA::Any();
             } else {
@@ -322,7 +375,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             for (size_t i =0; i != args.length(); ++i) {
                 const TypeInfo* ti = mfact->getPart(operation)->getArgumentType( i + 1);
                 CorbaTypeTransporter* ctta = dynamic_cast<CorbaTypeTransporter*> ( ti->getProtocol(ORO_CORBA_PROTOCOL_ID) );
-		            ctta->updateAny(results[i], args[i]);
+                ctta->updateAny(results[i], args[i]);
             }
             return retany;
         } else {
@@ -357,6 +410,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
         }
         if ( orig.ready() ) {
             SendHandleC resulthandle = orig.send();
+            // we may not destroy the SendHandle, before the operation completes:
+            resulthandle.setAutoCollect(true);
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
             CSendHandle_var ret = ret_i->_this();
             return ret._retn();

@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  SendHandleC.hpp
+
+                        SendHandleC.hpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef ORO_EXECUTION_SENDHANDLEC_HPP
 #define ORO_EXECUTION_SENDHANDLEC_HPP
 
@@ -37,11 +75,18 @@ namespace RTT
          * Stores the blocking/non blocking flag for collect/collectIfDone.
          */
         internal::AssignableDataSource<bool>::shared_ptr b;
+        /**
+         * Stores the operation in order to avoid its premature destruction.
+         */
+        base::DataSourceBase::shared_ptr mop;
 
-	/**
-	 * Stores the OperationInterfacePart pointer contained in this SendHandle
-	 */
-	OperationInterfacePart* orp;
+        struct OperationKeeper;
+        boost::shared_ptr<OperationKeeper> mopkeeper;
+
+        /**
+         * Stores the OperationInterfacePart pointer contained in this SendHandle
+         */
+        OperationInterfacePart* orp;
 
 
     public:
@@ -56,7 +101,7 @@ namespace RTT
          * The constructor from a SendHandle data source and an operation part.
          * The SendHandle is obtained after a send.
          */
-        SendHandleC( base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
+        SendHandleC( base::DataSourceBase::shared_ptr operation, base::DataSourceBase::shared_ptr handle, OperationInterfacePart* ofp, const std::string& name );
 
         /**
          * A SendHandleC is copyable by value.
@@ -112,6 +157,22 @@ namespace RTT
          * Returns true if this handle is ready for execution.
          */
         bool ready() const;
+
+        /**
+         * When set to 'on', the destruction of this SendHandleC
+         * will cause a call to collect() before all data in
+         * data sources is destroyed. This is \b required for
+         * in-process operation calls, since destruction of the
+         * data sources would lead to memory corruption of the operation's
+         * arguments. When set to 'off', no such collection is done,
+         * which is useful in remote/inter-process communication,
+         * in which the data lives in a copy in the other process
+         * anyway. Since RTT uses this same class for both situations,
+         * we need a flag to distinguish.
+         *
+         * Defaults to 'on', which is the safe default if unspecified.
+         */
+        void setAutoCollect(bool on_off);
 
         /**
          * Get the contained data source for send handle.

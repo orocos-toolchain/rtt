@@ -45,7 +45,7 @@
  * process exits.
  */
 #include <string>
-#include "../rtt-config.hpp"
+#include "../rtt-config.h"
 namespace RTT {
     class TaskContext;
 }

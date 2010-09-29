@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  SendHandleC.cpp
+
+                        SendHandleC.cpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #include "SendHandleC.hpp"
 #include "../FactoryExceptions.hpp"
 #include "DataSourceCommand.hpp"
@@ -9,6 +47,24 @@
 namespace RTT {
     using namespace detail;
 
+
+    /**
+     * This is a custom deleter that blocks on an asynchronous
+     * operation
+     */
+    struct SendHandleC::OperationKeeper
+    {
+	DataSource<SendStatus>::shared_ptr ms;
+	AssignableDataSource<bool>::shared_ptr mb;
+	bool autocollect;
+	OperationKeeper(DataSource<SendStatus>::shared_ptr s, AssignableDataSource<bool>::shared_ptr b) : ms(s), mb(b), autocollect(true) {}
+	~OperationKeeper() {
+		if (ms && autocollect) {
+			mb->set(true); // blocking
+			ms->evaluate();
+		}
+	}
+    };
 
     class SendHandleC::D
     {
@@ -67,12 +123,13 @@ namespace RTT {
     {
     }
 
-    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
-        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b()
+    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr op, base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
+        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b(), mop(op)
     {
         if ( d->s ) {
             this->s = d->s;
             this->b = d->blocking;
+            this->mopkeeper.reset( new OperationKeeper( s, b) );
             delete d;
             d = 0;
         }
@@ -80,7 +137,7 @@ namespace RTT {
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), orp( other.orp ? other.orp : NULL)
+        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), mop(other.mop), mopkeeper(other.mopkeeper), orp( other.orp ? other.orp : NULL)
     {
     }
 
@@ -92,6 +149,8 @@ namespace RTT {
         d = ( other.d ? new D(*other.d) : 0 );
         s = other.s;
         b = other.b;
+        mop = other.mop;
+        mopkeeper = other.mopkeeper;
         orp = other.orp;
         return *this;
     }
@@ -99,6 +158,10 @@ namespace RTT {
     SendHandleC::~SendHandleC()
     {
         delete d;
+        // force synchronisation in case we are the last SendHandleC. We may not cleanup mop (holds data!), until the op
+        // completed or failed.
+        // Reduce refcount on mopkeeper
+        mopkeeper.reset();
     }
 
     SendHandleC& SendHandleC::arg( DataSourceBase::shared_ptr a )
@@ -112,6 +175,7 @@ namespace RTT {
             this->s = d->s;
             this->b = d->blocking;
             this->orp = d->mofp;
+            this->mopkeeper.reset( new OperationKeeper( s, b) );
             delete d;
             d = 0;
         }
@@ -125,7 +189,7 @@ namespace RTT {
             return s->value();
         }
         else {
-            Logger::log() <<Logger::Error << "call() called on incomplete SendHandleC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "collect() called on incomplete SendHandleC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->mofp->collectArity();
@@ -145,7 +209,7 @@ namespace RTT {
             return s->value();
         }
         else {
-            Logger::log() <<Logger::Error << "send() called on incomplete SendHandleC."<<Logger::endl;
+            Logger::log() <<Logger::Error << "collectIfDone() called on incomplete SendHandleC."<<Logger::endl;
             if (d) {
                 size_t sz;
                 sz = d->mofp->collectArity();
@@ -159,6 +223,11 @@ namespace RTT {
     bool SendHandleC::ready() const
     {
         return s;
+    }
+
+    void SendHandleC::setAutoCollect(bool on_off) {
+    	if (mopkeeper)
+    		mopkeeper->autocollect = on_off;
     }
 
     void SendHandleC::check() {

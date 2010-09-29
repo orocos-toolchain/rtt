@@ -156,6 +156,8 @@ namespace RTT
 
         /**
          * Get the Corba Object of the CTaskContext.
+         * You need to duplicate this object reference in case you wish to keep a reference
+         * to it.
          * This object universally identifies the remote TaskContextServer
          * and can be used to tell other (remote) objects where to find it.
          */

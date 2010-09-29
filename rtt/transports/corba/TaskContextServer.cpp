@@ -53,6 +53,7 @@
 #endif
 #include "TaskContextC.h"
 #include "TaskContextI.h"
+#include "DataFlowI.h"
 #include "POAUtility.h"
 #include <iostream>
 #include <fstream>
@@ -237,6 +238,7 @@ namespace RTT
                 delete servers.begin()->second;
                 // note: destructor will self-erase from map !
             }
+            CDataFlowInterface_i::clearServants();
             log() << "Cleanup done."<<endlog();
         }
     }
@@ -366,6 +368,8 @@ namespace RTT
             //poa->destroy (1, 1);
             CleanupServers();
             orb->destroy();
+            rootPOA = 0;
+            orb = 0;
             log(Info) <<"Orb destroyed."<<endlog();
         }
         catch (CORBA::Exception &e) {

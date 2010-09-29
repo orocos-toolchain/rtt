@@ -14,7 +14,7 @@
 <article>
   <articleinfo>
     <title>
-      Orocos Real-Time Toolkit &version; Release Series
+      Orocos Toolchain &version; Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
@@ -22,14 +22,21 @@
   </articleinfo>
   <para>
     This document provides a quick overview of what changed between
-    the Real-Time Toolkit &oldversion; and version &version;.
+    the Orocos Toolchain &oldversion; and version &version;.
   </para>
   <para>
-    Please consult the online wiki for all necessary information about
-    the Beta releases:
+    Please consult the online wiki for all available information about
+    the 2.0 transition:
     <ulink
-    url="http://www.orocos.org/wiki/rtt/rtt-20/rtt-200-beta1">RTT 2.0 Beta releases</ulink>.
+    url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.
+    The Real-Time Toolkit is no longer released as a single entity, but as part
+    of a complete set of tools and libraries for creating real-time applications.
   </para>
+  <note>
+    <para>
+      This document is intended for current users of RTT 1.x
+    </para>
+  </note>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -44,14 +51,83 @@
       </listitem>
       <listitem>
 	<para>
-	  The CommandProcessor did only process one command in each
-	  step() function (ie for each time the user's updateHook()
-	  was executed, the CommandProcessor only processed one
-	  command).  This caused commands to be left in the queue when
-	  using NonPeriodicActivity. The CommandProcessor now
-	  processes all commands in queue during a single step()
-	  (analogous to the EventProcessor). You have to change your
-	  application logic if you relied on the old behaviour somehow.
+	  There are no longer Methods and Commands. They have been replaced by a single
+	  primitive called 'Operation', which can act as a Method or as a Command. In
+	  order to use an Operation from a peer component, you need to use the OperationCaller
+	  class, instead of the Method or Command class.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  RTT 2.0 code containing many Operations compiles slower and
+	  requires more memory than 1.x code with many methods or
+	  commands. The run-time execution speed is almost identical to 1.x code.
+	  The developers are constantly looking at ways to improve this issue and
+	  are benchmarking this.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Marshalling (XML reading/writing of parameters) and
+	  scripting have become plugins. There is no longer a
+	  <function>scripting()</function> or
+	  <function>marshalling()</function> function
+	  available. Instead, include the headers
+	  <filename>rtt/scripting/Scripting.hpp</filename> or
+	  <filename>rtt/marsh/Marshalling.hpp</filename> and replace the function calls
+	  <function>scripting()</function> with
+	  <function>getProvider&lt;<classname>RTT::Scripting</classname>>("scripting")</function>
+	  and <function>marshalling()</function> with
+	  <function>getProvider&lt;<classname>RTT::Marshalling</classname>>("marshalling")</function>.
+	  The rtt2-converter tool will take care of this if it sees these functions
+	  in existing code.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The RTT::Logger class has been deprecated. Although it is part of this release,
+	  you should not rely on it for future compatibility. The RTT developers will 
+	  provide a transition path from RTT::Logger to a real-time logging infrastructure, based on
+	  the log4cpp code base. This migration will happen in the 2.x release line.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Typekits should no longer be written manually
+	  (<command>typegen</command> does this for you), and the
+	  TypeInfo API plus all related classes are now considered to
+	  be internal API and may change without prior notice between
+	  major releases.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  RTT::Events no longer exist and must be replaced by attaching callback
+	  functions to Operations or creating InputPort/OutputPort pairs.
+	  The former allows to attach a (scripting) function to an operation
+	  or to trigger a transition if it is called, the latter can cause
+	  a transition if new data arrives on the InputPort.
+	  The state machine scripts have been adapted to support both forms.
+	</para>
+	<para>
+	  In case you used RTT::Event in-process as a broadcast
+	  mechanism (every script or C++ function can subscribe and
+	  every peer can rais it) you need to replace them by
+	  Input/Output Port pairs and connect these during program
+	  deployment. There is currently no way to automatically
+	  subscribe to a peer component's Output Port (ie reacting to)
+	  or write to a peer component's Input Port (ie raising it)
+	  from a state machine. This will be resolved in future releases.
+	</para>
+	<para>
+	  If you used RTT::Event to trigger transitions in a state
+	  machine in the same component, you can replace it with an
+	  empty RTT::Operation with the same signature. Your existing
+	  state machines will then work out of the box.
+	</para>
+	<para>
+	  The class that takes care of synchronous callback handling in RTT 2.0 is
+	  now called <classname>RTT::Signal</classname>.
 	</para>
       </listitem>
     </itemizedlist>
@@ -59,10 +135,43 @@
   <section>
     <title>Improvements</title>
     <section>
+      <title>Building</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    You can now use the 'autoproj' tool to download, build and update the
+	    Orocos Toolchain. Bootstrapping is done with the 'bootstrap.sh' file,
+	    which will install autoproj and all Orocos libraries. See the
+	    <ulink url="http://www.orocos.org/wiki/orocos/toolchain/quick-start">Quick Start wiki</ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You no longer need a FindOrocosRTT.cmake file to detect the RTT and
+	    its dependencies in cmake projects. The Orocos toolchain installs
+	    a cmake config file in <filename>&lt;prefix>/lib/cmake/orocos-rtt/orocos-rtt-config.cmake</filename> which
+	    you can use by calling <command>find_package(OROCOS-RTT)</command>. We
+	    are preparing more helper macros to ease component and application building.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    When using autoproj to configure the build, the default
+	    install directory defaults to
+	    <filename>orocos-toolchain/install</filename>. The autoproj
+	    build is configured in the autoproj/ subdirectory of the toolchain.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
       <title>OS Abstraction</title>
       <itemizedlist>
 	<listitem>
 	  <para>
+	    Windows targets are better supported than ever, although broader testing
+	    wouldn't hurt. Xenomai, Mac OS-X and Gnu/Linux are very well supported.
+	    We need more feedback from users on the RTAI/LXRT front.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -72,6 +181,130 @@
       <itemizedlist>
 	<listitem>
 	  <para>
+	    Adding primitives to TaskContexts has been greatly
+	    simplified. In most cases, no helper objects are
+	    necessary. Take a look at the examples or documentation
+	    how properties, operations and ports are added to a
+	    TaskContext. The <command>rtt2-converter</command> script
+	    rewrites all your 1.x components to use the new syntax.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The Data Flow has been completely reworked. Buffering and locking policies are
+	    now set on a per-connection basis. The only two port types that exist are
+	    <classname>RTT::InputPort</classname> and <classname>RTT::OutputPort</classname>.
+	    The rtt-conversion tool renames all your ports and does a best-effort to
+	    discover to what it should be converted.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Marshalling (XML reading/writing of parameters) and scripting have become
+	    plugins. Only components that make use of it will allocate memory for these
+	    services. (See also Caveats).
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Data Types, Toolkits and Typekits</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The term Toolkit has been renamed to Typekit. Users should not write typekits
+	    themselves and use the <command>typegen</command> tool instead. It parses C++ headers and generates
+	    type info, corba and mqueue transports from it. A typekit generator for ROS
+	    is also available, separately from typegen.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Orocos knows the complete structure of your registered data types, and provides some
+	    default functions for serializing (XML) and accessing (scripting) these structures.
+	    In case you need to extend this functionality (like adding operators or an alternative
+	    XML representation) you still need to hand-code these functions, since typegen
+	    has no knowledge for generating such code.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Corba Transport</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Reading and writing ports that are connected to ports of
+	    components in other processes is always real-time. A
+	    back-ground thread will do the non-real-time dispatching
+	    of the port data over the network.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Corba transport typekits (former toolkits) are now
+	    automatically generated from plain C++ headers with the
+	    <command>typegen</command> tool.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>POSIX MQueue Transport</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A new transport for hard real-time data flow communication between components
+	    on the same host but in different processes has been added. It is
+	    based on POSIX MQueues and is supported on the GNU/Linux and Xenomai targets.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>ROS Transport</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A code generator for ROS typekits is available, which turns ROS messages
+	    into Orocos types, which can be used in scripting and data flow communication.
+	  </para>
+	  <para>
+	    It is currently in beta-development, but no known issues exist at the moment.
+	    It allows to connect Orocos components to ROS nodes, without the need for
+	    a special deployer. The standard OCL DeploymentComponent can set up these
+	    connections.
+	  </para>
+	  <para>
+	    
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Scripting</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The 'do' and 'set' keywords are now optional. For example:
+	    <programlisting> // old 1.x style:
+ var bool status = false
+ do comp.connectToHMI()
+ set status = comp.isConnected()
+
+ // new 2.0 style:
+ var bool status = false
+ comp.connectToHMI()
+ status = comp.isConnected()
+	    </programlisting>
+	    The 'var' keyword still remains mandatory.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Corba transport typekits (former toolkits) are now automatically generated 
+	    from plain C++ headers with the <command>typegen</command> tool.
+	    Do not hand-write custom typekits or transports for CORBA.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -91,22 +324,134 @@
 	</listitem>
 	<listitem>
 	  <para>
+	    Most components have been removed from this library.
+	    Only these modules remain:
+	    <itemizedlist>
+	      <listitem><para>reporting</para> </listitem>
+	      <listitem><para>deployment</para> </listitem>
+	      <listitem><para>helloworld</para> </listitem>
+	      <listitem><para>ocl</para> </listitem>
+	      <listitem><para>bin</para> </listitem>
+	      <listitem><para>taskbrowser</para> </listitem>
+	      <listitem><para>logging</para> </listitem>
+	      <listitem><para>timer</para> </listitem>
+	    </itemizedlist>
+	    All removed components are to be picked up by users that
+	    wish to maintain them. A central place for looking up
+	    such repositories will be made available on the 
+	    Orocos Toolchain home page.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Improvements</title>
+      <title>Deployment</title>
       <itemizedlist>
 	<listitem>
 	  <para>
+	    Creating component libraries has slightly changed.
+	    You must now use the <option>-DRTT_COMPONENT</option>
+	    flag during compiling instead of <option>-DOCL_DLL_EXPORT</option>.
+	    The latter is still accepted during this release but may break 
+	    in future releases.
 	  </para>
-	  <para> Contributed by </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Also the header <filename>ocl/ComponentLoader.hpp</filename> has
+	    been renamed to <filename>ocl/Component.hpp</filename>. The
+	    rtt2-converter script takes care of this renaming.
+	  </para>
+	  <para>
+	    It is no longer required to link with OCL if you create a
+	    component using -DRTT_COMPONENT and including &lt;ocl/Component.hpp>.
+	    Your libraries only need to link with the RTT library.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The DeploymentComponent expects components and plugins to be installed
+	    in a specific directory structure. Each directory to look for components
+	    must be mentioned in the RTT_COMPONENT_PATH environment variable or
+	    DeploymentComponent property. For each directory in RTT_COMPONENT_PATH,
+	    the subdirectories <filename>plugins/</filename> and <filename>types/</filename>
+	    are searched for plugins and typekits respectively. You may set 
+	    RTT_COMPONENT_PATH similar to how the PATH variable is set on your
+	    Operating System.
+	  </para>
+	  <para>
+	    For example:
+	    <programlisting> RTT_COMPONENT_PATH=/opt/2.0/lib/orocos:/opt/2.0/lib/testing
+  # Searches for components in '/opt/2.0/lib/orocos/*.[so|dll]' and '/opt/2.0/lib/testing/*.[so|dll]'
+  # Searches for plugins in '/opt/2.0/lib/orocos/plugins/*.[so|dll]' and '/opt/2.0/lib/testing/plugins/*.[so|dll]'
+  # Searches for typekits in '/opt/2.0/lib/orocos/types/*.[so|dll]' and '/opt/2.0/lib/testing/types/*.[so|dll]'	
+	    </programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can no longer <function>import()</function> 'normal' libraries into the process in order to resolve
+	    missing symbols in your components. You need to link your component to the correct
+	    library, or create a plugin for that library.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can now specify connection policies for data flow connections between ports.
+	    The 1.x scheme still exists, but for each connection name, you can specify 
+	    if it needs to be buffered, which protocol to use, etc. See
+	    <classname>RTT::ConnPolicy</classname>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can now create streamed connections, which creates a stream to or from a port.
+	    This is used by the POSIX mqueue transport and the ROS transport, which are
+	    connection-less transports. The DeploymentComponent will automatically try
+	    to create a stream if a connection only has one port.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Deployment now also works on the Windows platform.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+    <title>TaskBrowser</title>
+      <itemizedlist>      
+	<listitem>
+	  <para>
+	    The TaskBrowser can be compiled with the 'editline' library, which is a
+	    BSD-licensed alternative to the 'readline' libary, which is GPL.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The TaskBrowser can now create new variables (for
+	    example<programlisting>var int i = 3</programlisting>,
+	    which are stored in the current component, it accepts
+	    multiple assignments, and shows and completes the data
+	    structure of variables.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Other Improvements</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The ReportingComponent is more efficient and can quickly serialize data
+	    due to better introspection mechanisms in the RTT. It can work event-based
+	    (when new data is to be logged) or sample-based (scans all ports on a
+	    regular basis).
+	  </para>
 	</listitem>
       </itemizedlist>
     </section>
   </section>
-  -->
   <appendix>
     <title>About Orocos</title>
     <para>

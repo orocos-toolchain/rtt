@@ -55,7 +55,7 @@
     </para>
     <figure id="fig-task-peers">
       <title>
-	Components Run in Threads
+	Typical application example for distributed control
       </title>
       <mediaobject>
 	<imageobject role="html">
@@ -197,21 +197,21 @@
 	creates a component with name "Hello". The difference between both
 	executables are shown in the figure below:
       </para>
-      <figure id="fig-hello-world">
+      <figure id="fig-hello-world-deployment">
 	<title>
-	  Schematic Overview of the Hello Component.
+	  Dynamic vs static loading of components
 	</title>
 	<mediaobject>
 	  <imageobject role="html">
-	    <imagedata fileref="images/HelloWorldDeployment" />
+	    <imagedata fileref="images/HelloDeployment" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/HelloWorldDeployment"  width="100%" scalefit="1"/>
+	    <imagedata fileref="images/hires/HelloDeployment"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
-	    <para>'helloworld' is a static deployment of one component in a process, which
+	    <para>The 'helloworld' executable is a static deployment of one component in a process, which
 	    means it is hard-coded in the helloworld.cpp file.
-	    Using the deployer application allows you to load it dynamically.
+	    In contrast, using the deployer application allows you to load a component library dynamically.
 	    </para>
 	  </caption>
 	</mediaobject>
@@ -651,7 +651,7 @@ Printing Interface of 'the_input_port' :
   // we assume this is done in all the following code listings :
   using namespace RTT;
 
-  class MyTask : public<classname>RTT::TaskContext</classname>
+  class MyTask : public <classname>RTT::TaskContext</classname>
   {
   public:
        ATask(const std::string&amp; name) : public TaskContext(name) {}

@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  DataSourceProxy.hpp
+
+                        DataSourceProxy.hpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef ORO_CORBA_DATASOURCE_PROXY_HPP
 #define ORO_CORBA_DATASOURCE_PROXY_HPP
 
@@ -52,9 +90,9 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert( ctp ); // only call this from CorbaTempateTypeInfo.
-                if ( misproperty && ! mserv->hasProperty( CORBA::string_dup(name.c_str())))
+                if ( misproperty && ! mserv->hasProperty( name.c_str()))
                     throw NonExistingDataSource();
-                if ( !misproperty && ! mserv->hasAttribute( CORBA::string_dup(name.c_str())))
+                if ( !misproperty && ! mserv->hasAttribute( name.c_str()))
                     throw NonExistingDataSource();
             }
 
@@ -69,9 +107,9 @@ namespace RTT
             virtual typename internal::DataSource<T>::result_t get() const {
                 CORBA::Any_var res;
                 if ( misproperty ) {
-                    res = mserv->getProperty( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getProperty( mname.c_str() );
                 } else {
-                    res = mserv->getAttribute( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getAttribute( mname.c_str() );
                 }
                 internal::ReferenceDataSource<T> rds(last_value);
                 rds.ref();
@@ -121,9 +159,9 @@ namespace RTT
                 types::TypeTransporter* tp = this->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 ctp = dynamic_cast<corba::CorbaTypeTransporter*>(tp);
                 assert(ctp);
-                if ( misproperty && !mserv->hasProperty( CORBA::string_dup(name.c_str())) )
+                if ( misproperty && !mserv->hasProperty( name.c_str()) )
                     throw NonExistingDataSource();
-                if ( !misproperty && ( !mserv->hasAttribute( CORBA::string_dup(name.c_str()))  || !mserv->isAttributeAssignable( CORBA::string_dup(name.c_str())) ))
+                if ( !misproperty && ( !mserv->hasAttribute( name.c_str())  || !mserv->isAttributeAssignable( name.c_str()) ))
                     throw NonExistingDataSource();
                 this->get(); // initialize such that value()/rvalue() return a sane value !
             }
@@ -140,9 +178,9 @@ namespace RTT
             virtual typename internal::DataSource<T>::result_t get() const {
                 CORBA::Any_var res;
                 if ( misproperty ) {
-                    res = mserv->getProperty( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getProperty( mname.c_str() );
                 } else {
-                    res = mserv->getAttribute( CORBA::string_dup( mname.c_str() ) );
+                    res = mserv->getAttribute( mname.c_str() );
                 }
                 internal::ReferenceDataSource<T> rds( storage->set() );
                 rds.ref();
@@ -157,9 +195,9 @@ namespace RTT
                 CORBA::Any_var toset = ctp->createAny(&vds);
                 bool res;
                 if ( misproperty ) {
-                    res = mserv->setProperty( CORBA::string_dup( mname.c_str() ), toset.in() );
+                    res = mserv->setProperty( mname.c_str(), toset.in() );
                 } else {
-                    res = mserv->setAttribute( CORBA::string_dup( mname.c_str() ), toset.in() );
+                    res = mserv->setAttribute( mname.c_str(), toset.in() );
                 }
                 storage->set( t );
             }

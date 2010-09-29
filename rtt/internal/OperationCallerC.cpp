@@ -249,7 +249,7 @@ namespace RTT {
 #endif
                     h->update( s.get() );
             assert( result );
-            return SendHandleC( h, ofp, mname );
+            return SendHandleC( s, h, ofp, mname );
         }
         else {
             Logger::log() <<Logger::Error << "send() called on incomplete OperationCallerC."<<Logger::endl;

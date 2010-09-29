@@ -1,3 +1,41 @@
+/***************************************************************************
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  CreateSequence.hpp
+
+                        CreateSequence.hpp -  description
+                           -------------------
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
+
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public             *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+
+
 #ifndef ORO_CREATESEQUENCE_HPP_
 #define ORO_CREATESEQUENCE_HPP_
 
@@ -32,40 +70,19 @@ namespace RTT
         template <class T> struct incomplete;
 
         /**
-         * This function should have been in boost::type_traits itself (C++0x?).
-         */
-        template <typename T>
-        struct is_shared_ptr
-            : public mpl::false_
-        {};
-        template<typename T>
-        struct is_shared_ptr<boost::shared_ptr<T> >
-            : public mpl::true_
-        {};
-
-        /**
          * Helper class for extracting the bare pointer from a shared_ptr
          * data source. Used in create_sequence::data() to unwrap the shared_ptr;
          */
         template<class Seq, class Data, class Enable = void >
-        struct GetPointerWrap {
+        struct GetArgument {
             Data operator()(Seq s) { bf::front(s)->evaluate(); return Data(bf::front(s)->rvalue()); /* front(s) is a DataSource<Data> */}
         }; // normal type
-
-        /**
-         * In this case, Data is a pointer and the front element of Seq is a shared_ptr.
-         */
-        template<class Seq, class Data>
-        struct GetPointerWrap<Seq, Data, typename boost::enable_if< boost::is_pointer<Data> >::type> {
-        //struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
-            Data operator()(Seq s) { return Data(bf::front(s)->get().get()); /* first get is on DS, second get is on shared_ptr.*/ }
-        }; // shared_ptr type
 
         /**
          * In this case, Data is a pure reference and the first element of Seq is an AssignableDataSource.
          */
         template<class Seq, class Data>
-        struct GetPointerWrap<Seq, Data, typename boost::enable_if< is_pure_reference<Data> >::type> {
+        struct GetArgument<Seq, Data, typename boost::enable_if< is_pure_reference<Data> >::type> {
             Data operator()(Seq s) { return Data(bf::front(s)->set() ); /* Case of reference.*/ }
         }; // shared_ptr type
 
@@ -75,13 +92,11 @@ namespace RTT
          */
         template<class Seq, class Data, class Enable = void >
         struct AssignHelper {
-            static void set( Seq seq, Data in) { bf::front(seq)->set( bf::front(in) );
-}
+            static void set( Seq seq, Data in) { bf::front(seq)->set( bf::front(in) ); }
         }; // normal type
 
         template<class Seq, class Data>
         struct AssignHelper<Seq, Data, typename boost::enable_if< boost::is_pointer<typename mpl::front<Data>::type> >::type> {
-            //        struct AssignHelper<Seq, Data, typename boost::enable_if< is_shared_ptr<typename mpl::front<Seq>::type::element_type::result_t> >::type> {
             static void set(Seq , Data ) {} // nop
         }; // shared_ptr type
 
@@ -111,9 +126,9 @@ namespace RTT
                 ds_type a =
                     boost::dynamic_pointer_cast< element_type >( DataSourceTypeInfo<ds_arg_type>::getTypeInfo()->convert(*front) );
                 if ( ! a ) {
-                    //cout << typeid(DataSource<arg_type>).name() << endl;
+                    //cout << typeid(DataSource<ds_arg_type>).name() << endl;
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, tname, (*front)->getType() ), ds_type());
-                    //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<arg_type>).name(), typeid(front).name() ), type());
+                    //ORO_THROW_OR_RETURN(wrong_types_of_args_exception( argnbr, typeid(DataSource<ds_arg_type>).name(), typeid(front).name() ), type());
                 }
                 return a;
             }
@@ -162,9 +177,6 @@ namespace RTT
          * where operator() calls itself, but in another type
          * specialisation.
          *
-         * @note When the first list element is an object pointer T*, it will be wrapped in a
-         * boost::shared_ptr<T> in order to support the operationDS semantics. The shared_ptr
-         * will be unwrapped from T when calling data().
          */
         template<class List>
         struct create_sequence: public create_sequence_impl<List, mpl::size<
@@ -180,13 +192,10 @@ namespace RTT
              */
             typedef create_sequence<typename mpl::pop_front<List>::type> tail;
 
-            typedef typename mpl::front<List>::type bare_type;
-
             /**
-             * As documented, if the first element of List is a pointer, wrap it
-             * in a boost::shared_ptr.
+             * The argument type
              */
-            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type >::type arg_type;
+            typedef typename mpl::front<List>::type arg_type;
 
             /**
              * The data source value type of an assignable data source is non-const, non-reference.
@@ -196,7 +205,7 @@ namespace RTT
             /**
              * The type of a single element of the vector.
              */
-            typedef typename mpl::if_<typename is_pure_reference<bare_type>::type,
+            typedef typename mpl::if_<typename is_pure_reference<arg_type>::type,
                     typename AssignableDataSource< ds_arg_type >::shared_ptr,
                     typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
 
@@ -221,7 +230,7 @@ namespace RTT
             /**
              * The joint T data type of head and tail.
              */
-            typedef bf::cons<bare_type, arg_tail_type> data_type;
+            typedef bf::cons<arg_type, arg_tail_type> data_type;
 
             /**
              * Converts a std::vector of DataSourceBase types into a boost::fusion Sequence of DataSources
@@ -235,7 +244,7 @@ namespace RTT
             {
                 std::vector<base::DataSourceBase::shared_ptr>::const_iterator next = args;
                 return bf::cons<ds_type, tail_type>
-                    (create_sequence_helper::sources<ds_arg_type, ds_type>(args, argnbr, DataSourceTypeInfo<bare_type>::getType()),
+                    (create_sequence_helper::sources<ds_arg_type, ds_type>(args, argnbr, DataSourceTypeInfo<arg_type>::getType()),
                      tail::sources( ++next, argnbr + 1));
             }
 
@@ -251,7 +260,7 @@ namespace RTT
             {
                 std::vector<base::DataSourceBase::shared_ptr>::const_iterator next = args;
                 return atype(
-                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<bare_type>::getType()),
+                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<arg_type>::getType()),
                         tail::assignable(++next, argnbr + 1));
             }
 
@@ -262,8 +271,7 @@ namespace RTT
              * @return A sequence of type T holding the values of the DataSource<T>.
              */
             static data_type data(const type& seq) {
-                // we want to return the bare_type, without any shared_ptr.
-                return data_type( GetPointerWrap<type,bare_type>()(seq), tail::data( bf::pop_front(seq) ) );
+                return data_type( GetArgument<type,arg_type>()(seq), tail::data( bf::pop_front(seq) ) );
             }
 
             /**
@@ -338,15 +346,14 @@ namespace RTT
         template<class List>
         struct create_sequence_impl<List, 1> // mpl list of one
         {
-            typedef typename mpl::front<List>::type bare_type;
-            typedef typename mpl::if_<typename boost::is_pointer<bare_type>::type, boost::shared_ptr<typename boost::remove_pointer<bare_type>::type>, bare_type >::type arg_type;
+            typedef typename mpl::front<List>::type arg_type;
             typedef typename remove_cr<arg_type>::type ds_arg_type;
-            typedef bf::cons<bare_type> data_type;
+            typedef bf::cons<arg_type> data_type;
 
             /**
              * The type of a single element of the vector.
              */
-            typedef typename mpl::if_<typename is_pure_reference<bare_type>::type,
+            typedef typename mpl::if_<typename is_pure_reference<arg_type>::type,
                     typename AssignableDataSource< ds_arg_type >::shared_ptr,
                     typename DataSource<ds_arg_type>::shared_ptr>::type ds_type;
             typedef typename AssignableDataSource< ds_arg_type >::shared_ptr ads_type;
@@ -360,13 +367,13 @@ namespace RTT
             static type sources(std::vector<base::DataSourceBase::shared_ptr>::const_iterator front, int argnbr = 1)
             {
                 return type(
-                        create_sequence_helper::sources<ds_arg_type, ds_type>(front, argnbr, DataSourceTypeInfo<bare_type>::getType()));
+                        create_sequence_helper::sources<ds_arg_type, ds_type>(front, argnbr, DataSourceTypeInfo<arg_type>::getType()));
             }
 
             static atype assignable(std::vector<base::DataSourceBase::shared_ptr>::const_iterator args, int argnbr = 1)
             {
                 return atype(
-                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<bare_type>::getType()));
+                        create_sequence_helper::assignable<ds_arg_type, ads_type>(args, argnbr, DataSourceTypeInfo<arg_type>::getType()));
             }
 
             /**
@@ -376,7 +383,7 @@ namespace RTT
              * @return A sequence of type T holding the values of the DataSource<T>.
              */
             static data_type data(const type& seq) {
-                return data_type( GetPointerWrap<type,bare_type>()(seq) );
+                return data_type( GetArgument<type,arg_type>()(seq) );
             }
 
             static void update(const type&seq) {
