@@ -52,6 +52,9 @@
 # include <tao/PortableServer/PS_ForwardC.h>
 # define CORBA_SERVANT(f) f ## "S.h"
 # define CORBA_EXCEPTION_INFO(x) x._info().c_str()
+# ifndef ACE_THROW_SPEC
+#  define ACE_THROW_SPEC(X) throw X
+# endif
 #else
 # include <omniORB4/CORBA.h>
 # include <omniORB4/poa.h>
