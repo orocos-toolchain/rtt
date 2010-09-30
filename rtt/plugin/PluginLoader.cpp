@@ -139,8 +139,8 @@ string makeShortFilename(string const& str) {
     string ret = str;
     if (str.substr(0,3) == "lib")
         ret = str.substr(3);
-    if (str.rfind(SO_EXT) != string::npos)
-        ret = ret.substr(0, ret.rfind(SO_EXT));
+    if (ret.rfind(SO_EXT) != string::npos)
+        ret = ret.substr(0, ret.rfind(SO_EXT) );
     return ret;
 }
 
@@ -185,8 +185,21 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
 
 void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
+	// If exact match, load it directly:
+    path arg( path_list );
+    if (is_regular_file(arg)) {
+	    loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+	    return;
+    }
 
+    // prepare search path:
+    vector<string> paths;
+    if (path_list.empty())
+    	paths = splitPaths( plugin_path);
+    else
+    	paths = splitPaths( path_list );
+
+    // perform search in paths:
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
@@ -197,14 +210,16 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status())) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()) && itr->path().filename().rfind(SO_EXT) != string::npos) {
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
                 } else {
                     if (is_symlink(itr->symlink_status()))
                         log(Debug) << "is symlink: ignored."<<endlog();
                     else
                         if (!is_regular_file(itr->status()))
                             log(Debug) << "not a regular file: ignored."<<endlog();
+                        else
+                            log(Debug) << "not a library: ignored."<<endlog();
                 }
             }
         }
@@ -219,14 +234,16 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status())) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, false);
+                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()) && itr->path().filename().rfind(SO_EXT) != string::npos) {
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
                 } else {
                     if (is_symlink(itr->symlink_status()))
                         log(Debug) << "is symlink: ignored."<<endlog();
                     else
                         if (!is_regular_file(itr->status()))
                             log(Debug) << "not a regular file: ignored."<<endlog();
+                        else
+                            log(Debug) << "not a library: ignored."<<endlog();
                 }
             }
         }
@@ -237,7 +254,19 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
+	// If exact match, load it directly:
+    path arg( name );
+    if (is_regular_file(arg)) {
+	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+    }
+
+    // prepare search path:
+    vector<string> paths;
+    if (path_list.empty())
+    	paths = splitPaths( plugin_path);
+    else
+    	paths = splitPaths( path_list );
+
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {

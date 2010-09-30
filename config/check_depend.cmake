@@ -58,12 +58,14 @@ if ( PLUGINS_ENABLE )
   list(APPEND OROCOS-RTT_LIBRARIES ${Boost_FILESYSTEM_LIBRARIES} ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES}) 
 endif()
 
-if(Boost_FOUND)
+if(Boost_INCLUDE_DIR)
   message("Boost found in ${Boost_INCLUDE_DIR}")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
-endif()
+else(Boost_INCLUDE_DIR)
+  message(FATAL_ERROR "Boost_INCLUDE_DIR not found ! Add it to your CMAKE_PREFIX_PATH !")
+endif(Boost_INCLUDE_DIR)
 
 # Look for Xerces 
 
@@ -229,16 +231,15 @@ if(OROCOS_TARGET STREQUAL "win32")
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
     set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
+    list(APPEND OROCOS-RTT_LIBRARIES wsock32.lib winmm.lib)
   endif()
   if (MSVC)
     if (NOT MSVC80)
-    set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
-    set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
+        set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
+        set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
     set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
-    # For boost::intrusive !
-    find_package(Boost 1.36 REQUIRED)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
@@ -254,13 +255,10 @@ endif()
 INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
 #
-# Disable line wrapping for gcc/g++ such that eclipse can parse the errors.
+# Disable line wrapping for g++ such that eclipse can parse the errors.
 #
-IF(CMAKE_COMPILER_IS_GNUCC)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
-ENDIF(CMAKE_COMPILER_IS_GNUCC)
 IF(CMAKE_COMPILER_IS_GNUCXX)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+  SET(CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 #

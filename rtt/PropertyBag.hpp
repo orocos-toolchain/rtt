@@ -164,7 +164,8 @@ namespace RTT
          */
         template<class T>
         Property<T>& addProperty( const std::string& name, T& attr) {
-            Property<T>* p = new Property<T>(name,"", new internal::ReferenceDataSource<T>(attr));
+        	typename internal::AssignableDataSource<T>::shared_ptr datasource( new internal::ReferenceDataSource<T>(attr) );
+            Property<T>* p = new Property<T>(name,"", datasource);
             this->ownProperty( p );
             return *p;
         }

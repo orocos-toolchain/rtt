@@ -46,9 +46,9 @@ public:
     bool had_event;
     int  nb_events;
     EventPortsTC(): TaskContext("eptc") { resetStats(); }
-    void updateHook(std::vector<PortInterface*> const& updated_ports)
+    void updateHook()
     {
-        nb_events += updated_ports.size();
+        nb_events++;
         had_event = true;
     }
     void resetStats() {
@@ -514,6 +514,45 @@ BOOST_AUTO_TEST_CASE(testPortSignalling)
     signalled_port = 0;
     wp1.write(0.1);
     BOOST_CHECK(0 == signalled_port);
+}
+
+BOOST_AUTO_TEST_CASE(testEventPortSignalling)
+{
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
+
+    tce->start();
+
+    tce->addEventPort(rp1,boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
+
+
+
+    wp1.createConnection(rp1, ConnPolicy::data());
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tce->had_event);
+    tce->resetStats();
+
+    wp1.disconnect();
+    wp1.createConnection(rp1, ConnPolicy::buffer(2));
+    // send two items into the buffer
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tce->had_event);
+    tce->resetStats();
+    signalled_port = 0;
+    wp1.write(0.1);
+    BOOST_CHECK(&rp1 == signalled_port);
+    BOOST_CHECK(tce->had_event);
+    tce->resetStats();
+    signalled_port = 0;
+    // test buffer full:
+    wp1.write(0.1);
+    BOOST_CHECK(0 == signalled_port);
+    BOOST_CHECK( !tce->had_event);
+    tce->resetStats();
 }
 
 BOOST_AUTO_TEST_CASE(testPortDataSource)

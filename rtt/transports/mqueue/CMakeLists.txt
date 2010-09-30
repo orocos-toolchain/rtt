@@ -2,8 +2,9 @@
 IF(ENABLE_MQ)
   MESSAGE( "Building MQueue Transport library (Requires Boost >= 1.37.0).")
 
-  find_package(Boost 1.37 REQUIRED serialization)
-
+  if (NOT Boost_SERIALIZATION_FOUND)
+    MESSAGE(SEND_ERROR "Can't build MQueue transport without Boost Serialization. Please install serialiation or disable MQUEUE.")
+  endif()
 
   FILE( GLOB CPPS Dispatcher.cpp MQSendRecv.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
@@ -28,6 +29,7 @@ IF ( BUILD_STATIC )
   CLEAN_DIRECT_OUTPUT 1
   VERSION "${RTT_VERSION}"
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
 ENDIF( BUILD_STATIC )
 
@@ -42,6 +44,7 @@ ENDIF( BUILD_STATIC )
   LINK_FLAGS "${MQ_LDFLAGS}"
   CLEAN_DIRECT_OUTPUT 1
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
   SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
   VERSION "${RTT_VERSION}")

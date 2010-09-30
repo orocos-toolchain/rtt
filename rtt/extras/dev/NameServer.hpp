@@ -242,7 +242,7 @@ namespace RTT
 #endif
         {
         protected:
-            iterator i;
+        	NameServer::iterator i;
 
         public:
             value_iterator( iterator _i ) : i( _i )
@@ -308,7 +308,7 @@ namespace RTT
         {
 
         protected:
-            iterator i;
+        	NameServer::iterator i;
 
         public:
 

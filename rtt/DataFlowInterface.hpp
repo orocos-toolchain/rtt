@@ -96,8 +96,6 @@ namespace RTT
          * be called in sequence with updateHook(), so asynchronously with
          * regard to the arrival of data on the port.
          * @return \a port
-         * @note This function will temporarily stop your TaskContext and
-         * re-start it in case it was running.
          */
         base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
