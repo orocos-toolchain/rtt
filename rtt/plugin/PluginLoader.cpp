@@ -185,8 +185,21 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
 
 void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
+	// If exact match, load it directly:
+    path arg( path_list );
+    if (is_regular_file(arg)) {
+	    loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+	    return;
+    }
 
+    // prepare search path:
+    vector<string> paths;
+    if (path_list.empty())
+    	paths = splitPaths( plugin_path);
+    else
+    	paths = splitPaths( path_list );
+
+    // perform search in paths:
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
@@ -241,7 +254,19 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
+	// If exact match, load it directly:
+    path arg( name );
+    if (is_regular_file(arg)) {
+	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+    }
+
+    // prepare search path:
+    vector<string> paths;
+    if (path_list.empty())
+    	paths = splitPaths( plugin_path);
+    else
+    	paths = splitPaths( path_list );
+
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {
