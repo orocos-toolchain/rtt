@@ -136,11 +136,11 @@ namespace RTT
     //std::cerr << "ValueParser: seenvar : "<< name
     //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
     // in case our task is a taskcontext:
-    if ( task == peer->provides() && propparser.bag() && propparser.property() ) {
+    if ( task && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
             //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
-            throw parse_exception_semantic_error("Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
+            throw parse_exception_semantic_error("Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ task->getName()+".");
         }
         ret = propparser.bag()->find( name )->getDataSource();
         propparser.reset();
@@ -152,8 +152,8 @@ namespace RTT
       ret = task->getValue(name)->getDataSource();
       return;
     }
-    if ( peer->provides() == task && peer->provides()->hasProperty( name ) ) {
-        ret = peer->provides()->properties()->find(name)->getDataSource();
+    if ( task && task->hasProperty( name ) ) {
+        ret = task->properties()->find(name)->getDataSource();
         return;
     }
 
@@ -163,7 +163,7 @@ namespace RTT
         return;
     }
 
-    throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
+    throw_(begin, "Value " + name + " not defined in "+ task->getName()+".");
   }
 
     void ValueParser::seennull()
