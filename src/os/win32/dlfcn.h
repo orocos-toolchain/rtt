@@ -20,6 +20,8 @@
 #ifndef DLFCN_H
 #define DLFCN_H
 
+#include "../../rtt-config.h"
+
 /* POSIX says these are implementation-defined.
  * To simplify use with Windows API, we treat them the same way.
  */
@@ -37,9 +39,17 @@
 #define RTLD_DEFAULT    0
 #define RTLD_NEXT       0
 
-void *dlopen ( const char *file, int mode );
-int   dlclose( void *handle );
-void *dlsym  ( void *handle, const char *name );
-char *dlerror( void );
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+RTT_API void *dlopen ( const char *file, int mode );
+RTT_API int   dlclose( void *handle );
+RTT_API void *dlsym  ( void *handle, const char *name );
+RTT_API char *dlerror( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* DLFCN_H */
