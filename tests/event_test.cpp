@@ -304,7 +304,6 @@ BOOST_AUTO_TEST_CASE( testTask )
     Event<void(int)> event("Event");
     Runner runobj(event);
     SimulationActivity task(0.01, &runobj);
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
     BOOST_CHECK(task.start());
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( runobj.result );
@@ -314,7 +313,6 @@ BOOST_AUTO_TEST_CASE( testSelfRemoval )
 {
     SelfRemover runobj(t_event);
     SimulationActivity task(0.01, &runobj);
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
     BOOST_CHECK( task.start() );
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( task.stop() );
@@ -324,7 +322,6 @@ BOOST_AUTO_TEST_CASE( testCrossRemoval )
 {
     CrossRemover runobj(t_event);
     SimulationActivity task(0.01, &runobj);
-    BOOST_CHECK( SimulationThread::Instance()->stop() );
     BOOST_CHECK( task.start() );
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( task.stop() );

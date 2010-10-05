@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     PeriodicActivity mtask( 15, 0.01 );
     BOOST_CHECK( mtask.isActive() == false );
     BOOST_CHECK( mtask.isRunning() == false );
-    BOOST_CHECK( mtask.thread()->isRunning() );
+    BOOST_CHECK( mtask.thread()->isRunning() == false );
     BOOST_CHECK_EQUAL( 0.01, mtask.thread()->getPeriod() );
 
     // Adapt priority levels to OS.
@@ -183,6 +183,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic )
     // starting...
     BOOST_CHECK( mtask.start() == true );
     BOOST_CHECK( mtask.isRunning() == true );
+    BOOST_CHECK( mtask.thread()->isRunning() == true );
     BOOST_CHECK( m2task.isRunning() == false );
     BOOST_CHECK( m2task.start() == true );
     BOOST_CHECK( m2task.isRunning() == true );

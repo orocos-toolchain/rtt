@@ -48,7 +48,7 @@ Template_FactoryTest::setUp()
     tc->addObject( this->createCommandFactory() );
     t_event_float = RTT::Event<int( float, float )>("FloatEvent");
     BOOST_CHECK( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
-    tsim = new SimulationActivity(0.001, tc->engine() );
+    tsim = new SimulationActivity(0.01, tc->engine() );
     event_proc = new EventProcessor();
     act.run(event_proc);
     SimulationThread::Instance()->stop();

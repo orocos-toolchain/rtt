@@ -90,7 +90,6 @@ namespace RTT
     }
 
     void PeriodicActivity::init() {
-        thread_->start();
     }
 
     bool PeriodicActivity::start()
