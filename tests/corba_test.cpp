@@ -108,6 +108,7 @@ TaskObject* CorbaTest::createMethodFactory()
     to->methods()->addMethod( method("m2",  &CorbaTest::m2, this), "M2","a","ad","a","ad");
     to->methods()->addMethod( method("m3",  &CorbaTest::m3, this), "M3","a","ad","a","ad","a","ad");
     to->methods()->addMethod( method("m4",  &CorbaTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    to->methods()->addMethod( method("mcs",  &CorbaTest::mcs, this), "MCS","a","ad","a","ad");
     return to;
 }
 
@@ -162,12 +163,15 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
     Method<double(int,double)> m2 = tp->getObject("methods")->methods()->getMethod<double(int,double)>("m2");
     Method<double(int,double,bool)> m3 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool)>("m3");
     Method<double(int,double,bool,std::string)> m4 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool,std::string)>("m4");
+    Method<bool(int,const string& )> mcsM = tp->getObject("methods")->methods()->getMethod<bool(int,const string&)>("mcs");
+    
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( true, mcsM(1,"hello"));
 }
 
 BOOST_AUTO_TEST_CASE( testAnyMethod )

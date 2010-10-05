@@ -8,6 +8,8 @@
 #include <corba/ControlTaskServer.hpp>
 #include <corba/ControlTaskProxy.hpp>
 #include <string>
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 using namespace RTT;
 
@@ -53,6 +55,7 @@ public:
     double m2(int i, double d) { return -3.0; }
     double m3(int i, double d, bool c) { return -4.0; }
     double m4(int i, double d, bool c, std::string s) { return -5.0; }
+    bool mcs(int i, const std::string& s) { BOOST_CHECK( !s.empty() ); BOOST_CHECK( i ); return true; }
 
     // void(void) function test:
     void vm0(void) { ; }
