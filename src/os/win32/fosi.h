@@ -32,9 +32,6 @@ extern "C"
 {
 #endif
 
-#define _XOPEN_SOURCE 600   // use all Posix features.
-#include <windows.h>
-
 #ifdef _MSC_VER
 #include <cstdio>
 #include <cstdlib>
