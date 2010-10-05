@@ -302,7 +302,6 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        Logger::In in( taskc->getName() );
         // this #ifdef ... #endif is only for speed optimisations.
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         if (pproc)
