@@ -244,19 +244,21 @@ namespace RTT
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
             while ( !servers.empty() ){
-                servers.begin()->first->removeObject("corbaservice");
-                // note: will call CleanupServer below !
+                delete servers.begin()->second;
+                // note: destructor will self-erase from map !
             }
             log() << "Cleanup done."<<endlog();
         }
     }
 
     void ControlTaskServer::CleanupServer(TaskContext* c) {
-        if ( !CORBA::is_nil(orb) && c && servers.find(c) != servers.end() ) {
-            log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
-            delete servers[c];
-            servers.erase( c );
-            c->removeObject("corbaservice");
+        if ( !CORBA::is_nil(orb) ) {
+            ServerMap::iterator it = servers.find(c);
+            if ( it != servers.end() ){
+                log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
+                delete it->second; // destructor will do the rest.
+                // note: destructor will self-erase from map !
+            }
         }
     }
 

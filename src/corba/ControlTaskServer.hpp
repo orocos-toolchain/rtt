@@ -162,6 +162,12 @@ namespace RTT
         static void CleanupServer( TaskContext* tc );
 
         /**
+         * Deletes a ControlTask server for a given taskcontext.
+         * If no such server exists, this method silently does nothing.
+         */
+        static void CleanupServer( TaskContext* tc );
+
+        /**
          * Get the Corba Object of this ControlTask.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
