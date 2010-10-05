@@ -211,7 +211,7 @@ if(OROCOS_TARGET STREQUAL "win32")
       set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
       set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
-    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /bigobj ${PARALLEL_FLAG}")
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
     # We force to ON
     message("Forcing OS_NO_ASM to ON for MSVC.")
     set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)

@@ -65,7 +65,7 @@ namespace RTT
             // Need to check return value for errors.
             if (CORBA::is_nil (naming_obj)) {
                 log(Error) << "Could not locate Naming service." <<endlog();
-                ACE_THROW_SPEC (CORBA::UNKNOWN ());
+                throw(CORBA::UNKNOWN ());
             }
 
             naming_context_ =
