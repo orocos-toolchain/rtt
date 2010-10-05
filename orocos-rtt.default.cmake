@@ -14,9 +14,11 @@
 # Uncomment to set additional include and library paths for: 
 # Boost, Xerces, TAO, Omniorb etc.
 # The example below is for win32 targets.
+# 
+# NOTE THE MANDATORY '/' instead of '\' on win32 platforms !
 #
-# set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:\orocos\Boost-1_36_0\include")
-# set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:\orocos\Boost-1_36_0\lib")
+# set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/orocos/Boost-1_36_0/include")
+# set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/orocos/Boost-1_36_0/lib")
 
 #
 # Sets the CMAKE_BUILD_TYPE to Release by default. This is not a normal
@@ -41,7 +43,6 @@ endif()
 #
 if (MSVC)
   set( OROCOS_TARGET win32 CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx win32]")
-  set( CMAKE_INSTALL_PREFIX "C:\Program Files\orocos" )
 elseif( APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
   set( OROCOS_TARGET macosx CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx win32]")
 else()
