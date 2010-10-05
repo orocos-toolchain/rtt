@@ -56,12 +56,6 @@
 #include <iostream>
 #include <memory>
 
-#ifdef WIN32
-    #ifdef NDEBUG
-        #pragma optimize( "", off)
-    #endif
-#endif
-
 namespace RTT
 {
     using namespace boost;
@@ -1006,9 +1000,3 @@ namespace RTT
 
 
 }
-
-#ifdef WIN32
-    #ifdef NDEBUG
-        #pragma optimize( "", on)
-    #endif
-#endif

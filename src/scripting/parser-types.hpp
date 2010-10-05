@@ -105,12 +105,24 @@ namespace RTT
 
 
 #if 1
+  /** Due to a bug in MSVC 2005, the operator() ends up with a null reference of the skipeol member
+  * Tried several workarounds, could not find one, except turning off optimization for this function.
+  */
+#if defined( WIN32 )
+#ifdef NDEBUG
+        #pragma optimize( "", off)
+    #endif
+#endif
+
     /**
      * Parser used in skip parser. Set skipeol to 'true' to
      * skip newlines, set skipeol to false to not skip newlines.
      */
     struct RTT_API eol_skip_functor
     {
+    private:
+        eol_skip_functor();
+    public:
         /**
          * By default, eol are skipped.
          */
@@ -143,6 +155,11 @@ namespace RTT
             return -1;
         }
     };
+#if defined( WIN32 )
+#ifdef NDEBUG
+        #pragma optimize( "", on)
+    #endif
+#endif
 
     //! When using this macro, you must have a boolean variable skipref defined.
     //! which is initialized to true.
