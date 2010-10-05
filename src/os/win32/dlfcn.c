@@ -289,8 +289,9 @@ void *dlsym( void *handle, const char *name )
                 }
             }
         }
-
-        CloseHandle( hModule );
+	/* We don't need to close hModule since GetModuleHandle()
+	 * Does not increment the refcount.
+	 */
     }
 
     if( symbol == NULL )
