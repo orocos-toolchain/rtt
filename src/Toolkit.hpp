@@ -110,13 +110,15 @@ namespace RTT
 #define ORO_TOOLKIT_PLUGIN( TOOLKIT ) \
     namespace RTT { class TaskContext; } \
     extern "C" {                      \
+        RTT_EXPORT bool loadRTTPlugin(RTT::TaskContext* ); \
         bool loadRTTPlugin(RTT::TaskContext* ) {    \
-        RTT::Toolkit::Import( TOOLKIT ); \
-        return true; \
-    } \
-    std::string getRTTPluginName() { \
-        return TOOLKIT.getName(); \
-    } \
+	  RTT::Toolkit::Import( TOOLKIT );	    \
+	  return true;				    \
+	}					    \
+	RTT_EXPORT std::string getRTTPluginName();		    \
+	std::string getRTTPluginName() {	    \
+	  return TOOLKIT.getName();		    \
+	}					    \
 }
 
 
