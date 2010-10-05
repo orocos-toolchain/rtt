@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.8">
-<!ENTITY version     "1.10">
+<!ENTITY oldversion  "1.10">
+<!ENTITY version     "1.12">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -28,11 +28,6 @@
     possible causes and solutions. Also feature additions and
     improvements are documented.
   </para>
-  <para>
-    The <ulink
-    url="http://svn.mech.kuleuven.be/websvn/orocos/trunk/rtt/?op=log&amp;max=150&amp;">complete
-    changelog</ulink> is available as well.
-  </para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -46,41 +41,22 @@
       <listitem>
 	<para>
 	  This release can only be compiled if you have CMake version 2.6.0
-	  or higher. If your distribution (like Debian Etch) does not support
+	  or higher, and 2.6.3 or higher is highly recommended for correctly detecting
+	  dependencies. If your distribution (like Debian Etch) does not support
 	  this look for a 'backports' version, or download and install a pre-built
 	  cmake package from www.cmake.org.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  RTT 1.8.0 introduced the
-	  <classname>RTT::SequentialActivity</classname> as the
-	  default activity for components. Because of the special
-	  semantics of this implementation, this has been reverted,
-	  and the default activity is now of type
-	  <classname>RTT::Activity</classname>, which behaves by
-	  default as an event-triggered thread (ie not periodically
-	  triggered). You can make this activity periodic by using
-	  for example
-	  <programlisting>this->getActivity()->setPeriod(0.001)</programlisting>
-	  in your component's configureHook(). In case you want the 1.8.0
-	  behaviour back, enable ORO_ACT_DEFAULT_SEQUENTIAL in cmake.
-	  In case you want the pre-1.8.0 behaviour back (no default activity),
-	  disable ORO_ACT_DEFAULT_ACTIVITY in cmake. 
+	  The DeploymentComponent's import statement no longer loads 
+	  regular libraries. It only loads RTT components or plugins.
+	  If you require a library to be loaded in the deployer application,
+	  you should link your components against it or you can make it a 
+	  plugin by implementing the Plugin API, as defined
+	  in the <filename>rtt/Plugin.hpp</filename> file.
 	</para>
       </listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::Event</classname> class no longer uses
-	    its static <classname>RTT::NameServer</classname>
-	    nameserver object, even when a name is supplied.  In case
-	    you require this functionality (which is unlikely), define your own
-	    NameServer&lt;Event&lt;T&gt; &gt; instance and add event
-	    objects to that instance. This feature was removed because
-	    it is a left-over of pre-TaskContext times and also causes
-	    trouble on the win32 platform.
-	  </para>
-	</listitem>
     </itemizedlist>
   </section>
   <section>
@@ -90,86 +66,38 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    You can now set the default stack size of a Thread object, before it is created.
-	    This parameter is passed to the underlying OS and applied if the os supports it.
-	    See <classname>RTT::Thread</classname>::setStackSize(unsigned int). Thread is
-	    used by the new <classname>RTT::Activity</classname> class.
+	    The win32 target (MS Windows + Visual Studio) is better supported
+	    than ever. It can load plugins, components and is feature-equivalent
+	    to Linux, except for real-time threads and lock-free data exchange.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The system no longer waits for ever if it tries to stop an Activity
-	    which went into an infinite loop. Instead Activity::stop() will return false.
+	    You can check real-time performance of a part of your code by
+	    using the <function>rtos_enable_rt_warning()</function> and
+	    <function>rtos_disnable_rt_warning()</function> functions in your
+	    components. The Xenomai target will print a warning message when
+	    a not real-time function is called within such a section. The other
+	    targets will ignore this flag and can be safely compiled with these
+	    functions present.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The system no longer waits for ever if it tries to stop an Activity
-	    which went into an infinite loop. Instead Activity::stop() will return false.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The RTT has been reported to compile with Intel compilers (on Linux) as well.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The RTT can be compiled without using any assembler
-	    constructs. In that case, the lock-free algorithms are
-	    replaced at compile-time with lock-based
-	    alternatives. This eases porting to other platforms or in
-	    case the user finds the assembler code suspect, or lacks
-	    it on his platform. To use this, turn the OS_NO_ASM option
-	    in in the cmake dialog.
-	  </para>
-	  <warning>
-	    <para>
-	      In case you enable OS_NO_ASM, you'll require Boost
-	      1.36.0 or newer, since the lock-based alternatives are
-	      based on the since then added boost::intrusive
-	      containers.
-	    </para>
-	  </warning>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Testing</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Initial CDash support has been added and the cmake targets
-	    were aligned in order to make automated testing work better.
-	    When tests are enabled, the 'all' target also builds the tests
-	    right away, such that a 'check' only needs to run the tests.
-	    A dependency flaw in unit test building has been fixed as well
-	    (the libraries are now built before the unit tests are built).
+	    The SimulationActivity's thread no longer automatically starts hogging the
+	    CPU, allowing the unit tests or other users to control when its
+	    thread runs.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Build system / CMake</title>
+      <title>CORBA Transport</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Users can set build defaults more easily using an orocos-rtt.cmake
-	    file. It allows a user to set defaults for any future build, without
-	    touching the RTT cmake files.
-	    This file is created by making a copy of orocos-rtt.default.cmake.
-	    A number of pre-defined options are listed and documented in that file.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The prefered way to point to non-standard include and
-	    library paths is to use the CMAKE_INCLUDE_PATH and
-	    CMAKE_LIBRARY_PATH variables. You can set these in the
-	    orocos-rtt.cmake file in the orocos-rtt directory (see
-	    item above), or using the -D cmake option.
-	    For backwards compatibility, the ACE_ROOT and TAO_ROOT
-	    environment variables are detected and used as well.
+	    Better bookkeeping is done to free CORBA transport resources when
+	    they are no longer necessary.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -198,44 +126,16 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>OCL::DeploymentComponent</classname> now
-	    supports the pre-loading of a 'site file'. This XML file
-	    declares which components or plugins to load or configure by default.
-	    It allows for example to set the ComponentPath variable
-	    to a site-specific setting.
+	    The DeploymentComponent's component and plugin loading is identical
+	    to the RTT/OCL 2.x behavior. It can load components and plugins
+	    from multiple paths, using the RTT_COMPONENT_PATH environment variable
+	    or XML property.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The OCL CAN classes have been cleaned up and refactored and
-	    all references to CANOpen have been removed. Also, CAN controller classes
-	    for plain Linux Socket CAN and RT-CAN (Xenomai) have been added.
-	  </para>
-	  <para>
-	    Patch contributed by S. Kauffmann.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Cleanups were done to the <classname>OCL::IOComponent</classname>
-	    such that it names ports correctly. Also digital in devices can
-	    be added now.
-	  </para>
-	  <para>
-	    Patch contributed by S. Kauffmann.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The ocl-config.h header file now contains the version number of OCL.
-	    See OCL_VERSION_MAJOR, OCL_VERSION_MINOR, OCL_VERSION_PATCH and OCL_VERSION.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Similar to RTT (see above), an orocos-ocl.default.cmake template was provided such
-	    that the user can create an orocos-ocl.cmake for setting defaults
-	    for each build directory, without modifying cmake files from OCL itself.
+	    OCL's DeploymentComponent and TaskBrowser now work on Windows/Visual
+	    Studio compilers out of the box.
 	  </para>
 	</listitem>
       </itemizedlist>
