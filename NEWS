@@ -23,6 +23,8 @@ These are the major highlights:
  * Many portability fixes, allowing builds on native Windows
  * Memory and bookkeeping cleanups in CORBA transport
  * Improved marshalling api for fast saving of XML files ('storeProperties')
+ * Initial tlsf rt-malloc support
+ * Thread-safe parsing of scripts
  * Many bugfixes that could not make it in the 1.10 release.
 
 You can download this release from
