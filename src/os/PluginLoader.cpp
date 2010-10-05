@@ -152,16 +152,13 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()) && itr->path().filename().rfind(SO_EXT) != string::npos) {
+                if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
                     loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
                 } else {
-                    if (is_symlink(itr->symlink_status()))
-                        log(Debug) << "is symlink: ignored."<<endlog();
+                    if (!is_regular_file(itr->status()))
+                        log(Debug) << "not a regular file: ignored."<<endlog();
                     else
-                        if (!is_regular_file(itr->status()))
-                            log(Debug) << "not a regular file: ignored."<<endlog();
-                        else
-                            log(Debug) << "not a library: ignored."<<endlog();
+                        log(Debug) << "not a " + SO_EXT + " library: ignored."<<endlog();
                 }
             }
         }
@@ -176,16 +173,13 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && !is_symlink(itr->symlink_status()) && itr->path().filename().rfind(SO_EXT) != string::npos) {
+                if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
                     loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
                 } else {
-                    if (is_symlink(itr->symlink_status()))
-                        log(Debug) << "is symlink: ignored."<<endlog();
+                    if (!is_regular_file(itr->status()))
+                        log(Debug) << "not a regular file: ignored."<<endlog();
                     else
-                        if (!is_regular_file(itr->status()))
-                            log(Debug) << "not a regular file: ignored."<<endlog();
-                        else
-                            log(Debug) << "not a library: ignored."<<endlog();
+                        log(Debug) << "not a " + SO_EXT + " library: ignored."<<endlog();
                 }
             }
         }
