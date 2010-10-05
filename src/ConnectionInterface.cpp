@@ -112,7 +112,24 @@ namespace RTT
                 (*it)->signal();
         }
     }
+
+    std::string ConnectionInterface::getConnectionName()
+    {
+        return connectionName;
+    }
+
+    void ConnectionInterface::setConnectionName(std::string newConnectionName)
+    {
+        this->connectionName = newConnectionName;
+    }
+
+    ConnectionInterface::PList ConnectionInterface::getPortList()
+    {
+        return ports;
+    }
+
 }
+
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 {
     p->refcount.inc();
