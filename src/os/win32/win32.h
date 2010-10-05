@@ -45,6 +45,7 @@
 
 // Include this windows stuff as soon as possible. We use LEAN_AND_MEAN because of the Winsock include madness
 
+#define _WIN32_WINNT 0x400
 #  define WIN32_LEAN_AND_MEAN 
 #  include <windows.h>
 #  undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
