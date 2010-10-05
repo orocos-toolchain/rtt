@@ -109,7 +109,7 @@ namespace RTT
      * Parser used in skip parser. Set skipeol to 'true' to
      * skip newlines, set skipeol to false to not skip newlines.
      */
-    struct eol_skip_functor
+    struct RTT_API eol_skip_functor
     {
         /**
          * By default, eol are skipped.
