@@ -52,6 +52,8 @@ if(Boost_FOUND)
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
+else()
+  message(FATAL_ERROR "Boost not found on your system. See orocos-rtt.default.cmake (recommended) or set BOOST_ROOT.")
 endif()
 
 # Look for Xerces 
@@ -212,11 +214,12 @@ if(OROCOS_TARGET STREQUAL "win32")
       set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
     set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
+    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
     # We force to ON
     message("Forcing OS_NO_ASM to ON for MSVC.")
     set( OS_NO_ASM ON CACHE BOOL "This option is forced to ON by the build system with MSVC compilers." FORCE)
   endif()
-  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  list(APPEND OROCOS-RTT_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}) 
   set(CMAKE_DEBUG_POSTFIX "d")
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
