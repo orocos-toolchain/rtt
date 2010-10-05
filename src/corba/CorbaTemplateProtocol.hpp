@@ -90,7 +90,7 @@ namespace RTT
            */
           virtual void* createBlob( DataSourceBase::shared_ptr source) const
           {
-              DataSource<T>* d = AdaptDataSource<T>()( source );
+			  DataSource<T>::shared_ptr d = AdaptDataSource<T>()( source );
               if ( d )
                   return AnyConversion<PropertyType>::createAny( d->value() );
               return 0;

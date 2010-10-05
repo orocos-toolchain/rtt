@@ -101,7 +101,7 @@ namespace RTT
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
 #ifdef OS_HAVE_STREAMS
-            DataSource<bool>* d = AdaptDataSource<bool>()( in );
+			DataSource<bool>::shared_ptr d = AdaptDataSource<bool>()( in );
             if (d)
                 return os << boolalpha << d->value();
 #endif
@@ -336,6 +336,7 @@ namespace RTT
         ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
         ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
         ti->type("array")->addConstructor( newConstructor( array_ctor2() ) );
+#if 1
         ti->type("double")->addConstructor( newConstructor( &float_to_double, true ));
         ti->type("double")->addConstructor( newConstructor( &int_to_double, true ));
         ti->type("float")->addConstructor( newConstructor( &int_to_float, true ));
@@ -344,6 +345,7 @@ namespace RTT
         ti->type("int")->addConstructor( newConstructor( &double_to_int, false ));
         ti->type("int")->addConstructor( newConstructor( &uint_to_int, false ));
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
+#endif
 #endif
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         return true;

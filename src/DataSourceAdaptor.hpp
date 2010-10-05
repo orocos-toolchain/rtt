@@ -501,26 +501,26 @@ namespace RTT
     {
         typedef TResult Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename DataSource<Result>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
+            typename DataSource<Result>::shared_ptr t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // const ref to value case
-            DataSource<const Result&>* t2 = DataSource<const Result&>::narrow( dsb.get() );
+            typename DataSource<const Result&>::shared_ptr t2 = DataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<const Result&, Result>( t2 );
 
 #ifndef ORO_EMBEDDED
             // ref to value case
-            DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
+            typename DataSource<Result&>::shared_ptr t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 );
 
             // const value to value case
-            DataSource<const Result>* t4 = DataSource<const Result>::narrow( dsb.get() );
+            typename DataSource<const Result>::shared_ptr t4 = DataSource<const Result>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<const Result, Result>( t4 );
 #endif
@@ -539,24 +539,24 @@ namespace RTT
     {
         typedef TResult Result;
 
-        AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename AssignableDataSource<Result>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
+            typename AssignableDataSource<Result>::shared_ptr t1 = AssignableDataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
 #if 0
             // Does this case exist ?
             // Assignable const ref case
-            AssignableDataSource<const Result&>* t2 = AssignableDataSource<const Result&>::narrow( dsb.get() );
+            typename AssignableDataSource<const Result&>::shared_ptr t2 = AssignableDataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t2 ); // will return AssignableDS !
 #endif
 
 #ifndef ORO_EMBEDDED
             // ref to assignable value case
-            DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
+            typename DataSource<Result&>::shared_ptr t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
 #endif
@@ -576,15 +576,15 @@ namespace RTT
     {
         typedef TResult& Result;
 
-        AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename AssignableDataSource<Result>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
+            typename AssignableDataSource<Result>::shared_ptr t1 = AssignableDataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // ref to assignable value case
-            DataSource<Result>* t3 = DataSource<Result>::narrow( dsb.get() );
+            typename DataSource<Result>::shared_ptr t3 = DataSource<Result>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result, Result>( t3 ); // will return AssignableDS !
 
@@ -602,25 +602,25 @@ namespace RTT
     {
         typedef const TResult Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename DataSource<Result>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
+            typename DataSource<Result>::shared_ptr t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // const ref to const value case
-            DataSource<const TResult&>* t2 = DataSource<const TResult&>::narrow( dsb.get() );
+            typename DataSource<const TResult&>::shared_ptr t2 = DataSource<const TResult&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<const TResult&, Result>( t2 );
 
             // ref to const value case
-            DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
+            typename DataSource<TResult&>::shared_ptr t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<TResult&, Result>( t3 );
 
             // value to const value case
-            DataSource<TResult>* t4 = DataSource<TResult>::narrow( dsb.get() );
+            typename DataSource<TResult>::shared_ptr t4 = DataSource<TResult>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<TResult, Result>( t4 );
 
@@ -640,15 +640,15 @@ namespace RTT
     {
         typedef TResult& Result;
 
-        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename DataSource<Result>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
+            typename DataSource<Result>::shared_ptr t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // assignable case
-            AssignableDataSource<TResult>* t2 = AssignableDataSource<TResult>::narrow( dsb.get() );
+            typename AssignableDataSource<TResult>::shared_ptr t2 = AssignableDataSource<TResult>::narrow( dsb.get() );
             if (t2 && &(t2->set()) != 0 )
                 return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
 
@@ -667,33 +667,33 @@ namespace RTT
     template<class TResult>
     struct AdaptDataSource<const TResult&>
     {
-        DataSource<const TResult&>* operator()( DataSourceBase::shared_ptr dsb) const
+        typename DataSource<const TResult&>::shared_ptr operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<const TResult&>* t1 = DataSource<const TResult&>::narrow( dsb.get() );
+            typename DataSource<const TResult&>::shared_ptr t1 = DataSource<const TResult&>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // assignable case: this is a more efficient implementation than the one below (t2)
             // does not involve a copy.
-            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
+            typename AssignableDataSource<TResult>::shared_ptr ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
             if (ta1 && &(ta1->set()) != 0 ) // check for null set()
                 return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
 
             // value to const ref case
             // makes a copy !
-            DataSource<TResult>* t2 = DataSource<TResult>::narrow( dsb.get() );
+            typename DataSource<TResult>::shared_ptr t2 = DataSource<TResult>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
 
 #ifndef ORO_EMBEDDED
             // ref to const ref case
-            DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
+            typename DataSource<TResult&>::shared_ptr t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<TResult&, const TResult&>( t3 );
 
             // const value to const ref case
-            DataSource<const TResult>* t4 = DataSource<const TResult>::narrow( dsb.get() );
+            typename DataSource<const TResult>::shared_ptr t4 = DataSource<const TResult>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<const TResult, const TResult&>( t4 );
 
