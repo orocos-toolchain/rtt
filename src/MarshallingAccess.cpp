@@ -59,11 +59,14 @@ namespace RTT
         obj->methods()->addMethod(method("loadProperties",&MarshallingAccess::loadProperties, this),
                                   "Read, and create if necessary, Properties from a file.",
                                   "Filename","The file to read the (new) Properties from.");
+        obj->methods()->addMethod(method("storeProperties",&MarshallingAccess::storeProperties, this),
+                                  "Store properties in a file and overwrite any existing content.",
+                                  "Filename","The file to store the Properties to.");
         obj->methods()->addMethod(method("updateProperties",&MarshallingAccess::updateProperties, this),
-                                  "Read some Properties from a file.",
+                                  "Read some Properties from a file. Updates only matching properties. Returns false upon type mismatch.",
                                   "Filename","The file to read the Properties from.");
         obj->methods()->addMethod(method("readProperties",&MarshallingAccess::readProperties, this),
-                                  "Read all Properties from a file.",
+                                  "Read all Properties from a file. Returns false if one or more properties are missing or have a wrong type in that file.",
                                   "Filename","The file to read the Properties from.");
         obj->methods()->addMethod(method("readProperty",&MarshallingAccess::readProperty, this),
                                   "Read a single Property from a file.",
@@ -71,13 +74,13 @@ namespace RTT
                                   "Filename","The file to read the Properties from.");
 
         obj->methods()->addMethod(method("updateFile",&MarshallingAccess::updateFile, this),
-                                  "Write some Properties to a file.",
+                                  "Write some Properties to a file, ie, only the ones that are already present in the file.",
                                   "Filename","The file to write the Properties to.");
         obj->methods()->addMethod(method("writeProperties",&MarshallingAccess::writeProperties, this),
-                                  "Write all Properties to a file.",
+                                  "Write all Properties to a file, but keep existing ones in that file.",
                                   "Filename","The file to write the Properties to.");
         obj->methods()->addMethod(method("writeProperty",&MarshallingAccess::writeProperty, this),
-                                  "Write a single Properties to a file.",
+                                  "Write a single Properties to a file and keep existing ones in that file.",
                                   "Name", "The name of (or the path to) the property to write.",
                                   "Filename","The file to write the Properties to.");
         mparent->addObject( obj );
@@ -105,6 +108,13 @@ namespace RTT
         PropertyLoader pl;
         return pl.save( filename, mparent, true);
     }
+
+	bool MarshallingAccess::storeProperties(const std::string& filename) const
+    {
+        PropertyLoader pl;
+        return pl.store( filename, mparent);
+    }
+
     bool MarshallingAccess::updateFile(const std::string& filename) const
     {
         PropertyLoader pl;

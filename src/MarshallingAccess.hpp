@@ -68,6 +68,15 @@ namespace RTT
         bool loadProperties(const std::string& filename) const;
 
         /**
+         * Stores all properties of a TaskContext in a new file or overwrite an existing one.
+         * The file given in filename will always be overwritten and any existing content
+         * will be lost.
+         * @param filename The file to store to.
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool storeProperties(const std::string& filename) const;
+
+        /**
          * Read the property file and 'refresh' \b all the properties of the TaskContext.
          * There may be more properties in the file than properties in the TaskContext,
          * but all properties of the TaskContext must be present in \a filename.
