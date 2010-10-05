@@ -64,8 +64,8 @@ namespace RTT
 }
 
 
-void intrusive_ptr_add_ref(RTT::detail::IntrusiveStorage* p );
-void intrusive_ptr_release(RTT::detail::IntrusiveStorage* p );
+void RTT_API intrusive_ptr_add_ref(RTT::detail::IntrusiveStorage* p );
+void RTT_API intrusive_ptr_release(RTT::detail::IntrusiveStorage* p );
 
 namespace RTT
 {
