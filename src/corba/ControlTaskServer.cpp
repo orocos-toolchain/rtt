@@ -241,9 +241,19 @@ namespace RTT
         if ( !CORBA::is_nil(orb) ) {
             log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
             while ( !servers.empty() ){
-                delete servers.begin()->second;
+                servers.begin()->first->removeObject("corbaservice");
+                // note: will call CleanupServer below !
             }
             log() << "Cleanup done."<<endlog();
+        }
+    }
+
+    void ControlTaskServer::CleanupServer(TaskContext* c) {
+        if ( !CORBA::is_nil(orb) && c && servers.find(c) != servers.end() ) {
+            log(Info) << "Cleaning up ControlTaskServer for "<< c->getName()<<endlog();
+            delete servers[c];
+            servers.erase( c );
+            c->removeObject("corbaservice");
         }
     }
 
