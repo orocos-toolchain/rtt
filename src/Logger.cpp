@@ -95,8 +95,9 @@ namespace RTT
     /**
      * This hidden struct stores all data structures required for logging.
      */
-    struct Logger::D
+    class Logger::D
     {
+    public:
         D(std::ostream& str) :
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput( &str ),

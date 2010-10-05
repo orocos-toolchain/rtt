@@ -308,7 +308,7 @@ namespace RTT
                 assert(ac);
                 assigncommands.push_back( ac );
             }
-            catch( const bad_assignment& e ) {
+            catch( const bad_assignment& ) {
                 this->cleanup();
                 throw parse_exception_semantic_error
                     ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
@@ -376,7 +376,7 @@ namespace RTT
             try {
                 ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
             }
-            catch( const bad_assignment& e) {
+            catch( const bad_assignment& ) {
                 // type-error :
                 throw parse_exception_semantic_error(
                                                      "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
@@ -405,7 +405,7 @@ namespace RTT
                 ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
                 assigncommands.push_back( ac );
             }
-            catch( const bad_assignment& e) {
+            catch( const bad_assignment& ) {
                 // type-error :
                 throw parse_exception_semantic_error(
                                                      "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
@@ -431,7 +431,7 @@ namespace RTT
                 if ( ! assigncommand )
                     throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in OperationInterface "+ peername->getName()+"." );
             }
-            catch( const bad_assignment& e )
+            catch( const bad_assignment& )
                 {
                     // type-error :
                     throw parse_exception_semantic_error

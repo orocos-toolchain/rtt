@@ -145,7 +145,7 @@ namespace RTT
 
     basic_ostreams& basic_ostreams::operator<<( double f )
     {
-        std::string result( float_to_string( f ) );
+        std::string result( float_to_string( float(f) ) );
         write( result.c_str(), result.length() );
         return *this;
     }

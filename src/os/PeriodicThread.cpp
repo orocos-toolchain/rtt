@@ -484,7 +484,7 @@ namespace RTT
 
     void PeriodicThread::getPeriod(secs& s, nsecs& ns) const
     {
-        s = period/(1000*1000*1000);
+        s = secs(period/(1000*1000*1000));
         ns = period - s*1000*1000*1000;
     }
 
