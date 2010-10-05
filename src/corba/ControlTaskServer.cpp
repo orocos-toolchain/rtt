@@ -161,7 +161,6 @@ namespace RTT
                         servers.erase(taskc);
                         taskc->removeObject("corbaservice"); // deletes service.
                         log(Error) << err << endlog();
-                        servers.erase(taskc);
                         throw IllegalServer(err);
                     }
                     else
