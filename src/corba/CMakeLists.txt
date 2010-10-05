@@ -36,6 +36,10 @@ IF(ENABLE_CORBA)
 
   list(APPEND OROCOS-RTT_DEFINITIONS ${CORBA_DEFINITIONS})
 
+  if (OROCOS_TARGET STREQUAL "win32")
+    add_definitions("/wd4250")
+  endif()
+
 IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt-corba-static_${OROCOS_TARGET} STATIC ${CPPS})
   SET_TARGET_PROPERTIES( orocos-rtt-corba-static_${OROCOS_TARGET} 
