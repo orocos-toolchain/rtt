@@ -24,6 +24,8 @@
 #include <boost/test/included/unit_test.hpp>
 #include <os/StartStopManager.hpp>
 
+#include "test-runner.hpp"
+
 using boost::unit_test::test_suite;
 
 using namespace RTT;
