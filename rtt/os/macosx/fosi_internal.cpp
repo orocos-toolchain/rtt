@@ -54,7 +54,7 @@ namespace RTT
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
         main_task->priority = sp.sched_priority;
-        task->wait_policy = ORO_WAIT_ABS;
+        main_task->wait_policy = ORO_WAIT_ABS;
 	    return 0;
 	}
 
