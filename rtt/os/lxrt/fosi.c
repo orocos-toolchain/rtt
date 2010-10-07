@@ -259,14 +259,14 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return -1;
     }
 
-    int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abstime)
+    int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, NANO_TIME abs_time)
     {
         CHK_LXRT_CALL();
         int ret = rt_cond_wait_until(cond->cond, mutex->sem, nano2count(abs_time) );
         if (ret == 0)
             return 0;
         if ( ret == SEM_TIMOUT )
-            return ETIMEOUT;
+            return ETIMEDOUT;
         return -1;
     }
 
