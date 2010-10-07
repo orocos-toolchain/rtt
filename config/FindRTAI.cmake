@@ -46,7 +46,8 @@ set(RTAI_PROCESS_LIBS RTAI_LIBRARY)
 # If user provides Linux source dir, check and append it as well
 if( LINUX_SOURCE_DIR )
   set(linux_header_NAME linux/kernel.h)
-  find_path(Linux_INCLUDE_DIR      NAMES ${linux_header_NAME} PATHS  ${LINUX_SOURCE_DIR} NO_DEFAULT_PATH)
+  # We check for both the source dir or an installation dir:
+  find_path(Linux_INCLUDE_DIR      NAMES ${linux_header_NAME} PATHS  ${LINUX_SOURCE_DIR} PATH_SUFFIXES include NO_DEFAULT_PATH)
   list(APPEND RTAI_PROCESS_INCLUDES Linux_INCLUDE_DIR)
 endif()
 
