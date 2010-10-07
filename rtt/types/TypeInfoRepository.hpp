@@ -67,6 +67,8 @@ namespace RTT
         static shared_ptr Instance();
         /**
          * Retrieve a type with a given \a name.
+         * @param name The type name as specified by the
+         * TypeInfo object, or it's dotted equivalent.
          */
         TypeInfo* type( const std::string& name ) const;
 
@@ -76,9 +78,23 @@ namespace RTT
         bool addType( TypeInfo* );
 
         /**
-         * List all types.
+         * List all types registered with their original
+         * type name. See getDottedTypes for the typenames
+         * written in the 'package.type' notation.
          */
         std::vector<std::string> getTypes() const;
+
+        /**
+         * List all registered types in the package.type
+         * notation.
+         */
+        std::vector<std::string> getDottedTypes() const;
+
+        /**
+         * Convert any type name returned by getTypes()
+         * to the dotted type notation.
+         */
+        std::string toDot( const std::string& type ) const;
 
         /**
          * Return the type info structure of a given type name.

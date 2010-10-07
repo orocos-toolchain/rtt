@@ -65,10 +65,12 @@ namespace RTT { namespace scripting
       // if it really is, use notassertingidentifier.
       rule_t idr;
       lexeme_rule_t idlr;
-      rule_t identifier;
-      rule_t notassertingidentifier;
-      lexeme_rule_t lexeme_identifier;
-      lexeme_rule_t lexeme_notassertingidentifier;
+      rule_t identifier;  //! plain 'C' identifier. Throws if keyword is parsed.
+      rule_t templ;       //! recursive template def.
+      rule_t tidentifier; //! identifier with <template> marks in it
+      rule_t notassertingidentifier; //! plain 'C' identifier. Does not throw if keyword is parsed.
+      lexeme_rule_t lexeme_identifier; //! See identifier, but in lexeme parsing mode.
+      lexeme_rule_t lexeme_notassertingidentifier; //! See notassertingidentifier, but in lexeme parsing mode.
 
       //@{
       /**

@@ -45,6 +45,7 @@
 #include "TransportPlugin.hpp"
 #include "../internal/mystd.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace RTT
 {
@@ -71,9 +72,15 @@ namespace RTT
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
     {
         map_t::const_iterator i = data.find( name );
-        if ( i == data.end() )
-            return 0;
-        else return i->second;
+        if ( i == data.end() ) {
+            // try alternate name replace / with dots:
+            string tkname = "/" + boost::replace_all_copy(boost::replace_all_copy(name, string("."), "/"), "<","</");
+            i = data.find( tkname );
+            if ( i == data.end())
+                return 0;
+        }
+        // found
+        return i->second;
     }
 
     TypeInfoRepository::~TypeInfoRepository()
@@ -113,6 +120,25 @@ namespace RTT
     std::vector<std::string> TypeInfoRepository::getTypes() const
     {
         return keys( data );
+    }
+
+    string TypeInfoRepository::toDot( const string& type ) const
+    {
+        if (type.empty())
+            return type;
+        // try alternate name replace / with dots:
+        string dotname = boost::replace_all_copy(boost::replace_all_copy(type, string("/"), "."), "<.","<");
+        if ( dotname[0] == '.')
+            dotname = dotname.substr(1);
+        return dotname;
+    }
+
+    std::vector<std::string> TypeInfoRepository::getDottedTypes() const
+    {
+        vector<string> result = keys( data );
+        for( vector<string>::iterator it = result.begin(); it != result.end(); ++it)
+            *it = toDot(*it);
+        return result;
     }
 
     void TypeInfoRepository::registerTransport( TransportPlugin* tr )

@@ -71,7 +71,7 @@ namespace RTT { namespace scripting
     TaskContext* mcaller;
     bool mis_send;
 
-    rule_t datacall, arguments;
+    rule_t datacall, arguments, peerpath, object, method;
 
     void seenmethodname( iter_t begin, iter_t end );
     void seenobjectname( iter_t begin, iter_t end );
