@@ -55,6 +55,7 @@
 #else
 #include <sys/select.h>
 #include <unistd.h>
+#include <errno.h>
 #endif
 
 #include <boost/cstdint.hpp>
