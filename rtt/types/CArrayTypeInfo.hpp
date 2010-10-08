@@ -75,21 +75,23 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 using namespace internal;
-                typename AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
-                if ( !data ) {
-                    return base::DataSourceBase::shared_ptr();
-                }
+                typename DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< DataSource<T> >( item );
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ValueDataSource<unsigned int>( data->set().count() );
+                    return new ValueDataSource<int>( data->rvalue().count() );
+                }
+
+                typename AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                if ( !adata ) {
+                    return base::DataSourceBase::shared_ptr();
                 }
 
                 // contents of indx can change during program execution:
                 try {
                     unsigned int indx = boost::lexical_cast<unsigned int>(name);
                     // @todo could also return a direct reference to item indx using another DS type that respects updated().
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().address(), new ConstantDataSource<unsigned int>(indx), item );
+                    return new ArrayPartDataSource<typename T::value_type>( *adata->set().address(), new ConstantDataSource<unsigned int>(indx), item, data->rvalue().count() );
                 } catch(...) {}
                 log(Error) << "CArrayTypeInfo: No such part (or invalid index): " << name << endlog();
                 return base::DataSourceBase::shared_ptr();
@@ -98,25 +100,34 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
                 using namespace internal;
-                typename AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                typename DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< DataSource<T> >( item );
                 if ( !data ) {
                     return base::DataSourceBase::shared_ptr();
                 }
 
                 // discover if user gave us a part name or index:
-                typename DataSource<unsigned int>::shared_ptr id_indx = DataSource<unsigned int>::narrow( id.get() );
                 typename DataSource<string>::shared_ptr id_name = DataSource<string>::narrow( id.get() );
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ValueDataSource<unsigned int>( data->set().count() );
+                        return new ValueDataSource<int>( data->rvalue().count() );
+                    } else {
+                        log(Error) << "CArrayTypeInfo: No such part : " << id_name->get() << endlog();
+                        return base::DataSourceBase::shared_ptr();
                     }
                 }
 
-                if ( id_indx ) {
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().address(), id_indx, item );
+                typename AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
+                if ( !adata ) {
+                    log(Error) << "CArrayTypeInfo: need assignable data type for indexing " << this->getTypeName() << endlog();
+                    return base::DataSourceBase::shared_ptr();
                 }
-                log(Error) << "CArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
+
+                typename DataSource<unsigned int>::shared_ptr id_indx = DataSource<unsigned int>::narrow( DataSourceTypeInfo<unsigned int>::getTypeInfo()->convert(id).get() );
+                if ( id_indx ) {
+                    return new ArrayPartDataSource<typename T::value_type>( *adata->set().address(), id_indx, item, data->rvalue().count() );
+                }
+                log(Error) << "CArrayTypeInfo: Invalid index) for type " << this->getTypeName() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
         };
