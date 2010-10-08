@@ -34,6 +34,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Initial plugin manual</revremark>
       </revision>
+      <revision>
+	<revnumber>2.1.0</revnumber>
+	<date>8 Oct 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>More detail</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -51,24 +57,30 @@
   </articleinfo>
   <section>
     <title>Loading Existing Plugins</title>
-    <para>
-      Existing plugins are fairly easy to use. The most important
-      thing to remember is to set the <option>RTT_COMPONENT_PATH</option>
-      environment variable which is a list of colon or semi-colon seprated
-      directories where to look for plugins. For example (in Linux):
-      <programlisting>
+    <section>
+      <title>Paths and (not) default loading</title>
+      <para>
+	Existing plugins are fairly easy to use. You only need to tell
+	where they are located.
+      </para>
+      <para>
+	The most important
+	thing to remember is to set the <option>RTT_COMPONENT_PATH</option>
+	environment variable which is a list of colon or semi-colon seprated
+	directories where to look for plugins. For example (in Linux):
+	<programlisting>
 	export RTT_COMPONENT_PATH=.:/opt/rtt/lib:/usr/local/lib/orocos
       </programlisting>
-      Which looks for plugins in <filename>.</filename>, <filename>/opt/rtt/lib</filename>
+      Which tells plugins are in <filename>.</filename> (the current directory), <filename>/opt/rtt/lib</filename>
       and <filename>/usr/local/lib/orocos</filename>
     </para>
     <para>
       When an Orocos application starts, it will look in these directories
-      and load any RTT plugin found there. The plugin directories
-      are typically structured as such:
+      and load any RTT component or plugin found there and load it. The plugin directories
+      are expected to be structured as such:
     </para><screen>
  /usr/local/lib/orocos/        : component libraries
-                      /plugins : services
+                      /plugins : services and other plugins
                       /types   : typekits and transports
   </screen>
      <para> 
@@ -91,17 +103,41 @@
        exists, this directory is searched too.</para>
      </note>
      <para>
+       Only some plugins and components should be readily available in every application.
+       In case you want to make them optional, you may place them in a subdirectory
+       of one of your RTT_COMPONENT_PATH directories. For example:
+     </para>
+    <screen>
+ /usr/local/lib/orocos/myrobot         : component libraries for 'myrobot'
+                      /myrobot/plugins : services and other plugins for 'myrobot'
+                      /myrobot/types   : typekits and transports for data used by 'myrobot'.
+    </screen>
+    <para>
+       Since the
+       <filename>/usr/local/lib/orocos</filename> directory will not
+       be searched recursively, the <filename>myrobot</filename>
+       directory is initially ignored. You can instruct the deployer to
+       look for components by using the import statement, <emphasis>
+       in combination with the RTT_COMPONENT_PATH variable</emphasis>. For example:
+    </para>
+    <screen>
+Deployer [S]> <command>import("myrobot")</command>
+    </screen>
+    <para>Which will look in each directory of the RTT_COMPONENT_PATH for a subdirectory
+    "myrobot" in which it will locate and load components, plugins and typekits.</para>
+  </section>
+  <section>
+    <title>Using plugins in the Deployer</title>
+     <para>
        You can use the <filename>deployer</filename> application in order to list the found 
        services, types and typekits using the <command>.services</command>,
        <command>.types</command> and <command>.typekits</command> commands:
        <screen>
- In Task MyPeer[S]
- (type 'ls' for context info) : <command>.services</command>
-Available Services:  marshalling scripting 
-
- In Task MyPeer[S]
- (type 'ls' for context info) : <command>.types</command>
-Available data types:  ConnPolicy FlowStatus PropertyBag SendHandle SendStatus array bool bools char double float int ints string strings uint void
+Deployer [S]> <command>.types</command>
+Available data types:  ConnPolicy FlowStatus PropertyBag SendHandle SendStatus TaskContext array bool char double float int rt_string string uint void
+Deployer [S]> <command>.services</command>
+Available Services:  scripting marshalling
+Deployer [S]> 
 </screen>
        The marshalling and scripting plugins are delivered by default by
        the RTT.
@@ -110,16 +146,18 @@ Available data types:  ConnPolicy FlowStatus PropertyBag SendHandle SendStatus a
        Finally, you can load a new service into a component by using
        the <command>.provide</command> command:
        <screen>
- (type 'ls' for context info) :<command>.provide scripting</command>
+Deployer [S]> <command>.provide scripting</command>
 Trying to locate service 'scripting'...
-338.268 [ Info   ][./taskb::main()] Loading Service scripting in TaskContext MyPeer
-Service 'scripting' loaded in MyPeer
+2.250 [ Info   ][Logger] Loading Service scripting in TaskContext Deployer
+Service 'scripting' loaded in Deployer
+Deployer [S]> 
  </screen>
         This allows you to extend a running component with new services.
 	Normally, you will already indicate that you want to use this
 	service in your component when writing it in C++, as shown in the
 	next section.
      </para>
+  </section>
   </section>
   <section>
     <title>Using Plugins in C++</title>

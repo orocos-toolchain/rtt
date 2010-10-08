@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.10">
-<!ENTITY version     "2.0">
+<!ENTITY oldversion  "2.0">
+<!ENTITY version     "2.1">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -26,17 +26,13 @@
   </para>
   <para>
     Please consult the online wiki for all available information about
-    the 2.0 transition:
+    the 1.x to 2.x transition:
     <ulink
     url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.
     The Real-Time Toolkit is no longer released as a single entity, but as part
     of a complete set of tools and libraries for creating real-time applications.
+    See also the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.0 Changes</ulink>.
   </para>
-  <note>
-    <para>
-      This document is intended for current users of RTT 1.x
-    </para>
-  </note>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -44,90 +40,15 @@
 	<para>
 	  This release is binary incompatible with RTT
 	  &oldversion;.x. You need to upgrade and recompile all your applications
-	  in order to use this release. For all up-to-date information regarding
-	  upgrading existing applications, check out <ulink
-    url="http://www.orocos.org/wiki/rtt/rtt-20/rtt-20-renaming-table">RTT 2.0 Upgrading</ulink>.
+	  in order to use this release.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  There are no longer Methods and Commands. They have been replaced by a single
-	  primitive called 'Operation', which can act as a Method or as a Command. In
-	  order to use an Operation from a peer component, you need to use the OperationCaller
-	  class, instead of the Method or Command class.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  RTT 2.0 code containing many Operations compiles slower and
-	  requires more memory than 1.x code with many methods or
-	  commands. The run-time execution speed is almost identical to 1.x code.
-	  The developers are constantly looking at ways to improve this issue and
-	  are benchmarking this.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Marshalling (XML reading/writing of parameters) and
-	  scripting have become plugins. There is no longer a
-	  <function>scripting()</function> or
-	  <function>marshalling()</function> function
-	  available. Instead, include the headers
-	  <filename>rtt/scripting/Scripting.hpp</filename> or
-	  <filename>rtt/marsh/Marshalling.hpp</filename> and replace the function calls
-	  <function>scripting()</function> with
-	  <function>getProvider&lt;<classname>RTT::Scripting</classname>>("scripting")</function>
-	  and <function>marshalling()</function> with
-	  <function>getProvider&lt;<classname>RTT::Marshalling</classname>>("marshalling")</function>.
-	  The rtt2-converter tool will take care of this if it sees these functions
-	  in existing code.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The RTT::Logger class has been deprecated. Although it is part of this release,
-	  you should not rely on it for future compatibility. The RTT developers will 
-	  provide a transition path from RTT::Logger to a real-time logging infrastructure, based on
-	  the log4cpp code base. This migration will happen in the 2.x release line.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Typekits should no longer be written manually
-	  (<command>typegen</command> does this for you), and the
-	  TypeInfo API plus all related classes are now considered to
-	  be internal API and may change without prior notice between
-	  major releases.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  RTT::Events no longer exist and must be replaced by attaching callback
-	  functions to Operations or creating InputPort/OutputPort pairs.
-	  The former allows to attach a (scripting) function to an operation
-	  or to trigger a transition if it is called, the latter can cause
-	  a transition if new data arrives on the InputPort.
-	  The state machine scripts have been adapted to support both forms.
-	</para>
-	<para>
-	  In case you used RTT::Event in-process as a broadcast
-	  mechanism (every script or C++ function can subscribe and
-	  every peer can rais it) you need to replace them by
-	  Input/Output Port pairs and connect these during program
-	  deployment. There is currently no way to automatically
-	  subscribe to a peer component's Output Port (ie reacting to)
-	  or write to a peer component's Input Port (ie raising it)
-	  from a state machine. This will be resolved in future releases.
-	</para>
-	<para>
-	  If you used RTT::Event to trigger transitions in a state
-	  machine in the same component, you can replace it with an
-	  empty RTT::Operation with the same signature. Your existing
-	  state machines will then work out of the box.
-	</para>
-	<para>
-	  The class that takes care of synchronous callback handling in RTT 2.0 is
-	  now called <classname>RTT::Signal</classname>.
+	  On Linux, the 2.0.x releases loaded every plugin or
+	  component library which filename had ".so" in it. This
+	  version only loads libraries <emphasis>ending</emphasis> in
+	  ".so".
 	</para>
       </listitem>
     </itemizedlist>
