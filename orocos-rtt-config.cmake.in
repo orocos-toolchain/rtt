@@ -135,6 +135,9 @@ set(OROCOS-RTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")
 # Path to package use file
 set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
 
+# Confirm found
+message("Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
+set(OROCOS-RTT_FOUND ${OROCOS-RTT_IMPORT_FILE})
 
 ########################################################################################################################
 #
