@@ -119,6 +119,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Removed usage of 'set' + minor cleanups</revremark>
       </revision> 
+      <revision>
+	<revnumber>2.1.0</revnumber>
+	<date>8 Oct 2010</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Documented typekit integration</revremark>
+      </revision> 
    </revhistory>
 
     <legalnotice>
@@ -306,7 +312,7 @@
 	  <para>
 	    Variables, constants and aliases are defined for the
 	    following types: bool, int, double, string and array.
-	    The Orocos Toolkit System allows any application or
+	    The Orocos Typekit System allows any application or
 	    library to extend these types.
 	  </para>
 	</section>
@@ -336,8 +342,8 @@
 	  <tgroup cols="3">
 	    <thead>
 	      <row>
-		<entry>Constructor Syntax</entry>
-		<entry>Real-Time Initialising</entry>
+		<entry>Copy Syntax (copy done at run-time)</entry>
+		<entry>Pre-allocate syntax (init done at parse-time)</entry>
 		<entry>Notes</entry>
 	      </row>
 	    </thead>
@@ -376,44 +382,38 @@
 	    </tbody>
 	  </tgroup>
 	</table>
-	<warning><para>The 'Constructor Syntax' syntax leads to not
-	real-time scripts !  See the examples below. </para></warning>
+	<warning><para>The 'Copy Syntax' syntax leads to not
+	real-time scripts because the size is expanded at run-time.  See the examples below. </para></warning>
 	<example>
 	  <title>string and array creation</title>
 	  <programlisting>  // A free string and free array :
-  // applestring is expanded to contain 6 characters (Non real-time!)
+  // applestring is expanded to contain 6 characters (non real-time)
   var string applestring = &quot;apples&quot;
 
-  // values is expanded to contain 15 elements (Non real-time!)
+  // values is expanded to contain 15 elements (non real-time)
   var array  values      = array(15)         
 
   // A fixed string and fixed array :
   var string fixstring(10)  // may contain a string of maximum 10 characters
   
   fixstring  = applestring   // ok, enough capacity
-  fixstring  = "0123456789x" // runtime program error, not enough room.
+  fixstring  = "0123456789x" // allocates new memory (non real-time).
 
 
-  var array  fixvalues(10)  // fixvalues may never contain more than 10 elements
+  var array  fixvalues(10)  // fixvalues pre-allocated 10 elements
   var array  morevalues(20) // arrays are initialised with n doubles of value 0.0 
 
-  fixvalues  = morevalues  // will cause program error
+  fixvalues  = morevalues  // will cause allocation in 'fixvalues'
   morevalues = fixvalues   // ok, morevalues has enough capacity, now contains 10 doubles
 
   fixvalues  = morevalues  // ok, since morevalues only contains 10 items.
 
-  values     = array(20)   // expand values to contain 20 doubles. (Non real-time!) 
+  values     = array(20)   // expand values to contain 20 doubles. (non real-time) 
 
   var array list(1.0, 2.0, 3.0, 4.0) // list contains {1.0, 2.0, 3.0, 4.0}
   var array biglist;                 // creates an empty array
-  biglist = list           // 'biglist' is now equal to 'list' (Non real-time!)
+  biglist = list           // 'biglist' is now equal to 'list' (non real-time)
 	  </programlisting>
-	  <para>
-	    As the example above demonstrates, a <emphasis>fixed</emphasis> string or array may
-	    only be assigned from another string or array with equal or less elements,
-	    while a <emphasis>free</emphasis> string or array may be assigned any number
-	    of elements.
-	  </para>
 	</example>
 	  <important>
 	    <para>
@@ -458,9 +458,10 @@
 	  <para>
 	    Expressions can be combined using the C-style operators
 	    that you are already familiar with if you have ever
-	    programmed in C, C++ or Java.  All operators are
-	    supported, except for the if-then-else operator ("a?b:c"),
-	    and the precedence is the same as the one used in C, C++,
+	    programmed in C, C++ or Java.  Most operators are
+	    supported, except for the if-then-else operator ("a?b:c") and the
+	    "++/--" post-/pre- increment operators.
+	    The precedence is the same as the one used in C, C++,
 	    Java and similar languages. In general all that you would
 	    expect, is present.
 	  </para>
@@ -502,12 +503,36 @@
 	we show how you can load a program in your Real-Time Task.
       </para>
       <para>
-	You have constructed a <classname>RTT::TaskContext</classname>
-	which has some methods and is connected to its Peer
-	TaskContexts. The program script
-	<filename>programs.ops</filename> contains a program
-	with the name "progname".  Parsing the program is then
-	straightforward :
+	The easiest way is to use the DeploymentComponent where you
+	can specify a script to load in the application's 
+	deployment XML file or using the TaskBrowser. 
+	You can also do it in C++, as described	below.
+      </para>
+      <para>
+	The example below is for a program script
+	<filename>programs.ops</filename> which contains a program
+	with the name "progname".
+      </para>
+      <section><title>In the TaskBrowser</title>
+      <para>
+	This is the easiest procedure. You need to tell the
+	taskbrowser that you want the scripting service and
+	then use the scripting service to load the program
+	script:
+      </para>
+      <programlisting>  Component [R]> .provide scripting
+  Trying to locate service 'scripting'...
+  Service 'scripting' loaded in Component
+  Component [R]> scripting.loadPrograms("programs.ops")
+    = true
+  Component [R]> progname.start()
+    = true
+      </programlisting>
+      </section>
+      <section><title>In C++ code </title>
+      <para>
+	Parsing the program is done using the 'getProvider'
+	function to call the scripting service's functions:
       </para>
       <programlisting>
   #include &lt;rtt/Activity.hpp&gt;
@@ -540,7 +565,8 @@
   ProgramInterfacePtr p = dynamic_cast&lt;<classname>RTT::scripting::ScriptingAccess</classname>*&gt;(this->getService("scripting"))->getProgram("progname");
 
   // start a program :
-  p->start();</programlisting>
+  p->start();</programlisting>  
+    </section>
     </section>
   </section>
   <section id="program-syntax">
@@ -558,7 +584,7 @@
 	the other. However, when the program needs to wait for a result,
 	the Execution Engine temporarily postpones program execution and
 	will try again in the next execution period. This
-	happens typically when yield was called. Task OperationCallers
+	happens typically when yield was called. Calling operations
 	and expressions on the other hand typically do not impose a
 	yield, and thus are executed immediately after each other.
       </para>
@@ -639,7 +665,7 @@
         <emphasis>log("In the loop")</emphasis>
         // ...
   }  </programlisting>
-	  Note that Orocos scripting does not support the postfix
+	  Note that Orocos scripting does not (yet) support the postfix
 	  or prefix increment/decrement operators like ++ and --.
 	</para>
       </section>
@@ -689,7 +715,7 @@
       <section>
 	<title>Invoking Task Operations</title>
 	<para>
-	  OperationCallers behave like calling C functions. They take
+	  Operations can be called like calling C functions. They take
 	  arguments and return a value immediately. They can be
 	  used in expressions or stand alone :</para>
 	  <programlisting>
@@ -706,15 +732,14 @@
   data = comp.getResult( arg1 ) * 20. / comp.value
 	  </programlisting>
 	<para>
-	  OperationCallers are executed directly one after the other.
+	  These operations are executed directly one after the other.
 	</para>
 	<warning>
 	  <para>
-	    A method returning a boolean result, will cause a run-time
-	    program error if it returns false. If this is not wanted,
+	    A method throwing an exception, will cause a run-time
+	    program error. If this is not wanted,
 	    put 'try' in front of the method call statement, as shown
-	    in the next section. If the method returns nothing or
-	    something else than bool, the result will be ignored.
+	    in the next section.
 	  </para>
 	</warning>
       </section>
@@ -1032,14 +1057,31 @@
       <para>
 	Analogous to the Program section, we first show how 
 	you can load a StateMachine in your Real-Time Task.
-      </para>
-      <para>
-	Assume that you have a StateMachine "statename"
+	Assume that you have a StateMachine "MachineInstanceName"
 	in a file <filename>state-machine.osd</filename>.
-	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>RTT::TaskContext</classname> which has some methods and is connected to its
-	Peer TaskContexts. Parsing the StateMachine is very analogous
-	to parsing Programs:
+      </para>
+      <section><title>In the TaskBrowser</title>
+      <para>
+	This is the easiest procedure. You need to tell the
+	taskbrowser that you want the scripting service and
+	then use the scripting service to load the state
+	machine
+      </para>
+      <programlisting>  Component [R]> .provide scripting
+  Trying to locate service 'scripting'...
+  Service 'scripting' loaded in Component
+  Component [R]> scripting.loadStateMachines("state-machine.osd")
+    = true
+  Component [R]> MachineInstanceName.activate()
+    = true
+  Component [R]> MachineInstanceName.start()
+    = true
+      </programlisting>
+      </section>
+      <section><title>In C++ code </title>
+      <para>
+	Parsing the StateMachine is very analogous
+	to parsing Programs in C++:
       </para>
       <programlisting>
   #include &lt;rtt/Activity.hpp&gt;
@@ -1079,6 +1121,7 @@
   // activate and start a StateMachine :
   sm->activate();
   sm->start();</programlisting>
+      </section>
     </section>
       <section>
 	<title>Defining StateMachines</title>
