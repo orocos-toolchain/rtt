@@ -86,6 +86,21 @@ namespace RTT
         }
 
         /**
+         * Returns a copy to one item in an STL container.
+         * @note vector<bool> is not supported, since it's not an STL container.
+         * @param cont The container to access
+         * @param index The item to extract from the sequence
+         * @return A copy of item \a index
+         */
+        template<class T>
+        typename T::value_type get_container_item_copy(const T & cont, int index)
+        {
+            if (index >= (int) (cont.size()) || index < 0)
+                return internal::NA<typename T::value_type>::na();
+            return cont[index];
+        }
+
+        /**
          * Specialisation for vector<bool>, we don't return references to bits aka std::_Bit_reference.
          * vector<bool> is an outlier and should not be used. Use vector<int>
          * or vector<char> instead.
@@ -94,6 +109,7 @@ namespace RTT
          * @return A copy of the value at position \a index. \b not a reference !
          */
         bool get_container_item(std::vector<bool> & cont, int index);
+        bool get_container_item_copy(const std::vector<bool> & cont, int index);
 
         /**
          * Template for data types that are C++ STL Sequences with operator[], size() and capacity() methods.
@@ -175,15 +191,6 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                              base::DataSourceBase::shared_ptr id) const {
-                typename internal::AssignableDataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
-                if ( !data ) {
-                    if ( !item->isAssignable() )
-                        log(Error) << "Can't return reference to members of type "<< this->getTypeName() <<" since given object is not assignable." <<endlog();
-                    else
-                        log(Error) << "Consistency error: TypeInfo of type "<< this->getTypeName() <<" can't handle types of type "<< item->getType() <<endlog();
-                    return base::DataSourceBase::shared_ptr();
-                }
-
                 // discover if user gave us a part name or index:
                 typename internal::DataSource<int>::shared_ptr id_indx = internal::DataSource<int>::narrow( id.get() );
                 typename internal::DataSource<string>::shared_ptr id_name = internal::DataSource<string>::narrow( id.get() );
@@ -202,7 +209,10 @@ namespace RTT
 
                 if ( id_indx ) {
                     try {
-                        return internal::newFunctorDataSource(&get_container_item<T>, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
+                        if ( item->isAssignable() )
+                                return internal::newFunctorDataSource(&get_container_item<T>, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
+                            else
+                                return internal::newFunctorDataSource(&get_container_item_copy<T>, internal::GenerateDataSource()(item.get(), id_indx.get() ) );
                     } catch(...) {}
                 }
                 if (id_name) {
