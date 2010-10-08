@@ -246,7 +246,7 @@ namespace RTT
             RT_TASK* self = rt_buddy();
             if (self == 0)
                 return -1; // non-rtai thread. We could try to compare pthreads like in gnulinux ?
-            if ( self == task->rtaithread )
+            if ( self == task->rtaitask )
                 return 1;
             return 0;
         }

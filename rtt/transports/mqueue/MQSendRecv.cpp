@@ -44,6 +44,7 @@
 #include <sstream>
 #include <cassert>
 #include <stdexcept>
+#include <errno.h>
 
 #include "MQSendRecv.hpp"
 #include "../../types/TypeTransporter.hpp"

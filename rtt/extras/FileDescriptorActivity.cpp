@@ -55,6 +55,7 @@
 #else
 #include <sys/select.h>
 #include <unistd.h>
+#include <errno.h>
 #endif
 
 #include <boost/cstdint.hpp>
@@ -135,7 +136,7 @@ void FileDescriptorActivity::unwatch(int fd)
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    int w = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }

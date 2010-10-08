@@ -30,7 +30,10 @@
 #define _GNU_SOURCE   // use all Posix features (and then some).
 #endif
 
-#define _XOPEN_SOURCE 600   // use all Posix features.
+
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600   // use all Posix98 features.
+#endif
 
 #define HAVE_FOSI_API
 
@@ -79,6 +82,7 @@ extern "C" {
 
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
+    typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_CND;
 #endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
 
 	// this is required because the rtos_sem_init function takes a pointer to RTOS_SEM,
@@ -89,7 +93,7 @@ extern "C" {
 
     // this is required because the rtos_cond_init function takes a pointer to RTOS_COND,
     // which contains a pointer to the real RTAI cond
-    typedef struct oro_rtai_sem_t {
+    typedef struct oro_rtai_cond_t {
         RTOS_RTAI_CND* cond;
     } rt_cond_t;
 
@@ -113,9 +117,9 @@ extern "C" {
 		RTOS_RTAI_TASK* rtaitask;
 	} RTOS_TASK;
 
-    const TICK_TIME InfiniteTicks = LLONG_MAX;
-    const NANO_TIME InfiniteNSecs = LLONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
+    static const TICK_TIME InfiniteTicks = LLONG_MAX;
+    static const NANO_TIME InfiniteNSecs = LLONG_MAX;
+    static const double    InfiniteSeconds = DBL_MAX;
 
 #define SCHED_LXRT_HARD 0 /** LXRT Hard real-time */
 #define SCHED_LXRT_SOFT 1 /** LXRT Soft real-time */
