@@ -59,6 +59,7 @@ public:
         do_throw=false;
         do_throw2=false;
         do_throw3=false;
+        do_trigger=false;
     }
 
     void resetFlags()
@@ -70,6 +71,7 @@ public:
         didupdate = false;
         diderror = false;
         didexcept = false;
+        updatecount=0;
     }
 
     bool configureHook() {
@@ -110,12 +112,17 @@ public:
         BOOST_CHECK( mTaskState == Running );
         BOOST_CHECK( getTargetState() == Running );
         didupdate = true;
+        updatecount++;
         if (do_fatal)
             this->fatal();
         if (do_error)
             this->error();
         if (do_throw)
             throw A();
+        if (do_trigger) {
+            this->trigger();
+            do_trigger = false; //avoid endless loop
+        }
     }
 
     void errorHook() {
@@ -133,7 +140,8 @@ public:
     bool didstop;
     bool didcleanup;
     bool didupdate,diderror,didexcept;
-    bool do_fatal, do_error, do_throw,do_throw2,do_throw3;
+    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger;
+    int  updatecount;
 };
 
 /**
@@ -192,6 +200,84 @@ BOOST_AUTO_TEST_CASE( testPeriod)
     pertc.setActivity( new SlaveActivity(0.0) );
     BOOST_CHECK( pertc.engine()->getActivity()->getPeriod() == 0.0 );
     BOOST_CHECK( pertc.getPeriod() == 0.0 );
+}
+
+/**
+ * Tests the trigger() from updateHook().
+ */
+BOOST_AUTO_TEST_CASE( testTrigger )
+{
+    // Check default TC
+    StatesTC trigtc;
+    BOOST_CHECK( trigtc.getPeriod() == 0.0 );
+    BOOST_CHECK( trigtc.isActive() );
+    BOOST_CHECK( trigtc.trigger() == true );
+    usleep(100*1000);
+    // don't call updatehook when not running:
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 0 );
+
+    BOOST_CHECK( trigtc.configure() );
+    BOOST_CHECK( trigtc.trigger() == true );
+    usleep(100*1000);
+    // don't call updatehook when not running:
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 0 );
+    BOOST_CHECK( trigtc.start() );
+    BOOST_CHECK( trigtc.didstart == true );
+    usleep(100*1000);
+
+    // this is still zero because we used the
+    // C++ function start() instead of the operation start().
+    // The Operation would trigger an EE run and hence, updateHook().
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 0 );
+
+    trigtc.resetFlags();
+
+    // trigger() after start():
+    BOOST_CHECK( trigtc.trigger() );
+    usleep(100*1000);
+    BOOST_CHECK( trigtc.didstart == false );
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 1 );
+
+    // again:
+    BOOST_CHECK( trigtc.trigger() );
+    usleep(100*1000);
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 2 );
+
+    // this calls trigger() twice: once ourselves,
+    // and once from updateHook().
+    trigtc.do_trigger = true;
+    BOOST_CHECK( trigtc.trigger() );
+    usleep(100*1000);
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 4 );
+    BOOST_CHECK( trigtc.do_trigger == false );
+
+    // Check periodic TC ( rejects trigger() ):
+    StatesTC pertc;
+    pertc.setPeriod( 0.1 );
+    BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.1 );
+    BOOST_CHECK( pertc.trigger() == false );
+    BOOST_CHECK( pertc.configure() == true );
+    BOOST_CHECK( pertc.trigger() == false );
+    BOOST_CHECK( pertc.start() == true );
+    BOOST_CHECK( pertc.trigger() == false );
+}
+
+/**
+ * Tests the setPeriod function
+ */
+BOOST_AUTO_TEST_CASE( testSetPeriod )
+{
+    // Check periodic TC ( rejects trigger() ):
+    StatesTC pertc;
+    BOOST_CHECK( pertc.setPeriod( 0.1 ) );
+    BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.1 );
+    BOOST_CHECK( pertc.configure() == true);
+    BOOST_CHECK( pertc.setPeriod( 0.2 ) );
+    BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.2 );
+    BOOST_CHECK( pertc.start() == true );
+
+    BOOST_CHECK( pertc.setPeriod( 0.5 ) );
+    BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.5 );
 }
 
 /**

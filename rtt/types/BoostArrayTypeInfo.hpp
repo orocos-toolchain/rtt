@@ -87,7 +87,7 @@ namespace RTT
                 try {
                     unsigned int indx = boost::lexical_cast<unsigned int>(name);
                     // @todo could also return a direct reference to item indx using another DS type that respects updated().
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), new ConstantDataSource<unsigned int>(indx), item );
+                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), new ConstantDataSource<unsigned int>(indx), item, T::static_size);
                 } catch(...) {}
                 log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << name << endlog();
                 return base::DataSourceBase::shared_ptr();
@@ -112,7 +112,7 @@ namespace RTT
                 }
 
                 if ( id_indx ) {
-                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), id_indx, item );
+                    return new ArrayPartDataSource<typename T::value_type>( *data->set().c_array(), id_indx, item, T::static_size );
                 }
                 log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
                 return base::DataSourceBase::shared_ptr();

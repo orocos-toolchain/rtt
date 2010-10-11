@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testArrayPartDataSource )
 {
     AssignableDataSource<unsigned int>::shared_ptr index = new ValueDataSource<unsigned int>(0);
     DataSource<BType>::shared_ptr abase = new UpdatedReferenceDataSource<BType>( btype );
-    AssignableDataSource<char>::shared_ptr d = new ArrayPartDataSource<char>( *btype.c, index, abase );
+    AssignableDataSource<char>::shared_ptr d = new ArrayPartDataSource<char>( *btype.c, index, abase, sizeof(btype.c) );
 
     // Take string by reference:
     BOOST_CHECK_EQUAL( &d->set(), btype.c );
