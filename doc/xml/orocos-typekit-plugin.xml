@@ -133,6 +133,9 @@
 		</entry>
 		<entry>
 		  <itemizedlist>
+		  <listitem><para>Requires all data members to be public</para></listitem>
+		  <listitem><para>Ignores base classes and all data within</para></listitem>
+		  <listitem><para>Does not handle typedefs</para></listitem>
 		  <listitem><para>Requires to be built with 'autoproj'</para></listitem>
 		  <listitem><para>Does not provide scripting constructors or operators</para></listitem>
 		  </itemizedlist>
@@ -152,14 +155,13 @@
 		<entry>
 		  <itemizedlist>
 		  <listitem><para>Can not be used with existing C++ data types</para></listitem>
-		  <listitem><para>Experimental.</para></listitem>
 		  <listitem><para>Depends on ROS</para></listitem>
 		  <listitem><para>Not compatible with the CORBA or mqueue transport</para></listitem>
 		  <listitem><para>Does not provide scripting constructors or operators</para></listitem>
 		  </itemizedlist>
 		</entry>
 		<entry>
-		  Not available for RTT 1.x, Under development for RTT 2.x (alfa status).
+		  Not available for RTT 1.x, Available for RTT 2.x.
 		</entry>
 	      </row>
 	    </tbody>
@@ -171,8 +173,8 @@
 	  These tools are mature for most applications and users
 	  should only write typekits by hand if they want to extend
 	  beyond what typegen/rosgen offer. In practice, this means
-	  adding specialized constructors or operators for scripting
-	  for certain data types.
+	  writing a typekit for a complex data type or adding
+	  specialized constructors or operators for scripting.
 	</para>
       </important>
       <section>
@@ -208,7 +210,8 @@
       </section>
       <section>
 	<title>Using <command>rosgen</command></title>
-	<para>Under development. Consult the mailinglist or the wiki pages for this tool.</para>
+	<para>Under development. Consult the mailinglist or the wiki pages for this tool.
+	<ulink url="http://www.ros.org/news/2010/09/first-development-release-of-orocos-toolchain-ros-v010.html">Announcement</ulink>.</para>
       </section>
     </section>
   </section>
@@ -230,10 +233,11 @@
       <para>
 	Say that you have an application which transfers data
 	in a struct <classname>ControlData</classname> :
-	<programlisting>  struct ControlData {
+	<programlisting>  /** Note: you may also use 'class' instead of 'struct': */
+  struct ControlData {
     double x, y, z;
     int sample_nbr;
-  }</programlisting>
+  };</programlisting>
         When you would use a DataPort&lt;ControlData&gt; and ask the
 	taskbrowser to display the data port. You would see:
 	<screen>  ... <emphasis>unknown_t</emphasis> ... </screen>
@@ -243,7 +247,11 @@
       <para>
         How can you tell the RTT how to handle this data type? A
 	class is provided which you can extend to fit your needs,
-	<classname>RTT::types::StructTypeInfo</classname>. It only requires
+	<classname>RTT::types::StructTypeInfo</classname>&lt;ClassName&gt;. Read it as:
+	provide RTT type information for this class or struct.
+      </para>
+      <para>
+	It only requires
 	a helper function which is compabible with the boost::serialization
 	library and which is easy to write:
 	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
@@ -287,6 +295,94 @@
 	  well. See <xref linkend="overloading-constructors" />. 
 	</para>
       </note>
+      <para>
+	If your struct or class contains other complex types, for
+	example, ControlData's sample_nbr field is a struct 'Sample' itself,
+	you need to apply the same method for that struct: create a
+	serialize() function and register the type with the StructTypeInfo
+	class. In case one of the fields is an array or sequence type, 
+	another approach is taken, as explained below.
+      </para>
+      <section>
+	<title>Struct versus Sequence</title>
+	<para> The ControlData struct is clearly a 'struct' in the C/C++
+	sense. But sometimes, you have datatypes that behave more like
+	sequences. For example, a std::vector&lt;ControlData> or a
+	ControlData[100] field in another struct. In that case, we register
+	the resulting type as a  <classname>RTT::types::SequenceTypeInfo</classname>&lt;ClassName&gt;.
+	For example:
+	</para>
+	<programlisting>  #include &lt;rtt/types/SequenceTypeInfo.hpp>
+  #include &lt;rtt/types/CArrayTypeInfo.hpp>
+  #include &lt;rtt/types/BoostArrayTypeInfo.hpp>
+
+ // Register a std::vector (or compatible) of some type:
+ RTT::types::Types()->addType( new <classname>RTT::types::SequenceTypeInfo</classname>&lt;std::vector&lt;ControlData> >("std.vector&lt;ControlData>") );
+
+ // Register a C-Array of some type:
+ RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;ControlData[]>("ControlData[]");
+
+ // Register a Boost-Array of some type:
+ RTT::types::Types()->addType( new <classname>RTT::types::BoostArrayTypeInfo</classname>&lt;boost::array&lt;ControlData> >("boost.array&lt;ControlData>");
+	</programlisting>
+	<para>Note that we have adapted TypeInfo's type name argument to fit the scripting
+	  type name syntax.</para>
+	<para>
+	  In case a type is one of these sequence, it does not need to provide 
+	  a serialize() function !
+	</para>
+	<para>
+	  Here's a complete example of combining a Struct and a Sequence:
+	<programlisting>  #include &lt;rtt/types/SequenceTypeInfo.hpp>
+  #include &lt;rtt/types/StructTypeInfo.hpp>
+  #include &lt;rtt/types/CArrayTypeInfo.hpp>
+
+  struct ControlData {
+    double x, y, z;
+    int sample_nbr;
+  };
+
+  struct ControlDataSet {
+    // warning: strings may render your type non-real-time.
+    string setname;
+
+    // Variable size data set:
+    vector&lt;ControlData> dataset;
+    
+    // Fixed size array:
+    unsigned int timestamp[2];
+  };
+
+  // The helper function which you write yourself for ControlData:
+  template&lt;class Archive>
+  void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
+     using boost::serialization::make_nvp;
+     a &amp; make_nvp("x", cd.x);
+     a &amp; make_nvp("y", cd.y);
+     a &amp; make_nvp("z", cd.z);
+     a &amp; make_nvp("sample_nbr", cd.sample_nbr);
+  }
+
+  // The helper function which you write yourself for ControlDataSet:
+  template&lt;class Archive>
+  void serialize( Archive &amp; a, ControlDataSet &amp; cds, unsigned int) {
+     using boost::serialization::make_nvp;
+     a &amp; make_nvp("setname", cds.setname);
+     a &amp; make_nvp("dataset", cds.dataset);
+     a &amp; make_nvp("timestamp", cds.timestamp);
+  }
+
+  // Tell the RTT the name and type of a struct:
+  RTT::types::Types()->addType( new <classname>RTT::types::StructTypeInfo</classname>&lt;ControlData>("ControlData") );
+  // Register a std::vector (or compatible) for ControlData:
+  RTT::types::Types()->addType( new <classname>RTT::types::SequenceTypeInfo</classname>&lt;std::vector&lt;ControlData> >("std.vector&lt;ControlData>") );
+  // Register an array for ints:
+  RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;int>("int[]") );
+  // Tell the RTT the name and type of a struct:
+  RTT::types::Types()->addType( new <classname>RTT::types::StructTypeInfo</classname>&lt;ControlDataSet>("ControlDataSet") );
+	</programlisting>
+	</para>
+      </section>
       <section>
 	<title>Displaying and Reading</title>
 	<para>
@@ -555,8 +651,17 @@ bool loadOperators() {
 	<programlisting>  var ControlData cd = ControlData(3.4, 5.0, 1.7);</programlisting>
 	<para>
 	  Multiple constructors can be added for the same type. The first
-	  one that matches with the given arguments is then taken.
+	  one that matches with the given arguments is then taken. For example:
 	</para>
+	<programlisting>
+  // Add 'ControlData( 3.0 )' constructor:
+  ControlData createCD_2(double a) {
+    return ControlData(a,a,a);
+  }
+
+  // Tell the RTT a constructor is available:
+  RTT::types::Types()->type("ControlData")->addConstructor( newConstructor(&amp;createCD_2) );
+	</programlisting>
       </section>
     </section>
   </section>
