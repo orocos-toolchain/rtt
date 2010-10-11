@@ -98,6 +98,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Update to 2.0.0 release.</revremark>
       </revision>
+    <revision>
+    <revnumber>2.1.0</revnumber>
+	<date>11 Oct 2010</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added UseOrocos.cmake macros.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -296,7 +302,7 @@
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
-  cmake .. -DOROCOS_TARGET=&lt;target&gt; [-DCMAKE_PATH_PREFIX=/opt/orocos] [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DLINUX_SOURCE_DIR=/usr/src/linux]
+  cmake .. -DOROCOS_TARGET=&lt;target&gt; [-DCMAKE_PREFIX_PATH=/opt/orocos] [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DLINUX_SOURCE_DIR=/usr/src/linux]
   make
   make install</command> </screen>
         </para>
@@ -306,7 +312,7 @@
 	    <listitem><para><option>OROCOS_TARGET</option>:
 	      &lt;target&gt; is one of 'gnulinux', 'lxrt', 'xenomai', 'macosx', 'win32'. When none is specified,
 	      'gnulinux' is used.</para></listitem>
-	    <listitem><para><option>CMAKE_PATH_PREFIX</option>: used to specify
+	    <listitem><para><option>CMAKE_PREFIX_PATH</option>: used to specify
 		places to look for libraries such as Boost, TAO/ACE etc.
 	    </para></listitem>
 	    <listitem><para><option>CMAKE_INSTALL_PREFIX</option>: specifies where
@@ -355,27 +361,75 @@
     <section>
       <title>Examples</title>
       <para>
-	To quickly test an &orocos; application, you can download the examples
-	from the webpage on <ulink url="http://www.orocos.org/ocl/source">
-	Component template</ulink>, which contains a suitable CMake
-	environment for building components
-	or <ulink url="http://www.orocos.org/rtt/source">RTT Examples</ulink>
-	which contains a variety of demo programs.
+	We're still porting the examples to the 2.x API. The most up to date
+	examples are the RTT 2.x exercises which you can find on the
+	<ulink url="http://www.orocos.org/wiki/orocos/toolchain/getting-started">
+	  Getting Started</ulink> webpage.
       </para>
     </section>
     <section>
       <title>Building components and applications</title>
       <para>
-	You can quick-start build components using the Orocos
-	Component Template package which you can download from
-	<ulink url="http://www.orocos.org/ocl/source">
-	the OCL download page</ulink>, which uses CMake. 
-	If you do not wish to use CMake, you can use the example
-	below to write your own Makefiles.
+	Below, we provide two ways of building Orocos components: using
+	CMake or a plain Makefile. Use this in combination with the code
+	found in the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html">Orocos
+	Component Builder's Manual</ulink>.
       </para>
+      <example>
+	  <title>A CMakeLists.txt file for an Orocos Application or Component</title>
+	  <para>
+	    <note>
+	      <para>Slight changes may be proposed for these macros as they mature.
+	      </para>
+	    </note>
+	    You can build a component using this example CMakeLists.txt file:
+	    <programlisting>cmake_minimum_required(VERSION 2.6.3)
+
+project(myrobot)
+
+find_package(Orocos-RTT)
+
+# Defines all our macros below:
+include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+
+# Creates libhardware.so, libvcontrol.so and libpcontrol.so
+# and installs in lib/orocos/myrobot/
+orocos_component(hardware hardware.cpp)
+orocos_component(vcontrol VelocityControl.cpp)
+orocos_component(pcontrol PositionControl.cpp)
+#   Each .cpp file contains one Orocos Component, using the
+#   ORO_CREATE_COMPONENT macro.
+
+# Creates libmyrobot-support.so and installs it in
+# lib/
+orocos_library(support support.cpp)
+#   support.cpp is a 'helper' library you wrote.
+
+# Creates libmyrobot-types.so typekit using typegen
+# and installs it in lib/orocos/myrobot/types/
+orocos_typekit(RobotControlData.hpp RobotMeasurements.hpp)
+#   These are headers that define the data types your
+#   components understand
+
+
+# Creates libmyrobot-debug.so
+# and installs in lib/orocos/myrobot/plugins/
+orocos_plugin(myrobot-debug debugrobot.cpp)                                                                                                                                                                                                 
+#   debugrobot.cpp must implement the RTT plugin API.
+
+# Installs header in include/orocos/myrobot
+orocos_install_headers( hardware.hpp )
+#   Just some header you like to install
+	    </programlisting>
+	  </para>
+      </example>
       <example>
 	  <title>A Makefile for an Orocos Application or Component</title>
 	  <para>
+	    <note>
+	      <para>We strongly recommend using the cmake macros above.
+	      </para>
+	    </note>
 	    You can compile your program with a Makefile
 	    resembling this one : 
 	    <programlisting>  OROPATH=/usr/local
@@ -405,7 +459,7 @@
 	    use the flags from <filename>orocos-ocl-gnulinux</filename>.
 	  </para>
 	  <para>
-	    We strongly recommend reading the <ulink
+	    We recommend reading the <ulink
 	    url="http://www.orocos.org/ocl/deployment">Deployment
 	    Component</ulink> manual for building and loading Orocos
 	    components into an application.
