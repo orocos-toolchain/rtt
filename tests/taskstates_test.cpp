@@ -49,6 +49,8 @@ public:
         : TaskContext("TC", PreOperational)
     {
         BOOST_CHECK( this->getTaskState() == TaskContext::PreOperational );
+        BOOST_CHECK( this->getTargetState() == TaskContext::PreOperational );
+
         this->resetFlags();
         validconfig = true;
         validstart = true;
@@ -72,28 +74,33 @@ public:
 
     bool configureHook() {
         BOOST_CHECK( mTaskState <= Stopped );
+        BOOST_CHECK( getTargetState() == Stopped );
         didconfig = true;
         return validconfig;
     }
 
     bool startHook() {
         BOOST_CHECK( mTaskState == Stopped);
+        BOOST_CHECK( getTargetState() == Running );
         didstart = true;
         return validstart;
     }
 
     void stopHook() {
         BOOST_CHECK( mTaskState >= Running || mTaskState == Exception);
+        BOOST_CHECK( getTargetState() == Stopped || getTargetState() == Exception );
         didstop = true;
     }
 
     void cleanupHook() {
         BOOST_CHECK( mTaskState == Stopped || mTaskState == Exception);
+        BOOST_CHECK( getTargetState() == PreOperational || getTargetState() == Exception );
         didcleanup = true;
     }
 
     void exceptionHook() {
         BOOST_CHECK( mTaskState == Exception);
+        BOOST_CHECK( getTargetState() == Exception );
         didexcept = true;
         if (do_throw3)
             throw A();
@@ -101,6 +108,7 @@ public:
 
     void updateHook() {
         BOOST_CHECK( mTaskState == Running );
+        BOOST_CHECK( getTargetState() == Running );
         didupdate = true;
         if (do_fatal)
             this->fatal();
@@ -112,6 +120,7 @@ public:
 
     void errorHook() {
         BOOST_CHECK( mTaskState == RunTimeError );
+        BOOST_CHECK( getTargetState() == RunTimeError );
         diderror = true;
         if (do_fatal)
             this->fatal();

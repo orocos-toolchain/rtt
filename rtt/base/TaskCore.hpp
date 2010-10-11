@@ -136,12 +136,32 @@ namespace RTT
         virtual ~TaskCore();
 
         /**
-         * Returns the current state of the TaskContext.
+         * Returns the current state of the TaskCore.
+         * For example, before start(), this function returns
+         * Stopped. During startHook() it returns Stopped, and
+         * after start() it returns Running.
+         *
+         * @see getTargetState()
          */
         virtual TaskState getTaskState() const;
 
         /**
-         * @name Script OperationCallers
+         * Returns the state this TaskCore is going to, or
+         * in case no transition is taking place, returns
+         * getTaskState(). For example, before start(), this
+         * function returns Stopped. During startHook(),
+         * it returns Running and after start() it also returns
+         * Running.
+         *
+         * If getTaskState() != getTargetState, a transition
+         * is taking place.
+         *
+         * @see getTaskState()
+         */
+        virtual TaskState getTargetState() const;
+
+        /**
+         * @name Operations
          *
          * These TaskCore functions are exported in a TaskContext as script
          * methods and are for configuration, starting and stopping
@@ -423,6 +443,11 @@ namespace RTT
         TaskState mTaskState;
 
     private:
+        /**
+         * We need this to be able to detect transitions from
+         * mTaskState to mTargetState.
+         */
+        TaskState mTargetState;
         // non copyable
         TaskCore( TaskCore& );
 
