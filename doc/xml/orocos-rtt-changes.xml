@@ -75,7 +75,8 @@
 	<listitem>
 	  <para>
 	    Calling trigger() from within startHook() is supported again, in order
-	    to force executing updateHook().
+	    to force executing updateHook() after start() for non periodic
+	    components.
 	  </para>
 	</listitem>
       </itemizedlist>
