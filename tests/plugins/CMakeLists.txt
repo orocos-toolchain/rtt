@@ -5,8 +5,11 @@
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME service_plugin
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "-Wl,-zdefs"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
     )
+  IF (NOT APPLE)
+	SET_TARGET_PROPERTIES( service_plugin PROPERTIES
+	  LINK_FLAGS "-Wl,-zdefs")
+  ENDIF ()
   target_link_libraries(service_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
 
