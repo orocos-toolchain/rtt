@@ -297,20 +297,24 @@ namespace RTT
             if ( rtos_task_check_scheduler( &sched_type ) == -1)
                 return -1;
 
-            if (sched_type == SCHED_XENOMAI_HARD)
+            if (sched_type == SCHED_XENOMAI_HARD) {
                 if ( rt_task_set_mode( 0, T_PRIMARY, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_HARD;
                     return 0;
-                } else
+                } else {
                     return -1;
-            else if ( sched_type == SCHED_XENOMAI_SOFT)
-                // This mode setting is only temporary. See rtos_task_wait_period() as well !
-                if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
-                    t->sched_type = SCHED_XENOMAI_SOFT;
-                    return 0;
-                } else
-                    return -1;
-
+                }
+            } else {
+                if ( sched_type == SCHED_XENOMAI_SOFT) {
+                    // This mode setting is only temporary. See rtos_task_wait_period() as well !
+                    if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
+                        t->sched_type = SCHED_XENOMAI_SOFT;
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
             assert(false);
             return -1;
         }

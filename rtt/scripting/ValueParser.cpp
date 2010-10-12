@@ -130,7 +130,6 @@ namespace RTT
   void ValueParser::seennamedconstant( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    TaskContext* peer = peerparser.peer();
     Service::shared_ptr task = peerparser.taskObject();
     peerparser.reset();
     //std::cerr << "ValueParser: seenvar : "<< name
