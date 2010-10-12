@@ -17,7 +17,8 @@
       Orocos Toolchain &version; Release Series
       Changes, New Features, and Fixes 
     </title>
-    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    <subtitle>
+			<emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
   <para>
@@ -28,7 +29,7 @@
     Please consult the online wiki for all available information about
     the 1.x to 2.x transition:
     <ulink
-    url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.
+				url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.
     The Real-Time Toolkit is no longer released as a single entity, but as part
     of a complete set of tools and libraries for creating real-time applications.
     See also the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.0.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.0 Changes</ulink>.
@@ -37,20 +38,28 @@
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
-	<para>
-	  This release is binary incompatible with RTT
-	  &oldversion;.x. You need to upgrade and recompile all your applications
-	  in order to use this release.
-	</para>
+				<para>
+					This release is binary incompatible with RTT
+					&oldversion;.x. You need to upgrade and recompile all your applications
+					in order to use this release.
+				</para>
       </listitem>
       <listitem>
-	<para>
-	  On Linux, the 2.0.x releases loaded every plugin or
-	  component library which filename had ".so" in it. This
-	  version only loads libraries <emphasis>ending</emphasis> in
-	  ".so". Also, the previous release ignored symlinks. This release no longer
-	  ignores symlinks.
-	</para>
+				<para>
+					On Linux, the 2.0.x releases loaded every plugin or
+					component library which filename had ".so" in it. This
+					version only loads libraries <emphasis>ending</emphasis> in
+					".so". Also, the previous release ignored symlinks. This release no longer
+					ignores symlinks.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					Typegen is still subject to some <ulink
+					url="http://www.orocos.org/stable/documentation/rtt/v2.0.x/doc-xml/orocos-typekit-plugin.html">limitations</ulink>.
+					Especially, it can't generated TAO transports yet, only OmniORB works.  This is being
+					looked at and may be fixed in one of the 2.1.x releases.
+				</para>
       </listitem>
     </itemizedlist>
   </section>
@@ -59,79 +68,81 @@
     <section>
       <title>Building</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    The initial UseOrocos.cmake macros have been created for use in
-	    application CMake files. They are still in proposal status, but
-	    will hopefully mature as feedback comes in. See the Orocos
-	    Installation Manual for usage tips.
-	  </para>
-	</listitem>
+				<listitem>
+					<para>
+						The initial UseOrocos.cmake macros have been created for use in
+						application CMake files. They are still in proposal status, but
+						will hopefully mature as feedback comes in. See the 
+						<ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-installation.html">Orocos
+						Installation Manual</ulink> for usage tips.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
       <title>TaskContext</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    Calling trigger() from within startHook() is supported again, in order
-	    to force executing updateHook() after start() for non periodic
-	    components.
-	  </para>
-	</listitem>
+				<listitem>
+					<para>
+						Calling trigger() from within startHook() is supported again, in order
+						to force executing updateHook() after start() for non periodic
+						components.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
       <title>Data Types, Toolkits and Typekits</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    Typegen has matured more and now generates code that can
-	    be checked into version control systems (no absolute
-	    paths). It still imposes some limitations to how your data
-	    types may look like. Consult the typegen and typekit
-	    manuals for more information.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    See also the Scripting section below for improvements on
-	    the typenames typegen generates.
-	  </para>
-	</listitem>
+				<listitem>
+					<para>
+						Typegen has matured more and now generates code that can
+						be checked into version control systems (no absolute
+						paths). It still imposes some limitations to how your data
+						types may look like. Consult the typegen and typekit
+						manuals for more information.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						See also the Scripting section below for improvements on
+						the typenames typegen generates.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
       <title>Corba Transport</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    Many issues have been fixed, including memory management, which
-	    adds a dispose() method to the CSendHandle interface.
-	  </para>
-	</listitem>
+				<listitem>
+					<para>
+						Many issues have been fixed, including memory management, which
+						adds a dispose() method to the CSendHandle interface. All users
+						of the corba transport are urged to upgrade to this release.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
       <title>Scripting</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    Types generated by typegen can now be used in scripting
-	    in an intuitive way. For example
-	    <programlisting> // old 2.0 style:
- var /Bar bar = createBar();
- var /std/vector&lt;/Bar&gt; bars; // constructor does not work
+				<listitem>
+					<para>
+						Types generated by typegen can now be used in scripting
+						in an intuitive way. For example
+						<programlisting>  // old 2.0 style:
+	var /Bar bar = createBar();
+	var /std/vector&lt;/Bar&gt; bars; // constructor does not work
 
- // new 2.1 style:
- var Bar bar2 = createBar();
- // creates 10 Bar elements, each a copy of 'bar2':
- var std.vector&lt;Bar&gt; bars2 = std.vector&lt;Bar&gt;(10, bar2 );
-	    </programlisting>
-	    Both the constructor and the type name accept the new
-	    'dotted' notation.
-	  </para>
-	</listitem>
+	// new 2.1 style:
+	var Bar bar2 = createBar();
+	// creates 10 Bar elements, each a copy of 'bar2':
+	var std.vector&lt;Bar&gt; bars2 = std.vector&lt;Bar&gt;(10, bar2 );
+						</programlisting>
+						Both the constructor and the type name accept the new
+						'dotted' notation.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
   </section>
@@ -140,68 +151,84 @@
     <section>
       <title>Deployment</title>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    The DeploymentComponent no longer ignores symlinks when looking for
-	    components and only loads files ending in .so/.dll/.dylib etc.
-	  </para>
-	</listitem>
-    </section>
-    <section>
-    <title>TaskBrowser</title>
-      <itemizedlist>      
-	<listitem>
-	  <para>
-	    The TaskBrowser prompt has been simplified and allows 'Matlab' like
-	    output suppression using the ';' character at the end of a line.
-	    If the ';' character is not used, whatever was typed is evaluated
-	    and printed to screen.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The TaskBrowser now understands a 'help service.operation' or
-	    'help service' command. Which prints the interface of a service
-	    or operation.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-  </section>
-  <appendix>
-    <title>About Orocos</title>
-    <para>
-      Please send your Orocos questions to <ulink
-	url="mailto: orocos-users at lists.mech.kuleuven.be">
-	orocos-users at lists.mech.kuleuven.be </ulink>. 
-    </para>
-    <para>
-      These pages are maintained by <ulink
-	url="http://www.orocos.org/orocos/whatis">the Orocos
-	team</ulink>.
-    </para>
-    <para>
-      For questions related to the use of the Orocos Software, please consult these
-      web pages and the <ulink
-	url="http://www.orocos.org/rtt">Orocos RTT manuals</ulink>. If
-      that fails, the  <ulink
-	url="mailto:orocos-dev at lists.mech.kuleuven.be">
-	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
-      Please
-      send comments on these web pages and the development of Orocos to
-      our developer mailing list at  <ulink
-	url="mailto:orocos-dev at lists.mech.kuleuven.be">
-	orocos-dev at lists.mech.kuleuven.be </ulink>. All of
-      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-users">public
-	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
-	archive</ulink> ) .
-      </para>
-    <para>
-      Copyright (C) The SourceWorks
-    </para>
-    <para>
-      Verbatim copying and distribution of this entire article is
-      permitted in any medium, provided this notice is preserved.
-    </para>
-  </appendix>
+				<listitem>
+					<para>
+						The DeploymentComponent no longer ignores symlinks when looking for
+						components and only loads files ending in .so/.dll/.dylib etc.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The CORBA deployment component can now also create corba servers
+						directly using the 'corbaComponent' operation (similar to loadComponent).
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+		<section>
+			<title>TaskBrowser</title>
+			<itemizedlist>      
+				<listitem>
+					<para>
+						The TaskBrowser prompt has been simplified and allows 'Matlab' like
+						output suppression using the ';' character at the end of a line.
+						If the ';' character is not used, whatever was typed is evaluated
+						and printed to screen; if the line ends in ';', the statement
+						is evaluated but the result is not printed.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The TaskBrowser now understands a 'help service.operation' or
+						'help service' command. Which prints the interface of a service
+						or operation.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The TaskBrowser supports readline on win32, if it's
+						installed as a static .lib. Do not use 'rxvt' in combination
+						with readline on win32. Both can not work due to buffering
+						done in rxvt.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+	</section>
+	<appendix>
+		<title>About Orocos</title>
+		<para>
+			Please send your Orocos questions to <ulink
+			url="mailto: orocos-users at lists.mech.kuleuven.be">
+			orocos-users at lists.mech.kuleuven.be </ulink>. 
+		</para>
+		<para>
+			These pages are maintained by <ulink
+			url="http://www.orocos.org/orocos/whatis">the Orocos
+			team</ulink>.
+		</para>
+		<para>
+			For questions related to the use of the Orocos Software, please consult these
+			web pages and the <ulink
+			url="http://www.orocos.org/rtt">Orocos RTT manuals</ulink>. If
+			that fails, the  <ulink
+			url="mailto:orocos-dev at lists.mech.kuleuven.be">
+			orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
+			Please
+			send comments on these web pages and the development of Orocos to
+			our developer mailing list at  <ulink
+			url="mailto:orocos-dev at lists.mech.kuleuven.be">
+			orocos-dev at lists.mech.kuleuven.be </ulink>. All of
+			our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-users">public
+			archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
+			archive</ulink> ) .
+		</para>
+		<para>
+			Copyright (C) The SourceWorks
+		</para>
+		<para>
+			Verbatim copying and distribution of this entire article is
+			permitted in any medium, provided this notice is preserved.
+		</para>
+	</appendix>
 </article>
