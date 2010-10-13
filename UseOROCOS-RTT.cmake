@@ -53,7 +53,7 @@ ENDMACRO(ORO_PARSE_ARGUMENTS)
 # Components should add themselves by calling 'OROCOS_COMPONENT' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
-# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos] )
+# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] )
 #
 macro( orocos_component )
   
@@ -70,8 +70,8 @@ macro( orocos_component )
     set(AC_INSTALL_DIR ${ADD_COMPONENT_INSTALL})
     set(AC_INSTALL_RT_DIR bin)
   else()
-    set(AC_INSTALL_DIR lib/orocos)
-    set(AC_INSTALL_RT_DIR lib/orocos)
+    set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME})
+    set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME})
   endif()
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
@@ -150,8 +150,8 @@ endmacro( orocos_typekit )
 #
 macro( orocos_plugin LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib/plugins )
-  set(AC_INSTALL_RT_DIR lib/plugins )
+  set(AC_INSTALL_DIR lib/${PROJECT_NAME}/plugins )
+  set(AC_INSTALL_RT_DIR lib/${PROJECT_NAME}/plugins )
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
