@@ -94,10 +94,8 @@ namespace RTT
     const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[bind( &ValueParser::seennull,this)] |
         confix_p( "'", (c_escape_ch_p[ bind( &ValueParser::seencharconstant, this, _1 ) ]) , "'" );
 
-    const_string = confix_p(
-      ch_p( '"' ), *(
-        c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
-        ), '"' )[ bind( &ValueParser::seenstring, this ) ];
+    const_string = lexeme_d[confix_p(
+      ch_p( '"' ), *c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ], '"' )[ bind( &ValueParser::seenstring, this ) ]];
 
     named_constant =
         ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
@@ -217,7 +215,7 @@ namespace RTT
 
   void ValueParser::seenstring()
   {
-    // due to a problem in Boost.spirit, the '"' terminating a
+    // due to our config parse rule, the '"' terminating a
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );

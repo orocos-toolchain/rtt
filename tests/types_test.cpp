@@ -65,6 +65,9 @@ bool TypesTest::assertEqual( double a, double b) {
     return a == b;
 }
 bool TypesTest::assertMsg( bool b, const std::string& msg) {
+    if ( !b )
+        cout <<"Asserting failed with: '''"<< msg <<"'''"<<endl;
+    BOOST_CHECK(b);
     return b;
 }
 
@@ -73,7 +76,7 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         Service::shared_ptr to = Service::Create("test");
         to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
         to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
-        //to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
+        to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
         to->addOperation("print", &TypesTest::print, this ).doc("print").arg("v", "v");
         to->addOperation("printb", &TypesTest::printb, this ).doc("printb").arg("v", "v");
         to->addOperation("pass",&TypesTest::pass, this);
@@ -289,8 +292,15 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "do test.assert( d == 30.0 )\n" +
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
-//         "do test.assert( d == 10.0 )\n" +
         "set b = b || b && true && false || true\n"+
+        "try test.assertMsg( s == \"string\", \"Unexpected string:\" + s)\n"+
+        "set s = \"  \" + s + \"  \"\n"+
+        "try test.assertMsg( s == \"  string  \", \"Unexpected string:\" + s)\n"+
+        "set s = s + int(10)\n"+
+        "try test.assertMsg( s == \"  string  10\", \"Unexpected string:\" + s)\n"+
+        "set s = s + \" \" + false\n"+
+        "do  test.assertMsg( s == \"  string  10 false\", \"Unexpected string:\" + s)\n"+
+        "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
         "do test.assert( a1.size == 2 )\n" +
