@@ -180,7 +180,7 @@ module RTT
 	     * Add a one-way peer connection.
 	     * @see RTT::TaskContext::addPeer()
 	     */
-	    boolean addPeer( in CTaskContext p, in string alias );
+	    boolean addPeer( in CTaskContext p, in string peer_alias );
 
 	    /**
 	     * Remove a one-way peer connection.
