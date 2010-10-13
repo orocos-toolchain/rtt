@@ -128,6 +128,9 @@ namespace RTT {
              */
             void loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
         public:
+            PluginLoader();
+            ~PluginLoader();
+
             typedef boost::shared_ptr<PluginLoader> shared_ptr;
             /**
              * Create the instance of the PluginLoader. It will keep track

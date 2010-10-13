@@ -99,6 +99,13 @@ namespace {
     }
 
     os::InitFunction plugin_loader( &loadPlugins );
+
+    void unloadPlugins()
+    {
+        PluginLoader::Release();
+    }
+
+    os::CleanupFunction plugin_unloader( &unloadPlugins );
 }
 
 boost::shared_ptr<PluginLoader> PluginLoader::minstance;
@@ -145,6 +152,10 @@ string makeShortFilename(string const& str) {
 }
 
 }
+
+PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
+PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog(); }
+
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
     if (!minstance)
