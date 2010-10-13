@@ -41,7 +41,6 @@
 
 
 #include "rtt-config.h"
-#include "plugin/PluginLoader.hpp"
 #include "Service.hpp"
 #include "ServiceRequester.hpp"
 #include "DataFlowInterface.hpp"
@@ -308,8 +307,7 @@ namespace RTT
          */
         template<class ServiceType>
         boost::shared_ptr<ServiceType> getProvider(const std::string& name) {
-            if (!provides()->hasService(name) && plugin::PluginLoader::Instance()->loadService(name, this) == false)
-                return boost::shared_ptr<ServiceType>();
+            if (!prepareProvide(name)) return boost::shared_ptr<ServiceType>();
             LocalServices::iterator it = localservs.find(name);
             if (  it != localservs.end() ) {
                 return boost::dynamic_pointer_cast<ServiceType>(it->second);
@@ -319,6 +317,7 @@ namespace RTT
             localservs[name] = st;
             return st;
         }
+
         /** @} */
 
         /**
@@ -634,6 +633,15 @@ namespace RTT
          * can do bookkeeping with regard to event ports.
          */
         void prepareUpdateHook();
+
+        /**
+         * Check if this component could provide a given service,
+         * either by already providing it (hasService(name)==true),
+         * or by loading its service. If this function returns true,
+         * getProvider() will return a non-null object given the
+         * correct ServiceType.
+         */
+        bool prepareProvide(const std::string& name);
 
         typedef std::map<std::string, boost::shared_ptr<ServiceRequester> > LocalServices;
         LocalServices localservs;
