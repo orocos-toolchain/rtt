@@ -111,6 +111,13 @@ namespace RTT
                 //         Logger::log() << "success !"<< Logger::endl;
                 return new internal::BinaryDataSource<function>( arg1, arg2, fun );
             }
+
+            bool isExactMatch(const std::string& op, base::DataSourceBase* a,
+                              base::DataSourceBase* b ) {
+                return  op == mop 
+                    && a->getTypeInfo() == internal::DataSourceTypeInfo<arg1_t>::getTypeInfo()
+                    && b->getTypeInfo() == internal::DataSourceTypeInfo<arg2_t>::getTypeInfo();
+            }
         };
 
         /**
