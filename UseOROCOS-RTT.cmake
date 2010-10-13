@@ -136,11 +136,17 @@ macro( orocos_typekit )
   MESSAGE( "Generating typekit for ${PROJECT_NAME}..." )
   
   # Works in top level source dir:
-  execute_process( COMMAND typegen --output typekit ${PROJECT_NAME} ${ARGN} 
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
-        )
-  set(TYPEKIT_IN_PROJECT TRUE)
-  add_subdirectory( typekit )
+  find_program(TYPEGEN_EXE typegen)
+  if (NOT TYPEGEN_EXE)
+    message(FATAL_ERROR "'typegen' not found in path. Can't build typekit. Did you 'source env.sh' ?")
+  else (NOT TYPEGEN_EXE)
+  
+    execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+      )
+    set(TYPEKIT_IN_PROJECT TRUE)
+    add_subdirectory( typekit )
+  endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typekit )
 
 # plugin libraries and services should add themselves by calling 'orocos_plugin()' 
