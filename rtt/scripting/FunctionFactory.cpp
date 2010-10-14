@@ -69,6 +69,10 @@ namespace RTT {
             return func->getResult() ? func->getResult()->getDataSource()->getTypeName() : "void";
         }
 
+        std::string FunctionFactory::getName() const {
+            return func->getName();
+        }
+
         std::string FunctionFactory::description() const {
             return "Orocos Program Script Function.";
         }

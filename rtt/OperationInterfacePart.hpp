@@ -72,6 +72,12 @@ namespace RTT
         RTT_API virtual ~OperationInterfacePart();
 
         /**
+         * Returns the name of this operation.
+         * @return
+         */
+         virtual std::string getName() const = 0;
+
+        /**
          * Returns the description of this operation.
          * @return
          */

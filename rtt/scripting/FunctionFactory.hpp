@@ -72,6 +72,8 @@ namespace RTT
 
         const types::TypeInfo* getCollectType(unsigned int arg) const;
 
+        std::string getName() const;
+
         std::string description() const;
 
         std::vector< ArgumentDescription > getArgumentList() const;

@@ -84,6 +84,8 @@ namespace RTT
 
         virtual std::string resultType() const;
 
+        virtual std::string getName() const;
+
         virtual std::string description() const;
 
         virtual std::vector< ArgumentDescription > getArgumentList() const;
