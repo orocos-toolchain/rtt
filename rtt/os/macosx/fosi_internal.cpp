@@ -36,6 +36,7 @@
 #include "../fosi_internal_interface.hpp"
 #include "../../Logger.hpp"
 #include <cassert>
+#include "../Mutex.hpp"
 
 #define INTERNAL_QUAL
 
@@ -269,4 +270,43 @@ namespace RTT
 
     }
 }
+
+// opaque type to hide C object from C code
+typedef struct rt_mutex_impl_t
+{
+    RTT::os::Mutex mutex;
+};
+
+int rtos_mutex_init(rt_mutex_t* m)
+{
+    assert(m);
+    *m = new rt_mutex_impl_t;   // non-realtime
+    return (0 != (*m));
+}
+
+int rtos_mutex_destroy(rt_mutex_t* m )
+{
+    assert(m);
+    assert(*m);
+    delete (*m);               // non-realtime
+    (*m) = 0;
+    return 0;
+}
+
+int rtos_mutex_lock( rt_mutex_t* m)
+{
+    assert(m);
+    assert(*m);
+    (*m)->mutex.lock();
+    return 0;
+}
+
+int rtos_mutex_unlock( rt_mutex_t* m)
+{
+    assert(m);
+    assert(*m);
+    (*m)->mutex.unlock();
+    return 0;
+}
+
 #undef INTERNAL_QUAL
