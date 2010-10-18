@@ -313,7 +313,8 @@ namespace RTT
     void ExecutionEngine::processChildren() {
         // only call updateHook in the Running state.
         if ( taskc ) {
-            if ( taskc->mTaskState == TaskCore::Running ) {
+            // Also detects trigger() in start():
+            if ( taskc->mTaskState == TaskCore::Running || taskc->mTargetState == TaskCore::Running ) {
                 try {
                     taskc->prepareUpdateHook();
                     taskc->updateHook();
@@ -321,6 +322,7 @@ namespace RTT
                     taskc->exception(); // calls stopHook,cleanupHook
                 }
             }
+            // in case start() or updateHook() called error(), this will be called:
             if (  taskc->mTaskState == TaskCore::RunTimeError ) {
                 try {
                     taskc->errorHook();
@@ -333,7 +335,7 @@ namespace RTT
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running )
+            if ( (*it)->mTaskState == TaskCore::Running || taskc->mTargetState == TaskCore::Running )
                 try {
                     (*it)->prepareUpdateHook();
                     (*it)->updateHook();

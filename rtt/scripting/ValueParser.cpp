@@ -94,10 +94,8 @@ namespace RTT
     const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[boost::bind( &ValueParser::seennull,this)] |
         confix_p( "'", (c_escape_ch_p[ boost::bind( &ValueParser::seencharconstant, this, _1 ) ]) , "'" );
 
-    const_string = confix_p(
-      ch_p( '"' ), *(
-        c_escape_ch_p[ boost::bind( &ValueParser::push_str_char, this, _1 ) ]
-        ), '"' )[ boost::bind( &ValueParser::seenstring, this ) ];
+    const_string = lexeme_d[confix_p(
+      ch_p( '"' ), *c_escape_ch_p[ boost::bind( &ValueParser::push_str_char, this, _1 ) ], '"' )[ boost::bind( &ValueParser::seenstring, this ) ]];
 
     named_constant =
         ( str_p("done")[boost::bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
@@ -130,17 +128,16 @@ namespace RTT
   void ValueParser::seennamedconstant( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    TaskContext* peer = peerparser.peer();
     Service::shared_ptr task = peerparser.taskObject();
     peerparser.reset();
     //std::cerr << "ValueParser: seenvar : "<< name
     //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
     // in case our task is a taskcontext:
-    if ( task == peer->provides() && propparser.bag() && propparser.property() ) {
+    if ( task && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
             //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
-            throw parse_exception_semantic_error("Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
+            throw parse_exception_semantic_error("Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ task->getName()+".");
         }
         ret = propparser.bag()->find( name )->getDataSource();
         propparser.reset();
@@ -152,8 +149,8 @@ namespace RTT
       ret = task->getValue(name)->getDataSource();
       return;
     }
-    if ( peer->provides() == task && peer->provides()->hasProperty( name ) ) {
-        ret = peer->provides()->properties()->find(name)->getDataSource();
+    if ( task && task->hasProperty( name ) ) {
+        ret = task->properties()->find(name)->getDataSource();
         return;
     }
 
@@ -163,7 +160,7 @@ namespace RTT
         return;
     }
 
-    throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
+    throw_(begin, "Value " + name + " not defined in "+ task->getName()+".");
   }
 
     void ValueParser::seennull()
@@ -218,7 +215,7 @@ namespace RTT
 
   void ValueParser::seenstring()
   {
-    // due to a problem in Boost.spirit, the '"' terminating a
+    // due to our config parse rule, the '"' terminating a
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );

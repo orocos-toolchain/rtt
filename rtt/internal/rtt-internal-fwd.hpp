@@ -9,8 +9,9 @@ namespace RTT {
         class ConnectionManager;
         class DataSourceCommand;
         class GlobalEngine;
-        class OperationCallerC;
         class OffsetDataSource;
+        class OperationCallerC;
+        class OperationInterfacePartHelper;
         class SendHandleC;
         class SignalBase;
         class SimpleConnID;
@@ -22,17 +23,9 @@ namespace RTT {
         template <typename function>
         class UnaryDataSource;
         template<
-            typename Signature
-        >
-        class SubscriberBase;
-        template<
         typename Signature,
         typename TSlotFunction>
         class Signal;
-        template< class T>
-        class LockedQueue;
-        template< class T>
-        class Queue;
         template< class T>
         class List;
         template< class T>
@@ -40,13 +33,9 @@ namespace RTT {
         template< class T>
         class ListLocked;
         template< class T>
-        class MWSRQueue;
+        class LockedQueue;
         template< class T>
         struct DataSourceTypeInfo;
-        template< class TResult >
-        struct AdaptAssignableDataSource;
-        template< class TResult >
-        struct AdaptDataSource;
         template<class A>
         struct DataSourceArgStorage;
         template<class DataType>
@@ -90,6 +79,8 @@ namespace RTT {
         template<class R>
         struct DataSourceResultStorage;
         template<class Seq, class Data, class Enable>
+        struct AssignHelper;
+        template<class Seq, class Data, class Enable>
         struct GetPointerWrap;
         template<class T, class Enable>
         struct DSWrap;
@@ -97,6 +88,10 @@ namespace RTT {
         class AtomicMWSRQueue;
         template<class T>
         class AtomicQueue;
+        template<class T>
+        class MWSRQueue;
+        template<class T>
+        class Queue;
         template<class T>
         struct AStore;
         template<class T>
@@ -111,12 +106,14 @@ namespace RTT {
         struct BindStorage;
         template<typename BoundType>
         class UnboundDataSource;
+        template<typename Signature, class Enable>
+        struct FusedFunctorDataSource;
         template<typename Signature,typename ObjT>
         class OperationInterfacePartFusedDS;
         template<typename Signature>
         class OperationInterfacePartFused;
-        template<typename Signature, class Enable>
-        struct FusedFunctorDataSource;
+        template<typename Signature>
+        class SynchronousOperationInterfacePartFused;
         template<typename Signature>
         struct FusedMCallDataSource;
         template<typename Signature>
@@ -152,11 +149,17 @@ namespace RTT {
         template<typename T>
         class InputPortSource;
         template<typename T>
+        class LateConstReferenceDataSource;
+        template<typename T>
+        class LateReferenceDataSource;
+        template<typename T>
         class OffsetPartDataSource;
         template<typename T>
         class PartDataSource;
         template<typename T>
         class ReferenceDataSource;
+        template<typename T>
+        class TsPool;
         template<typename T>
         class ValueDataSource;
         template<typename function>

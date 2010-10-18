@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.0.1 )
+SET( RTT_VERSION 2.1.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -36,6 +36,14 @@ if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
     "No orocos-rtt.cmake file loaded, using default settings."
     "See orocos-rtt.default.cmake")
 endif ()
+
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  IF (MSVC)
+    SET(CMAKE_INSTALL_PREFIX
+      "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
+      )
+  ENDIF(MSVC)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
@@ -139,5 +147,5 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-version.cmake DESTIN
 INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
                                       NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
 
-# Package use file
-INSTALL(FILES UseOROCOS-RTT.cmake DESTINATION "${CONFIG_FILE_PATH}")
+# Package use file + helper files
+INSTALL(FILES UseOROCOS-RTT.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")

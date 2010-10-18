@@ -66,6 +66,8 @@ namespace RTT
             DataSource<unsigned int>::shared_ptr mindex;
             // parent data source, for updating after set().
             base::DataSourceBase::shared_ptr mparent;
+            // safety: all indexes must be smaller than this.
+            unsigned int mmax;
         public:
             ~ArrayPartDataSource() {}
 
@@ -80,35 +82,50 @@ namespace RTT
              */
             ArrayPartDataSource( typename AssignableDataSource<T>::reference_t ref,
                                     DataSource<unsigned int>::shared_ptr index,
-                                    base::DataSourceBase::shared_ptr parent )
-                : mref(&ref), mindex(index), mparent(parent)
+                                    base::DataSourceBase::shared_ptr parent, unsigned int max )
+                : mref(&ref), mindex(index), mparent(parent), mmax(max)
             {
             }
 
             typename DataSource<T>::result_t get() const
             {
-                return mref[ mindex->get() ];
+                unsigned int i = mindex->get();
+                if (i >= mmax)
+                    return internal::NA<T>::na();
+                return mref[ i ];
             }
 
             typename DataSource<T>::result_t value() const
             {
-                return mref[ mindex->get() ];
+                unsigned int i = mindex->get();
+                if (i >= mmax)
+                    return internal::NA<T>::na();
+                return mref[ i ];
             }
 
             void set( typename AssignableDataSource<T>::param_t t )
             {
-                mref[ mindex->get() ] = t;
+                unsigned int i = mindex->get();
+                if (i >= mmax)
+                    return;
+                mref[ i ] = t;
                 updated();
             }
 
             typename AssignableDataSource<T>::reference_t set()
             {
-                return mref[ mindex->get() ];
+                unsigned int i = mindex->get();
+                if (i >= mmax)
+                    return internal::NA<typename AssignableDataSource<T>::reference_t>::na();
+                return mref[ i ];
             }
 
             typename AssignableDataSource<T>::const_reference_t rvalue() const
             {
-                return mref[ mindex->get() ];
+                unsigned int i = mindex->get();
+                if (i >= mmax)
+                    return internal::NA<typename AssignableDataSource<T>::const_reference_t>::na();
+                return mref[ i ];
             }
 
             void updated() {
@@ -116,7 +133,7 @@ namespace RTT
             }
 
             virtual ArrayPartDataSource<T>* clone() const {
-                return new ArrayPartDataSource<T>( *mref, mindex, mparent);
+                return new ArrayPartDataSource<T>( *mref, mindex, mparent, mmax);
             }
 
             virtual ArrayPartDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const {
@@ -125,9 +142,7 @@ namespace RTT
                     assert ( dynamic_cast<ArrayPartDataSource<T>*>( replace[this] ) == static_cast<ArrayPartDataSource<T>*>( replace[this] ) );
                     return static_cast<ArrayPartDataSource<T>*>( replace[this] );
                 }
-                // Other pieces in the code rely on insertion in the map :
-                replace[this] = new ArrayPartDataSource<T>(*mref, mindex->copy(replace), mparent->copy(replace));
-                // return this instead of a copy.
+                replace[this] = new ArrayPartDataSource<T>(*mref, mindex->copy(replace), mparent->copy(replace), mmax);
                 return static_cast<ArrayPartDataSource<T>*>(replace[this]);
 
             }

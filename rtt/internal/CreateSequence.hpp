@@ -336,7 +336,7 @@ namespace RTT
                 if ( i <= 0 || i > size)
                     return "na";
                 if ( i == 1 ) {
-                    return DataSourceTypeInfo<arg_type>::getType() + DataSourceTypeInfo<arg_type>::getQualifier();
+                    return DataSourceTypeInfo<arg_type>::getType();
                 } else {
                     return tail::GetType(i-1);
                 }
@@ -416,7 +416,7 @@ namespace RTT
             static std::string GetType(int i) {
                 if ( i != 1)
                     return "na";
-                return DataSource<ds_arg_type>::GetType();
+                return DataSourceTypeInfo<arg_type>::getType();
             }
         };
 

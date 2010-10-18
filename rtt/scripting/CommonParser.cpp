@@ -99,6 +99,8 @@ namespace RTT {
         BOOST_SPIRIT_DEBUG_RULE( keywords );
         BOOST_SPIRIT_DEBUG_RULE( keyword );
         BOOST_SPIRIT_DEBUG_RULE( identifier );
+        BOOST_SPIRIT_DEBUG_RULE( templ );
+        BOOST_SPIRIT_DEBUG_RULE( tidentifier );
         BOOST_SPIRIT_DEBUG_RULE( identchar );
         BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
@@ -128,6 +130,10 @@ namespace RTT {
 
         notassertingidentifier = idr;
         identifier = idr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
+
+        // this is a recursive rule. 't' stands for 'template' and 'terminal' (followed by a '(')
+        templ = ch_p('<') >> identifier >> *templ >> '>';
+        tidentifier = identifier >> *templ; // >> eps_p( ch_p('(') ); // This is a hack: we expect always the form A<B<C>>(...)
 
         // end of statement is on a newline or a ';'
         //eos = lexeme_d[ *(space_p - eol_p) >> (eol_p | ch_p(';')) ];

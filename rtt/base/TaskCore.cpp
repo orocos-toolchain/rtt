@@ -49,12 +49,14 @@ namespace RTT {
     TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
         :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
+           ,mTargetState(initial_state)
     {
     }
 
     TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
         :  ee( parent )
            ,mTaskState(initial_state)
+           ,mTargetState(initial_state)
     {
         parent->addChild( this );
     }
@@ -77,6 +79,9 @@ namespace RTT {
         return mTaskState;
     }
 
+    TaskCore::TaskState TaskCore::getTargetState() const {
+        return mTargetState;
+    }
 
     bool TaskCore::update()
     {
@@ -95,11 +100,12 @@ namespace RTT {
     bool TaskCore::configure() {
         if ( mTaskState == Stopped || mTaskState == PreOperational) {
             try {
+                mTargetState = Stopped;
                 if (configureHook() ) {
                     mTaskState = Stopped;
                     return true;
                 } else {
-                    mTaskState = PreOperational;
+                    mTargetState = mTaskState = PreOperational;
                     return false;
                 }
             } catch(...) {
@@ -112,6 +118,7 @@ namespace RTT {
     bool TaskCore::cleanup() {
         if ( mTaskState == Stopped ) {
             try {
+                mTargetState = PreOperational;
                 cleanupHook();
                 mTaskState = PreOperational;
                 return true;
@@ -123,21 +130,22 @@ namespace RTT {
     }
 
     void TaskCore::fatal() {
-        mTaskState = FatalError;
+        mTargetState = mTaskState = FatalError;
         if ( engine()->getActivity() )
             engine()->getActivity()->stop();
     }
 
     void TaskCore::error() {
-        if (mTaskState < Running )
+        // detects error() from within start():
+        if (mTargetState < Running)
             return;
-        mTaskState = RunTimeError;
+        mTargetState = mTaskState = RunTimeError;
     }
 
     void TaskCore::exception() {
         //log(Error) <<"Exception happend in TaskCore."<<endlog();
         TaskState copy = mTaskState;
-        mTaskState = Exception;
+        mTargetState = mTaskState = Exception;
         try {
             if ( copy >= Running ) {
                 stopHook();
@@ -153,11 +161,11 @@ namespace RTT {
 
     bool TaskCore::recover() {
         if ( mTaskState == Exception ) {
-            mTaskState = PreOperational;
+            mTargetState = mTaskState = PreOperational;
             return true;
         }
         if (mTaskState == RunTimeError ) {
-            mTaskState = Running;
+            mTargetState = mTaskState = Running;
             return true;
         }
         return false;
@@ -166,10 +174,12 @@ namespace RTT {
     bool TaskCore::start() {
         if ( mTaskState == Stopped ) {
             try {
+                mTargetState = Running;
                 if ( startHook() ) {
                     mTaskState = Running;
                     return true;
                 }
+                mTargetState = Stopped;
             } catch(...) {
                 exception();
             }
@@ -180,6 +190,7 @@ namespace RTT {
     bool TaskCore::stop() {
         if ( mTaskState >= Running ) {
             try {
+                mTargetState = Stopped;
                 stopHook();
                 mTaskState = Stopped;
                 return true;

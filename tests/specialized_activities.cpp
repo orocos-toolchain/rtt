@@ -21,7 +21,7 @@ using namespace RTT;
 struct TestFDActivity : public FileDescriptorActivity
 {
     int step_count, count, other_count;
-    int fd, other_fd;
+    int fd, other_fd, result;
 
     bool do_read;
     TestFDActivity()
@@ -34,13 +34,13 @@ struct TestFDActivity : public FileDescriptorActivity
         {
             ++count;
             if (do_read)
-                read(fd, &buffer, 1);
+                result = read(fd, &buffer, 1);
         }
         if (isUpdated(other_fd))
         {
             ++other_count;
             if (do_read)
-                read(other_fd, &buffer, 1);
+                result = read(other_fd, &buffer, 1);
         }
         ++step_count;
     };
@@ -54,12 +54,15 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
     static const int USLEEP = 250000;
 
     int pipe_fds[2];
-    pipe(pipe_fds);
+    int piperet;
+    piperet = pipe(pipe_fds);
+    BOOST_REQUIRE(piperet == 0);
     int reader = pipe_fds[0];
     int writer = pipe_fds[1];
 
     int other_pipe[2];
-    pipe(other_pipe);
+    piperet = pipe(other_pipe);
+    BOOST_REQUIRE(piperet == 0);
     int other_reader = other_pipe[0];
     int other_writer = other_pipe[1];
 
@@ -86,15 +89,17 @@ BOOST_AUTO_TEST_CASE( testFileDescriptorActivity )
 
     // Check normal operations. Re-enable reading.
     activity->do_read = true;
-    int buffer;
-    write(writer, &buffer, 2);
+    int buffer, result;
+    result = write(writer, &buffer, 2);
+    BOOST_CHECK( result == 2 );
     usleep(USLEEP);
     BOOST_CHECK_EQUAL(3, activity->step_count);
     BOOST_CHECK_EQUAL(2, activity->count);
     BOOST_CHECK_EQUAL(0, activity->other_count);
     BOOST_CHECK( !activity->isRunning() && activity->isActive() );
 
-    write(other_writer, &buffer, 2);
+    result = write(other_writer, &buffer, 2);
+    BOOST_CHECK( result == 2 );
     usleep(USLEEP);
     BOOST_CHECK_EQUAL(5, activity->step_count);
     BOOST_CHECK_EQUAL(2, activity->count);

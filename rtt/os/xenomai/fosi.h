@@ -263,6 +263,12 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
+        struct rt_mutex_info info;
+        rt_mutex_inquire(m, &info );
+        if (info.locked)
+            return 0;
+        // from here on: we're sure our thread didn't lock it
+        // now check if any other thread locked it:
         return rt_mutex_acquire(m, TM_NONBLOCK);
     }
 

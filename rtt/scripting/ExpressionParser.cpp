@@ -80,6 +80,9 @@ namespace RTT
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
+    BOOST_SPIRIT_DEBUG_RULE( peerpath );
+    BOOST_SPIRIT_DEBUG_RULE( object );
+    BOOST_SPIRIT_DEBUG_RULE( method );
 
     // this parser uses a neat boost.spirit trick to avoid keeping
     // loads of stacks for all parsing data ( this parser needs to be
@@ -90,13 +93,11 @@ namespace RTT
     // the parser just before it's going to be used, when we know what
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
+    peerpath = peerparser.locator();
+    object= (commonparser.identifier >> ".")[bind(&DataCallParser::seenobjectname, this, _1, _2)];
+    method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
     datacall =
-        ( peerparser.locator() >>
-          !((commonparser.identifier >> ".")[boost::bind(&DataCallParser::seenobjectname, this, _1, _2)]) >>
-          ( commonparser.keyword | expect_ident(commonparser.identifier))[boost::bind( &DataCallParser::seenmethodname, this, _1, _2 ) ] // may be send, call or method name.
-          [ boost::bind( &DataCallParser::seendataname, this ) ]
-          >> !arguments
-          )[ boost::bind( &DataCallParser::seendatacall, this ) ];
+        ( peerpath >> !object >> method[ boost::bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ boost::bind( &DataCallParser::seendatacall, this ) ];
   };
 
   void DataCallParser::seensend() {
@@ -120,6 +121,7 @@ namespace RTT
           mis_send = false;
           mmethod = name;
       }
+//      cout << "seenmethodname "<< mobject << "." << mmethod<<endl;
     };
 
   void DataCallParser::seendataname()
@@ -128,9 +130,11 @@ namespace RTT
       TaskContext* peer = peerparser.peer();
       Service::shared_ptr ops  = peerparser.taskObject();
       peerparser.reset();
-
+//      cout << "seendataname "<< mobject << "." << mmethod<<endl;
       // Check if it is a constructor
-      if ( mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ) ) {
+      if ( (mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ))
+              ||
+              (TypeInfoRepository::Instance()->type( mobject + "." + mmethod )) ) {
           // it is...
       } else {
           // it ain't...
@@ -178,9 +182,15 @@ namespace RTT
     Service::shared_ptr peer = argspar->object();
     delete argspar;
     assert(peer && "peer may never be null.");
+//    cout << "seendatacall "<< mobject << "." << mmethod<<endl;
+
     // separate track if we are handling a constructor:
-    if ( obj == "this" && TypeInfoRepository::Instance()->type( meth ) ) {
+    if ( (obj == "this" && TypeInfoRepository::Instance()->type( meth )) ||
+          (TypeInfoRepository::Instance()->type( obj + "." + meth) ) ) {
+        if (obj == "this")
         ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
+        else
+            ret = TypeInfoRepository::Instance()->type( obj +"."+ meth )->construct( args );
         if (!ret) {
             throw parse_exception_no_such_constructor( meth, args );
         }

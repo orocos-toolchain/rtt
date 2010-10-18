@@ -2,8 +2,9 @@
 IF(ENABLE_MQ)
   MESSAGE( "Building MQueue Transport library (Requires Boost >= 1.37.0).")
 
-  find_package(Boost 1.37 REQUIRED serialization)
-
+  if (NOT Boost_SERIALIZATION_FOUND)
+    MESSAGE(SEND_ERROR "Can't build MQueue transport without Boost Serialization. Please install serialiation or disable MQUEUE.")
+  endif()
 
   FILE( GLOB CPPS Dispatcher.cpp MQSendRecv.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
@@ -28,6 +29,7 @@ IF ( BUILD_STATIC )
   CLEAN_DIRECT_OUTPUT 1
   VERSION "${RTT_VERSION}"
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  LINK_FLAGS "${MQ_LDFLAGS} ${CMAKE_LD_FLAGS_ADD}"
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
 ENDIF( BUILD_STATIC )
 
@@ -39,9 +41,9 @@ ENDIF( BUILD_STATIC )
   SET_TARGET_PROPERTIES( orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic PROPERTIES
   DEFINE_SYMBOL "RTT_MQ_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-mqueue-${OROCOS_TARGET}
-  LINK_FLAGS "${MQ_LDFLAGS}"
   CLEAN_DIRECT_OUTPUT 1
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  LINK_FLAGS "${MQ_LDFLAGS} ${CMAKE_LD_FLAGS_ADD}"
   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
   SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
   VERSION "${RTT_VERSION}")
@@ -61,7 +63,7 @@ ENDIF( BUILD_STATIC )
   ADD_RTT_TYPEKIT( rtt-transport-mqueue ${RTT_VERSION} MQLib.cpp)
   target_link_libraries( rtt-transport-mqueue-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
   set_target_properties( rtt-transport-mqueue-${OROCOS_TARGET}_plugin PROPERTIES
-    LINK_FLAGS "${MQ_LDFLAGS}")
+    LINK_FLAGS "${MQ_LDFLAGS} ${CMAKE_LD_FLAGS_ADD}")
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-mqueue-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
   INSTALL(TARGETS             orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic

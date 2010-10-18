@@ -60,6 +60,10 @@ namespace RTT
      * A \a simple lock-based list implementation to \a append or \a erase
      * data of type \a T.
      *
+     * @note The mutex used by this implementation is recursive in order
+     * to allow apply() to call apply() recursively. Erasing self (using clear() or erase()) from within apply()
+     * is not supported and may lead to abnormal program termination.
+     *
      * @param T The value type to be stored in the list.
      * Example : ListLocked<A> is a list which holds values of type A.
      * @ingroup CoreLibBuffers
@@ -83,12 +87,12 @@ namespace RTT
         StackType  mreserved;
         unsigned int required;
 
-        mutable os::Mutex m;
+        mutable os::MutexRecursive m;
     public:
         /**
          * Create a lock-based list wich can store \a lsize elements.
          * @param lsize the initial capacity of the list.
-'        */
+         */
         ListLocked(unsigned int lsize, unsigned int unused = 0 )
             :required(lsize)
         {
@@ -263,6 +267,8 @@ namespace RTT
         /**
          * Apply a function to the elements of the whole list.
          * @param func The function to apply.
+         * @note func may not call \a clear() or \a erase() on the current element
+         * of this list.
          */
         template<class Function>
         void apply(Function func )

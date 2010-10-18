@@ -8,6 +8,7 @@ namespace RTT {
         class CallFunction;
         class CommandComposite;
         class CommandCounter;
+        class CommandFunction;
         class CommandIllegal;
         class CommandNOP;
         class CommandString;
@@ -23,6 +24,7 @@ namespace RTT {
         class ConditionDuration;
         class ConditionExpire;
         class ConditionFalse;
+        class ConditionFunction;
         class ConditionInterface;
         class ConditionInvert;
         class ConditionOnce;

@@ -249,8 +249,7 @@ TaskBrowser connects to all data ports of Hello
   (type 'help' for instructions)
     TAB completion and HISTORY is available ('bash' like)
 
- In Task Hello[R]
- (type 'ls' for context info) :
+Hello[R] > 
       </screen>
       <para>
 	The first <command>[ Info ]</command> lines are printed by the
@@ -273,9 +272,7 @@ TaskBrowser connects to all data ports of Hello
 	command according to the Orocos scripting language syntax.
       </para>
       <screen>
- In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>1+1</command>
-      Got :1+1
+Hello[R] > <command>1+1</command>
    = <command>2</command>
       </screen>
     </section>
@@ -290,8 +287,7 @@ TaskBrowser connects to all data ports of Hello
 	<command>cd</command> anywhere in this example.
       </para>
       <screen>
-In Task Hello[R]
- (type 'ls' for context info) :<command>ls</command>
+Hello[R] > <command>ls</command>
 
  Listing TaskContext Hello :
 
@@ -370,13 +366,12 @@ In Task Hello[R]
     <section>
       <title>Listing the Interface</title>
       <para>
-	To get a list of the Task's interface, you can
-	always type a service name, for example <emphasis>this</emphasis>.
-      </para>
+	To get an overview of the Task's interface, you can use the help
+	command, for example <emphasis>help this</emphasis> or <emphasis>help this.activate</emphasis>
+	or just short: <emphasis>help activate</emphasis>
+			</para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>this</command>
-      Got :this
+Hello[R] > <command>help this</command>
 
 Printing Interface of 'Hello' :
 
@@ -391,6 +386,12 @@ Printing Interface of 'Hello' :
    the_arg : Use 'World' as argument to make the command succeed.
  <emphasis>the_method</emphasis>( ) : string
    'the_method' Description
+
+Hello[R] > <command>help the_command</command>
+ <emphasis>the_command</emphasis>( string const&amp; <emphasis>the_arg</emphasis> ) : bool
+   'the_command' Description
+   the_arg : Use 'World' as argument to make the command succeed.
+Hello[R] > 
       </screen>
       <para>
 	Now we get more details about the methods
@@ -403,9 +404,7 @@ Printing Interface of 'Hello' :
     <section>
       <title>Calling an Operation</title>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_method()</command>
-      Got :the_method()
+Hello[R] > <command>the_method()</command>
  = <command>Hello World</command>
       </screen>
       <para>
@@ -424,9 +423,7 @@ Printing Interface of 'Hello' :
 	behalf of the sender. Each sent method returns a SendHandle object.
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_command.send("_World_")</command>
-      Got :the_command.send("_World_")
+Hello[R] > <command>the_command.send("_World_")</command>
 <emphasis>Saying Hello '_World_' in own thread.</emphasis>
  = (unknown_t)
       </screen>
@@ -435,24 +432,13 @@ Printing Interface of 'Hello' :
 	to be useful:
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>var SendHandle sh</command>
-      Got :var SendHandle sh
-
- In Task Hello[R]
- (type 'ls' for context info) :<command>sh = the_command.send("_World_")</command>
-      Got :sh = the_command.send("_World_")
+Hello[R] > <command>var SendHandle sh</command>
+Hello[R] > <command>sh = the_command.send("_World_")</command>
 <emphasis>Saying Hello '_World_' in own thread.</emphasis>
  = true
-
- In Task Hello[R]
- (type 'ls' for context info) :<command>sh.collectIfDone( ret )</command>
-      Got :sh.collectIfDone( ret )
+Hello[R] > <command>sh.collectIfDone( ret )</command>
  = SendSuccess
-
- In Task Hello[R]
- (type 'ls' for context info) :<command>ret</command>
-      Got : ret 
+Hello[R] > <command>ret</command>
  = true
       </screen>
     </section>
@@ -465,18 +451,11 @@ Printing Interface of 'Hello' :
 	'true' or 'false' :
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_attribute</command>
-      Got :the_attribute
+Hello[R] > <command>the_attribute</command>
  = <command>Hello World</command>
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_attribute = "Veni Vidi Vici !"</command>
-      Got :the_attribute = "Veni Vidi Vici !"
- = <command>true</command>
-
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_attribute</command>
-      Got :the_attribute
+Hello[R] > <command>the_attribute = "Veni Vidi Vici !"</command>
+ = <command>"Veni Vidi Vici !"</command>
+Hello[R] > <command>the_attribute</command>
  = <command>Veni Vidi Vici !</command>
       </screen>
     </section>
@@ -492,9 +471,7 @@ Printing Interface of 'Hello' :
 	interface of a port by typing its name:
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :the_input_port
-      Got :<emphasis>the_input_port</emphasis>
+Hello[R] > the_input_port
 
 Printing Interface of 'the_input_port' :
 
@@ -514,9 +491,7 @@ Printing Interface of 'the_input_port' :
 	read it.
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>the_input_port.read(the_attribute)</command>
-      Got :the_input_port.read(the_attribute)
+ Hello[R] > <command>the_input_port.read(the_attribute)</command>
  = <emphasis>NoData</emphasis>
       </screen>
       <para>
@@ -538,12 +513,9 @@ Printing Interface of 'the_input_port' :
 	within the TaskBrowser itself:
       </para>
       <screen>
- <emphasis>In</emphasis> Task Hello[R]
- (type 'ls' for context info) :<command>leave</command>
+Hello[R] > <command>leave</command>
 21666.113 [ Info   ][main()] Watching Task Hello
-
- <emphasis>Watching</emphasis> Task Hello[R]
- (type 'ls' for context info) :<command>ls</command>
+Hello[R] &lt; <command>ls</command>
 21667.334 [ Info   ][main()] Found complete interface of requested service 'scripting'
 
  Listing TaskContext TaskBrowser :
@@ -566,7 +538,7 @@ Printing Interface of 'the_input_port' :
 
  TaskBrowser Peers : Hello[R]
 
- Watching Task Hello[R]      </screen>
+Hello[R] &lt;</screen>
       <para>
 	The following things are noteworthy: 'ls' shows now the
 	contents of the TaskBrowser itself and no longer of the Hello
@@ -580,12 +552,9 @@ Printing Interface of 'the_input_port' :
 	<command>enter</command>:
       </para>
       <screen>
- <emphasis>Watching</emphasis> Task Hello[R]
- (type 'ls' for context info) :<command>enter</command>
+Hello[R] &lt; <command>enter</command>
 <command>1322.653 [ Info   ][main()] Entering Task Hello</command>
-
- <emphasis>In</emphasis> Task Hello[R]
- (type 'ls' for context info) :      
+Hello[R] &gt;
       </screen>
     </section>
     <section>
@@ -602,8 +571,7 @@ Printing Interface of 'the_input_port' :
 	In order to quit the TaskBrowser, enter <command>quit</command>:
       </para>
       <screen>
- In Task Hello[R]
- (type 'ls' for context info) :<command>quit</command>
+ Hello[R] > <command>quit</command>
 
 1575.720 [ Info   ][ExecutionEngine::setActivity] Hello is disconnected from its activity.
 1575.741 [ Info   ][Logger] Orocos Logging Deactivated.      
@@ -664,7 +632,9 @@ Printing Interface of 'the_input_port' :
     <para>
       The constructor argument is the (unique) name of the component.
       Compile this code with the '-DRTT_COMPONENT' flag and as a shared
-      library. You can load this component in a deployer by adding its
+      library. See the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-installation.html">
+			Installation Manual</ulink> for instructions on building your own
+			components. You can load this component in a deployer by adding its
       directory to the RTT_COMPONENT_PATH and verify that it has been 
       found using <command>displayComponentTypes()</command> in the
       TaskBrowser. Next type <command>loadComponent("the_task","MyTask")</command>
@@ -766,39 +736,39 @@ Printing Interface of 'the_input_port' :
   
        /**
         * This function is for the configuration code.
-	* Return false to abort configuration.
-	*/
+        * Return false to abort configuration.
+        */
        bool configureHook() {
           // ...
-	  return true;
+          return true;
        }
 
        /**
         * This function is for the application's start up code.
-	* Return false to abort start up.
-	*/
+        * Return false to abort start up.
+        */
        bool startHook() {
           // ...
-	  return true;
+          return true;
        }
 
        /**
         * This function is called by the Execution Engine.
-	*/
+        */
        void updateHook() {
           // Your component's algorithm/code goes in here.
        }
 
        /**
         * This function is called when the task is stopped.
-	*/
+        */
        void stopHook() {
           // Your stop code after last updateHook()
        }
 
        /**
         * This function is called when the task is being deconfigured.
-	*/
+        */
        void cleanupHook() {
           // Your configuration cleanup code
        }

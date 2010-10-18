@@ -93,7 +93,7 @@ namespace RTT {
 #endif
             SCOPE_OFF
 
-            int overruns = 0;
+            int overruns = 0, cur_sched = task->msched_type;
             NANO_TIME cur_period = task->period;
 
             while (!task->prepareForExit)
@@ -146,9 +146,15 @@ namespace RTT {
                                         // reconfigure period before going to sleep
                                         rtos_task_set_period(task->getTask(), task->period);
                                         cur_period = task->period;
-                                        break; // break while(task->running)
+                                        if (cur_period == 0)
+                                            break; // break while(task->running) if no longer periodic
                                     }
 
+                                    // Check changes in scheduler
+                                    if ( cur_sched != task->msched_type) {
+                                        rtos_task_set_scheduler(task->getTask(), task->msched_type);
+                                        cur_sched = task->msched_type;
+                                    }
                                     // rtos_task_wait_period will return immediately if
                                     // the task is not periodic (ie period == 0)
                                     // return non-zero to indicate overrun.

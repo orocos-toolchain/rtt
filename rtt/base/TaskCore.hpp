@@ -62,15 +62,12 @@ namespace RTT
          * required) or the \a Stopped (ready to run) state. Invoking
          * \a start() will make a transition to the \a Running state
          * and \a stop() back to the \a Stopped state. The \a Running
-         * state executes the \a updateHook() and processes events and
-         * commands. Finally, there is an \a
+         * state executes \a updateHook(). Finally, there is an \a
          * FatalError state, in which the component can enter by
-         * calling the protected method \a fatalError(). In this
+         * calling the protected method \a fatal(). In this
          * state, the ExecutionEngine is stopped and \a updateHook()
-         * is no longer called.  The public \a resetError() method allows one to
-         * leave the \a FatalError state and enter the \a Stopped
-         * state, or if the error is unrecoverable, the \a
-         * PreOperational state.
+         * is no longer called. The object should then be disposed by a
+         * supervision system.
          *
          * Next to the fatal error, one run-time error level is
          * available in the \a Running state as well. This level
@@ -97,12 +94,6 @@ namespace RTT
          * - A transition from \a Stopped to \a PreOperational is always allowed
          * and the \a cleanupHook() method is called to inform the component of
          * this transtion.
-         * - A transition from the \a FatalError state to the \a Stopped state
-         * is checked by calling the \a resetHook(): If it returns true, the \a
-         * Stopped state is entered, if it returns false, the \a PreOperational
-         * state is entered, and the user is as such forced to call \a configure()
-         * in order to enter the \a Stopped state again.
-         * -
          *
          */
         enum TaskState { Init,           //! The state during component construction.
@@ -136,12 +127,32 @@ namespace RTT
         virtual ~TaskCore();
 
         /**
-         * Returns the current state of the TaskContext.
+         * Returns the current state of the TaskCore.
+         * For example, before start(), this function returns
+         * Stopped. During startHook() it returns Stopped, and
+         * after start() it returns Running.
+         *
+         * @see getTargetState()
          */
         virtual TaskState getTaskState() const;
 
         /**
-         * @name Script OperationCallers
+         * Returns the state this TaskCore is going to, or
+         * in case no transition is taking place, returns
+         * getTaskState(). For example, before start(), this
+         * function returns Stopped. During startHook(),
+         * it returns Running and after start() it also returns
+         * Running.
+         *
+         * If getTaskState() != getTargetState, a transition
+         * is taking place.
+         *
+         * @see getTaskState()
+         */
+        virtual TaskState getTargetState() const;
+
+        /**
+         * @name Operations
          *
          * These TaskCore functions are exported in a TaskContext as script
          * methods and are for configuration, starting and stopping
@@ -165,12 +176,12 @@ namespace RTT
         virtual bool activate();
 
         /**
-         * This method starts the execution og the \a updateHook() with each trigger or period.
+         * This method starts the execution of the \a updateHook() with each trigger or period.
          * This function calls the user function \a startHook(), which must return \a true in order to
          * allow this component to run.
          * @retval false
          * - if startHook() returned false
-         * - if the component was already running.
+         * - if the component was not Stopped
          * @retval true if the \a Running state was entered.
          */
         virtual bool start();
@@ -423,6 +434,11 @@ namespace RTT
         TaskState mTaskState;
 
     private:
+        /**
+         * We need this to be able to detect transitions from
+         * mTaskState to mTargetState.
+         */
+        TaskState mTargetState;
         // non copyable
         TaskCore( TaskCore& );
 

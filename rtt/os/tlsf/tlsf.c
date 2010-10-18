@@ -59,6 +59,7 @@
 #endif
 
 #include "../fosi.h"
+#include <string.h>
 
 #ifdef	__APPLE__
 // rt_mutex_t not supported in C for macosx (needs boost C++ mutexes)

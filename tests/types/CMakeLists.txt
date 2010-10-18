@@ -5,7 +5,7 @@
     VERSION "${RTT_VERSION}"
     OUTPUT_NAME typekit_plugin
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
-    LINK_FLAGS "-Wl,-zdefs"
+    LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
     )
   target_link_libraries(typekit_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)

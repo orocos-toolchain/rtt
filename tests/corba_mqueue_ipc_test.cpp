@@ -190,7 +190,8 @@ BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueIPCTestSuite,  CorbaMQueueIPCTest )
 
 BOOST_AUTO_TEST_CASE( setupServer )
 {
-    system("./corba-mqueue-ipc-server &");
+    int ret = system("./corba-mqueue-ipc-server &");
+    BOOST_REQUIRE(ret == 0);
     usleep(500000);
 }
 
@@ -272,7 +273,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( cleanupServer )
 {
-    system("killall corba-mqueue-ipc-server");
+    int ret = system("killall corba-mqueue-ipc-server");
+    BOOST_CHECK(ret == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
