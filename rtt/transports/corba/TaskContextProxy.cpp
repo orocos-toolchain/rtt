@@ -321,7 +321,7 @@ namespace RTT
             CService_var cobj = serv->getService(plist[i]);
             CORBA::String_var descr = cobj->getServiceDescription();
 
-            Service::shared_ptr tobj = this->provides(std::string(plist[i]));
+            Service::shared_ptr tobj = parent->provides(std::string(plist[i]));
             tobj->doc( descr.in() );
 
             // Recurse:
