@@ -147,5 +147,5 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-version.cmake DESTIN
 INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
                                       NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
 
-# Package use file
-INSTALL(FILES UseOROCOS-RTT.cmake DESTINATION "${CONFIG_FILE_PATH}")
+# Package use file + helper files
+INSTALL(FILES UseOROCOS-RTT.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")

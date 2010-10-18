@@ -14,6 +14,17 @@ if(OROCOS-RTT_FOUND)
 
   # Preprocessor definitions
   add_definitions(${OROCOS-RTT_DEFINITIONS})
+
+  # Detect ROS
+  SET (ROS_ROOT $ENV{ROS_ROOT})
+  IF(ROS_ROOT)
+    MESSAGE("ROS_ROOT environment found")
+    include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+    rosbuild_init()
+    # This sets the resulting output directory of the *build* result.
+    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/orocos/types)
+  ENDIF(ROS_ROOT)
+
   
 #
 # Include and link against required stuff
@@ -189,4 +200,19 @@ macro( orocos_install_headers )
   INSTALL( FILES ${ARGN} DESTINATION include/orocos/${PROJECT_NAME} )
 endmacro( orocos_install_headers )
 
-endif()
+#
+# Adds the uninstall target, not present by default in CMake.
+#
+# Usage example: orocos_uninstall_target()
+macro( orocos_uninstall_target )
+  CONFIGURE_FILE(
+  "${OROCOS-RTT_USE_FILE_PATH}/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY)
+
+ADD_CUSTOM_TARGET(uninstall
+  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+endmacro( orocos_uninstall_target )
+
+endif() # OROCOS-RTT_FOUND
+
