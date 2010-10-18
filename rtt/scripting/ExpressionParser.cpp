@@ -94,8 +94,8 @@ namespace RTT
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
     peerpath = peerparser.locator();
-    object= (commonparser.identifier >> ".")[bind(&DataCallParser::seenobjectname, this, _1, _2)];
-    method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
+    object= (commonparser.identifier >> ".")[boost::bind(&DataCallParser::seenobjectname, this, _1, _2)];
+    method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[boost::bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
     datacall =
         ( peerpath >> !object >> method[ boost::bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ boost::bind( &DataCallParser::seendatacall, this ) ];
   };
