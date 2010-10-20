@@ -511,7 +511,7 @@
       </para>
       <para>
 	Each typekit must define a class that inherits from the
-	<classname>RTT::TypekitPlugin</classname> class and implement
+	<classname>RTT::types::TypekitPlugin</classname> class and implement
 	four functions: <function>loadTypes()</function>,
 	<function>loadConstructors</function>,
 	<function>loadOperators()</function> and
@@ -565,7 +565,7 @@
 
     bool MyTypekitPlugin::loadTypes() {
       // Tell the RTT the name and type of this struct
-      RTT::Types()->addType( new ControlDataTypeInfo() );
+      RTT::types::Types()->addType( new ControlDataTypeInfo() );
     }  
 
     /** ...Add the other example code of this manual here as well... */
