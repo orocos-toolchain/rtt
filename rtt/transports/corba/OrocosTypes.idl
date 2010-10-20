@@ -10,8 +10,17 @@ module RTT
 {
   module corba
   {
+
+    // use to convert std::pair
+    struct Pair {
+      any t1;
+      any t2;
+    };
+
     // Classical Orocos type
-    typedef sequence<double> CDoubleSequence;
+    typedef sequence<any> CAnySequence;
+    // use to convert std::map
+    typedef sequence<Pair> PairSeq;
   };
 
 };
