@@ -182,6 +182,16 @@ namespace RTT
             return startv;
         }
 
+        Vertex currentNode() const
+        {
+            return current;
+        }
+
+        Vertex previousNode() const
+        {
+            return previous;
+        }
+
         Vertex exitNode() const
         {
             return exitv;

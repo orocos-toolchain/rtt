@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(testProgramToProgram)
         + " do test.assert( test.i == 1 )\n"
         + " do y.step()\n"
         + " do yield\n"
-        + " do test.assert( test.i == 0 )\n"
+        + " do test.assertEqual( test.i, 0 )\n" // if this fails, stepping is broken
         + " do y.step()\n"
         + " do yield\n"
         + " do y.step()\n"         // 20

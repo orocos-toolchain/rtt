@@ -70,7 +70,7 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc, CommonParser& cp, Service::shared_ptr storage, TaskContext* caller )
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, CommonParser& cp, Service::shared_ptr storage, ExecutionEngine* caller )
         : type( 0 ), context( pc ), mstore( storage ? storage : pc->provides() ),
           expressionparser( pc, caller, cp ), commonparser(cp), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )

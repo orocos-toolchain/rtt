@@ -208,7 +208,7 @@ namespace RTT { namespace scripting
       bool exportf;
       int ln_offset;
   public:
-      ProgramGraphParser( iter_t& positer, TaskContext* context, TaskContext* caller, CommonParser& cp);
+      ProgramGraphParser( iter_t& positer, TaskContext* context, ExecutionEngine* caller, CommonParser& cp);
 
       /**
        * @brief Tries to parse programs, returns the generated programs on success.
@@ -218,8 +218,34 @@ namespace RTT { namespace scripting
 
       std::vector<ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
 
+      /**
+       * Initialize the bodyParser to parse and store each statement it sees.
+       * The result is retrieved with bodyParserResult().
+       */
       void initBodyParser(const std::string& name, Service::shared_ptr stck, int offset);
+
+      /**
+       * Parses a multi-line program, which you can
+       * retrieve with bodyParserResult().
+       * You need to initialize it with initBodyParser
+       */
       rule_t& bodyParser();
+
+      /**
+       * Parses a single-line statement.
+       */
+      rule_t& statementParser();
+
+      /**
+       * Returns a program foo {} parser.
+       */
+      rule_t& programParser();
+
+      /**
+       * Parses a function foo {} definition.
+       */
+      rule_t& functionParser();
+
       ProgramInterfacePtr bodyParserResult();
 
   };

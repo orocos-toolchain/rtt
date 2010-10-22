@@ -184,8 +184,39 @@ namespace RTT
          * @retval 0 if the code was an expression and could be executed.
          * @retval >0 if the code was a command and is being executed.
          * @see getCommand
+         * @deprecated by eval()
          */
-        virtual int execute(const std::string& code );
+        int execute(const std::string& code );
+
+        /**
+         * Evaluate and run all statements in \a code.
+         * This function is in functionality equivalent to runScript,
+         * except that runScript takes a filename as an argument,
+         * while this function takes the contents of the script itself
+         * as an argument. All possible syntax may be used.
+         *
+         * @param code A list of statements, program/function
+         * definitions etc. which get evaluated in the context
+         * of this component
+         * @return true if the parsing and execution succeeded
+         * (= no syntax errors and no exceptions thrown when executing \a code ), false
+         * otherwise.
+         * @throw parse_exception and its derivatives for parse errors
+         * in \a code.
+         */
+        bool eval(const std::string& code );
+
+        /**
+         * Run a script which is stored in a file.
+         *
+         * @param filename The local file to load and execute
+         * @return true if the parsing and execution succeeded
+         * (= no syntax errors and no exceptions thrown when executing \a code ), false
+         * otherwise.
+         * @throw parse_exception and its derivatives for parse errors
+         * in \a code.
+         */
+        bool runScript( const std::string& filename);
 
         /**
          * List of executed functions.
@@ -200,6 +231,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return A list of functions loaded in the ProgramProcessor.
+         * @deprecated by runScript
          */
         virtual Functions loadFunctions(const std::string& filename, bool do_throw );
 
@@ -212,6 +244,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return A list of functions loaded in the ProgramProcessor.
+         * @deprecated by runScript
          */
         virtual Functions loadFunctions(const std::string& code, const std::string& filename, bool do_throw );
 
@@ -224,6 +257,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return true if all state machines could be loaded in the ProgramProcessor.
+         * @deprecated by runScript
          */
         virtual bool loadPrograms( const std::string& filename, bool do_throw );
 
@@ -237,6 +271,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return true if all state machines could be loaded in the ProgramProcessor.
+         * @deprecated by runScript
          */
         virtual bool loadPrograms( const std::string& code, const std::string& filename, bool do_throw  );
 
@@ -281,6 +316,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return true if all state machines could be loaded in the StateMachineProcessor.
+         * @deprecated by runScript
          */
         virtual bool loadStateMachines( const std::string& filename, bool do_throw );
 
@@ -294,6 +330,7 @@ namespace RTT
          * instead of being printed to the Logger interface.
          *
          * @return true if all state machines could be loaded in the StateMachineProcessor.
+         * @deprecated by runScript
          */
         virtual bool loadStateMachines( const std::string& code, const std::string& filename, bool do_throw );
 
@@ -511,6 +548,7 @@ namespace RTT
         StatementProcessor* sproc;
         bool doExecute(const std::string& code);
 
+        bool evalInternal(const std::string& filename, const std::string& code);
         bool doLoadPrograms( const std::string& filename );
         bool doLoadProgramText( const std::string& code );
         bool doUnloadProgram( const std::string& name );

@@ -81,13 +81,13 @@ namespace RTT
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, TaskContext* caller, CommonParser& cp)
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, ExecutionEngine* caller, CommonParser& cp)
       : rootc( t ),context(), fcontext(0), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         commonparser(cp),
         conditionparser( rootc, caller, cp ),
-        valuechangeparser( rootc, cp, caller->provides(), caller ),
+        valuechangeparser( rootc, cp, t->provides(), caller ),
         expressionparser( rootc, caller, cp ),
         argsparser(0),
         peerparser(rootc, commonparser),
@@ -217,9 +217,22 @@ namespace RTT
         this->setStack( stck );
     }
 
+    rule_t& ProgramGraphParser::programParser() {
+        return program;
+    }
+
+    rule_t& ProgramGraphParser::functionParser() {
+        return function;
+    }
+
     rule_t& ProgramGraphParser::bodyParser() {
         // content is the bodyparser of a program or function
         return content;
+    }
+
+    rule_t& ProgramGraphParser::statementParser() {
+        // line is the statement parser of a program or function
+        return line;
     }
 
     ProgramInterfacePtr ProgramGraphParser::bodyParserResult() {
@@ -233,6 +246,14 @@ namespace RTT
         program_builder->proceedToNext( mpositer.get_position().line - ln_offset);
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
+
+//    ProgramInterfacePtr ProgramGraphParser::statementParserResult() {
+//
+//        // Fake a 'return' statement at the last line.
+//        program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
+//        program_builder->proceedToNext( mpositer.get_position().line - ln_offset);
+//        return program_builder->getFunction();
+//    }
 
     void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;

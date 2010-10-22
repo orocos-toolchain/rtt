@@ -78,6 +78,10 @@ namespace RTT
 
         OperationCaller<int (const std::string&  )> execute;
 
+        OperationCaller<bool ( const std::string&)> runScript;
+
+        OperationCaller<bool ( const std::string& )> eval;
+
         OperationCaller<bool ( const std::string&)> loadPrograms;
 
         OperationCaller<bool ( const std::string& )> loadProgramText;

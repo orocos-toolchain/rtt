@@ -63,7 +63,7 @@ namespace RTT { namespace scripting
       // Our task we are parsing in :
       TaskContext* context;
       // The task that will execute it:
-      TaskContext* caller;
+      ExecutionEngine* caller;
       // The Service of the current StateMachine
       boost::shared_ptr<StateMachineService> curobject ;
       ServicePtr peer;
@@ -117,6 +117,7 @@ namespace RTT { namespace scripting
       std::map<std::string,ConditionCache*> global_port_events;
 
       rule_t production;
+      rule_t body;
       rule_t newline;
       rule_t rootmachineinstantiation;
       rule_t statemachine;
@@ -213,7 +214,7 @@ namespace RTT { namespace scripting
       void seenscvcparamname( iter_t begin, iter_t end );
 #endif
   public:
-    StateGraphParser( iter_t& positer, TaskContext* tc, TaskContext* caller );
+    StateGraphParser( iter_t& positer, TaskContext* tc, ExecutionEngine* caller, CommonParser* cp );
     ~StateGraphParser();
 
     // tries to parse, returns the instantiated root machines.  On all
@@ -221,6 +222,11 @@ namespace RTT { namespace scripting
     // correct name.
     // will throw an file_parse_exception on error
     std::vector<ParsedStateMachinePtr> parse( iter_t& begin, iter_t end );
+
+    /**
+     * Returns the top-level parser for state machines.
+     */
+    rule_t& parser();
   };
 }}
 

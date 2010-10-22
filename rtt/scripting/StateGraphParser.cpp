@@ -99,7 +99,7 @@ namespace RTT
 
 
     StateGraphParser::StateGraphParser( iter_t& positer,
-                                        TaskContext* tc, TaskContext* tcaller )
+                                        TaskContext* tc, ExecutionEngine* tcaller, CommonParser* cp )
         : context( tc ),
           caller( tcaller ),
           mpositer( positer ),
@@ -117,7 +117,7 @@ namespace RTT
           isroot(false),
           selectln(0),
           evname(""),
-          commonparser( new CommonParser ),
+          commonparser( cp ),
           conditionparser( new ConditionParser( context, caller, *commonparser ) ),
           valuechangeparser( new ValueChangeParser(context, *commonparser, context->provides(), caller) ),
           expressionparser( new ExpressionParser(context, caller, *commonparser) ),
@@ -125,6 +125,7 @@ namespace RTT
           peerparser( new PeerParser(context, *commonparser, true) ) // full-path peer parser for events.
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
+        BOOST_SPIRIT_DEBUG_RULE( body );
         BOOST_SPIRIT_DEBUG_RULE( rootmachineinstantiation );
         BOOST_SPIRIT_DEBUG_RULE( statemachine );
         BOOST_SPIRIT_DEBUG_RULE( machineinstantiation );
@@ -158,9 +159,11 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( machinealias );
         BOOST_SPIRIT_DEBUG_RULE( subMachinevarchange );
 
-        production = *( (statemachine[ bind( &StateGraphParser::seenstatemachineend, this ) ]
-                         >> *( rootmachineinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
-                         >> expect_eof(end_p);
+        production = *body[bind( &StateGraphParser::saveText, this, _1, _2)] >> expect_eof(end_p);
+
+        body = statemachine[ bind( &StateGraphParser::seenstatemachineend, this ) ]
+                         | rootmachineinstantiation;
+
 
         rootmachineinstantiation =
             str_p("RootMachine")[bind (&StateGraphParser::startrootmachineinstantiation, this) ]
@@ -307,6 +310,10 @@ namespace RTT
                                           )[lambda::var(commonparser->skipeol) = false]
                                                        >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
 
+    }
+
+    rule_t& StateGraphParser::parser() {
+        return body;
     }
 
     void StateGraphParser::seeninitialstate()
@@ -761,7 +768,6 @@ namespace RTT
 
     StateGraphParser::~StateGraphParser() {
         clear();
-        delete commonparser;
         delete valuechangeparser;
         delete expressionparser;
         delete conditionparser;

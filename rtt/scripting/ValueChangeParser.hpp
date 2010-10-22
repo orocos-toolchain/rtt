@@ -119,12 +119,12 @@ namespace RTT { namespace scripting
        * to store the added values in another task context as well.
        * After reset(), \a tc will be cleared of all the stored values.
        * \a tc is thus used as a temporary storage container.
-       * If you want the new added values in a different \a storage, use
-       * the second argument. Defaults to tc.
+       * If you want the new added values in a different storage container, use
+       * the \a storage argument. Defaults to tc->provides() if set to null.
        */
       ValueChangeParser( TaskContext* tc, CommonParser& cp,
                          Service::shared_ptr storage,
-                         TaskContext* caller);
+                         ExecutionEngine* caller);
 
       /**
        * Clear assignCommands(), definedValues() and

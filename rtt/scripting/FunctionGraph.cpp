@@ -119,15 +119,7 @@ namespace RTT {
         std::vector<AttributeBase*>::iterator it = args.begin();
         for ( ; it != args.end(); ++it)
             delete *it;
-    }
 
-    void FunctionGraph::setProgramService(Service::shared_ptr myservice)
-    {
-        context = myservice;
-    }
-
-    void FunctionGraph::unloading()
-    {
         // The case for plain functions in the operations interface
         if ( !context )
             return;
@@ -138,11 +130,24 @@ namespace RTT {
         context.reset();
     }
 
+    void FunctionGraph::setProgramService(Service::shared_ptr myservice)
+    {
+        context = myservice;
+    }
+
+    void FunctionGraph::unloading()
+    {
+	// this function is possibly called in a real-time context.
+    }
+
 
     bool FunctionGraph::start()
     {
         if ( !isLoaded() )
             return false;
+        if ( pStatus == Status::stopped ) {
+            this->reset();
+        }
         if ( pStatus == Status::stopped || pStatus == Status::paused) {
             pStatus = Status::running;
             return true;
@@ -153,6 +158,9 @@ namespace RTT {
     bool FunctionGraph::pause()
     {
         if ( isLoaded() ) {
+            if ( pStatus == Status::stopped ) {
+                this->reset();
+            }
             pausing = true;
             return true;
         }
@@ -195,7 +203,7 @@ namespace RTT {
             break;
         case Status::error:
         case Status::unknown:
-            return true;
+            return false;
             break;
         case Status::stopped:
             return true;
@@ -321,14 +329,14 @@ namespace RTT {
     }
 
     void FunctionGraph::reset() {
+        current = startv;
+        previous = exitv;
         this->stop();
     }
 
     bool FunctionGraph::stop()
     {
         // stop even works if no pp is present
-        current = startv;
-        previous = exitv;
         pStatus = Status::stopped;
         return true;
     }

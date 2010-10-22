@@ -23,6 +23,7 @@
 #include <scripting/ScriptingService.hpp>
 #include <extras/SequentialActivity.hpp>
 #include <plugin/PluginLoader.hpp>
+#include <scripting/Parser.hpp>
 
 using namespace std;
 using namespace boost;
@@ -67,6 +68,25 @@ BOOST_AUTO_TEST_CASE(TestGetProvider)
     BOOST_CHECK( sc->inProgramError("Foo") == false );
     BOOST_CHECK( ret == 10.0 );
 
+}
+
+BOOST_AUTO_TEST_CASE(TestScriptingParser)
+{
+    PluginLoader::Instance()->loadService("scripting",tc);
+
+    // We use a sequential activity in order to force execution on trigger().
+    tc->stop();
+    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
+    tc->start();
+
+    boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
+    BOOST_REQUIRE( sc );
+    BOOST_CHECK ( sc->ready() );
+    bool r;
+    string statements="test.increase()\n\ntest.increase()"; // trailing newline is optional
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 1);
 }
 
 
