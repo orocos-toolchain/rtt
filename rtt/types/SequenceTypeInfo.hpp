@@ -42,6 +42,8 @@
 #include "TemplateTypeInfo.hpp"
 #include "type_discovery.hpp"
 #include "../internal/DataSourceGenerator.hpp"
+#include "SequenceConstructor.hpp"
+#include "TemplateConstructor.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT
@@ -125,6 +127,9 @@ namespace RTT
             SequenceTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
+                this->addConstructor( new SequenceBuilder<T>() );
+                this->addConstructor( newConstructor( sequence_ctor<T>() ) );
+                this->addConstructor( newConstructor( sequence_ctor2<T>() ) );
             }
 
             base::AttributeBase* buildVariable(std::string name,int size) const
