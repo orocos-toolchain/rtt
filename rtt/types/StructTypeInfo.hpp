@@ -83,7 +83,7 @@ namespace RTT
                 }
                 typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
                 if ( data ) {
-                    adata = new ValueDataSource<T>( data->get() );
+                    adata = new internal::ValueDataSource<T>( data->get() );
                     type_discovery in( adata );
                     in.discover( adata->set() );
                     log(Debug) << "Returning copy of part: " << name << endlog();
