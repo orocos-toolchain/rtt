@@ -21,6 +21,7 @@
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
 #include <rtt/Port.hpp>
+#include <rtt/plugin/PluginLoader.hpp>
 #include <os/main.h>
 
 using namespace std;
