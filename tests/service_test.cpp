@@ -305,4 +305,32 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
 
 }
 
+BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend_ChangePolicy)
+{
+    // Tests changing the policy later on
+    OperationCaller<double(void)> m0("o0");
+
+    // set to ClientThread and send/collect it:
+    tc->provides("methods")->setOperationThread("o0",ClientThread);
+    m0 = tc->provides("methods");
+
+    BOOST_REQUIRE( tc->isRunning() );
+    SendHandle<double(void)> h0 = m0.send();
+
+    double retn=0;
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+
+    // set to OwnThread and send/collect it:
+    tc->provides("methods")->setOperationThread("o0",OwnThread);
+    m0 = tc->provides("methods");
+
+    BOOST_REQUIRE( tc->isRunning() );
+    h0 = m0.send();
+
+    retn = 0;
+    BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
+    BOOST_CHECK_EQUAL( retn, -1.0 );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

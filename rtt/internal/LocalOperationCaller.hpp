@@ -90,6 +90,10 @@ namespace RTT
 
             typedef boost::shared_ptr<LocalOperationCallerImpl> shared_ptr;
 
+            virtual bool ready() const {
+                return true;
+            }
+
             virtual void setExecutor(ExecutionEngine* ee) {
                 if (met == OwnThread)
                     myengine = ee;
@@ -102,6 +106,12 @@ namespace RTT
                     caller = ee;
                 else
                     caller = GlobalEngine::Instance();
+            }
+
+            virtual bool setThread(ExecutionThread et, ExecutionEngine* executor) {
+                met = et;
+                setExecutor(executor);
+                return true;
             }
 
             void executeAndDispose() {

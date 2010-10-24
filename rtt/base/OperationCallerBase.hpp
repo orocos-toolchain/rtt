@@ -36,12 +36,12 @@
  ***************************************************************************/
 
 
-#ifndef ORO_METHOD_BASE_HPP
-#define ORO_METHOD_BASE_HPP
+#ifndef ORO_OPERATION_CALLER_BASE_HPP
+#define ORO_OPERATION_CALLER_BASE_HPP
 
 #include "../rtt-fwd.hpp"
 #include "../internal/Invoker.hpp"
-#include "DisposableInterface.hpp"
+#include "OperationCallerInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
 namespace RTT
@@ -55,14 +55,10 @@ namespace RTT
         template<class F>
         struct OperationCallerBase
             : public internal::InvokerBase<F>,
-              public DisposableInterface
+              public OperationCallerInterface
         {
             typedef boost::shared_ptr<OperationCallerBase<F> > shared_ptr;
             virtual ~OperationCallerBase() {}
-
-            virtual bool ready() const {
-                return true;
-            }
 
             /**
              * Creates a new clone of this method using operator new().
@@ -72,15 +68,6 @@ namespace RTT
              * @nrt
              */
             virtual OperationCallerBase<F>* cloneI(ExecutionEngine* caller) const = 0;
-            /**
-             * Set an executor which will execute this method
-             * when it is called or sent. If ee is set to 0,
-             * the method will be executed in the client's thread.
-             * @param ee
-             */
-            virtual void setExecutor(ExecutionEngine* ee) = 0;
-
-            virtual void setCaller(ExecutionEngine* ee) = 0;
         };
     }
 }

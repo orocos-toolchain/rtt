@@ -246,6 +246,24 @@ namespace RTT
         void removeOperation( const std::string& name );
 
         /**
+         * Sets the thread of execution of a previously added operation.
+         * Only the component itself should modify this property. Don't call
+         * this function from outside the component, it has unspecified behaviour
+         * when not called from within one of the member functions or a service of
+         * the current component.
+         *
+         * This function is typically used to change the ExecutionThread of
+         * the standard component hooks such as startHook(), configureHook() etc.
+         * which all have the ClientThread policy by default.
+         *
+         * @param name The name of the operation to modify. For example, "start".
+         * @param et   The ExecutionThread type in which the function of the
+         * operation will be executed, being OwnThread or ClientThread.
+         * @return true if \a name was a local, present operation, false otherwise.
+         */
+        bool setOperationThread(std::string const& name, ExecutionThread et);
+
+        /**
          * Add an operation object to the interface. This version
          * of addOperation exports an existing Operation object to the
          * public interface of this component.

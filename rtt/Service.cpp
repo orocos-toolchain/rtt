@@ -140,6 +140,18 @@ namespace RTT {
         return true;
     }
 
+    bool Service::setOperationThread(std::string const& name, ExecutionThread et)
+    {
+        if ( !hasOperation(name) )
+            return false;
+        DisposableInterface::shared_ptr di = getOperation(name)->getLocalOperation();
+        OperationCallerInterface::shared_ptr oci = dynamic_pointer_cast<OperationCallerInterface>(di);
+        if (oci) {
+            return oci->setThread( et, getOwner() ? getOwner()->engine() : 0 );
+        }
+        return false;
+    }
+
     bool Service::hasService(const std::string& service_name) {
         if (service_name == "this")
             return true;
