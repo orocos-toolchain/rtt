@@ -128,6 +128,16 @@ namespace RTT {
         return true;
     }
 
+    bool Service::setOperationThread(std::string const& name, ExecutionThread et)
+    {
+	DisposableInterface* di = getOperation(name);
+	OperationCallerBase* ocb = dynamic_cast<OperationCallerBase*>(di);
+	if (ocb) {
+	    return ocb->setThread( et, getOwner() ? getOwner()->engine() : 0 );
+	}
+	return false;
+    }
+
     bool Service::hasService(const std::string& service_name) {
         if (service_name == "this")
             return true;

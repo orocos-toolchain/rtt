@@ -447,6 +447,10 @@ namespace RTT
                 return this->mmeth.call();
             }
 
+            virtual bool setThread(ExecutionThread, ExecutionEngine* ) {
+                return false;
+            }
+
             virtual base::OperationCallerBase<OperationCallerT>* cloneI(ExecutionEngine* caller) const {
                 RemoteOperationCaller<OperationCallerT>* rm = new RemoteOperationCaller<OperationCallerT>( this->mmeth.getOrp(), this->mmeth.getName(), caller);
                 return rm;

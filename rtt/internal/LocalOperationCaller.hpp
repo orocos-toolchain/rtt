@@ -104,6 +104,12 @@ namespace RTT
                     caller = GlobalEngine::Instance();
             }
 
+            virtual bool setThread(ExecutionThread et, ExecutionEngine* executor) {
+                met = et;
+                setExecutor(executor);
+                return true;
+            }
+
             void executeAndDispose() {
                 using namespace std;
                 if (!this->retv.isExecuted()) {
