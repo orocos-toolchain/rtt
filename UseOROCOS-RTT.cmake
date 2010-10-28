@@ -14,18 +14,8 @@ if(OROCOS-RTT_FOUND)
 
   # Preprocessor definitions
   add_definitions(${OROCOS-RTT_DEFINITIONS})
+  set(ROS_ROOT $ENV{ROS_ROOT})
 
-  # Detect ROS
-  SET (ROS_ROOT $ENV{ROS_ROOT})
-  IF(ROS_ROOT)
-    MESSAGE("ROS_ROOT environment found")
-    include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-    rosbuild_init()
-    # This sets the resulting output directory of the *build* result.
-    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/orocos/types)
-  ENDIF(ROS_ROOT)
-
-  
 #
 # Include and link against required stuff
 #
@@ -91,7 +81,14 @@ macro( orocos_component )
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
   endif()
   MESSAGE( "Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
-  ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos
+    )
+  else()
+    ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+  endif()
   SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
     OUTPUT_NAME ${COMPONENT_LIB_NAME}
     DEFINE_SYMBOL "RTT_COMPONENT"
@@ -123,7 +120,11 @@ macro( orocos_library LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "Building library ${LIB_TARGET_NAME}" )
-  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+  else()
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
 #    VERSION ${OCL_VERSION}
@@ -176,7 +177,14 @@ macro( orocos_plugin LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
-  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/plugin
+    )
+  else()
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
 #    VERSION ${OCL_VERSION}
