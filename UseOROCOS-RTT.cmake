@@ -160,7 +160,7 @@ macro( orocos_typekit )
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typekit )
 
-# plugin libraries and services should add themselves by calling 'orocos_plugin()' 
+# plugin libraries should add themselves by calling 'orocos_plugin()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
 # Usage: orocos_plugin( pluginname src1 src2 src3 )
@@ -189,6 +189,15 @@ macro( orocos_plugin LIB_TARGET_NAME )
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_plugin )
+
+# service libraries should add themselves by calling 'orocos_service()' 
+# instead of 'ADD_LIBRARY' in CMakeLists.txt.
+#
+# Usage: orocos_service( servicename src1 src2 src3 )
+#
+macro( orocos_service LIB_TARGET_NAME )
+  orocos_plugin( ${LIB_TARGET_NAME} ${ARGN} )
+endmacro( orocos_service )
 
 #
 # Components supply header files which should be included when 
