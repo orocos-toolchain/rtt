@@ -78,6 +78,9 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
+namespace RTT { namespace plugin {
+    extern std::string default_plugin_path;
+}}
 
 namespace {
     /**
@@ -91,7 +94,8 @@ namespace {
             log(Info) <<"RTT_COMPONENT_PATH was set to " << plugin_paths << endlog();
             PluginLoader::Instance()->setPluginPath(plugin_paths);
         } else {
-            log(Info) <<"No RTT_COMPONENT_PATH set." <<endlog();
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default." <<endlog();
+            PluginLoader::Instance()->setPluginPath( default_plugin_path );
         }
         PluginLoader::Instance()->loadPlugins("");
         PluginLoader::Instance()->loadTypekits("");
