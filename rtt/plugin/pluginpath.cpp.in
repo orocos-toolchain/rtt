@@ -1,0 +1,12 @@
+
+// WARNING: This is an auto-generated file by the build system. Do not modify it. //
+
+#include "PluginLoader.hpp"
+
+namespace RTT
+{ 
+    namespace plugin {
+
+        std::string default_plugin_path = "@DEFAULT_PLUGIN_PATH@";
+    }
+}

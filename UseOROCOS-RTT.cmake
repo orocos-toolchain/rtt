@@ -14,7 +14,8 @@ if(OROCOS-RTT_FOUND)
 
   # Preprocessor definitions
   add_definitions(${OROCOS-RTT_DEFINITIONS})
-  
+  set(ROS_ROOT $ENV{ROS_ROOT})
+
 #
 # Include and link against required stuff
 #
@@ -53,7 +54,7 @@ ENDMACRO(ORO_PARSE_ARGUMENTS)
 # Components should add themselves by calling 'OROCOS_COMPONENT' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
-# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos] )
+# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] )
 #
 macro( orocos_component )
   
@@ -70,8 +71,8 @@ macro( orocos_component )
     set(AC_INSTALL_DIR ${ADD_COMPONENT_INSTALL})
     set(AC_INSTALL_RT_DIR bin)
   else()
-    set(AC_INSTALL_DIR lib/orocos)
-    set(AC_INSTALL_RT_DIR lib/orocos)
+    set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME})
+    set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME})
   endif()
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
@@ -80,7 +81,14 @@ macro( orocos_component )
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
   endif()
   MESSAGE( "Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
-  ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos
+    )
+  else()
+    ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+  endif()
   SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
     OUTPUT_NAME ${COMPONENT_LIB_NAME}
     DEFINE_SYMBOL "RTT_COMPONENT"
@@ -112,7 +120,11 @@ macro( orocos_library LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "Building library ${LIB_TARGET_NAME}" )
-  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+  else()
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
 #    VERSION ${OCL_VERSION}
@@ -136,22 +148,28 @@ macro( orocos_typekit )
   MESSAGE( "Generating typekit for ${PROJECT_NAME}..." )
   
   # Works in top level source dir:
-  execute_process( COMMAND typegen --output typekit ${PROJECT_NAME} ${ARGN} 
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
-        )
-  set(TYPEKIT_IN_PROJECT TRUE)
-  add_subdirectory( typekit )
+  find_program(TYPEGEN_EXE typegen)
+  if (NOT TYPEGEN_EXE)
+    message(FATAL_ERROR "'typegen' not found in path. Can't build typekit. Did you 'source env.sh' ?")
+  else (NOT TYPEGEN_EXE)
+  
+    execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+      )
+    set(TYPEKIT_IN_PROJECT TRUE)
+    add_subdirectory( typekit )
+  endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typekit )
 
-# plugin libraries and services should add themselves by calling 'orocos_plugin()' 
+# plugin libraries should add themselves by calling 'orocos_plugin()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
 # Usage: orocos_plugin( pluginname src1 src2 src3 )
 #
 macro( orocos_plugin LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib/plugins )
-  set(AC_INSTALL_RT_DIR lib/plugins )
+  set(AC_INSTALL_DIR lib/${PROJECT_NAME}/plugins )
+  set(AC_INSTALL_RT_DIR lib/${PROJECT_NAME}/plugins )
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
@@ -159,7 +177,14 @@ macro( orocos_plugin LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
-  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  if (ROS_ROOT)
+    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/plugin
+    )
+  else()
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
 #    VERSION ${OCL_VERSION}
@@ -173,6 +198,15 @@ macro( orocos_plugin LIB_TARGET_NAME )
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_plugin )
 
+# service libraries should add themselves by calling 'orocos_service()' 
+# instead of 'ADD_LIBRARY' in CMakeLists.txt.
+#
+# Usage: orocos_service( servicename src1 src2 src3 )
+#
+macro( orocos_service LIB_TARGET_NAME )
+  orocos_plugin( ${LIB_TARGET_NAME} ${ARGN} )
+endmacro( orocos_service )
+
 #
 # Components supply header files which should be included when 
 # using these components. Each component should use this macro
@@ -183,4 +217,19 @@ macro( orocos_install_headers )
   INSTALL( FILES ${ARGN} DESTINATION include/orocos/${PROJECT_NAME} )
 endmacro( orocos_install_headers )
 
-endif()
+#
+# Adds the uninstall target, not present by default in CMake.
+#
+# Usage example: orocos_uninstall_target()
+macro( orocos_uninstall_target )
+  CONFIGURE_FILE(
+  "${OROCOS-RTT_USE_FILE_PATH}/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY)
+
+ADD_CUSTOM_TARGET(uninstall
+  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+endmacro( orocos_uninstall_target )
+
+endif() # OROCOS-RTT_FOUND
+

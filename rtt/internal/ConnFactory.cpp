@@ -135,7 +135,7 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
         int size_hint = ttt->getSampleSize( output_port.getDataSource() );
         policy.data_size = size_hint;
     } else {
-        log(Warning) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
+        log(Debug) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
     }
     RTT::base::ChannelElementBase::shared_ptr chan_stream = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
             
@@ -213,9 +213,13 @@ base::ChannelElementBase::shared_ptr ConnFactory::createAndCheckOutOfBandConnect
     policy2.pull = false;
     conn_id->name_id = policy2.name_id;
 
+    // check if marshaller supports size hints:
     types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*>( type->getProtocol(policy.transport) );
-    int size_hint = ttt->getSampleSize(  output_port.getDataSource() );
-    policy2.data_size = size_hint;
+    if (ttt) {
+        policy2.data_size = ttt->getSampleSize(  output_port.getDataSource() );
+    } else {
+        log(Debug) <<"Could not determine sample size for type " << type->getTypeName() << endlog();
+    }
     // XXX: this seems to be always true
     if ( input_port.isLocal() ) {
         RTT::base::ChannelElementBase::shared_ptr ceb_input = type->getProtocol(policy.transport)->createStream(&input_port, policy2, false);

@@ -253,17 +253,22 @@
       <para>
 	It only requires
 	a helper function which is compabible with the boost::serialization
-	library and which is easy to write:
+	library (and <emphasis>must</emphasis> be declared in that namespace)
+	and which is easy to write:
 	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
 
-  // The helper function which you write yourself:
-  template&lt;class Archive>
-  void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
-     using boost::serialization::make_nvp;
-     a &amp; make_nvp("x", cd.x);
-     a &amp; make_nvp("y", cd.y);
-     a &amp; make_nvp("z", cd.z);
-     a &amp; make_nvp("sample_nbr", cd.sample_nbr);
+  namespace boost {
+    namespace serialization {
+      // The helper function which you write yourself:
+      template&lt;class Archive>
+      void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
+         using boost::serialization::make_nvp;
+         a &amp; make_nvp("x", cd.x);
+         a &amp; make_nvp("y", cd.y);
+         a &amp; make_nvp("z", cd.z);
+         a &amp; make_nvp("sample_nbr", cd.sample_nbr);
+      }
+    }
   }
 
   // The RTT helper class which uses the above function behind the scenes:
@@ -278,6 +283,14 @@
   // Tell the RTT the name and type of this struct:
   RTT::types::Types()->addType( new ControlDataTypeInfo() );
 	</programlisting>
+	<note><para>
+		In case you write your serialize with 'getter' functions, for
+		example, <programlisting>cd.getX()</programlisting>, the 
+		getX() function <emphasis>must</emphasis> return a reference to
+		x, i.e. have the signature: <function>x&amp; getX()</function>.
+		Returning <function>const x&amp; getX()</function> or  <function>x getX()</function>
+		will not work and the code will not compile.
+	</para></note>
 	From now on, the RTT knows the 'ControlData' type name and allows
 	you to write it to XML, use it in scripts and access its member
 	variables. For example, you may write in a script:
@@ -353,23 +366,27 @@
     unsigned int timestamp[2];
   };
 
-  // The helper function which you write yourself for ControlData:
-  template&lt;class Archive>
-  void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
-     using boost::serialization::make_nvp;
-     a &amp; make_nvp("x", cd.x);
-     a &amp; make_nvp("y", cd.y);
-     a &amp; make_nvp("z", cd.z);
-     a &amp; make_nvp("sample_nbr", cd.sample_nbr);
-  }
+  namespace boost {
+    namespace serialization {
+		   // The helper function which you write yourself for ControlData:
+		   template&lt;class Archive>
+		   void serialize( Archive &amp; a, ControlData &amp; cd, unsigned int) {
+		      using boost::serialization::make_nvp;
+		      a &amp; make_nvp("x", cd.x);
+		      a &amp; make_nvp("y", cd.y);
+		      a &amp; make_nvp("z", cd.z);
+		      a &amp; make_nvp("sample_nbr", cd.sample_nbr);
+		   }
 
-  // The helper function which you write yourself for ControlDataSet:
-  template&lt;class Archive>
-  void serialize( Archive &amp; a, ControlDataSet &amp; cds, unsigned int) {
-     using boost::serialization::make_nvp;
-     a &amp; make_nvp("setname", cds.setname);
-     a &amp; make_nvp("dataset", cds.dataset);
-     a &amp; make_nvp("timestamp", cds.timestamp);
+		   // The helper function which you write yourself for ControlDataSet:
+		   template&lt;class Archive>
+		   void serialize( Archive &amp; a, ControlDataSet &amp; cds, unsigned int) {
+		      using boost::serialization::make_nvp;
+		      a &amp; make_nvp("setname", cds.setname);
+		      a &amp; make_nvp("dataset", cds.dataset);
+		      a &amp; make_nvp("timestamp", cds.timestamp);
+		   }
+		}  
   }
 
   // Tell the RTT the name and type of a struct:
@@ -494,7 +511,7 @@
       </para>
       <para>
 	Each typekit must define a class that inherits from the
-	<classname>RTT::TypekitPlugin</classname> class and implement
+	<classname>RTT::types::TypekitPlugin</classname> class and implement
 	four functions: <function>loadTypes()</function>,
 	<function>loadConstructors</function>,
 	<function>loadOperators()</function> and
@@ -548,7 +565,7 @@
 
     bool MyTypekitPlugin::loadTypes() {
       // Tell the RTT the name and type of this struct
-      RTT::Types()->addType( new ControlDataTypeInfo() );
+      RTT::types::Types()->addType( new ControlDataTypeInfo() );
     }  
 
     /** ...Add the other example code of this manual here as well... */

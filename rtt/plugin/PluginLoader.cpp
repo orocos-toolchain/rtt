@@ -78,6 +78,9 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
+namespace RTT { namespace plugin {
+    extern std::string default_plugin_path;
+}}
 
 namespace {
     /**
@@ -91,7 +94,8 @@ namespace {
             log(Info) <<"RTT_COMPONENT_PATH was set to " << plugin_paths << endlog();
             PluginLoader::Instance()->setPluginPath(plugin_paths);
         } else {
-            log(Info) <<"No RTT_COMPONENT_PATH set." <<endlog();
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default." <<endlog();
+            PluginLoader::Instance()->setPluginPath( default_plugin_path );
         }
         PluginLoader::Instance()->loadPlugins("");
         PluginLoader::Instance()->loadTypekits("");
@@ -109,6 +113,8 @@ namespace {
 }
 
 boost::shared_ptr<PluginLoader> PluginLoader::minstance;
+
+boost::shared_ptr<PluginLoader> instance2;
 
 namespace {
 
@@ -158,13 +164,14 @@ PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog();
 
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
-    if (!minstance)
-        minstance.reset( new PluginLoader() );
-    return minstance;
+    if (!instance2) {
+        instance2.reset( new PluginLoader() );
+    }
+    return instance2;
 }
 
 void PluginLoader::Release() {
-    minstance.reset();
+    instance2.reset();
 }
 
 void PluginLoader::loadTypekits(string const& path_list) {
@@ -280,10 +287,6 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     } else {
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
-
-    path p = name;
-    if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-        return true;
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {

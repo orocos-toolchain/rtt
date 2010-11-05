@@ -39,6 +39,7 @@
 #ifndef ORO_UN_MEMBER_HPP
 #define ORO_UN_MEMBER_HPP
 
+#include <boost/shared_ptr.hpp>
 #include <boost/mpl/erase.hpp>
 #include <boost/mpl/insert.hpp>
 #include <boost/mpl/begin_end.hpp>
