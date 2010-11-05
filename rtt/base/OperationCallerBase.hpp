@@ -75,31 +75,12 @@ namespace RTT
             /**
              * Set an executor which will execute this method
              * when it is called or sent. If ee is set to 0,
-             * the method will be executed in the client's thread or
-             * the GlobalExecutionEngine.
-             * @param ee The ExecutionEngine of the component that
-             * is executing this operation.
+             * the method will be executed in the client's thread.
+             * @param ee
              */
             virtual void setExecutor(ExecutionEngine* ee) = 0;
 
-            /**
-             * Sets the caller's engine of this operation.
-             * This object will be used to test if asynchronous
-             * messaging is required.
-             * @param ee The ExecutionEngine of the component that
-             * is calling this operation.
-             */
             virtual void setCaller(ExecutionEngine* ee) = 0;
-
-            /**
-             * Sets the Thread execution policy of this object.
-             * @param et OwnThread or ClientThread.
-             * @param executor The engine of the component owning this
-             * operation. In case it is not yet owned by a component,
-             * executor may be null.
-             * @return false if it may not be modified.
-             */
-            virtual bool setThread(ExecutionThread et, ExecutionEngine* executor) = 0;
         };
     }
 }
