@@ -99,18 +99,15 @@ namespace RTT
 
         virtual void disconnect(bool forward)
         {
-            if ( !this->port )
-                return;
-            // this implementation allows both a forward and backward
-            // disconnect.
-            if (forward)
+            // Call the base class: it does the common cleanup
+            base::ChannelElement<T>::disconnect(forward);
+
+            InputPort<T>* port = this->port;
+            if (port && forward)
             {
-                InputPort<T>* port = this->port;
                 this->port = 0;
                 port->removeConnection(cid);
             }
-            else
-                base::ChannelElement<T>::disconnect(false);
         }
 
         virtual bool signal()

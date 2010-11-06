@@ -98,6 +98,7 @@ ChannelElementBase::shared_ptr ChannelElementBase::getOutputEndPoint()
 bool ChannelElementBase::inputReady()
 {
     // we go against the data stream
+    shared_ptr input = this->input;
     if (input)
         return input->inputReady();
     return false;
@@ -105,6 +106,7 @@ bool ChannelElementBase::inputReady()
 
 void ChannelElementBase::clear()
 {
+    shared_ptr input = this->input;
     if (input)
         input->clear();
 }
