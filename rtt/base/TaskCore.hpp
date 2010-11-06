@@ -435,6 +435,11 @@ namespace RTT
 
     private:
         /**
+         * Store the component's initial state here so that we can transition to
+         * it when recovering from Exception
+         */
+        TaskState const mInitialState;
+        /**
          * We need this to be able to detect transitions from
          * mTaskState to mTargetState.
          */
