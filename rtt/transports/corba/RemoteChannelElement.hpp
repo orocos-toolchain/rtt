@@ -189,6 +189,8 @@ namespace RTT {
                 // an oob channel may be sitting at our other end. If not, this is a nop.
                 base::ChannelElement<T>::disconnect(!writer_to_reader);
 
+                if (mdataflow)
+                    mdataflow->deregisterChannel(_this());
                 mpoa->deactivate_object(oid);
             }
 
@@ -205,6 +207,8 @@ namespace RTT {
                 }
                 catch(CORBA::Exception&) {}
                 base::ChannelElement<T>::disconnect(writer_to_reader);
+                if (mdataflow)
+                    mdataflow->deregisterChannel(_this());
                 mpoa->deactivate_object(oid);
             }
 
