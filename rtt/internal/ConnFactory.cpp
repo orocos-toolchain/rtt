@@ -108,7 +108,7 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
 
             return false;
         }
-        log(Info) << "Connected output port "<< output_port.getName()
+        log(Debug) << "Connected output port "<< output_port.getName()
                   << " successfully to " << input_port.getName() <<endlog();
         return true;
     }
