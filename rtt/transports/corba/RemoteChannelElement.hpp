@@ -189,9 +189,13 @@ namespace RTT {
                 // an oob channel may be sitting at our other end. If not, this is a nop.
                 base::ChannelElement<T>::disconnect(!writer_to_reader);
 
-                if (mdataflow)
-                    mdataflow->deregisterChannel(_this());
-                mpoa->deactivate_object(oid);
+                // Will fail at shutdown if all objects are already deactivated
+                try {
+                    if (mdataflow)
+                        mdataflow->deregisterChannel(_this());
+                    mpoa->deactivate_object(oid);
+                }
+                catch(CORBA::Exception&) {}
             }
 
             /**
@@ -206,10 +210,16 @@ namespace RTT {
                         remote_side->remoteDisconnect(writer_to_reader);
                 }
                 catch(CORBA::Exception&) {}
+
                 base::ChannelElement<T>::disconnect(writer_to_reader);
-                if (mdataflow)
-                    mdataflow->deregisterChannel(_this());
-                mpoa->deactivate_object(oid);
+
+                // Will fail at shutdown if all objects are already deactivated
+                try {
+                    if (mdataflow)
+                        mdataflow->deregisterChannel(_this());
+                    mpoa->deactivate_object(oid);
+                }
+                catch(CORBA::Exception&) {}
             }
 
             FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
