@@ -556,6 +556,7 @@ CRemoteChannelElement_i::CRemoteChannelElement_i(RTT::corba::CorbaTypeTransporte
     , mpoa(PortableServer::POA::_duplicate(poa))
     , mdataflow(0)
     { }
+CRemoteChannelElement_i::~CRemoteChannelElement_i() {}
 PortableServer::POA_ptr CRemoteChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
 void CRemoteChannelElement_i::setRemoteSide(CRemoteChannelElement_ptr remote) ACE_THROW_SPEC ((
