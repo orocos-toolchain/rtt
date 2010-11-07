@@ -81,8 +81,6 @@ namespace RTT
             OutputPort<T>* port = this->port;
             if (port && !forward)
             {
-                this->input  = 0;
-                this->output = 0;
                 this->port   = 0;
                 port->removeConnection( cid );
             }

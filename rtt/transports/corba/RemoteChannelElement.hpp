@@ -322,7 +322,9 @@ namespace RTT {
             {
                 // we don't pass it on through CORBA (yet).
                 // If an oob transport is used, that one will send it through.
-                if (this->output)
+                typename base::ChannelElement<T>::shared_ptr output =
+                    this->getOutput();
+                if (output)
                     return base::ChannelElement<T>::data_sample(sample);
                 return true;
             }
@@ -332,7 +334,9 @@ namespace RTT {
              */
             virtual bool inputReady() {
                 // signal to oob transport if any.
-                if (this->input)
+                typename base::ChannelElement<T>::shared_ptr input =
+                    this->getInput();
+                if (input)
                     return base::ChannelElement<T>::inputReady();
                 return true;
             }

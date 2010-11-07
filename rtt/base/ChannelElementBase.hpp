@@ -44,6 +44,8 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>
 
+#include <rtt/os/Mutex.hpp>
+
 namespace RTT { namespace base {
 
     /** In the data flow implementation, a channel is created by chaining
@@ -63,10 +65,12 @@ namespace RTT { namespace base {
         friend void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );
         friend void RTT_API intrusive_ptr_release( ChannelElementBase* e );
 
-    protected:
         shared_ptr input;
         shared_ptr output;
 
+        RTT::os::Mutex inout_lock;
+
+    protected:
         /** Increases the reference count */
         void ref();
         /** Decreases the reference count, and deletes the object if it is zero
@@ -105,12 +109,9 @@ namespace RTT { namespace base {
         ChannelElementBase::shared_ptr getInputEndPoint();
 
 
-        /**
-         * Removes the output channel (if any).
-         * This call may delete channels from memory.
+        /** Returns the next channel element in the channel's propagation
+         * direction
          */
-        void removeOutput();
-
         ChannelElementBase::shared_ptr getOutput();
 
         /**

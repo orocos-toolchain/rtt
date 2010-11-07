@@ -59,6 +59,18 @@ namespace RTT { namespace base {
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
+        shared_ptr getOutput()
+        {
+             return boost::static_pointer_cast< base::ChannelElement<T> >(
+                    ChannelElementBase::getOutput());
+        }
+
+        shared_ptr getInput()
+        {
+            return boost::static_pointer_cast< base::ChannelElement<T> >(
+                    ChannelElementBase::getInput());
+        }
+
         /**
          * Provides a data sample to initialize this connection.
          * This is used before the first write() in order to inform this
@@ -69,7 +81,7 @@ namespace RTT { namespace base {
          */
         virtual bool data_sample(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(this->output);
+            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
                 return output->data_sample(sample);
             return false;
@@ -82,7 +94,7 @@ namespace RTT { namespace base {
          */
         virtual bool write(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(this->output);
+            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
             if (output)
                 return output->write(sample);
             return false;
@@ -95,7 +107,7 @@ namespace RTT { namespace base {
          */
         virtual FlowStatus read(reference_t sample)
         {
-            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(this->input);
+            typename ChannelElement<T>::shared_ptr input = this->getInput();
             if (input)
                 return input->read(sample);
             else
