@@ -6,6 +6,7 @@
 #include "ProgramGraphParser.hpp"
 #include "../TaskContext.hpp"
 #include "../internal/Exceptions.hpp"
+#include "ScriptingService.hpp"
 
 #include <iostream>
 #include <functional>
@@ -16,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include "../internal/mystd.hpp"
+#include "ParsedStateMachine.hpp"
 
 namespace RTT
 {
@@ -53,10 +55,11 @@ namespace RTT
 
         production
                 = *(
-                        statement[bind(&ScriptParser::seenstatement, this)]
-                        | statemachine[bind(&ScriptParser::seenstatemachine, this)]
+                        statemachine[bind(&ScriptParser::seenstatemachine, this)]
                         | program[bind(&ScriptParser::seenprogram, this)]
                         | no_function_guard(function[bind(&ScriptParser::seenfunction, this)])[&handle_no_function]
+                        | statement[bind(&ScriptParser::seenstatement, this)]
+                        | commonparser->notassertingeos
                         )
                         >> expect_eof(end_p);
 
@@ -105,15 +108,52 @@ namespace RTT
     void ScriptParser::seenprogram()
     {
         cout << "Seen program." << endl;
+
+        // Load the programs in the Scripting Service of this component:
+        assert( context->provides()->hasService("scripting"));
+        ScriptingService::shared_ptr ss = dynamic_pointer_cast<ScriptingService>( context->provides("scripting") );
+        assert(ss);
+        ProgramInterfacePtr ret = programparser->programParserResult();
+        try {
+            log(Info) << "Loading Program '"<< ret->getName() <<"'" <<endlog();
+            if ( ss->loadProgram( ret ) == false)
+                throw program_load_exception( "Could not load Program '"+ ret->getName() +"' :\n failed to load in ScriptingService.\n");
+        } catch (program_load_exception& e ) {
+            log(Error) << "Could not load Program '"<< ret->getName() <<"' :" << endlog();
+            log(Error) << e.what() << endlog();
+            throw;
+        }
+        programparser->initBodyParser("script", context->provides(),
+                mpositer.get_position().line);
     }
 
     void ScriptParser::seenfunction()
     {
         cout << "Seen function." << endl;
+        programparser->initBodyParser("script", context->provides(),
+                mpositer.get_position().line);
     }
 
     void ScriptParser::seenstatemachine()
     {
+        cout << "Seen state machine." << endl;
+        // Load the statemachines in the Scripting Service of this component:
+        assert( context->provides()->hasService("scripting"));
+        ScriptingService::shared_ptr ss = dynamic_pointer_cast<ScriptingService>( context->provides("scripting") );
+        assert(ss);
+        ParsedStateMachinePtr ret = stateparser->getParserResult();
+        if (ret) {
+            try {
+                log(Info) << "Loading StateMachine '"<< ret->getName() <<"'" <<endlog();
+                ss->loadStateMachine( ret ); // throws load_exception
+            } catch (program_load_exception& e ) {
+                log(Error) << "Could not load StateMachine'"<< ret->getName() <<"' :" << endlog();
+                log(Error) << e.what() << endlog();
+                throw;
+            }
+        }
+        programparser->initBodyParser("script", context->provides(),
+                mpositer.get_position().line);
     }
 
     void ScriptParser::parse(iter_t& begin, iter_t end)

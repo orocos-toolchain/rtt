@@ -159,7 +159,7 @@ namespace RTT
     // a function is very similar to a program, but it also has a name
     function = (
        !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
-       >> (str_p( "function" ) | commonparser.identifier[bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
+       >> (str_p( "function" ) | commonparser.notassertingidentifier[bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
@@ -233,6 +233,19 @@ namespace RTT
     rule_t& ProgramGraphParser::statementParser() {
         // line is the statement parser of a program or function
         return line;
+    }
+
+    ProgramInterfacePtr ProgramGraphParser::programParserResult() {
+        ProgramInterfacePtr result;
+        if (program_list.empty())
+            return result;
+        program_text = "Bug: Program Text to be set by Parser.";
+        // set the program text in each program :
+        program_list.front()->setText( program_text );
+        result=program_list.front();
+        this->cleanup();
+        program_list.clear();
+        return result;
     }
 
     ProgramInterfacePtr ProgramGraphParser::bodyParserResult() {

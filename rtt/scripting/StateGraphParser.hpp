@@ -225,8 +225,16 @@ namespace RTT { namespace scripting
 
     /**
      * Returns the top-level parser for state machines.
+     * It parses one state machine definition or one state machine
+     * instantiation.
      */
     rule_t& parser();
+    /**
+     * Returns the last state machine instantiation of parser()
+     * or null if no instantiations were seen.
+     */
+    ParsedStateMachinePtr getParserResult();
+
   };
 }}
 

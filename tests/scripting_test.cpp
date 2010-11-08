@@ -83,10 +83,32 @@ BOOST_AUTO_TEST_CASE(TestScriptingParser)
     BOOST_REQUIRE( sc );
     BOOST_CHECK ( sc->ready() );
     bool r;
-    string statements="test.increase()\n\ntest.increase()"; // trailing newline is optional
+
+    // test plain statements:
+    string statements=";;test.increase()\n;;;\ntest.increase()"; // trailing newline is optional
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 1);
+
+    // test function +  a statement that uses that function:
+    statements = "export function adder(int a, int b) { test.i = a + b; }\n adder(5,6)\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 11);
+
+    // test program +  a statement that starts that program and waits for the result.
+    statements = "program rt_script { test.i = 3-9; }\n rt_script.start();;;; while( rt_script.isRunning() ) { trigger(); yield; }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( sc->getProgramStatus("rt_script"), ProgramInterface::Status::stopped );
+    BOOST_CHECK_EQUAL( i, -6);
+
+    // test state machine +  a statement that starts that SM and waits for the result.
+    statements = "StateMachine RTState { initial state init { entry { test.i = 0;} transitions { select fini; } } final state fini { entry { test.i = test.i - 2; } } }; RootMachine RTState rt_state; rt_state.activate(); rt_state.start(); while( !rt_state.inFinalState() ) { trigger(); yield; }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( sc->getStateMachineState("rt_state"), "fini" );
+    BOOST_CHECK_EQUAL( i, -2);
 }
 
 

@@ -316,6 +316,16 @@ namespace RTT
         return body;
     }
 
+    ParsedStateMachinePtr StateGraphParser::getParserResult() {
+        ParsedStateMachinePtr ret;
+        if ( rootmachines.empty() )
+            return ret;
+        std::vector<ParsedStateMachinePtr> vret = values( rootmachines );
+        rootmachines.clear();
+        return vret.front();
+    }
+
+
     void StateGraphParser::seeninitialstate()
     {
         curinitialstateflag = true;

@@ -242,6 +242,10 @@ namespace RTT { namespace scripting
       rule_t& programParser();
 
       /**
+       * Returns the last program parsed by programParser()
+       */
+      ProgramInterfacePtr programParserResult();
+      /**
        * Parses a function foo {} definition.
        */
       rule_t& functionParser();
