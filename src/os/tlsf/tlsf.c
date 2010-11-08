@@ -60,12 +60,7 @@
 
 #include "../fosi.h"
 
-#ifdef	__APPLE__
-// rt_mutex_t not supported in C for macosx (needs boost C++ mutexes)
-#define	TLSF_USE_LOCKS 	(0)
-#else
 #define	TLSF_USE_LOCKS 	(1)
-#endif
 
 #ifndef TLSF_STATISTIC
 #define	TLSF_STATISTIC 	(0)

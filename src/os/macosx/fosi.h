@@ -213,6 +213,16 @@ extern "C"
     /* 		return -1; */
     /*     } */
 
+    // Mutex functions - support only those needed by TLSF
+	// opaque type
+    typedef struct rt_mutex_impl_t rt_mutex_impl_t;
+	// type created by tlsf.c (must work in C, not C++ code)
+    typedef rt_mutex_impl_t* rt_mutex_t;
+    int rtos_mutex_init(rt_mutex_t* m);
+    int rtos_mutex_destroy(rt_mutex_t* m);
+	int rtos_mutex_lock( rt_mutex_t* m);
+	int rtos_mutex_unlock( rt_mutex_t* m);
+
     static inline void rtos_enable_rt_warning()
     {
     }
