@@ -93,6 +93,14 @@ namespace RTT
                 : mop( op ), fun( f )
             {
             }
+            
+            bool isExactMatch(const std::string& op, DataSourceBase* a,
+                              DataSourceBase* b ) {
+                return  op == mop 
+                    && a->getTypeInfo() == DataSourceTypeInfo<arg1_t>::getTypeInfo()
+                    && b->getTypeInfo() == DataSourceTypeInfo<arg2_t>::getTypeInfo();
+            }
+
             DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
                                          DataSourceBase* b )
             {

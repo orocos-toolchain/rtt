@@ -91,6 +91,13 @@ namespace RTT { namespace detail
      */
     virtual DataSourceBase* build(
       const std::string& op, DataSourceBase* a, DataSourceBase* b ) = 0;
+
+    /**
+     * Returns true if this binary operator matches \a op, and \a a and
+     * \a b are the exact types this operator expects.
+     */
+    virtual bool isExactMatch(const std::string& op, DataSourceBase* a,
+                      DataSourceBase* b ) = 0;
   };
 
   /**
