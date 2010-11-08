@@ -282,12 +282,12 @@ namespace RTT
 		template <class T>
 		struct string_concatenation : public std::binary_function<const std::string&, T, std::string> {
 			std::string operator()(const std::string& s, T t) const {
-				std::ostringstream oss;
-				oss << s << t;
+				std::ostringstream oss(s, std::ios_base::ate);
+				oss << boolalpha << t;
 				return oss.str();
 			}
 		};
-    
+
         struct string_index
             : public std::binary_function<const std::string&, int, char>
         {

@@ -63,6 +63,8 @@ bool TypesTest::assertEqual( double a, double b) {
     return a == b;
 }
 bool TypesTest::assertMsg( bool b, const std::string& msg) {
+    if ( !b )
+        cout <<"Asserting failed with: '''"<< msg <<"'''"<<endl;
     return b;
 }
 
@@ -215,7 +217,13 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "do test.assert( d == 30.0 )\n" +
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
-//         "do test.assert( d == 10.0 )\n" +
+        "try test.assertMsg( s == \"string\", \"Unexpected string:\" + s)\n"+
+        "set s = \"  \" + s + \"  \"\n"+
+        "try test.assertMsg( s == \"  string  \", \"Unexpected string:\" + s)\n"+
+        "set s = s + int(10)\n"+
+        "try test.assertMsg( s == \"  string  10\", \"Unexpected string:\" + s)\n"+
+        "set s = s + \" \" + false\n"+
+        "do  test.assertMsg( s == \"  string  10 false\", \"Unexpected string:\" + s)\n"+
         "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
