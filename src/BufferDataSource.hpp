@@ -60,6 +60,9 @@ namespace RTT
         {
         }
 
+        /** We don't want to read front(). It's useless/costly. */
+        bool evaluate() const { return true; }
+
         typename DataSource<T>::result_t get() const {
             return mbuf->front();
         }
