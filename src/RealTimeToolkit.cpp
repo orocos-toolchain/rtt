@@ -278,6 +278,16 @@ namespace RTT
             }
         };
 
+		/** Strings concatenation */
+		template <class T>
+		struct string_concatenation : public std::binary_function<const std::string&, T, std::string> {
+			std::string operator()(const std::string& s, T t) const {
+				std::ostringstream oss;
+				oss << s << t;
+				return oss.str();
+			}
+		};
+    
         struct string_index
             : public std::binary_function<const std::string&, int, char>
         {
@@ -421,6 +431,12 @@ namespace RTT
         // strings
         // causes memory allocation....
         oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<int>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<double>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<float>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<bool>() ) );
+        oreg->add( newBinaryOperator( "+", string_concatenation<char>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
         oreg->add( newBinaryOperator( "<", std::less<const std::string&>() ) );
