@@ -587,11 +587,35 @@ size_t get_used_size(void *mem_pool)
 }
 
 /******************************************************************/
+// use default memory pool
+size_t get_used_size_mp()
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return (mp ? ((tlsf_t *) mp)->used_size : 0);
+#else
+    return 0;
+#endif
+}
+
+/******************************************************************/
 size_t get_max_size(void *mem_pool)
 {
 /******************************************************************/
 #if TLSF_STATISTIC
     return ((tlsf_t *) mem_pool)->max_size;
+#else
+    return 0;
+#endif
+}
+
+/******************************************************************/
+// use default memory pool
+size_t get_max_size_mp()
+{
+/******************************************************************/
+#if TLSF_STATISTIC
+    return (mp ? ((tlsf_t *) mp)->max_size : 0);
 #else
     return 0;
 #endif
