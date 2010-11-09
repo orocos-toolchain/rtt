@@ -40,12 +40,11 @@ namespace RTT
 
     ScriptParser::ScriptParser(iter_t& positer, TaskContext* tc,
             ExecutionEngine* tcaller) :
-        context(tc), caller(tcaller), mpositer(positer), ln_offset(0),
-                commonparser(new CommonParser), stateparser(
-                        new StateGraphParser(mpositer, context, caller,
-                                commonparser)), programparser(
-                        new ProgramGraphParser(mpositer, tc, tcaller,
-                                *commonparser))
+            context(tc), caller(tcaller), storage( Service::Create("stack") ),
+            mpositer(positer), ln_offset(0),
+            commonparser(new CommonParser),
+            stateparser(new StateGraphParser(mpositer, context, caller, commonparser)),
+            programparser(new ProgramGraphParser(mpositer, tc, tcaller, *commonparser))
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( statemachine );
@@ -69,14 +68,12 @@ namespace RTT
         statement = programparser->statementParser();
 
         // prepare parser to parse statements right away:
-        programparser->initBodyParser("script", tc->provides(),
+        programparser->initBodyParser("script", storage,
                 mpositer.get_position().line);
     }
 
     void ScriptParser::seenstatement()
     {
-        cout << "Seen statement." << endl;
-
         ProgramInterfacePtr ret = programparser->bodyParserResult();
         int steps = 0;
         // we execute the result directly.
@@ -100,15 +97,12 @@ namespace RTT
             }
         }
         ret->unloaded();
-        cout << "Executed statement." << endl;
-        programparser->initBodyParser("script", context->provides(),
+        programparser->initBodyParser("script", storage,
                 mpositer.get_position().line);
     }
 
     void ScriptParser::seenprogram()
     {
-        cout << "Seen program." << endl;
-
         // Load the programs in the Scripting Service of this component:
         assert( context->provides()->hasService("scripting"));
         ScriptingService::shared_ptr ss = dynamic_pointer_cast<ScriptingService>( context->provides("scripting") );
@@ -123,20 +117,18 @@ namespace RTT
             log(Error) << e.what() << endlog();
             throw;
         }
-        programparser->initBodyParser("script", context->provides(),
+        programparser->initBodyParser("script", storage,
                 mpositer.get_position().line);
     }
 
     void ScriptParser::seenfunction()
     {
-        cout << "Seen function." << endl;
-        programparser->initBodyParser("script", context->provides(),
+        programparser->initBodyParser("script", storage,
                 mpositer.get_position().line);
     }
 
     void ScriptParser::seenstatemachine()
     {
-        cout << "Seen state machine." << endl;
         // Load the statemachines in the Scripting Service of this component:
         assert( context->provides()->hasService("scripting"));
         ScriptingService::shared_ptr ss = dynamic_pointer_cast<ScriptingService>( context->provides("scripting") );
@@ -152,7 +144,7 @@ namespace RTT
                 throw;
             }
         }
-        programparser->initBodyParser("script", context->provides(),
+        programparser->initBodyParser("script", storage,
                 mpositer.get_position().line);
     }
 

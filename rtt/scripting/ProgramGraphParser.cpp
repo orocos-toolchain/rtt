@@ -102,6 +102,11 @@ namespace RTT
       this->setup2();
   }
 
+  ProgramGraphParser::~ProgramGraphParser() {
+      // necessary in case we were used outside of our parse() methods.
+      cleanup();
+  }
+
   void seennothing() {
       cout << "Seen nothing !"<< endl;
   }
@@ -270,6 +275,7 @@ namespace RTT
 
     void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;
+        valuechangeparser.load(context);
     }
 
     void ProgramGraphParser::startofprogram()
@@ -332,7 +338,7 @@ namespace RTT
       if ( !rettype.empty() ) {
           TypeInfo* type = TypeInfoRepository::Instance()->type( rettype );
           if ( type == 0 )
-              throw parse_exception_semantic_error( "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
+              throw_( iter_t(), "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
           if (rettype != "void")
               retarg = type->buildAttribute("result");
       }

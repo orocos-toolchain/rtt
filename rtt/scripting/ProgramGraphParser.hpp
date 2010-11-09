@@ -209,6 +209,7 @@ namespace RTT { namespace scripting
       int ln_offset;
   public:
       ProgramGraphParser( iter_t& positer, TaskContext* context, ExecutionEngine* caller, CommonParser& cp);
+      ~ProgramGraphParser();
 
       /**
        * @brief Tries to parse programs, returns the generated programs on success.

@@ -90,11 +90,43 @@ BOOST_AUTO_TEST_CASE(TestScriptingParser)
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 1);
 
+    // test variable decls:
+    statements="var int i = 0; var int y,z=10; test.i = z";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 10);
+
+    // test if statement:
+    statements="var int x=1,y=2; if  3 == 8 then test.i = x else test.i = y";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 2);
+
+    // test while statement:
+    statements="var int x=1,y=2; while x != y  { test.i = 3; x = y; }";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 3);
+
+    // test for statement:
+    statements="var int x=10,y=20; for(  x = 0; x != y; x = x + 1) { test.i = x; }";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 19);
+
     // test function +  a statement that uses that function:
     statements = "export function adder(int a, int b) { test.i = a + b; }\n adder(5,6)\n";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 11);
+    statements = "export void adder2(int a, int b) { test.i = a + b; }\n adder2(7,8)\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 15);
+    statements = "export int adder3(int a, int b) { return a + b; }\n test.i = adder3(6,10)\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 16);
 
     // test program +  a statement that starts that program and waits for the result.
     statements = "program rt_script { test.i = 3-9; }\n rt_script.start();;;; while( rt_script.isRunning() ) { trigger(); yield; }\n";

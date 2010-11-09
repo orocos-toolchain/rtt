@@ -8,6 +8,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include "../internal/DataSource.hpp"
+#include "../Service.hpp"
 
 namespace RTT
 {
@@ -23,6 +24,8 @@ namespace RTT
             TaskContext* context;
             // The task that will execute it:
             ExecutionEngine* caller;
+            // The storage for top-level variables
+            Service::shared_ptr storage;
             our_pos_iter_t& mpositer;
             our_pos_iter_t saveStartPos;
             // running offset

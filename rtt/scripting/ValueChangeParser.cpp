@@ -213,7 +213,7 @@ namespace RTT
         if ( mstore->getValue( name ) ) {
             this->cleanup();
             throw parse_exception_semantic_error( "Identifier \"" + name +
-                                                  "\" is already defined." );
+                                                  "\" is already defined in " + mstore->getName() );
         }
 
         valuename = name;
@@ -298,9 +298,30 @@ namespace RTT
 
     void ValueChangeParser::store(Service::shared_ptr o)
     {
+        if (!o)
+            return;
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {
-            o->setValue( mstore->getValue(*it)->clone() );
+            // only add new values (which didn't come from 'load')
+            if ( o->getValue( *it ) == 0 ) {
+                o->setValue( mstore->getValue(*it)->clone() );
+                //cout << "Storing var "+*it+" from " << mstore->getName() << " into " << o->getName() <<endl;
+            }
+        }
+    }
+
+    void ValueChangeParser::load(Service::shared_ptr s)
+    {
+        if (!s)
+            return;
+        vector<string> predefinednames = s->getAttributeNames();
+        for(std::vector<std::string>::iterator it = predefinednames.begin();
+            it != predefinednames.end(); ++it) {
+            if (mstore->getValue(*it) == 0) {
+                //cout << "Loading new var "+*it+" from " << s->getName() << " into " << mstore->getName() <<endl;
+                mstore->setValue( s->getValue(*it)->clone() );
+                alldefinednames.push_back( *it ); // such that it is also again removed from mstore !
+            }
         }
     }
 

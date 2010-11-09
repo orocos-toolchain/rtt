@@ -133,9 +133,19 @@ namespace RTT { namespace scripting
       void clear();
 
       /**
-       * Store allDefinedNames() in an additional TaskContext.
+       * Store allDefinedNames() in a service.
+       * This allows you to retrieve all parsed variable
+       * declarations.
        */
       void store( Service::shared_ptr other );
+
+      /**
+       * Loads all defined names from a service.
+       * Just like store(), but works the other way around and
+       * allows you to pre-defined some variables. This function
+       * removes all these variables from 'source'
+       */
+      void load( Service::shared_ptr source );
 
     /**
      * This base::ActionInterface holds the command assigning a value to

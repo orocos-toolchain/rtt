@@ -54,7 +54,7 @@ namespace RTT
   Parser::Parser(TaskContext* c) : mcaller(c ? c->engine() : 0) {
 
       if (mcaller == 0) {
-          log(Warning) << "Parser does not know which TaskContext is executing (calling) the parsed code. Using Global Engine." <<endlog();
+          //log(Warning) << "Parser does not know which TaskContext is executing (calling) the parsed code. Using Global Engine." <<endlog();
           mcaller = GlobalEngine::Instance();
       } else {
           //log(Debug) << "Parsing code as if " << mcaller->getName() << " is executing it."<<endl;
@@ -71,9 +71,7 @@ namespace RTT
       ScriptParser gram( parsebegin, mowner, mcaller );
 
       try {
-          cout << "Running:"<<endl<< code <<endl;
           gram.parse( parsebegin, parseend );
-
       }
       catch( const parse_exception& exc )
       {
