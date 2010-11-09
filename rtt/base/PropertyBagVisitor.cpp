@@ -48,7 +48,7 @@ namespace RTT {
 
     bool PropertyBagVisitor::introspectAndDecompose(PropertyBase* v)
     {
-        DataSourceBase::shared_ptr dsb = v->getTypeInfo()->convertType( v->getDataSource() );
+        DataSourceBase::shared_ptr dsb = v->getTypeInfo()->decomposeType( v->getDataSource() );
         // Try conversion first because this is the user's implementation of decomposition:
         if ( dsb ) {
             base::PropertyBase* p = dsb->getTypeInfo()->buildProperty(v->getName(), v->getDescription(), dsb);

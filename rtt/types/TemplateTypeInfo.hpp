@@ -211,7 +211,7 @@ namespace RTT
                     log(Error) <<"Failed to build 'Property<"<< this->tname <<"> "<<name<<"' from given DataSourceBase. Returning default."<<endlog();
                 }
             }
-            return new Property<PropertyType>(name, desc);
+            return new Property<PropertyType>(name, desc, PropertyType());
         }
 
         virtual base::DataSourceBase::shared_ptr buildValue() const {
@@ -269,7 +269,36 @@ namespace RTT
         }
 
         /**
-         * TemplateTypeInfo provides a default, good for most types implementation.
+         * This default implementation sets up a PropertyBag which is passed
+         * to decomposeTypeImpl(). It is advised to implement that function and
+         * to leave this function as-is, unless you don't want to return a
+         * PropertyBag, but another data type.
+         */
+        virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
+        {
+            // Extract typed values
+            typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
+            if ( !ds )
+                return base::DataSourceBase::shared_ptr(); // happens in the case of 'unknown type'
+            Property<PropertyBag> targetbag_p("targetbag");
+            if (decomposeTypeImpl( ds->rvalue(), targetbag_p.value() ))
+                return targetbag_p.getDataSource();
+            return base::DataSourceBase::shared_ptr();
+        }
+
+        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+            // Extract typed values
+            typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
+            if ( !ds )
+                return false; // happens in the case of 'unknown type'
+            // Try user's function.
+            return decomposeTypeImpl( ds->rvalue(), targetbag );
+        }
+
+        /**
+         * User, implement this function in case you want to control reading the XML data format.
+         * TemplateTypeInfo provides a default, good for most types implementation in case getMember()
+         * is implemented.
          */
         virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
             // The default implementation decomposes result and refreshes it with source.
@@ -278,6 +307,14 @@ namespace RTT
             PropertyBag decomp;
             // only try refreshProperties if decomp's type is equal to source type.
             return typeDecomposition( &rds, decomp) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
+        }
+
+        /**
+         * User, implement this function in case you want to control writing the XML data format.
+         * Add the structural elements of source to targetbag.
+         */
+        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
+            return false;
         }
 
 		std::string getTypeIdName() const { return typeid(T).name(); }

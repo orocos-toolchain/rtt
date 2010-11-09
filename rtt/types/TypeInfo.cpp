@@ -119,6 +119,12 @@ namespace RTT
         return arg;
     }
 
+    base::DataSourceBase::shared_ptr TypeInfo::decomposeType(base::DataSourceBase::shared_ptr source) const
+    {
+        // return deprecated api in case user did not implement this.
+        return convertType(source);
+    }
+
     base::DataSourceBase::shared_ptr TypeInfo::convertType(base::DataSourceBase::shared_ptr source) const
     {
         return base::DataSourceBase::shared_ptr();
