@@ -56,8 +56,8 @@ namespace RTT {
 
 
 
-    FunctionGraph::FunctionGraph(const std::string& _name)
-        : myName(_name), retn(0), pausing(false), mstep(false)
+    FunctionGraph::FunctionGraph(const std::string& _name, bool unload_on_stop)
+        : myName(_name), retn(0), pausing(false), mstep(false), munload_on_stop(unload_on_stop)
     {
         // the start vertex of our function graph
         startv = add_vertex( program );
@@ -113,6 +113,7 @@ namespace RTT {
 
     FunctionGraph::~FunctionGraph()
     {
+        log(Debug) << "Destroying program '" << getName() << "'" <<endlog();
         if ( this->isLoaded() ){
             getEngine()->removeFunction(this);
         }
@@ -120,14 +121,6 @@ namespace RTT {
         for ( ; it != args.end(); ++it)
             delete *it;
 
-        // The case for plain functions in the operations interface
-        if ( !context )
-            return;
-        // The case for program scripts
-        if (context->getParent() ) {
-            context->getParent()->removeService(context->getName());
-        }
-        context.reset();
     }
 
     void FunctionGraph::setProgramService(Service::shared_ptr myservice)
@@ -135,9 +128,31 @@ namespace RTT {
         context = myservice;
     }
 
+    void FunctionGraph::setUnloadOnStop(bool unload_on_stop)
+    {
+        munload_on_stop = unload_on_stop;
+    }
+
+    void FunctionGraph::loading()
+    {
+        // we need to auto-start, or we would be unloaded right away.
+        if (munload_on_stop)
+            this->start();
+    }
+
     void FunctionGraph::unloading()
     {
-	// this function is possibly called in a real-time context.
+        // this function is called in a real-time context when execute() returns false.
+        // for functions that have a context object, these should never return false
+        // in execute(). See the munload_on_stop flag.
+        if ( !context )
+            return; // plain function
+        // The case for program scripts: they are managed by the ScriptingService, which will
+        // take care of unloading.
+        if (context->getParent() ) {
+            context->getParent()->removeService(context->getName());
+        }
+        context.reset();
     }
 
 
@@ -203,10 +218,8 @@ namespace RTT {
             break;
         case Status::error:
         case Status::unknown:
-            return false;
-            break;
         case Status::stopped:
-            return true;
+            return !munload_on_stop;
             break;
         }
         return false;
@@ -372,7 +385,7 @@ namespace RTT {
         typedef boost::graph_traits<Graph>::vertex_descriptor vd_t;
         typedef std::vector<vd_t> o2cvect_t;
         typedef boost::iterator_property_map<o2cvect_t::iterator, indexmap_t, vd_t, vd_t&> o2cmap_t;
-        FunctionGraph* ret = new FunctionGraph( getName() );
+        FunctionGraph* ret = new FunctionGraph( getName(), munload_on_stop );
 
         // clear out unneccessary vertices ( we will copy new ones below )
         remove_vertex( ret->startv, ret->program );

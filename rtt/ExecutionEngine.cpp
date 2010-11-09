@@ -165,14 +165,19 @@ namespace RTT
 
         // When not running, just remove.
         if ( getActivity() == 0 || !this->getActivity()->isActive() ) {
-            return removeSelfFunction( f );
+            if ( removeSelfFunction( f ) == false )
+                return false;
+        } else {
+            // Running: create message on stack.
+            RemoveMsg rmsg(f,this);
+            if ( this->process(&rmsg) )
+                this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
+            if (!rmsg.found)
+                return false;
         }
-
-        // Running: create message on stack.
-        RemoveMsg rmsg(f,this);
-        if ( this->process(&rmsg) )
-            this->waitForMessages( ! lambda::bind(&ExecutableInterface::isLoaded, f) || lambda::bind(&RemoveMsg::found,boost::ref(rmsg)) );
-        return rmsg.found;
+        // unloading was succesful, now notify unloading:
+        f->unloaded();
+        return true;
     }
 
     bool ExecutionEngine::removeSelfFunction(ExecutableInterface* f  )
@@ -186,7 +191,6 @@ namespace RTT
             if ( !f_queue->dequeue(foo) )
                 return false;
             if ( f  == foo) {
-                f->unloaded();
                 return true;
             }
             f_queue->enqueue(foo);

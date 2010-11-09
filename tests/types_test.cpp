@@ -489,7 +489,7 @@ void TypesTest::executePrograms(const std::string& prog )
         BOOST_CHECK_MESSAGE( false , errormsg.str() );
     }
     BOOST_CHECK( (*pg_list.begin())->stop() );
-    sa->unloadProgram( (*pg_list.begin())->getName() );
+    BOOST_CHECK( sa->unloadProgram( (*pg_list.begin())->getName() ) );
 }
 
 void TypesTest::executeStates(const std::string& state )

@@ -276,6 +276,7 @@ namespace RTT
       // ptsk becomes the owner of pi.
       ProgramServicePtr ptsk(new ProgramService( pi, rootc ));
       pi->setProgramService(ptsk);
+      pi->setUnloadOnStop( false ); // since we assign a service, set this to false.
       context = ptsk;
       rootc->provides()->addService( ptsk );
   }

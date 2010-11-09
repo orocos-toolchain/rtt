@@ -109,7 +109,9 @@ namespace RTT
             // this is asyn behaviour :
             if (isqueued == false ) {
                 isqueued = true;
-                maccept = minit->execute() && mrunner->runFunction( _foo.get() ) && _foo->start() ;
+                maccept = minit->execute() && mrunner->runFunction( _foo.get() );
+                // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
+                _foo->start();
                 if ( maccept ) {
                     // block for the result: foo stopped or in error
                     //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );
