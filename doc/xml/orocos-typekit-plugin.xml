@@ -229,7 +229,7 @@
       for data types.
     </para>
     <section>
-      <title>Telling the RTT about your data</title>
+      <title>Telling the RTT about a struct</title>
       <para>
 	Say that you have an application which transfers data
 	in a struct <classname>ControlData</classname> :
@@ -245,17 +245,18 @@
 	clue on the name of your data and how to display it.
       </para>
       <para>
-        How can you tell the RTT how to handle this data type? A
-	class is provided which you can extend to fit your needs,
-	<classname>RTT::types::StructTypeInfo</classname>&lt;ClassName&gt;. Read it as:
-	provide RTT type information for this class or struct.
+        How can you tell the RTT how to handle this data type? In case
+				your data type is a struct and allows public read/write access to
+				its data members, you are encouraged to use the form:
+				<classname>RTT::types::StructTypeInfo</classname>&lt;ClassName&gt;. Read it as:
+				provide RTT type information for this class or struct.
       </para>
       <para>
-	It only requires
-	a helper function which is compabible with the boost::serialization
-	library (and <emphasis>must</emphasis> be declared in that namespace)
-	and which is easy to write:
-	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
+				This type info kind requires
+				a helper function which is compabible with the boost::serialization
+				library (and <emphasis>must</emphasis> be declared in that namespace)
+				and which is easy to write:
+				<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
 
   namespace boost {
     namespace serialization {
@@ -309,23 +310,82 @@
 	</para>
       </note>
       <para>
-	If your struct or class contains other complex types, for
-	example, ControlData's sample_nbr field is a struct 'Sample' itself,
-	you need to apply the same method for that struct: create a
-	serialize() function and register the type with the StructTypeInfo
-	class. In case one of the fields is an array or sequence type, 
-	another approach is taken, as explained below.
+				If your struct or class contains other complex types, for
+				example, ControlData's sample_nbr field is a struct 'Sample' itself,
+				you need to apply the same method for that struct: create a
+				serialize() function and register the type with the StructTypeInfo
+				class. In case one of the fields is an array or sequence type, 
+				another approach is taken, as explained below.
       </para>
-      <section>
-	<title>Struct versus Sequence</title>
-	<para> The ControlData struct is clearly a 'struct' in the C/C++
-	sense. But sometimes, you have datatypes that behave more like
-	sequences. For example, a std::vector&lt;ControlData> or a
-	ControlData[100] field in another struct. In that case, we register
-	the resulting type as a  <classname>RTT::types::SequenceTypeInfo</classname>&lt;ClassName&gt;.
-	For example:
-	</para>
-	<programlisting>  #include &lt;rtt/types/SequenceTypeInfo.hpp>
+		</section>
+    <section>
+      <title>Telling the RTT about a complex data type</title>
+      <para>
+				It is not recommended to use complex data types for communicating
+				between components. Especially if your data contains pointers to
+				other data, it is possible that it can't be sent between components.
+				This section tells you how you can add 'whatever' type to a typekit,
+				but you'll have to implement all functions yourself.
+			</para>
+			<para>
+				Reasons to follow this path are:
+				<itemizedlist>
+					<listitem><para>It's impossible to provide a serialize() function.</para></listitem>
+					<listitem><para>You want full control over XML format, member access in scripting etc.</para></listitem>
+					<listitem><para>The XML and scripting representations look different.</para></listitem>
+				</itemizedlist>
+				It is however recommend to use the StructTypeInfo if a serialize()
+				function can be written, and then to override the required functions
+				as shown in the next sections.
+			</para>
+			<para>
+				Complex classes must be carefully written such that they contain:
+				<itemizedlist>
+					<listitem><para>A default constructor</para></listitem>
+					<listitem><para>A copy constructor that can initialize a default constructed object</para></listitem>
+				</itemizedlist>
+				<programlisting>  /** class has read-only members */
+ class ControlClass {
+    const int joints;
+ public:
+    // Mandatory !
+    ControlClass() : joints(-1) {}
+    // Mandatory !
+    ControlClass(const ControlClass&amp; orig ) : mjoints(orig.mjoints) {}
+
+    ControlClass( int joints ) : mjoints(joints)
+		int getJoints() { return joints; }
+  };</programlisting>
+	      The way to add this type to the typekit is by inheriting from the
+				<classname>RTT::types::TemplateTypeInfo</classname>&lt;ControlClass&gt; class and then
+				to specialize one by one the required functions, as explained 
+				in the next sections:
+				<programlisting>   // The RTT helper class for any class which has default constructor and copy constructor:
+  struct ControlClassTypeInfo
+    : public RTT::types::TemplateTypeInfo&lt;ControlClass>
+  {
+     ControlClassTypeInfo()
+        : RTT::types::TemplateTypeInfo&lt;ControlClass>("ControlClass")
+     {}
+
+     // Note: you'll have to implement virtual functions here,
+     // as documented by the <classname>RTT::types::TypeInfo</classname> class.
+  };
+
+  // Tell the RTT the name and type of this class:
+  RTT::types::Types()->addType( new ControlClassTypeInfo() );</programlisting>
+      </para>
+		</section>
+		<section>
+			<title>Struct versus Sequence</title>
+			<para> The ControlData struct is clearly a 'struct' in the C/C++
+			sense. But sometimes, you have datatypes that behave more like
+			sequences. For example, a std::vector&lt;ControlData> or a
+			ControlData[100] field in another struct. In that case, we register
+			the resulting type as a  <classname>RTT::types::SequenceTypeInfo</classname>&lt;ClassName&gt;.
+			For example:
+			</para>
+			<programlisting>  #include &lt;rtt/types/SequenceTypeInfo.hpp>
   #include &lt;rtt/types/CArrayTypeInfo.hpp>
   #include &lt;rtt/types/BoostArrayTypeInfo.hpp>
 
@@ -338,13 +398,14 @@
  // Register a Boost-Array of some type:
  RTT::types::Types()->addType( new <classname>RTT::types::BoostArrayTypeInfo</classname>&lt;boost::array&lt;ControlData> >("boost.array&lt;ControlData>");
 	</programlisting>
-	<para>Note that we have adapted TypeInfo's type name argument to fit the scripting
-	  type name syntax.</para>
-	<para>
-	  In case a type is one of these sequence, it does not need to provide 
-	  a serialize() function !
-	</para>
-	<para>
+    <para>Note that we have adapted TypeInfo's type name argument to fit the scripting
+	  type name syntax.
+		</para>
+		<para>
+			In case a type is one of these sequence, it does not need to provide 
+			a serialize() function !
+		</para>
+		<para>
 	  Here's a complete example of combining a Struct and a Sequence:
 	<programlisting>  #include &lt;rtt/types/SequenceTypeInfo.hpp>
   #include &lt;rtt/types/StructTypeInfo.hpp>
@@ -399,21 +460,24 @@
   RTT::types::Types()->addType( new <classname>RTT::types::StructTypeInfo</classname>&lt;ControlDataSet>("ControlDataSet") );
 	</programlisting>
 	</para>
-      </section>
-      <section>
-	<title>Displaying and Reading</title>
-	<para>
-	  There is no default implementation for reading or writing
-	  your data to a stream. You need to implement this yourself.
-	</para>
-	<para>	
-	  In order to tell the RTT how to display your type, you
-	  may overload the <function>StructTypeInfo::read</function> and
-	  <function>StructTypeInfo::write</function> functions
-	  OR define <function>operator&lt;&lt;()</function> and 
-	  <function>operator&gt;&gt;()</function>  for your type (preferred).
-	  The code below shows the latter option:
-	</para>
+		</section>
+		<section>
+			<title>Displaying and Reading</title>
+			<para>
+				There is no default implementation for reading or writing
+				your data to a stream. You need to implement this yourself.
+				This is optional for most types, since most code will use
+				the introspection functions ( getMember() ) of your type
+				to learn about the internals.
+			</para>
+			<para>	
+				In order to tell the RTT how to display your type, you
+				may overload the <function>TypeInfo::read</function> and
+				<function>TypeInfo::write</function> functions
+				OR define <function>operator&lt;&lt;()</function> and 
+				<function>operator&gt;&gt;()</function>  for your type (preferred).
+				The code below shows the latter option:
+			</para>
 	<programlisting>  #include &lt;rtt/types/StructTypeInfo.hpp>
   #include &lt;ostream>
   #include &lt;istream>
@@ -449,13 +513,13 @@
 	  'construct' your type in a script or at the TaskBrowser prompt,
 	  you need to add a constructor as shown in <xref linkend="overloading-constructors" />. 
 	</para>
-      </section>
+		  </section>
       <section>
-	<title>Reading/Writing data from/to XML</title>
+				<title>Reading/Writing data from/to XML</title>
         <para>
 	  Every data type that has been defined using the StructTypeInfo
 	  and a proper serialization function, can be written to XML.
-	  The above data type will be encoded as such:
+	  The ControlStruct data type will be encoded like this:
 	</para>
 	<programlisting>
 <![CDATA[  <struct name="MyData" type="ControlData">
@@ -473,8 +537,116 @@
     </simple>
   </struct>]]>
 	</programlisting>
+	    <para>
+				In case you didn't use the StructTypeInfo or you want to override the default
+				you may implement the <function>composeType()</function> and 
+				<function>decomposeType()</function> functions of 
+				the <classname>RTT::types::TypeInfo</classname> class, which is explained
+				in the next two sections.
+			</para>
+      <section>
+				<title>Changing how your data is written to XML</title>
+				<para>
+					In case the default XML format is not good for you, or you inherited from
+					TemplateTypeInfo, you need to inform Orocos of the structure of your data type.
+					It must be given a 'decompose' function: Of which primitive types
+					does the data consists ? Representing structured data is what
+					Orocos <classname>RTT::Property</classname> objects do.
+					Here is how to tell Orocos how the "ControlData" is structured:
+	</para>
+	<programlisting>  // We use StructTypeInfo, so we override the defaults...
+  struct ControlDataTypeInfo
+    : public StructTypeInfo&lt;ControlData,true>
+  {
+     // ... other functions omitted
+
+     // this is a helper function, which is called by composeType() of the same class:
+     virtual bool decomposeTypeImpl(const ControlData&amp; in, PropertyBag&amp; targetbag ) const {
+         targetbag.setType("ControlData");
+         targetbag.add( new Property&lt;double>("X", "X value of my Data", in.x ) );
+         targetbag.add( new Property&lt;double>("Y", "Y value of my Data", in.y ) );
+         targetbag.add( new Property&lt;double>("Z", "Z value of my Data", in.z ) );
+         targetbag.add( new Property&lt;int>("Sample", "The sample number of the Data", in.sample_nbr ) );
+         return true;
+     }
+  }</programlisting>
+        <para>
+					This function reads as such: For each member of your struct, add a
+					<classname>RTT::Property</classname> of the correct
+					type to the targetbag and initialize it with the value of the 'in' parameter.
+					<function>setType()</function> is mandatory and can be used lateron to
+					determine the version or type of your XML representation.  Next,
+					if Orocos tries to write an XML file with ControlData in it,
+					it will look like:
+				</para>
+	<programlisting>
+<![CDATA[  <struct name="MyData" type="ControlData">
+    <simple name="X" type="double">
+       <description>X value of my Data</description>
+       <value>0.12</value>
+    </simple>
+    <simple name="Y" type="double">
+       <description>Y value of my Data</description>
+       <value>1.23</value>
+    </simple>
+    <simple name="Z" type="double">
+       <description>Z value of my Data</description>
+       <value>3.21</value>
+    </simple>
+    <simple name="Sample" type="short">
+       <description>The sample number of the Data</description>
+       <value>3123</value>
+    </simple>
+  </struct>]]>
+	</programlisting>
       </section>
       <section>
+				<title>Changing how data is read from XML</title>
+				<para>
+					When you modified the default writing to XML, you probably need
+					to modify the default reading as well.
+					This step is called 'composition', and means: put all the 
+					individual XML elements back into one data structure.
+				</para>
+				<para>
+					Here is how to tell Orocos how the "ControlData" is read:
+				</para>
+				<programlisting>  // ...
+  struct ControlDataTypeInfo
+    : public TemplateTypeInfo&lt;ControlData,true>
+  {
+
+     // ... other functions omitted
+
+     virtual bool composeTypeImpl(const PropertyBag&amp; bag, ControlData&amp; out ) const 
+     {
+        if ( bag.getType() == std::string("ControlData") ) // check the type
+        {  
+          Property&lt;double>* x = targetbag.getProperty("X");
+          Property&lt;double>* y = targetbag.getProperty("Y");
+          Property&lt;double>* z = targetbag.getProperty("Z");
+          Property&lt;int>* t = targetbag.getProperty("Sample");
+
+          if ( !x || !y || !z || !t )
+              return false;
+
+          out.x = x->get();
+          out.y = y->get();
+          out.z = z->get();
+          out.sample_nbr = t->get();
+          return true;
+        }
+        return false; // unknown type !
+     }
+  }</programlisting>
+        <para>
+					First the type is checked and then the properties are located in the bag, it should look
+					just like we stored them. If not, return false, otherwise, read the values and store them
+					in the out variable.
+				</para>
+      </section>
+		</section>
+		<section>
 	<title>Network transfer using CORBA</title>
 	<para>
 	  In order to transfer your data between components using the
@@ -681,5 +853,4 @@ bool loadOperators() {
 	</programlisting>
       </section>
     </section>
-  </section>
 </article>
