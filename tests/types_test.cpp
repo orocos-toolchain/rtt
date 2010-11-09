@@ -293,13 +293,13 @@ BOOST_AUTO_TEST_CASE( testOperators )
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
         "set b = b || b && true && false || true\n"+
-        "try test.assertMsg( s == \"string\", \"Unexpected string:\" + s)\n"+
+        "try test.assertMsg( s == \"string\", \"Unexpected string:\'\" + s +\"' instead of 'string'\")\n"+
         "set s = \"  \" + s + \"  \"\n"+
-        "try test.assertMsg( s == \"  string  \", \"Unexpected string:\" + s)\n"+
+        "try test.assertMsg( s == \"  string  \", \"Unexpected string:\'\" + s +\"' instead of '  string  '\")\n"+
         "set s = s + int(10)\n"+
-        "try test.assertMsg( s == \"  string  10\", \"Unexpected string:\" + s)\n"+
+        "try test.assertMsg( s == \"  string  10\", \"Unexpected string:\'\" + s +\"' instead of '  string  10'\")\n"+
         "set s = s + \" \" + false\n"+
-        "do  test.assertMsg( s == \"  string  10 false\", \"Unexpected string:\" + s)\n"+
+        "do  test.assertMsg( s == \"  string  10 false\", \"Unexpected string:\'\" + s +\"' instead of '  string  10 false'\")\n"+
         "set b = b\n ||\n b\n &&\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
         "var array a1 = array(2, 7.)\n"+
