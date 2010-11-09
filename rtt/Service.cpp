@@ -74,7 +74,9 @@ namespace RTT {
             log(Error) << "Could not add Service " << obj->getName() <<": name already in use." <<endlog();
             return false;
         }
-        if ( obj->getParent() == 0) {
+        // we only call shared_from_this() when someone has a shared ref to us.
+        // In practice, this means when we have an owner.
+        if ( obj->getParent() == 0 && mowner ) {
             obj->setOwner( mowner );
             obj->setParent( shared_from_this() );
         }
@@ -205,8 +207,11 @@ namespace RTT {
 
         this->mowner = new_owner;
 
-        for( Services::iterator it= services.begin(); it != services.end(); ++it)
+        for( Services::iterator it= services.begin(); it != services.end(); ++it) {
             it->second->setOwner( new_owner );
+            if (new_owner)
+                it->second->setParent( shared_from_this() );
+        }
     }
 
     void Service::setParent( Service::shared_ptr p) {

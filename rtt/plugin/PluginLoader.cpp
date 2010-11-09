@@ -282,7 +282,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {
-        log(Info) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
+        log(Debug) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
     } else {
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
@@ -335,11 +335,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     void* handle;
 
     if ( isLoaded(shortname) || isLoaded(file) ) {
-        if (log_error)
-            log(Warning);
-        else
-            log(Debug);
-        log() <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
+        log(Debug) <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return false;
     }
 
