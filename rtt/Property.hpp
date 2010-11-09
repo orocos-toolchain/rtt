@@ -95,6 +95,17 @@ namespace RTT
         {}
 
         /**
+         * The constructor which initializes the property's value to the default.
+         * @param name The name which will be used to refer to the
+         * property.
+         * @post ready() will always be true.
+         */
+        explicit Property(const std::string& name)
+            : base::PropertyBase(name,""), _value( new internal::ValueDataSource<value_t>() )
+        {
+        }
+
+        /**
          * The constructor which initializes the property's value.
          * @param name The name which will be used to refer to the
          * property.
@@ -105,26 +116,6 @@ namespace RTT
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
             : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
         {
-        }
-
-        /**
-         * Create a property with a name, description, value with a given owner.
-         * The owner is used to register this property to and is supposed
-         * to be a pointer (or shared pointer).
-         *
-         * @param name The name which will be used to refer to the
-         * property.
-         * @param description The description of the property.
-         * @param value The initial value of the property (optional).
-         * @param o The owner, which has a function 'addProperty(PropertyBase*)'.
-         *
-         * @post ready() will always be true.
-         */
-        template<class Owner>
-        Property(const std::string& name, const std::string& description, param_t value, Owner o)
-            : base::PropertyBase(name, description), _value( new internal::ValueDataSource<value_t>( value ) )
-        {
-            o->addProperty(this);
         }
 
         /**
@@ -380,7 +371,7 @@ namespace RTT
 
         virtual Property<T>* create() const
         {
-            return new Property<T>( _name, _description );
+            return new Property<T>( _name, _description, T() );
         }
 
         virtual base::DataSourceBase::shared_ptr getDataSource() const {
