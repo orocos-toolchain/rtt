@@ -220,9 +220,8 @@ namespace RTT
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::result_type result_type;
-            bf::vector< DSRStore<result_type>& > vStore;
-            DataSourceStorageImpl() :  vStore(boost::ref(this->retn)) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
             template<class ContainerT>
             void initArgs(ContainerT& ) {}
         };
@@ -239,12 +238,8 @@ namespace RTT
             DataSourceArgStorage<arg1_type> ma1;
             typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
 
-            // the list of all our storage. We need this vector for returning the
-            // results to collect(). We use boost::fusion magic to copy selected parts
-            // from R/AStore back to the args of collect(...).
-            bf::vector< DSRStore<result_type>&, AStore1& > vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -268,10 +263,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg1_type>::Store AStore1;
             typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2& > vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -299,10 +292,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg2_type>::Store AStore2;
             typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3& > vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -335,10 +326,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg3_type>::Store AStore3;
             typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& > vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -376,10 +365,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg4_type>::Store AStore4;
             typedef typename DataSourceArgStorage<arg5_type>::Store AStore5;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& , AStore5& > vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -422,10 +409,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg5_type>::Store AStore5;
             typedef typename DataSourceArgStorage<arg6_type>::Store AStore6;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4& , AStore5& , AStore6&> vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
@@ -473,10 +458,8 @@ namespace RTT
             typedef typename DataSourceArgStorage<arg6_type>::Store AStore6;
             typedef typename DataSourceArgStorage<arg7_type>::Store AStore7;
 
-            // the list of all our storage.
-            bf::vector< DSRStore<result_type>&, AStore1&, AStore2&, AStore3&, AStore4&, AStore5&, AStore6&, AStore7&> vStore;
-            DataSourceStorageImpl() : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
-            DataSourceStorageImpl(const DataSourceStorageImpl& orig) : vStore(this->retn,ma1.arg,ma2.arg,ma3.arg,ma4.arg,ma5.arg,ma6.arg,ma7.arg) {}
+            DataSourceStorageImpl() {}
+            DataSourceStorageImpl(const DataSourceStorageImpl& orig) {}
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {

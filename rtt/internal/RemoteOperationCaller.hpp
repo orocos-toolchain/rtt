@@ -335,73 +335,58 @@ namespace RTT
             template<class T1>
             result_type ret_impl(T1 a1)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1> vArgs( boost::ref(a1) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2>
             result_type ret_impl(T1 a1, T2 a2)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg< boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2, class T3>
             result_type ret_impl(T1 a1, T2 a2, T3 a3)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2, a3 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2, class T3, class T4>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2, a3, a4 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2, class T3, class T4, class T5, class T6>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2,T3,T4,T5,T6> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2, a3, a4, a5, a6 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2, class T3, class T4, class T5, class T6, class T7>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2,T3,T4,T5,T6,T7> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6), boost::ref(a7) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2, a3, a4, a5, a6, a7 );
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
 
             template<class T1,class T2, class T3, class T4, class T5>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
             {
-                typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
-                bf::vector<T1,T2,T3,T4,T5> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5) );
-                if ( mhandle.collectIfDone() == SendSuccess )
-                    as_vector(bf::filter_if< pred >(vArgs)) = bf::filter_if< is_out_arg<boost::remove_reference<mpl::_> > >(sendargs.vStore);
+                sendargs.store( a1, a2, a3, a4, a5);
+                mhandle.collectIfDone();
                 return sendargs.getResult(); // may return void.
             }
-
         };
 
 
