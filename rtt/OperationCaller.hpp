@@ -180,6 +180,7 @@ namespace RTT
               mname(), mcaller(caller)
         {
             if (part) {
+                 mname = part->getName();
                  this->impl = boost::dynamic_pointer_cast< base::OperationCallerBase<Signature> >( part->getLocalOperation() );
                  setupOperationCaller( part );
             }

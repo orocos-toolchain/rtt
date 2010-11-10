@@ -63,6 +63,13 @@ namespace RTT
         /**
          * This helper struct decomposes F and creates Ft,
          * as required by CollectBaseImpl.
+         *
+         * Ft = return type of F and all out arguments (return type + pure reference args) of F
+         * as arguments.
+         *
+         * Note that the result function type Ft keeps the original return
+         * type of F and does not translate it to 'SendStatus'. This allows us
+         * later-on to inspect if the operation is void return or not.
          */
         template<class F>
         struct CollectType

@@ -152,7 +152,11 @@ namespace RTT
         bool call();
 
         /**
-         * Send the contained method.
+         * Send the contained method. The returned SendHandleC is properly
+         * constructed, but still requires the .arg() arguments.
+         * The arguments to provide are the ones that collect requires
+         * for the sent operation. Once they have been added to the
+         * SendHandleC, you can collect() on that object.
          */
         SendHandleC send();
 
