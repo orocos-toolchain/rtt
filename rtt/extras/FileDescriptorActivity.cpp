@@ -134,6 +134,12 @@ void FileDescriptorActivity::unwatch(int fd)
     FD_CLR(fd, &m_fd_set);
     triggerUpdateSets();
 }
+void FileDescriptorActivity::clearAllWatches()
+{ RTT::os::MutexLock lock(m_lock);
+    m_watched_fds.clear();
+    FD_ZERO(&m_fd_set);
+    triggerUpdateSets();
+}
 void FileDescriptorActivity::triggerUpdateSets()
 {
     int w = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);

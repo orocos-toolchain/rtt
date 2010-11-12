@@ -167,6 +167,9 @@ namespace RTT { namespace extras {
          */
         void unwatch(int fd);
 
+        /** Remove all FDs that are currently being watched */
+        void clearAllWatches();
+
         /** True if this specific FD is being watched by the activity
          */
         bool isWatched(int fd) const;
