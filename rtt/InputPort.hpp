@@ -103,6 +103,24 @@ namespace RTT
             return read(ds->set());
         }
 
+        /** Read all new samples that are available on this port, and returns
+         * the last one.
+         *
+         * Returns RTT::NewSample if at least one new sample was available, and
+         * either RTT::OldSample or RTT::NoSample otherwise.
+         */
+        FlowStatus flush(base::DataSourceBase::shared_ptr source)
+        {
+            typename internal::AssignableDataSource<T>::shared_ptr ds =
+                boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
+            if (! ds)
+            {
+                log(Error) << "trying to read to an incompatible data source" << endlog();
+                return NoData;
+            }
+            return flush(ds->set());
+        }
+
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a sample is available. The method returns true
          * if a sample was available, and false otherwise. If false is returned,
@@ -114,6 +132,23 @@ namespace RTT
             // read and iterate if necessary.
             cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1) );
             return result;
+        }
+
+
+        /** Read all new samples that are available on this port, and returns
+         * the last one.
+         *
+         * Returns RTT::NewSample if at least one new sample was available, and
+         * either RTT::OldSample or RTT::NoSample otherwise.
+         */
+        FlowStatus flush(typename base::ChannelElement<T>::reference_t sample)
+        {
+            FlowStatus result = read(sample);
+            if (result != RTT::NewData)
+                return result;
+
+            while (read(sample) == RTT::NewData);
+            return RTT::NewData;
         }
 
         /** Returns the types::TypeInfo object for the port's type */
