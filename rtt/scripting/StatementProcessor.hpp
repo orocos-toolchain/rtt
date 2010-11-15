@@ -49,6 +49,10 @@ namespace RTT
     /**
      * This class parses and executes a single scripting
      * statement.
+     *
+     * @deprecated This class is full of hard-coded
+     * stuff and badly maintained. See ScriptingService::eval
+     * for a clean replacement.
      */
     class RTT_SCRIPTING_API StatementProcessor
     {

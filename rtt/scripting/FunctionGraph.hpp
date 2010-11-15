@@ -110,6 +110,7 @@ namespace RTT
 
         bool pausing;
         bool mstep;
+        bool munload_on_stop;
 
         bool executeUntil();
         bool executeStep();
@@ -118,8 +119,14 @@ namespace RTT
     public:
         /**
          * Create a FunctionGraph with a given name.
+         * @param name The name of this script.
+         * @param unload_on_stop Set to true to force an unload when the script stops or an error
+         * is encountered. The unload is forced by returning false in execute(), as defined in the
+         * ExecutableInterface. This flag should only be set to true for scripts that don't have a
+         * service associated (see setProgramService() ), since the service is destroyed when the
+         * function is unloaded. You can override this behavior after construction by using setUnloadOnStop().
          */
-        FunctionGraph( const std::string& _name );
+        FunctionGraph( const std::string& name, bool unload_on_stop );
 
         /**
          * Copy a FunctionGraph.
@@ -128,7 +135,17 @@ namespace RTT
 
         ~FunctionGraph();
 
+        /**
+         * Set a service that manages this script. The service will be destroyed
+         * when this function is unloaded.
+         */
         void setProgramService(ServicePtr myservice);
+
+        /**
+         * Sets the unloading policy on stop or error.
+         * @param unload_on_stop See the description of the constructor of this class.
+         */
+        void setUnloadOnStop(bool unload_on_stop);
 
         /**
          * To be called after a function is constructed.
@@ -138,6 +155,8 @@ namespace RTT
         virtual bool start();
 
         virtual bool execute();
+
+        virtual void loading();
 
         virtual void unloading();
 
@@ -180,6 +199,16 @@ namespace RTT
         Vertex startNode() const
         {
             return startv;
+        }
+
+        Vertex currentNode() const
+        {
+            return current;
+        }
+
+        Vertex previousNode() const
+        {
+            return previous;
         }
 
         Vertex exitNode() const

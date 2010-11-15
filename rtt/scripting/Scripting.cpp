@@ -52,6 +52,8 @@ namespace RTT
       getStateMachine
       getStateMachine
       execute
+      runScript
+      eval
       loadPrograms
       loadProgramText
       unloadProgram
@@ -97,6 +99,8 @@ namespace RTT
           getStateMachineStatusStr("getStateMachineStatusStr"),
           getStateMachineList("getStateMachineList"),
           execute("execute"),
+          eval("eval"),
+          runScript("runScript"),
           loadPrograms("loadPrograms"),
           loadProgramText("loadProgramText"),
           getProgramLine("getProgramLine"),
@@ -137,6 +141,8 @@ namespace RTT
         addOperationCaller(getStateMachineStatusStr);
         addOperationCaller(getStateMachineList);
         addOperationCaller(execute);
+        addOperationCaller(eval);
+        addOperationCaller(runScript);
         addOperationCaller(loadPrograms);
         addOperationCaller(loadProgramText);
         addOperationCaller(getProgramLine);

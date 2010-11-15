@@ -250,6 +250,56 @@ namespace RTT
     };
 
         /**
+         * A DataSource which is used to mirror another
+         * datasource. Used to strip the 'assignable'
+         * property of a data source.
+         * @param T The result data type of get().
+         */
+        template<typename T>
+        class AliasDataSource
+            : public DataSource<T>
+        {
+            typename DataSource<T>::shared_ptr alias;
+        public:
+            typedef boost::intrusive_ptr<AliasDataSource<T> > shared_ptr;
+
+            AliasDataSource(DataSource<T>* ds)
+            : alias(ds)
+              {}
+
+            ~AliasDataSource() { }
+
+            bool evaluate() const {
+                return alias->evaluate();
+            }
+
+            typename DataSource<T>::result_t get() const
+            {
+                return alias->get();
+            }
+
+            typename DataSource<T>::result_t value() const
+            {
+                return alias->value();
+            }
+
+            typename DataSource<T>::const_reference_t rvalue() const
+            {
+                return alias->rvalue();
+            }
+
+            virtual void reset() { alias->reset(); }
+
+            virtual AliasDataSource<T>* clone() const {
+                return new AliasDataSource(alias.get());
+            }
+            virtual AliasDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                return new AliasDataSource(alias->copy(alreadyCloned) );
+            }
+        };
+
+
+        /**
          * A DataSource which is used to manipulate a reference to an
          * external value, by means of a pointer, which can be set after
          * the data source was created. It's the responsibility of the creator
@@ -356,7 +406,8 @@ namespace RTT
                 }
             };
 
-                /**
+
+        /**
          * A DataSource which is used to execute an action
          * and then return the value of another DataSource.
          * @param T The result data type of get().

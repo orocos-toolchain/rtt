@@ -39,6 +39,8 @@
 #include "../internal/DataSourceCommand.hpp"
 #include "ConditionInterface.hpp"
 #include "CommandComposite.hpp"
+#include "../internal/GlobalEngine.hpp"
+#include "ScriptParser.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -49,7 +51,35 @@ namespace RTT
 {
   using namespace detail;
 
-  Parser::Parser(TaskContext* c) : mcaller(c) {}
+  Parser::Parser(TaskContext* c) : mcaller(c ? c->engine() : 0) {
+
+      if (mcaller == 0) {
+          //log(Warning) << "Parser does not know which TaskContext is executing (calling) the parsed code. Using Global Engine." <<endlog();
+          mcaller = GlobalEngine::Instance();
+      } else {
+          //log(Debug) << "Parsing code as if " << mcaller->getName() << " is executing it."<<endl;
+      }
+
+  }
+
+  void Parser::runScript(std::string const& code, TaskContext* mowner, ScriptingService* service, std::string const& filename ) {
+      our_buffer_t script(code + "\n"); // work around mandatory trailing newline/eos for statements.
+      our_pos_iter_t parsebegin( script.begin(), script.end(), filename );
+      our_pos_iter_t parseend( script.end(), script.end(), filename );
+
+      // will store all in mowner, functions are loaded in service, caller is the one calling us.
+      ScriptParser gram( parsebegin, mowner, mcaller );
+
+      try {
+          gram.parse( parsebegin, parseend );
+      }
+      catch( const parse_exception& exc )
+      {
+        throw file_parse_exception(
+          exc.copy(), parsebegin.get_position().file,
+          parsebegin.get_position().line, parsebegin.get_position().column );
+      }
+  }
 
   Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {
@@ -58,7 +88,7 @@ namespace RTT
     our_pos_iter_t parseend( function.end(), function.end(), filename );
     // The internal parser.
     CommonParser cp;
-    ProgramGraphParser gram( parsebegin, c, mcaller ? mcaller : c, cp );
+    ProgramGraphParser gram( parsebegin, c, c->engine(), cp );
     ParsedFunctions ret = gram.parseFunction( parsebegin, parseend );
     return ret;
   }
@@ -71,7 +101,7 @@ namespace RTT
 
     // The internal parser.
     CommonParser cp;
-    ProgramGraphParser gram( parsebegin, c, mcaller ? mcaller : c, cp );
+    ProgramGraphParser gram( parsebegin, c, c->engine(), cp );
     ParsedPrograms ret = gram.parse( parsebegin, parseend );
 
     return ret;
@@ -86,7 +116,8 @@ namespace RTT
     our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
-    StateGraphParser gram( parsebegin, c, mcaller ? mcaller : c );
+    CommonParser cp;
+    StateGraphParser gram( parsebegin, c, c->engine(), &cp );
     Parser::ParsedStateMachines ret;
     try {
       ret = gram.parse( parsebegin, parseend );
@@ -108,7 +139,7 @@ namespace RTT
     our_pos_iter_t parseend( scopy.end(), scopy.end(), "teststring" );
 
         CommonParser cp;
-    ConditionParser parser( tc, mcaller ? mcaller : tc, cp );
+    ConditionParser parser( tc, mcaller ? mcaller : tc->engine(), cp );
     bool skipref=true;
     try
     {
@@ -175,7 +206,7 @@ namespace RTT
     our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
     CommonParser cp;
-    ValueChangeParser parser( tc, cp, tc->provides(), mcaller ? mcaller : tc );
+    ValueChangeParser parser( tc, cp, tc->provides(), mcaller ? mcaller : tc->engine() );
     bool skipref=true;
     try
     {

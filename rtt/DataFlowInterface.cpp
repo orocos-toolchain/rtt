@@ -59,7 +59,7 @@ namespace RTT
     PortInterface& DataFlowInterface::addPort(PortInterface& port) {
         this->addLocalPort(port);
         if (mservice && mservice->hasService( port.getName()) != 0) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing old instance." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
             mservice->removeService(port.getName());
         }
 
@@ -79,7 +79,9 @@ namespace RTT
               it != mports.end();
               ++it)
             if ( (*it)->getName() == port.getName() ) {
-                log(Warning) <<"'addPort' "<< port.getName() << ": name already in use. Replacing old instance." <<endlog();
+                log(Warning) <<"'addPort' "<< port.getName() << ": name already in use. Disconnecting and replacing previous port with new one." <<endlog();
+                removePort( port.getName() );
+                break;
             }
 
         mports.push_back( &port );
@@ -91,7 +93,7 @@ namespace RTT
     InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addLocalEventPort(port, callback);
         if (mservice && mservice->hasService( port.getName()) != 0) {
-            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing old instance." <<endlog();
+            log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
             mservice->removeService(port.getName());
         }
 
@@ -116,7 +118,7 @@ namespace RTT
     InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         this->addLocalPort(port);
 
-        if (mservice == 0) {
+        if (mservice == 0 || mservice->getOwner() == 0) {
             log(Error) << "addLocalEventPort "<< port.getName() <<": DataFlowInterface not part of a TaskContext. Will not trigger any TaskContext nor register callback." <<endlog();
             return port;
         }
@@ -143,7 +145,8 @@ namespace RTT
             if ( (*it)->getName() == name ) {
                 if (mservice) {
                     mservice->removeService( name );
-                    mservice->getOwner()->dataOnPortRemoved( *it );
+                    if (mservice->getOwner())
+                        mservice->getOwner()->dataOnPortRemoved( *it );
                 }
                 (*it)->disconnect(); // remove all connections and callbacks.
                 mports.erase(it);

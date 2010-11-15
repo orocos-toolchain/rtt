@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE( testEnumStringConversion )
     BOOST_REQUIRE( ti );
     BOOST_REQUIRE( ts );
 
-    // Test enum convertType
-    BOOST_REQUIRE( ti->convertType( a ) );
-    BOOST_CHECK_EQUAL( ti->convertType( a )->getTypeInfo(), ts );
+    // Test enum conversion
+    BOOST_REQUIRE( ti->decomposeType( a ) );
+    BOOST_CHECK_EQUAL( ti->decomposeType( a )->getTypeInfo(), ts );
 
     // converts a to "A" and then back to enum and stores it in B.
-    BOOST_CHECK( ti->composeType(ti->convertType(a), b) );
+    BOOST_CHECK( ti->composeType(ti->decomposeType(a), b) );
 
     BOOST_CHECK_EQUAL( a->get(), A);
     BOOST_CHECK_EQUAL( b->get(), A);

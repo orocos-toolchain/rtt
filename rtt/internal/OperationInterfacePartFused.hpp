@@ -105,6 +105,10 @@ namespace RTT
             {
             }
 
+            virtual std::string getName() const {
+                return op->getName();
+            }
+
             virtual std::string description() const {
                 return OperationInterfacePartHelper::description( op );
             }
@@ -221,6 +225,10 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr produceHandle() const
             { throw no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
 
+            virtual std::string getName() const {
+                return op->getName();
+            }
+
             virtual std::string description() const {
                 return OperationInterfacePartHelper::description( op );
             }
@@ -312,6 +320,10 @@ namespace RTT
                 const types::TypeInfo* getCollectType(unsigned int arg) const
                 {
                     return CollectSequenceFactory::GetTypeInfo(arg);
+                }
+
+                virtual std::string getName() const {
+                    return op->getName();
                 }
 
                 virtual std::string description() const {

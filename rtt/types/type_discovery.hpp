@@ -104,6 +104,12 @@ namespace RTT
             Parts mparts;
 
             /**
+             * Aliases to the parts of the parent struct
+             * to emulate read-only access
+             */
+            Parts mcparts;
+
+            /**
              * The names of the parts of the parent struct
              */
             PartNames mnames;
@@ -140,6 +146,13 @@ namespace RTT
                 PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
                 if ( it != mnames.end() && mparts.size() == mnames.size() )
                     return mparts.at( it - mnames.begin() );
+                return base::DataSourceBase::shared_ptr();
+            }
+
+            base::DataSourceBase::shared_ptr getConstMember(const std::string name) {
+                PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
+                if ( it != mnames.end() && mcparts.size() == mnames.size() )
+                    return mcparts.at( it - mnames.begin() );
                 return base::DataSourceBase::shared_ptr();
             }
 
@@ -220,8 +233,10 @@ namespace RTT
             type_discovery &load_a_type(T &t, boost::mpl::true_)
             {
                 // stores the part
-                if (mparent)
+                if (mparent) {
                     mparts.push_back(new internal::PartDataSource<T> (t, mparent));
+                    mcparts.push_back(new internal::AliasDataSource<T>( new internal::PartDataSource<T> (t, mparent) ));
+                }
                 return *this;
             }
 
@@ -233,8 +248,10 @@ namespace RTT
             template<class T>
             type_discovery &load_a_type(T &t, boost::mpl::false_)
             {
-                if (mparent)
+                if (mparent) {
                     mparts.push_back(new internal::PartDataSource<T> (t, mparent));
+                    mcparts.push_back(new internal::AliasDataSource<T>( new internal::PartDataSource<T> (t, mparent) ));
+                }
                 return *this;
             }
 
@@ -246,8 +263,10 @@ namespace RTT
             template<class T>
             type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
             {
-                if (mparent)
+                if (mparent) {
                     mparts.push_back(new internal::PartDataSource< internal::carray<T> > ( internal::carray<T>(t), mparent) );
+                    mcparts.push_back(new internal::AliasDataSource< internal::carray<T> >( new internal::PartDataSource< internal::carray<T> > ( internal::carray<T>(t), mparent)  ));
+                }
                 // probably not necessary:
                 //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
                 return *this;

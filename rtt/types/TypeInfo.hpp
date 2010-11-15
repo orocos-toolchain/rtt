@@ -207,7 +207,7 @@ namespace RTT
          *
          * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
          * multiple versions/possibilities to make a \a target from a \a source. For example, in
-         * order to support legacy formats.
+         * order to support legacy formats or in order to do the inverse of decomposeType().
          *
          * @param source A data source of the same type as \a target OR a PropertyBag that contains the parts of \a target
          * to be refreshed.
@@ -216,14 +216,26 @@ namespace RTT
          *
          * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
          * datasources and hierarchical properties.
-         * @see convertType to do the inverse operation.
+         * @see decomposeType to do the inverse operation.
          */
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
 
         /**
          * Specialize this function to return an alternate type which represents this one in a compatible way.
          * For example, a short converts to an long or an enum to an int or a string.
+         * If your return a datasource containing a property bag, then this function should do the inverse of
+         * composeType: the returned property bag contains all parts of the current type (\a source) which can be modified and merged back
+         * into this type with composeType. Mathematically: composeType( decomposeType( A ), B); assert( A == B );
          * @return null if this type is not convertible to anything else.
+         */
+        virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const;
+
+        /**
+         * Specialize this function to return an alternate type which represents this one in a compatible way.
+         * For example, a short converts to an long or an enum to an int or a string.
+         * @return null if this type is not convertible to anything else.
+         * @deprecated by decomposeType. We want to rename convertType to decomposeType. This function is left
+         * here for transitional purposes.
          */
         virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
         /**

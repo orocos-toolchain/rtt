@@ -109,7 +109,7 @@ namespace RTT
           {
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             if ( ad ) {
-                PropertyType value;
+                PropertyType value = PropertyType();
                 if (AnyConversion<PropertyType>::update(*any, value ) ) {
                     ad->set( value );
                     return true;

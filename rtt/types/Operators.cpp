@@ -126,6 +126,12 @@ namespace RTT
   {
     typedef std::vector<BinaryOp*> vec;
     typedef vec::iterator iter;
+    // First look for an exact match:
+    for ( iter i = binaryops.begin(); i != binaryops.end(); ++i )
+    {
+        if ( (*i)->isExactMatch( op, a, b) )
+            return (*i)->build( op, a, b );
+    }
     for ( iter i = binaryops.begin(); i != binaryops.end(); ++i )
     {
       DataSourceBase* ret = (*i)->build( op, a, b );

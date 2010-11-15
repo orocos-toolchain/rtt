@@ -49,6 +49,7 @@
 #include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 #include "rtt-scripting-config.h"
+#include "rtt-scripting-fwd.hpp"
 
 namespace RTT
 { namespace scripting {
@@ -63,7 +64,7 @@ namespace RTT
      */
     class RTT_SCRIPTING_API Parser
     {
-        TaskContext* mcaller;
+        ExecutionEngine* mcaller;
     public:
         /**
          * Create a parser and allow to explicitly specify which
@@ -72,6 +73,16 @@ namespace RTT
          * are not identical.
          */
         Parser(TaskContext* caller = 0);
+
+        /**
+         * Runs all statements in \a code.
+         * @param code A list of scripting statements and definitions
+         * @param mowner The task in which the code must be interpreted
+         * @param filename An informational description of the source of \a code.
+         * @throw parse_exception and its derivatives.
+         */
+        void runScript(std::string const& code, TaskContext* mowner, ScriptingService* service, std::string const& filename );
+
         /**
          * List of parsed functions.
          */

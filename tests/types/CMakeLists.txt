@@ -8,5 +8,9 @@
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
     COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}"
     )
+  IF (UNIX AND NOT APPLE)
+	SET_TARGET_PROPERTIES( typekit_plugin PROPERTIES
+	  LINK_FLAGS "-Wl,-zdefs")
+  ENDIF ()
   target_link_libraries(typekit_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
 

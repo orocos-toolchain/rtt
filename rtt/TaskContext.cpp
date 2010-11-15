@@ -39,6 +39,7 @@
 
 #include "TaskContext.hpp"
 #include "base/ActionInterface.hpp"
+#include "plugin/PluginLoader.hpp"
 
 #include <string>
 #include <algorithm>
@@ -212,6 +213,10 @@ namespace RTT
             }
         }
         return !failure;
+    }
+
+    bool TaskContext::prepareProvide(const std::string& name) {
+         return tcservice->hasService(name) || plugin::PluginLoader::Instance()->loadService(name, this);
     }
 
     void TaskContext::addUser( TaskContext* peer )

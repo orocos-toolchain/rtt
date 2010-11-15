@@ -78,6 +78,9 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
+namespace RTT { namespace plugin {
+    extern std::string default_plugin_path;
+}}
 
 namespace {
     /**
@@ -91,7 +94,8 @@ namespace {
             log(Info) <<"RTT_COMPONENT_PATH was set to " << plugin_paths << endlog();
             PluginLoader::Instance()->setPluginPath(plugin_paths);
         } else {
-            log(Info) <<"No RTT_COMPONENT_PATH set." <<endlog();
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default." <<endlog();
+            PluginLoader::Instance()->setPluginPath( default_plugin_path );
         }
         PluginLoader::Instance()->loadPlugins("");
         PluginLoader::Instance()->loadTypekits("");
@@ -99,6 +103,13 @@ namespace {
     }
 
     os::InitFunction plugin_loader( &loadPlugins );
+
+    void unloadPlugins()
+    {
+        PluginLoader::Release();
+    }
+
+    os::CleanupFunction plugin_unloader( &unloadPlugins );
 }
 
 boost::shared_ptr<PluginLoader> PluginLoader::minstance;
@@ -147,6 +158,10 @@ string makeShortFilename(string const& str) {
 }
 
 }
+
+PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
+PluginLoader::~PluginLoader(){ log(Debug) <<"PluginLoader Destroyed" <<endlog(); }
+
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
     if (!instance2) {
@@ -267,7 +282,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
     if ( isLoaded(name) ) {
-        log(Info) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
+        log(Debug) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
     } else {
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
@@ -320,11 +335,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     void* handle;
 
     if ( isLoaded(shortname) || isLoaded(file) ) {
-        if (log_error)
-            log(Warning);
-        else
-            log(Debug);
-        log() <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
+        log(Debug) <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return false;
     }
 

@@ -13,16 +13,15 @@ namespace RTT
          * Sequence constructor which takes the number of elements in the sequence
          */
         template<class T>
-        struct sequence_ctor: public std::unary_function<int, const std::vector<
-                T>&>
+        struct sequence_ctor: public std::unary_function<int, const T& >
         {
-            typedef const std::vector<T>& ( Signature)(int);
-            mutable boost::shared_ptr<std::vector<T> > ptr;
+            typedef const T& ( Signature)(int);
+            mutable boost::shared_ptr<T> ptr;
             sequence_ctor() :
-                ptr(new std::vector<T>())
+                ptr(new T())
             {
             }
-            const std::vector<T>& operator()(int size) const
+            const T& operator()(int size) const
             {
                 ptr->resize(size);
                 return *(ptr);
@@ -60,16 +59,17 @@ namespace RTT
         template<class T>
         struct SequenceBuilder: public TypeBuilder
         {
+            typedef typename T::value_type value_type;
             virtual base::DataSourceBase::shared_ptr build(const std::vector<
                     base::DataSourceBase::shared_ptr>& args) const
             {
                 if (args.size() == 0)
                     return base::DataSourceBase::shared_ptr();
-                typename sequence_constructor_datasource<T>::type::shared_ptr vds = new typename sequence_constructor_datasource<T>::type();
+                typename sequence_constructor_datasource<value_type>::type::shared_ptr vds = new typename sequence_constructor_datasource<value_type>::type();
                 for (unsigned int i = 0; i != args.size(); ++i)
                 {
-                    typename internal::DataSource<T>::shared_ptr dsd =
-                            boost::dynamic_pointer_cast<internal::DataSource<T> >(
+                    typename internal::DataSource<value_type>::shared_ptr dsd =
+                            boost::dynamic_pointer_cast<internal::DataSource<value_type> >(
                                     args[i]);
                     if (dsd)
                         vds->add(dsd);
@@ -84,18 +84,19 @@ namespace RTT
         /**
          * Constructs a sequence from the number of elements and a prototype
          * element for these elements.
+         * Usage: sequence_ctor2<std::vector<Foo> >()
          */
         template<class T>
-        struct sequence_ctor2: public std::binary_function<int, T,
-                const std::vector<T>&>
+        struct sequence_ctor2: public std::binary_function<int, typename T::value_type,
+                const T&>
         {
-            typedef const std::vector<T>& ( Signature)(int, T);
-            mutable boost::shared_ptr<std::vector<T> > ptr;
+            typedef const T& ( Signature)(int, typename T::value_type);
+            mutable boost::shared_ptr<T> ptr;
             sequence_ctor2() :
-                ptr(new std::vector<T>())
+                ptr(new T() )
             {
             }
-            const std::vector<T>& operator()(int size, T value) const
+            const T& operator()(int size, typename T::value_type value) const
             {
                 ptr->resize(size);
                 ptr->assign(size, value);

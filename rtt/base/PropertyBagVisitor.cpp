@@ -48,23 +48,23 @@ namespace RTT {
 
     bool PropertyBagVisitor::introspectAndDecompose(PropertyBase* v)
     {
-        Property<PropertyBag> res(v->getName(), v->getDescription() );
-        if ( types::propertyDecomposition(v, res.value() ) ) {
-            this->introspect( res );
-            deletePropertyBag( res.value() );
+        DataSourceBase::shared_ptr dsb = v->getTypeInfo()->decomposeType( v->getDataSource() );
+        // Try conversion first because this is the user's implementation of decomposition:
+        if ( dsb ) {
+            base::PropertyBase* p = dsb->getTypeInfo()->buildProperty(v->getName(), v->getDescription(), dsb);
+            this->introspect( p );
+            delete p;
             return true;
-        }else {
-            DataSourceBase::shared_ptr dsb = v->getTypeInfo()->convertType( v->getDataSource() );
-            // convertible ?
-            if ( dsb ) {
-                base::PropertyBase* p = dsb->getTypeInfo()->buildProperty(v->getName(), v->getDescription(), dsb);
-                this->introspect( p );
-                delete p;
+        } else {
+            // now try generic decomposition, based on getMember():
+            Property<PropertyBag> res(v->getName(), v->getDescription() );
+            if ( types::propertyDecomposition(v, res.value() ) ) {
+                this->introspect( res );
+                deletePropertyBag( res.value() );
                 return true;
-            } else {
-                //log(Warning) << "Property " << v->getType() << " "<< v->getName()<< "'s type is not known and not convertible. Dropping it." << endlog();
-                return false;
             }
+            // All failed.
+            return false;
         }
         return false;
     }

@@ -177,6 +177,7 @@ namespace RTT {
                 mTargetState = Running;
                 if ( startHook() ) {
                     mTaskState = Running;
+                    trigger(); // triggers updateHook() in case of non periodic!
                     return true;
                 }
                 mTargetState = Stopped;

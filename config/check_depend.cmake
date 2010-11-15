@@ -4,6 +4,42 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/config")
 SET(CMAKE_VERSION "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 MESSAGE(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
+###########################################################
+#                                                         #
+# Some useful macros                                      #
+#                                                         #
+###########################################################
+
+# Select one library from a list of libraries
+#
+# Commonly used when dealing with Boost_XXX_LIBRARY values, which typically
+# encode "optimized" and "debug" versions of the libraries. CMake can deal
+# with these lists, however, we can't pass that list to pkgconfig as it will
+# write it directly to file, and then when it reads it in in the dependant
+# package _then_ pkgconfig gets confused and errors out.
+#
+# As _libraries may be a list of libraries, and we can't deal
+# with that in pkgconfig, we take 1) the library for this build type, or
+# 2) the library if only one is listed, or 3) we error out. 
+#
+# _library is the name of the library variable (e.g. Boost_THREAD_LIBRARY)
+# _output is the selected library
+#
+MACRO(SELECT_ONE_LIBRARY_FOR_PKGCONFIG _library _output)
+
+  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+  if (DEFINED ${_library}_${CMAKE_BUILD_TYPE_UPPER})
+	SET(${_output} ${${_library}_${CMAKE_BUILD_TYPE_UPPER}})
+  else (DEFINED ${_library}_${CMAKE_BUILD_TYPE_UPPER})
+	LIST(LENGTH ${_library} count)
+	if (1 LESS count)
+	  MESSAGE(FATAL_ERROR "Found multiple libraries for ${_library}, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'. Libraries are: ${${_library}}")
+	endif (1 LESS count)
+	SET(${_output} ${${_library}})
+  endif (DEFINED ${_library}_${CMAKE_BUILD_TYPE_UPPER})
+
+ENDMACRO(SELECT_ONE_LIBRARY_FOR_PKGCONFIG)
+
 
 ###########################################################
 #                                                         #
@@ -170,23 +206,15 @@ if(OROCOS_TARGET STREQUAL "macosx")
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
 
-  # add to list of libraries in pkgconfig file
-  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
-  # with that in pkgconfig, we take 1) the library for this build type, or
-  # 2) the library if only one is listed, or 3) we error out. 
-  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
-  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
-	if (1 LESS COUNT_Boost_THREAD_LIBRARY)
-	  MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
-	endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
-	LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${Boost_THREAD_LIBRARY}})
-  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+  SELECT_ONE_LIBRARY_FOR_PKGCONFIG(Boost_THREAD_LIBRARY boost_thread_lib)
+  LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${boost_thread_lib})
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
+
+  # Force OFF on mqueue transport on macosx
+  message("Forcing ENABLE_MQ to OFF for macsox")
+  set(ENABLE_MQ OFF CACHE BOOL "This option is forced to OFF by the build system on macosx platform." FORCE)
 
   # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
   list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 

@@ -106,6 +106,10 @@ std::string CorbaOperationCallerFactory::resultType() const {
     return std::string();
 }
 
+std::string CorbaOperationCallerFactory::getName() const {
+    return method;
+}
+
 std::string CorbaOperationCallerFactory::description() const {
     try {
         CORBA::String_var result = mfact->getDescription( method.c_str() );

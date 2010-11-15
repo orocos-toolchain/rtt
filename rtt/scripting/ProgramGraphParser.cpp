@@ -81,13 +81,13 @@ namespace RTT
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, TaskContext* caller, CommonParser& cp)
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t, ExecutionEngine* caller, CommonParser& cp)
       : rootc( t ),context(), fcontext(0), mpositer( positer ),
         mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         commonparser(cp),
         conditionparser( rootc, caller, cp ),
-        valuechangeparser( rootc, cp, caller->provides(), caller ),
+        valuechangeparser( rootc, cp, t->provides(), caller ),
         expressionparser( rootc, caller, cp ),
         argsparser(0),
         peerparser(rootc, commonparser),
@@ -100,6 +100,11 @@ namespace RTT
       // putting the code in setup() works around a GCC 4.1 bug.
       this->setup();
       this->setup2();
+  }
+
+  ProgramGraphParser::~ProgramGraphParser() {
+      // necessary in case we were used outside of our parse() methods.
+      cleanup();
   }
 
   void seennothing() {
@@ -159,7 +164,7 @@ namespace RTT
     // a function is very similar to a program, but it also has a name
     function = (
        !str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)]
-       >> (str_p( "function" ) | commonparser.identifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
+       >> (str_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
        >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
@@ -217,9 +222,35 @@ namespace RTT
         this->setStack( stck );
     }
 
+    rule_t& ProgramGraphParser::programParser() {
+        return program;
+    }
+
+    rule_t& ProgramGraphParser::functionParser() {
+        return function;
+    }
+
     rule_t& ProgramGraphParser::bodyParser() {
         // content is the bodyparser of a program or function
         return content;
+    }
+
+    rule_t& ProgramGraphParser::statementParser() {
+        // line is the statement parser of a program or function
+        return line;
+    }
+
+    ProgramInterfacePtr ProgramGraphParser::programParserResult() {
+        ProgramInterfacePtr result;
+        if (program_list.empty())
+            return result;
+        program_text = "Bug: Program Text to be set by Parser.";
+        // set the program text in each program :
+        program_list.front()->setText( program_text );
+        result=program_list.front();
+        this->cleanup();
+        program_list.clear();
+        return result;
     }
 
     ProgramInterfacePtr ProgramGraphParser::bodyParserResult() {
@@ -234,8 +265,17 @@ namespace RTT
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
 
+//    ProgramInterfacePtr ProgramGraphParser::statementParserResult() {
+//
+//        // Fake a 'return' statement at the last line.
+//        program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
+//        program_builder->proceedToNext( mpositer.get_position().line - ln_offset);
+//        return program_builder->getFunction();
+//    }
+
     void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;
+        valuechangeparser.load(context);
     }
 
     void ProgramGraphParser::startofprogram()
@@ -255,6 +295,7 @@ namespace RTT
       // ptsk becomes the owner of pi.
       ProgramServicePtr ptsk(new ProgramService( pi, rootc ));
       pi->setProgramService(ptsk);
+      pi->setUnloadOnStop( false ); // since we assign a service, set this to false.
       context = ptsk;
       rootc->provides()->addService( ptsk );
   }
@@ -297,7 +338,7 @@ namespace RTT
       if ( !rettype.empty() ) {
           TypeInfo* type = TypeInfoRepository::Instance()->type( rettype );
           if ( type == 0 )
-              throw parse_exception_semantic_error( "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
+              throw_( iter_t(), "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
           if (rettype != "void")
               retarg = type->buildAttribute("result");
       }

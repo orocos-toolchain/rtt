@@ -74,8 +74,8 @@ namespace RTT {
     FunctionGraphPtr FunctionGraphBuilder::startFunction(const std::string& fname)
     {
         // next node should be 'empty'/ not used here.
-        // a function is to be constructed
-        func.reset( new FunctionGraph( fname ) );
+        // a function is to be constructed, it will unload when it stops/errors
+        func.reset( new FunctionGraph( fname, true ) );
         graph   = &func->getGraph();
         build   = func->startNode();
         next    = add_vertex( *graph );

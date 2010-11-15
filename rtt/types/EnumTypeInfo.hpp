@@ -73,7 +73,7 @@ namespace RTT
                 TemplateTypeInfo<T, false> (type)
             {
                 if (!Types()->type("int")) {
-                    log(Error) << "Failed to register enum<-> int conversion because type int is not known in type system."<<endlog();
+                    log(Error) << "Failed to register enum <-> int conversion because type int is not known in type system."<<endlog();
                 } else {
                     Types()->type("int")->addConstructor(newConstructor(
                             &EnumTypeInfo<T>::enum_to_int, true));
@@ -129,7 +129,7 @@ namespace RTT
              * @return a new DataSource containing an int or a string, null if
              * source is not an enum of this type.
              */
-            virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const
+            virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
             {
                 // Convert enum to string
                 typename internal::DataSource<T>::shared_ptr ds = internal::DataSource<T>::narrow( source.get() );

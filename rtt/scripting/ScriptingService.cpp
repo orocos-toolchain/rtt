@@ -182,7 +182,7 @@ namespace RTT {
         if ( sc->getParent() ) {
             string error(
                 "Could not register StateMachine \"" + sc->getName() +
-                "\" with the processor. It is not a root StateMachine." );
+                "\" in the ScriptingService. It is not a root StateMachine." );
             ORO_THROW_OR_RETURN( program_load_exception( error ) , false);
         }
 
@@ -199,7 +199,7 @@ namespace RTT {
         if ( states.find(sc->getName()) != states.end() ) {
             string error(
                 "Could not register StateMachine \"" + sc->getName() +
-                "\" with the processor. A StateMachine with that name is already present." );
+                "\" in the ScriptingService. A StateMachine with that name is already present." );
             ORO_THROW_OR_RETURN( program_load_exception( error ), false );
 
             vector<StateMachinePtr>::const_iterator it2;
@@ -237,7 +237,7 @@ namespace RTT {
             if ( it->second->getParent() ) {
                 string error(
                                   "Could not unload StateMachine \"" + it->first +
-                                  "\" with the processor. It is not a root StateMachine." );
+                                  "\" in the ScriptingService. It is not a root StateMachine." );
                 ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
             }
             if (recursiveCheckUnloadStateMachine( it->second ) == false)
@@ -260,7 +260,7 @@ namespace RTT {
             if ( it == states.end() ) {
                 string error(
                                   "Could not unload StateMachine \"" + si->getName() +
-                                  "\" with the processor. It contains not loaded child "+ (*it2)->getName() );
+                                  "\" in the ScriptingService. It contains not loaded child "+ (*it2)->getName() );
                 ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
             }
             // all is ok, check child :
@@ -369,7 +369,7 @@ namespace RTT {
                return true;
            }
        string error("Could not unload Program \"" + name +
-                         "\" with the processor. It does not exist." );
+                         "\" in the ScriptingService. It does not exist." );
        ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
    }
 
@@ -425,10 +425,14 @@ namespace RTT {
 
     void ScriptingService::createInterface()
     {
-        addOperation("execute", &ScriptingService::execute, this).doc("Execute a line of code.").arg("Code", "A single statement.");
+        // OperationCallers for loading and executing scripts
+        addOperation("eval", &ScriptingService::eval, this).doc("Evaluate then script in the argument").arg("Code", "Statements, functions, program definitions etc.");
+        addOperation("runScript", &ScriptingService::runScript, this).doc("Run a script from a given file.").arg("Filename", "The filename of the script.");
+
+        addOperation("execute", &ScriptingService::execute, this).doc("Execute a line of code (DEPRECATED).").arg("Code", "A single statement.");
         // OperationCallers for loading programs
-        addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file.").arg("Filename", "The filename of the script.");
-        addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string.").arg("Code", "A string containing one or more program scripts.");
+        addOperation("loadPrograms", &ScriptingService::doLoadPrograms, this).doc("Load a program from a given file (DEPRECATED).").arg("Filename", "The filename of the script.");
+        addOperation("loadProgramText", &ScriptingService::doLoadProgramText, this).doc("Load a program from a string (DEPRECATED).").arg("Code", "A string containing one or more program scripts.");
         addOperation("unloadProgram", &ScriptingService::doUnloadProgram, this).doc("Remove a loaded program.").arg("Name", "The name of the loaded Program");
 
         // Query OperationCallers for programs
@@ -439,8 +443,8 @@ namespace RTT {
         addOperation("getProgramText", &ScriptingService::getProgramText, this).doc("Get the script of a program.").arg("Name", "The Name of the loaded Program");
 
         // OperationCallers for loading state machines
-        addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file.").arg("Filename", "The filename of the script.");
-        addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string.").arg("Code", "A string containing one or more state machine scripts.");
+        addOperation("loadStateMachines", &ScriptingService::doLoadStateMachines, this).doc("Load a state machine from a given file (DEPRECATED).").arg("Filename", "The filename of the script.");
+        addOperation("loadStateMachineText", &ScriptingService::doLoadStateMachineText, this).doc("Load a state machine from a string (DEPRECATED).").arg("Code", "A string containing one or more state machine scripts.");
         addOperation("unloadStateMachine", &ScriptingService::doUnloadStateMachine, this).doc("Remove a loaded state machine.").arg("Name", "The name of the loaded State Machine");
 
         // Query OperationCallers for state machines
@@ -547,6 +551,46 @@ namespace RTT {
           }
       return exec;
 
+    }
+
+    bool ScriptingService::runScript( const string& file )
+    {
+        ifstream inputfile(file.c_str());
+        if ( !inputfile ) {
+            Logger::In in("ScriptingService::runScript");
+            Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
+            return false;
+        }
+        string text;
+        inputfile.unsetf( ios_base::skipws );
+        istream_iterator<char> streambegin( inputfile );
+        istream_iterator<char> streamend;
+        std::copy( streambegin, streamend, back_inserter( text ) );
+
+        log(Info) << "Running Script "<< file <<" ..." << Logger::endl;
+        return evalInternal( file, text );
+    }
+
+    bool ScriptingService::eval(const string& code) {
+        return evalInternal("eval()", code);
+    }
+
+    bool ScriptingService::evalInternal(const string& filename, const string& code )
+    {
+        Logger::In in("ScriptingService");
+        Parser parser;
+        try {
+            parser.runScript(code, mowner, this, filename );
+        }
+        catch( const file_parse_exception& exc )
+            {
+  #ifndef ORO_EMBEDDED
+                Logger::log() << Logger::Error <<filename<<" :"<< exc.what() << Logger::endl;
+                throw;
+  #endif
+                return false;
+            }
+        return true;
     }
 
     bool ScriptingService::loadPrograms( const string& file, bool do_throw /*= false*/ )

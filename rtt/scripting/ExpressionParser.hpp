@@ -68,7 +68,7 @@ namespace RTT { namespace scripting
     boost::shared_ptr<base::AttributeBase> mhandle;
     std::string mobject;
     std::string mmethod;
-    TaskContext* mcaller;
+    ExecutionEngine* mcaller;
     bool mis_send;
 
     rule_t datacall, arguments, peerpath, object, method;
@@ -83,7 +83,7 @@ namespace RTT { namespace scripting
     PeerParser peerparser;
     std::stack<ArgumentsParser*> argparsers;
   public:
-    DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* pc, TaskContext* caller );
+    DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* pc, ExecutionEngine* caller );
     ~DataCallParser();
 
     rule_t& parser()
@@ -164,7 +164,7 @@ namespace RTT { namespace scripting
 
       TaskContext* context;
   public:
-      ExpressionParser( TaskContext* pc, TaskContext* caller, CommonParser& common_parser );
+      ExpressionParser( TaskContext* pc, ExecutionEngine* caller, CommonParser& common_parser );
     ~ExpressionParser();
 
     rule_t& parser();

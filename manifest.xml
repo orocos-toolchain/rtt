@@ -1,7 +1,6 @@
 <package>
     <description brief="Orocos/RTT component framework">
     </description>
-    <depend package="boost" />
     <license>LGPL v2 or later</license>
 </package>
 
