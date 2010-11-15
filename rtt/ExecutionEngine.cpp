@@ -318,7 +318,7 @@ namespace RTT
         // only call updateHook in the Running state.
         if ( taskc ) {
             // Also detects trigger() in start():
-            if ( taskc->mTaskState == TaskCore::Running || taskc->mTargetState == TaskCore::Running ) {
+            if ( taskc->mTaskState == TaskCore::Running ) {
                 try {
                     taskc->prepareUpdateHook();
                     taskc->updateHook();
@@ -339,7 +339,7 @@ namespace RTT
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running || taskc->mTargetState == TaskCore::Running )
+            if ( (*it)->mTaskState == TaskCore::Running )
                 try {
                     (*it)->prepareUpdateHook();
                     (*it)->updateHook();
