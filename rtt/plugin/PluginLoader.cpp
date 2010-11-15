@@ -89,16 +89,22 @@ namespace {
     int loadPlugins()
     {
         char* paths = getenv("RTT_COMPONENT_PATH");
+        string plugin_paths;
         if (paths) {
-            string plugin_paths = paths;
-            log(Info) <<"RTT_COMPONENT_PATH was set to " << plugin_paths << endlog();
-            PluginLoader::Instance()->setPluginPath(plugin_paths);
+            plugin_paths = paths;
+            // prepend the default search path.
+            if ( !default_plugin_path.empty() )
+                plugin_paths = default_plugin_path + default_delimiter + plugin_paths;
+            log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< plugin_paths<< endlog();
         } else {
-            log(Info) <<"No RTT_COMPONENT_PATH set. Using default." <<endlog();
-            PluginLoader::Instance()->setPluginPath( default_plugin_path );
+            plugin_paths = default_plugin_path;
+            log(Info) <<"No RTT_COMPONENT_PATH set. Using default: " << plugin_paths <<endlog();
         }
-        PluginLoader::Instance()->loadPlugins("");
-        PluginLoader::Instance()->loadTypekits("");
+        // we set the plugin path such that we can search for sub-directories/projects lateron
+        PluginLoader::Instance()->setPluginPath(plugin_paths);
+        // we load the plugins/typekits which are in each plugin path directory (but not subdirectories).
+        PluginLoader::Instance()->loadPlugins(plugin_paths);
+        PluginLoader::Instance()->loadTypekits(plugin_paths);
         return 0;
     }
 
@@ -213,7 +219,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
     // prepare search path:
     vector<string> paths;
     if (path_list.empty())
-    	paths = splitPaths( plugin_path);
+    	return; // nop: if no path is given, nothing to be searched.
     else
     	paths = splitPaths( path_list );
 
@@ -272,15 +278,6 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
 	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
     }
 
-    // prepare search path:
-    vector<string> paths;
-    if (path_list.empty())
-    	paths = splitPaths( plugin_path);
-    else
-    	paths = splitPaths( path_list );
-
-    vector<string> tryouts( paths.size() * 4 );
-    tryouts.clear();
     if ( isLoaded(name) ) {
         log(Debug) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
@@ -288,29 +285,38 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
 
-    for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
-    {
-        path p = path(*it) / subdir / (name + SO_EXT);
-        tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-            return true;
-        p = path(*it) / subdir / ("lib" + name + SO_EXT);
-        tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-            return true;
-        p = path(*it) / subdir / OROCOS_TARGET_NAME / (name + SO_EXT);
-        tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-            return true;
-        p = path(*it) / subdir / OROCOS_TARGET_NAME / ("lib" + name + SO_EXT);
-        tryouts.push_back( p.string() );
-        if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-            return true;
+    string paths = path_list;
+    if (paths.empty())
+    	paths = plugin_path;
+    else
+    	paths = plugin_path + default_delimiter + path_list;
+
+    // search in '.' if really no paths are given.
+    if (paths.empty())
+        paths = ".";
+
+    // append '/name' to each plugin path in order to search all of them:
+    vector<string> vpaths = splitPaths(paths);
+    paths.clear();
+    bool path_found = false;
+    for(vector<string>::iterator it = vpaths.begin(); it != vpaths.end(); ++it) {
+        path p(*it);
+        p = p / name;
+        // we only search in existing directories:
+        if (is_directory( p )) {
+            path_found = true;
+            paths += p.string() + default_delimiter;
+        }
     }
-    log(Error) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
-    for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
-        log(Error) << *it << " ";
-    log(Error)<< endlog();
+
+    // when at least one directory exists:
+    if (path_found) {
+        paths.erase( paths.size() - 1 ); // remove trailing delimiter ';'
+        loadPluginsInternal(paths,subdir,kind);
+        return true;
+    }
+    log(Error) << "No such "<< kind << " found in path: " << name << ". Looked for these directories: "<< endlog();
+    log(Error) << paths << endlog();
     return false;
 }
 

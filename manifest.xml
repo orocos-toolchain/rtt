@@ -1,6 +1,19 @@
 <package>
     <description brief="Orocos/RTT component framework">
     </description>
-    <license>LGPL v2 or later</license>
+    <license>GPL v2 with linking exception</license>
+		<author>RTT Developers</author>
+
+		<url>http://www.orocos.org/rtt</url>
+		<logo>http://www.orocos.org/files/logo-t.png</logo>
+  
+		<rosdep name="boost" />
+		<rosdep name="omniorb" />
+		<depend package="rosbuild"/>
+  
+		<export>
+			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
+			<cpp cflags="-I${prefix}/install/include -DOROCOS_TARGET=gnulinux" lflags="-L${prefix}/lib -lorocos-rtt-gnulinux"/>
+		</export>
 </package>
 
