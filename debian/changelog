@@ -1,3 +1,9 @@
+orocos-rtt (2.1.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Peter Soetens <peter@thesourceworks.com>  Tue, 16 Nov 2010 12:51:56 +0100
+
 orocos-rtt (2.1.0-1) unstable; urgency=low
 
   * New upstream release
