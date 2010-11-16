@@ -49,6 +49,7 @@
 #include "../../internal/DataSources.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include <list>
+#include <rtt/os/Mutex.hpp>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -58,6 +59,7 @@
 namespace RTT {
 
     namespace corba {
+        class CDataFlowInterface_i;
 
         /**
          * Base class for CORBA channel servers.
@@ -72,6 +74,7 @@ namespace RTT {
             CRemoteChannelElement_var remote_side;
             RTT::corba::CorbaTypeTransporter const& transport;
             PortableServer::POA_var mpoa;
+            CDataFlowInterface_i* mdataflow;
 
         public:
             // standard constructor
@@ -86,6 +89,10 @@ namespace RTT {
             }
 
             virtual void transferSamples() = 0;
+
+            void setCDataFlowInterface(CDataFlowInterface_i* dataflow) {
+                mdataflow = dataflow;
+            }
 
             PortableServer::POA_ptr _default_POA();
 
@@ -120,6 +127,8 @@ namespace RTT {
                 std::pair<RTT::corba::CChannelElement_var, base::ChannelElementBase::shared_ptr>
                 > ChannelList;
             ChannelList channel_list;
+            // Lock that should be taken before access to channel_list
+            RTT::os::Mutex channel_list_mtx;
         public:
             // standard constructor
             CDataFlowInterface_i(DataFlowInterface* interface, PortableServer::POA_ptr poa);
@@ -129,6 +138,9 @@ namespace RTT {
             static void deregisterServant(DataFlowInterface* obj);
             static void clearServants();
             static DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);
+
+            /** Deregisters the given channel from the channel list */
+            void deregisterChannel(CChannelElement_ptr channel);
 
             /**
              * Returns an object reference to a remote interface. In case you wish to keep

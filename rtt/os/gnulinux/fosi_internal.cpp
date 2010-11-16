@@ -264,7 +264,8 @@ namespace RTT
         // correct priority
         if (*scheduler == SCHED_OTHER) {
             if ( *priority != 0 ) {
-                log(Warning) << "Forcing priority ("<<*priority<<") of thread with SCHED_OTHER policy to 0." <<endlog();
+                if (*priority != LowestPriority)
+                    log(Warning) << "Forcing priority ("<<*priority<<") of thread with SCHED_OTHER policy to 0." <<endlog();
                 *priority = 0;
                 ret = -1;
             }

@@ -130,7 +130,7 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
     if (ss == SendSuccess) {
         sourcevector_to_anysequence( cargs, *args.ptr() );
     }
-    return CSendStatus(ss);
+    return CSendStatus(static_cast<int>(ss) + 1);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::collectIfDone (
@@ -141,13 +141,13 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
     if (ss == SendSuccess) {
         sourcevector_to_anysequence( cargs, *args.ptr() );
     }
-    return CSendStatus(ss);
+    return CSendStatus(static_cast<int>(ss) + 1);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::checkStatus (
     void)
 {
-    return CSendStatus( mhandle.collectIfDone() );
+    return CSendStatus( static_cast<int>(mhandle.collectIfDone()) + 1 );
 }
 
 ::CORBA::Any * RTT_corba_CSendHandle_i::ret (

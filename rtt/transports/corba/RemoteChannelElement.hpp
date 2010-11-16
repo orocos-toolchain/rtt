@@ -189,8 +189,13 @@ namespace RTT {
                 // an oob channel may be sitting at our other end. If not, this is a nop.
                 base::ChannelElement<T>::disconnect(!writer_to_reader);
 
-                remote_side = 0;
-                mpoa->deactivate_object(oid);
+                // Will fail at shutdown if all objects are already deactivated
+                try {
+                    if (mdataflow)
+                        mdataflow->deregisterChannel(_this());
+                    mpoa->deactivate_object(oid);
+                }
+                catch(CORBA::Exception&) {}
             }
 
             /**
@@ -205,9 +210,16 @@ namespace RTT {
                         remote_side->remoteDisconnect(writer_to_reader);
                 }
                 catch(CORBA::Exception&) {}
+
                 base::ChannelElement<T>::disconnect(writer_to_reader);
-                remote_side = 0;
-                mpoa->deactivate_object(oid);
+
+                // Will fail at shutdown if all objects are already deactivated
+                try {
+                    if (mdataflow)
+                        mdataflow->deregisterChannel(_this());
+                    mpoa->deactivate_object(oid);
+                }
+                catch(CORBA::Exception&) {}
             }
 
             FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
@@ -310,7 +322,9 @@ namespace RTT {
             {
                 // we don't pass it on through CORBA (yet).
                 // If an oob transport is used, that one will send it through.
-                if (this->output)
+                typename base::ChannelElement<T>::shared_ptr output =
+                    this->getOutput();
+                if (output)
                     return base::ChannelElement<T>::data_sample(sample);
                 return true;
             }
@@ -320,7 +334,9 @@ namespace RTT {
              */
             virtual bool inputReady() {
                 // signal to oob transport if any.
-                if (this->input)
+                typename base::ChannelElement<T>::shared_ptr input =
+                    this->getInput();
+                if (input)
                     return base::ChannelElement<T>::inputReady();
                 return true;
             }

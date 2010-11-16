@@ -59,7 +59,7 @@ namespace RTT
     {
 
         ConnectionManager::ConnectionManager(PortInterface* port)
-            : mport(port), connections(0)
+            : mport(port)
         {
         }
 
@@ -77,54 +77,21 @@ namespace RTT
         }
 
         void ConnectionManager::clear()
-        {
-            if (connections) {
-                connections->apply(boost::bind(&clearChannel, _1));
-                return;
-            } else {
-                // single connection case
-                if ( cur_channel.get<1>() ) {
-                    clearChannel(cur_channel);
-                }
-            }
+        { RTT::os::MutexLock lock(connection_lock);
+            std::for_each(connections.begin(), connections.end(), &clearChannel);
         }
 
-        bool ConnectionManager::eraseIfMatchingPort(ConnID const* conn_id, ChannelDescriptor& descriptor)
+        bool ConnectionManager::findMatchingPort(ConnID const* conn_id, ChannelDescriptor const& descriptor)
         {
-            if ( descriptor.get<0>() && conn_id->isSameID(*descriptor.get<0>()))
-            {
-                // disconnect needs to know if we're from Out->In (forward) or from In->Out
-                bool is_forward = true;
-                if ( dynamic_cast<InputPortInterface*>(mport) )
-                    is_forward = false; // disconnect on input port = backward.
-
-                descriptor.get<1>()->disconnect(is_forward);
-                // reset cur_channel if it is for deletion.
-                if ( descriptor.get<1>() == cur_channel.get<1>() ) {
-                    cur_channel = ChannelDescriptor();
-                }
-                return true;
-            }
-            else return false;
+            return ( descriptor.get<0>() && conn_id->isSameID(*descriptor.get<0>()));
         }
 
-        void ConnectionManager::checkDeletedConnections(bool reset_current)
+        void ConnectionManager::updateCurrentChannel(bool reset_current)
         {
-            // check if to delete connections
-            if ( connections != 0 && connections->empty() ) {
-                delete connections;
-                connections = 0;
+            if (connections.empty())
                 cur_channel = ChannelDescriptor();
-                return;
-            }
-            // only here in case of single or non empty connection.
-            if (reset_current) {
-                if (connections)
-                    cur_channel = connections->front();
-                else {
-                    cur_channel = ChannelDescriptor();
-                }
-            }
+            else if (reset_current)
+                cur_channel = connections.front();
         }
 
         void ConnectionManager::disconnect(PortInterface* port)
@@ -146,61 +113,50 @@ namespace RTT
 
         void ConnectionManager::disconnect()
         {
-            // disconnects all
-            if (connections) {
-                // multi channel case
-                connections->delete_if( boost::bind(&ConnectionManager::eraseConnection, this, _1) );
-                checkDeletedConnections( false ); // no need to try to reset current.
-                return;
-            } else {
-                // single channel case
-                if ( cur_channel.get<1>() ) {
-                    eraseConnection(cur_channel);
-                    cur_channel = ChannelDescriptor();
-                }
+            std::list<ChannelDescriptor> all_connections;
+            { RTT::os::MutexLock lock(connection_lock);
+                all_connections.splice(all_connections.end(), connections);
+                cur_channel = ChannelDescriptor();
             }
+            std::for_each(all_connections.begin(), all_connections.end(),
+                    boost::bind(&ConnectionManager::eraseConnection, this, _1));
         }
 
         bool ConnectionManager::connected() const
-        { return cur_channel.get<1>(); }
+        { return !connections.empty(); }
 
 
         void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel)
-        {
+        { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
             ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel);
-            if ( cur_channel.get<1>() ) {
-                // cur_channel, already in use, check if connections needs to be created.
-                if (!connections) {
-                    connections = new List< ChannelDescriptor >(2,2);
-                    connections->append( cur_channel );
-                }
-
-                if (!connections->append(descriptor))
-                {
-                    os::MutexLock locker(connection_resize_mtx);
-                    connections->reserve(connections->size() + 1);
-                    connections->append(descriptor);
-                }
-            } else {
+            if (connections.empty())
                 cur_channel = descriptor;
-            }
+            connections.push_back(descriptor);
         }
 
         void ConnectionManager::removeConnection(ConnID* conn_id)
         {
-            if (connections) {
-
-                connections->delete_if( boost::bind(&ConnectionManager::eraseIfMatchingPort, this, conn_id, _1) );
-                // reset current if it was deleted.
-                checkDeletedConnections( cur_channel.get<1>() == 0 );
-                return;
-            } else {
-                // single channel case
-                if ( cur_channel.get<1>() )
-                    eraseIfMatchingPort(conn_id, cur_channel);
+            ChannelDescriptor descriptor;
+            { RTT::os::MutexLock lock(connection_lock);
+                std::list<ChannelDescriptor>::iterator conn_it =
+                    std::find_if(connections.begin(), connections.end(), boost::bind(&ConnectionManager::findMatchingPort, this, conn_id, _1));
+                if (conn_it == connections.end()) return;
+                descriptor = *conn_it;
+                connections.erase(conn_it);
             }
 
+            // disconnect needs to know if we're from Out->In (forward) or from In->Out
+            bool is_forward = true;
+            if ( dynamic_cast<InputPortInterface*>(mport) )
+                is_forward = false; // disconnect on input port = backward.
+
+            descriptor.get<1>()->disconnect(is_forward);
+
+            { RTT::os::MutexLock lock(connection_lock);
+                // update current
+                updateCurrentChannel( cur_channel.get<1>() == descriptor.get<1>() );
+            }
         }
 
         bool is_same_id(ConnID* conn_id, ConnectionManager::ChannelDescriptor const& channel)

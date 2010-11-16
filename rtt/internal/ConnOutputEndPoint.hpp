@@ -70,13 +70,27 @@ namespace RTT
         ConnOutputEndpoint(InputPort<T>* port, ConnID* output_id )
             : port(port), cid(output_id)
         {
-            // cid is deleted/owned by the ConnectionManager.
-            port->addConnection(output_id, this );
+            // cid is deleted/owned by the port's ConnectionManager.
         }
 
         ~ConnOutputEndpoint()
         {
         }
+
+        /** Called by the connection factory to check that the connection is
+         * properly set up. It is called when the channel is complete, so we can
+         * register ourselves on the port side now
+         *
+         * Before that, the channel might not be complete and therefore having
+         * the input port read on it would lead to crashes
+         */
+        bool inputReady()
+        {
+            // cid is deleted/owned by the ConnectionManager.
+            port->addConnection(cid, this);
+            return base::ChannelElement<T>::inputReady();
+        }
+
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
@@ -85,18 +99,15 @@ namespace RTT
 
         virtual void disconnect(bool forward)
         {
-            if ( !this->port )
-                return;
-            // this implementation allows both a forward and backward
-            // disconnect.
-            if (forward)
+            // Call the base class: it does the common cleanup
+            base::ChannelElement<T>::disconnect(forward);
+
+            InputPort<T>* port = this->port;
+            if (port && forward)
             {
-                InputPort<T>* port = this->port;
                 this->port = 0;
                 port->removeConnection(cid);
             }
-            else
-                base::ChannelElement<T>::disconnect(false);
         }
 
         virtual bool signal()

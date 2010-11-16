@@ -40,6 +40,7 @@
 #include "TaskCore.hpp"
 #include "../ExecutionEngine.hpp"
 #include "ActivityInterface.hpp"
+#include "Logger.hpp"
 
 namespace RTT {
     using namespace detail;
@@ -49,6 +50,7 @@ namespace RTT {
     TaskCore::TaskCore(TaskState initial_state /*= Stopped*/ )
         :  ee( new ExecutionEngine(this) )
            ,mTaskState(initial_state)
+           ,mInitialState(initial_state)
            ,mTargetState(initial_state)
     {
     }
@@ -56,6 +58,7 @@ namespace RTT {
     TaskCore::TaskCore( ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
         :  ee( parent )
            ,mTaskState(initial_state)
+           ,mInitialState(initial_state)
            ,mTargetState(initial_state)
     {
         parent->addChild( this );
@@ -154,14 +157,19 @@ namespace RTT {
                 cleanupHook();
             }
             exceptionHook();
-        } catch (...) {
+        } catch(std::exception const& e) {
+            log(RTT::Error) << "stopHook(), cleanupHook() and/or exceptionHook() raised " << e.what() << ", going into Fatal" << endlog();
+            fatal();
+        }
+        catch (...) {
+            log(Error) << "stopHook(), cleanupHook() and/or exceptionHook() raised an exception, going into Fatal" << endlog();
             fatal();
         }
     }
 
     bool TaskCore::recover() {
         if ( mTaskState == Exception ) {
-            mTargetState = mTaskState = PreOperational;
+            mTargetState = mTaskState = mInitialState;
             return true;
         }
         if (mTaskState == RunTimeError ) {

@@ -81,7 +81,8 @@ namespace RTT
             virtual bool inputReady() {
                 if ( mqReady( this ) ) {
                     T sample = data_source->get();
-                    typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
+                    typename base::ChannelElement<T>::shared_ptr output =
+                        this->getOutput();
                     assert(output);
                     output->data_sample(sample);
                     return true;
@@ -92,7 +93,8 @@ namespace RTT
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
             {
                 // send initial data sample to the other side using a plain write.
-                typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
+                typename base::ChannelElement<T>::shared_ptr output =
+                    this->getOutput();
                 if (mis_sender) {
                     data_source->set(sample);
                     // update MQSendRecv buffer:
@@ -127,12 +129,14 @@ namespace RTT
                 if (mis_sender) {
                     typename base::ChannelElement<T>::value_t sample; // XXX: real-time !
                     // this read should always succeed since signal() means 'data available in a data element'.
-                    base::ChannelElement<T>* input = dynamic_cast< base::ChannelElement<T>* >(this->input);
+                    typename base::ChannelElement<T>::shared_ptr input =
+                        this->getInput();
                     if( input->read(sample) == NewData )
                         return this->write(sample);
                 } else {
                     typename base::ChannelElement<T>::value_t sample;
-                    typename base::ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< base::ChannelElement<T> >(this->output);
+                    typename base::ChannelElement<T>::shared_ptr output =
+                        this->getOutput();
                     if( this->read(sample) == NewData && output )
                         return output->write(sample);
                 }

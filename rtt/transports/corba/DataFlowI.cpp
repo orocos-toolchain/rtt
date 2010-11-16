@@ -53,6 +53,7 @@
 
 #include "RemotePorts.hpp"
 #include "RemoteConnID.hpp"
+#include <rtt/os/MutexLock.hpp>
 
 #include <iostream>
 
@@ -218,6 +219,18 @@ CORBA::Boolean CDataFlowInterface_i::isConnected(const char * port_name) ACE_THR
     return p->connected();
 }
 
+void CDataFlowInterface_i::deregisterChannel(CChannelElement_ptr channel)
+{ RTT::os::MutexLock lock(channel_list_mtx);
+    ChannelList::iterator it=channel_list.begin();
+    for (; it != channel_list.end(); ++it) {
+        if (it->first->_is_equivalent (channel) ) {
+            CORBA::release(it->first);
+            channel_list.erase(it);
+            return;
+        }
+    }
+}
+
 CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name, CChannelElement_ptr channel) ACE_THROW_SPEC ((
 	      CORBA::SystemException
 	      ,::RTT::corba::CNoSuchPortException
@@ -234,10 +247,12 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
     CORBA_CHECK_THREAD();
     // lookup the C++ channel that matches the corba channel and
     // inform our local port that that C++ channel is ready.
-    ChannelList::iterator it=channel_list.begin();
-    for (; it != channel_list.end(); ++it) {
-        if (it->first->_is_equivalent (channel) ) {
-            return ip->channelReady( it->second );
+    { RTT::os::MutexLock lock(channel_list_mtx);
+        ChannelList::iterator it=channel_list.begin();
+        for (; it != channel_list.end(); ++it) {
+            if (it->first->_is_equivalent (channel) ) {
+                return ip->channelReady( it->second );
+            }
         }
     }
     log(Error) << "Invalid CORBA channel given for port " << reader_port_name << ": could not match it to a local C++ channel." <<endlog();
@@ -341,6 +356,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     ChannelElementBase::shared_ptr end = type_info->buildChannelOutput(*port);
     CRemoteChannelElement_i* this_element =
         transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+    this_element->setCDataFlowInterface(this);
 
     /*
      * This part is for out-of band (needs to be factored out).
@@ -383,7 +399,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
     this_element->_remove_ref();
 
     // store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
-    channel_list.push_back( ChannelList::value_type(this_element->_this(), end->getOutputEndPoint()));
+    { RTT::os::MutexLock lock(channel_list_mtx);
+        channel_list.push_back( ChannelList::value_type(this_element->_this(), end->getOutputEndPoint()));
+    }
 
     CRemoteChannelElement_var proxy = this_element->_this();
     return proxy._retn();
@@ -424,6 +442,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     // The channel element that exposes our channel in CORBA
     CRemoteChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mdf, mpoa, corba_policy.pull);
+    this_element->setCDataFlowInterface(this);
 
     // Attach the corba channel element first (so OOB is after corba).
     assert( dynamic_cast<ChannelElementBase*>(this_element) );
@@ -468,7 +487,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
     //this_element->_remove_ref();
 
     // Finally, store our mapping of corba channel elements to C++ channel elements. We need this for channelReady() and removing a channel again.
-    channel_list.push_back( ChannelList::value_type(this_element->_this(), start->getInputEndPoint()));
+    { RTT::os::MutexLock lock(channel_list_mtx);
+        channel_list.push_back( ChannelList::value_type(this_element->_this(), start->getInputEndPoint()));
+    }
 
     return this_element->_this();
 }
@@ -532,7 +553,9 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelInput(
 CRemoteChannelElement_i::CRemoteChannelElement_i(RTT::corba::CorbaTypeTransporter const& transport,
 	  PortableServer::POA_ptr poa)
     : transport(transport)
-    , mpoa(PortableServer::POA::_duplicate(poa)) {}
+    , mpoa(PortableServer::POA::_duplicate(poa))
+    , mdataflow(0)
+    { }
 CRemoteChannelElement_i::~CRemoteChannelElement_i() {}
 PortableServer::POA_ptr CRemoteChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
