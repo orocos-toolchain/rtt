@@ -130,7 +130,10 @@ namespace RTT
 
     bool ExecutionEngine::runFunction( ExecutableInterface* f )
     {
-        if (this->getActivity() && this->getActivity()->isActive() && f) {
+        if (this->getActivity() && f) {
+            // We only reject running functions when we're in the FatalError state.
+            if (taskc && taskc->mTaskState == TaskCore::FatalError )
+                return false;
             f->loaded(this);
             bool result = f_queue->enqueue( f );
             // signal work is to be done:
@@ -200,7 +203,7 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        f_queue->clear();
+        // nop
         return true;
     }
 
@@ -233,7 +236,10 @@ namespace RTT
 
     bool ExecutionEngine::process( DisposableInterface* c )
     {
-        if ( c && this->getActivity() && this->getActivity()->isActive() ) {
+        if ( c && this->getActivity() ) {
+            // We only reject running functions when we're in the FatalError state.
+            if (taskc && taskc->mTaskState == TaskCore::FatalError )
+                return false;
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
@@ -317,8 +323,8 @@ namespace RTT
     void ExecutionEngine::processChildren() {
         // only call updateHook in the Running state.
         if ( taskc ) {
-            // Also detects trigger() in start():
-            if ( taskc->mTaskState == TaskCore::Running ) {
+            // A trigger() in startHook() will be ignored, we trigger in TaskCore after startHook finishes.
+            if ( taskc->mTaskState == TaskCore::Running && taskc->mTargetState == TaskCore::Running ) {
                 try {
                     taskc->prepareUpdateHook();
                     taskc->updateHook();
@@ -335,11 +341,11 @@ namespace RTT
                 }
             }
         }
-        if ( !this->getActivity() || this->getActivity()->isRunning() ) return;
+        if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            if ( (*it)->mTaskState == TaskCore::Running )
+            if ( (*it)->mTaskState == TaskCore::Running  && (*it)->mTargetState == TaskCore::Running  )
                 try {
                     (*it)->prepareUpdateHook();
                     (*it)->updateHook();
@@ -352,7 +358,7 @@ namespace RTT
                 } catch(...) {
                     (*it)->exception(); // calls stopHook,cleanupHook
                 }
-            if ( !this->getActivity() || this->getActivity()->isRunning() ) return;
+            if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;
         }
     }
 
@@ -366,13 +372,20 @@ namespace RTT
         return ok;
     }
 
+    bool ExecutionEngine::stopTask(TaskCore* task) {
+        // stop and start where former will call breakLoop() in case of non-periodic.
+        // this is a forced synchronization point, since stop() will only return when
+        // step() returned.
+        if ( getActivity() && this->getActivity()->stop() ) {
+            this->getActivity()->start();
+            return true;
+        }
+        return false;
+    }
+            
+
     void ExecutionEngine::finalize() {
-        for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
-            (*rit)->stop();
-        }
-        if (taskc ) {
-            taskc->stop();
-        }
+        // nop
     }
 
 }

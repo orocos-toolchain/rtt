@@ -189,12 +189,18 @@ namespace RTT {
     }
 
     bool TaskCore::stop() {
+        TaskState orig = mTaskState;
         if ( mTaskState >= Running ) {
             try {
                 mTargetState = Stopped;
-                stopHook();
-                mTaskState = Stopped;
-                return true;
+                if ( engine()->stopTask(this) ) {
+                    stopHook();
+                    mTaskState = Stopped;
+                    return true;
+                } else {
+                    mTaskState = orig;
+                    mTargetState = orig;
+                }
             } catch(...) {
                 exception();
             }

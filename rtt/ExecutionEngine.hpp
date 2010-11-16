@@ -166,6 +166,16 @@ namespace RTT
          * This function is for internal use only and is required for asynchronous function invocations.
          */
         void waitForFunctions(const boost::function<bool(void)>& pred);
+
+        /**
+         * Stops executing the updateHook of \a task.
+         * This is an explicit synchronisation point, which guarantees
+         * that updateHook is no longer executed when this function returns true.
+         * @param task The Task calling this function and whose updateHook should no
+         * longer be executed.
+         * @return true if it's updateHook() is no longer being executed, false otherwise.
+         */
+        bool stopTask(base::TaskCore* task);
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.
@@ -229,6 +239,7 @@ namespace RTT
 
         os::Mutex msg_lock;
         os::Condition msg_cond;
+
         void processMessages();
         void processFunctions();
         void processChildren();

@@ -60,6 +60,8 @@ public:
         do_throw2=false;
         do_throw3=false;
         do_trigger=false;
+        do_breakUH=false;
+        do_block=false;
     }
 
     void resetFlags()
@@ -71,6 +73,7 @@ public:
         didupdate = false;
         diderror = false;
         didexcept = false;
+        didbreakUH = false;
         updatecount=0;
     }
 
@@ -123,6 +126,13 @@ public:
             this->trigger();
             do_trigger = false; //avoid endless loop
         }
+        if (do_block)
+            usleep(1*1000*1000);
+    }
+
+    bool breakUpdateHook() {
+        didbreakUH = true;
+        return do_breakUH;
     }
 
     void errorHook() {
@@ -139,8 +149,8 @@ public:
     bool validstart, didstart;
     bool didstop;
     bool didcleanup;
-    bool didupdate,diderror,didexcept;
-    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger;
+    bool didupdate,diderror,didexcept, didbreakUH;
+    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger, do_breakUH, do_block;
     int  updatecount;
 };
 
@@ -225,10 +235,8 @@ BOOST_AUTO_TEST_CASE( testTrigger )
     BOOST_CHECK( trigtc.didstart == true );
     usleep(100*1000);
 
-    // this is still zero because we used the
-    // C++ function start() instead of the operation start().
-    // The Operation would trigger an EE run and hence, updateHook().
-    BOOST_CHECK_EQUAL( trigtc.updatecount, 0 );
+    // test updateHook() after start():
+    BOOST_CHECK_EQUAL( trigtc.updatecount, 1 );
 
     trigtc.resetFlags();
 
@@ -260,6 +268,33 @@ BOOST_AUTO_TEST_CASE( testTrigger )
     BOOST_CHECK( pertc.trigger() == false );
     BOOST_CHECK( pertc.start() == true );
     BOOST_CHECK( pertc.trigger() == false );
+}
+
+/**
+ * Tests the breakUpdateHook() calling from stop().
+ */
+BOOST_AUTO_TEST_CASE( testBreakUpdateHook )
+{
+    // Check default TC + blocking updateHook
+    StatesTC breaktc;
+    BOOST_CHECK( breaktc.getPeriod() == 0.0 );
+    BOOST_CHECK( breaktc.isActive() );
+    breaktc.do_block = true;
+    BOOST_CHECK( breaktc.configure() );
+    BOOST_CHECK( breaktc.start() );
+    usleep(100*1000);
+    // we're blocking + breakUpdateHook() == false, so stop() fails:
+    BOOST_CHECK_EQUAL( breaktc.didupdate, true );
+    BOOST_CHECK_EQUAL( breaktc.stop(), false );
+    BOOST_CHECK_EQUAL( breaktc.didbreakUH, true);
+    BOOST_CHECK_EQUAL( breaktc.didstop, false);
+    breaktc.didbreakUH = false;
+    breaktc.do_breakUH = true;
+    breaktc.do_trigger = true;
+    // we're blocking *and* implementing breakUpdateHook():
+    BOOST_CHECK_EQUAL( breaktc.stop(), true );
+    BOOST_CHECK_EQUAL( breaktc.didbreakUH, true);
+    BOOST_CHECK_EQUAL( breaktc.didstop, true);
 }
 
 /**
