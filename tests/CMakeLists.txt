@@ -262,8 +262,8 @@ IF (BUILD_TESTING)
     ADD_UNIT_TEST(typekit_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     if(PLUGINS_ENABLE)
         ADD_UNIT_TEST(plugins_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-        ADD_SUBDIRECTORY(plugins)
-        ADD_SUBDIRECTORY(types)
+        ADD_SUBDIRECTORY(testproject/plugins)
+        ADD_SUBDIRECTORY(testproject/types)
     endif()
     
     ADD_CUSTOM_TARGET(check ${CMAKE_COMMAND} -E remove *.tst core *.ior orocos.log

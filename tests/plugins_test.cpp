@@ -58,7 +58,9 @@ BOOST_AUTO_TEST_CASE( testTypePlugins )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
-    pl->loadTypekits(".");
+    BOOST_CHECK( pl->isLoaded("typekit_plugin") == false);
+    BOOST_CHECK( pl->isLoaded("TypesPluginTest") == false);
+    pl->loadTypekits("testproject");
     BOOST_CHECK( pl->isLoaded("typekit_plugin") );
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") );
 
@@ -68,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testTypePlugin )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
-    BOOST_REQUIRE( pl->loadTypekit("typekit_plugin", ".") );
+    BOOST_REQUIRE( pl->loadTypekit("typekit_plugin", "testproject") );
     BOOST_CHECK( pl->isLoaded("typekit_plugin") );
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") );
 }
@@ -77,7 +79,9 @@ BOOST_AUTO_TEST_CASE( testServicePlugins )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
-    pl->loadPlugins(".");
+    BOOST_CHECK( pl->isLoaded("service_plugin") == false);
+    BOOST_CHECK( pl->isLoaded("serviceplugin") == false);
+    pl->loadPlugins("testproject");
     BOOST_CHECK( pl->isLoaded("service_plugin") );
     BOOST_CHECK( pl->isLoaded("serviceplugin") );
 
