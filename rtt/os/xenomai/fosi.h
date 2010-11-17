@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#ifndef __FOSI_H
-#define __FOSI_H
+#ifndef _XENO_FOSI_H
+#define _XENO_FOSI_H
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600   // use all Posix features.
@@ -265,8 +265,13 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         CHK_XENO_CALL();
         struct rt_mutex_info info;
         rt_mutex_inquire(m, &info );
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 2500
         if (info.locked)
             return 0;
+#else
+        if (info.lockcnt)
+            return 0;
+#endif
         // from here on: we're sure our thread didn't lock it
         // now check if any other thread locked it:
         return rt_mutex_acquire(m, TM_NONBLOCK);
