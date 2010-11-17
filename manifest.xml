@@ -9,11 +9,11 @@
   
 		<rosdep name="boost" />
 		<rosdep name="omniorb" />
-		<depend package="rosbuild"/>
   
 		<export>
+			<!-- The default target is gnulinux when using rospack. This is definately a crippled solution -->
 			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
-			<cpp cflags="-I${prefix}/install/include -DOROCOS_TARGET=gnulinux" lflags="-L${prefix}/lib -lorocos-rtt-gnulinux"/>
+			<cpp cflags="-I${prefix}/install/include -DOROCOS_TARGET=gnulinux" lflags="-L${prefix}/lib -lorocos-rtt-gnulinux -lpthread -lrt"/>
 		</export>
 </package>
 
