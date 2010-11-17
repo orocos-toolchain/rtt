@@ -69,7 +69,7 @@ ENDIF( BUILD_STATIC )
   INSTALL(TARGETS             orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic
           EXPORT              ${LIBRARY_EXPORT_FILE}
           LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
-  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h ${IDLS} DESTINATION include/rtt/transports/mqueue )
+  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt-mqueue-config.h TransportPlugin.hpp DESTINATION include/rtt/transports/mqueue )
 
 ENDIF(ENABLE_MQ)
 
