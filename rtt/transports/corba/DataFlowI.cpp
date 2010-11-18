@@ -273,22 +273,37 @@ void CDataFlowInterface_i::disconnectPort(const char * port_name) ACE_THROW_SPEC
     p->disconnect();
 }
 
-void CDataFlowInterface_i::removeConnection(
-        const char* writer_port,
-        CDataFlowInterface_ptr reader_interface, const char* reader_port) ACE_THROW_SPEC ((
+bool CDataFlowInterface_i::removeConnection(
+        const char* local_port,
+        CDataFlowInterface_ptr remote_interface, const char* remote_port) ACE_THROW_SPEC ((
         	      CORBA::SystemException
         	      ,::RTT::corba::CNoSuchPortException
         	    ))
 {
-    OutputPortInterface* writer =
-        dynamic_cast<OutputPortInterface*>(mdf->getPort(writer_port));
-    if (writer == 0) {
-        log(Error) << "disconnectPort: No such writer: "<< writer_port <<endlog();
+    PortInterface* port = mdf->getPort(local_port);
+    // CORBA does not support disconnecting from the input port
+    if (port == 0) {
+        log(Error) << "disconnectPort: No such port: "<< local_port <<endlog();
         throw corba::CNoSuchPortException();
     }
+    if (dynamic_cast<OutputPortInterface*>(port) == 0) {
+        log(Error) << "disconnectPort: "<< local_port << " is an input port" << endlog();
+        throw corba::CNoSuchPortException();
+    }
+
+    RTT::DataFlowInterface* local_interface = CDataFlowInterface_i::getLocalInterface(remote_interface);
+    if (local_interface)
+    {
+        PortInterface* other_port = local_interface->getPort(remote_port);
+        if (!other_port)
+            return false;
+
+        return port->disconnect(other_port);
+    }
+
     CORBA_CHECK_THREAD();
-    RemoteConnID rcid(reader_interface, reader_port);
-    writer->removeConnection( &rcid );
+    RemoteConnID rcid(remote_interface, remote_port);
+    return port->removeConnection( &rcid );
 }
 
 ::CORBA::Boolean CDataFlowInterface_i::createStream( const char* port,

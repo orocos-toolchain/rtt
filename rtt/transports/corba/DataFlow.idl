@@ -198,8 +198,8 @@ module RTT
       /**
        * Removes the specified connection created with createConnection.
        */
-      void removeConnection(in string writer_name,
-            in CDataFlowInterface reader_iface, in string reader_name)
+      boolean removeConnection(in string local_port,
+            in CDataFlowInterface remote_ports, in string remote_port)
             raises(CNoSuchPortException);
 
       /**
