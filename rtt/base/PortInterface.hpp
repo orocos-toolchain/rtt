@@ -106,6 +106,13 @@ namespace RTT
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect() = 0;
 
+        /** Removes the connection that links this port and the given port
+         *
+         * Returns true if there was such a connection, false otherwise
+         */
+        virtual bool disconnect(PortInterface* port) = 0;
+
+
         /** The ChannelFactory object that allows to build the ChannelElement chain
          * needed to build connections to or from this port
          */

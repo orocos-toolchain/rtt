@@ -78,7 +78,9 @@ Service* PortInterface::createPortObject()
     to->addSynchronousOperation( "name",&PortInterface::getName, this).doc(
             "Returns the port name.");
     to->addSynchronousOperation("connected", &PortInterface::connected, this).doc("Check if this port is connected and ready for use.");
-    to->addSynchronousOperation("disconnect", &PortInterface::disconnect, this).doc("Disconnects this port from any connection it is part of.");
+
+    typedef void (PortInterface::*disconnect_all)();
+    to->addSynchronousOperation("disconnect", static_cast<disconnect_all>(&PortInterface::disconnect), this).doc("Disconnects this port from any connection it is part of.");
     return to;
 #else
     return 0;
