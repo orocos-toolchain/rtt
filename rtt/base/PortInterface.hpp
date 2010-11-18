@@ -181,7 +181,7 @@ namespace RTT
          * This is an advanced method, prefer to use disconnect()
          * or a method from a subclass of PortInterface.
          */
-        virtual void removeConnection(internal::ConnID* cid) = 0;
+        virtual bool removeConnection(internal::ConnID* cid) = 0;
 
         /**
          * Once a port is added to a DataFlowInterface, it gets
