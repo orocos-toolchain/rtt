@@ -139,11 +139,13 @@ macro( orocos_library LIB_TARGET_NAME )
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_library )
 
-# Type headers should add themselves by calling 'orocos_typekit()' 
+# Type headers should add themselves by calling 'orocos_typekit_headers()'
+# They will be processed by typegen to generate a typekit from it, with the
+# name of the current project. 
 #
-# Usage: orocos_typekit( robotdata.hpp sensordata.hpp )
+# Usage: orocos_typekit_headers( robotdata.hpp sensordata.hpp )
 #
-macro( orocos_typekit )
+macro( orocos_typekit_headers )
 
   MESSAGE( "Generating typekit for ${PROJECT_NAME}..." )
   
@@ -159,6 +161,43 @@ macro( orocos_typekit )
     set(TYPEKIT_IN_PROJECT TRUE)
     add_subdirectory( typekit )
   endif (NOT TYPEGEN_EXE)
+endmacro( orocos_typekit_headers )
+
+# typekit libraries should add themselves by calling 'orocos_typekit()' 
+# instead of 'ADD_LIBRARY' in CMakeLists.txt.
+#
+# Usage: orocos_typekit( typekitname src1 src2 src3 )
+#
+macro( orocos_typekit LIB_TARGET_NAME )
+
+  set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/types )
+  set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/types )
+  
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+      set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
+  else()
+      set( LIB_NAME ${LIB_TARGET_NAME})
+  endif()
+  MESSAGE( "Building typekit library ${LIB_TARGET_NAME}" )
+  if (ROS_ROOT)
+    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/types
+    )
+  else()
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+  endif()
+  SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+    OUTPUT_NAME ${LIB_NAME}
+#    VERSION ${OCL_VERSION}
+#    SOVERSION ${OCL_VERSION_MAJOR}.${OCL_VERSION_MINOR}
+    INSTALL_RPATH_USE_LINK_PATH 1
+    )
+  TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
+
+  INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+
+  LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_typekit )
 
 # plugin libraries should add themselves by calling 'orocos_plugin()' 
@@ -168,21 +207,22 @@ endmacro( orocos_typekit )
 #
 macro( orocos_plugin LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib/${PROJECT_NAME}/plugins )
-  set(AC_INSTALL_RT_DIR lib/${PROJECT_NAME}/plugins )
+  set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/plugins )
+  set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/plugins )
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
-  MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
   if (ROS_ROOT)
+    MESSAGE( "Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/plugin
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/plugins
     )
   else()
+    MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
