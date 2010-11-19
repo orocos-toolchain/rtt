@@ -231,7 +231,8 @@ if(OROCOS_TARGET STREQUAL "win32")
   if (MINGW)
     #--enable-all-export and --enable-auto-import are already set by cmake.
     #but we need it here for the unit tests as well.
-    set(CMAKE_LD_FLAGS_ADD "-Wl,--enable-auto-import" CACHE INTERNAL "")
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--enable-auto-import -Wl,--export-all-symbols")
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,--enable-auto-import")
     list(APPEND OROCOS-RTT_LIBRARIES wsock32.lib winmm.lib)
   endif()
   if (MSVC)

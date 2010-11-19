@@ -51,7 +51,9 @@
 # ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN 
 # endif
-#  define NOMINMAX 
+#  ifndef NOMINMAX
+#   define NOMINMAX
+#  endif
 #  include <windows.h>
 #  undef interface	// To avoid name clash with namespace interface and Windows SDK objbase.h
 #  include <mmsystem.h> // For timeBeginPeriod()
