@@ -59,13 +59,12 @@ namespace RTT
          */
         class GlobalEngine: public RTT::ExecutionEngine
         {
-            static GlobalEngine* mengine;
             boost::shared_ptr<base::ActivityInterface> mact;
             GlobalEngine();
             virtual ~GlobalEngine();
         public:
             RTT_API static ExecutionEngine* Instance();
-            static void Release();
+            RTT_API static void Release();
         };
 
     }

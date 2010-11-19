@@ -44,7 +44,7 @@ namespace RTT
 
     namespace internal
     {
-        GlobalEngine* GlobalEngine::mengine = 0;
+        static GlobalEngine* mengine = 0;
 
         GlobalEngine::GlobalEngine()
             : mact( new Activity( this, "GlobalEngine" ) )
