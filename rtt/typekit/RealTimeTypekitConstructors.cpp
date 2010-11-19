@@ -168,9 +168,9 @@ namespace RTT
         ti->type("float")->addConstructor( newConstructor( &double_to_float, true ));
         ti->type("int")->addConstructor( newConstructor( &float_to_int, false ));
         ti->type("int")->addConstructor( newConstructor( &double_to_int, false ));
-        ti->type("int")->addConstructor( newConstructor( &uint_to_int, false ));
+        ti->type("int")->addConstructor( newConstructor( &uint_to_int, true ));
         ti->type("int")->addConstructor( newConstructor( &bool_to_int, true ));
-        ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
+        ti->type("uint")->addConstructor( newConstructor( &int_to_uint, true ));
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
