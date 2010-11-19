@@ -156,7 +156,7 @@ namespace RTT
     ConditionInterface* ret = parser.getParseResult();
     parser.reset();
     if ( ret == 0 )
-        throw parse_exception_parser_fail();
+        throw parse_exception_parser_fail("Parser did not find a condition in text.");
     return ret;
   }
 
@@ -188,7 +188,7 @@ namespace RTT
         parser.dropResult();
         return ret;
     }
-    throw parse_exception_parser_fail();
+    throw parse_exception_parser_fail("Parser did not find a valid expression in text.");
   }
 
   DataSourceBase::shared_ptr Parser::parseValueChange( const std::string& _s,

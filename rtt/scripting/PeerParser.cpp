@@ -42,6 +42,7 @@
 #include "parse_exception.hpp"
 #include "../TaskContext.hpp"
 #include "parser-types.hpp"
+#include "../internal/GlobalService.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -71,7 +72,8 @@ namespace RTT
             //std::cerr<<"Peerparser operating in "<<  context->getName()<<std::endl;
             mlastobject = "this";
 
-            // if size() > 1, it must be a peer
+            // if size() > 1, it must be a peer or service
+            // first browse the peers
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
                 //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
@@ -96,12 +98,22 @@ namespace RTT
 
             mcurobject = _peer->provides();
 
-            // all peers done, traverse objects:
+            // all peers done, now traverse services:
             while ( callqueue.size() > 0 && mcurobject->hasService( callqueue.front() ) ) {
                 //std::cerr<< mcurobject->getName() <<" has object " << callqueue.front()<<std::endl;
                 mcurobject = mcurobject->provides( callqueue.front() );
                 mlastobject = callqueue.front();
                 callqueue.pop();
+            }
+
+            // last resort: browse the global service if not a single match and items in queue
+            if (mcurobject == context->provides() && callqueue.size() != 0 ) {
+                mcurobject = GlobalService::Instance();
+                while ( callqueue.size() ) {
+                    mcurobject = mcurobject->provides( callqueue.front() );
+                    mlastobject = callqueue.front();
+                    callqueue.pop();
+                }
             }
 
             // Something went wrong, a peer or object was not found:
@@ -111,7 +123,10 @@ namespace RTT
                 while ( !callqueue.empty() )
                     callqueue.pop();
                 iter_t begin;
-                throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+_peer->getName()+"' has no task or object '"+object+"'." );
+                if ( _peer->provides() == mcurobject )
+                    throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+ _peer->getName()+"' has no child Service '"+object+"'." );
+                else
+                    throw_(begin, "From TaskContext '"+context->getName()+"': Service '"+ mcurobject->getName()+"' has no child Service '"+object+"'." );
             }
 
         }
@@ -171,7 +186,11 @@ namespace RTT
             mcurobject = mcurobject->provides(name);
             advance_on_error += end.base() - begin.base();
         }
-        else {
+        // check global service if we're still on the top-level:
+        else if (mcurobject == _peer->provides() && GlobalService::Instance()->hasService(name) ) {
+            mcurobject = GlobalService::Instance()->provides(name);
+            advance_on_error += end.base() - begin.base();
+        } else {
             if ( name == "states" || name == "programs") {
                 log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
                 log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
