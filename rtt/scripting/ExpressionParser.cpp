@@ -146,21 +146,23 @@ namespace RTT
               mobject = ops->getName();
 //          cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
           // Check sanity of what we parsed:
-          if ( ops == 0 || (mobject != "this" && ops->getName() != mobject ) ) {
-              throw parse_exception_no_such_component( peer->getName(), mobject);
-          }
-          // Check if method exists on current object:
-          if ( mmethod != "collect" && mmethod != "collectIfDone" && ops->hasMember(mmethod) == false ) {
-              // Check if it is a method of the global service:
-              if ( GlobalService::Instance()->hasMember(mmethod) ) {
-                  mobject = "GlobalService";
-                  ops = GlobalService::Instance();
-              } else {
-                  //DumpObject( peer );
-                  if ( mobject != "this" )
-                      throw parse_exception_no_such_method_on_component( mobject, mmethod );
-                  else
-                      throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+          if (mmethod != "collect" && mmethod != "collectIfDone" ) {
+              if ( ops == 0 || (mobject != "this" && ops->getName() != mobject ) ) {
+                  throw parse_exception_no_such_component( peer->getName(), mobject);
+              }
+              // Check if method exists on current object:
+              if ( ops->hasMember(mmethod) == false ) {
+                  // Check if it is a method of the global service:
+                  if ( GlobalService::Instance()->hasMember(mmethod) ) {
+                      mobject = "GlobalService";
+                      ops = GlobalService::Instance();
+                  } else {
+                      //DumpObject( peer );
+                      if ( mobject != "this" )
+                          throw parse_exception_no_such_method_on_component( mobject, mmethod );
+                      else
+                          throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+                  }
               }
           }
       }
