@@ -73,7 +73,7 @@ namespace RTT {
             class LoadedLib{
             public:
                 LoadedLib(std::string n, std::string short_name, void* h)
-                : filename(n), shortname(short_name), handle(h), loadPlugin(0), is_typekit(0)
+                : filename(n), shortname(short_name), handle(h), loadPlugin(0), is_typekit(false), is_service(false)
                 {
                 }
                 /**
@@ -90,7 +90,8 @@ namespace RTT {
                 std::string plugname;
                 void* handle;
                 bool (*loadPlugin)(RTT::TaskContext*);
-                bool is_typekit;
+                RTT::ServicePtr (*createService)(void);
+                bool is_typekit, is_service;
             };
 
             std::vector< LoadedLib > loadedLibs;

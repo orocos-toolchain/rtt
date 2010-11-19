@@ -48,6 +48,7 @@
 #include "../Logger.hpp"
 #include <boost/filesystem.hpp>
 #include "../../os/StartStopManager.hpp"
+#include "../internal/GlobalService.hpp"
 
 #include <cstdlib>
 #include <dlfcn.h>
@@ -199,8 +200,15 @@ void PluginLoader::loadPlugins(string const& path_list) {
 bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
     for(vector<LoadedLib>::iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
         if (it->filename == servicename || it->plugname == servicename || it->shortname == servicename) {
-            log(Info) << "Loading Service " << servicename << " in TaskContext " << tc->getName() <<endlog();
-            return it->loadPlugin( tc );
+            if (tc) {
+                log(Info) << "Loading Service " << servicename << " in TaskContext " << tc->getName() <<endlog();
+                return it->loadPlugin( tc );
+            } else {
+                // loadPlugin( 0 ) was already called. So drop the service in the global service.
+                if (it->is_service)
+                    return internal::GlobalService::Instance()->addService( it->createService()  );
+                log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
+            }
         }
     }
     log(Error) << "No such service: "<< servicename <<endlog();
@@ -387,6 +395,11 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
             return false;
         }
 
+        // check if it is a service plugin:
+        loading_lib.createService = (Service::shared_ptr(*)(void))(dlsym(handle, "createService") );
+        if (loading_lib.createService)
+            loading_lib.is_service = true;
+
         // ok; try to load it.
         bool success = false;
         try {
@@ -405,8 +418,13 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
             log(Info) << "Loaded RTT TypeKit/Transport '" + plugname + "' from '" + shortname +"'"<<endlog();
             loading_lib.is_typekit = true;
         } else {
-            log(Info) << "Loaded RTT Plugin '" + plugname + "' from '" + shortname +"'"<<endlog();
             loading_lib.is_typekit = false;
+            if ( loading_lib.is_service ) {
+                log(Info) << "Loaded RTT Service '" + plugname + "' from '" + shortname +"'"<<endlog();
+            }
+            else {
+                log(Info) << "Loaded RTT Plugin '" + plugname + "' from '" + shortname +"'"<<endlog();
+            }
         }
         loadedLibs.push_back(loading_lib);
         return true;
@@ -421,7 +439,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
 std::vector<std::string> PluginLoader::listServices() const {
     vector<string> names;
     for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
-        if ( !it->is_typekit )
+        if ( it->is_service )
             names.push_back( it->plugname );
     }
     return names;
