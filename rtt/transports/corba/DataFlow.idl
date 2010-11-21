@@ -39,6 +39,7 @@ module RTT
         CFlowStatus read(out any sample);
         /**
          * Writes into this Channel Element.
+         * @return false if the channel became invalid
          */
         boolean write(in any sample);
         /**
@@ -76,12 +77,17 @@ module RTT
         /**
          * Used by the 'remote' side to inform this channel element that new data
          * is available for reading.
+         * @return false if this channel became invalidated.
          */
         boolean remoteSignal();
 
         /**
          * Used by the 'remote' side to inform this channel element
          * that the connection is been cleaned up.
+         * @param writer_to_reader Since channel elements are chained,
+         * we need to know who initiated the disconnect: starting from
+         * the output port (writer_to_reader == true) or from the
+         * input port (writer_to_reader == false)
          */
         void remoteDisconnect(in boolean writer_to_reader);
 
