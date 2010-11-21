@@ -55,6 +55,8 @@ namespace RTT {
         case SendSuccess:
             os << "SendSuccess";
             break;
+        default:
+            os << "InvalidSendStatus";
         }
         return os;
     }

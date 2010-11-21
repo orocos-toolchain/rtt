@@ -337,9 +337,9 @@ public:
             if ( mss != SendSuccess ) {
                 corba::CAnyArguments_var nargs;
                 if ( misblocking->get() ) {
-                    mss = SendStatus( msh->collect( nargs.out() ) );
+                    mss = SendStatus( static_cast<int>(msh->collect( nargs.out() ) ) - 1 );
                 } else {
-                    mss = SendStatus( msh->collectIfDone( nargs.out() ) );
+                    mss = SendStatus( static_cast<int>(msh->collectIfDone( nargs.out() ) ) - 1 );
                 }
                 // only convert results when we got a success:
                 if (mss == SendSuccess) {
