@@ -135,9 +135,18 @@ namespace RTT
              * @param pred
              */
             template<typename Pred>
-            void select_if(Pred pred) {
+            void select_reader_channel(Pred pred) {
                 RTT::os::MutexLock lock(connection_lock);
-                cur_channel = find_if(pred).second;
+                std::pair<bool, ChannelDescriptor> new_channel =
+                    find_if(pred);
+                if (new_channel.first)
+                {
+                    // We clear the current channel, so that there is at most
+                    // one channel which returns OldData
+                    if (cur_channel.get<1>() != new_channel.second.get<1>())
+                        cur_channel.get<1>()->clear();
+                    cur_channel = new_channel.second;
+                }
             }
 
             template<typename Pred>
@@ -147,8 +156,6 @@ namespace RTT
                     if ( pred( channel ) )
                         return std::make_pair(true, channel);
 
-                // The boost reference to pred is required
-                //boost::bind(&ConnectionManager::select_helper<Pred>, this, boost::ref(pred), boost::ref(found), _1)(cur_channel);
 #ifdef MSVC
                 std::list<ChannelDescriptor>::iterator result =
                     std::find_if(connections.begin(), connections.end(), pred);
