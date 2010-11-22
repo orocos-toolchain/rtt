@@ -14,10 +14,13 @@ IF (BUILD_TESTING)
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
    ENDIF()
 
-   SET(TEST_LIBRARIES rtt-scripting-${OROCOS_TARGET}_plugin rtt-marshalling-${OROCOS_TARGET}_plugin)
+   SET(TEST_LIBRARIES rtt-marshalling-${OROCOS_TARGET}_plugin)
    IF (NOT APPLE)
 	 LIST(APPEND TEST_LIBRARIES ${Boost_SERIALIZATION_LIBRARY})
    ENDIF()
+   if (PLUGINS_ENABLE_SCRIPTING)
+      list(APPEND rtt-scripting-${OROCOS_TARGET}_plugin)
+   endif()
 
     # Due to generation of some .h files in build directories, we also need to include some build dirs in our include paths.
     INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
