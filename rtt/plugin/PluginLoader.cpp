@@ -47,7 +47,8 @@
 #include "../TaskContext.hpp"
 #include "../Logger.hpp"
 #include <boost/filesystem.hpp>
-#include "../../os/StartStopManager.hpp"
+#include "../os/StartStopManager.hpp"
+#include "../os/MutexLock.hpp"
 #include "../internal/GlobalService.hpp"
 
 #include <cstdlib>
@@ -55,6 +56,7 @@
 
 
 using namespace RTT;
+using namespace RTT::detail;
 using namespace plugin;
 using namespace std;
 using namespace boost::filesystem;
@@ -182,26 +184,31 @@ void PluginLoader::Release() {
 }
 
 void PluginLoader::loadTypekits(string const& path_list) {
+    MutexLock lock( listlock );
     loadPluginsInternal( path_list, "types", "typekit");
 }
 
 bool PluginLoader::loadTypekit(std::string const& name, std::string const& path_list) {
+    MutexLock lock( listlock );
     return loadPluginInternal(name, path_list, "types", "typekit");
 }
 
 bool PluginLoader::loadPlugin(std::string const& name, std::string const& path_list) {
+    MutexLock lock( listlock );
     return loadPluginInternal(name, path_list, "plugins", "plugin");
 }
 
 void PluginLoader::loadPlugins(string const& path_list) {
+    MutexLock lock( listlock );
     loadPluginsInternal( path_list, "plugins", "plugin");
 }
 
 bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
+    MutexLock lock( listlock );
     for(vector<LoadedLib>::iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
         if (it->filename == servicename || it->plugname == servicename || it->shortname == servicename) {
             if (tc) {
-                log(Info) << "Loading Service " << servicename << " in TaskContext " << tc->getName() <<endlog();
+                log(Info) << "Loading Service or Plugin " << servicename << " in TaskContext " << tc->getName() <<endlog();
                 return it->loadPlugin( tc );
             } else {
                 // loadPlugin( 0 ) was already called. So drop the service in the global service.
@@ -211,7 +218,7 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
             }
         }
     }
-    log(Error) << "No such service: "<< servicename <<endlog();
+    log(Error) << "No such service or plugin: "<< servicename <<endlog();
     return false;
 }
 
@@ -286,7 +293,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
 	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
     }
 
-    if ( isLoaded(name) ) {
+    if ( isLoadedInternal(name) ) {
         log(Debug) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
     } else {
@@ -330,6 +337,12 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
 
 bool PluginLoader::isLoaded(string file)
 {
+    MutexLock lock( listlock );
+    return isLoadedInternal(file);
+}
+
+bool PluginLoader::isLoadedInternal(string file)
+{
     path p(file);
     std::vector<LoadedLib>::iterator lib = loadedLibs.begin();
     while (lib != loadedLibs.end()) {
@@ -348,7 +361,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     char* error;
     void* handle;
 
-    if ( isLoaded(shortname) || isLoaded(file) ) {
+    if ( isLoadedInternal(shortname) || isLoadedInternal(file) ) {
         log(Debug) <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return false;
     }
@@ -437,6 +450,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
 }
 
 std::vector<std::string> PluginLoader::listServices() const {
+    MutexLock lock( listlock );
     vector<string> names;
     for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
         if ( it->is_service )
@@ -446,6 +460,7 @@ std::vector<std::string> PluginLoader::listServices() const {
 }
 
 std::vector<std::string> PluginLoader::listPlugins() const {
+    MutexLock lock( listlock );
     vector<string> names;
     for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
         names.push_back( it->plugname );
@@ -454,6 +469,7 @@ std::vector<std::string> PluginLoader::listPlugins() const {
 }
 
 std::vector<std::string> PluginLoader::listTypekits() const {
+    MutexLock lock( listlock );
     vector<string> names;
     for(vector<LoadedLib>::const_iterator it= loadedLibs.begin(); it != loadedLibs.end(); ++it) {
         if ( it->is_typekit )
@@ -463,9 +479,11 @@ std::vector<std::string> PluginLoader::listTypekits() const {
 }
 
 std::string PluginLoader::getPluginPath() const {
+    MutexLock lock( listlock );
     return plugin_path;
 }
 
 void PluginLoader::setPluginPath( std::string const& newpath ) {
+    MutexLock lock( listlock );
     plugin_path = newpath;
 }

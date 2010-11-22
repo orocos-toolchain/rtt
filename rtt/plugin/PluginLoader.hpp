@@ -45,6 +45,7 @@
 
 #include "../rtt-fwd.hpp"
 #include "../rtt-config.h"
+#include "../os/Mutex.hpp"
 
 namespace RTT {
     namespace plugin {
@@ -102,6 +103,11 @@ namespace RTT {
             std::string plugin_path;
 
             /**
+             * Protects for concurrent access of this shared object.
+             */
+            mutable os::Mutex listlock;
+
+            /**
              * Internal function that does all library loading.
              * @param filename The path+filename to open
              * @param shortname The short name of this file
@@ -128,6 +134,11 @@ namespace RTT {
              * @return
              */
             void loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
+            /**
+             * This function does not hold the listlock.
+             * @see isLoaded()
+             */
+            bool isLoadedInternal(std::string name);
         public:
             PluginLoader();
             ~PluginLoader();
