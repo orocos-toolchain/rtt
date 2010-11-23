@@ -298,7 +298,12 @@ bool CDataFlowInterface_i::removeConnection(
         if (!other_port)
             return false;
 
-        return port->disconnect(other_port);
+        // Try to disconnect the local port. However, one might have forced
+        // having a CORBA connection between local ports, so if it fails go on
+        // with normal CORBA disconnection
+        if (port->disconnect(other_port))
+            return true;
+
     }
 
     CORBA_CHECK_THREAD();
