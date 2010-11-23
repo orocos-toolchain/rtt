@@ -248,14 +248,15 @@ namespace RTT
         class RTT_SCRIPTING_EXPORT parse_exception_parser_fail
             : public parse_exception
         {
+            std::string mreason;
         public:
-            parse_exception_parser_fail()
+            parse_exception_parser_fail(const std::string& reason) : mreason(reason)
             {
             }
 
             const std::string what() const
             {
-                return "Parse Failure Exception ( This _specific_ parser could not parse the input )";
+                return "Parse Failure Exception: " + mreason;
             }
 
             parse_exception_parser_fail* copy() const
@@ -307,7 +308,7 @@ namespace RTT
 
             const std::string what() const
             {
-                return "Object or task \"" + mname + "\" registered no method "+mmeth+" (or "+mname+" was not found at all).";
+                return "Service or Task \"" + mname + "\" has no Peer or Service "+mmeth+" (or "+mname+" was not found at all).";
             }
 
             parse_exception_no_such_component* copy() const

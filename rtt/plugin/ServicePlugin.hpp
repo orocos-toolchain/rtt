@@ -71,6 +71,11 @@ namespace RTT {
             RTT::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
         } \
+        RTT_EXPORT RTT::Service::shared_ptr createService();  \
+        RTT::Service::shared_ptr createService() {    \
+            RTT::Service::shared_ptr sp( new SERVICE( 0 ) ); \
+            return sp; \
+        } \
         RTT_EXPORT std::string getRTTPluginName(); \
         std::string getRTTPluginName() { \
             return NAME; \
@@ -98,6 +103,11 @@ namespace RTT {
             if (tc == 0) return true; \
             RTT::Service::shared_ptr sp( new SERVICE( tc ) ); \
             return tc->provides()->addService( sp ); \
+        } \
+        RTT_EXPORT RTT::Service::shared_ptr createService();  \
+        RTT::Service::shared_ptr createService() {    \
+            RTT::Service::shared_ptr sp( new SERVICE( 0 ) ); \
+            return sp; \
         } \
         RTT_EXPORT std::string getRTTPluginName(); \
         std::string getRTTPluginName() { \

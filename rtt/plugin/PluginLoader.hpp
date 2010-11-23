@@ -45,6 +45,7 @@
 
 #include "../rtt-fwd.hpp"
 #include "../rtt-config.h"
+#include "../os/Mutex.hpp"
 
 namespace RTT {
     namespace plugin {
@@ -73,7 +74,7 @@ namespace RTT {
             class LoadedLib{
             public:
                 LoadedLib(std::string n, std::string short_name, void* h)
-                : filename(n), shortname(short_name), handle(h), loadPlugin(0), is_typekit(0)
+                : filename(n), shortname(short_name), handle(h), loadPlugin(0), is_typekit(false), is_service(false)
                 {
                 }
                 /**
@@ -90,7 +91,8 @@ namespace RTT {
                 std::string plugname;
                 void* handle;
                 bool (*loadPlugin)(RTT::TaskContext*);
-                bool is_typekit;
+                RTT::ServicePtr (*createService)(void);
+                bool is_typekit, is_service;
             };
 
             std::vector< LoadedLib > loadedLibs;
@@ -99,6 +101,11 @@ namespace RTT {
              * Path to look for if all else fails.
              */
             std::string plugin_path;
+
+            /**
+             * Protects for concurrent access of this shared object.
+             */
+            mutable os::Mutex listlock;
 
             /**
              * Internal function that does all library loading.
@@ -127,6 +134,11 @@ namespace RTT {
              * @return
              */
             void loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
+            /**
+             * This function does not hold the listlock.
+             * @see isLoaded()
+             */
+            bool isLoadedInternal(std::string name);
         public:
             PluginLoader();
             ~PluginLoader();

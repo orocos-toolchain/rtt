@@ -38,6 +38,7 @@
 #include "../types/Operators.hpp"
 #include "DataSourceCondition.hpp"
 #include "../internal/DataSourceCommand.hpp"
+#include "../internal/GlobalService.hpp"
 
 #include "DataSourceTime.hpp"
 #include "../TaskContext.hpp"
@@ -76,7 +77,8 @@ namespace RTT
 
 
   DataCallParser::DataCallParser( ExpressionParser& p, CommonParser& cp, TaskContext* c, ExecutionEngine* caller )
-      : mcaller( caller ? caller : c->engine()), mis_send(false), commonparser(cp), expressionparser( p ), peerparser( c, cp )
+      : mcaller( caller ? caller : c->engine()), mis_send(false), commonparser(cp), expressionparser( p ),
+        peerparser( c, cp, false ) // accept partial paths
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
@@ -126,6 +128,7 @@ namespace RTT
 
   void DataCallParser::seendataname()
   {
+      // re-init mobject, might have been cleared during parsing of send().
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
       Service::shared_ptr ops  = peerparser.taskObject();
@@ -138,19 +141,29 @@ namespace RTT
           // it is...
       } else {
           // it ain't...
-          //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
-          // this is slightly different from CommandParser
-          if ( ops == 0 ) {
-              //DumpObject( peer );
-              throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
-          }
-
-          if ( mmethod != "collect" && mmethod != "collectIfDone" && ops->hasMember(mmethod) == false ) {
-              //DumpObject( peer );
-              if ( mobject != "this" )
-                  throw parse_exception_no_such_method_on_component( "DataCall::"+mobject, mmethod );
-              else
-                  throw parse_exception_no_such_method_on_component( "DataCall::"+peer->getName(), mmethod );
+          // set the proper object name again in case of a send()
+          if (mis_send && ops)
+              mobject = ops->getName();
+//          cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
+          // Check sanity of what we parsed:
+          if (mmethod != "collect" && mmethod != "collectIfDone" ) {
+              if ( ops == 0 || (mobject != "this" && ops->getName() != mobject ) ) {
+                  throw parse_exception_no_such_component( peer->getName(), mobject);
+              }
+              // Check if method exists on current object:
+              if ( ops->hasMember(mmethod) == false ) {
+                  // Check if it is a method of the global service:
+                  if ( GlobalService::Instance()->hasMember(mmethod) ) {
+                      mobject = "GlobalService";
+                      ops = GlobalService::Instance();
+                  } else {
+                      //DumpObject( peer );
+                      if ( mobject != "this" )
+                          throw parse_exception_no_such_method_on_component( mobject, mmethod );
+                      else
+                          throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+                  }
+              }
           }
       }
 
