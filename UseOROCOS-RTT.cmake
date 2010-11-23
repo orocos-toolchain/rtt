@@ -139,13 +139,13 @@ macro( orocos_library LIB_TARGET_NAME )
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_library )
 
-# Type headers should add themselves by calling 'orocos_typekit_headers()'
+# Type headers should add themselves by calling 'orocos_typegen_headers()'
 # They will be processed by typegen to generate a typekit from it, with the
 # name of the current project. 
 #
-# Usage: orocos_typekit_headers( robotdata.hpp sensordata.hpp )
+# Usage: orocos_typegen_headers( robotdata.hpp sensordata.hpp )
 #
-macro( orocos_typekit_headers )
+macro( orocos_typegen_headers )
 
   MESSAGE( "Generating typekit for ${PROJECT_NAME}..." )
   
