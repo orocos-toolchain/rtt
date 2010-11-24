@@ -161,7 +161,7 @@ macro( orocos_typegen_headers )
     set(TYPEKIT_IN_PROJECT TRUE)
     add_subdirectory( typekit )
   endif (NOT TYPEGEN_EXE)
-endmacro( orocos_typekit_headers )
+endmacro( orocos_typegen_headers )
 
 # typekit libraries should add themselves by calling 'orocos_typekit()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
