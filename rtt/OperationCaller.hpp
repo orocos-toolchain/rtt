@@ -139,9 +139,10 @@ namespace RTT
                 return *this;
             mname = m.mname;
             mcaller = m.mcaller;
-            this->impl = m.impl;
-            if (this->impl)
-                this->impl.reset( this->impl->cloneI(mcaller) );
+            if (m.impl)
+                this->impl.reset( m.impl->cloneI(mcaller) );
+            else
+                this->impl.reset();
             return *this;
         }
 
@@ -207,6 +208,7 @@ namespace RTT
 
         /**
          * OperationCaller objects may be assigned to an implementation.
+         * This variant is used when a local implementation is available.
          *
          * @param implementation the implementation.
          *
@@ -225,6 +227,7 @@ namespace RTT
         /**
          * OperationCaller objects may be assigned to a part responsible for production
          * of an implementation.
+         * This variant is used when a only a remote implementation is available.
          *
          * @param part The part used by the OperationCaller to produce an implementation.
          *
@@ -321,7 +324,7 @@ namespace RTT
          * @return true if so.
          */
         bool ready() const {
-            return this->impl;
+            return this->impl && this->impl->ready();
         }
 
 
@@ -341,9 +344,11 @@ namespace RTT
 
         bool setImplementationPart(OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
             OperationCaller<Signature> tmp(orp, caller);
-            if (tmp.ready())
+            if (tmp.ready()) {
                 *this = tmp;
-            return tmp.ready();
+                return true;
+            }
+            return false;
         }
 
         /**
