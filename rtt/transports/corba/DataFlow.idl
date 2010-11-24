@@ -161,6 +161,9 @@ module RTT
        * the given policy.
        * Some protocols may adjust the policy, or pass additional information
        * into the policy, such as the name of the newly created connection.
+       *
+       * The returned channel element will not be functional until
+       * channelReady() has been called for it
        */
       CChannelElement buildChannelOutput(in string input_port, inout CConnPolicy policy)
             raises(CNoCorbaTransport,CNoSuchPortException);
