@@ -169,7 +169,7 @@ namespace RTT
          * Returns this Service.
          * @return a shared pointer from this.
          */
-        Service::shared_ptr provides() { return shared_from_this(); }
+        Service::shared_ptr provides();
 
         /**
          * Returns a sub-Service which resorts under
