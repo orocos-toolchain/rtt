@@ -97,7 +97,7 @@ namespace {
             plugin_paths = paths;
             // prepend the default search path.
             if ( !default_plugin_path.empty() )
-                plugin_paths = default_plugin_path + default_delimiter + plugin_paths;
+                plugin_paths = plugin_paths + default_delimiter + default_plugin_path;
             log(Info) <<"RTT_COMPONENT_PATH was set to: " << paths << " . Searching in: "<< plugin_paths<< endlog();
         } else {
             plugin_paths = default_plugin_path;
