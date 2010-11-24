@@ -141,8 +141,17 @@ IF (BUILD_TESTING)
       ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
       list(APPEND ORO_EXTRA_TESTS "corba-test")
 
-      # These tests require the Unix 'system()' function and 'killall'. To be ported to windows.
+        # This program requires the Unix 'system()' function and 'killall'. To be ported to windows.
         IF (UNIX)
+           # Launches our servers.
+           ADD_EXECUTABLE(setup_corba setup_corba.cpp)
+           SET_TARGET_PROPERTIES( setup_corba PROPERTIES
+                COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+           )
+           # Launched before ctest.
+           SET(CORBA_SETUP_COMMAND COMMAND setup_corba)
+        ENDIF(UNIX)
+       
           ADD_EXECUTABLE( corba-ipc-test test-runner-corba.cpp corba_ipc_test.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-test 
                 orocos-rtt-${OROCOS_TARGET}_dynamic 
@@ -167,8 +176,7 @@ IF (BUILD_TESTING)
             LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
             COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
             )
-      ENDIF()
-      ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
+          ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
     ENDIF(ENABLE_CORBA)
 
     IF(ENABLE_MQ)
@@ -274,7 +282,13 @@ IF (BUILD_TESTING)
         ADD_SUBDIRECTORY(types)
     endif()
     
+    IF(ENABLE_CORBA AND UNIX)
+       #This test must be last: it stops the corba servers (on Unix systems)
+       ADD_SIMPLE_TEST(cleanup_corba ORO_EXTRA_TESTS "")
+    ENDIF(ENABLE_CORBA AND UNIX)
+    
     ADD_CUSTOM_TARGET(check ${CMAKE_COMMAND} -E remove *.tst core *.ior orocos.log
+      ${CORBA_SETUP_COMMAND}
       COMMAND ctest -V
       DEPENDS main-test core-test task-test ${ORO_EXTRA_TESTS}  
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")

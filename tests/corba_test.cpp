@@ -55,7 +55,7 @@ public:
         tc->ports()->addPort(*mi1);
         tc->ports()->addPort(*mo1);
 
-        t2 = new TaskContext("other");
+        t2 = new TaskContext("local");
         t2->ports()->addPort(*mi2);
         t2->ports()->addPort(*mo2);
 

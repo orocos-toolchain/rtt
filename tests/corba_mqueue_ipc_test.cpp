@@ -187,14 +187,6 @@ void CorbaMQueueIPCTest::testPortDisconnected()
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaMQueueIPCTestSuite,  CorbaMQueueIPCTest )
 
-
-BOOST_AUTO_TEST_CASE( setupServer )
-{
-    int ret = system("./corba-mqueue-ipc-server &");
-    BOOST_REQUIRE(ret == 0);
-    usleep(500000);
-}
-
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
     // This test tests the different port-to-port connections.
@@ -269,12 +261,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     ports2->disconnectPort("mw");
     testPortDisconnected();
 #endif
-}
-
-BOOST_AUTO_TEST_CASE( cleanupServer )
-{
-    int ret = system("killall corba-mqueue-ipc-server");
-    BOOST_CHECK(ret == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

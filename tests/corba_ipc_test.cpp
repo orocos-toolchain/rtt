@@ -224,13 +224,6 @@ void CorbaTest::testPortDisconnected()
 BOOST_FIXTURE_TEST_SUITE(  CorbaIPCTestSuite,  CorbaTest )
 
 
-BOOST_AUTO_TEST_CASE( setupServer )
-{
-    int i = system("./corba-ipc-server &");
-    BOOST_REQUIRE( i == 0 );
-    usleep(500000);
-}
-
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerC )
 {
     tp = corba::TaskContextProxy::Create( "peerRMC", false ); // no-ior
@@ -699,13 +692,6 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     result = 0.0;
     BOOST_CHECK_EQUAL( mi->read( result ), OldData );
     BOOST_CHECK_EQUAL( result, 4.44);
-}
-
-
-BOOST_AUTO_TEST_CASE( cleanupServer )
-{
-    int i = system("kill -9 $(pidof corba-ipc-server)");
-    BOOST_CHECK( i == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

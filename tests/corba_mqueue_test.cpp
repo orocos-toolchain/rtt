@@ -43,11 +43,11 @@ CorbaMQueueTest::setUp()
     mr2 = new InputPort<double>("mr");
     mw2 = new OutputPort<double>("mw");
 
-    tc =  new TaskContext( "root" );
+    tc =  new TaskContext( "localroot" );
     tc->ports()->addPort( *mr1 );
     tc->ports()->addPort( *mw1 );
 
-    t2 = new TaskContext("other");
+    t2 = new TaskContext("localother");
     t2->ports()->addPort( *mr2 );
     t2->ports()->addPort( *mw2 );
 
