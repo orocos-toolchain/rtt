@@ -109,7 +109,7 @@ namespace RTT
          * Returns RTT::NewSample if at least one new sample was available, and
          * either RTT::OldSample or RTT::NoSample otherwise.
          */
-        FlowStatus flush(base::DataSourceBase::shared_ptr source)
+        FlowStatus readNewest(base::DataSourceBase::shared_ptr source)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
@@ -118,7 +118,7 @@ namespace RTT
                 log(Error) << "trying to read to an incompatible data source" << endlog();
                 return NoData;
             }
-            return flush(ds->set());
+            return readNewest(ds->set());
         }
 
         /** Reads a sample from the connection. \a sample is a reference which
@@ -141,7 +141,7 @@ namespace RTT
          * Returns RTT::NewSample if at least one new sample was available, and
          * either RTT::OldSample or RTT::NoSample otherwise.
          */
-        FlowStatus flush(typename base::ChannelElement<T>::reference_t sample)
+        FlowStatus readNewest(typename base::ChannelElement<T>::reference_t sample)
         {
             FlowStatus result = read(sample);
             if (result != RTT::NewData)
