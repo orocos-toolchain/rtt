@@ -214,16 +214,34 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
         if (it->filename == servicename || it->plugname == servicename || it->shortname == servicename) {
             if (tc) {
                 log(Info) << "Loading Service or Plugin " << servicename << " in TaskContext " << tc->getName() <<endlog();
-                return it->loadPlugin( tc );
+                try {
+                    return it->loadPlugin( tc );
+                } catch(std::exception& e) {
+                    log(Error) << "Service or Plugin "<< servicename <<" threw an exception during loading in " << tc->getName() << endlog();
+                    log(Error) << "Exception: "<< e.what() << endlog();
+                    return false;
+                } catch(...) {
+                    log(Error) << "Service or Plugin "<< servicename <<" threw an unknown exception during loading in " << tc->getName() << endlog();
+                    return false;
+                }
             } else {
                 // loadPlugin( 0 ) was already called. So drop the service in the global service.
                 if (it->is_service)
-                    return internal::GlobalService::Instance()->addService( it->createService()  );
+                    try {
+                        return internal::GlobalService::Instance()->addService( it->createService()  );
+                    } catch(std::exception& e) {
+                        log(Error) << "Service "<< servicename <<" threw an exception during loading in global service." << endlog();
+                        log(Error) << "Exception: "<< e.what() << endlog();
+                        return false;
+                    } catch(...) {
+                        log(Error) << "Service "<< servicename <<" threw an unknown exception during loading in global service. " << endlog();
+                        return false;
+                    }
                 log(Error) << "Plugin "<< servicename << " was found, but it's not a Service." <<endlog();
             }
         }
     }
-    log(Error) << "No such service or plugin: "<< servicename <<endlog();
+    log(Error) << "No such service or plugin: '"<< servicename << "'"<< endlog();
     return false;
 }
 
@@ -376,7 +394,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
 
     if ( isLoadedInternal(shortname) || isLoadedInternal(file) ) {
         log(Debug) <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
-        return false;
+        return true;
     }
 
     handle = dlopen ( p.string().c_str(), RTLD_NOW | RTLD_GLOBAL );
