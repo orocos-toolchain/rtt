@@ -133,7 +133,7 @@ namespace RTT {
              * @param kind
              * @return
              */
-            void loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
+            bool loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
             /**
              * This function does not hold the listlock.
              * @see isLoaded()
@@ -159,12 +159,11 @@ namespace RTT {
 
             /**
              * Load any typekit found in the 'types/' subdirectory of each path in path_list in the process.
-             * This is a best effort function, ie it will silently ignore wrong paths or paths without any
-             * typekits.
+             * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for typekits.
              */
-            void loadTypekits(std::string const& path_list);
+            bool loadTypekits(std::string const& path_list);
 
             /**
              * Load a typekit found in the 'types/' subdirectory of each path in path_list in the process.
@@ -175,12 +174,11 @@ namespace RTT {
 
             /**
              * Loads any plugin found in the 'plugins/' subdirectory of each path in path_list in the current process.
-             * This is a best effort function, ie it will silently ignore wrong paths or paths without any
-             * plugins.
+             * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for plugins. May be the empty string.
              */
-            void loadPlugins(std::string const& path_list);
+            bool loadPlugins(std::string const& path_list);
 
             /**
              * Checks if a given plugin or filename has been loaded.

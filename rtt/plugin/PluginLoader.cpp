@@ -183,9 +183,9 @@ void PluginLoader::Release() {
     instance2.reset();
 }
 
-void PluginLoader::loadTypekits(string const& path_list) {
+bool PluginLoader::loadTypekits(string const& path_list) {
     MutexLock lock( listlock );
-    loadPluginsInternal( path_list, "types", "typekit");
+    return loadPluginsInternal( path_list, "types", "typekit");
 }
 
 bool PluginLoader::loadTypekit(std::string const& name, std::string const& path_list) {
@@ -198,9 +198,9 @@ bool PluginLoader::loadPlugin(std::string const& name, std::string const& path_l
     return loadPluginInternal(name, path_list, "plugins", "plugin");
 }
 
-void PluginLoader::loadPlugins(string const& path_list) {
+bool PluginLoader::loadPlugins(string const& path_list) {
     MutexLock lock( listlock );
-    loadPluginsInternal( path_list, "plugins", "plugin");
+    return loadPluginsInternal( path_list, "plugins", "plugin");
 }
 
 bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
@@ -222,22 +222,22 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
     return false;
 }
 
-void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
+bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
 	// If exact match, load it directly:
     path arg( path_list );
     if (is_regular_file(arg)) {
-	    loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
-	    return;
+	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
     }
 
     // prepare search path:
     vector<string> paths;
     if (path_list.empty())
-    	return; // nop: if no path is given, nothing to be searched.
+    	return false; // nop: if no path is given, nothing to be searched.
     else
     	paths = splitPaths( path_list );
 
+    bool all_good = true, found = false;
     // perform search in paths:
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
@@ -250,7 +250,8 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
+                    found = true;
+                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -271,7 +272,8 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
+                    found = true;
+                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -283,6 +285,7 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         else
             log(Debug) << "No such directory: " << p << endlog();
     }
+    return all_good && found;
 }
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
@@ -327,8 +330,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     // when at least one directory exists:
     if (path_found) {
         paths.erase( paths.size() - 1 ); // remove trailing delimiter ';'
-        loadPluginsInternal(paths,subdir,kind);
-        return true;
+        return loadPluginsInternal(paths,subdir,kind);
     }
     log(Error) << "No such "<< kind << " found in path: " << name << ". Looked for these directories: "<< endlog();
     log(Error) << paths << endlog();
