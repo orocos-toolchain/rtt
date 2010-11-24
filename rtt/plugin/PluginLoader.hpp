@@ -123,7 +123,8 @@ namespace RTT {
              * @param path_list
              * @param subdir
              * @param kind
-             * @return
+             * @return false if no plugins were found
+             * @throw std::runtime_exception if one of the found plugins refused to load.
              */
             bool loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind );
             /**
@@ -131,7 +132,8 @@ namespace RTT {
              * @param path_list
              * @param subdir
              * @param kind
-             * @return
+             * @return false if no plugins were found
+             * @throw std::runtime_exception if one of the found plugins refused to load.
              */
             bool loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind );
             /**
@@ -162,6 +164,7 @@ namespace RTT {
              * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for typekits.
+             * @throw std::runtime_exception if one of the found typekits refused to load.
              */
             bool loadTypekits(std::string const& path_list);
 
@@ -169,6 +172,7 @@ namespace RTT {
              * Load a typekit found in the 'types/' subdirectory of each path in path_list in the process.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for typekits. May be empty the empty string.
+             * @throw std::runtime_exception if the found typekit refused to load.
              */
             bool loadTypekit(std::string const& name, std::string const& path_list);
 
@@ -177,6 +181,7 @@ namespace RTT {
              * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for plugins. May be the empty string.
+             * @throw std::runtime_exception if one of the found plugin refused to load.
              */
             bool loadPlugins(std::string const& path_list);
 
@@ -194,6 +199,7 @@ namespace RTT {
              * @param name The name of the plugin to load, must match the library name (without lib/dll/so pre-/suffixes).
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for plugins. May be the empty string.
+             * @throw std::runtime_exception if the found plugin refused to load.
              */
             bool loadPlugin(std::string const& name, std::string const& path_list);
 
@@ -202,7 +208,7 @@ namespace RTT {
              * @param servicename The name of the service or plugin containing
              * the service
              * @param tc The TaskContext to load into.
-             * @return false if the plugin refused to load into the TaskContext.
+             * @return false if the service or plugin refused to load into the TaskContext.
              */
             bool loadService(std::string const& servicename, TaskContext* tc);
 

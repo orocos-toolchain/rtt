@@ -106,8 +106,13 @@ namespace {
         // we set the plugin path such that we can search for sub-directories/projects lateron
         PluginLoader::Instance()->setPluginPath(plugin_paths);
         // we load the plugins/typekits which are in each plugin path directory (but not subdirectories).
-        PluginLoader::Instance()->loadPlugins(plugin_paths);
-        PluginLoader::Instance()->loadTypekits(plugin_paths);
+        try {
+            PluginLoader::Instance()->loadPlugins(plugin_paths);
+            PluginLoader::Instance()->loadTypekits(plugin_paths);
+        } catch(std::exception& e) {
+            log(Warning) << e.what() <<endlog();
+            log(Warning) << "Corrupted files found in '" << plugin_paths << "'. Fix or remove these plugins."<<endlog();
+        }
         return 0;
     }
 
@@ -227,7 +232,9 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 	// If exact match, load it directly:
     path arg( path_list );
     if (is_regular_file(arg)) {
-	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+        if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
+            throw std::runtime_error("The plugin "+path_list+" was found but could not be loaded !");
+        return true;
     }
 
     // prepare search path:
@@ -285,7 +292,9 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         else
             log(Debug) << "No such directory: " << p << endlog();
     }
-    return all_good && found;
+    if (!all_good)
+        throw std::runtime_error("Some found plugins could not be loaded !");
+    return found;
 }
 
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
@@ -293,7 +302,9 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
 	// If exact match, load it directly:
     path arg( name );
     if (is_regular_file(arg)) {
-	    return loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true);
+	    if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
+	        throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
+	    return true;
     }
 
     if ( isLoadedInternal(name) ) {
