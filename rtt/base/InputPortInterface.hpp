@@ -82,10 +82,13 @@ namespace RTT
 
         /** Removes the input channel
          *
+         * Returns true if the provided channel was actually a channel of this
+         * port, and false otherwise.
+         *
          * You should usually not use this directly. Use disconnect()
          * instead.
          */
-        virtual void removeConnection(internal::ConnID* cid);
+        virtual bool removeConnection(internal::ConnID* cid);
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
@@ -108,7 +111,7 @@ namespace RTT
         /** Removes the channel that connects this port to \c port.
          *  All other ports or callbacks remain unaffected.
          */
-        virtual void disconnect(PortInterface* port);
+        virtual bool disconnect(PortInterface* port);
 
 
         /** Returns true if this port is connected */

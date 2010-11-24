@@ -110,9 +110,9 @@ bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
     return false;
 }
 
-void InputPortInterface::removeConnection(ConnID* conn)
+bool InputPortInterface::removeConnection(ConnID* conn)
 {
-    cmanager.removeConnection(conn);
+    return cmanager.removeConnection(conn);
 }
 
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source)
@@ -131,8 +131,8 @@ void InputPortInterface::disconnect()
     cmanager.disconnect();
 }
 
-void InputPortInterface::disconnect(PortInterface* port)
+bool InputPortInterface::disconnect(PortInterface* port)
 {
-    cmanager.disconnect(port);
+    return cmanager.disconnect(port);
 }
 

@@ -57,9 +57,9 @@ OutputPortInterface::~OutputPortInterface()
 bool OutputPortInterface::connected() const
 { return cmanager.connected(); }
 
-void OutputPortInterface::disconnect(PortInterface* port)
+bool OutputPortInterface::disconnect(PortInterface* port)
 {
-    cmanager.disconnect(port);
+    return cmanager.disconnect(port);
 }
 
 void OutputPortInterface::disconnect()
@@ -77,9 +77,9 @@ bool OutputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::sha
 }
 
 // This is called by our input endpoint.
-void OutputPortInterface::removeConnection(ConnID* conn)
+bool OutputPortInterface::removeConnection(ConnID* conn)
 {
-    cmanager.removeConnection(conn);
+    return cmanager.removeConnection(conn);
 }
 
 

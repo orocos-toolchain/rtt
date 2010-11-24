@@ -112,7 +112,7 @@ namespace RTT
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
-            cmanager.select_if( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1) );
+            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1) );
             return result;
         }
 

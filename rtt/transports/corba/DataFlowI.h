@@ -202,7 +202,7 @@ namespace RTT {
                                              	      CORBA::SystemException
                                              	      ,::RTT::corba::CNoSuchPortException
                                              	    ));
-            void removeConnection( const char* writer_port,
+            bool removeConnection( const char* writer_port,
                                                CDataFlowInterface_ptr reader_interface,
                                                const char* reader_port) ACE_THROW_SPEC ((
                                              	      CORBA::SystemException
