@@ -289,10 +289,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentEmit )
     EmitAndcount brunobj(event);
     EmitAndcount crunobj(event);
     EmitAndcount drunobj(event);
-    Activity atask(ORO_SCHED_OTHER, 0, &arunobj);
-    Activity btask(ORO_SCHED_OTHER, 0, &brunobj);
-    Activity ctask(ORO_SCHED_OTHER, 0, &crunobj);
-    Activity dtask(ORO_SCHED_OTHER, 0, &drunobj);
+    Activity atask(ORO_SCHED_OTHER, 0, 0, &arunobj);
+    Activity btask(ORO_SCHED_OTHER, 0, 0, &brunobj);
+    Activity ctask(ORO_SCHED_OTHER, 0, 0, &crunobj);
+    Activity dtask(ORO_SCHED_OTHER, 0, 0, &drunobj);
     Handle h = event.connect( &testConcurrentEmitHandler );
     BOOST_CHECK( h.connected() );
     BOOST_CHECK( atask.start() );
