@@ -273,8 +273,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( cleanupServer )
 {
-    int ret = system("killall corba-mqueue-ipc-server");
-    BOOST_CHECK(ret == 0);
+    int ret = system("kill -9 $(pidof corba-mqueue-ipc-server)");
+    BOOST_CHECK( true );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
