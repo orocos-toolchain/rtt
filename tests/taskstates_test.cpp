@@ -293,6 +293,7 @@ BOOST_AUTO_TEST_CASE( testBreakUpdateHook )
 {
     // Check default TC + blocking updateHook
     StatesTC breaktc;
+    breaktc.do_checks = false;
     BOOST_CHECK( breaktc.getPeriod() == 0.0 );
     BOOST_CHECK( breaktc.isActive() );
     breaktc.do_block = true;
