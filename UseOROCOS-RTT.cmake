@@ -165,7 +165,6 @@ macro( orocos_typegen_headers )
     execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
       )
-    set(TYPEKIT_IN_PROJECT TRUE)
     add_subdirectory( typekit )
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )
