@@ -45,6 +45,7 @@
 #endif
 #include "BoolTypeInfo.hpp"
 #include "../types/TypeInfoName.hpp"
+#include "../typekit/Types.hpp"
 
 namespace RTT
 {

@@ -52,6 +52,7 @@
 #include "../ConnPolicy.hpp"
 #include "ConnPolicyType.hpp"
 #include "TaskContext.hpp"
+#include "../typekit/Types.hpp"
 
 namespace RTT
 {

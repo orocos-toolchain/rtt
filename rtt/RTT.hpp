@@ -57,6 +57,7 @@ namespace RTT {}
 #include "Property.hpp"
 #include "Attribute.hpp"
 #include "Port.hpp"
+#include "typekit/Types.hpp"
 
 namespace BFL {
 }

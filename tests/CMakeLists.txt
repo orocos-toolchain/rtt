@@ -35,14 +35,15 @@ IF (BUILD_TESTING)
     # Setup fixtures library
     FILE( GLOB OP_FIXTURES operations_fixture*.cpp datasource_fixture.cpp)
     ADD_LIBRARY( fixtures SHARED ${OP_FIXTURES} )
-    TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-    LIST(APPEND TEST_LIBRARIES fixtures)
+    TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} rtt-typekit-${OROCOS_TARGET}_plugin )
+    LIST(APPEND TEST_LIBRARIES fixtures rtt-typekit-${OROCOS_TARGET}_plugin )
     SET_TARGET_PROPERTIES( fixtures PROPERTIES
       DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
       SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
       VERSION "${RTT_VERSION}"
       # Set accumulated compilation flags: (.so and .a)
       COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
+      LINK_FLAGS "-Wl,-z,defs"
       )
 
     IF(ENABLE_CORBA)
@@ -273,10 +274,10 @@ IF (BUILD_TESTING)
     endif()
     ADD_UNIT_TEST(property_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(property_composition_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
-    ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "" )
-    ADD_UNIT_TEST(type_discovery_struct_test ORO_EXTRA_TESTS "fixtures" )
-    ADD_UNIT_TEST(type_discovery_container_test ORO_EXTRA_TESTS "" )
-    ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "fixtures")
+    ADD_UNIT_TEST(type_discovery_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(type_discovery_struct_test ORO_EXTRA_TESTS "fixtures;${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(type_discovery_container_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
+    ADD_UNIT_TEST(datasource_test ORO_EXTRA_TESTS "fixtures;${TEST_LIBRARIES}")
     ADD_UNIT_TEST(typekit_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     if(PLUGINS_ENABLE)
         ADD_UNIT_TEST(plugins_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
