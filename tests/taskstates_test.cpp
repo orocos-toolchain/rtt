@@ -62,6 +62,7 @@ public:
         do_trigger=false;
         do_breakUH=false;
         do_block=false;
+        do_checks=true;
     }
 
     void resetFlags()
@@ -78,42 +79,54 @@ public:
     }
 
     bool configureHook() {
-        BOOST_CHECK( mTaskState <= Stopped );
-        BOOST_CHECK( getTargetState() == Stopped );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState <= Stopped );
+            BOOST_CHECK( getTargetState() == Stopped );
+        }
         didconfig = true;
         return validconfig;
     }
 
     bool startHook() {
-        BOOST_CHECK( mTaskState == Stopped);
-        BOOST_CHECK( getTargetState() == Running );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState == Stopped);
+            BOOST_CHECK( getTargetState() == Running );
+        }
         didstart = true;
         return validstart;
     }
 
     void stopHook() {
-        BOOST_CHECK( mTaskState >= Running || mTaskState == Exception);
-        BOOST_CHECK( getTargetState() == Stopped || getTargetState() == Exception );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState >= Running || mTaskState == Exception);
+            BOOST_CHECK( getTargetState() == Stopped || getTargetState() == Exception );
+        }
         didstop = true;
     }
 
     void cleanupHook() {
-        BOOST_CHECK( mTaskState == Stopped || mTaskState == Exception);
-        BOOST_CHECK( getTargetState() == PreOperational || getTargetState() == Exception );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState == Stopped || mTaskState == Exception);
+            BOOST_CHECK( getTargetState() == PreOperational || getTargetState() == Exception );
+        }
         didcleanup = true;
     }
 
     void exceptionHook() {
-        BOOST_CHECK( mTaskState == Exception);
-        BOOST_CHECK( getTargetState() == Exception );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState == Exception);
+            BOOST_CHECK( getTargetState() == Exception );
+        }
         didexcept = true;
         if (do_throw3)
             throw A();
     }
 
     void updateHook() {
-        BOOST_CHECK( mTaskState == Running );
-        BOOST_CHECK( getTargetState() == Running );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState == Running );
+            BOOST_CHECK( getTargetState() == Running );
+        }
         didupdate = true;
         updatecount++;
         if (do_fatal)
@@ -136,8 +149,10 @@ public:
     }
 
     void errorHook() {
-        BOOST_CHECK( mTaskState == RunTimeError );
-        BOOST_CHECK( getTargetState() == RunTimeError );
+        if (do_checks) {
+            BOOST_CHECK( mTaskState == RunTimeError );
+            BOOST_CHECK( getTargetState() == RunTimeError );
+        }
         diderror = true;
         if (do_fatal)
             this->fatal();
@@ -150,7 +165,7 @@ public:
     bool didstop;
     bool didcleanup;
     bool didupdate,diderror,didexcept, didbreakUH;
-    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger, do_breakUH, do_block;
+    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger, do_breakUH, do_block, do_checks;
     int  updatecount;
 };
 
@@ -219,6 +234,7 @@ BOOST_AUTO_TEST_CASE( testTrigger )
 {
     // Check default TC
     StatesTC trigtc;
+    trigtc.do_checks = false;
     BOOST_CHECK( trigtc.getPeriod() == 0.0 );
     BOOST_CHECK( trigtc.isActive() );
     BOOST_CHECK( trigtc.trigger() == true );
@@ -260,7 +276,7 @@ BOOST_AUTO_TEST_CASE( testTrigger )
     BOOST_CHECK( trigtc.do_trigger == false );
 
     // Check periodic TC ( rejects trigger() ):
-    StatesTC pertc;
+    TaskContext pertc("test");
     pertc.setPeriod( 0.1 );
     BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.1 );
     BOOST_CHECK( pertc.trigger() == false );
@@ -302,8 +318,7 @@ BOOST_AUTO_TEST_CASE( testBreakUpdateHook )
  */
 BOOST_AUTO_TEST_CASE( testSetPeriod )
 {
-    // Check periodic TC ( rejects trigger() ):
-    StatesTC pertc;
+    TaskContext pertc("test");
     BOOST_CHECK( pertc.setPeriod( 0.1 ) );
     BOOST_CHECK_EQUAL( pertc.getPeriod(), 0.1 );
     BOOST_CHECK( pertc.configure() == true);

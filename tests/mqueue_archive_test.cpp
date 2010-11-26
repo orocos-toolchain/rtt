@@ -62,10 +62,11 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     binary_data_oarchive out( outbuf ); // +0 alloc
     out << d; // +0 alloc
     out << c; // +0 alloc
+    rtos_disable_rt_warning();
 
     unsigned int stored = out.getArchiveSize();
     BOOST_CHECK( stored > 10*sizeof(double) );
-    rtos_disable_rt_warning();
+
 
     d = 0.0;
     c.clear();
@@ -76,6 +77,7 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
     binary_data_iarchive in( inbuf ); // +0 alloc
     in >> d; // +0 alloc
     in >> c; // +0 alloc
+    rtos_disable_rt_warning();
 
     BOOST_CHECK_CLOSE( d, 3.0, 0.01);
     BOOST_CHECK_EQUAL( c.size(), 10);
@@ -83,7 +85,6 @@ BOOST_AUTO_TEST_CASE( testBinaryDataArchive )
         BOOST_CHECK_CLOSE( c[i], 9.99, 0.01);
     }
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
-    rtos_disable_rt_warning();
 }
 
 /**
@@ -100,20 +101,20 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     io::stream<io::array_sink>  outbuf(sink,1000);
     binary_data_oarchive out( outbuf ); // +0 alloc
     out << make_array(c, 10); // +0 alloc
+    rtos_disable_rt_warning();
 
     unsigned int stored = out.getArchiveSize();
     BOOST_CHECK( stored >= 10*sizeof(char) );
-    rtos_disable_rt_warning();
 
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf ); // +0 alloc
     array<char> ma = make_array(c, 10);
     in >> ma; // +0 alloc
+    rtos_disable_rt_warning();
 
     BOOST_CHECK_EQUAL(c, "123456789");
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
-    rtos_disable_rt_warning();
 }
 
 /**
@@ -130,22 +131,22 @@ BOOST_AUTO_TEST_CASE( testMakeArrayBinaryDataArchive )
     io::stream<io::array_sink>  outbuf(sink,1000);
     binary_data_oarchive out( outbuf );
     out & make_nvp("array", make_array(c, 10) );
+    rtos_disable_rt_warning();
 
     unsigned int stored = out.getArchiveSize();
     BOOST_CHECK( stored >= 10*sizeof(double) );
-    rtos_disable_rt_warning();
 
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf );
     array<double> ma = make_array(r, 10);
     in & make_nvp("array", make_array(r, 10) );
+    rtos_disable_rt_warning();
 
     BOOST_CHECK_EQUAL(r[0], c[0]);
     BOOST_CHECK_EQUAL(r[4], c[4]);
     BOOST_CHECK_EQUAL(r[9], c[9]);
     BOOST_CHECK_EQUAL( stored, in.getArchiveSize() );
-    rtos_disable_rt_warning();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
