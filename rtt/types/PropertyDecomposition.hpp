@@ -48,9 +48,22 @@ namespace RTT {
         /**
          * Uses the type decomposition to decompose a property
          * into a property bag that refers to all its parts.
-         * Each modification of a part in the \a targetbag will modify \a source
-         * too.
-         * This function can only work if every part of the source
+         *
+         * It will first try to use the user's TypeInfo::decomposeType function and return
+         * that in targetbag if it generates a PropertyBag. If it generated something
+         * else than a PropertyBag, this function returns false. If decomposeType
+         * did not return anything, it will try the TypeInfo::getMember() approach to
+         * decompose source into the targetbag. If no members are returned, this function
+         * fails.
+         *
+         * In case the source type info supports it, each modification of a
+         * part in the \a targetbag will modify \a source too. This is so for
+         * typekits using the boost::serialization functions in combination with TypeInfo::getMember(). In case the type
+         * decompositions were written manually using TypeInfo::decomposeType(), this relation can no longer be
+         * guaranteed, and a composition step using TypeInfo::composeType() of the same type must be tried to update
+         * \a source with the modifications in \a targetbag.
+         *
+         * For the TypeInfo::getMember() method: This function can only work if every part of the source
          * is known by the RTT type system. Only the parts of source that are
          * assignable will be decomposed. The read-only parts will be silently omitted.
          *
@@ -61,10 +74,11 @@ namespace RTT {
         bool RTT_API propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag );
 
         /**
-         * Identical to propertyDecomposition, but takes a DataSourceBase as source.
+         * Identical to RTT::types::propertyDecomposition(), but takes a DataSourceBase as source.
          * @param source Contains a C++ type to be decomposed into a hierarchy of properties.
          * @param targetbag The bag in which to place the result.
          * @return True on success, false otherwise.
+         * @see RTT::types::propertyDecomposition
          */
         bool RTT_API typeDecomposition( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag);
     }

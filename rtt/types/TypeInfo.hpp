@@ -226,7 +226,10 @@ namespace RTT
          * If your return a datasource containing a property bag, then this function should do the inverse of
          * composeType: the returned property bag contains all parts of the current type (\a source) which can be modified and merged back
          * into this type with composeType. Mathematically: composeType( decomposeType( A ), B); assert( A == B );
-         * @return null if this type is not convertible to anything else.
+         * @return null if this type is not convertible to anything else. You may return \a source itself in order
+         * to prevent any further decomposition of your type (using getMember(), which is used as fall-back by the rest
+         * of the software). For example, to avoid that a string is decomposed
+         * into a sequence of chars.
          */
         virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const;
 

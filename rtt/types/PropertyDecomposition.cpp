@@ -74,9 +74,23 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
 {
     if (!dsb)
         return false;
-    // std::string is the only thing we really don't want to decompose (into chars).
-    if (dsb->getTypeInfo() == DataSourceTypeInfo<string>::TypeInfoObject)
-        return false;
+
+    // try user's custom type decomposition first:
+    DataSourceBase::shared_ptr decomposed = dsb->getTypeInfo()->decomposeType(dsb);
+    if (decomposed) {
+        // decomposed is or another type, or a PropertyBag
+        internal::AssignableDataSource<PropertyBag>::shared_ptr bag = internal::AssignableDataSource<PropertyBag>::narrow( decomposed.get() );
+        if ( bag ) {
+            // get it and copy it.
+            targetbag = bag->rvalue();
+            return true;
+        } else {
+            // it converted to something else than a bag.
+            // In cases where decomposeType() returned dsb itself, we stop the decomposition here.
+            return false;
+        }
+    }
+
     vector<string> parts = dsb->getMemberNames();
     if ( parts.empty() )
         return false;

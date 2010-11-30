@@ -51,6 +51,9 @@ namespace RTT {
         DataSourceBase::shared_ptr dsb = v->getTypeInfo()->decomposeType( v->getDataSource() );
         // Try conversion first because this is the user's implementation of decomposition:
         if ( dsb ) {
+            // check if type returned itself to avoid decomposition:
+            if ( dsb == v->getDataSource() )
+                return false;
             base::PropertyBase* p = dsb->getTypeInfo()->buildProperty(v->getName(), v->getDescription(), dsb);
             this->introspect( p );
             delete p;

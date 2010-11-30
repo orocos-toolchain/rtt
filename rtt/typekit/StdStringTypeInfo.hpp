@@ -73,6 +73,13 @@ namespace RTT
                 return false;
             }
 
+            /**
+             * A string is decomposed into itself.
+             */
+            virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const {
+                return source;
+            }
+
         };
     }
 }
