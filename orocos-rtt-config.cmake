@@ -110,6 +110,13 @@ else()
   message(FATAL_ERROR "Imported target ${PREFIX}orocos-rtt-${OROCOS_TARGET}_dynamic not found. Please contact a project developer to fix this issue")
 endif()
 
+# Typekit support
+set(OROCOS-RTT_TYPEKIT_TARGET "${PREFIX}rtt-typekit-${OROCOS_TARGET}_plugin")
+if(TARGET ${OROCOS-RTT_TYPEKIT_TARGET})
+  set(OROCOS-RTT_TYPEKIT_FOUND TRUE)
+  set(OROCOS-RTT_TYPEKIT_LIBRARIES ${OROCOS-RTT_TYPEKIT_TARGET})
+endif()
+
 # Corba support
 set(OROCOS-RTT_CORBA_TARGET "${PREFIX}orocos-rtt-corba-${OROCOS_TARGET}_dynamic")
 if(TARGET ${OROCOS-RTT_CORBA_TARGET})
