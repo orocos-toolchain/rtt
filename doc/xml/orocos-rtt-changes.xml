@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "2.0">
-<!ENTITY version     "2.1">
+<!ENTITY oldversion  "2.1">
+<!ENTITY version     "2.2">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -33,32 +33,59 @@
     The Real-Time Toolkit is no longer released as a single entity, but as part
     of a complete set of tools and libraries for creating real-time applications.
     See also the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.0.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.0 Changes</ulink>.
+		and the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.1.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.1 Changes</ulink>.
   </para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
 				<para>
-					This release is binary incompatible with RTT
-					&oldversion;.x. You need to upgrade and recompile all your applications
-					in order to use this release.
+					This release is binary incompatible with RTT &oldversion;.x. You need to recompile the
+					whole toolchain and all your applications in order to use this release.
 				</para>
       </listitem>
       <listitem>
 				<para>
-					On Linux, the 2.0.x releases loaded every plugin or
-					component library which filename had ".so" in it. This
-					version only loads libraries <emphasis>ending</emphasis> in
-					".so". Also, the previous release ignored symlinks. This release no longer
-					ignores symlinks.
+					Importing components with 'Import' in deployment XML files has changed. You need to use 'Path'
+					or 'Import'. Where 'Path' points to an extra directory to search for components
+					and packages or projects, and 'Import' imports one such package, project or a path to a specific
+					file. 
+				</para>
+				<para>
+					Import statements with only partial component names, like 'liblaserscan' will no longer work.
+					You need to set the path to this library with 'Path', which will cause it to be picked up
+					automatically, or set the path to it's parent directory and import the project it's in.
+					For example: <programlisting>
+  &lt;-- Imports all component libraries in /opt/orocos/lib/orocos-components and adds it to the search 'Path': --&gt;
+  &lt;-- The sub-directories of /opt/orocos/lib/orocos-components are <emphasis>not</emphasis> imported: --&gt;
+  &lt;simple type="string" name="Path"&gt;&lt;value&gt;/opt/orocos/lib/orocos-components&lt;/value&gt;&lt;/simple&gt;
+
+  &lt;-- Imports all component libraries in package or project 'laserscan' which must exist as a subdirectory in 'Path': --&gt;
+  &lt;simple type="string" name="Import"&gt;&lt;value&gt;laserscan&lt;/value&gt;&lt;/simple&gt;
+
+  &lt;-- Imports one component library directly: --&gt;
+  &lt;simple type="string" name="Import"&gt;&lt;value&gt;/opt/orocos/lib/orocos-components/laserscan/libscanner.so&lt;/value&gt;&lt;/simple&gt;
+</programlisting>
+          The DeploymentComponent manual has been updated with this new syntax.
 				</para>
       </listitem>
       <listitem>
 				<para>
-					Typegen is still subject to some <ulink
-					url="http://www.orocos.org/stable/documentation/rtt/v2.0.x/doc-xml/orocos-typekit-plugin.html">limitations</ulink>.
-					Especially, it can't generated TAO transports yet, only OmniORB works.  This is being
-					looked at and may be fixed in one of the 2.1.x releases.
+					One UseOrocos.cmake macro changed: <function>orocos_typekit()</function>. 
+				</para>
+				<para>
+					This macro now takes user written typekit files (.cpp files) instead of headers to pass
+					on to typegen. For passing headers on to typegen to generate a typekit for your project,
+					use the new <function>orocos_typegen_headers()</function> macro. In practice, this means
+					that if you had <function>orocos_typekit( foo.hpp )</function> in your CMakeLists.txt
+					file, you should rename it to <function>orocos_typegen_headers(foo.hpp)</function>.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					On Linux, you can no longer create component or plugin libraries that contain undefined symbols
+					when you use the UseOrocos.cmake macros. Use 'target_link_libraries( target-name libs...)' in
+					your CMakeLists.txt files to resolve the undefined symbols.
 				</para>
       </listitem>
     </itemizedlist>
@@ -70,11 +97,13 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						The initial UseOrocos.cmake macros have been created for use in
-						application CMake files. They are still in proposal status, but
-						will hopefully mature as feedback comes in. See the 
-						<ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-installation.html">Orocos
-						Installation Manual</ulink> for usage tips.
+						The <filename>UseOrocos.cmake</filename> macros have matured and are now recommended for all new
+						applications. Also, use the <command>orocreate-pkg</command> script, available in OCL, to create
+						new component packages. We support building Orocos and it's components in
+						ROS build environments and autoproj build environments.
+					</para>
+					<para>
+						All components, typekits and plugins of OCL are being built using these UseOrocos.cmake macros.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -84,9 +113,14 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						Calling trigger() from within startHook() is supported again, in order
-						to force executing updateHook() after start() for non periodic
-						components.
+						Starting a non periodic component will cause updateHook() to be called once,
+						without your startHook() needing to call 'trigger()'.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Connecting and disconnecting data flow ports is now thread-safe (and crash-safe)
+						in running applications. 
 					</para>
 				</listitem>
       </itemizedlist>
@@ -96,17 +130,17 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						Typegen has matured more and now generates code that can
-						be checked into version control systems (no absolute
-						paths). It still imposes some limitations to how your data
-						types may look like. Consult the typegen and typekit
-						manuals for more information.
+						typegen now also supports generating TAO compatible transports for
+						your typekits.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						See also the Scripting section below for improvements on
-						the typenames typegen generates.
+						For users writing their typekits by hand, a TypeInfo::decomposeType() function has been
+						added again, which had disappeared in the 1.x to 2.x transition. You can now specify
+						your custom XML serialization/deserialization algorithms, while still providing
+						introspection with getMember(). getMember() is necessary to allow to set and get
+						member variables of your structs.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -116,9 +150,11 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						Many issues have been fixed, including memory management, which
-						adds a dispose() method to the CSendHandle interface. All users
-						of the corba transport are urged to upgrade to this release.
+						You <emphasis>must</emphasis> call
+						<function>CDataFlowInterface::channelReady()</function> once after you finished constructing
+						a channel with <function>CDataFlowInterface::buildChannelOutput()</function> when you use
+						the CORBA idl interface to talk to ports. When channelReady returns false, you may 
+						not use the resulting channel and must dispose it with disconnect().
 					</para>
 				</listitem>
       </itemizedlist>
@@ -128,19 +164,78 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						Types generated by typegen can now be used in scripting
-						in an intuitive way. For example
-						<programlisting>  // old 2.0 style:
-	var /Bar bar = createBar();
-	var /std/vector&lt;/Bar&gt; bars; // constructor does not work
+						Scripting has received some major feature additions which close
+						long-standing issues:
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Scripting will warn if you load a script in a non-periodic component.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						You can now concatenate strings with ints or doubles. For example:
+						<programlisting>  var string str = "hello"
+  str[0] = 'H'
+  str = str + " " + 42 + " !  // str == "Hello 42 !"</programlisting>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						A global 'print' service has been added. This is a service that is
+						not tied to a specific component and which is loaded only once
+						in a process, but can than be accessed from any component. Global
+						service are loaded by the 'require' keyword in scripts:
+						<programlisting>  require("print")
+  
+  print.ln("prints a line. The answer is: " + 42 )
+  print.log(Info,"Prints using the RTT::Logger with log-level 'Info'")
+</programlisting>
+             Global services can be easily created and extended. They can add 
+						 operations and attributes at the global scope (like 'require') 
+						 or at the local scope (like 'print.ln').
+					</para>
+					<para>
+						A global 'os' service has been added as well which allows to check, read
+						and write environment variables.
+					</para>
+					<para>
+						These services can easily be explored interactively using the TaskBrowser.
+						The available services can be listed with the '.services' command in the
+						TaskBrowser. The TaskBrowser completes and provides help for these services.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The scripting parsers have been updated to parse all syntax forms
+						(function, program, StateMachine,...) in one file. Even more, the
+						file may contain script statements anywhere at the top level. For example,
+						this file 'startup.ops' looks like:
+						<programlisting>  // Since 'import' is an operation of the deployer, 
+  // we need to load this script in the DeploymentComponent:
+  import("my-robot")
+  require("print")
 
-	// new 2.1 style:
-	var Bar bar2 = createBar();
-	// creates 10 Bar elements, each a copy of 'bar2':
-	var std.vector&lt;Bar&gt; bars2 = std.vector&lt;Bar&gt;(10, bar2 );
-						</programlisting>
-						Both the constructor and the type name accept the new
-						'dotted' notation.
+  loadComponent("MyRob1","MyRobot::MyRob")
+  MyRob1.configure()
+  MyRob1.start()
+
+  // You may also define a function or StateMachine
+  program testLoop {
+    while ( MyRob1.isRunning() ) {
+       print.ln("MyRob1 status:" + MyRob1.isRunning() )
+			 yield
+    }
+  }
+
+  // sets the period of the component running this script.
+  this.setPeriod(0.1)
+  testLoop.start()</programlisting>
+					</para>
+					<para>
+						This script can then be run in the Deployer with: 
+						<command> deployer-gnulinux -s startup.ops</command>
 					</para>
 				</listitem>
       </itemizedlist>
@@ -148,19 +243,60 @@
   </section>
   <section>
     <title>Orocos Component Library (OCL)</title>
+		<section>
+			<title>Lua scripting</title>
+			<itemizedlist>      
+				<listitem>
+					<para>
+						The <classname>Lua</classname> components and tools have been added
+						in order to execute real-time scripts in Lua. Currently, calling or
+						sending operations is still not real-time, but using ports and executing Lua
+						functions are.
+					</para>
+					<para>
+						A special feature present in the Lua integration is the ability to define and run
+						hierarchical state machines in Lua and to implement complete components in Lua,
+						without needing a C++ implementation of your component.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
     <section>
       <title>Deployment</title>
       <itemizedlist>
 				<listitem>
 					<para>
-						The DeploymentComponent no longer ignores symlinks when looking for
-						components and only loads files ending in .so/.dll/.dylib etc.
+						You may provide any number of XML or script files to the deployer for 'kick-starting'
+						(launching) an application. The XML files will be considered as 'groups' such that the
+						unloading of these components happens in the reverse order. For example: <command>
+						deployer-gnulinux -s setup.xml -s application.xml -s testscript.ops</command> First
+						loads, configures and starts all components in <filename>setup.xml</filename>. Then the
+						same for the ones in <filename>application.xml</filename> and finally parses and runs
+						the <filename>testscript.ops</filename> file.
+					</para>
+					<para>
+						In a running Deployer, you can use the operations <function>kickStart("file.xml")</function>
+						and <function>runScript("file.ops")</function> to do the same.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						The CORBA deployment component can now also create corba servers
-						directly using the 'corbaComponent' operation (similar to loadComponent).
+						It is now possible to connect the ports of two remote components by
+						connecting the ports of their two proxies.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						In a ROS environment, the 'Import' statement can import the Orocos component of any ROS
+						package, when these components are built in package/lib/orocos.  Your components will
+						be put there when you use the UseOrocos.cmake macros to build your components in a ROS
+						environment.  In this case, a 'Path' is not required, since the ROS_PACKAGE_PATH is
+						used instead.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						See the Caveats section on top for the change of 'Import' and 'Path'.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -170,26 +306,26 @@
 			<itemizedlist>      
 				<listitem>
 					<para>
-						The TaskBrowser prompt has been simplified and allows 'Matlab' like
-						output suppression using the ';' character at the end of a line.
-						If the ';' character is not used, whatever was typed is evaluated
-						and printed to screen; if the line ends in ';', the statement
-						is evaluated but the result is not printed.
+						The TAB-completion has been further tuned and improved.
 					</para>
 				</listitem>
+			</itemizedlist>
+		</section>
+		<section>
+			<title>Real-Time Logging Service</title>
+			<itemizedlist>      
 				<listitem>
 					<para>
-						The TaskBrowser now understands a 'help service.operation' or
-						'help service' command. Which prints the interface of a service
-						or operation.
+						A <classname>OCL::LoggingService</classname> component has been added which
+						works with the log4cpp tree maintained by the Orocos developers. It allows
+						real-time logging of components using a 'pattern layout' compatible with
+						the log4j framework. This allows you in turn to use some of the available 
+						log browsing tools to diagnose Orocos log traces.
 					</para>
-				</listitem>
-				<listitem>
 					<para>
-						The TaskBrowser supports readline on win32, if it's
-						installed as a static .lib. Do not use 'rxvt' in combination
-						with readline on win32. Both can not work due to buffering
-						done in rxvt.
+						A patch is in the queue for converting the RTT::Logger to the same framework,
+						but it is not part of this release. So RTT::Logger statements still go to
+						the orocos.log file.
 					</para>
 				</listitem>
 			</itemizedlist>
