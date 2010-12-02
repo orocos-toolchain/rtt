@@ -81,9 +81,12 @@ namespace RTT
         return keys(mrequests);
     }
 
-    OperationCallerBaseInvoker& ServiceRequester::getOperationCaller(const std::string& name)
+    OperationCallerBaseInvoker* ServiceRequester::getOperationCaller(const std::string& name)
     {
-        return *mmethods.find(name)->second;
+        OperationCallers::iterator it = mmethods.find(name);
+        if (it != mmethods.end())
+            return it->second;
+        return 0;
     }
 
     bool ServiceRequester::connectTo( Service::shared_ptr sp) {

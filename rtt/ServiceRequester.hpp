@@ -90,7 +90,7 @@ namespace RTT
 
         OperationCallerNames getOperationCallerNames() const;
 
-        base::OperationCallerBaseInvoker& getOperationCaller(const std::string& name);
+        base::OperationCallerBaseInvoker* getOperationCaller(const std::string& name);
 
         ServiceRequester* requires() { return this; }
 
