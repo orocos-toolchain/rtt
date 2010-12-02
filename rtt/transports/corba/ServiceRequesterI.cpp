@@ -113,9 +113,25 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 }
 
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CServiceRequester_i::getRequest (
-    const char * name)
+    const char * service_name)
 {
-    return RTT::corba::CServiceRequester::_nil();
+    string svc(service_name);
+    if ( svc == "this" )
+        return _this();
+
+    if ( mservice->requiresService(service_name) == false )
+        return RTT::corba::CServiceRequester::_nil();
+
+    // Creates service requester
+    if ( mrequests.find(svc) == mrequests.end() ) {
+        log(Debug) << "Creating CServiceRequester for "<< service_name <<endlog();
+        RTT_corba_CServiceRequester_i* mserv;
+        mserv = new RTT_corba_CServiceRequester_i( mservice->requires(service_name), mpoa );
+        CServiceRequester_ptr request = mserv->activate_this();
+        mrequests[svc] = pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var>(request,mserv);
+    }
+    // Now return it.
+    return RTT::corba::CServiceRequester::_duplicate( mrequests[svc].first.in() );
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::hasRequest (

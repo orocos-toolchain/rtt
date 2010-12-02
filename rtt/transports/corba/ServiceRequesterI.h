@@ -77,6 +77,7 @@
 #endif
 
 #include "../../ServiceRequester.hpp"
+#include <map>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -87,6 +88,7 @@ class  RTT_corba_CServiceRequester_i
 {
 protected:
     RTT::ServiceRequester* mservice;
+    std::map<std::string, std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var> > mrequests;
     PortableServer::POA_ptr mpoa;
 public:
   // Constructor 

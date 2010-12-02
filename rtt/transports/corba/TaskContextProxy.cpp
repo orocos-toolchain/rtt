@@ -40,6 +40,7 @@
 #include "TaskContextC.h"
 #include "CorbaOperationCallerFactory.hpp"
 #include "CorbaLib.hpp"
+#include "OperationCallerProxy.hpp"
 
 #include "../../types/Types.hpp"
 #include "../../extras/SequentialActivity.hpp"
@@ -222,7 +223,35 @@ namespace RTT
         CService_var serv = mtask->getProvider("this");
         this->fetchServices(this->provides(), serv.in() );
 
+        CServiceRequester_var srq = mtask->getRequester("this");
+        this->fetchRequesters(this->requires(), srq.in() );
         log(Debug) << "All Done."<<endlog();
+    }
+
+    void TaskContextProxy::fetchRequesters(ServiceRequester* parent, CServiceRequester_ptr csrq)
+    {
+        COperationCallerNames_var opcnames = csrq->getOperationCallerNames();
+
+        log(Debug) << "Fetching OperationCallers of " << parent->getRequestName()<<endlog();
+        for ( size_t i=0; i < opcnames->length(); ++i) {
+            if ( parent->getOperationCaller( string(opcnames[i].in() )))
+                continue; // already added.
+            log(Debug) << "Requiring operation: "<< opcnames[i].in() <<endlog();
+            parent->addOperationCaller( * new OperationCallerProxy(string(opcnames[i].in() ), CServiceRequester::_duplicate(csrq) ));
+        }
+
+        CRequestNames_var rqlist = csrq->getRequestNames();
+
+        for( size_t i =0; i != rqlist->length(); ++i) {
+            if ( string( rqlist[i] ) == "this")
+                continue;
+            CServiceRequester_var cobj = csrq->getRequest(rqlist[i]);
+
+            ServiceRequester* tobj = this->requires(std::string(rqlist[i]));
+
+            // Recurse:
+            this->fetchRequesters( tobj, cobj.in() );
+        }
     }
 
     // Recursively fetch remote objects and create local proxies.
@@ -231,7 +260,7 @@ namespace RTT
         log(Debug) << "Fetching "<<parent->getName()<<" Service:"<<endlog();
         // load command and method factories.
         // methods:
-        log(Debug) << "Fetching OperationCallers."<<endlog();
+        log(Debug) << "Fetching Operations."<<endlog();
         COperationInterface::COperationList_var objs;
         objs = serv->getOperations();
         for ( size_t i=0; i < objs->length(); ++i) {
@@ -348,9 +377,14 @@ namespace RTT
     }
 
     TaskContextProxy* TaskContextProxy::Create(std::string name, bool is_ior /*=false*/) {
-        if ( CORBA::is_nil(orb) || name.empty() )
+        if ( CORBA::is_nil(orb) ) {
+            log(Error) << "Won't create a proxy for '"<<name<<"' : orb is nill. Call TaskContextProxy::InitOrb(argc, argv); before TaskContextProxy::Create()." <<endlog();
             return 0;
-
+        }
+        if ( name.empty() ) {
+            log(Error) << "Can't create a proxy with an empty name." <<endlog();
+            return 0;
+        }
         // create new:
         try {
             TaskContextProxy* ctp = new TaskContextProxy( name, is_ior );
@@ -363,8 +397,14 @@ namespace RTT
     }
 
     TaskContextProxy* TaskContextProxy::CreateFromFile(std::string name) {
-        if ( CORBA::is_nil(orb) || name.empty() )
+        if ( CORBA::is_nil(orb) ) {
+            log(Error) << "Won't create a proxy for '"<<name<<"' : orb is nill. Call TaskContextProxy::InitOrb(argc, argv); before TaskContextProxy::Create()." <<endlog();
             return 0;
+        }
+        if ( name.empty() ) {
+            log(Error) << "Can't create a proxy with an empty file name." <<endlog();
+            return 0;
+        }
 
         // create new:
         ifstream namestream( name.c_str() );

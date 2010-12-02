@@ -221,7 +221,8 @@ char * RTT_corba_CTaskContext_i::getDescription (
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CTaskContext_i::getRequester (
     const char * service_name)
 {
-    if ( mtask->requires()->requiresService(service_name) == false)
+    string svc(service_name);
+    if ( mtask->requires()->requiresService(service_name) == false && svc != "this")
         return CServiceRequester::_nil();
     // Creates service requester for "this"
     if ( CORBA::is_nil( mRequest ) ) {
@@ -232,7 +233,6 @@ char * RTT_corba_CTaskContext_i::getDescription (
         //CServiceRequester_i::registerServant(mRequest, mtask->requires());
     }
     // Now the this service is available, check for the service name:
-    string svc(service_name);
     if ( svc == "this" )
         return ::RTT::corba::CServiceRequester::_duplicate( mRequest.in() );
     return mRequest->getRequest( service_name );
