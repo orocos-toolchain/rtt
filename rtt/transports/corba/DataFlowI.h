@@ -109,8 +109,7 @@ namespace RTT {
          * connections using other transports.
          */
         class CDataFlowInterface_i
-            : public POA_RTT::corba::CDataFlowInterface
-            , public virtual PortableServer::RefCountServantBase
+            : public virtual POA_RTT::corba::CDataFlowInterface
         {
             DataFlowInterface* mdf;
             PortableServer::POA_var mpoa;

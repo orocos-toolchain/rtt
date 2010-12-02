@@ -121,8 +121,7 @@ public:
 };
 
 class  RTT_corba_COperationInterface_i
-  : public virtual POA_RTT::corba::COperationInterface,
-  public virtual PortableServer::RefCountServantBase
+  : public virtual POA_RTT::corba::COperationInterface
 {
       RTT::OperationInterface* mfact;
       PortableServer::POA_var mpoa;

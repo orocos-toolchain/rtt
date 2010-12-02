@@ -8,6 +8,7 @@
 
 #include "ConfigurationInterface.idl"
 #include "OperationInterface.idl"
+#include "DataFlow.idl"
 
 module RTT
 {
@@ -18,7 +19,7 @@ module RTT
 	 * An Orocos Service which hosts operations, attributes and properties.
 	 * @ingroup CompIDL
 	 */
-	interface CService : COperationInterface, CConfigurationInterface
+	interface CService : COperationInterface, CConfigurationInterface, CDataFlowInterface
 	{
 	    typedef sequence<string> CProviderNames;
 

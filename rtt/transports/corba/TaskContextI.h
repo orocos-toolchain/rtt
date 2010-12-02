@@ -94,11 +94,9 @@ protected:
 
     RTT::corba::CService_var mService;
     RTT::corba::CServiceRequester_var mRequest;
-    RTT::corba::CDataFlowInterface_var mDataFlow;
 
     PortableServer::ServantBase_var mRequest_i;
     PortableServer::ServantBase_var mService_i;
-    PortableServer::ServantBase_var mDataFlow_i;
 
 public:
   // Constructor

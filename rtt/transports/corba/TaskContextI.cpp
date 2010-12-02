@@ -83,7 +83,7 @@ using namespace RTT::corba;
 // Implementation skeleton constructor
 RTT_corba_CTaskContext_i::RTT_corba_CTaskContext_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa)
     : mpoa( PortableServer::POA::_duplicate(the_poa) )
-    , mtask( orig ), mRequest_i(0), mService_i(0), mDataFlow_i(0)
+    , mtask( orig ), mRequest_i(0), mService_i(0)
 {
     // Add the corba object to the interface:
     mtask->addOperation("shutdown", &RTT_corba_CTaskContext_i::shutdownCORBA, this).doc("Shutdown CORBA ORB. This function makes RunOrb() return.");
@@ -188,14 +188,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
 ::RTT::corba::CDataFlowInterface_ptr RTT_corba_CTaskContext_i::ports (
     void)
 {
-    if ( CORBA::is_nil( mDataFlow ) ) {
-        log(Debug) << "Creating CDataFlowInterface."<<endlog();
-        RTT::corba::CDataFlowInterface_i* mserv;
-        mDataFlow_i = mserv = new RTT::corba::CDataFlowInterface_i( mtask->ports(), mpoa );
-        mDataFlow = mserv->activate_this();
-        CDataFlowInterface_i::registerServant( CDataFlowInterface::_duplicate(mDataFlow), mtask->ports());
-    }
-    return ::RTT::corba::CDataFlowInterface::_duplicate( mDataFlow.in() );
+    return getProvider("this");
 }
 
 ::RTT::corba::CService_ptr RTT_corba_CTaskContext_i::getProvider (

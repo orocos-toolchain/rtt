@@ -79,6 +79,7 @@
 #include "../../Service.hpp"
 #include "ConfigurationInterfaceI.h"
 #include "OperationInterfaceI.h"
+#include "DataFlowI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -88,6 +89,7 @@ class  RTT_corba_CService_i
     : public virtual POA_RTT::corba::CService, public virtual PortableServer::RefCountServantBase,
       public virtual RTT_corba_CConfigurationInterface_i,
       public virtual RTT_corba_COperationInterface_i
+      ,public virtual RTT::corba::CDataFlowInterface_i
 {
 protected:
     PortableServer::POA_var mpoa;
@@ -105,7 +107,7 @@ public:
   virtual RTT::corba::CService_ptr activate_this() {
       PortableServer::ObjectId_var oid = mpoa->activate_object(this); // ref count=2
       //_remove_ref(); // ref count=1
-      return _this();
+      return POA_RTT::corba::CService::_this();
   }
 
   PortableServer::POA_ptr _default_POA();
