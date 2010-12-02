@@ -241,6 +241,17 @@ bool RemoteOutputPort::createConnection( RTT::base::InputPortInterface& sink, RT
 {
     try {
         CConnPolicy cpolicy = toCORBA(policy);
+        // first check if we're connecting to another remote:
+        RemoteInputPort* rip = dynamic_cast<RemoteInputPort*>(&sink);
+        if ( rip ){
+            CDataFlowInterface_var cdfi = rip->getDataFlowInterface();
+            if ( dataflow->createConnection( this->getName().c_str(), cdfi.in() , sink.getName().c_str(), cpolicy ) ) {
+                policy.name_id = cpolicy.name_id;
+                return true;
+            } else
+                return false;
+        }
+        // !!! only if sink is local:
         // this dynamic CDataFlowInterface lookup is tricky, we re/ab-use the DataFlowInterface pointer of sink !
         CDataFlowInterface_ptr cdfi = CDataFlowInterface_i::getRemoteInterface( sink.getInterface(), mpoa.in() );
         if ( dataflow->createConnection( this->getName().c_str(), cdfi , sink.getName().c_str(), cpolicy ) ) {
