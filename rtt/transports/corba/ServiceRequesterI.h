@@ -89,7 +89,7 @@ class  RTT_corba_CServiceRequester_i
 protected:
     RTT::ServiceRequester* mservice;
     std::map<std::string, std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var> > mrequests;
-    PortableServer::POA_ptr mpoa;
+    PortableServer::POA_var mpoa;
 public:
   // Constructor 
     RTT_corba_CServiceRequester_i (RTT::ServiceRequester* service, PortableServer::POA_ptr poa);
@@ -127,6 +127,11 @@ public:
   ::CORBA::Boolean connectTo (
       ::RTT::corba::CService_ptr svc);
   
+  virtual
+  ::CORBA::Boolean connectCallerTo (
+      const char * name,
+      ::RTT::corba::CService_ptr svc);
+
   virtual
   ::CORBA::Boolean ready (
       void);

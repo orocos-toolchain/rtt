@@ -1,6 +1,7 @@
 #include "ServiceRequesterC.h"
 #include <string>
 #include "../../base/OperationCallerBaseInvoker.hpp"
+#include "CorbaOperationCallerFactory.hpp"
 
 namespace RTT
 {
@@ -29,6 +30,17 @@ namespace RTT
 
             virtual bool setImplementationPart(OperationInterfacePart* orp, ExecutionEngine* caller = 0) {
                 // todo: forward to remote side.
+                // if orp is local, we need to provide the remote side with a service to this operation part.
+                // if orp is remote, we need to pass on the service
+                CorbaOperationCallerFactory* cocf = dynamic_cast<CorbaOperationCallerFactory*>(orp);
+                if (cocf) {
+                    // good: it's already a remote service, just pass on the misery
+                    return msrq->connectCallerTo(mname.c_str(), cocf->getService() );
+                } else {
+                    // bad: we need to create or lookup
+                    log(Error) <<"Can't connect an operation caller proxy directly to a local service."<<endlog();
+                    log(Error) <<"Use CServiceRequester::connectTo() or CServiceRequester::connectCallerTo(). "<<endlog();
+                }
                 return false;
             }
 

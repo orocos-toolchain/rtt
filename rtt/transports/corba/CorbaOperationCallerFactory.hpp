@@ -74,6 +74,13 @@ namespace RTT
 
         virtual ~CorbaOperationCallerFactory();
 
+        /**
+         * Returns the remote service that hosts this part.
+         * @return The pointer to a CService object. You need to
+         * duplicate it if you want to keep using it.
+         */
+        corba::CService_ptr getService() { return mfact.in(); }
+
         virtual unsigned int arity() const;
 
         virtual const types::TypeInfo* getArgumentType(unsigned int i) const;

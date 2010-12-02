@@ -47,10 +47,26 @@ module RTT
 	     */
 	    boolean hasRequest( in string name );
 
+        /**
+         * Connects the whole interface to a remote service.
+         */
 	    boolean connectTo( in CService svc);
+	    
+	    /**
+	     * Connets a single operation caller from this interface to
+	     * one with the same name in a remote service.
+	     */
+	    boolean connectCallerTo( in string name, in CService svc);
 
+        /**
+         * Returns true if all operation callers are connected to
+         * the operations of a service.
+         */
 	    boolean ready();
 
+        /**
+         * Disconnects all operation callers.
+         */
 	    void disconnect();
 	};
 

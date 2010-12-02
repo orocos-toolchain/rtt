@@ -67,13 +67,15 @@
 // ../../../ACE_wrappers/TAO/TAO_IDL/be/be_codegen.cpp:1196
 
 #include "ServiceRequesterI.h"
+#include "CorbaOperationCallerFactory.hpp"
+#include "TaskContext.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
 
 // Implementation skeleton constructor
 RTT_corba_CServiceRequester_i::RTT_corba_CServiceRequester_i ( RTT::ServiceRequester* service, PortableServer::POA_ptr poa )
-    : mservice(service), mpoa(poa)
+    : mservice(service), mpoa( PortableServer::POA::_duplicate(poa) )
 {
 }
 
@@ -143,8 +145,32 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::connectTo (
     ::RTT::corba::CService_ptr svc)
 {
-    assert(false);
-    return false;
+    ServiceRequester::OperationCallerNames names = mservice->getOperationCallerNames();
+
+    for (unsigned int i=0; i != names.size(); ++i )
+        connectCallerTo( names[i].c_str(), svc);
+
+    return mservice->ready();;
+}
+
+::CORBA::Boolean RTT_corba_CServiceRequester_i::connectCallerTo (
+      const char * name,
+      ::RTT::corba::CService_ptr svc)
+{
+    string oname(name);
+    if ( mservice->getOperationCaller(oname) == 0) {
+        log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
+        return false;
+    }
+    if ( svc->getArity(oname.c_str()) == -1) {
+        CORBA::String_var svcname = svc->getName();
+        log(Error) << "No such Operation: " << oname << " in "<< svcname.in() << endlog();
+        return false;
+    }
+
+    // creates a local factory for this remote method.
+    OperationInterfacePart* tmp = new CorbaOperationCallerFactory(oname,svc, mpoa.in() );
+    return mservice->getOperationCaller(oname)->setImplementationPart( tmp, mservice->getServiceOwner()->engine() );
 }
 
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::ready (
