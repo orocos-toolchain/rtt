@@ -21,6 +21,11 @@ if(OROCOS-RTT_FOUND)
     SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
   endif (CMAKE_COMPILER_IS_GNUCXX)
 
+  # Detect user flag: install with orocos
+  if (INSTALL_PATH STREQUAL "orocos")
+    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH})
+  endif (INSTALL_PATH STREQUAL "orocos")
+
 #
 # Include and link against required stuff
 #
