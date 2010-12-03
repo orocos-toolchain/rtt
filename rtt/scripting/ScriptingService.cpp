@@ -583,13 +583,10 @@ namespace RTT {
             parser.runScript(code, mowner, this, filename );
         }
         catch( const file_parse_exception& exc )
-            {
-  #ifndef ORO_EMBEDDED
-                Logger::log() << Logger::Error <<filename<<" :"<< exc.what() << Logger::endl;
-                throw;
-  #endif
-                return false;
-            }
+        {
+            log(Error) <<filename<<" :"<< exc.what() << endlog();
+            return false;
+        }
         return true;
     }
 

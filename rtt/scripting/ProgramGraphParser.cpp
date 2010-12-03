@@ -104,7 +104,9 @@ namespace RTT
 
   ProgramGraphParser::~ProgramGraphParser() {
       // necessary in case we were used outside of our parse() methods.
-      cleanup();
+      // we also try to remove the service, because the user will call programParserResult()
+      // to do cleanup himself, in which case this becomes a no-op.
+      cleanup(true);
   }
 
   void seennothing() {
@@ -248,7 +250,7 @@ namespace RTT
         // set the program text in each program :
         program_list.front()->setText( program_text );
         result=program_list.front();
-        this->cleanup();
+        this->cleanup(false);
         program_list.clear();
         return result;
     }
@@ -302,6 +304,7 @@ namespace RTT
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
   {
+      // we set it in the parse() function. It is set to the whole script such that line numbers are correct.
       //program_text = std::string(begin, end);
   }
 
@@ -652,7 +655,7 @@ namespace RTT
       if ( ! production.parse( scanner ) )
       {
           // This gets shown if we didn't even get the chance to throw an exception :
-        cleanup();
+        cleanup(true);
         throw file_parse_exception(new parse_exception_syntactic_error( " no valid input found." ),
                                    mpositer.get_position().file, mpositer.get_position().line,
                                    mpositer.get_position().column );
@@ -661,7 +664,7 @@ namespace RTT
       // set the program text in each program :
       for (std::vector<FunctionGraphPtr>::iterator it= program_list.begin();it!=program_list.end();++it)
           (*it)->setText( program_text );
-      this->cleanup();
+      this->cleanup(false);
       std::vector<ProgramInterfacePtr> result;
       for (std::vector<FunctionGraphPtr>::iterator it= program_list.begin();it!=program_list.end();++it)
           result.push_back( *it );
@@ -670,7 +673,7 @@ namespace RTT
     }
     catch( const parser_error<std::string, iter_t>& e )
         {
-            cleanup();
+            cleanup(true);
             program_list.clear();
             throw file_parse_exception(
                 new parse_exception_syntactic_error( e.descriptor ),
@@ -681,7 +684,7 @@ namespace RTT
     // Catch our Orocos exceptions
     catch( const parse_exception& e )
     {
-        cleanup();
+        cleanup(true);
       program_list.clear();
       throw file_parse_exception(
                 e.copy(), mpositer.get_position().file,
@@ -705,7 +708,7 @@ namespace RTT
       if ( ! functions.parse( scanner ) )
       {
           // This gets shown if we didn't even get the chance to throw an exception :
-        cleanup();
+        cleanup(false);
         throw file_parse_exception(new parse_exception_syntactic_error( " no valid input found." ),
                                    mpositer.get_position().file, mpositer.get_position().line,
                                    mpositer.get_position().column );
@@ -717,13 +720,13 @@ namespace RTT
           function_list.push_back( it->second );
       }
 
-      this->cleanup();
+      this->cleanup(false);
       return function_list;
     }
     // Catch Boost::Spirit exceptions
     catch( const parser_error<std::string, iter_t>& e )
         {
-            cleanup();
+            cleanup(false);
             throw file_parse_exception(
                 new parse_exception_syntactic_error( e.descriptor ),
                 mpositer.get_position().file, mpositer.get_position().line,
@@ -733,15 +736,17 @@ namespace RTT
     // Catch our Orocos exceptions
     catch( const parse_exception& e )
     {
-        cleanup();
+        cleanup(false);
         throw file_parse_exception(
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
     }
   }
 
-  void ProgramGraphParser::cleanup()
+  void ProgramGraphParser::cleanup(bool unload_service)
   {
+      if (unload_service && rootc && context)
+          rootc->provides()->removeService( context->getName() );
       // after an exception, we can be in any state, so cleanup
       // all temp objects.
       delete argsparser;

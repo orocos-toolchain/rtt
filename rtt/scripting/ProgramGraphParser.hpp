@@ -183,7 +183,7 @@ namespace RTT { namespace scripting
       void setStack(Service::shared_ptr st);
       void setup();
       void setup2();
-      void cleanup();
+      void cleanup(bool remove_service);
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           dostatement, trystatement, statement, line, content, program,

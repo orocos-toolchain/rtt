@@ -46,9 +46,9 @@ class ProgramTest : public OperationsFixture
 {
 public:
     Parser parser;
-    ScriptingService* sa;
-    Attribute<int> var_i;
-    Constant<int>* const_i;
+    ScriptingService::shared_ptr sa;
+    int var_i;
+    int const_i;
 
     void doProgram( const std::string& prog, TaskContext*, bool test=true );
     void finishProgram( TaskContext* , std::string );
@@ -60,21 +60,19 @@ public:
         tc->stop();
         BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
         BOOST_REQUIRE( tc->start() );
-        Attribute<int> init_var("tvar_i");
-        var_i = &init_var;
-        const_i = new Constant<int>("tconst_i",-1);
+        tc->provides()->addService( sa );
+        tc->provides()->addAttribute("tvar_i", var_i);
+        tc->provides()->addConstant("tconst_i", const_i);
         // ltc has a test object
 
-        tc->provides()->addAttribute( var_i );
-        tc->provides()->addConstant( *const_i );
-        var_i.set(-1);
+        const_i = -1;
+        var_i = -1;
         i = 0;
         SimulationThread::Instance()->stop();
     }
 
     ~ProgramTest()
     {
-        delete const_i;
     }
 
 };
@@ -104,6 +102,59 @@ BOOST_AUTO_TEST_CASE(testReturnProgram)
     string prog = "program x { return \n }";
     this->doProgram( prog, tc );
     this->finishProgram( tc, "x");
+}
+
+// check that loading a faulty program causes an exception
+// and that the program is not present as a service in tc
+BOOST_AUTO_TEST_CASE(testProgramError)
+{
+    string prog = "program x { not_exist = 10\n }";
+    Parser::ParsedPrograms pg_list;
+    BOOST_CHECK_THROW(pg_list = parser.parseProgram( prog, tc ),file_parse_exception);
+    BOOST_CHECK( pg_list.empty() );
+    BOOST_REQUIRE( tc->provides()->hasService("x") == false);
+
+    BOOST_CHECK( sa->runScript(prog) == false);
+    BOOST_REQUIRE( tc->provides()->hasService("x") == false);
+}
+
+// same as above, but with runScript
+BOOST_AUTO_TEST_CASE(testrunScriptError)
+{
+    string prog = "tvar_i = 33\n program x { not_exist = 10\n } \n tvar_i = 66\n";
+    BOOST_CHECK( sa->eval(prog) == false);
+    BOOST_CHECK_EQUAL( var_i, 33 );
+    BOOST_REQUIRE( tc->provides()->hasService("x") == false);
+}
+
+// tests if the text is properly saved
+BOOST_AUTO_TEST_CASE(test_getProgramText)
+{
+    // a program which should never fail
+    // test this methods.
+    string prog = string("/** This is the test_getProgramText to parse */\nprogram x { \n")
+        + " true\n"
+        + "}";
+
+    this->doProgram( prog, tc );
+    BOOST_CHECK_EQUAL( sa->getProgramText("x"), prog );
+    this->finishProgram( tc, "x");
+}
+
+// tests if the text is properly saved in runScript
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(test_getProgramText_runScript, 1)
+BOOST_AUTO_TEST_CASE(test_getProgramText_runScript)
+{
+    // a program which should never fail
+    // test this methods.
+    string prog = string("/** This is the test_getProgramText_runScript to parse */\nprogram x { \n")
+        + " true\n"
+        + "}\n";
+
+    string evaled = string("tvar_i = 33\n") + prog + "tvar_i = 66\n";
+
+    BOOST_CHECK( sa->eval(evaled) == true);
+    BOOST_CHECK_EQUAL( sa->getProgramText("x"), evaled + "\n" );
 }
 
 BOOST_AUTO_TEST_CASE(testParseProgram)
@@ -386,7 +437,7 @@ BOOST_AUTO_TEST_CASE(testSend)
         + "}";
     this->doProgram( prog, tc );
     BOOST_REQUIRE_EQUAL( i, 3 );
-    BOOST_REQUIRE_EQUAL( var_i.get(), 3 );
+    BOOST_REQUIRE_EQUAL( var_i, 3 );
     this->finishProgram( tc, "x");
 }
 

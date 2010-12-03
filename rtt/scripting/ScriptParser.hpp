@@ -30,6 +30,7 @@ namespace RTT
             our_pos_iter_t saveStartPos;
             // running offset
             int ln_offset;
+            std::string program_text;
 
             rule_t production;
             rule_t statement;

@@ -109,6 +109,9 @@ namespace RTT
         assert(ss);
         ProgramInterfacePtr ret = programparser->programParserResult();
         try {
+            FunctionGraphPtr func = dynamic_pointer_cast<FunctionGraph>(ret);
+            if (func)
+                func->setText(program_text);
             log(Info) << "Loading Program '"<< ret->getName() <<"'" <<endlog();
             if ( ss->loadProgram( ret ) == false)
                 throw program_load_exception( "Could not load Program '"+ ret->getName() +"' :\n failed to load in ScriptingService.\n");
@@ -159,6 +162,7 @@ namespace RTT
         scanner_t scanner(begin, end, policies);
 
         ln_offset = mpositer.get_position().line - 1;
+        program_text = std::string( begin, end ); // begin is by reference.
 
         try
         {
