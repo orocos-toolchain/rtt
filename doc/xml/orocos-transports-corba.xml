@@ -239,10 +239,10 @@
   int ORO_main(int argc, char** argv)
   {
      // Setup Corba:
-     <classname>RTT::corba::TaskContextProxy</classname>::InitOrb(argc, argv);
+     <classname>RTT::corba::TaskContextServer</classname>::InitOrb(argc, argv);
 
      // Setup a thread to handle call-backs to our components.
-     <classname>RTT::corba::TaskContextProxy</classname>::ThreadOrb();
+     <classname>RTT::corba::TaskContextServer</classname>::ThreadOrb();
 
      // Get a pointer to the component above
      <classname>RTT::TaskContext</classname>* component = TaskContextProxy::Create( "HelloWorld" );
@@ -254,7 +254,7 @@
      // Stop ORB thread:
      <classname>RTT::corba::TaskContextServer</classname>::ShutdownOrb();
      // Cleanup Corba:
-     TaskContextProxy::DestroyOrb();
+     TaskContextServer::DestroyOrb();
      return 0;
   } </programlisting>
     </para>
