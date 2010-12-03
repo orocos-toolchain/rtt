@@ -68,8 +68,8 @@ namespace RTT
         statement = programparser->statementParser();
 
         // prepare parser to parse statements right away:
-        programparser->initBodyParser("script", storage,
-                mpositer.get_position().line);
+        programparser->initBodyParser("script", storage, 0);
+                //mpositer.get_position().line);
     }
 
     void ScriptParser::seenstatement()
@@ -97,8 +97,8 @@ namespace RTT
             }
         }
         ret->unloaded();
-        programparser->initBodyParser("script", storage,
-                mpositer.get_position().line);
+        programparser->initBodyParser("script", storage, 0);
+                //mpositer.get_position().line);
     }
 
     void ScriptParser::seenprogram()
@@ -120,14 +120,14 @@ namespace RTT
             log(Error) << e.what() << endlog();
             throw;
         }
-        programparser->initBodyParser("script", storage,
-                mpositer.get_position().line);
+        programparser->initBodyParser("script", storage, 0);
+                //mpositer.get_position().line);
     }
 
     void ScriptParser::seenfunction()
     {
-        programparser->initBodyParser("script", storage,
-                mpositer.get_position().line);
+        programparser->initBodyParser("script", storage, 0);
+                //mpositer.get_position().line);
     }
 
     void ScriptParser::seenstatemachine()
@@ -147,8 +147,8 @@ namespace RTT
                 throw;
             }
         }
-        programparser->initBodyParser("script", storage,
-                mpositer.get_position().line);
+        programparser->initBodyParser("script", storage, 0);
+                //mpositer.get_position().line);
     }
 
     void ScriptParser::parse(iter_t& begin, iter_t end)
