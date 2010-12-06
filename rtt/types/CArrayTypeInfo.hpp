@@ -44,6 +44,7 @@
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
 #include "carray.hpp"
+#include "../internal/carray.hpp"
 
 namespace RTT
 {
