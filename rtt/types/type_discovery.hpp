@@ -78,7 +78,7 @@
 #include <string>
 #include "../base/DataSourceBase.hpp"
 #include "../internal/PartDataSource.hpp"
-#include "../internal/carray.hpp"
+#include "carray.hpp"
 
 namespace RTT
 {
@@ -264,8 +264,8 @@ namespace RTT
             type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
             {
                 if (mparent) {
-                    mparts.push_back(new internal::PartDataSource< internal::carray<T> > ( internal::carray<T>(t), mparent) );
-                    mcparts.push_back(new internal::AliasDataSource< internal::carray<T> >( new internal::PartDataSource< internal::carray<T> > ( internal::carray<T>(t), mparent)  ));
+                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent)  ));
                 }
                 // probably not necessary:
                 //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );

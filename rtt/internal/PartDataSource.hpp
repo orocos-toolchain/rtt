@@ -40,7 +40,7 @@
 #define ORO_PARTDATASOURCE_HPP_
 
 #include "DataSource.hpp"
-#include "carray.hpp"
+#include "../types/carray.hpp"
 
 namespace RTT
 {
@@ -132,11 +132,11 @@ namespace RTT
         };
 
         template<typename T>
-        class PartDataSource< carray<T> >
-        : public AssignableDataSource< carray<T> >
+        class PartDataSource< types::carray<T> >
+        : public AssignableDataSource< types::carray<T> >
         {
             // keeps ref to real array.
-            carray<T> mref;
+            types::carray<T> mref;
             // parent data source, for updating after set().
             base::DataSourceBase::shared_ptr mparent;
         public:
@@ -150,34 +150,34 @@ namespace RTT
              * @param ref    Reference to the struct's variable.
              * @param parent A data source holding the struct.
              */
-            PartDataSource( carray<T> ref,
+            PartDataSource( types::carray<T> ref,
                             base::DataSourceBase::shared_ptr parent )
                 : mref(ref), mparent(parent)
             {
             }
 
-            carray<T> get() const
+            types::carray<T> get() const
             {
                 return mref;
             }
 
-            carray<T> value() const
+            types::carray<T> value() const
             {
                 return mref;
             }
 
-            void set( typename AssignableDataSource< carray<T> >::param_t t )
+            void set( typename AssignableDataSource< types::carray<T> >::param_t t )
             {
                 mref = t;
                 updated();
             }
 
-            carray<T>& set()
+            types::carray<T>& set()
             {
                 return mref;
             }
 
-            carray<T> const& rvalue() const
+            types::carray<T> const& rvalue() const
             {
                 return mref;
             }

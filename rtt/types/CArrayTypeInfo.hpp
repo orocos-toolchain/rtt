@@ -43,7 +43,7 @@
 #include "../internal/ArrayPartDataSource.hpp"
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
-#include "../internal/carray.hpp"
+#include "carray.hpp"
 
 namespace RTT
 {

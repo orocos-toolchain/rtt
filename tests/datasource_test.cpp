@@ -27,7 +27,7 @@
 #include <internal/PartDataSource.hpp>
 #include <internal/ArrayPartDataSource.hpp>
 #include <internal/OffsetPartDataSource.hpp>
-#include <internal/carray.hpp>
+#include <types/carray.hpp>
 
 #include <boost/serialization/array.hpp>
 
