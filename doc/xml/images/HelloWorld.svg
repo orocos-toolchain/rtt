@@ -13,7 +13,7 @@
    height="1052.3622"
    id="svg3778"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="HelloWorld.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/vdw-distributie/CoreVsContext.png"
    inkscape:export-xdpi="200"
@@ -164,9 +164,9 @@
      inkscape:current-layer="layer1"
      id="namedview3782"
      inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
      width="744.09449px"
@@ -415,7 +415,7 @@
          sodipodi:role="line"
          id="tspan1436"
          x="504.33401"
-         y="267.47763">Broadcast events</tspan></text>
+         y="267.47763">Publish data</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:17.21895409px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"

@@ -14,7 +14,7 @@
    height="210mm"
    id="svg3778"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="TaskContextExecution.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/vdw-distributie/CoreVsContext.png"
    inkscape:export-xdpi="200"
@@ -1100,11 +1100,11 @@
          sodipodi:role="line"
          x="117.19776"
          y="481.59787"
-         id="tspan3363">processes incomming messages,</tspan><tspan
+         id="tspan3363">processes incoming messages,</tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="504.09787"
-         id="tspan17380">loaded functions and finally </tspan><tspan
+         id="tspan17380">plugin functions and finally </tspan><tspan
          sodipodi:role="line"
          x="117.19776"
          y="526.5979"
