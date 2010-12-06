@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  CorbaDispatcher.cpp
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  TransportPlugin.hpp
 
-                        CorbaDispatcher.cpp -  description
+                        TransportPlugin.hpp -  description
                            -------------------
-    begin                : Thu October 22 2009
-    copyright            : (C) 2009 Peter Soetens
-    email                : peter@thesourcworks.com
+    begin                : Tue September 07 2010
+    copyright            : (C) 2010 The SourceWorks
+    email                : peter@thesourceworks.com
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,13 +36,25 @@
  ***************************************************************************/
 
 
-#include "CorbaDispatcher.hpp"
+#ifndef RTT_TRANSPORT_MQUEUE_PLUGIN
+#define RTT_TRANSPORT_MQUEUE_PLUGIN
 
-namespace RTT {
-    using namespace corba;
-    CorbaDispatcher::DispatchMap CorbaDispatcher::DispatchI;
-    RTT_CORBA_API os::Mutex* CorbaDispatcher::mlock = 0;
+#include <rtt/types/TransportPlugin.hpp>
 
-    int CorbaDispatcher::defaultScheduler = ORO_SCHED_RT;
-    int CorbaDispatcher::defaultPriority  = os::LowestPriority;
+namespace RTT
+{
+    namespace mqueue
+    {
+        /** The CORBA transport plugin */
+        struct MQLibPlugin: public RTT::types::TransportPlugin
+        {
+            bool registerTransport(std::string name, RTT::types::TypeInfo* ti);
+            std::string getTransportName() const;
+            std::string getTypekitName() const;
+            std::string getName() const;
+        };
+    }
 }
+
+#endif
+

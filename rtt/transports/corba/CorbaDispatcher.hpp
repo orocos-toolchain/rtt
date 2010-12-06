@@ -66,8 +66,17 @@ namespace RTT {
 
             RTT_CORBA_API static os::Mutex* mlock;
 
+            static int defaultScheduler;
+            static int defaultPriority;
+
             CorbaDispatcher( const std::string& name)
-            : Activity(ORO_SCHED_RT, os::LowestPriority, 0.0, 0, name),
+            : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
+              RClist(20,2),
+              do_exit(false)
+              {}
+
+            CorbaDispatcher( const std::string& name, int scheduler, int priority)
+            : Activity(scheduler, priority, 0.0, 0, name),
               RClist(20,2),
               do_exit(false)
               {}
@@ -85,7 +94,7 @@ namespace RTT {
              * @param iface The interface to dispatch data flow messages for.
              * @return
              */
-            static CorbaDispatcher* Instance(DataFlowInterface* iface) {
+            static CorbaDispatcher* Instance(DataFlowInterface* iface, int scheduler = defaultScheduler, int priority = defaultPriority) {
                 if (!mlock)
                     mlock = new os::Mutex();
                 DispatchMap::iterator result = DispatchI.find(iface);
@@ -102,7 +111,7 @@ namespace RTT {
                     else
                         name = iface->getOwner()->getName();
                     name += ".CorbaDispatch";
-                    DispatchI[iface] = new CorbaDispatcher( name );
+                    DispatchI[iface] = new CorbaDispatcher( name, scheduler, priority );
                     DispatchI[iface]->start();
                     return DispatchI[iface];
                 }

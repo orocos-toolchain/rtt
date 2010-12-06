@@ -77,7 +77,7 @@ namespace RTT
          * error() when the component is \a Running. The component
          * will enter the \a RunTimeError state and will cause the \a
          * errorHook() to be called instead of \a updateHook(). When
-         * \a recovered() is called, this run-time error state is left
+         * \a recover() is called, this run-time error state is left
          * and the nominal \a Running state is entered again.
          *
          * In order to check if these transitions are allowed, hook functions
@@ -279,7 +279,7 @@ namespace RTT
          * Call this method in a Running state to indicate a
          * run-time error condition. errorHook() will be called
          * instead of updateHook(). If the error condition is solved,
-         * call recovered().
+         * call recover().
          */
         virtual void error();
 

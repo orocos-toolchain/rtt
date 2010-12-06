@@ -77,9 +77,14 @@ namespace RTT
            */
           virtual CORBA::Any* createAny( base::DataSourceBase::shared_ptr source) const
           {
+              typename internal::ReferenceDataSource<T>::shared_ptr d_ref = boost::dynamic_pointer_cast< internal::ReferenceDataSource<T> >( source );
+              if ( d_ref )
+                  return AnyConversion<PropertyType>::createAny( d_ref->set());
+
               typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
               if ( d )
                   return AnyConversion<PropertyType>::createAny( d->get());
+
               return 0;
           }
 
@@ -88,9 +93,14 @@ namespace RTT
            */
           virtual bool updateAny( base::DataSourceBase::shared_ptr source, CORBA::Any& any) const
           {
+              typename internal::ReferenceDataSource<T>::shared_ptr d_ref = boost::dynamic_pointer_cast< internal::ReferenceDataSource<T> >( source );
+              if ( d_ref )
+                  return AnyConversion<PropertyType>::updateAny( d_ref->set(), any);
+
               typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
               if ( d )
                   return AnyConversion<PropertyType>::updateAny( d->get(), any);
+
               return false;
           }
 
@@ -107,6 +117,14 @@ namespace RTT
            */
           virtual bool updateFromAny(const CORBA::Any* any, base::DataSourceBase::shared_ptr target) const
           {
+            typename internal::ReferenceDataSource<T>::shared_ptr ad_ref = boost::dynamic_pointer_cast< internal::ReferenceDataSource<T> >( target );
+            if ( ad_ref ) {
+                if (AnyConversion<PropertyType>::update(*any, ad_ref->set() ) ) {
+                    return true;
+                }
+                return false;
+            }
+
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             if ( ad ) {
                 PropertyType value = PropertyType();
@@ -114,7 +132,9 @@ namespace RTT
                     ad->set( value );
                     return true;
                 }
+                return false;
             }
+
             return false;
           }
 

@@ -40,7 +40,6 @@
 #define ORO_CORBA_DATASOURCE_PROXY_HPP
 
 #include "../../internal/DataSource.hpp"
-#include "../../scripting/CommandBinary.hpp"
 #include "../../Logger.hpp"
 #include "../../base/ActionInterface.hpp"
 #include "CorbaConversion.hpp"
