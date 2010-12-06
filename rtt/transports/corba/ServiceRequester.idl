@@ -63,6 +63,18 @@ module RTT
          * the operations of a service.
          */
 	    boolean ready();
+	    
+	    /**
+	     * Disconnects a caller.
+	     * @return false if name dit not exist.
+	     */
+	    boolean disconnectCaller( in string name );
+	    
+        /**
+         * Checks if a caller is ready.
+         * @return false if name dit not exist or not ready.
+         */
+	    boolean callerReady( in string name );
 
         /**
          * Disconnects all operation callers.

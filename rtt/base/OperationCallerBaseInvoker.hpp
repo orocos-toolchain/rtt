@@ -55,6 +55,14 @@ namespace RTT
              * Returns true if this OperationCaller has received a correct implementation.
              */
             virtual bool ready() const = 0;
+
+            /**
+             * Disconnects this caller from the operation it was connected to.
+             * If this OperationCaller had a name, the name is still kept.
+             * @post this->ready() == false
+             */
+            virtual void disconnect() = 0;
+
             /**
              * Sets a new implementation for this method.
              * @param impl An implementation object that can be upcast to the OperationCallerBase

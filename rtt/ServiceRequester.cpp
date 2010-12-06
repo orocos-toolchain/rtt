@@ -124,9 +124,8 @@ namespace RTT
 
     void ServiceRequester::disconnect()
     {
-        ExecutionEngine* ee(0);
         for_each(mmethods.begin(), mmethods.end(),
-                 bind(&OperationCallerBaseInvoker::setImplementation, bind(&OperationCallers::value_type::second, _1), boost::shared_ptr<base::DisposableInterface>(), ee )
+                 bind(&OperationCallerBaseInvoker::disconnect, bind(&OperationCallers::value_type::second, _1) )
                  );
     }
 

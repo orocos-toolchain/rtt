@@ -173,6 +173,31 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
     return mservice->getOperationCaller(oname)->setImplementationPart( tmp, mservice->getServiceOwner()->engine() );
 }
 
+::CORBA::Boolean RTT_corba_CServiceRequester_i::disconnectCaller (
+      const char * name )
+{
+    string oname(name);
+    if ( mservice->getOperationCaller(oname) == 0) {
+        log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
+        return false;
+    }
+    // disconnects.
+    mservice->getOperationCaller(oname)->disconnect();
+    return true;
+}
+
+::CORBA::Boolean RTT_corba_CServiceRequester_i::callerReady (
+      const char * name )
+{
+    string oname(name);
+    if ( mservice->getOperationCaller(oname) == 0) {
+        log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
+        return false;
+    }
+    // disconnects.
+    return mservice->getOperationCaller(oname)->ready();
+}
+
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::ready (
     void)
 {
