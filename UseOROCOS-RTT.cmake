@@ -66,15 +66,13 @@ ENDMACRO(ORO_PARSE_ARGUMENTS)
 #
 # Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] )
 #
-macro( orocos_component )
+macro( orocos_component COMPONENT_NAME )
   
   ORO_PARSE_ARGUMENTS(ADD_COMPONENT
     "INSTALL"
     ""
     ${ARGN}
     )
-  list(GET ADD_COMPONENT_DEFAULT_ARGS 0 COMPONENT_NAME)
-  list(REMOVE_AT ADD_COMPONENT_DEFAULT_ARGS 0)
   SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
   SET( LIB_NAME "${COMPONENT_NAME}-${OROCOS_TARGET}")
   if ( ADD_COMPONENT_INSTALL )
@@ -122,8 +120,19 @@ endmacro( orocos_component )
 #
 macro( orocos_library LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib)
-  set(AC_INSTALL_RT_DIR bin)
+  ORO_PARSE_ARGUMENTS(ORO_LIBRARY
+    "INSTALL"
+    ""
+    ${ARGN}
+    )
+  SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
+  if ( ORO_LIBRARY_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
+    set(AC_INSTALL_RT_DIR bin)
+  else()
+    set(AC_INSTALL_DIR lib)
+    set(AC_INSTALL_RT_DIR bin)
+  endif()
   
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
@@ -132,9 +141,9 @@ macro( orocos_library LIB_TARGET_NAME )
   endif()
   MESSAGE( "Building library ${LIB_TARGET_NAME}" )
   if (ROS_ROOT)
-    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
   else()
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
@@ -177,13 +186,24 @@ endmacro( orocos_typegen_headers )
 # typekit libraries should add themselves by calling 'orocos_typekit()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
-# Usage: orocos_typekit( typekitname src1 src2 src3 )
+# Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] )
 #
 macro( orocos_typekit LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/types )
-  set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/types )
-  
+  ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
+    "INSTALL"
+    ""
+    ${ARGN}
+    )
+  SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+  if ( ORO_TYPEKIT_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_TYPEKIT_INSTALL})
+    set(AC_INSTALL_RT_DIR bin)
+  else()
+    set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/types)
+    set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/types)
+  endif()
+
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
@@ -191,12 +211,12 @@ macro( orocos_typekit LIB_TARGET_NAME )
   endif()
   MESSAGE( "Building typekit library ${LIB_TARGET_NAME}" )
   if (ROS_ROOT)
-    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/types
     )
   else()
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
@@ -214,13 +234,24 @@ endmacro( orocos_typekit )
 # plugin libraries should add themselves by calling 'orocos_plugin()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 #
-# Usage: orocos_plugin( pluginname src1 src2 src3 )
+# Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] )
 #
 macro( orocos_plugin LIB_TARGET_NAME )
 
-  set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/plugins )
-  set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/plugins )
-  
+  ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
+    "INSTALL"
+    ""
+    ${ARGN}
+    )
+  SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
+  if ( ORO_TYPEKIT_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_TYPEKIT_INSTALL})
+    set(AC_INSTALL_RT_DIR bin)
+  else()
+    set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/plugins )
+    set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/plugins )
+  endif()
+
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
@@ -228,13 +259,13 @@ macro( orocos_plugin LIB_TARGET_NAME )
   endif()
   if (ROS_ROOT)
     MESSAGE( "Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
-    rosbuild_add_library(${LIB_TARGET_NAME} ${ARGN} )
+    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/plugins
     )
   else()
     MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${ARGN} )
+    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
