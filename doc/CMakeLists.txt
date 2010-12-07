@@ -4,6 +4,7 @@ OPTION(BUILD_DOCS "Build the documentation" ON)
 include(DocBookToHTML.cmake)
 include(DocBookToPDF.cmake)
 include(AnyToPNG.cmake)
+include(SvgToPDF.cmake)
 
 IF (BUILD_DOCS)
   FILE( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/api/html)
@@ -40,6 +41,8 @@ IF (BUILD_DOCS)
 
   ANY_TO_PNG( RESULT_PNGS ${PNGS} ${DIAS} ${SVGS} ${ICONS})
 
+  SVG_TO_PDF( RESULT_PDFS orocos_cheat_sheet.svg rtt_cheat_sheet.svg)
+
   CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/xml/catalog.xml.in ${CMAKE_CURRENT_BINARY_DIR}/xml/catalog.xml IMMEDIATE @ONLY)
   CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/xml/orocos.ent.in ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos.ent IMMEDIATE @ONLY)
 
@@ -51,13 +54,14 @@ IF (BUILD_DOCS)
 
   ADD_CUSTOM_TARGET(docpng DEPENDS ${RESULT_PNGS})
   ADD_CUSTOM_TARGET(dochtml DEPENDS ${HTML_OUTPUT} ${CMAKE_CURRENT_BINARY_DIR}/xml/orocos-html.css)
-  ADD_CUSTOM_TARGET(docpdf DEPENDS ${PDF_OUTPUT})
+  ADD_CUSTOM_TARGET(docpdf DEPENDS ${PDF_OUTPUT} ${RESULT_PDFS})
   ADD_DEPENDENCIES(dochtml docpng)
   ADD_DEPENDENCIES(docpdf docpng)
 
   ADD_CUSTOM_TARGET(message ALL echo "Use: make docapi dochtml docpdf to build the documentation.")
 
   INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml DESTINATION share/doc/liborocos-rtt )
+  INSTALL(FILES ${RESULT_PDFS} DESTINATION share/doc/liborocos-rtt/xml OPTIONAL)
   IF (DOXYGEN)
     INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/api DESTINATION share/doc/liborocos-rtt )
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt.tag DESTINATION share/doc/liborocos-rtt OPTIONAL)
