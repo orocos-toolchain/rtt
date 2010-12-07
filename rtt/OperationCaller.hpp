@@ -219,8 +219,7 @@ namespace RTT
             if (this->impl && this->impl == implementation)
                 return *this;
             OperationCaller<Signature> tmp(implementation);
-            if (tmp.ready())
-                *this = tmp;
+            *this = tmp;
             return *this;
         }
 
@@ -242,8 +241,7 @@ namespace RTT
             if (this->impl && this->impl == part->getLocalOperation() )
                 return *this;
             OperationCaller<Signature> tmp(part);
-            if (tmp.ready())
-                *this = tmp;
+            *this = tmp;
             return *this;
         }
 
@@ -265,8 +263,7 @@ namespace RTT
                 return *this;
             }
             OperationCaller<Signature> tmp(mname,service);
-            if (tmp.ready())
-                *this = tmp;
+            *this = tmp;
             return *this;
         }
 
@@ -369,6 +366,11 @@ namespace RTT
             this->mcaller = caller;
             if (this->impl)
                 this->impl->setCaller(caller);
+        }
+
+        void disconnect()
+        {
+            this->impl.reset();
         }
     protected:
         /**

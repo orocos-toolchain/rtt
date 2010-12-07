@@ -133,6 +133,14 @@ public:
       ::RTT::corba::CService_ptr svc);
 
   virtual
+  ::CORBA::Boolean disconnectCaller (
+      const char * name);
+
+  virtual
+  ::CORBA::Boolean callerReady (
+      const char * name);
+
+  virtual
   ::CORBA::Boolean ready (
       void);
   

@@ -20,7 +20,11 @@ namespace RTT
             : mname(opname), msrq(srq) {}
 
             virtual bool ready() const {
-                return msrq->ready();
+                return msrq->callerReady( mname.c_str() );
+            }
+
+            virtual void disconnect() {
+                msrq->disconnectCaller( mname.c_str() );
             }
 
             virtual bool setImplementation(boost::shared_ptr<base::DisposableInterface> impl, ExecutionEngine* caller = 0) {
