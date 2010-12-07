@@ -443,9 +443,12 @@
 		   template&lt;class Archive>
 		   void serialize( Archive &amp; a, ControlDataSet &amp; cds, unsigned int) {
 		      using boost::serialization::make_nvp;
+          using boost::serialization::make_array;
 		      a &amp; make_nvp("setname", cds.setname);
 		      a &amp; make_nvp("dataset", cds.dataset);
-		      a &amp; make_nvp("timestamp", cds.timestamp);
+
+          // NOTE: we require 'make_array' + size of array for fixed size arrays.
+		      a &amp; make_nvp("timestamp", make_array( cds.timestamp, 2) );
 		   }
 		}  
   }
@@ -454,8 +457,10 @@
   RTT::types::Types()->addType( new <classname>RTT::types::StructTypeInfo</classname>&lt;ControlData>("ControlData") );
   // Register a std::vector (or compatible) for ControlData:
   RTT::types::Types()->addType( new <classname>RTT::types::SequenceTypeInfo</classname>&lt;std::vector&lt;ControlData> >("std.vector&lt;ControlData>") );
-  // Register an array for ints:
-  RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;types::carray&lt;int> >("int[]") );
+
+  // Register an array for unsigned ints (NOTE: use of types::carray&lt;unsigned int> instead of 'unsigned int'):
+  RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;types::carray&lt;unsigned int> >("uint[]") );
+
   // Tell the RTT the name and type of a struct:
   RTT::types::Types()->addType( new <classname>RTT::types::StructTypeInfo</classname>&lt;ControlDataSet>("ControlDataSet") );
 	</programlisting>
