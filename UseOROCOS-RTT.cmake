@@ -63,13 +63,16 @@ ENDMACRO(ORO_PARSE_ARGUMENTS)
 
 # Components should add themselves by calling 'OROCOS_COMPONENT' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
 #
-# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] )
+# Usage: orocos_component( COMPONENT_NAME src1 src2 src3 [INSTALL lib/orocos/${PROJECT_NAME}] [VERSION x.y.z] )
 #
 macro( orocos_component COMPONENT_NAME )
   
   ORO_PARSE_ARGUMENTS(ADD_COMPONENT
-    "INSTALL"
+    "INSTALL;VERSION"
     ""
     ${ARGN}
     )
@@ -88,6 +91,12 @@ macro( orocos_component COMPONENT_NAME )
   else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
   endif()
+  if (COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+  endif(COMPONENT_VERSION)
+  if (ORO_COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${ORO_COMPONENT_VERSION})
+  endif(ORO_COMPONENT_VERSION)
   MESSAGE( "Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
   if (ROS_ROOT)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
@@ -100,8 +109,7 @@ macro( orocos_component COMPONENT_NAME )
   SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
     OUTPUT_NAME ${COMPONENT_LIB_NAME}
     DEFINE_SYMBOL "RTT_COMPONENT"
-    #    VERSION ${OCL_VERSION}
-    #    SOVERSION ${OCL_VERSION_MAJOR}.${OCL_VERSION_MINOR}
+    ${LIB_COMPONENT_VERSION}
     INSTALL_RPATH_USE_LINK_PATH 1
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
     )
@@ -115,13 +123,16 @@ endmacro( orocos_component )
 
 # Utility libraries should add themselves by calling 'orocos_library()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
 #
-# Usage: orocos_library( libraryname src1 src2 src3 )
+# Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
 #
 macro( orocos_library LIB_TARGET_NAME )
 
   ORO_PARSE_ARGUMENTS(ORO_LIBRARY
-    "INSTALL"
+    "INSTALL;VERSION"
     ""
     ${ARGN}
     )
@@ -145,10 +156,15 @@ macro( orocos_library LIB_TARGET_NAME )
   else()
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
+  if (COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+  endif(COMPONENT_VERSION)
+  if (ORO_LIBRARY_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
+  endif(ORO_LIBRARY_VERSION)
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
-#    VERSION ${OCL_VERSION}
-#    SOVERSION ${OCL_VERSION_MAJOR}.${OCL_VERSION_MINOR}
+    ${LIB_COMPONENT_VERSION}
     INSTALL_RPATH_USE_LINK_PATH 1
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
     )
@@ -185,13 +201,16 @@ endmacro( orocos_typegen_headers )
 
 # typekit libraries should add themselves by calling 'orocos_typekit()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
 #
-# Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] )
+# Usage: orocos_typekit( typekitname src1 src2 src3 [INSTALL lib/orocos/project/types] [VERSION x.y.z] )
 #
 macro( orocos_typekit LIB_TARGET_NAME )
 
   ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
-    "INSTALL"
+    "INSTALL;VERSION"
     ""
     ${ARGN}
     )
@@ -203,6 +222,12 @@ macro( orocos_typekit LIB_TARGET_NAME )
     set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/types)
     set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/types)
   endif()
+  if (COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+  endif(COMPONENT_VERSION)
+  if (ORO_TYPEKIT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
+  endif(ORO_TYPEKIT_VERSION)
 
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
@@ -220,8 +245,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
-#    VERSION ${OCL_VERSION}
-#    SOVERSION ${OCL_VERSION_MAJOR}.${OCL_VERSION_MINOR}
+    ${LIB_COMPONENT_VERSION}
     INSTALL_RPATH_USE_LINK_PATH 1
     )
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
@@ -233,24 +257,33 @@ endmacro( orocos_typekit )
 
 # plugin libraries should add themselves by calling 'orocos_plugin()' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
 #
-# Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] )
+# Usage: orocos_plugin( pluginname src1 src2 src3 [INSTALL lib/orocos/project/plugins] [VERSION x.y.z])
 #
 macro( orocos_plugin LIB_TARGET_NAME )
 
-  ORO_PARSE_ARGUMENTS(ORO_TYPEKIT
-    "INSTALL"
+  ORO_PARSE_ARGUMENTS(ORO_PLUGIN
+    "INSTALL;VERSION"
     ""
     ${ARGN}
     )
-  SET( SOURCES ${ORO_TYPEKIT_DEFAULT_ARGS} )
-  if ( ORO_TYPEKIT_INSTALL )
-    set(AC_INSTALL_DIR ${ORO_TYPEKIT_INSTALL})
+  SET( SOURCES ${ORO_PLUGIN_DEFAULT_ARGS} )
+  if ( ORO_PLUGIN_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_PLUGIN_INSTALL})
     set(AC_INSTALL_RT_DIR bin)
   else()
     set(AC_INSTALL_DIR lib/orocos/${PROJECT_NAME}/plugins )
     set(AC_INSTALL_RT_DIR lib/orocos/${PROJECT_NAME}/plugins )
   endif()
+  if (COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+  endif(COMPONENT_VERSION)
+  if (ORO_PLUGIN_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
+  endif(ORO_PLUGIN_VERSION)
 
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
@@ -269,8 +302,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
-#    VERSION ${OCL_VERSION}
-#    SOVERSION ${OCL_VERSION_MAJOR}.${OCL_VERSION_MINOR}
+    ${LIB_COMPONENT_VERSION}
     INSTALL_RPATH_USE_LINK_PATH 1
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
     )
