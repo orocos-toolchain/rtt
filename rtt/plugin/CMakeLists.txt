@@ -8,11 +8,11 @@ if ( PLUGINS_ENABLE )
         set(DEFAULT_PLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/lib/orocos")
     endif()
 
-    configure_file( pluginpath.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/pluginpath.cpp @ONLY )
+    configure_file( pluginpath.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/pluginpath.cpp @ONLY )
 
     FILE( GLOB CPPS [^.]*.cpp )
     FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
     GLOBAL_ADD_INCLUDE( rtt/plugin ${HPPS})
-    GLOBAL_ADD_SRC( ${CPPS} )
+    GLOBAL_ADD_SRC( ${CPPS} ${CMAKE_CURRENT_BINARY_DIR}/pluginpath.cpp )
     
 endif( PLUGINS_ENABLE )

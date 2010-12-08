@@ -1,7 +1,7 @@
 
 // WARNING: This is an auto-generated file by the build system. Do not modify it. //
 
-#include "PluginLoader.hpp"
+#include "plugin/PluginLoader.hpp"
 
 namespace RTT
 { 
