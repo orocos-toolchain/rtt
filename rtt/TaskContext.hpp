@@ -323,7 +323,7 @@ namespace RTT
         /**
          * Adding and getting operations from the TaskContext interface.
          * These functions all forward to the Service representing
-         * this TaskContext. Use operations() to access the complete OperationInterface
+         * this TaskContext. Use provides() to access the complete Service
          * interface of this TaskContext.
          * @name Operations
          * @{ */
@@ -342,11 +342,26 @@ namespace RTT
             return tcservice->addOperation(op);
         }
 
+        /**
+         * Adds a C++ function as an operation.
+         * @see Service::addOperation
+         */
         template<class Func, class Service>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        addOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
         {
             return tcservice->addOperation(name,func, serv, et);
+        }
+
+        /**
+         * Adds a C function as an operation.
+         * @see Service::addOperation
+         */
+        template<class Signature>
+        Operation< Signature >&
+        addOperation( const std::string name, Signature* func, ExecutionThread et = ClientThread )
+        {
+            return tcservice->addOperation(name, func, et);
         }
 
         /**

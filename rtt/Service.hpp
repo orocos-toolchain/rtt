@@ -299,14 +299,13 @@ namespace RTT
         }
 
         /**
-         * Add an operation to the interface by means of a function.
-         * The function \a func may be a \a free function (a 'C' function) or
-         * an object member function, in which case serv may not be null
+         * Add an operation to the interface by means of a C++ function.
+         * The function \a func must be a C++ member function and
+         * \a serv is the object having that function.
          *
          * @param name The name of the new operation
-         * @param func A pointer to a function, for example, &foo ('C' function) or &Bar::foo (C++ class function).
-         * @param serv A pointer to the object that will execute the function in case of a C++ class function,
-         * or zero ('0') in case of a 'C' function.
+         * @param func A pointer to a function, for example, &Bar::foo (C++ class function).
+         * @param serv A pointer to the object that will execute the function.
          * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
          * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
          *
@@ -314,7 +313,7 @@ namespace RTT
          */
         template<class Func, class Service>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        addOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
             Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
@@ -323,14 +322,34 @@ namespace RTT
         }
 
         /**
-         * Add an operation to the synchronous interface by means of a function.
-         * The function \a func may be a \a free function (a 'C' function) or
-         * an object member function, in which case serv may not be null
+         * Add an operation to the interface by means of a C function.
+         * The function \a func must be a C function.
          *
          * @param name The name of the new operation
-         * @param func A pointer to a function, for example, &foo ('C' function) or &Bar::foo (C++ class function).
+         * @param func A pointer to a C function, for example, &foo (or a \b static C++ class function).
+         * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
+         * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
+         *
+         * @return A newly created operation object, which you may further document or query.
+         */
+        template<class Func>
+        Operation< Func >&
+        addOperation( const std::string name, Func* func, ExecutionThread et = ClientThread )
+        {
+            typedef Func Signature;
+            boost::function<Signature> bfunc = func;
+            Operation<Signature>* op = new Operation<Signature>(name, bfunc, et);
+            ownedoperations.push_back(op);
+            return addOperation( *op );
+        }
+
+        /**
+         * Add an operation to the synchronous interface by means of a function.
+         * The function \a func must be a C++ function.
+         *
+         * @param name The name of the new operation
+         * @param func A pointer to a function, for example &Bar::foo (C++ class function).
          * @param serv A pointer to the object that will execute the function in case of a C++ class function,
-         * or zero ('0') in case of a 'C' function.
          * @param et The ExecutionThread choice: will the owning TaskContext of this service execute
          * the function \a func in its own thread, or will the client's thread (the caller) execute \a func ?
          *
@@ -338,7 +357,7 @@ namespace RTT
          */
         template<class Func, class Service>
         Operation< typename internal::GetSignature<Func>::Signature >&
-        addSynchronousOperation( const std::string name, Func func, Service* serv = 0, ExecutionThread et = ClientThread )
+        addSynchronousOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
             Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);

@@ -97,24 +97,6 @@ namespace RTT
         }
 
         /**
-         * Create an operation object with a name and function to execute and add
-         * it to a service.
-         * This constructor takes an owner which is a pointer (or shared pointer) to
-         * a service or object to which this operation must be added.
-         * @param name The name of this instance.
-         * @param func The function to execute, for example &foo.
-         * @param et The thread that should execute the function when the operation is invoked.
-         * @param owner The owner object that has a method addOperation(OperationBase*)
-         */
-        template<class Owner>
-        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et, Owner owner )
-        :OperationBase(name)
-        {
-            this->calls(func,et);
-            owner->addOperation(this);
-        }
-
-        /**
          * Create an operation object with a name and class member function to execute.
          * @param name The name of this instance.
          * @param func The function to execute, for example &Bar::foo
@@ -126,24 +108,6 @@ namespace RTT
         :OperationBase(name)
         {
             this->calls(func, o, et);
-        }
-
-        /**
-         * Create an operation object with a name and class member function to execute and add
-         * it to a service.
-         * This constructor takes an owner which is a pointer (or shared pointer) to
-         * a service or object to which this operation must be added.
-         * @param name The name of this instance.
-         * @param func The function to execute, for example &Bar::foo
-         * @param o The object that has this function, for example &bar
-         * @param et The thread that should execute the function when the operation is invoked.
-         */
-        template<class Function, class Object, class Owner>
-        Operation(const std::string& name, Function func, Object o, ExecutionThread et, Owner owner )
-        :OperationBase(name)
-        {
-            this->calls(func, o, et);
-            owner->addOperation(this);
         }
 
         ~Operation()

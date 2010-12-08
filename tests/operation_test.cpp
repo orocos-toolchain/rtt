@@ -30,13 +30,19 @@ using namespace RTT::detail;
 using namespace RTT;
 
 /**
- * Test fixture.
+ * Tests The RTT::Operation and OperationCaller objects and its
+ * interaction with the Service class. Only
+ * tests the local use, not the remoting or datasource side.
  */
 class OperationTest
 {
 public:
-    OperationTest() : tc("TC"), op0r("op0r"), op0cr("op0cr"), op1r("op1r"), op1cr("op1cr"), op0("op0"), op1("op1"), op2("op2"), op3("op3"), op4("op4"), op5("op5") {
+    OperationTest() : tc("TC"),
+    op0r("op0r"), op0cr("op0cr"), op1r("op1r"), op1cr("op1cr"), op0("op0"), op1("op1"), op2("op2"), op3("op3"), op4("op4"), op5("op5"),
+    opc0r("op0r"), opc0cr("op0cr"), opc1r("op1r"), opc1cr("op1cr"), opc0("op0"), opc1("op1"), opc2("op2"), opc3("op3"), opc4("op4"), opc5("op5")
+    {
 
+        tc.provides()->addOperation("op", &OperationTest::func, this);
         tc.provides()->addOperation("op0", &OperationTest::func0, this);
         tc.provides()->addOperation("op1", &OperationTest::func1, this);
         tc.provides()->addOperation("op2", &OperationTest::func2, this);
@@ -67,6 +73,7 @@ public:
     double func1cr(const double& a) { return a; }
 
     // plain argument tests:
+    void   func() { return; }
     double func0() { return 1.0; }
     double func1(int i) { return 2.0; }
     double func2(int i, double d) { return 3.0; }
@@ -81,6 +88,9 @@ public:
     double sig3(int i, double d, bool c) { return (sig=-4.0); }
     double sig4(int i, double d, bool c, std::string s) { return sig=-5.0; }
     double sig5(int i, double d, bool c, std::string s, float f) { return sig=-6.0; }
+
+    static double freefunc0(void) { return 1.0; }
+    static double freefunc1(int i) { return 2.0; }
 
     TaskContext tc;
 
@@ -97,6 +107,17 @@ public:
     Operation<double(int,double,bool)> op3;
     Operation<double(int,double,bool, std::string)> op4;
     Operation<double(int,double,bool, std::string, float)> op5;
+
+    OperationCaller<double&(void)> opc0r;
+    OperationCaller<const double&(void)> opc0cr;
+    OperationCaller<double(double&)> opc1r;
+    OperationCaller<double&(const double&)> opc1cr;
+    OperationCaller<double(void)> opc0;
+    OperationCaller<double(int)> opc1;
+    OperationCaller<double(int,double)> opc2;
+    OperationCaller<double(int,double,bool)> opc3;
+    OperationCaller<double(int,double,bool, std::string)> opc4;
+    OperationCaller<double(int,double,bool, std::string, float)> opc5;
 };
 
 // Registers the fixture into the 'registry'
@@ -163,16 +184,63 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
 
-// Test adding an operation to the default service.
-BOOST_AUTO_TEST_CASE( testOperationAdd )
+// Test adding a C++ function to the services.
+BOOST_AUTO_TEST_CASE( testOperationAddCpp )
 {
+    // Add to custom service:
     Service::shared_ptr s =  make_shared<Service>("Service");
-
     tc.provides()->addService( s );
     s->addOperation("top0", &OperationTest::func0, this);
     s->addOperation("top1", &OperationTest::func1, this);
     BOOST_CHECK( s->getOperation("top0") );
     BOOST_CHECK( s->getOperation("top1") );
+
+    // Add to default service:
+    tc.addOperation("tcop0", &OperationTest::func0, this);
+    tc.addOperation("tcop1", &OperationTest::func1, this);
+    BOOST_CHECK( tc.provides()->getOperation("tcop0") );
+    BOOST_CHECK( tc.provides()->getOperation("tcop1") );
+    opc0 = tc.provides()->getOperation("tcop0");
+    opc1 = tc.provides()->getOperation("tcop1");
+    BOOST_CHECK( opc0.ready() );
+    BOOST_CHECK( opc1.ready() );
+
+    // Override existing ops:
+    // note: we add different signature with same name to check if new op was used
+    tc.addOperation("tcop0", &OperationTest::func1, this);
+    tc.addOperation("tcop1", &OperationTest::func2, this);
+    BOOST_CHECK( tc.provides()->getOperation("tcop0") );
+    BOOST_CHECK( tc.provides()->getOperation("tcop1") );
+    opc1 = tc.provides()->getOperation("tcop0");
+    opc2 = tc.provides()->getOperation("tcop1");
+    BOOST_CHECK( opc1.ready() );
+    BOOST_CHECK( opc2.ready() );
+}
+
+// Test adding a C function to the services.
+BOOST_AUTO_TEST_CASE( testOperationAddC )
+{
+    // Using custom Service
+    Service::shared_ptr s =  make_shared<Service>("Service");
+    tc.provides()->addService( s );
+    s->addOperation("top0", &OperationTest::freefunc0);
+    s->addOperation("top1", &OperationTest::freefunc1);
+    BOOST_CHECK( s->getOperation("top0") );
+    BOOST_CHECK( s->getOperation("top1") );
+    opc0 = s->getOperation("top0");
+    opc1 = s->getOperation("top1");
+    BOOST_CHECK( opc0.ready() );
+    BOOST_CHECK( opc1.ready() );
+
+    // Using TaskContext API
+    tc.addOperation("top0", &OperationTest::freefunc0);
+    tc.addOperation("top1", &OperationTest::freefunc1);
+    BOOST_CHECK( tc.getOperation("top0") );
+    BOOST_CHECK( tc.getOperation("top1") );
+    opc0 = tc.getOperation("top0");
+    opc1 = tc.getOperation("top1");
+    BOOST_CHECK( opc0.ready() );
+    BOOST_CHECK( opc1.ready() );
 }
 
 // Test calling an operation of the default service.
