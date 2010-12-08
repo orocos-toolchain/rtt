@@ -48,8 +48,7 @@
 				<para>
 					Importing components with 'Import' in deployment XML files has changed. You need to use 'Path'
 					or 'Import'. Where 'Path' points to an extra directory to search for components
-					and packages or projects, and 'Import' imports one such package, project or a path to a specific
-					file. 
+					and packages, and 'Import' imports one such package, or a path to a specific component library file. 
 				</para>
 				<para>
 					Import statements with only partial component names, like 'liblaserscan' will no longer work.
@@ -93,6 +92,23 @@
   <section>
     <title>Improvements</title>
     <section>
+      <title>Documentation</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						These new Orocos Toolchain cheat-sheets have been created:
+					</para>
+					<para>
+						<itemizedlist> 
+							<listitem><para>Orocos Cheat-Sheet v1.0 : Orocos component terminology and concepts.</para></listitem>
+							<listitem><para>RTT Cheat-Sheet v1.0 : C++, CMake, Deployment and TaskBrowser syntax.</para></listitem>
+							<listitem><para>oroGen Cheat-Sheet v1.0 : oroGen specification syntax, deployment, C++ syntax.</para></listitem>
+						</itemizedlist>
+					</para>
+				</listitem>
+      </itemizedlist>
+    </section>
+    <section>
       <title>Building</title>
       <itemizedlist>
 				<listitem>
@@ -100,16 +116,24 @@
 						The <filename>UseOrocos.cmake</filename> macros have matured and are now recommended for all new
 						applications. Also, use the <command>orocreate-pkg</command> script, available in OCL, to create
 						new component packages. We support building Orocos and it's components in
-						ROS build environments and autoproj build environments.
+						ROS build environments, autoproj build environments or manual builds.
 					</para>
 					<para>
 						All components, typekits and plugins of OCL are being built using these UseOrocos.cmake macros.
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						We support building RTT and OCL in a rosmake environment as native ROS packages. You must however
+						use the find_package(Orocos-RTT) macro to detect RTT from your component packages. Do not rely
+						on the exports in the manifest.xml file. Also ROS users are recommended to use the 'UseOrocos.cmake'
+						file instead of the rosbuild CMake macros. <command>orocreate-pkg</command> leads the way.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>TaskContext</title>
+      <title>TaskContext and Services</title>
       <itemizedlist>
 				<listitem>
 					<para>
@@ -119,8 +143,16 @@
 				</listitem>
 				<listitem>
 					<para>
-						Connecting and disconnecting data flow ports is now thread-safe (and crash-safe)
-						in running applications. 
+						RTT::Service will log a warning instead of asserting when trying to use 'provides()' on a service that
+						is not yet owned by a TaskContext. For example, when it is used in the constructor of a Service.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Services can be global in a single process. This means they are not owned by a
+						TaskContext and their asynchronous operations are executed by the GlobalEngine. Such
+						services typically offer standardized access to operating system functions. They are
+						not available from outside the process. In this view, they are 'local' to the process.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -157,10 +189,25 @@
 						not use the resulting channel and must dispose it with disconnect().
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						Connecting data ports of two remote components is now possible from a third component.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Connecting service requester and provider of two remote components is now possible from a third component.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The CORBA IDL for Services now reflects the same hierarchy as the C++ class hierarchy.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Scripting</title>
+      <title>Orocos scripting</title>
       <itemizedlist>
 				<listitem>
 					<para>
