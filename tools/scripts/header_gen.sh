@@ -38,7 +38,7 @@ echo " *                                                                        
 echo " *   This library is distributed in the hope that it will be useful,       *" >> $3.tmp.header
 echo " *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *" >> $3.tmp.header
 echo " *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *" >> $3.tmp.header
-echo " *   Lesser General Public License for more details.                       *" >> $3.tmp.header
+echo " *   General Public License for more details.                              *" >> $3.tmp.header
 echo " *                                                                         *" >> $3.tmp.header
 echo " *   You should have received a copy of the GNU General Public             *" >> $3.tmp.header
 echo " *   License along with this library; if not, write to the Free Software   *" >> $3.tmp.header
