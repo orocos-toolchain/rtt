@@ -293,11 +293,23 @@ endmacro( orocos_service )
 #
 # Components supply header files which should be included when 
 # using these components. Each component should use this macro
-# to install its header-files.
+# to install its header-files. They are installed by default
+# in include/orocos/${PROJECT_NAME}
 #
-# Usage example: orocos_install_header( hardware.hpp control.hpp)
+# Usage example: orocos_install_header( hardware.hpp control.hpp )
 macro( orocos_install_headers )
-  INSTALL( FILES ${ARGN} DESTINATION include/orocos/${PROJECT_NAME} )
+  ORO_PARSE_ARGUMENTS(ORO_INSTALL_HEADER
+    "INSTALL"
+    ""
+    ${ARGN}
+    )
+  set( SOURCES ${ORO_INSTALL_HEADER_DEFAULT_ARGS} )
+  if ( ORO_INSTALL_HEADER_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_INSTALL_HEADER_INSTALL})
+  else()
+    set(AC_INSTALL_DIR include/orocos/${PROJECT_NAME} )
+  endif()
+  install( FILES ${SOURCES} DESTINATION ${AC_INSTALL_DIR} )
 endmacro( orocos_install_headers )
 
 #
