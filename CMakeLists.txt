@@ -140,10 +140,12 @@ ENDIF (DOXYGEN_EXECUTABLE)
 set(CONFIG_FILE_PATH "lib/cmake/orocos-rtt") # Folder lib/cmake is searched by default in CMake >= 2.6.3
 set(IMPORTED_TARGET_PREFIX "imported_") # Prefix used in other projects to distinguish imported targets from regular ones
 
-# Main package configuration file
+# Main package configuration file + target specific file
 CONFIGURE_FILE(orocos-rtt-config.cmake.in
-               orocos-rtt-config.cmake @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config.cmake DESTINATION "${CONFIG_FILE_PATH}")
+               orocos-rtt-config-${OROCOS_TARGET}.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/orocos-rtt-config.cmake 
+              ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-config-${OROCOS_TARGET}.cmake
+        DESTINATION "${CONFIG_FILE_PATH}")
 
 # Version file
 CONFIGURE_FILE(orocos-rtt-config-version.cmake.in

@@ -11,3 +11,4 @@ usr/include/rtt/os/targets/@TARGET@-config.h
 usr/include/rtt/os/@TARGET@
 usr/lib/cmake/orocos-rtt/orocos-rtt-@TARGET@-libraries-relwithdebinfo.cmake
 usr/lib/cmake/orocos-rtt/orocos-rtt-@TARGET@-libraries.cmake
+usr/lib/cmake/orocos-rtt/orocos-rtt-config-@TARGET@.cmake
