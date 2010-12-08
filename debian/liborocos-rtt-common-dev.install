@@ -94,3 +94,4 @@ usr/include/rtt/rtt-config.h
 usr/lib/cmake/orocos-rtt/orocos-rtt-config-version.cmake
 usr/lib/cmake/orocos-rtt/UseOROCOS-RTT.cmake
 usr/lib/cmake/orocos-rtt/orocos-rtt-config.cmake
+usr/lib/cmake/orocos-rtt/cmake_uninstall.cmake.in
