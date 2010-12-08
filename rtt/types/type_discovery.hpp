@@ -78,6 +78,7 @@
 #include <string>
 #include "../base/DataSourceBase.hpp"
 #include "../internal/PartDataSource.hpp"
+#include "../internal/DataSources.hpp"
 #include "carray.hpp"
 
 namespace RTT
