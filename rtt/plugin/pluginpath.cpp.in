@@ -7,6 +7,6 @@ namespace RTT
 { 
     namespace plugin {
 
-        std::string default_plugin_path = "@DEFAULT_PLUGIN_PATH@";
+        std::string default_plugin_path = "@DEFAULT_PLUGIN_PATH@@OROCOS_SUFFIX@";
     }
 }

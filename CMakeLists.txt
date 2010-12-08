@@ -63,6 +63,11 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
 
+# The installation dir suffix for the 'orocos' diretory
+if ( NOT OROCOS_SUFFIX )
+  set(OROCOS_SUFFIX) # defaults to the empty string
+endif( NOT OROCOS_SUFFIX )
+
 # Make compilation verbose
 #SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 

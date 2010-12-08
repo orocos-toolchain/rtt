@@ -142,9 +142,9 @@ set(OROCOS-RTT_FOUND ${OROCOS-RTT_IMPORT_FILE})
 
 # Default component search path
 get_filename_component(OROCOS-RTT_PATH "${SELF_DIR}/../../.." ABSOLUTE)
-get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos" ABSOLUTE)
-get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos/plugins" ABSOLUTE)
-get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos/types"   ABSOLUTE)
+get_filename_component(OROCOS-RTT_COMPONENT_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}" ABSOLUTE)
+get_filename_component(OROCOS-RTT_PLUGINS_PATH "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/plugins" ABSOLUTE)
+get_filename_component(OROCOS-RTT_TYPES_PATH   "${SELF_DIR}/../../../lib/orocos${OROCOS_SUFFIX}/types"   ABSOLUTE)
 
 list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
