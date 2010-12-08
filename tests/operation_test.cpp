@@ -194,6 +194,12 @@ BOOST_AUTO_TEST_CASE( testOperationAddCpp )
     s->addOperation("top1", &OperationTest::func1, this);
     BOOST_CHECK( s->getOperation("top0") );
     BOOST_CHECK( s->getOperation("top1") );
+    opc0 = s->getOperation("top0");
+    opc1 = s->getOperation("top1");
+    BOOST_CHECK( opc0.ready() );
+    BOOST_CHECK( opc1.ready() );
+    BOOST_CHECK_EQUAL(opc0(), 1.0);
+    BOOST_CHECK_EQUAL(opc1(1), 2.0);
 
     // Add to default service:
     tc.addOperation("tcop0", &OperationTest::func0, this);
@@ -204,6 +210,8 @@ BOOST_AUTO_TEST_CASE( testOperationAddCpp )
     opc1 = tc.provides()->getOperation("tcop1");
     BOOST_CHECK( opc0.ready() );
     BOOST_CHECK( opc1.ready() );
+    BOOST_CHECK_EQUAL(opc0(), 1.0);
+    BOOST_CHECK_EQUAL(opc1(1), 2.0);
 
     // Override existing ops:
     // note: we add different signature with same name to check if new op was used
@@ -215,6 +223,8 @@ BOOST_AUTO_TEST_CASE( testOperationAddCpp )
     opc2 = tc.provides()->getOperation("tcop1");
     BOOST_CHECK( opc1.ready() );
     BOOST_CHECK( opc2.ready() );
+    BOOST_CHECK_EQUAL(opc1(1), 2.0);
+    BOOST_CHECK_EQUAL(opc2(1,2.0), 3.0);
 }
 
 // Test adding a C function to the services.
@@ -231,6 +241,8 @@ BOOST_AUTO_TEST_CASE( testOperationAddC )
     opc1 = s->getOperation("top1");
     BOOST_CHECK( opc0.ready() );
     BOOST_CHECK( opc1.ready() );
+    BOOST_CHECK_EQUAL(opc0(), 1.0);
+    BOOST_CHECK_EQUAL(opc1(1), 2.0);
 
     // Using TaskContext API
     tc.addOperation("top0", &OperationTest::freefunc0);
@@ -241,6 +253,8 @@ BOOST_AUTO_TEST_CASE( testOperationAddC )
     opc1 = tc.getOperation("top1");
     BOOST_CHECK( opc0.ready() );
     BOOST_CHECK( opc1.ready() );
+    BOOST_CHECK_EQUAL(opc0(), 1.0);
+    BOOST_CHECK_EQUAL(opc1(1), 2.0);
 }
 
 // Test calling an operation of the default service.
