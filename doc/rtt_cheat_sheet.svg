@@ -23,9 +23,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0074671"
-     inkscape:cx="438.69689"
-     inkscape:cy="320.42805"
+     inkscape:zoom="2.0149342"
+     inkscape:cx="587.11632"
+     inkscape:cy="117.16931"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -697,7 +697,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1214,7 +1214,7 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+       style="font-size:17.54213714999999851px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold;"
        x="500.98172"
        y="538.55566"
        id="text9319-0-7-9-1-2-2"
@@ -1233,7 +1233,7 @@
        inkscape:tile-y0="243.64954"
        transform="translate(-10,30)">
       <rect
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;"
          id="rect2021-4-7-7"
          width="235.97169"
          height="37.375507"
@@ -1246,21 +1246,21 @@
          id="text9128-63-2-4"
          y="568.05292"
          x="513.72449"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          xml:space="preserve"><tspan
            id="tspan12215-3-5-1"
            y="568.05292"
            x="513.72449"
            sodipodi:role="line"
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans">orocos_component( name files.cpp )<tspan
-   style="fill:#000000"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;">orocos_component( name files.cpp )<tspan
+   style="fill:#000000;"
    id="tspan3550">*</tspan></tspan></text>
       <text
-         sodipodi:linespacing="125%"
+         sodipodi:linespacing="123%"
          id="text9128-17"
          y="581.51282"
          x="508.59799"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          xml:space="preserve"><tspan
            id="tspan16245"
            y="581.51282"
@@ -1757,34 +1757,33 @@
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6670"
-       style="filter:url(#filter6672)"
        transform="translate(-10,67.375507)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="513.72449"
          y="568.05292"
          id="text6752"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6754">orocos_install_headers( headers.hpp )<tspan
-   style="fill:#000000"
+   style="fill:#000000;"
    id="tspan3552">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="508.59799"
          y="581.51282"
          id="text6756"
-         sodipodi:linespacing="125%"><tspan
+         sodipodi:linespacing="123%"><tspan
            sodipodi:role="line"
            x="508.59799"
            y="581.51282"
            id="tspan6758">Installs headers in <tspan
-   style="font-style:italic;-inkscape-font-specification:'10.15 Saturday Night BRK Italic'"
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan3540">include/orocos/projectname</tspan></tspan><tspan
            sodipodi:role="line"
            x="508.59799"
@@ -1795,7 +1794,6 @@
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6676"
-       style="filter:url(#filter6678)"
        transform="translate(-10,116.75101)">
       <rect
          ry="6.5120301"
@@ -1805,26 +1803,26 @@
          height="47.467621"
          width="235.97169"
          id="rect6738"
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;" />
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="513.72449"
          y="568.05292"
          id="text6740"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6742">orocos_typegen_headers( datatypes.hpp )</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="508.59799"
          y="581.51282"
          id="text6744"
-         sodipodi:linespacing="125%"><tspan
+         sodipodi:linespacing="123%"><tspan
            sodipodi:role="line"
            x="508.59799"
            y="581.51282"
@@ -1833,38 +1831,37 @@
            x="508.59799"
            y="593.4986"
            id="tspan6818">with the <tspan
-   style="font-style:italic"
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan3562">typegen<tspan
-   style="font-style:normal"
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan3564"> tool</tspan></tspan></tspan></text>
     </g>
     <g
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6682"
-       style="filter:url(#filter6684)"
        transform="translate(-10,166.12652)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="513.72449"
          y="568.05292"
          id="text6728"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6730">orocos_library( name files.cpp)<tspan
-   style="fill:#000000"
+   style="fill:#000000;"
    id="tspan3554">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="508.59799"
          y="581.51282"
          id="text6732"
-         sodipodi:linespacing="125%"><tspan
+         sodipodi:linespacing="123%"><tspan
            sodipodi:role="line"
            x="508.59799"
            y="581.51282"
@@ -1874,7 +1871,6 @@
        inkscape:tile-y0="393.15157"
        inkscape:tile-x0="504.15701"
        id="use6688"
-       style="filter:url(#filter6690)"
        transform="translate(-10,203.50203)"
        inkscape:tile-cx="622.14286"
        inkscape:tile-cy="411.83932"
@@ -1888,24 +1884,24 @@
          height="37.375507"
          width="235.97169"
          id="rect6714"
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;" />
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="513.72449"
          y="568.05292"
          id="text6716"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6718">orocos_service( name files.cpp)<tspan
-   style="fill:#000000"
+   style="fill:#000000;"
    id="tspan3556">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans;"
          x="508.59799"
          y="581.51282"
          id="text6720"
@@ -1913,35 +1909,35 @@
            sodipodi:role="line"
            x="508.59799"
            y="581.51282"
-           id="tspan6722">Creates a service library containing one service</tspan></text>
+           id="tspan6722"
+           style="-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Creates a service library containing one service</tspan></text>
     </g>
     <g
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6694"
-       style="filter:url(#filter6696)"
        transform="translate(-10,240.87754)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="513.72449"
          y="568.05292"
          id="text6704"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6706">orocos_plugin( name files.cpp)<tspan
-   style="fill:#000000"
+   style="fill:#000000;"
    id="tspan3558">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          x="508.59799"
          y="581.51282"
          id="text6708"
-         sodipodi:linespacing="125%"><tspan
+         sodipodi:linespacing="123%"><tspan
            sodipodi:role="line"
            x="508.59799"
            y="581.51282"
@@ -1949,12 +1945,11 @@
     </g>
     <g
        transform="translate(-10,278.25304)"
-       style="filter:url(#filter6690)"
        id="use6788"
        inkscape:tile-x0="504.15701"
        inkscape:tile-y0="393.15157">
       <rect
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;"
          id="rect6796"
          width="235.97169"
          height="37.375507"
@@ -1967,21 +1962,21 @@
          id="text6798"
          y="568.05292"
          x="513.72449"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          xml:space="preserve"><tspan
            id="tspan6800"
            y="568.05292"
            x="513.72449"
            sodipodi:role="line"
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans">orocos_typekit( name files.cpp)<tspan
-   style="fill:#000000"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;">orocos_typekit( name files.cpp)<tspan
+   style="fill:#000000;"
    id="tspan3560">*</tspan></tspan></text>
       <text
-         sodipodi:linespacing="125%"
+         sodipodi:linespacing="123%"
          id="text6802"
          y="581.51282"
          x="508.59799"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
          xml:space="preserve"><tspan
            id="tspan6804"
            y="581.51282"
@@ -2000,11 +1995,11 @@
          x="515.70703"
          y="537.20612" /></text>
     <text
-       sodipodi:linespacing="125%"
+       sodipodi:linespacing="123%"
        id="text6802-9"
        y="554.32178"
        x="501.30322"
-       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;filter:url(#filter6690);font-family:Sans;-inkscape-font-specification:Sans"
+       style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
        xml:space="preserve"><tspan
          id="tspan6804-6"
          y="554.32178"
@@ -2264,82 +2259,82 @@
            sodipodi:role="line">Calling Operations</tspan></text>
     </g>
     <text
-       sodipodi:linespacing="125%"
+       sodipodi:linespacing="123%"
        id="text6802-9-5"
        y="876.78516"
        x="538.90265"
-       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;filter:url(#filter6690-0);font-family:Sans;-inkscape-font-specification:Sans"
+       style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans"
        xml:space="preserve"><tspan
          y="876.78516"
          x="538.90265"
          sodipodi:role="line"
          id="tspan6851-0">*Takes optional <tspan
-   style="font-weight:bold;-inkscape-font-specification:'10.15 Saturday Night BRK Bold'"
+   style="font-weight:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-style:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan3548">INSTALL <tspan
-   style="font-style:italic"
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4756">path</tspan></tspan> argument.</tspan></text>
     <text
-       sodipodi:linespacing="110%"
+       sodipodi:linespacing="123%"
        id="text6802-9-1"
        y="926.93433"
        x="501.66025"
-       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;filter:url(#filter6690-7);font-family:Sans;-inkscape-font-specification:Sans"
+       style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans"
        xml:space="preserve"><tspan
          y="926.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan6851-8"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">prefix/</tspan><tspan
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">prefix/</tspan><tspan
          y="937.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3655"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">  include/orocos/package/headers.hpp</tspan><tspan
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">  include/orocos/package/headers.hpp</tspan><tspan
          y="948.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3635"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">  lib/                                     support<tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">  lib/                                     support<tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4769"> libraries</tspan></tspan><tspan
          y="959.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3641"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">      orocos/                          <tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">      orocos/                          <tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4771">global components</tspan></tspan><tspan
          y="970.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3643"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">         package/                    <tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">         package/                    <tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4773">component package</tspan></tspan><tspan
          y="981.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3649"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">              componentlib.so   <tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">              componentlib.so   <tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4775">component libraries</tspan></tspan><tspan
          y="992.93433"
          x="501.66025"
          sodipodi:role="line"
          id="tspan4748"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">              types/                    <tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">              types/                    <tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4777">typekits and transports</tspan></tspan><tspan
          y="1003.9343"
          x="501.66025"
          sodipodi:role="line"
          id="tspan3647"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:110.00000238%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">              plugins/                 <tspan
-   style="font-style:italic"
+         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans;">              plugins/                 <tspan
+   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
    id="tspan4779">services and plugins</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans Bold"
+       style="font-size:17.54213714999999851px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans Bold;"
        x="501.66025"
        y="909.51013"
        id="text9319-0-7-9-1-2-2-9"
@@ -2350,7 +2345,7 @@
          y="909.51013">Package Layout</tspan></text>
     <g
        id="g4735"
-       transform="translate(-14.000008,-9.1242567)">
+       transform="translate(-18.000008,-9.1242567)">
       <path
          id="path3657"
          d="m 540.01435,972.45504 0,63.29096"
@@ -2373,18 +2368,18 @@
     </g>
     <g
        id="g4764"
-       transform="translate(0,-6)">
+       transform="translate(-4,-4)">
       <path
          id="path3657-8"
          d="m 538.15727,980.55482 0,35.26628"
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM);display:inline" />
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM);display:inline;" />
       <text
          id="text4669-5"
          y="1027.6266"
          x="529.02405"
-         style="font-size:14px;font-style:normal;font-weight:normal;fill:#ff1515;fill-opacity:1;stroke:none;display:inline;font-family:Bitstream Vera Sans"
+         style="font-size:14px;font-style:normal;font-weight:normal;fill:#ff1515;fill-opacity:1;stroke:none;display:inline;font-family:Bitstream Vera Sans;"
          xml:space="preserve"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
            y="1027.6266"
            x="529.02405"
            id="tspan4671-0"
