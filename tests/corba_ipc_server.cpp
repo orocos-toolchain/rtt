@@ -34,6 +34,7 @@
 #include <string>
 #include <os/main.h>
 #include "operations_fixture.hpp"
+#include <fstream>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -97,6 +98,13 @@ int ORO_main(int argc, char** argv)
     corba::TaskContextProxy::InitOrb(argc,argv);
 
     PluginLoader::Instance()->loadTypekits("../rtt");
+
+#ifndef WIN32
+    pid_t pid = getpid();
+    std::ofstream pidfile("corba-ipc-server.pid");
+    pidfile << pid << endl;
+    pidfile.close();
+#endif
     {
         TheServer ctest1("peerRMC");
         TheServer ctest2("peerRM");
