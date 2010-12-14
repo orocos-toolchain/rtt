@@ -135,7 +135,7 @@ namespace RTT
       peerparser.reset();
 //      cout << "seendataname "<< mobject << "." << mmethod<<endl;
       // Check if it is a constructor
-      if ( (mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ))
+      if ( (ops == peerparser.taskObject() && TypeInfoRepository::Instance()->type( mmethod ))
               ||
               (TypeInfoRepository::Instance()->type( mobject + "." + mmethod )) ) {
           // it is...
@@ -153,7 +153,7 @@ namespace RTT
               // Check if method exists on current object:
               if ( ops->hasMember(mmethod) == false ) {
                   // Check if it is a method of the global service:
-                  if ( GlobalService::Instance()->hasMember(mmethod) ) {
+                  if ( ops == peerparser.taskObject() && GlobalService::Instance()->hasMember(mmethod) ) {
                       mobject = "GlobalService";
                       ops = GlobalService::Instance();
                   } else {
