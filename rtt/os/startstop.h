@@ -78,3 +78,14 @@ RTT_API void __os_printException(const char* prog, std::exception& arg);
  */
 RTT_API int __os_checkException(int&, char**);
 
+/**
+ * Call this function to find out how many arguments were
+ * passed to the process' main() function.
+ */
+RTT_API int __os_main_argc(void);
+
+/**
+ * Call this function to get the list of arguments of this
+ * process' main() function.
+ */
+RTT_API char** __os_main_argv(void);
