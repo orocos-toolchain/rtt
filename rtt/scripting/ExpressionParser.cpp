@@ -405,7 +405,7 @@ namespace RTT
       | value_expression
       | call_expression
         // or an index or dot expression
-        ) >> ! dotexp >> !indexexp;
+        ) >> *( dotexp | indexexp);
 
     // if it's value.keyword then pass it on to the call_expression.
     value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
@@ -417,7 +417,7 @@ namespace RTT
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_index, this)] >> expect_close( ch_p( ']') ) );
 
     dotexp =
-        +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
+        ( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..

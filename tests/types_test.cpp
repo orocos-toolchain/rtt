@@ -31,6 +31,10 @@
 #include <Service.hpp>
 #include <types/GlobalsRepository.hpp>
 #include <types/Types.hpp>
+#include <types/StructTypeInfo.hpp>
+#include <types/SequenceTypeInfo.hpp>
+
+#include "datasource_fixture.hpp"
 
 using namespace std;
 
@@ -82,6 +86,8 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         to->addOperation("pass",&TypesTest::pass, this);
         return to;
     }
+
+
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
@@ -156,9 +162,6 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
 
 BOOST_AUTO_TEST_CASE( testTypes )
 {
-    // XXX
-    // for some reason, we can not compare the double6D's one fails
-    // to parse, the others assert false, thus inequality.
     string test =
         // Line 2 (see below):
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
@@ -283,6 +286,9 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 }
 
+/**
+ * Tests some random operations, and alos the operator+ for strings.
+ */
 BOOST_AUTO_TEST_CASE( testOperators )
 {
     string prog = string("program x {\n") +
@@ -311,6 +317,48 @@ BOOST_AUTO_TEST_CASE( testOperators )
     executePrograms(prog);
 }
 
+/**
+ * Tests parsing multiple occurences of '[]' and '.' while indexing
+ * into structs and sequences and any combination thereof.
+ */
+BOOST_AUTO_TEST_CASE( testDotsAndIndexes )
+{
+    Types()->addType( new SequenceTypeInfo<std::vector<std::vector<double> >,false >("matrix"));
+    Types()->addType( new StructTypeInfo<AType,false>("astruct"));
+    Types()->addType( new StructTypeInfo<CType,false>("cstruct"));
+    Types()->addType( new SequenceTypeInfo<std::vector<CType>,false >("cstructv"));
+    Types()->addType( new SequenceTypeInfo<std::vector<AType>,false >("astructv"));
+    string prog = string("program x {\n") +
+        "var matrix m = matrix(8,array(10))\n" + // 8 by 10 matrix
+        "test.assertMsg(m.size == 8, \"Matrix column size is wrong.\")\n" +
+        "test.assertMsg(m[0].size == 10, \"Matrix row size is wrong.\")\n" +
+        "m[0][0] = 3.33\n" +
+        "m[1][1] = 4.33\n" +
+        "m[2][2] = 5.33\n" +
+        "m[8][10] = 6.33\n" +
+        "test.assertMsg(m[0][0] == 3.33, \"Matrix element assignment failed.\")\n"+
+        "test.assertMsg(m[1][1] == 4.33, \"Matrix element assignment failed.\")\n"+
+        "test.assertMsg(m[2][2] == 5.33, \"Matrix element assignment failed.\")\n"+
+        "test.assertMsg(m[8][10] == 6.33, \"Matrix element assignment failed.\")\n"+
+        "var matrix m2 = m;\n"
+        "test.assertMsg(m2[0][0] == 3.33, \"Matrix assignment failed.\")\n"+
+        "test.assertMsg(m2[1][1] == 4.33, \"Matrix assignment failed.\")\n"+
+        "test.assertMsg(m2[2][2] == 5.33, \"Matrix assignment failed.\")\n"+
+        "test.assertMsg(m2[8][10] == 6.33, \"Matrix assignment failed.\")\n"+
+        "var cstructv structv = cstructv(3)\n"+ // vector<struct> of size 10
+        "structv[1].a.b = 3.33\n"+
+        "test.assertMsg(structv[1].a.b == 3.33, \"Sequence of struct element assignment failed.\")\n"+
+        "structv[1].av[3].b = 4.33\n"+
+        "test.assertMsg(structv[1].av[3].b == 4.33, \"Sequence of struct element assignment failed.\")\n"+
+        "}";
+    // execute
+    executePrograms(prog);
+}
+
+/**
+ * Tests converting double to float to int in several
+ * directions.
+ */
 BOOST_AUTO_TEST_CASE( testConversions )
 {
     string prog = string("program x {\n") +
@@ -329,6 +377,9 @@ BOOST_AUTO_TEST_CASE( testConversions )
     executePrograms(prog);
 }
 
+/**
+ * Tests reading/writing property(bags) in scripting.
+ */
 BOOST_AUTO_TEST_CASE( testProperties )
 {
     string prog = string("program x {\n") +
