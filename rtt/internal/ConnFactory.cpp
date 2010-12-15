@@ -80,13 +80,13 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
     {
         log(Error) << "Type of port " << output_port.getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
         // There is no type info registered for this type
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
     else if ( !type_info->getProtocol( transport ) )
     {
         log(Error) << "Type " << type_info->getTypeName() << " cannot be marshalled into the requested transporter (id:"<< transport<<")." << endlog();
         // This type cannot be marshalled into the right transporter
-        return false;
+        return base::ChannelElementBase::shared_ptr();
     }
     else
     {
@@ -94,7 +94,7 @@ base::ChannelElementBase::shared_ptr RTT::internal::ConnFactory::createRemoteCon
         return input_port.
                 getConnFactory()->buildRemoteChannelOutput(output_port, type_info, input_port, policy);
     }
-    return 0;
+    return base::ChannelElementBase::shared_ptr();
 }
 
 bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy) {
