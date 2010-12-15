@@ -22,6 +22,7 @@
 #
 #  OROCOS-RTT_PATH: Path of the RTT installation directory (its CMAKE_INSTALL_PREFIX).
 #  OROCOS-RTT_COMPONENT_PATH: The component path of the installation (<prefix>/lib/orocos) + RTT_COMPONENT_PATH
+#  OROCOS-RTT_PLUGIN_PATH: OROCOS-RTT_PLUGINS_PATH + OROCOS-RTT_TYPES_PATH
 #  OROCOS-RTT_PLUGINS_PATH: The plugins path of the installation (<prefix>/lib/orocos/plugins) + RTT_COMPONENT_PATH * /plugins
 #  OROCOS-RTT_TYPES_PATH: The types path of the installation (<prefix>/lib/orocos/types) + RTT_COMPONENT_PATH * /types
 #
@@ -38,6 +39,7 @@
 #
 #  OROCOS-RTT_USE_FILE_PATH: Path to package use file, so it can be included like so
 #                            include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+#  OROCOS-RTT_USE_FILE     : Allows you to write: include( ${OROCOS-RTT_USE_FILE} )
 #
 # This script additionally sets variables for each requested find_package COMPONENTS (OROCOS-RTT plugins).
 # For example, for the foo plugin this would be:
@@ -129,6 +131,7 @@ set(OROCOS-RTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")
 
 # Path to package use file
 set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
+set(OROCOS-RTT_USE_FILE ${SELF_DIR}/UseOROCOS-RTT.cmake)
 
 # Confirm found, not cached !
 message("Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
