@@ -221,11 +221,13 @@ namespace RTT
                     } catch(...) {}
                 }
                 if (id_name) {
-                    log(Error) << "SequenceTypeInfo: No such part : " << id_name->get() << endlog();
+                    log(Error) << "SequenceTypeInfo: No such member : " << id_name->get() << endlog();
                 }
                 if (id_indx) {
                     log(Error) << "SequenceTypeInfo: Invalid index : " << id_indx->get() <<":"<< id_indx->getTypeName() << endlog();
                 }
+                if ( !id_name && ! id_indx)
+                    log(Error) << "SequenceTypeInfo: Not a member or index : " << id <<":"<< id->getTypeName() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
         };
