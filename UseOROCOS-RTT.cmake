@@ -78,6 +78,7 @@ macro( orocos_component COMPONENT_NAME )
     )
   SET( SOURCES ${ADD_COMPONENT_DEFAULT_ARGS} )
   SET( LIB_NAME "${COMPONENT_NAME}-${OROCOS_TARGET}")
+  # Extract install directory:
   if ( ADD_COMPONENT_INSTALL )
     set(AC_INSTALL_DIR ${ADD_COMPONENT_INSTALL}${OROCOS_SUFFIX})
     set(AC_INSTALL_RT_DIR bin)
@@ -86,11 +87,14 @@ macro( orocos_component COMPONENT_NAME )
     set(AC_INSTALL_RT_DIR lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
   endif()
   
+  # Set library name:
   if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
   else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
   endif()
+
+  # Set component version:
   if (COMPONENT_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
   endif(COMPONENT_VERSION)
@@ -98,6 +102,8 @@ macro( orocos_component COMPONENT_NAME )
     set( LIB_COMPONENT_VERSION VERSION ${ORO_COMPONENT_VERSION})
   endif(ORO_COMPONENT_VERSION)
   MESSAGE( "Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
+
+  # Use rosbuild in ros environments:
   if (ROS_ROOT)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
@@ -106,6 +112,8 @@ macro( orocos_component COMPONENT_NAME )
   else()
     ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
   endif()
+
+  # Prepare component lib for out-of-the-ordinary lib directories
   SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
     OUTPUT_NAME ${COMPONENT_LIB_NAME}
     DEFINE_SYMBOL "RTT_COMPONENT"
@@ -116,10 +124,14 @@ macro( orocos_component COMPONENT_NAME )
     )
   TARGET_LINK_LIBRARIES( ${COMPONENT_NAME} ${OROCOS-RTT_LIBRARIES} )
 
-
+  # Install
   INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
+  # Add current dir as link lookup-dir
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+
+  # Necessary for .pc file generation
+  list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
 endmacro( orocos_component )
 
 # Utility libraries should add themselves by calling 'orocos_library()' 
@@ -176,6 +188,9 @@ macro( orocos_library LIB_TARGET_NAME )
   INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+
+  # Necessary for .pc file generation
+  list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
 endmacro( orocos_library )
 
 # Type headers should add themselves by calling 'orocos_typegen_headers()'
@@ -256,6 +271,9 @@ macro( orocos_typekit LIB_TARGET_NAME )
   INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+
+  # Necessary for .pc file generation
+  list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
 endmacro( orocos_typekit )
 
 # plugin libraries should add themselves by calling 'orocos_plugin()' 
@@ -315,6 +333,9 @@ macro( orocos_plugin LIB_TARGET_NAME )
   INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+
+  # Necessary for .pc file generation
+  list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
 endmacro( orocos_plugin )
 
 # service libraries should add themselves by calling 'orocos_service()' 
@@ -361,6 +382,94 @@ macro( orocos_uninstall_target )
 ADD_CUSTOM_TARGET(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 endmacro( orocos_uninstall_target )
+
+#
+# Find a component
+#
+macro( orocos_find_component COMPONENT )
+
+  if (ROS_ROOT)
+    rosbuild_find_ros_package( ${COMPONENT} )
+    set( COMP_PACKAGE_HINTS HINTS ${${COMPONENT}_PACKAGE_PATH} )
+  else(ROS_ROOT)
+  endif(ROS_ROOT)
+endmacro( orocos_find_component )
+
+#
+# Generate a .pc file for the whole project
+# Allows to set a name for the .pc file (without extension)
+# and a version (defaults to 1.0). The name and version you provide will
+# be used unmodified.
+#
+# If you didn't specify VERSION but COMPONENT_VERSION has been set,
+# that variable will be used to set the version number.
+#
+# orocos_create_pc_file( [name] [VERSION version] )
+#
+macro( orocos_create_pc_file )
+
+  oro_parse_arguments(ORO_CREATE_PC
+    "VERSION"
+    ""
+    ${ARGN}
+    )
+
+  # Check version
+  if (NOT ORO_CREATE_PC_VERSION)
+    if (COMPONENT_VERSION)
+      set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
+    elseif (COMPONENT_VERSION)
+      set( ORO_CREATE_PC_VERSION 1.0)
+    endif (COMPONENT_VERSION)
+  endif (NOT ORO_CREATE_PC_VERSION)
+
+  # Create filename
+  if ( ORO_CREATE_PC_DEFAULT_ARGS )
+    set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
+  else ( ORO_CREATE_PC_DEFAULT_ARGS )
+    string(TOLOWER ${CMAKE_PROJECT_NAME} PC_NAME )
+    if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} )
+      # Append -subdir-subdir-... to pc name:
+      file(RELATIVE_PATH RELPATH ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
+      string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
+      set(PC_NAME ${PC_NAME}-${PC_NAME_SUFFIX})
+    endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} )
+    set(PC_NAME ${PC_NAME}-${OROCOS_TARGET})
+  endif ( ORO_CREATE_PC_DEFAULT_ARGS )
+
+  # Create lib-path list
+  set(PC_LIBS "Libs: ")
+  if (OROCOS_DEFINED_LIBS)
+    set(PC_LIBS "${PC_LIBS} -L\${libdir} ${OROCOS_DEFINED_LIBS}")
+  endif (OROCOS_DEFINED_LIBS)
+  if (OROCOS_DEFINED_COMPS)
+    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos ${OROCOS_DEFINED_COMPS}")
+  endif (OROCOS_DEFINED_COMPS)
+  if (OROCOS_DEFINED_PLUGINS)
+    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos/plugins ${OROCOS_DEFINED_PLUGINS}")
+  endif (OROCOS_DEFINED_PLUGINS)
+  if (OROCOS_DEFINED_TYPES)
+    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos/types ${OROCOS_DEFINED_TYPES}")
+  endif (OROCOS_DEFINED_TYPES)
+
+  message("Generating ${PC_NAME}.pc version ${ORO_CREATE_PC_VERSION} for all components and libraries in the current CMake scope.")
+
+  set(PC_CONTENTS "prefix=${CMAKE_INSTALL_PREFIX}
+libdir=\${prefix}/lib
+includedir=\${prefix}/include/orocos
+
+Name: ${PC_NAME}
+Description: ${PC_NAME} package for Orocos
+Requires: orocos-rtt
+Version: ${ORO_CREATE_PC_VERSION}
+${PC_LIBS}
+Cflags: -I\${includedir}
+")
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc ${PC_CONTENTS})
+
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
+
+endmacro( orocos_create_pc_file )
 
 endif() # OROCOS-RTT_FOUND
 
