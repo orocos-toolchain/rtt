@@ -4,7 +4,9 @@
 # It is assumed that find_package(OROCOS-RTT ...) has already been invoked.
 # See orocos-rtt-config.cmake for information on how to load OROCOS-RTT into your CMake project.
 # To include this file from your CMake project, the OROCOS-RTT_USE_FILE_PATH variable is used:
-# include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+#   include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake) 
+# or even shorter:
+#   include(${OROCOS-RTT_USE_FILE})
 #
 ########################################################################################################################
 
@@ -471,5 +473,6 @@ Cflags: -I\${includedir}
 
 endmacro( orocos_create_pc_file )
 
+else() # OROCOS-RTT_FOUND
+    message(FATAL_ERROR "UseOrocos.cmake file included, but OROCOS-RTT_FOUND not set ! Be sure to run first find_package(OROCOS-RTT) before including this file.")
 endif() # OROCOS-RTT_FOUND
-
