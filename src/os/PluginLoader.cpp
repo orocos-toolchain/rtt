@@ -138,14 +138,22 @@ void PluginLoader::loadPlugins(string const& path_list) {
     loadPluginsInternal( path_list, "plugins", "plugin");
 }
 
-void PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
+void PluginLoader::loadPluginsInternal( std::string const& package, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
+    vector<string> paths = splitPaths(plugin_path);
+
+    // subdir must be a directory.
+    path pkgdir;
+    if (package.empty() ) {
+        pkgdir = path(".");
+    } else {
+        pkgdir = package;
+    }
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
-        path p = path(*it) / subdir;
+        path p = path(*it) / pkgdir / subdir;
         if (is_directory(p))
         {
             log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
@@ -165,8 +173,8 @@ void PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         else
             log(Debug) << "No such directory: " << p << endlog();
 
-        // Repeat for types/OROCOS_TARGET:
-        p = path(*it) / subdir / OROCOS_TARGET_NAME;
+        // Repeat for OROCOS_TARGET/package/sub/types:
+        p = path(*it) / OROCOS_TARGET_NAME / pkgdir / subdir;
         if (is_directory(p))
         {
             log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
@@ -193,6 +201,11 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     vector<string> paths = splitPaths(path_list + default_delimiter + plugin_path);
     vector<string> tryouts( paths.size() * 4 );
     tryouts.clear();
+
+    path arg = name;
+    if (is_regular_file( arg ) && loadInProcess( arg.string(), name, kind, true ) )
+      return true;
+
     if ( isLoaded(name) ) {
         log(Info) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
@@ -200,25 +213,24 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
 
-    path p = name;
-    if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
-      return true;
+    path dir = arg.parent_path();
+    string file = arg.filename();
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
-        path p = path(*it) / subdir / (name + SO_EXT);
+        path p = path(*it) / dir / subdir / (name + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / subdir / ("lib" + name + SO_EXT);
+        p = path(*it) / dir / subdir / ("lib" + name + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / subdir / OROCOS_TARGET_NAME / (name + SO_EXT);
+        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (name + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / subdir / OROCOS_TARGET_NAME / ("lib" + name + SO_EXT);
+        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + name + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
