@@ -251,4 +251,7 @@ usr/include/rtt/os/rt_list.hpp
 usr/include/rtt/os/rint.h
 usr/include/rtt/os/oro_allocator.hpp
 usr/include/rtt/os/Thread.hpp
-
+usr/include/rtt/os/PluginLoader.hpp
+usr/include/rtt/os/tlsf/tlsf.h
+usr/include/rtt/os/oro_malloc.h
+usr/include/rtt/os/oro_noasm/oro_atomic.h
