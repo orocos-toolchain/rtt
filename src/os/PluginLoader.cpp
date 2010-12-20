@@ -150,6 +150,15 @@ void PluginLoader::loadPluginsInternal( std::string const& package, std::string 
         pkgdir = package;
     }
 
+    // user provided absolute dir: extend search path.
+    path pdir = package;
+    if ( pdir.is_complete() ) {
+        plugin_path += default_delimiter + package;
+        // but only search this one for now:
+        paths = splitPaths(package);
+        pkgdir = path(".");
+    }
+
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
         // Scan path/types/* (non recursive)
