@@ -227,19 +227,19 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
-        path p = path(*it) / dir / subdir / (name + SO_EXT);
+        path p = path(*it) / dir / subdir / (file + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / dir / subdir / ("lib" + name + SO_EXT);
+        p = path(*it) / dir / subdir / ("lib" + file + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (name + SO_EXT);
+        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (file + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
-        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + name + SO_EXT);
+        p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + file + SO_EXT);
         tryouts.push_back( p.string() );
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
