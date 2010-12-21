@@ -1,3 +1,32 @@
+           The Orocos Real-Time Toolkit v1.12.1.
+           ====================================
+
+The Orocos development team is pleased to announce the first
+bugfix release of the Real-Time Toolkit v1.12, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+Together with RTT, OCL 1.12.1 is released as well. This release aims at
+resolving some of the component and plugin loading issues that were
+discovered after the 1.12.0 release.
+
+These are the major highlights:
+ * Support for Debian packages
+ * Improved component/plugin loading in mixed target installs.
+   - OCL installs its components in lib/orocos/<target> instead of lib/orocos
+     in order to avoid loading libaries of another target.
+ * improved import() and loadLibrary() functions:
+   - When given a relative path, it is relative to RTT_COMPONENT_PATH
+   - When given an absolute path, this path is directly scanned and added
+     to the RTT_COMPONENT_PATH for later importing of its subdirectories.
+
+You can download this release from
+  http://www.orocos.org/stable/rtt/v1.12.1/orocos-rtt-1.12.1-src.tar.bz2
+and read the installation instructions on
+  http://www.orocos.org/stable/documentation/rtt/v1.12.x/doc-xml/orocos-installation.html
+
+Upgrade instructions for swithing from the 1.x to the 2.x releases can be found here:
+  http://www.orocos.org/wiki/Upgrading_from_RTT_1.x_to_2.0
+
+
            The Orocos Real-Time Toolkit v1.12.0.
            ====================================
 
