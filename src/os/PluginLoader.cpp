@@ -140,7 +140,7 @@ void PluginLoader::loadPlugins(string const& path_list) {
 
 void PluginLoader::loadPluginsInternal( std::string const& package, std::string const& subdir, std::string const& kind )
 {
-    vector<string> paths = splitPaths(plugin_path);
+    vector<string> paths = splitPaths("." + default_delimiter + plugin_path);
 
     // subdir must be a directory.
     path pkgdir;
