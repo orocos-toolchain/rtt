@@ -146,6 +146,7 @@ void PluginLoader::loadPluginsInternal( std::string const& package, std::string 
     path pkgdir;
     if (package.empty() ) {
         pkgdir = path(".");
+        paths = splitPaths(plugin_path);
     } else {
         pkgdir = package;
     }
