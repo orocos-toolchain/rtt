@@ -208,11 +208,11 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_value(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-		RT_SEM_INFO sinfo;
+        RT_SEM_INFO sinfo;
         if (rt_sem_inquire(m, &sinfo) == 0 ) {
-			return sinfo.count;
-		}
-		return -1;
+            return sinfo.count;
+        }
+        return -1;
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
@@ -262,6 +262,17 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
+        struct rt_mutex_info info;
+        rt_mutex_inquire(m, &info );
+#if ((CONFIG_XENO_VERSION_MAJOR*10000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) >= 20500
+        if (info.locked)
+            return 0;
+#else
+        if (info.lockcnt)
+            return 0;
+#endif
+        // from here on: we're sure our thread didn't lock it
+        // now check if any other thread locked it:
         return rt_mutex_acquire(m, TM_NONBLOCK);
     }
 
