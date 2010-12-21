@@ -25,6 +25,8 @@
 #include <extras/SimulationThread.hpp>
 #include <RTT.hpp>
 
+// Modified version that contains checkpointing:
+#include "unit_test_suite.hpp"
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
