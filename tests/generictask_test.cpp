@@ -17,10 +17,8 @@
  ***************************************************************************/
 
 
-
+#include "unit.hpp"
 #include "generictask_test.hpp"
-
-#include <iostream>
 #include <scripting/FunctionGraph.hpp>
 #include <OperationCaller.hpp>
 #include <Service.hpp>
@@ -35,9 +33,6 @@
 #include <Service.hpp>
 
 using namespace std;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 void
 Generic_TaskTest::setUp()

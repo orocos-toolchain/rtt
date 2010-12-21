@@ -16,16 +16,17 @@
  *                                                                         *
  ***************************************************************************/
 
+
 #include <os/main.h>
 #include <Logger.hpp>
 #include <iostream>
 #include <cstdlib>
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/included/unit_test.hpp>
 #include <os/StartStopManager.hpp>
 
 #include "test-runner.hpp"
+#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 using boost::unit_test::test_suite;
 

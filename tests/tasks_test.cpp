@@ -17,6 +17,7 @@
  ***************************************************************************/
 
 
+#include "unit.hpp"
 
 #include "tasks_test.hpp"
 
@@ -30,12 +31,6 @@
 
 using namespace std;
 using namespace boost;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-// Registers the fixture into the 'registry'
-
 using namespace RTT;
 using namespace RTT::detail;
 

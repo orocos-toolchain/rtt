@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
@@ -25,8 +25,6 @@
 #include <internal/AtomicMWSRQueue.hpp>
 
 #include <Activity.hpp>
-
-#include <boost/test/unit_test.hpp>
 
 #include <RTT.hpp>
 #include <base/Buffer.hpp>

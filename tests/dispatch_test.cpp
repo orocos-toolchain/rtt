@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include "dispatch_test.hpp"
 
@@ -29,9 +29,6 @@
 #include <Service.hpp>
 
 using namespace std;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 DispatchTest::DispatchTest()
     : gtc("root"),

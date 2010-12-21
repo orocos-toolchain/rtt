@@ -16,12 +16,9 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include <iostream>
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 #include <rtt/OperationCaller.hpp>
 #include <rtt/Service.hpp>

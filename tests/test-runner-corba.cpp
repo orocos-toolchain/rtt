@@ -20,13 +20,13 @@
 #include <Logger.hpp>
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/included/unit_test.hpp>
 #include <os/StartStopManager.hpp>
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/CorbaDispatcher.hpp>
 
 #include "test-runner.hpp"
+#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 using boost::unit_test::test_suite;
 
