@@ -69,6 +69,8 @@ namespace {
 
 boost::shared_ptr<PluginLoader> PluginLoader::minstance;
 
+boost::shared_ptr<PluginLoader> instance2;
+
 namespace {
 
 vector<string> splitPaths(string const& str)
@@ -113,13 +115,14 @@ string makeShortFilename(string const& str) {
 }
 
 boost::shared_ptr<PluginLoader> PluginLoader::Instance() {
-    if (!minstance)
-        minstance.reset( new PluginLoader() );
-    return minstance;
+    if (!instance2) {
+        instance2.reset( new PluginLoader() );
+    }
+    return instance2;
 }
 
 void PluginLoader::Release() {
-    minstance.reset();
+    instance2.reset();
 }
 
 void PluginLoader::loadTypekits(string const& path_list) {
