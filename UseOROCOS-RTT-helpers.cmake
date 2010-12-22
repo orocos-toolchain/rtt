@@ -16,7 +16,7 @@ macro( orocos_get_manifest_deps RESULT)
     
     string(REGEX REPLACE " package=\"([^\"]+)\"\n" "\\1;" RR_RESULT ${DEPS})
 
-    message("Dependencies are: ${RR_RESULT}")
+    #message("Dependencies are: ${RR_RESULT}")
     set(${RESULT} ${RR_RESULT})
   endif (NOT XPATH_EXE)
 
@@ -43,28 +43,29 @@ function( orocos_use_package PACKAGE )
   endif (PACKAGE STREQUAL "rtt")
   if (ROS_ROOT)
     if (NOT ${PACKAGE}_PACKAGE_PATH)
-    # use rospack to find package directories of *all* dependencies.
-    # We need these because a .pc file may depend on another .pc file in another package.
-    # This package + the packages this package depends on:
-    rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE}_prefix DEPS depends)
-    string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
-    foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+      # use rospack to find package directories of *all* dependencies.
+      # We need these because a .pc file may depend on another .pc file in another package.
+      # This package + the packages this package depends on:
+      rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE}_prefix DEPS depends)
+      string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
+      foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
         # Skip previously found packages
         if (NOT ${ROSDEP}_PACKAGE_PATH)
-            rosbuild_find_ros_package( ${ROSDEP} )
+          rosbuild_find_ros_package( ${ROSDEP} )
             set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}:${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}" )
-        endif (NOT ${ROSDEP}_PACKAGE_PATH)
-    endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE}) 
-    
-    message("Searching for ${PACKAGE} in modified PKG_CONFIG_PATH: '$ENV{PKG_CONFIG_PATH}'.")
-    endif (NOT ${PACKAGE}_PACKAGE_PATH)
+          endif (NOT ${ROSDEP}_PACKAGE_PATH)
+	endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+
+	#message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
+      endif (NOT ${PACKAGE}_PACKAGE_PATH)
   else(ROS_ROOT)
     #Use default pkg-config path
-    message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH: '$ENV{PKG_CONFIG_PATH}'.")
+    #message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH.")
   endif(ROS_ROOT)
 
   # Now we are ready to get the flags from the .pc files:
-  pkg_check_modules(${PACKAGE}_COMP ${PACKAGE})
+  #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
+  pkg_search_module(${PACKAGE}_COMP ${PACKAGE} ${PACKAGE}-${OROCOS_TARGET})
   if (${PACKAGE}_COMP_FOUND)
     include_directories(${PACKAGE}_COMP_INCLUDE_DIRS)
 
@@ -78,14 +79,15 @@ function( orocos_use_package PACKAGE )
 	list(APPEND ${PACKAGE}_LIBRARIES ${${PACKAGE}_${COMP_LIB}_LIBRARY})
     endforeach(COMP_LIB ${${PACKAGE}_COMP_LIBRARIES})
 
-    # Only link in case the user didn't opt-out:
-    if (NOT OROCOS_NO_AUTO_LINKING )
+    # Only link in case there is something *and* the user didn't opt-out:
+    if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_LIBRARIES)
       link_libraries( ${${PACKAGE}_LIBRARIES} )
-      message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
-    endif (NOT OROCOS_NO_AUTO_LINKING )
+      message("[UseOrocos] Linking all targets with libraries from package '${PACKAGE}'.")
+      #message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
+    endif (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_LIBRARIES)
 
   else (${PACKAGE}_COMP_FOUND)
-    message("${PACKAGE} does not provice a .pc file for exporting its build/link flags.")
+    message("[UseOrocos] ${PACKAGE} does not provice a .pc file for exporting its build/link flags (or one of it 'Requires' dependencies was not found).")
   endif (${PACKAGE}_COMP_FOUND)
     
 endfunction( orocos_use_package PACKAGE )

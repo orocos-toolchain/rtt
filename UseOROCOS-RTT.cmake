@@ -35,6 +35,11 @@ if(OROCOS-RTT_FOUND)
   message("[UseOrocos] Building package ${orocos_package}")
   
   if (ROS_ROOT)
+    # In ros builds, we need to set the pkg-config path such that RTT is found by
+    # the typekit/typegen/pc files logic:
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
+    #message("Setting PKG_CONFIG_PATH to $ENV{PKG_CONFIG_PATH}")
+
     # We only need the direct dependencies, the rest is resolved
     # by the .pc files.
     rosbuild_invoke_rospack(${orocos_package} pkg DEPS depends1)
@@ -45,7 +50,7 @@ if(OROCOS-RTT_FOUND)
   else (ROS_ROOT)
     # Fall back to 'manually' processing the manifest.xml file.
     orocos_get_manifest_deps( DEPS )
-    message("Dependencies are: ${DEPS}")
+    #message("Dependencies are: ${DEPS}")
     foreach(DEP ${DEPS})
         orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
@@ -127,7 +132,7 @@ macro( orocos_component COMPONENT_NAME )
   if (ORO_COMPONENT_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${ORO_COMPONENT_VERSION})
   endif(ORO_COMPONENT_VERSION)
-  MESSAGE( "Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
+  MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
 
   # Use rosbuild in ros environments:
   if (ROS_ROOT)
@@ -189,7 +194,7 @@ macro( orocos_library LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
-  MESSAGE( "Building library ${LIB_TARGET_NAME}" )
+  MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
   if (ROS_ROOT)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
   else()
@@ -227,18 +232,20 @@ endmacro( orocos_library )
 #
 macro( orocos_typegen_headers )
 
-  MESSAGE( "Generating typekit for ${PROJECT_NAME}..." )
+  MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME}..." )
   
   # Works in top level source dir:
   find_program(TYPEGEN_EXE typegen)
   if (NOT TYPEGEN_EXE)
     message(FATAL_ERROR "'typegen' not found in path. Can't build typekit. Did you 'source env.sh' ?")
   else (NOT TYPEGEN_EXE)
-  
+
     execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
       )
+
     add_subdirectory( typekit )
+    list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )
 
@@ -277,7 +284,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
-  MESSAGE( "Building typekit library ${LIB_TARGET_NAME}" )
+  MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
   if (ROS_ROOT)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -338,13 +345,13 @@ macro( orocos_plugin LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   if (ROS_ROOT)
-    MESSAGE( "Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
+    MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/plugins
     )
   else()
-    MESSAGE( "Building plugin library ${LIB_TARGET_NAME}" )
+    MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -400,17 +407,22 @@ endmacro( orocos_install_headers )
 #
 # Usage example: orocos_uninstall_target()
 macro( orocos_uninstall_target )
-  CONFIGURE_FILE(
-  "${OROCOS-RTT_USE_FILE_PATH}/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-  IMMEDIATE @ONLY)
+  if (NOT OROCOS_UNINSTALL_DONE)
+    CONFIGURE_FILE(
+      "${OROCOS-RTT_USE_FILE_PATH}/cmake_uninstall.cmake.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+      IMMEDIATE @ONLY)
 
-ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+    ADD_CUSTOM_TARGET(uninstall
+      "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+  endif (NOT OROCOS_UNINSTALL_DONE)
+  set(OROCOS_UNINSTALL_DONE)
 endmacro( orocos_uninstall_target )
 
 #
-# Generate a .pc file for the whole project
+# Generate package files for the whole project. Do this as the very last
+# step in your project's CMakeLists.txt file.
+#
 # Allows to set a name for the .pc file (without extension)
 # and a version (defaults to 1.0). The name and version you provide will
 # be used unmodified.
@@ -418,9 +430,9 @@ endmacro( orocos_uninstall_target )
 # If you didn't specify VERSION but COMPONENT_VERSION has been set,
 # that variable will be used to set the version number.
 #
-# orocos_create_pc_file( [name] [VERSION version] )
+# orocos_generate_package( [name] [VERSION version] )
 #
-macro( orocos_create_pc_file )
+macro( orocos_generate_package )
 
   oro_parse_arguments(ORO_CREATE_PC
     "VERSION"
@@ -432,9 +444,13 @@ macro( orocos_create_pc_file )
   if (NOT ORO_CREATE_PC_VERSION)
     if (COMPONENT_VERSION)
       set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
-    elseif (COMPONENT_VERSION)
-      set( ORO_CREATE_PC_VERSION 1.0)
+      message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
+    else (COMPONENT_VERSION)
+      set( ORO_CREATE_PC_VERSION "1.0")
+      message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
     endif (COMPONENT_VERSION)
+  else (NOT ORO_CREATE_PC_VERSION)
+    message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION}.")
   endif (NOT ORO_CREATE_PC_VERSION)
 
   # Create filename
@@ -466,24 +482,48 @@ macro( orocos_create_pc_file )
     set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos/types ${OROCOS_DEFINED_TYPES}")
   endif (OROCOS_DEFINED_TYPES)
 
-  message("Generating ${PC_NAME}.pc version ${ORO_CREATE_PC_VERSION} for all components and libraries in the current CMake scope.")
-
-  set(PC_CONTENTS "prefix=${CMAKE_INSTALL_PREFIX}
+  set(PC_PREFIX ${CMAKE_INSTALL_PREFIX})
+  set(PC_CONTENTS "prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
 includedir=\${prefix}/include/orocos
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
-Requires: orocos-rtt
+Requires: orocos-rtt-${OROCOS_TARGET}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
 Cflags: -I\${includedir}
 ")
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc ${PC_CONTENTS})
+  string(CONFIGURE "${PC_CONTENTS}" INSTALLED_PC_CONTENTS @ONLY)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc ${INSTALLED_PC_CONTENTS})
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
+  #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-endmacro( orocos_create_pc_file )
+  # For ros package trees, we install the .pc file also next to the manifest file:
+  if (ROS_ROOT)
+    set(PC_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
+    # For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
+    # so we need to reset it. CMake bug ???
+  set(PC_CONTENTS "prefix=@PC_PREFIX@
+libdir=\${prefix}/lib
+includedir=\${prefix}/include/orocos
+
+Name: ${PC_NAME}
+Description: ${PC_NAME} package for Orocos
+Requires: orocos-rtt-${OROCOS_TARGET}
+Version: ${ORO_CREATE_PC_VERSION}
+${PC_LIBS}
+Cflags: -I\${includedir}
+")
+    string(CONFIGURE "${PC_CONTENTS}" ROS_PC_CONTENTS @ONLY)
+    file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
+  endif (ROS_ROOT)
+
+  # Also set the uninstall target:
+  orocos_uninstall_target()
+
+endmacro( orocos_generate_package )
 
 else(OROCOS-RTT_FOUND)
     message(FATAL_ERROR "UseOrocos.cmake file included, but OROCOS-RTT_FOUND not set ! Be sure to run first find_package(OROCOS-RTT) before including this file.")
