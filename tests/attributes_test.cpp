@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include <iostream>
 #include <InputPort.hpp>
@@ -34,11 +34,6 @@
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
-
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
 
 /**
  * Fixture.

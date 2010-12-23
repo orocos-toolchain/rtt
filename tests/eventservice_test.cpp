@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "unit.hpp"
 
 #include <Event.hpp>
 #include <Logger.hpp>
@@ -31,10 +32,6 @@
 using namespace RTT;
 using namespace boost;
 using namespace std;
-
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 
 void

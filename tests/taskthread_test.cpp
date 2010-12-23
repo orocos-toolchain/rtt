@@ -17,7 +17,7 @@
  ***************************************************************************/
 
 
-
+#include "unit.hpp"
 
 #include "taskthread_test.hpp"
 
@@ -31,11 +31,6 @@
 #include <rtt-config.h>
 
 using namespace std;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-
 using namespace RTT;
 
 struct A {};

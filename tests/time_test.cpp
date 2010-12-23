@@ -16,15 +16,13 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "unit.hpp"
 
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 #include <os/Timer.hpp>
 #include <rtt-detail-fwd.hpp>
 #include <iostream>
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 #define EPSILON 0.000000002
 

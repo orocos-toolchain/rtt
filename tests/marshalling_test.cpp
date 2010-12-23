@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include "operations_fixture.hpp"
 #include <marsh/Marshalling.hpp>
@@ -28,9 +28,6 @@ using namespace RTT;
 using namespace RTT::detail;
 
 #include <boost/shared_ptr.hpp>
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  MarshallingTestSuite,  OperationsFixture )

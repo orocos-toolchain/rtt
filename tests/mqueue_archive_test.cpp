@@ -16,9 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "unit.hpp"
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -109,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testFixedStringBinaryDataArchive )
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf ); // +0 alloc
-    array<char> ma = make_array(c, 10);
+    boost::serialization::array<char> ma = boost::serialization::make_array(c, 10);
     in >> ma; // +0 alloc
     rtos_disable_rt_warning();
 
@@ -139,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testMakeArrayBinaryDataArchive )
     rtos_enable_rt_warning();
     io::stream<io::array_source>  inbuf(sink,1000);
     binary_data_iarchive in( inbuf );
-    array<double> ma = make_array(r, 10);
+    boost::serialization::array<double> ma = boost::serialization::make_array(r, 10);
     in & make_nvp("array", make_array(r, 10) );
     rtos_disable_rt_warning();
 

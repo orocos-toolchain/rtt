@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include "tasks_multiple_test.hpp"
 #include <os/threads.hpp>
@@ -26,9 +26,6 @@
 using namespace std;
 using namespace RTT;
 
-// Registers the fixture into the 'registry'
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
     void ActivitiesMultipleTest::setUp()
     {

@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include <rtt-config.h>
 #include <extras/SimulationThread.hpp>
@@ -32,9 +32,6 @@
 #include <Port.hpp>
 #include <scripting/ScriptingService.hpp>
 #include "operations_fixture.hpp"
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 #include <string>
 #include <iostream>

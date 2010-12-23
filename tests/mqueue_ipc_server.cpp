@@ -16,14 +16,11 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include "mqueue_test.hpp"
 
 #include <iostream>
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 #include <Service.hpp>
 #include <transports/mqueue/MQLib.hpp>

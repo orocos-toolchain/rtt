@@ -18,6 +18,7 @@
 
 
 
+#include "unit.hpp"
 #include "logger_test.hpp"
 
 #include <iostream>
@@ -28,10 +29,6 @@
 using namespace boost;
 using namespace std;
 using namespace base;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
 using namespace RTT;
 
 class Dummy {};

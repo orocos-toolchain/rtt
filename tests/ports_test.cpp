@@ -16,9 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
-#include <iostream>
+#include "unit.hpp"
 #include <InputPort.hpp>
 #include <OutputPort.hpp>
 
@@ -34,10 +32,6 @@
 using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
-
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 
 class EventPortsTC : public TaskContext

@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include <internal/Signal.hpp>
 #include <extras/SlaveActivity.hpp>
@@ -31,9 +31,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 using namespace RTT;
 using namespace boost;
