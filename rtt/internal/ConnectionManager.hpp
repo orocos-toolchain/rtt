@@ -77,7 +77,13 @@ namespace RTT
         class RTT_API ConnectionManager
         {
         public:
-            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr> ChannelDescriptor;
+            /**
+             * A Channel (= connection) is described by an opaque ConnID object,
+             * the first element of the channel and the policy of the channel.
+             * The policy is only given for read-only access, modifying it will
+             * not have any effect on the connection.
+             */
+            typedef boost::tuple<boost::shared_ptr<ConnID>, base::ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
 
             /**
              * Creates a connection manager to manage the connections of \a port.
@@ -92,7 +98,7 @@ namespace RTT
              * also validates if the connection is sound.
              * @return false if the connection failed to work, true otherwise.
              */
-            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input);
+            void addConnection(ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy);
 
             bool removeConnection(ConnID* port_id);
 
@@ -185,7 +191,16 @@ namespace RTT
             }
 
             /**
-             * Clears all connections.
+             * Returns a list of all channels managed by this object.
+             */
+            std::list<ChannelDescriptor> getChannels() const {
+                return connections;
+            }
+
+            /**
+             * Clears (removes) all data in the manager's connections.
+             * After this call, all channels will return NoData, until new
+             * data is written.
              */
             void clear();
 

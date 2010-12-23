@@ -167,6 +167,13 @@ namespace RTT
         TaskContext* getOwner() const;
 
         /**
+         * Returns the service this interface belongs to.
+         * The returned service is a service living in the component
+         * returned by getOwner() or in one of its sub-services.
+         */
+        Service* getService() const { return mservice; }
+
+        /**
          * Add a Port to this task without registering a service for it.
          * If a port with the same name already exists, addPort
          * will replace it with \a port and log a warning.
