@@ -102,7 +102,8 @@ cd ..
 # Build base package
 cd build
   cd doc
-  make docpdf dochtml -j12
+  make dochtml -j12
+  make docpdf -j12
   
   cp -a xml doc-xml
   rm -rf doc-xml/images/hires # not for distribution
@@ -153,7 +154,7 @@ ssh $USER@$SERVER "cd $SPREFIX/$BRANCH/documentation/rtt/$VVERSION &&
 rm -rf doc api doc-xml &&
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 && 
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 &&
-rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 &&
+rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2
 "
 fi
 cd ..
