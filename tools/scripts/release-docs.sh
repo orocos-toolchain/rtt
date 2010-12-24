@@ -14,7 +14,7 @@ if [ x$1 == x ] ; then
 echo "Please provide version-string parameter"
 exit 1
 fi;
-if [ x$2 != xdev ] ; then 
+if [ x$2 != xmaster ] ; then 
 DEV=no
 else
 DEV=yes
@@ -42,15 +42,11 @@ fi
 
 if test x$DEV = xyes; then
 BRANCH=devel
-else
-BRANCH=stable
-fi
-
-# define "1.0.0" and "v1.0.0"
-VERSION=$1
-if test $VERSION = master; then
+VERSION=master
 VVERSION=master
 else
+BRANCH=stable
+VERSION=$1
 VVERSION=v$1
 fi
 
@@ -61,7 +57,7 @@ topdir=$(pwd)
 
 if test x$DOAUTO != xyes; then
     echo "VERSION is set to $VERSION (use 'master' to install trunk on server)"
-    echo "DEV is set to $DEV (use 'dev' as arg2 to install in 'devel' on server)"
+    echo "DEV is set to $DEV (use 'master' as arg2 to install in 'devel' on server)"
     echo "Press c to continue, any other key to upload files to server and Ctrl-C to abort..."
     read -s -n1 x
 else
