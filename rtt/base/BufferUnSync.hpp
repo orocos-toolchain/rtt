@@ -52,7 +52,7 @@ namespace RTT
      * thread accesses this buffer at a time.
      *
      * @see BufferLockFree, BufferUnSync
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template<class T>
     class BufferUnSync

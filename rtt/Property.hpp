@@ -69,7 +69,6 @@ namespace RTT
      *
      * @param T The type of the data contained within the Property.
      * @ingroup CoreLibProperties
-     * @ingroup RTTComponentInterface
 	 */
     template<typename T>
     class Property

@@ -62,6 +62,12 @@
 namespace RTT
 {
     /**
+     * @defgroup Services Service Interface
+     * A Service consists of a configuration, operation and data flow
+     * interface which can be used, or connected to, other components.
+     * @ingroup CompModel
+     */
+    /**
      * This class allows storage and retrieval of operations,
      * attributes and properties provided by a component.
      *

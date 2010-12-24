@@ -71,7 +71,7 @@ namespace RTT
      * Further, multiple reads may occur before, during and after
      * a write operation simultaneously. The buffer needs readers+2*writers
      * elements to be guaranteed non blocking.
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template<class T>
     class DataObjectLockFree

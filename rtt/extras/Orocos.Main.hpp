@@ -48,7 +48,7 @@
  * link, select a module and then you get the most important classes
  * for this module.
  *
- * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
+ * You will most likely also need to read the <a href="http://www.orocos.org/orocos/toolchain/">online manuals</a>.
  *
  * @section corelib Real-Time Toolkit classes (RTT)
  *
@@ -64,12 +64,16 @@
  * A Component is run by an RTT::Activity
  * which attaches a thread to the component's internal Execution Engine.
  * The RTT::ExecutionEngine is the beating heart of each
- * component which executes the the application code, reacts to events,
- * executes plugin functionality etc.  Scripting is enabled by the
- * scripting::ScriptingAccess, XML can be read by the
- * MarshallingAccess. Many other classes are available as well.
+ * component which executes the the application code, asynchronous operations,
+ * executes plugin functionality etc.  
  *
- * @section rttcorba CORBA support (network communication)
+ * @section plugins Plugins
+ * Scripting is enabled by the RTT::scripting::ScriptingService, XML can be read by the
+ * RTT::marsh::MarshallingService. Both are provided as plugins and can be accessed
+ * by using the RTT::TaskContext::getProvider function with the Scripting or Marshalling
+ * provider classes as template parameters.
+ *
+ * @section rttcorba CORBA transport (network communication)
  *
  * Components can be connected over a network using the CORBA classes.
  * Only two classes are required: RTT::corba::TaskContextServer and
@@ -79,7 +83,14 @@
  * local TaskContexts to communicate with the remote instance.
  *
  * The RTT must be compiled with the ENABLE_CORBA=ON flag in order to
- * enable this extension.
+ * enable this extension. The typegen tool generates transport plugins
+ * for your data types for CORBA.
+ *
+ * @section mqueue Posix MQueue transport (local inter-process communication)
+ * 
+ * The mqueue transport allows real-time communication between processes
+ * on the same host. The typegen tool generates transport plugins
+ * for your data types for message queues.
  *
  * @section devdrivers Hardware Access and Device Interface
  *

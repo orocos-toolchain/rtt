@@ -38,7 +38,7 @@
 
 
 /**
- * @file fosi_internal_interface.h
+ * @file fosi_internal_interface.hpp
  * This file has all the (periodic) thread specific interfaces.
  * If a function does not apply to your OS, it may be left empty.
  *

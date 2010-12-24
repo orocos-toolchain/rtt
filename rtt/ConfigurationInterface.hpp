@@ -36,8 +36,8 @@
  ***************************************************************************/
 
 
-#ifndef CONFIGURATIONINTERFACE_HPP
-#define CONFIGURATIONINTERFACE_HPP
+#ifndef RTT_CONFIGURATIONINTERFACE_HPP
+#define RTT_CONFIGURATIONINTERFACE_HPP
 
 #include <memory>
 #include <map>
@@ -53,6 +53,9 @@ namespace RTT
      * @brief A class for keeping track of Attribute, Constant
      * and Property objects of a TaskContext.
      * It allows plugins and remote components to browse the attributes and properties of a TaskContext.
+     * @ingroup Services
+     * @ingroup RTTComponentInterface
+     * @ingroup CoreLibProperties
      */
     class RTT_API ConfigurationInterface
     {

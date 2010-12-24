@@ -59,6 +59,7 @@ namespace RTT
      *
      * Typical use is to inherit from ServiceRequester and add named OperationCaller objects
      * to it using addOperationCaller. @see RTT::Scripting for an example.
+     * @ingroup Services
      */
     class RTT_API ServiceRequester
     {

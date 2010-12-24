@@ -42,7 +42,7 @@
  */
 
 /**
- * @brief Contains TaskContext, Activity, OperationCaller, Operation, Property.
+ * @brief Contains TaskContext, Activity, OperationCaller, Operation, Property, InputPort, OutputPort, Attribute.
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
  * The Orocos Real-Time Toolkit Online Manual</a>
@@ -55,6 +55,8 @@ namespace RTT {}
 #include "OperationCaller.hpp"
 #include "Operation.hpp"
 #include "Property.hpp"
+#include "Attribute.hpp"
+#include "Port.hpp"
 
 namespace BFL {
 }

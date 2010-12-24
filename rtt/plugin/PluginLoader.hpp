@@ -54,7 +54,7 @@ namespace RTT {
          * It has no facilities of unloading plugins. Plugins remain in memory until the process
          * terminates.
          *
-         * @name Plugin Paths
+         * @section paths Plugin Paths
          * The PluginLoader reads the RTT_COMPONENT_PATH variable when the application starts
          * and stores it using setPluginPath(). Paths are scanned in this order:
          *
@@ -62,6 +62,8 @@ namespace RTT {
          * ** Second the paths specified using the setPluginPath() function.
          *
          * If neither is specified, it looks for plugins in the current directory (".").
+         *
+         * @see Plugin.hpp
          */
         class RTT_API PluginLoader
         {

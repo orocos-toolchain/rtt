@@ -51,7 +51,7 @@ namespace RTT
      * This class allows the RTT to be extended
      * with additional typekits (TypekitPlugin), such as for kinematics or any
      * library foreign to Orocos.
-     * @ingroup CoreLib
+     * @ingroup Typekit
      */
     class RTT_API TypekitRepository
     {

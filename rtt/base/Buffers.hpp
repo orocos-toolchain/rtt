@@ -41,9 +41,9 @@
  * This file includes the common header files from the
  * RTT data storage and buffering package.
  */
-/*
- * @defgroup CoreLibBuffers Data Storage and Buffering classes.
- * @ingroup CoreLib
+/**
+ * @defgroup PortBuffers Data Storage and Buffering classes.
+ * @ingroup Ports
  * Thread-safe implementations of data container objects
  * such as Buffers and DataObjects.
  */

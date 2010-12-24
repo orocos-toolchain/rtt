@@ -62,7 +62,6 @@ namespace RTT
         // not valid !
      }
      @endverbatim
-     * @ingroup CoreLib
      */
 	class RTT_API Handle
 	{

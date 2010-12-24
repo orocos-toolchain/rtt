@@ -269,23 +269,25 @@ namespace RTT
     };
   };
 
-    error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
+    /** @cond */
+    static error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
     {
         //std::cerr << "No value in EP : "<<e.descriptor<<std::endl;
         // retry if it is a datacall, thus fail this rule
         return error_status<>( error_status<>::fail );
     }
 
-    error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
+    static error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
         //retry with a member :
         //std::cerr << "No DataCall in EP : "<<e.descriptor<<std::endl;
         return error_status<>( error_status<>::fail );
     }
 
-    void abort_rule(const string& reason) {
+    static void abort_rule(const string& reason) {
         throw_(iter_t(), reason);
     }
+    /** @endcond */
 
   ExpressionParser::ExpressionParser( TaskContext* pc, ExecutionEngine* caller, CommonParser& cp )
       : datacallparser( *this, cp, pc, caller ),

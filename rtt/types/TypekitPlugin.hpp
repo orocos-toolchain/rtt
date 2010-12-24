@@ -46,7 +46,7 @@ namespace RTT
      * This interface defines how additional typekits
      * are loaded into Orocos.
      * A TypekitPlugin defines additional user data types for a Typekit.
-     * @ingroup CoreLib
+     * @ingroup Typekit
      */
     class RTT_API TypekitPlugin
     {

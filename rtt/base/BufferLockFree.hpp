@@ -62,7 +62,7 @@ namespace RTT
      * One thread may read and any number of threads may write this buffer.
      * @param T The value type to be stored in the Buffer.
      * Example : BufferLockFree<A> is a buffer which holds values of type A.
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template< class T>
     class BufferLockFree

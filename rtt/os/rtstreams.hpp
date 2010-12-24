@@ -44,7 +44,7 @@
 #define RTSTREAMS_HPP
 
 /**
- * @file (Almost) Real-Time output streams.
+ * @file rtstreams.hpp (Almost) Real-Time output streams.
  * If you really have to print something out from a RealTime thread,
  * you can use the streams of the os namespace, which will call
  * the rtos_printf functions (which are supposed to be as realtime as possible)

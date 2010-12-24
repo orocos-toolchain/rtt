@@ -47,10 +47,12 @@
 /**
  * @defgroup RTTComponentInterface Task Context Interface
  * @ingroup CompModel
- * The TaskContext can be 'decorated' with a number of interface classes.
- * Each interface class serves a specific type of communication in
- * a control application. Being it configuration, data communication or
- * execution of functionality.
+ * The TaskContext can provides and requires services and has an
+ * ExecutionEngine that executes its functions.
+ *
+ * A Service is split in three interface classes, each serving a
+ * specific type of communication in a control application. These are:
+ * configuration, data communication or execution of functionality.
  */
 
 #include "../TaskContext.hpp"

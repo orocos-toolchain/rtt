@@ -98,7 +98,9 @@ namespace RTT
     };
 #endif
 
-    /** Strings concatenation */
+    /** @cond */
+    /** Strings concatenation
+     */
     template <class T>
     struct string_concatenation : public std::binary_function<const std::string&, T, std::string> {
         std::string operator()(const std::string& s, T t) const {
@@ -107,6 +109,7 @@ namespace RTT
             return oss.str();
         }
     };
+    /** @endcond */
 
     bool RealTimeTypekitPlugin::loadOperators()
     {

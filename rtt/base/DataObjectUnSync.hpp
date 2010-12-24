@@ -49,7 +49,7 @@ namespace RTT
     /**
      * @brief A class which provides unprotected (\b not thread-safe) access to one typed element of data.
      *
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template<class T>
     class DataObjectUnSync

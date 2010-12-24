@@ -42,7 +42,8 @@
 #include "../rtt-config.h"
 
 /**
- * @file We can't use typedefs since C++ doesn't allow it for
+ * @file MQSRQueue.hpp
+ * We can't use typedefs since C++ doesn't allow it for
  * templated classes without specifying all the template
  * parameters.
  */
