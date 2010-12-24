@@ -29,7 +29,7 @@ if test $DOLOCAL = yes; then
   SERVER=localhost
   SPREFIX=src/export/upload
 else
-  if test x$DOOROCOSORG = xyes; then
+  if test x$DOOROCOSORG = xyes -a x$DEV = xno; then
     USER=bruyninckxh2
     SERVER=www.orocos.org
     SPREFIX=www.orocos.org
@@ -48,8 +48,8 @@ fi
 
 # define "1.0.0" and "v1.0.0"
 VERSION=$1
-if test $VERSION = latest; then
-VVERSION=latest
+if test $VERSION = master; then
+VVERSION=master
 else
 VVERSION=v$1
 fi
@@ -60,7 +60,7 @@ BRANCHVERSION=$(echo $VERSION | sed -e 's/\(.*\)\.\(.*\)\..*/\1.\2/g')
 topdir=$(pwd)
 
 if test x$DOAUTO != xyes; then
-    echo "VERSION is set to $VERSION (use 'latest' to install trunk on server)"
+    echo "VERSION is set to $VERSION (use 'master' to install trunk on server)"
     echo "DEV is set to $DEV (use 'dev' as arg2 to install in 'devel' on server)"
     echo "Press c to continue, any other key to upload files to server and Ctrl-C to abort..."
     read -s -n1 x
@@ -70,9 +70,9 @@ fi
 
 if [ x$x == xc ] ;  then
 
-#if latest, check out trunk
+#if master, check out trunk
 mkdir -p build; cd build
-if test x$VERSION = xlatest -o x$DOCHECKOUT = xyes; then
+if test x$VERSION = xmaster -o x$DOCHECKOUT = xyes; then
   rm -rf orocos-toolchain-$VERSION/rtt
   cd $topdir/orocos-toolchain-rtt
   git archive --format=tar --prefix=orocos-toolchain-$VERSION/rtt/ HEAD | (cd $topdir/build && tar xf -)
@@ -84,7 +84,7 @@ if test x$VERSION = xlatest -o x$DOCHECKOUT = xyes; then
 fi
 cd $topdir/build
 
-#all should be equal for LATEST and normal :
+#all should be equal for MASTER and normal :
 if  ! test -d orocos-toolchain-$VERSION/rtt ; then
     echo "Could not find orocos-toolchain-$VERSION/rtt !"
     exit 1
@@ -130,7 +130,7 @@ while [ 1 ]; do
 echo -e "\n**** COPYING TO $SERVER: ****\n"
 
 # Docs :
-# Save in version subdir as tar, save latest in doc dir. (saves space).
+# Save in version subdir as tar, save master in doc dir. (saves space).
 cd build
 # Copy over tar.bz2 files
 ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/rtt/$VVERSION"
@@ -152,12 +152,12 @@ rm -f v2.x &&
 ln -s v$BRANCHVERSION.x v2.x
 "
 else
-ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/rtt/$VVERSION/doc"
-ssh $USER@$SERVER "cd $SPREFIX/$BRANCH/rtt/$VVERSION/doc &&
+ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/documentation/rtt/$VVERSION"
+ssh $USER@$SERVER "cd $SPREFIX/$BRANCH/documentation/rtt/$VVERSION &&
 rm -rf doc api doc-xml &&
-tar -xjf ../orocos-rtt-$VERSION-doc.tar.bz2 && 
-tar -xjf ../orocos-rtt-$VERSION-api.tar.bz2 &&
-rm -f ../orocos-rtt-$VERSION-api.tar.bz2 ../orocos-rtt-$VERSION-doc.tar.bz2
+tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 && 
+tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 &&
+rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 &&
 "
 fi
 cd ..
@@ -166,7 +166,7 @@ cd ..
 scp NEWS $USER@$SERVER:$SPREFIX/$BRANCH/rtt/NEWS.txt
 scp README $USER@$SERVER:$SPREFIX/$BRANCH/rtt/README.txt
 
-  if test x$DOOROCOSORG = xno -o x$DOLOCAL = xyes; then
+  if test x$DOOROCOSORG = xno -o x$DOLOCAL = xyes -o x$DEV = xyes; then
       echo "Completed succesfully."
       exit 0;
   fi
