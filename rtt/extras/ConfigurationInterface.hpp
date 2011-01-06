@@ -35,8 +35,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef CONFIGURATIONINTERFACE_HPP
-#define CONFIGURATIONINTERFACE_HPP
+#ifndef ORO_EXTRAS_CONFIGURATIONINTERFACE_HPP
+#define ORO_EXTRAS_CONFIGURATIONINTERFACE_HPP
 
 #include "../rtt-config.h"
 

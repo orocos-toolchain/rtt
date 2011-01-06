@@ -141,6 +141,7 @@ if(OROCOS_TARGET STREQUAL "lxrt")
   find_package(RTAI REQUIRED)
   find_package(Pthread REQUIRED)
 
+  add_definitions( -Wall )
 
   if(RTAI_FOUND)
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
@@ -160,6 +161,8 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   find_package(Xenomai REQUIRED)
   find_package(Pthread REQUIRED)
   find_package(XenomaiPosix)
+
+  add_definitions( -Wall )
 
   if(XENOMAI_FOUND)
     list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
@@ -183,8 +186,9 @@ if(OROCOS_TARGET STREQUAL "gnulinux")
   set(OS_HAS_TLSF TRUE)
 
   find_package(Boost 1.36 COMPONENTS thread )
-
   find_package(Pthread REQUIRED)
+
+  add_definitions( -Wall )
 
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${PTHREAD_INCLUDE_DIRS})
   list(APPEND OROCOS-RTT_USER_LINK_LIBS ${PTHREAD_LIBRARIES} rt) # For libraries used in inline (fosi/template) code.

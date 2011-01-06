@@ -43,7 +43,8 @@
 #include "../rtt-config.h"
 
 /**
- * @file We can't use typedefs since C++ doesn't allow it for
+ * @file Buffer.hpp
+ * We can't use typedefs since C++ doesn't allow it for
  * templated classes without specifying all the template
  * parameters.
  */
@@ -60,6 +61,7 @@ namespace RTT
     /**
      * This object represents the default thread-safe buffer implementation used
      * by Orocos objects.
+     * @ingroup PortBuffers
      */
     template< class T>
     class Buffer

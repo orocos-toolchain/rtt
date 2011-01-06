@@ -17,6 +17,7 @@
  ***************************************************************************/
 
 
+#include "unit.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -32,9 +33,6 @@
 #include <TaskContext.hpp>
 #include <OperationCaller.hpp>
 #include "operations_fixture.hpp"
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 using namespace RTT;
 using namespace RTT::detail;

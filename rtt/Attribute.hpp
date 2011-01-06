@@ -50,7 +50,6 @@ namespace RTT
      * It is used to expose a C/C++ variable to the interface of a TaskContext
      * in order to allow plugins or external tools to read and write it.
      * @param T The type of data this attribute holds.
-     * @ingroup CoreLib
      */
     template<typename T>
     class Attribute
@@ -232,7 +231,6 @@ namespace RTT
     /**
      * As opposed to a Attribute, a Constant can not be assigned to a new value
      * after creation.
-     * @ingroup CoreLib
      */
     template<typename T>
     class Constant

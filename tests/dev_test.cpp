@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#include "unit.hpp"
 
 #include "dev_test.hpp"
 #include "FakeAnalogDevice.hpp"
@@ -30,10 +30,6 @@
 #include <iostream>
 
 using namespace std;
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
 using namespace RTT;
 
 void

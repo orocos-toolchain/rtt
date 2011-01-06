@@ -196,6 +196,7 @@ namespace RTT
             }
     }
 
+    /** @cond /
     /**
      * A function object for finding a Property by name.
      */
@@ -203,6 +204,7 @@ namespace RTT
     {
         bool operator()(const base::PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
     };
+    /** @endcond */
 
     PropertyBase* PropertyBag::find(const std::string& name) const
     {
@@ -328,7 +330,9 @@ namespace RTT
         return 0; // failure
     }
 
-    // Recursively reads the names of a bag.
+    /** @cond */
+    /** Recursively reads the names of a bag.
+     */
     void listPropertiesHelper(const PropertyBag& source, const std::string& separator, const string& prefix, vector<string>& result)
     {
         PropertyBag::const_iterator it( source.getProperties().begin() );
@@ -343,7 +347,8 @@ namespace RTT
         }
     }
 
-    // Recursively reads the descriptions of a bag.
+    /** Recursively reads the descriptions of a bag.
+     */
     void listDescriptionsHelper(const PropertyBag& source, const std::string& separator, vector<string>& result)
     {
         PropertyBag::const_iterator it( source.getProperties().begin() );
@@ -356,6 +361,7 @@ namespace RTT
             ++it;
         }
     }
+    /** @endcond */
 
     vector<string> listProperties(const PropertyBag& source, const std::string& separator)
     {

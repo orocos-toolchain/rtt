@@ -52,6 +52,8 @@ namespace RTT
     /**
      * The Interface of a TaskContext which exposes its data-flow ports.
      * @ingroup Ports
+     * @ingroup Services
+     * @ingroup RTTComponentInterface
      */
     class RTT_API DataFlowInterface
     {

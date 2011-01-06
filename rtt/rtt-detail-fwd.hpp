@@ -67,7 +67,7 @@ namespace RTT {
      */
     namespace scripting {}
     /**
-     * Classes for typekits, i.e. describing and handling user data types.
+     * Classes for typekits for describing and handling user data types.
      */
     namespace types {}
     /**

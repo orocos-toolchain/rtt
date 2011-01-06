@@ -71,6 +71,9 @@ namespace RTT
     ConnPolicy::ConnPolicy(int type /* = DATA*/, int lock_policy /*= LOCK_FREE*/)
         : type(type), init(false), lock_policy(lock_policy), pull(false), size(0), transport(0), data_size(0) {}
 
+    /** @cond */
+    /** This is dead code. We use the boost::serialization now.
+     */
     bool composeProperty(const PropertyBag& bag, ConnPolicy& result)
     {
         Property<int> i;
@@ -139,6 +142,10 @@ namespace RTT
         }
         return true;
     }
+
+    /** This is dead code. We use the boost::serialization now.
+     * @internal
+     */
     void decomposeProperty(const ConnPolicy& cp, PropertyBag& targetbag)
     {
         log(Debug) <<"Decomposing ConnPolicy..." <<endlog();
@@ -153,5 +160,6 @@ namespace RTT
         targetbag.ownProperty( new Property<int>("data_size","A hint about the data size of a single data sample. Set to zero if unsure.", cp.transport));
         targetbag.ownProperty( new Property<string>("name_id","The name of the connection to be formed.",cp.name_id));
     }
+    /** @endcond */
 
 }

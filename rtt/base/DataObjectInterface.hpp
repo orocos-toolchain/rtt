@@ -50,7 +50,7 @@ namespace RTT
      *
      * @see DataObject
      * @param T The \a DataType which can be Get() or Set() with this DataObject.
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template <class T>
     class DataObjectInterface

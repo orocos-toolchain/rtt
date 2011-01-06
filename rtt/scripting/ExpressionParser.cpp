@@ -135,7 +135,7 @@ namespace RTT
       peerparser.reset();
 //      cout << "seendataname "<< mobject << "." << mmethod<<endl;
       // Check if it is a constructor
-      if ( (mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ))
+      if ( (ops == peerparser.taskObject() && TypeInfoRepository::Instance()->type( mmethod ))
               ||
               (TypeInfoRepository::Instance()->type( mobject + "." + mmethod )) ) {
           // it is...
@@ -153,7 +153,7 @@ namespace RTT
               // Check if method exists on current object:
               if ( ops->hasMember(mmethod) == false ) {
                   // Check if it is a method of the global service:
-                  if ( GlobalService::Instance()->hasMember(mmethod) ) {
+                  if ( ops == peerparser.taskObject() && GlobalService::Instance()->hasMember(mmethod) ) {
                       mobject = "GlobalService";
                       ops = GlobalService::Instance();
                   } else {
@@ -269,23 +269,25 @@ namespace RTT
     };
   };
 
-    error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
+    /** @cond */
+    static error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
     {
         //std::cerr << "No value in EP : "<<e.descriptor<<std::endl;
         // retry if it is a datacall, thus fail this rule
         return error_status<>( error_status<>::fail );
     }
 
-    error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
+    static error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
         //retry with a member :
         //std::cerr << "No DataCall in EP : "<<e.descriptor<<std::endl;
         return error_status<>( error_status<>::fail );
     }
 
-    void abort_rule(const string& reason) {
+    static void abort_rule(const string& reason) {
         throw_(iter_t(), reason);
     }
+    /** @endcond */
 
   ExpressionParser::ExpressionParser( TaskContext* pc, ExecutionEngine* caller, CommonParser& cp )
       : datacallparser( *this, cp, pc, caller ),
@@ -405,7 +407,7 @@ namespace RTT
       | value_expression
       | call_expression
         // or an index or dot expression
-        ) >> ! dotexp >> !indexexp;
+        ) >> *( dotexp | indexexp);
 
     // if it's value.keyword then pass it on to the call_expression.
     value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
@@ -417,7 +419,7 @@ namespace RTT
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_index, this)] >> expect_close( ch_p( ']') ) );
 
     dotexp =
-        +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
+        ( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..

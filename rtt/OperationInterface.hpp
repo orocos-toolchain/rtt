@@ -56,6 +56,8 @@ namespace RTT
     /**
      * @brief Holds all exported operations of a component and is
      * able to produce callers for these operations.
+     * @ingroup Operations
+     * @ingroup Services
      */
     class RTT_API OperationInterface
     {

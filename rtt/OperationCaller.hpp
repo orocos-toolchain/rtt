@@ -58,7 +58,7 @@
 namespace RTT
 {
     /**
-     * @defgroup OperationCallers OperationCaller Interface
+     * @defgroup Operations Operation Interface
      * Invoking synchronous and asynchronous methods.
      * @ingroup RTTComponentInterface
      */
@@ -76,7 +76,7 @@ namespace RTT
      * GlobalExecutionEngine is used instead.
      *
      * @ingroup RTTComponentInterface
-     * @ingroup OperationCallers
+     * @ingroup Operations
      */
     template<class SignatureT>
     class OperationCaller

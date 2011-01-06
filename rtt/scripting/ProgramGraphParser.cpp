@@ -109,10 +109,6 @@ namespace RTT
       cleanup(true);
   }
 
-  void seennothing() {
-      cout << "Seen nothing !"<< endl;
-  }
-
   void ProgramGraphParser::setup() {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( openbrace );

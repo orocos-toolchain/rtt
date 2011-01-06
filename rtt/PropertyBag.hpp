@@ -370,7 +370,7 @@ namespace RTT
         std::string type;
     };
 
-    /*
+    /**
      * @defgroup BagOperations Recursive Property Bag Operations.
      *        These functions operate recursively on the contents of bags,
      *        possibly modifying, deleting or creating new Property objects

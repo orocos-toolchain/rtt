@@ -43,9 +43,9 @@
 #include "TypeInfoRepository.hpp"
 
 /**
- * \file We need some information on types if we want to make
- * properties, variables or corba types of them, the classes in this file
- * provide that information.
+ * \file Types.hpp We need some information on types if we want to make
+ * properties, variables or corba types of them, the TypeInfoRepository
+ * provides that information.
  */
 
 namespace RTT

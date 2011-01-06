@@ -51,7 +51,6 @@ namespace RTT
 	 * @see DemarshallInterface
 	 * @see Property
 	 * @see PropertyBag
-     * @ingroup CoreLibProperties
 	 */
     class RTT_MARSH_API MarshallInterface
     {
@@ -88,7 +87,6 @@ namespace RTT
 	 * @see MarshallInterface
 	 * @see Property
 	 * @see PropertyBag
-     * @ingroup CoreLibProperties
 	 */
 	class RTT_MARSH_API DemarshallInterface
 	{

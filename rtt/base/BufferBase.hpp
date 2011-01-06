@@ -47,6 +47,7 @@ namespace RTT
     /**
      * Any Buffer has a capacity, size and can be empty or full.
      * This class contains the type-independent methods of a Buffer.
+     * @ingroup PortBuffers
      */
     class RTT_API BufferBase
     {

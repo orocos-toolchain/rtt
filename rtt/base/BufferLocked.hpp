@@ -55,7 +55,7 @@ namespace RTT
      * Implements a very simple blocking thread-safe buffer, using mutexes (locks).
      *
      * @see BufferLockFree
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template<class T>
     class BufferLocked

@@ -63,6 +63,7 @@ namespace RTT
      *
      * @param Signature A template parameter that contains the function signature type
      * of the function this operation object will call.
+     * @ingroup Operations
      */
     template<class Signature>
     class Operation

@@ -126,8 +126,8 @@ namespace RTT {
         lexeme_identifier = idlr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
         lexeme_notassertingidentifier = idlr;
 
-        notassertingidentifier = idr;
-        identifier = idr | keyword[bind( &CommonParser::seenillegalidentifier, this )];
+        notassertingidentifier = idr >> !str_p("[]");
+        identifier = (idr >> !str_p("[]")) | keyword[bind( &CommonParser::seenillegalidentifier, this )];
 
         // this is a recursive rule. 't' stands for 'template' and 'terminal' (followed by a '(')
         templ = ch_p('<') >> identifier >> *templ >> '>';

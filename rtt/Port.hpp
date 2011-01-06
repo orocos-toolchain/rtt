@@ -38,8 +38,14 @@
 
 
 /**
- * @file This convenience header includes both InputPort and
- * OutputPort.
+ * @file Port.hpp
+ * This convenience header includes both InputPort and OutputPort.
+ *
+ * @defgroup Ports Data Flow Ports
+ * @ingroup RTTComponentInterface
+ * Ports send or receive data from other components. The connection between
+ * ports may do buffering or impose other policies, as defined by the ConnPolicy
+ * class.
  */
 
 #include "InputPort.hpp"

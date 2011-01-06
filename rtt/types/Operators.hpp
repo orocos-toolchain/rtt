@@ -47,7 +47,7 @@ namespace RTT { namespace types
 {
 
   /**
-   * \file this file contains operator information objects,
+   * \file Operators.hpp This file contains operator information objects,
    * These objects contain information on how to apply one operator on
    * a set of arguments, and contain a method that does it..  This is
    * mostly done to allow me to work with template stuff to save me a

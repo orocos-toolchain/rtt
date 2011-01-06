@@ -240,9 +240,15 @@ namespace RTT
                 std::streamsize scount = m_sb.sgetn(
                         static_cast<Elem *> (address), s);
                 if (scount != static_cast<std::streamsize> (s))
+#if BOOST_VERSION >= 104400
+                    boost::serialization::throw_exception(
+                            boost::archive::archive_exception(
+                                    boost::archive::archive_exception::input_stream_error));
+#else
                     boost::serialization::throw_exception(
                             boost::archive::archive_exception(
                                     boost::archive::archive_exception::stream_error));
+#endif
                 // note: an optimizer should eliminate the following for char files
                 s = count % sizeof(Elem);
                 if (0 < s)
@@ -254,9 +260,15 @@ namespace RTT
                     Elem t;
                     scount = m_sb.sgetn(&t, 1);
                     if (scount != 1)
+#if BOOST_VERSION >= 104400
+                        boost::serialization::throw_exception(
+                                boost::archive::archive_exception(
+                                       boost::archive::archive_exception::input_stream_error));
+#else
                         boost::serialization::throw_exception(
                                 boost::archive::archive_exception(
                                         boost::archive::archive_exception::stream_error));
+#endif
                     std::memcpy(static_cast<char*> (address) + (count - s), &t,
                             s);
                 }
@@ -429,9 +441,15 @@ namespace RTT
                     std::streamsize scount = m_sb.sputn(
                             static_cast<const Elem *> (address), count);
                     if (count != static_cast<std::size_t> (scount))
+#if BOOST_VERSION >= 104400
+                        boost::serialization::throw_exception(
+                                boost::archive::archive_exception(
+                                        boost::archive::archive_exception::output_stream_error));
+#else
                         boost::serialization::throw_exception(
                                 boost::archive::archive_exception(
                                         boost::archive::archive_exception::stream_error));
+#endif
                 }
                 data_written += count;
             }

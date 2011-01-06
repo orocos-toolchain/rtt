@@ -70,11 +70,17 @@ using namespace RTT;
 using namespace RTT::os;
 static os::StartStopManager* initM;
 
+static int os_argc_arg;
+static char** os_argv_arg;
+
 int __os_init(int argc, char** argv )
 {
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
+
+    os_argc_arg = argc;
+    os_argv_arg = argv;
 
     os::MainThread::Instance();
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
@@ -100,6 +106,13 @@ int __os_init(int argc, char** argv )
         }
 #endif
         return ret;
+}
+
+int __os_main_argc(void) {
+    return os_argc_arg;
+}
+char** __os_main_argv(void) {
+    return os_argv_arg;
 }
 
 void __os_printFailure(const char* prog)

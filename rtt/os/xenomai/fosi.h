@@ -209,11 +209,11 @@ static inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_value(rt_sem_t* m )
     {
         CHK_XENO_CALL();
-		RT_SEM_INFO sinfo;
+	RT_SEM_INFO sinfo;
         if (rt_sem_inquire(m, &sinfo) == 0 ) {
-			return sinfo.count;
-		}
-		return -1;
+	  return sinfo.count;
+	}
+	return -1;
     }
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )

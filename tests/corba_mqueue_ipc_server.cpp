@@ -23,6 +23,7 @@
 #include <rtt/Port.hpp>
 #include <rtt/plugin/PluginLoader.hpp>
 #include <os/main.h>
+#include <fstream>
 
 using namespace std;
 using namespace RTT;
@@ -60,6 +61,13 @@ int ORO_main(int argc, char** argv)
     corba::TaskContextProxy::InitOrb(argc,argv);
 
     PluginLoader::Instance()->loadTypekits("../rtt");
+
+#ifndef WIN32
+    pid_t pid = getpid();
+    std::ofstream pidfile("corba-mqueue-ipc-server.pid");
+    pidfile << pid << endl;
+    pidfile.close();
+#endif
 
     {
         TheServer cmt("other");

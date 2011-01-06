@@ -51,7 +51,7 @@ namespace RTT
      * It allows multiple read/write requests using a single lock. This is the in any case
      * threadsafe implementation, and can be blocking in situations where you do not want
      * that.
-     * @ingroup Ports
+     * @ingroup PortBuffers
      */
     template<class T>
     class DataObjectLocked

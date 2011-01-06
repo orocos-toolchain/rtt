@@ -178,6 +178,62 @@ macro( orocos_library LIB_TARGET_NAME )
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_library )
 
+# Executables should add themselves by calling 'orocos_executable()'
+# instead of 'ADD_EXECUTABLE' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
+#
+# Usage: orocos_executable( executablename src1 src2 src3 [VERSION x.y.z] )
+#
+macro( orocos_executable EXE_TARGET_NAME )
+
+  ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
+    "INSTALL;VERSION"
+    ""
+    ${ARGN}
+    )
+  SET( SOURCES ${ORO_EXECUTABLE_DEFAULT_ARGS} )
+  if ( ORO_EXECUTABLE_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_EXECUTABLE_INSTALL})
+    set(AC_INSTALL_RT_DIR bin)
+  else()
+    set(AC_INSTALL_DIR lib)
+    set(AC_INSTALL_RT_DIR bin)
+  endif()
+
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+      set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
+  else()
+      set( EXE_NAME ${EXE_TARGET_NAME})
+  endif()
+  MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
+  if (ROS_ROOT)
+    rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
+  else()
+    ADD_EXECUTABLE( ${EXE_TARGET_NAME} SHARED ${SOURCES} )
+  endif()
+  if (COMPONENT_VERSION)
+    set( EXE_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
+  endif(COMPONENT_VERSION)
+  if (ORO_EXECUTABLE_VERSION)
+    set( EXE_COMPONENT_VERSION VERSION ${ORO_EXECUTABLE_VERSION})
+  endif(ORO_EXECUTABLE_VERSION)
+  SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+    OUTPUT_NAME ${EXE_NAME}
+    ${EXE_COMPONENT_VERSION}
+    INSTALL_RPATH_USE_LINK_PATH 1
+    INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${AC_INSTALL_DIR}"
+    LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
+    )
+  TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
+
+
+  INSTALL(TARGETS ${EXE_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+
+  LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+endmacro( orocos_executable )
+
 # Type headers should add themselves by calling 'orocos_typegen_headers()'
 # They will be processed by typegen to generate a typekit from it, with the
 # name of the current project. 

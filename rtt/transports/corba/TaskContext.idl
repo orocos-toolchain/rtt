@@ -2,7 +2,7 @@
 #define ORO_CORBA_TASK_CONTEXT_IDL
 
 /**
- * @file CTaskContext.idl
+ * @file TaskContext.idl
  * This file defines the interface of an
  * Orocos Corba TaskContext Component.
  */
