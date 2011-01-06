@@ -147,7 +147,7 @@ namespace RTT
             if (result != RTT::NewData)
                 return result;
 
-            while (read(sample) == RTT::NewData);
+            while (read(sample) == RTT::NewData) ;
             return RTT::NewData;
         }
 
