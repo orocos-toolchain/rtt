@@ -13,7 +13,6 @@
 		<export>
 			<!-- The default target is gnulinux when using rospack. This is definately a crippled solution -->
 			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
-			<cpp cflags="-I${prefix}/install/include -DOROCOS_TARGET=gnulinux" lflags="-L${prefix}/install/lib -lorocos-rtt-gnulinux -lpthread -lrt"/>
 		</export>
 </package>
 
