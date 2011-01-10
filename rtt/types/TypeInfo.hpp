@@ -64,6 +64,18 @@ namespace RTT
         virtual const std::string& getTypeName() const = 0;
 
         /**
+         * Installs the type info object in the global data source type info handler.
+         * This will be called by the TypeInfoRepository, prior to registering this
+         * type. If installation fails the TypeInfoRepository will delete this object,
+         * and all its associated constructors.
+         *
+         * @retval true installation succeeded. This object should not be deleted
+         * during the execution of the current process.
+         * @retval false installation failed. This object is not used and may be deleted.
+         */
+        virtual bool installTypeInfoObject() = 0;
+
+        /**
          * @name Type building/factory functions
          * Used to create objects that hold data of a certain type.
          * @{
@@ -303,7 +315,17 @@ namespace RTT
         virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const = 0;
         virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const = 0;
         virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const = 0;
-};
+
+    protected:
+        /**
+         * Migrates all protocols present in \a orig to this
+         * type info object. It is meant as a helper when a type
+         * info object is replaced by a new instance.
+         * @pre This type has no transports registered yet, ie,
+         * it is newly constructed.
+         */
+        void migrateProtocols(TypeInfo* orig);
+    };
 
 }}
 

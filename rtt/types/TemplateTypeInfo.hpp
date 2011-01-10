@@ -135,13 +135,37 @@ namespace RTT
         TemplateTypeInfo(std::string name)
             : tname(name)
         {
+        }
+
+        virtual ~TemplateTypeInfo()
+        {
+            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject == this)
+                internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = 0;
+        }
+
+        bool installTypeInfoObject() {
             // Install the type info object for T.
-            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                log(Warning) << "Overriding TypeInfo for '"
-                        << internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
-                        << "' with '" << name <<"'."<< endlog();
+            TypeInfo* orig = internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
+            if ( orig != 0) {
+                string oname = orig->getTypeName();
+                if ( oname != tname ) {
+                    log(Info) << "TypeInfo for type '" << tname << "' already exists as '"
+                              << oname
+                              << "': I'll alias the original and install the new instance." << endlog();
+                    this->migrateProtocols( orig );
+                    Types()->aliasType( oname, this); // deletes orig !
+                }
+            } else {
+                // check for type name conflict (ie "string" for "std::string" and "Foo::Bar"
+                if ( Types()->type(tname) ) {
+                    log(Error) << "You attemted to register type name "<< tname << " which is already "
+                               << "in use for a different C++ type." <<endlog();
+                    return false;
+                }
             }
+            // finally install it:
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            return true;
         }
 
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const

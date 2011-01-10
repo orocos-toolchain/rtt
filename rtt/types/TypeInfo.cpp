@@ -181,6 +181,13 @@ namespace RTT
         return transporters[protocol_id];
     }
 
+    void TypeInfo::migrateProtocols(TypeInfo* orig)
+    {
+        assert( transporters.empty() );
+        transporters.insert(transporters.begin(), orig->transporters.begin(), orig->transporters.end());
+        orig->transporters.clear(); // prevents deletion.
+    }
+
     bool TypeInfo::hasProtocol(int protocol_id) const
     {
         // if the protocol is unknown to this type, return the protocol of the 'unknown type'
