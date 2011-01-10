@@ -45,12 +45,15 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
       "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
       )
   ENDIF(MSVC)
-  IF(ROS_ROOT)
-    SET(CMAKE_INSTALL_PREFIX
-      ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
-      )
-  ENDIF(ROS_ROOT)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+# We force it in case of ROS builds because the UseOrocos.cmake scripts will always look
+# in this path, also during an autoproj/bootstrap build.
+IF(ROS_ROOT)
+  SET(CMAKE_INSTALL_PREFIX
+    ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
+    )
+ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
