@@ -107,7 +107,8 @@ namespace RTT
     {
         std::string tname = t->getTypeName();
         if ( data.count( tname ) != 0 ) {
-            log(Warning) << "Attempt to register Type '"<<tname <<"' twice to the Orocos Type System."<<Logger::endl;
+            log(Warning) << "Attempt to register Type name '"<<tname <<"' twice to the Orocos Type System. Keeping old type object."<<Logger::endl;
+            return false;
         }
         data[ tname ] = t;
         log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
@@ -152,7 +153,7 @@ namespace RTT
                 log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
         // give chance to register fallback protocol:
         if ( tr->registerTransport("unknown_t", DataSourceTypeInfo<UnknownType>::getTypeInfo() ) == false )
-		log(Info) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
+		log(Debug) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
     }
 
     void TypeInfoRepository::logTypeInfo() const
