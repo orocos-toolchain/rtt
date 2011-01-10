@@ -26,6 +26,10 @@ if(OROCOS-RTT_FOUND)
     set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH})
   endif (INSTALL_PATH STREQUAL "orocos")
 
+  if (ROS_ROOT)
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
+  endif(ROS_ROOT)
+
 #
 # Include and link against required stuff
 #
