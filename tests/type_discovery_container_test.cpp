@@ -158,12 +158,11 @@ BOOST_AUTO_TEST_CASE( testContainerType )
 // Test the SequenceTypeInfo for chars (std::string)
 BOOST_AUTO_TEST_CASE( testStringContainerType )
 {
-    Types()->addType( new SequenceTypeInfo< std::string >("chars") );
     string tester = "tester";
 
     AssignableDataSource< string >::shared_ptr atype = new ReferenceDataSource< string >( tester );
 
-    BOOST_REQUIRE( Types()->type("chars") == atype->getTypeInfo() );
+    BOOST_REQUIRE( Types()->type("string") == atype->getTypeInfo() );
 
     // check the part names lookup:
     vector<string> names = atype->getMemberNames();
