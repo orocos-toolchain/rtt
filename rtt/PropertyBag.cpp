@@ -196,7 +196,7 @@ namespace RTT
             }
     }
 
-    /** @cond /
+    /** @cond */
     /**
      * A function object for finding a Property by name.
      */
