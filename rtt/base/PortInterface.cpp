@@ -59,6 +59,8 @@ bool PortInterface::setName(const std::string& name)
 
 PortInterface& PortInterface::doc(const std::string& desc) {
     mdesc = desc;
+    if (iface)
+        iface->setPortDescription(name, desc);
     return *this;
 }
 
