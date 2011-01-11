@@ -108,7 +108,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
         }
         if ( !part->isAssignable() ) {
             // For example: the case for size() and capacity() in SequenceTypeInfo
-            //log(Debug)<<"propertyDecomposition: Part "<< *it << ":"<< part->getTypeName() << " is not changeable."<<endlog();
+            log(Debug)<<"propertyDecomposition: Part "<< *it << ":"<< part->getTypeName() << " is not changeable."<<endlog();
             continue;
         }
         // finally recurse or add it to the target bag:

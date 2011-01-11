@@ -573,16 +573,13 @@ namespace RTT
                                     << (*mit)->getType() << " "<< (*sit)->getName()
                                     << " from type "  << (*sit)->getType() << endlog();
                         } else {
-                            // try composition:
-                            // if *sit is a bag, and we can decompose target, and we can update it, we have success, otherwise failure:
-                            if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) ) {
-                                Logger::log() << Logger::Error;
-                                Logger::log() << "updateProperties: Could not update, nor compose Property "
-                                        << (*mit)->getType() << " "<< (*mit)->getName()
-                                        << ": type mismatch, can not update with "
-                                        << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
-                                return false;
-                            }
+                            //if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) )
+                            Logger::log() << Logger::Error;
+                            Logger::log() << "updateProperties: Could not update, nor convert Property "
+                                    << (*mit)->getType() << " "<< (*mit)->getName()
+                                    << ": type mismatch, can not update with "
+                                    << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
+                            return false;
                         }
                     }
                     // ok.
@@ -598,6 +595,7 @@ namespace RTT
 #endif
                         // step 1: test for composing a typed property bag:
                         PropertyBase* temp = 0;
+#if 0
                         Property<PropertyBag>* tester = dynamic_cast<Property<PropertyBag>* >(*sit);
                         if (tester && tester->value().getType() != "PropertyBag") {
                             if (TypeInfo* ti = types::Types()->type(tester->value().getType())) {
@@ -607,6 +605,7 @@ namespace RTT
                                 if (!res ) return false;
                             }
                         }
+#endif
                         if (!temp) {
                             // fallback : clone a new instance (non deep copy)
                             temp = (*sit)->create();
