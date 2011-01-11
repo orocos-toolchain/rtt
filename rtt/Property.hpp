@@ -193,15 +193,15 @@ namespace RTT
                 this->setDescription( source->getDescription() );
                 typename internal::AssignableDataSource<DataSourceType>::shared_ptr vptr
                     = internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
-                if (vptr)
+                if (vptr) {
                     _value = vptr;
-                else
-                    _value = new internal::ValueDataSource<value_t>() ;
-            } else {
-                this->setName( "" );
-                this->setDescription( "" );
-                _value = 0;
+                    return *this;
+                }
             }
+            // wrong assignment: mark not ready.
+            this->setName( "" );
+            this->setDescription( "" );
+            _value = 0;
             return *this;
         }
 
