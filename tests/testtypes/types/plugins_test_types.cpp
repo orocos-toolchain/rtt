@@ -2,13 +2,19 @@
 #include <rtt/types/Types.hpp>
 #include <rtt/types/TypekitPlugin.hpp>
 #include "types/SequenceTypeInfo.hpp"
+#include "../../datasource_fixture.hpp"
 
+void loadStructTypes();
+void loadSequenceTypes();
+void loadArrayTypes();
 
 class TypesPluginTest : public RTT::types::TypekitPlugin
 {
 public:
     virtual bool loadTypes() {
-        RTT::types::Types()->addType(new RTT::types::SequenceTypeInfo<std::vector<std::vector<double> > >("matrix") );
+        loadStructTypes();
+        loadSequenceTypes();
+        loadArrayTypes();
         return true;
     }
 

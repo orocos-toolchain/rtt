@@ -20,9 +20,16 @@
 #ifndef ORO_DATASOURCE_FIXTURE_HPP_
 #define ORO_DATASOURCE_FIXTURE_HPP_
 
-#include "unit.hpp"
+#include <rtt-config.h>
+#include <iostream>
+#include <RTT.hpp>
 #include <boost/array.hpp>
 #include <boost/serialization/vector.hpp>
+
+using namespace RTT;
+using namespace RTT::detail;
+using namespace boost;
+using namespace std;
 
 /**
  * AType uses simple C types and C++ containers
@@ -40,6 +47,15 @@ struct AType
         vd.resize(10, 5.0);
         vd[3] = 101;
     }
+
+    void clear() {
+        a = 0;
+        b = 0;
+        c.clear();
+        ai[3] = 0;
+        vd.clear();
+    }
+
     int a;
     double b;
     string c;
@@ -47,22 +63,13 @@ struct AType
     vector<double> vd;
 };
 
-bool operator==(const AType& a, const AType& b)
-{
-    return a.a == b.a && a.b == b.b && a.c == b.c && a.ai == b.ai && std::equal(a.vd.begin(), a.vd.end(), b.vd.begin());
-}
+typedef std::vector<AType> ATypes;
 
-std::ostream& operator<<(std::ostream& os, const AType& a)
-{
-    os << "{ " << a.a << ", " << a.b << ", " << a.c << ", < ";
-    for (unsigned int i = 0; i != a.ai.size(); ++i)
-        os << a.ai[i] << " ";
-    os <<">, ( ";
-    for (unsigned int i = 0; i != a.vd.size(); ++i)
-        os << a.vd[i] << " ";
-    os << ") }";
-    return os;
-}
+
+bool operator==(const AType& a, const AType& b);
+
+std::ostream& operator<<(std::ostream& os, const AType& a);
+std::ostream& operator<<(std::ostream& os, const ATypes& as);
 
 /**
  * BType uses simple C types and C arrays
@@ -75,12 +82,21 @@ struct BType
     BType() :
         a(3), b(9.9)
     {
+        for(int i = 0; i<10; ++i) c[i] = 0;
         strcpy(c,"hello");
         for(int i = 0; i<5; ++i) ai[i] = 0;
         ai[3] = 99;
         for(int i = 0; i<10; ++i) vd[i] = 5;
         vd[3] = 101;
     }
+    void clear() {
+        a = 0;
+        b = 0;
+        for(int i = 0; i<10; ++i) c[i] = 0;
+        for(int i = 0; i<5; ++i) ai[i] = 0;
+        for(int i = 0; i<10; ++i) vd[i] = 0;
+    }
+
     int    a;
     double b;
     char   c[10];
@@ -88,23 +104,12 @@ struct BType
     double vd[10];
     //int    vvi[2][2];
 };
+typedef std::vector<BType> BTypes;
 
-bool operator==(const BType& a, const BType& b)
-{
-    return a.a == b.a && a.b == b.b && strcmp(a.c, b.c) == 0 && a.ai[3] == b.ai[3] && a.vd[3] == b.vd[3];
-}
+bool operator==(const BType& a, const BType& b);
 
-std::ostream& operator<<(std::ostream& os, const BType& a)
-{
-    os << "{ " << a.a << ", " << a.b << ", " << a.c << ", < ";
-    for (unsigned int i = 0; i != 5; ++i)
-        os << a.ai[i] << " ";
-    os <<">, ( ";
-    for (unsigned int i = 0; i != 10; ++i)
-        os << a.vd[i] << " ";
-    os << ") }";
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const BType& a);
+std::ostream& operator<<(std::ostream& os, const BTypes& a);
 
 /**
  * CType uses composite A/B types
@@ -121,25 +126,21 @@ struct CType
     BType b;
     vector<AType> av;
     vector<BType> bv;
+
+    void clear() {
+        a.clear();
+        b.clear();
+        av.clear();
+        bv.clear();
+    }
 };
 
-bool operator==(const CType& a, const CType& b)
-{
-    return a.a == b.a && a.b == b.b && std::equal(a.av.begin(), a.av.end(), b.av.begin()) && std::equal(a.bv.begin(), a.bv.end(), b.bv.begin());
-}
+typedef std::vector<CType> CTypes;
 
-std::ostream& operator<<(std::ostream& os, const CType& a)
-{
-    os << "{ (" << a.a << ", " << endl <<"   " << a.b << endl<< "  )"<<endl;
-    os << "  <";
-    for (unsigned int i = 0; i != 5; ++i)
-        os << a.av[i] << " ";
-    os <<"  >,"<<endl<<"  <";
-    for (unsigned int i = 0; i != 10; ++i)
-        os << a.bv[i] << " ";
-    os <<"  >"<<endl <<"}";
-    return os;
-}
+bool operator==(const CType& a, const CType& b);
+
+std::ostream& operator<<(std::ostream& os, const CType& a);
+std::ostream& operator<<(std::ostream& os, const CTypes& a);
 
 namespace boost {
 namespace serialization {
