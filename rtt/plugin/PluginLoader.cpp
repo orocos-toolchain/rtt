@@ -82,7 +82,7 @@ static const std::string default_delimiter(":");
 # endif
 
 namespace RTT { namespace plugin {
-    extern std::string default_plugin_path;
+    extern char const* default_plugin_path;
 }}
 
 namespace {
@@ -91,6 +91,8 @@ namespace {
      */
     int loadPlugins()
     {
+        std::string default_plugin_path = ::default_plugin_path;
+
         char* paths = getenv("RTT_COMPONENT_PATH");
         string plugin_paths;
         if (paths) {
@@ -126,9 +128,7 @@ namespace {
     os::CleanupFunction plugin_unloader( &unloadPlugins );
 }
 
-boost::shared_ptr<PluginLoader> PluginLoader::minstance;
-
-boost::shared_ptr<PluginLoader> instance2;
+static boost::shared_ptr<PluginLoader> instance2;
 
 namespace {
 
