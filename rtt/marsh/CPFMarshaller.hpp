@@ -73,8 +73,16 @@ namespace RTT
 
         /**
          * Specialisation in case of a string.
+         * Escapes the string sequence and should check for UTF-8
          */
         void doWrite( const Property<std::string> &v, const std::string& type );
+
+        /**
+         * Specialisation in case of a char.
+         * Escapes the char and should check for UTF-8. A null character is
+         * translated into <value></value>
+         */
+        void doWrite( const Property<char> &v, const std::string& type );
 
         std::string indent;
 
