@@ -63,6 +63,7 @@ BOOST_AUTO_TEST_CASE(TestMarshallMatrix)
     typedef std::vector<double> RowType;
     MatrixType mx( 5, RowType(5,5.0)); // matrix 5x5 with values '5.0'
     MatrixType mxz( 5, RowType(5,0.0)); // matrix 5x5 with values '0.0'
+    MatrixType mxrz; // real empty matrix
 
     // check initial values:
     BOOST_CHECK_EQUAL( mx[0][0], 5.0);
@@ -75,8 +76,10 @@ BOOST_AUTO_TEST_CASE(TestMarshallMatrix)
     // write a non-existing file:
     BOOST_CHECK( marsh->writeProperties("TestMarshallMatrix.cpf") );
     // zero out our copy:
-    mx = mxz;
+    mx = mxrz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallMatrix.cpf") );
+    BOOST_REQUIRE_EQUAL( mx.size(), 5);
+    BOOST_REQUIRE_EQUAL( mx[0].size(), 5);
     // check restored result:
     BOOST_CHECK_EQUAL( mx[0][0], 5.0);
     BOOST_CHECK_EQUAL( mx[4][4], 5.0);

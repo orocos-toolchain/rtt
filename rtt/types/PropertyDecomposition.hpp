@@ -71,7 +71,7 @@ namespace RTT {
          * @param targetbag The bag in which to place the result.
          * @return True on success, false otherwise.
          */
-        bool RTT_API propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag );
+        bool RTT_API propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag, bool recurse = true );
 
         /**
          * Identical to RTT::types::propertyDecomposition(), but takes a DataSourceBase as source.
@@ -80,7 +80,7 @@ namespace RTT {
          * @return True on success, false otherwise.
          * @see RTT::types::propertyDecomposition
          */
-        bool RTT_API typeDecomposition( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag);
+        bool RTT_API typeDecomposition( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag, bool recurse = true);
     }
 }
 

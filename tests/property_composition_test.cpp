@@ -103,6 +103,7 @@ BOOST_AUTO_TEST_CASE( testDecomposeComposeVector )
     Property<vector<double> > pr;
     pr = result.getProperty("pv");
     BOOST_REQUIRE( pr.ready() );
+    BOOST_CHECK_EQUAL( pr.value().size(), pv.value().size() );
     BOOST_CHECK_EQUAL( pr.value(), pv.value() );
 }
 
