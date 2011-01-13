@@ -80,7 +80,7 @@ namespace RTT
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ValueDataSource<int>( data->rvalue().count() );
+                    return new ConstantDataSource<int>( data->rvalue().count() );
                 }
 
                 typename AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< AssignableDataSource<T> >( item );
@@ -111,7 +111,7 @@ namespace RTT
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ValueDataSource<int>( data->rvalue().count() );
+                        return new ConstantDataSource<int>( data->rvalue().count() );
                     } else {
                         log(Error) << "CArrayTypeInfo: No such part : " << id_name->get() << endlog();
                         return base::DataSourceBase::shared_ptr();
