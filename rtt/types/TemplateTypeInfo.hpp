@@ -276,6 +276,13 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
         {
+            // backwards-compatibility with convertType(): if it returns a bag, return that bag for decomposition.
+            // otherwise, proceed with normal decomposition. To be removed after 2.3 release, see api doc of convertType()
+            base::DataSourceBase::shared_ptr bc_convert = convertType(source);
+            typename internal::DataSource<PropertyBag>::shared_ptr bc_ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyBag> >( bc_convert );
+            if ( bc_ds )
+                return bc_ds;
+
             // Extract typed values
             typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
             if ( !ds )
