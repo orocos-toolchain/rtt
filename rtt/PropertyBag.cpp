@@ -665,16 +665,10 @@ namespace RTT
             else {
                 // found it, update !
                 if (target_walker->update(source_walker) == false ) {
-                    // try composition:
-                    PropertyBag decomp;
-                    Property<PropertyBag> source = source_walker;
-                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
-                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
                         log(Error) << "Could not update nor compose Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not update with type "
                                    << source_walker->getType() << Logger::endl;
-                    }
                 }
                 log(Debug) << "Found Property '"<<target_walker->getName() <<"': update done." << endlog();
                 return true;
@@ -731,16 +725,10 @@ namespace RTT
             else {
                 // found it, refresh !
                 if (target_walker->refresh(source_walker) == false ) {
-                    // try composition:
-                    PropertyBag decomp;
-                    Property<PropertyBag> source = source_walker;
-                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
-                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
-                        log(Error) << "Could not refresh nor compose Property "
+                        log(Error) << "Could not refresh Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not refresh with type "
                                    << source_walker->getType() << Logger::endl;
-                    }
                 }
                 log(Debug) << "Found Property '"<<target_walker->getName() <<"': refresh done." << endlog();
                 return true;
