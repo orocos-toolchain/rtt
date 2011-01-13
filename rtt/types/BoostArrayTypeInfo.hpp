@@ -80,7 +80,7 @@ namespace RTT
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ValueDataSource<unsigned int>( T::static_size );
+                    return new ConstantDataSource<unsigned int>( T::static_size );
                 }
 
                 // contents of indx can change during program execution:
@@ -107,7 +107,7 @@ namespace RTT
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ValueDataSource<unsigned int>( T::static_size );
+                        return new ConstantDataSource<unsigned int>( T::static_size );
                     }
                 }
 
