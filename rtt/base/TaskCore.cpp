@@ -111,7 +111,7 @@ namespace RTT {
                     mTargetState = mTaskState = PreOperational;
                     return false;
                 }
-            } catch(std::runtime_error const& e) {
+            } catch(std::exception const& e) {
                 log(Error) << "in configure(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
@@ -130,7 +130,7 @@ namespace RTT {
                 cleanupHook();
                 mTaskState = PreOperational;
                 return true;
-            } catch(std::runtime_error const& e) {
+            } catch(std::exception const& e) {
                 log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
@@ -199,7 +199,7 @@ namespace RTT {
                     return true;
                 }
                 mTargetState = Stopped;
-            } catch(std::runtime_error const& e) {
+            } catch(std::exception const& e) {
                 log(Error) << "in start(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
@@ -224,7 +224,7 @@ namespace RTT {
                     mTaskState = orig;
                     mTargetState = orig;
                 }
-            } catch(std::runtime_error const& e) {
+            } catch(std::exception const& e) {
                 log(Error) << "in stop(): switching to exception state because of unhandled exception" << endlog();
                 log(Error) << "  " << e.what() << endlog();
                 exception();
