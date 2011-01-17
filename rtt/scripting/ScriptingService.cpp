@@ -188,6 +188,11 @@ namespace RTT {
 
         if (this->recursiveCheckLoadStateMachine( sc ) == false)
             return false; // throws load_exception
+
+        if ( getOwner()->getPeriod() == 0 ) {
+            log(Warning) << "Loading StateMachine "<< sc->getName() << " in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
+        }
+
         this->recursiveLoadStateMachine( sc );
         return true;
     }
@@ -347,6 +352,9 @@ namespace RTT {
        if ( programs.find(pi->getName()) != programs.end() ) {
            log(Error) << "Could not load Program "<< pi->getName() << " in ScriptingService: name already in use."<<endlog();
            return false;
+       }
+       if ( getOwner()->getPeriod() == 0 ) {
+           log(Warning) << "Loading program " << pi->getName() << " in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
        }
        programs[pi->getName()] = pi;
        pi->reset();
@@ -611,9 +619,6 @@ namespace RTT {
       Logger::In in("ProgramLoader::loadProgram");
       Parser parser;
       Parser::ParsedPrograms pg_list;
-      if ( getOwner()->getPeriod() == 0 ) {
-          log(Warning) << "Loading a program script in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
-      } 
       try {
           Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
           pg_list = parser.parseProgram(code, mowner, filename );
@@ -699,9 +704,6 @@ namespace RTT {
         Logger::In in("ScriptingService::loadStateMachine");
         Parser parser;
         Parser::ParsedStateMachines pg_list;
-        if ( getOwner()->getPeriod() == 0 ) {
-            log(Warning) << "Loading a state machine script in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
-        }
         try {
             Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
             pg_list = parser.parseStateMachine( code, mowner, filename );
