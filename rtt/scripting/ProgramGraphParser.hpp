@@ -98,10 +98,6 @@ namespace RTT { namespace scripting
 
       our_pos_iter_t& mpositer;
 
-      // helper variable to detect if we are in 'try' or 'do'
-      // which influences the 'and' behaviour
-      bool try_cmd;
-
       // The current function we are parsing.
       FunctionGraphPtr mfunc;
 
@@ -111,10 +107,6 @@ namespace RTT { namespace scripting
       // A map of all functions
       typedef std::map<std::string, FunctionGraphPtr> funcmap;
       funcmap mfuncs;
-
-      // the label that the user wants to give to the current
-      // statement.  If this is empty, then no label is necessary..
-      std::string mcurlabel;
 
       // The return type of the current function.
       std::string rettype;
@@ -181,6 +173,8 @@ namespace RTT { namespace scripting
       void programtext(iter_t, iter_t);
 
       void setStack(Service::shared_ptr st);
+      //! Clears helper variables of parser.
+      void clearParseState();
       void setup();
       void setup2();
       void cleanup(bool remove_service);

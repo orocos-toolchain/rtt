@@ -218,6 +218,7 @@ namespace RTT
         assert(program_builder != 0 );
         program_builder->startFunction(name);
         this->setStack( stck );
+        this->clearParseState();
     }
 
     rule_t& ProgramGraphParser::programParser() {
@@ -274,6 +275,11 @@ namespace RTT
     void ProgramGraphParser::setStack(Service::shared_ptr st) {
         context = st;
         valuechangeparser.load(context);
+    }
+
+    void ProgramGraphParser::clearParseState() {
+        exportf = false;
+        rettype.clear();
     }
 
     void ProgramGraphParser::startofprogram()
@@ -760,6 +766,8 @@ namespace RTT
       // cleanup all functions :
       delete fcontext;
       fcontext = 0;
+      exportf = false;
+      rettype.clear();
       if ( rootc == 0)
           return;
 //       TaskContext* __f = rootc->getPeer("__functions");
