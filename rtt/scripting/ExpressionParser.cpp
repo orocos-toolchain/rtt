@@ -618,7 +618,9 @@ namespace RTT
     if (!act)
         throw parse_exception_fatal_semantic_error( "2:Cannot assign constant (or returned) variable of types: "+ arg2->getType() +" = " +
                 " "+arg1->getType() );
-    ret = arg2->getTypeInfo()->buildActionAlias(act, arg2);
+    // only try this if not unknown_t.
+    if (arg2->getTypeInfo()->getTypeName() != "unknown_t")
+        ret = arg2->getTypeInfo()->buildActionAlias(act, arg2);
     if (!ret) { // no type info !
         ret = new DataSourceCommand( act ); // fall back into the old behavior of returning a boolean.
     }
