@@ -257,6 +257,8 @@ macro( orocos_typegen_headers )
     execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
       )
+    # work around generated manifest.xml file:
+    execute_process( COMMAND ${CMAKE} remove -f typekit/manifest.xml )
     add_subdirectory( typekit )
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )
