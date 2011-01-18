@@ -70,6 +70,7 @@ namespace RTT
         // prepare parser to parse statements right away:
         programparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
+        stateparser->storeOffset();
     }
 
     void ScriptParser::seenstatement()
@@ -99,6 +100,7 @@ namespace RTT
         ret->unloaded();
         programparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
+        stateparser->storeOffset();
     }
 
     void ScriptParser::seenprogram()
@@ -122,12 +124,14 @@ namespace RTT
         }
         programparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
+        stateparser->storeOffset();
     }
 
     void ScriptParser::seenfunction()
     {
         programparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
+        stateparser->storeOffset();
     }
 
     void ScriptParser::seenstatemachine()
@@ -149,6 +153,7 @@ namespace RTT
         }
         programparser->initBodyParser("script", storage, 0);
                 //mpositer.get_position().line);
+        stateparser->storeOffset();
     }
 
     void ScriptParser::parse(iter_t& begin, iter_t end)
@@ -164,6 +169,7 @@ namespace RTT
         ln_offset = mpositer.get_position().line - 1;
         program_text = std::string( begin, end ); // begin is by reference.
 
+        stateparser->storeOffset();
         try
         {
             if (!production.parse(scanner))

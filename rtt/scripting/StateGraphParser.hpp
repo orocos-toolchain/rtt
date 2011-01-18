@@ -190,7 +190,6 @@ namespace RTT { namespace scripting
       void seeneventargs();
 
       void seenstatemachinename( iter_t begin, iter_t end );
-      void storeOffset();
       void saveText( iter_t begin, iter_t end );
       void startrootmachineinstantiation();
       void seenrootmachineinstantiation();
@@ -227,6 +226,7 @@ namespace RTT { namespace scripting
      * Returns the top-level parser for state machines.
      * It parses one state machine definition or one state machine
      * instantiation.
+     * @see storeOffset()
      */
     rule_t& parser();
     /**
@@ -235,6 +235,12 @@ namespace RTT { namespace scripting
      */
     ParsedStateMachinePtr getParserResult();
 
+    /**
+     * Stores the current position in the input stream (iterator received from the constructor)
+     * in order to be able to extract the statemachine's text from the input stream.
+     * You need to call this function once before using the parser().
+     */
+    void storeOffset();
   };
 }}
 

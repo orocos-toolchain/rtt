@@ -159,9 +159,11 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( machinealias );
         BOOST_SPIRIT_DEBUG_RULE( subMachinevarchange );
 
-        production = *body[bind( &StateGraphParser::saveText, this, _1, _2)] >> expect_eof(end_p);
+        storeOffset();
 
-        body = statemachine[ bind( &StateGraphParser::seenstatemachineend, this ) ]
+        production = *body >> expect_eof(end_p);
+
+        body = statemachine[ bind( &StateGraphParser::seenstatemachineend, this ) ][bind( &StateGraphParser::saveText, this, _1, _2)]
                          | rootmachineinstantiation;
 
 
