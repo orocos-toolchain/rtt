@@ -107,9 +107,7 @@ namespace RTT
     {
         std::string tname = t->getTypeName();
         if ( data.count( tname ) != 0 ) {
-            log(Warning) << "Attempt to register Type name '"<<tname <<"' twice to the Orocos Type System. Keeping old type object."<<Logger::endl;
-            delete t;
-            return false;
+            log(Warning) << "Attempt to register Type '"<<tname <<"' twice to the Orocos Type System."<<Logger::endl;
         }
         data[ tname ] = t;
         log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
