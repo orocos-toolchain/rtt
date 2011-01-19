@@ -61,7 +61,7 @@ using namespace RTT::mqueue;
 
 
 MQSendRecv::MQSendRecv(types::TypeMarshaller const& transport) :
-    mqdata_source(), mtransport(transport), buf(0), mis_sender(false), minit_done(false), max_size(0), mdata_size(0)
+    mqdata_source(), mtransport(transport), marshaller_cookie(0), buf(0), mis_sender(false), minit_done(false), max_size(0), mdata_size(0)
 {
 }
 
@@ -73,6 +73,7 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
     mqdata_source = ds;
     mdata_size = policy.data_size;
     max_size = policy.data_size ? policy.data_size : mtransport.getSampleSize(mqdata_source);
+    marshaller_cookie = mtransport.createCookie();
     mis_sender = is_sender;
 
     std::stringstream namestr;
@@ -165,6 +166,9 @@ void MQSendRecv::cleanupStream()
     // both sender and receiver close their end.
     mq_close( mqdes);
 
+    if (marshaller_cookie)
+        mtransport.deleteCookie(marshaller_cookie);
+
     if (buf)
     {
         delete[] buf;
@@ -200,7 +204,7 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
         ssize_t ret = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout);
         if (ret != -1)
         {
-            if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+            if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source, marshaller_cookie))
             {
                 minit_done = true;
                 // ok, now we can add the dispatcher.
@@ -236,7 +240,7 @@ bool MQSendRecv::mqRead()
         //log(Debug) << "Tried read on empty mq!" <<endlog();
         return false;
     }
-    if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+    if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source, marshaller_cookie))
     {
         return true;
     }
@@ -245,7 +249,7 @@ bool MQSendRecv::mqRead()
 
 bool MQSendRecv::mqWrite()
 {
-    std::pair<void*, int> blob = mtransport.fillBlob(mqdata_source, (void*) buf, max_size);
+    std::pair<void*, int> blob = mtransport.fillBlob(mqdata_source, (void*) buf, max_size, marshaller_cookie);
     char* lbuf = (char*) blob.first;
     if (mq_send(mqdes, lbuf, blob.second, 0))
     {

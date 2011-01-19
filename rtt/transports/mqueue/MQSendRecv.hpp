@@ -65,6 +65,12 @@ namespace RTT
              */
             types::TypeMarshaller const& mtransport;
             /**
+             * A private blob that is returned by mtransport.getCookie(). It is
+             * used by the marshallers if they need private internal data to do
+             * the marshalling
+             */
+            void* marshaller_cookie;
+            /**
              * MQueue file descriptor.
              */
             mqd_t mqdes;

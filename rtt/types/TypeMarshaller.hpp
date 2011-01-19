@@ -61,6 +61,13 @@ namespace RTT
         class TypeMarshaller: public RTT::types::TypeTransporter
         {
         public:
+            /** Overload in subclasses for marshallers that need to allocate some
+             * internal data. The protocol will call deleteCookie(void*)
+             * accordingly
+             */
+            virtual void* createCookie() const { return 0; }
+            /** Called to delete a cookie created with createCookie */
+            virtual void deleteCookie(void* cookie) const {}
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
              * This must be a real-time function which does not allocate memory and which requires source
@@ -73,18 +80,18 @@ namespace RTT
              * @return Returns (0,0) if the filling failed, otherwise, points to the filled memory area and the effectively
              * written size. The returned pointer may differ from \a blob, in case \a blob was not used.
              */
-            virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const = 0;
+            virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie = 0) const = 0;
 
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const = 0;
+            virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie = 0) const = 0;
 
             /**
              * Returns the size in bytes of a marshalled data element.
              * @return the size.
              */
-            virtual unsigned int getSampleSize( base::DataSourceBase::shared_ptr sample) const = 0;
+            virtual unsigned int getSampleSize( base::DataSourceBase::shared_ptr sample, void* cookie = 0) const = 0;
 
         };
 

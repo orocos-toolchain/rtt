@@ -79,7 +79,7 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
+          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
           {
               typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
               if ( d )
@@ -87,7 +87,7 @@ namespace RTT
               return std::make_pair((void*)0,int(0));
           }
 
-          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const
+          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie) const
           {
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             assert( size == sizeof(T) );
@@ -98,7 +98,7 @@ namespace RTT
             return false;
           }
 
-          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored) const
+          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored, void* cookie) const
           {
               // re-implement this in case of complex types, like std::vector<T>.
               return sizeof(T);
@@ -118,6 +118,12 @@ namespace RTT
               }
               return 0;
           }
+
+          virtual void* createCookie()
+          {
+              return 0;
+          }
+
       };
 }
 }
