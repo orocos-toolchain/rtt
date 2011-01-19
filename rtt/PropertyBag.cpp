@@ -197,7 +197,7 @@ namespace RTT
     }
 
     /** @cond /
-    /**
+     *
      * A function object for finding a Property by name.
      */
     struct FindProp : public std::binary_function<const base::PropertyBase*,const std::string, bool>
