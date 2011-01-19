@@ -137,12 +137,11 @@ namespace RTT
         {
             // Install the type info object for T.
             if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
-                              << internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
-                              << "'." << Logger::endl;
+                log(Warning) << "Overriding TypeInfo for '"
+                        << internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                        << "' with '" << name <<"'."<< endlog();
             }
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
-
         }
 
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
