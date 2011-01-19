@@ -40,6 +40,7 @@
 #include "ConnFactory.hpp"
 #include "../base/InputPortInterface.hpp"
 #include "../DataFlowInterface.hpp"
+#include "../types/TypeMarshaller.hpp"
 
 using namespace std;
 using namespace RTT;
