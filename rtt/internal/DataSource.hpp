@@ -119,6 +119,10 @@ namespace RTT
        */
       virtual const_reference_t rvalue() const = 0;
 
+      /** Generic implementation of getRawConstPointer() based on rvalue()
+       */
+      void const* getRawConstPointer() { return &rvalue(); }
+
       virtual bool evaluate() const;
 
       virtual DataSource<T>* clone() const = 0;
@@ -187,6 +191,10 @@ namespace RTT
        * Getting a reference to an internal data structure is not thread-safe.
        */
       virtual reference_t set() = 0;
+
+      /** Generic implementation of getRawPointer() based on set()
+       */
+      void* getRawPointer() { return &set(); }
 
       virtual bool isAssignable() const { return true; }
 
