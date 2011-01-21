@@ -248,10 +248,10 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
             return true;
     }
-    log(Error) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
+    log(Debug) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
     for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
-        log(Error) << *it << " ";
-    log(Error)<< endlog();
+        log(Debug) << *it << " ";
+    log(Debug)<< endlog();
     return false;
 }
 
