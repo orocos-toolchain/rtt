@@ -47,6 +47,8 @@
 #include "../FlowStatus.hpp"
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
+#include <ostream>
+#include <sstream>
 
 namespace RTT
 {

@@ -43,14 +43,12 @@
 #include <exception>
 #include "../rtt-config.h"
 #include <boost/call_traits.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/type_traits/is_void.hpp>
+#include "mystd.hpp"
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/static_assert.hpp>
 
 #include "../base/DataSourceBase.hpp"
-#include "mystd.hpp"
 
 namespace RTT
 { namespace internal {

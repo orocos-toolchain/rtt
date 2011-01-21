@@ -42,8 +42,6 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "../base/AttributeBase.hpp"
-#include "../Logger.hpp"
 #include "TypeInfo.hpp"
 
 namespace RTT

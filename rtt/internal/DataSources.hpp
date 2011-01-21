@@ -42,7 +42,6 @@
 #include "mystd.hpp"
 #include "DataSource.hpp"
 #include "DataSourceTypeInfo.hpp"
-#include "AssignCommand.hpp"
 #include <vector>
 
 namespace RTT

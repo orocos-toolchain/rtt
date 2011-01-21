@@ -42,7 +42,9 @@
 #include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "internal/DataSources.hpp"
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/call_traits.hpp>
+#include "Logger.hpp"
 
 #include <string>
 #include <ostream>

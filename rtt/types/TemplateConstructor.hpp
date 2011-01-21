@@ -42,6 +42,7 @@
 #include "Types.hpp"
 #include "../internal/FusedFunctorDataSource.hpp"
 #include "../internal/CreateSequence.hpp"
+#include "../Logger.hpp"
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function.hpp>

@@ -42,9 +42,6 @@
 #include "MQLib.hpp"
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
-#include "../../types/Types.hpp"
-#include "../../InputPort.hpp"
-#include "../../OutputPort.hpp"
 
 #include <boost/type_traits/has_virtual_destructor.hpp>
 #include <boost/static_assert.hpp>
@@ -74,10 +71,6 @@ namespace RTT
            * The given \a T parameter is the type for reading DataSources.
            */
           typedef T UserType;
-          /**
-           * When Properties of \a T are constructed, they are non-const, non-reference.
-           */
-          typedef typename Property<T>::DataSourceType PropertyType;
 
           virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
           {
@@ -116,11 +109,6 @@ namespace RTT
               } catch(std::exception& e) {
                   log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
               }
-              return 0;
-          }
-
-          virtual void* createCookie()
-          {
               return 0;
           }
 
