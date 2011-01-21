@@ -251,7 +251,14 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
         ChannelList::iterator it=channel_list.begin();
         for (; it != channel_list.end(); ++it) {
             if (it->first->_is_equivalent (channel) ) {
-                return ip->channelReady( it->second );
+                try {
+                    return ip->channelReady( it->second );
+                }
+                catch(std::exception const& e)
+                {
+                    log(Error) << "call to channelReady threw " << e.what() << endlog();
+                    throw;
+                }
             }
         }
     }
