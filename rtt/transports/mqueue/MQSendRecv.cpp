@@ -257,9 +257,12 @@ bool MQSendRecv::mqWrite()
     }
 
     char* lbuf = (char*) blob.first;
-    if (mq_send(mqdes, lbuf, blob.second, 0))
+    if (mq_send(mqdes, lbuf, blob.second, 0) == -1)
     {
-        //log(Error) << "Failed to write into MQChannel !" <<endlog();
+        if (errno == EAGAIN)
+            return true;
+
+        log(Error) << "MQChannel became invalid" <<endlog();
         return false;
     }
     return true;
