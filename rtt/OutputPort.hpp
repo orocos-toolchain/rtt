@@ -70,9 +70,6 @@ namespace RTT
     {
         friend class internal::ConnInputEndpoint<T>;
 
-        bool written;
-        typename internal::AssignableDataSource<T>::shared_ptr last_written_value;
-
         bool do_write(typename base::ChannelElement<T>::param_t sample, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
             typename base::ChannelElement<T>::shared_ptr output
@@ -107,26 +104,38 @@ namespace RTT
             typename base::ChannelElement<T>::shared_ptr channel_el_input =
                 static_cast< base::ChannelElement<T>* >(channel_input.get());
 
-
-            if (written)
+            if (has_initial_sample || (written && keeps_last_written_value))
             {
-                typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
-                if (last_written_value)
-                {
-                    T sample = last_written_value->get();
-                    if ( channel_el_input->data_sample(sample) ) {
-                        if ( policy.init )
-                            return channel_el_input->write(sample);
-                        return true;
-                    } else {
-                        Logger::In in("OutputPort");
-                        log(Error) << "Failed to pass data sample to data channel. Aborting connection."<<endlog();
-                        return false;
-                    }
+                if ( channel_el_input->data_sample(sample->rvalue()) ) {
+                    if ( written && policy.init )
+                        return channel_el_input->write(sample->rvalue());
+                    return true;
+                } else {
+                    Logger::In in("OutputPort");
+                    log(Error) << "Failed to pass data sample to data channel. Aborting connection."<<endlog();
+                    return false;
                 }
             }
             // even if we're not written, test the connection with a default sample.
             return channel_el_input->data_sample( T() );
+        }
+
+        bool written;
+        bool has_initial_sample;
+        bool keeps_last_written_value;
+        typename internal::AssignableDataSource<T>::shared_ptr sample;
+
+        void createSampleHolder()
+        {
+            if (!sample)
+            {
+                sample = new internal::ValueDataSource<T>();
+            }
+        }
+
+        void deleteSampleHolder()
+        {
+            sample = 0;
         }
 
     public:
@@ -149,24 +158,23 @@ namespace RTT
         OutputPort(std::string const& name = "unnamed", bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
             , written(false)
+            , has_initial_sample(false)
+            , keeps_last_written_value(false)
         {
             if (keep_last_written_value)
                 keepLastWrittenValue(true);
         }
 
-        bool keepsLastWrittenValue() const { return last_written_value; }
-        void keepLastWrittenValue(bool new_flag)
+        void keepLastWrittenValue(bool keep)
         {
-            if (new_flag)
-            {
-                if (!last_written_value)
-                {
-                    last_written_value = new internal::ValueDataSource<T>();
-                }
-            }
+            keeps_last_written_value = keep;
+            if (!keeps_last_written_value && !has_initial_sample)
+                deleteSampleHolder();
             else
-                last_written_value = 0;
+                createSampleHolder();
         }
+
+        bool keepsLastWrittenValue() const { return keeps_last_written_value; }
 
         /**
          * Returns the last written value written to this port, in case it is
@@ -175,9 +183,8 @@ namespace RTT
          */
         T getLastWrittenValue() const
         {
-            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
-            if (written && last_written_value)
-                return last_written_value->get();
+            if (written && keeps_last_written_value)
+                return sample->rvalue();
             else return T();
         }
 
@@ -189,10 +196,9 @@ namespace RTT
          */
         bool getLastWrittenValue(T& sample) const
         {
-            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
-            if (written && last_written_value)
+            if (written && keeps_last_written_value)
             {
-                sample = last_written_value->get();
+                sample = this->sample->rvalue();
                 return true;
             }
             return false;
@@ -200,7 +206,9 @@ namespace RTT
 
         virtual base::DataSourceBase::shared_ptr getDataSource() const
         {
-            return this->last_written_value;
+            if (keeps_last_written_value)
+                return this->sample;
+            return base::DataSourceBase::shared_ptr();
         }
 
         /**
@@ -214,11 +222,9 @@ namespace RTT
          */
         void setDataSample(const T& sample)
         {
-            keepLastWrittenValue(true);
-            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
-            if (last_written_value)
-                last_written_value->set(sample);
-            written = true;
+            createSampleHolder();
+            this->sample->set(sample);
+            has_initial_sample = true;
 
             cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_init, this, boost::ref(sample), _1)
@@ -231,9 +237,8 @@ namespace RTT
          */
         void write(const T& sample)
         {
-            typename internal::AssignableDataSource<T>::shared_ptr last_written_value = this->last_written_value;
-            if (last_written_value)
-                last_written_value->set(sample);
+            if (keeps_last_written_value)
+                this->sample->set(sample);
             written = true;
 
             cmanager.delete_if( boost::bind(
