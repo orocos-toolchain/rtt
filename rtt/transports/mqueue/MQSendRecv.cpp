@@ -204,7 +204,7 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
         ssize_t ret = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout);
         if (ret != -1)
         {
-            if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source, marshaller_cookie))
+            if (mtransport.updateFromBlob((void*) buf, ret, mqdata_source, marshaller_cookie))
             {
                 minit_done = true;
                 // ok, now we can add the dispatcher.
@@ -240,7 +240,7 @@ bool MQSendRecv::mqRead()
         //log(Debug) << "Tried read on empty mq!" <<endlog();
         return false;
     }
-    if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source, marshaller_cookie))
+    if (mtransport.updateFromBlob((void*) buf, bytes, mqdata_source, marshaller_cookie))
     {
         return true;
     }
