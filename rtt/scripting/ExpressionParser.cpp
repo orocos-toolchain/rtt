@@ -303,8 +303,7 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( unaryplusexp );
     BOOST_SPIRIT_DEBUG_RULE( div_or_mul );
     BOOST_SPIRIT_DEBUG_RULE( modexp );
-    BOOST_SPIRIT_DEBUG_RULE( plusexp );
-    BOOST_SPIRIT_DEBUG_RULE( minusexp );
+    BOOST_SPIRIT_DEBUG_RULE( plus_or_min );
     BOOST_SPIRIT_DEBUG_RULE( smallereqexp );
     BOOST_SPIRIT_DEBUG_RULE( smallerexp );
     BOOST_SPIRIT_DEBUG_RULE( greatereqexp );
@@ -365,14 +364,15 @@ namespace RTT
       >> *( "<=" >> smallerexp[
               bind( &ExpressionParser::seen_binary, this, "<=" ) ] );
     smallerexp =
-      minusexp >> *( '<' >> minusexp[
+      plus_or_min >> *( '<' >> plus_or_min[
                        bind( &ExpressionParser::seen_binary, this, "<" ) ] );
-    minusexp =
-      plusexp >> *( '-' >> plusexp[
-                      bind( &ExpressionParser::seen_binary, this, "-" ) ] );
-    plusexp =
-      modexp >> *( '+' >> modexp[
-                     bind( &ExpressionParser::seen_binary, this, "+" ) ] );
+
+    plus_or_min =
+              modexp >> *( ('-' >> modexp[
+                    bind( &ExpressionParser::seen_binary, this, "-" ) ] )
+               | ('+' >> modexp[
+                    bind( &ExpressionParser::seen_binary, this, "+" ) ] ) );
+
     modexp =
       div_or_mul >> *( '%' >> div_or_mul[
                      bind( &ExpressionParser::seen_binary, this, "%" ) ] );
