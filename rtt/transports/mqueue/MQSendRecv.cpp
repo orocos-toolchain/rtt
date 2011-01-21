@@ -250,6 +250,12 @@ bool MQSendRecv::mqRead()
 bool MQSendRecv::mqWrite()
 {
     std::pair<void*, int> blob = mtransport.fillBlob(mqdata_source, (void*) buf, max_size, marshaller_cookie);
+    if (blob.first == 0)
+    {
+        std::cerr << "failed to marshal sample in MQ" << std::endl;
+        return false;
+    }
+
     char* lbuf = (char*) blob.first;
     if (mq_send(mqdes, lbuf, blob.second, 0))
     {
