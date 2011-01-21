@@ -123,6 +123,28 @@ namespace RTT
             return quant;
         }
 
+	value_t* PopWithoutRelease()
+	{
+	    if(buf.empty())
+		return 0;
+	    
+	    //note we need to copy the sample, as 
+	    //front is not garanteed to be valid after
+	    //any other operation on the deque
+	    lastSample = buf.front();
+	    buf.pop_front();
+	    return &lastSample;
+
+	    return 0;
+	}
+	
+	void Release(value_t *item)
+	{
+	    //we do not need to release any memory, but we can check
+	    //if the other side messed up
+	    assert(item == &lastSample && "Wrong pointer given back to buffer");
+	}
+	
         size_type capacity() const {
             return cap;
         }
@@ -145,6 +167,7 @@ namespace RTT
     private:
         size_type cap;
         std::deque<T> buf;
+	value_t lastSample;
     };
 }}
 

@@ -175,7 +175,20 @@ namespace RTT
             }
             return items.size();
         }
+        
+        value_t* PopWithoutRelease()
+	{
+            Item* ipop;
+            if (bufs.dequeue( ipop ) == false )
+                return 0;
+	    return ipop;
+	}
 
+	void Release(value_t *item) 
+	{
+            if (mpool.deallocate( item ) == false )
+                assert(false);  
+	}
     };
 }}
 
