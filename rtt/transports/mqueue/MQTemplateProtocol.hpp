@@ -72,12 +72,11 @@ namespace RTT
            */
           typedef T UserType;
 
-          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
+          virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
           {
-              typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
-              if ( d )
-                  return std::make_pair((void*) &(d->set()), int(sizeof(T)));
-              return std::make_pair((void*)0,int(0));
+              if ( sizeof(T) <= (unsigned int)size)
+                  return std::make_pair(source->getRawConstPointer(), int(sizeof(T)));
+              return std::make_pair((void const*)0,int(0));
           }
 
           virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie) const

@@ -65,16 +65,16 @@ namespace RTT
             MQSerializationProtocol() {
             }
 
-            virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
+            virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
             {
                 namespace io = boost::iostreams;
-                typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
+                typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
                 if ( d ) {
                     // we use the boost iostreams library for re-using the blob buffer in the stream object.
                     // and the serialization library to write the data into stream.
                     io::stream<io::array_sink>  outbuf( (char*)blob, size);
                     binary_data_oarchive out( outbuf );
-                    out << d->set();
+                    out << d->rvalue();
                     return std::make_pair( blob, out.getArchiveSize() );
                 }
                 return std::make_pair((void*)0,int(0));

@@ -70,20 +70,23 @@ namespace RTT
             virtual void deleteCookie(void* cookie) const {}
             /**
              * Create an transportable object for a \a protocol which contains the value of \a source.
-             * This must be a real-time function which does not allocate memory and which requires source
-             * to be an AssignableDataSource.
+             * This must be a real-time function which does not allocate memory
              *
              * @param source The data to be read
              * @param blob Suggested target memory area to write to. In case the type marshaller does not need
              * this, it will return an alternative as a first element in the returned std::pair.
              * @param size The size of the memory area pointed by blob
              * @return Returns (0,0) if the filling failed, otherwise, points to the filled memory area and the effectively
-             * written size. The returned pointer may differ from \a blob, in case \a blob was not used.
+             * written size. The returned pointer may differ from \a blob, in
+             * case \a blob was not used. The returned size must be lower or
+             * equal than \c size
              */
-            virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie = 0) const = 0;
+            virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie = 0) const = 0;
 
             /**
-             * Update \a target with the contents of \a blob which is an object of a \a protocol.
+             * Update \a target with the contents of \a blob which is an object
+             * of a \a protocol. The given data source is guaranteed to be an
+             * AssignableDataSource
              */
             virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie = 0) const = 0;
 
