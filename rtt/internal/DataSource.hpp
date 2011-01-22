@@ -43,10 +43,9 @@
 #include <exception>
 #include "../rtt-config.h"
 #include <boost/call_traits.hpp>
-#include "mystd.hpp"
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/identity.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/add_const.hpp>
 
 #include "../base/DataSourceBase.hpp"
 
@@ -67,6 +66,22 @@ namespace RTT
     };
 #endif
 
+  namespace details
+  {
+     template<typename X>
+     struct HasConst
+     { static const int value = 0; };
+     template<typename X>
+     struct HasConst<X const>
+     { static const int value = 1; };
+
+     template<typename X>
+     struct GetConstRef
+     { typedef typename boost::add_reference<typename boost::add_const<X>::type>::type type; };
+     template<>
+     struct GetConstRef<void>
+     { typedef void type; };
+  }
 
   /**
    * DataSource is a base class representing a generic way to read
@@ -83,19 +98,19 @@ namespace RTT
       virtual ~DataSource();
 
   public:
+
       /**
        * The bare type of T is extracted into value_t.
        */
       typedef T value_t;
       typedef T result_t;
-      typedef typename boost::mpl::if_< typename boost::is_void<T>, void, typename boost::add_reference<typename boost::add_const<T>::type>::type >::type const_reference_t;
-//      typedef typename boost::mpl::eval_if< typename boost::is_void<T>, boost::mpl::identity<void>, boost::mpl::identity<void> >::type const_reference_t;
+      typedef typename details::GetConstRef<T>::type const_reference_t;
 
       /**
        * If you get a compile error here, it means T has const or reference
        * qualifiers, which is not allowed for DataSource<T>
        */
-      BOOST_STATIC_ASSERT( (boost::is_same<value_t, typename remove_cr<T>::type>::value) );
+      BOOST_STATIC_ASSERT( !details::HasConst<T>::value );
 
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
