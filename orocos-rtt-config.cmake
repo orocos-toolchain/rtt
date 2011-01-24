@@ -52,8 +52,8 @@
 # variables is recommended.
 #
 # Example usage:
-#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED scripting foo)
-#  find_package(OROCOS-RTT QUIET COMPONENTS scripting foo)
+#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting foo)
+#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-scripting foo)
 #
 ########################################################################################################################
 
