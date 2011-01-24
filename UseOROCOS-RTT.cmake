@@ -23,7 +23,9 @@ if(OROCOS-RTT_FOUND)
 
   # Detect user flag: install with orocos
   if (INSTALL_PATH STREQUAL "orocos")
-    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH})
+    set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
+    mark_as_advanced(INSTALL_PATH)
+    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by UseOrocos.cmake" FORCE)
   endif (INSTALL_PATH STREQUAL "orocos")
 
   if (ROS_ROOT)

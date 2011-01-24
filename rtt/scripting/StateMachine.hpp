@@ -46,6 +46,7 @@
 #include "../base/ExecutableInterface.hpp"
 #include "../base/DataSourceBase.hpp"
 #include "../Handle.hpp"
+#include "../os/Mutex.hpp"
 
 #include <map>
 #include <vector>
@@ -682,6 +683,8 @@ namespace RTT
         bool mstep, mtrace;
 
         int evaluating;
+
+        os::MutexRecursive execlock;
     };
 }}
 
