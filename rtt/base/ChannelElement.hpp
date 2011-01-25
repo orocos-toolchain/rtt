@@ -105,11 +105,11 @@ namespace RTT { namespace base {
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        virtual FlowStatus read(reference_t sample)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
             typename ChannelElement<T>::shared_ptr input = this->getInput();
             if (input)
-                return input->read(sample);
+                return input->read(sample, copy_old_data);
             else
                 return NoData;
         }

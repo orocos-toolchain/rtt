@@ -67,12 +67,12 @@ namespace RTT
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
 
-        bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, const internal::ConnectionManager::ChannelDescriptor& descriptor)
+        bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, bool copy_old_data, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
             typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
             assert( result != NewData );
             if ( input ) {
-                FlowStatus tresult = input->read(sample);
+                FlowStatus tresult = input->read(sample, copy_old_data);
                 // the result trickery is for not overwriting OldData with NoData.
                 if (tresult == NewData) {
                     result = tresult;
@@ -122,15 +122,21 @@ namespace RTT
         }
 
         /** Reads a sample from the connection. \a sample is a reference which
-         * will get updated if a sample is available. The method returns true
-         * if a sample was available, and false otherwise. If false is returned,
-         * then \a sample is not modified by the method
+         * will get updated if a new sample is available. 
+	 * 
+	 * The method returns an enum FlowStatus, which describes what type of
+	 * sample (old or new data) or if a sample was returned (no data)
+         * 
+	 * With the argument @arg copy_old_data one can specify, if sample should
+	 * be updated in the case that the return type is equal to RTT::OldData.
+	 * In case @arg copy_old_data is false and an old sample is available, the
+	 * method will still return RTT::OldData but the sample will not be updated
          */
-        FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+        FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data = true)
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
-            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), boost::lambda::_1) );
+            cmanager.select_reader_channel( boost::bind( &InputPort::do_read, this, boost::ref(sample), boost::ref(result), copy_old_data, boost::lambda::_1) );
             return result;
         }
 
@@ -193,7 +199,7 @@ namespace RTT
         {
             Service* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
+            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t, bool copy_old_data);
             ReadSample read_m = &InputPort<T>::read;
             object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;

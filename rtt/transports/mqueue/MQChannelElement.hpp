@@ -137,7 +137,7 @@ namespace RTT
                     // 'data available in a data element'.
                     typename base::ChannelElement<T>::shared_ptr input =
                         this->getInput();
-                    if( input->read(read_sample->set()) == NewData )
+                    if( input->read(read_sample->set(), false) == NewData )
                         return this->write(read_sample->rvalue());
                 } else {
                     typename base::ChannelElement<T>::shared_ptr output =
@@ -153,7 +153,7 @@ namespace RTT
              * @param sample stores the resulting data sample.
              * @return true if an item could be read.
              */
-            FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+            FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
             {
                 throw std::runtime_error("not implemented");
             }

@@ -74,7 +74,7 @@ namespace RTT { namespace internal {
          *
          * @return false if the FIFO was empty, and true otherwise
          */
-        virtual FlowStatus read(reference_t sample)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
 	    value_t *new_sample_p;
             if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
@@ -86,7 +86,8 @@ namespace RTT { namespace internal {
                 return NewData;
             }
             if (last_sample_p) {
-                sample = *(last_sample_p);
+		if(copy_old_data)
+		    sample = *(last_sample_p);
                 return OldData;
             }
             return NoData;

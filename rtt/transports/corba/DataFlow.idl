@@ -36,7 +36,7 @@ module RTT
         /**
          * Reads from this Channel Element.
          */
-        CFlowStatus read(out any sample);
+        CFlowStatus read(out any sample, in boolean copy_old_data);
         /**
          * Writes into this Channel Element.
          * @return false if the channel became invalid

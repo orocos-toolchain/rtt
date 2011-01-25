@@ -163,7 +163,7 @@ namespace RTT {
                     }
                 } else {
                     //log(Debug) <<"...read..."<<endlog();
-                    while ( this->read(sample) == NewData && valid) {
+                    while ( this->read(sample, false) == NewData && valid) {
                         //log(Debug) <<"...write..."<<endlog();
                         if ( this->write(sample) == false )
                             valid = false;
@@ -235,18 +235,18 @@ namespace RTT {
                 catch(CORBA::Exception&) {}
             }
 
-            FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+            FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
             {
                 // try to read locally first
                 FlowStatus fs;
                 CFlowStatus cfs;
-                if ( (fs = base::ChannelElement<T>::read(sample)) )
+                if ( (fs = base::ChannelElement<T>::read(sample, copy_old_data)) )
                     return fs;
                 // go through corba
                 CORBA::Any_var remote_value;
                 try
                 {
-                    if ( remote_side && (cfs = remote_side->read(remote_value) ) )
+                    if ( remote_side && (cfs = remote_side->read(remote_value, copy_old_data) ) )
                     {
                         RTT::internal::ReferenceDataSource<T> data_source(sample);
 
@@ -279,13 +279,13 @@ namespace RTT {
             /**
              * CORBA IDL function.
              */
-            CFlowStatus read(::CORBA::Any_out sample) ACE_THROW_SPEC ((
+            CFlowStatus read(::CORBA::Any_out sample, bool copy_old_data) ACE_THROW_SPEC ((
           	      CORBA::SystemException
           	    ))
             {
 
                 FlowStatus fs;
-                if ( (fs = base::ChannelElement<T>::read(data_source->set())) )
+                if ( (fs = base::ChannelElement<T>::read(data_source->set(), copy_old_data)) )
                 {
                     sample = transport.createAny(data_source);
                     if ( sample != 0) {
