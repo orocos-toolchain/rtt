@@ -58,6 +58,12 @@ namespace RTT { namespace internal {
 
         ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
             : buffer(buffer), last_sample_p(0) {}
+            
+	virtual ~ChannelBufferElement()
+	{
+	    if(last_sample_p)
+		buffer->Release(last_sample_p);
+	}
  
         /** Appends a sample at the end of the FIFO
          *
