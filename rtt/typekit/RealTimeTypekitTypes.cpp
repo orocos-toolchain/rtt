@@ -82,3 +82,5 @@ namespace RTT
         return true;
     }
 }
+
+#include "Types.inc"

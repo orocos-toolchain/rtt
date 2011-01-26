@@ -78,3 +78,6 @@ namespace RTT
          }
      }
 }
+
+
+#include "Types2.inc"
