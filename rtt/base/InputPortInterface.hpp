@@ -101,7 +101,7 @@ namespace RTT
          *
          * \a source has to be an assignable data source
          */
-        virtual FlowStatus read(DataSourceBase::shared_ptr source);
+        virtual FlowStatus read(DataSourceBase::shared_ptr source, bool copy_old_data = true);
 
         /** Removes any connection that either go to or come from this port
          *  *and* removes all callbacks and cleans up the NewDataOnPortEvent.

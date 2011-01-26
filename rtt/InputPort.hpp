@@ -91,7 +91,7 @@ namespace RTT
 
         ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
 
-        FlowStatus read(base::DataSourceBase::shared_ptr source)
+        FlowStatus read(base::DataSourceBase::shared_ptr source, bool copy_old_data = true)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
@@ -100,7 +100,7 @@ namespace RTT
                 log(Error) << "trying to read to an incompatible data source" << endlog();
                 return NoData;
             }
-            return read(ds->set());
+            return read(ds->set(), copy_old_data);
         }
 
         /** Read all new samples that are available on this port, and returns
@@ -149,11 +149,11 @@ namespace RTT
          */
         FlowStatus readNewest(typename base::ChannelElement<T>::reference_t sample)
         {
-            FlowStatus result = read(sample);
+            FlowStatus result = read(sample, true);
             if (result != RTT::NewData)
                 return result;
 
-            while (read(sample) == RTT::NewData);
+            while (read(sample, false) == RTT::NewData);
             return RTT::NewData;
         }
 

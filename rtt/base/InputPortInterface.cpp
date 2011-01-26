@@ -115,7 +115,7 @@ bool InputPortInterface::removeConnection(ConnID* conn)
     return cmanager.removeConnection(conn);
 }
 
-FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source)
+FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
