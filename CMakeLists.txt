@@ -80,7 +80,7 @@ endif( NOT OROCOS_SUFFIX )
 #                                                 #
 ###################################################
 
-OPTION(ENABLE_TESTS "Turn on to enable the testing framework." ON)
+OPTION(ENABLE_TESTS "Turn on to enable the testing framework." OFF)
 IF(ENABLE_TESTS)
   INCLUDE(CTest)
   ENABLE_TESTING()
