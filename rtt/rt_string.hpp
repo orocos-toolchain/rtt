@@ -41,11 +41,15 @@
 
 #include "os/oro_allocator.hpp"
 #include <string>
+#include <sstream>
 
 namespace RTT
 {
     /// Real-time allocatable, dynamically-sized string
     typedef std::basic_string<char, std::char_traits<char>, RTT::os::rt_allocator<char> > rt_string;
+
+    /// Real-time allocatable, dynamically-size output string stream
+    typedef std::basic_ostringstream<char, std::char_traits<char>, RTT::os::rt_allocator<char> > rt_ostringstream;
 
     //! convert from real-time string to std::string
     inline std::string makeString(const RTT::rt_string& str)
