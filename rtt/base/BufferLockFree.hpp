@@ -84,7 +84,7 @@ namespace RTT
          * @param bufsize the capacity of the buffer.
 '         */
         BufferLockFree( unsigned int bufsize, const T& initial_value = T())
-            : bufs( bufsize ), mpool(bufsize)
+            : bufs( bufsize ), mpool(bufsize + 1)
         {
             mpool.data_sample( initial_value );
         }
