@@ -24,6 +24,7 @@
 #include <extras/SimulationActivity.hpp>
 #include <extras/SimulationThread.hpp>
 #include <RTT.hpp>
+#include <typekit/Types.hpp>
 
 // Modified version that contains checkpointing:
 #include "unit_test_suite.hpp"
