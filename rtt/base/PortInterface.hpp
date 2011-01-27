@@ -202,6 +202,17 @@ namespace RTT
          * to such an interface.
          */
         DataFlowInterface* getInterface() const;
+
+        /**
+         * Returns the connection manager of this port (if any).
+         * This method provides access to the internals of this port
+         * in order to allow connection introspection.
+         * @return null if no such manager is available, or the manager
+         * otherwise.
+         * @see ConnectionManager::getChannels() for a list of all
+         * connections of this port.
+         */
+        virtual const internal::ConnectionManager* getManager() const = 0;
 };
 
 }}

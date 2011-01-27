@@ -123,6 +123,9 @@ namespace RTT
             return true;
         }
 
+        virtual base::PortInterface* getPort() const {
+            return this->port;
+        }
     };
 
 }}

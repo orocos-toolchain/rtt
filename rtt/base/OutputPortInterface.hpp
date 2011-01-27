@@ -135,6 +135,8 @@ namespace RTT
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 
         virtual bool connectTo(PortInterface* other);
+
+        virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
     };
 }}
 

@@ -123,6 +123,10 @@ bool ChannelElementBase::signal()
     return true;
 }
 
+PortInterface* ChannelElementBase::getPort() const {
+    return 0;
+}
+
 void ChannelElementBase::ref()
 {
     oro_atomic_inc(&refcount);

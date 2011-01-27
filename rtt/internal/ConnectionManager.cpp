@@ -126,10 +126,10 @@ namespace RTT
         { return !connections.empty(); }
 
 
-        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel)
+        void ConnectionManager::addConnection(ConnID* conn_id, ChannelElementBase::shared_ptr channel, ConnPolicy policy)
         { RTT::os::MutexLock lock(connection_lock);
             assert(conn_id);
-            ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel);
+            ChannelDescriptor descriptor = boost::make_tuple(conn_id, channel, policy);
             if (connections.empty())
                 cur_channel = descriptor;
             connections.push_back(descriptor);
