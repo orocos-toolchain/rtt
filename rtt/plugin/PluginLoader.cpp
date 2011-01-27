@@ -270,7 +270,7 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         path p = path(*it) / subdir;
         if (is_directory(p))
         {
-            log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
+            log(Info) << "Loading "<<kind<<" libraries from directory " << p.string() << " ..."<<endlog();
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
@@ -287,8 +287,8 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         }
         else
             log(Debug) << "No such directory: " << p << endlog();
-
-        // Repeat for types/OROCOS_TARGET:
+#if 0
+        // Repeat for OROCOS_TARGET/package/sub/types:
         p = path(*it) / subdir / OROCOS_TARGET_NAME;
         if (is_directory(p))
         {
@@ -309,20 +309,82 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         }
         else
             log(Debug) << "No such directory: " << p << endlog();
+#endif
     }
     if (!all_good)
         throw std::runtime_error("Some found plugins could not be loaded !");
     return found;
 }
 
+bool PluginLoader::loadLibrary( std::string const& name )
+{
+    // If exact match, load it directly:
+    path arg( name );
+    if (is_regular_file(arg)) {
+        string subdir = arg.remove_filename().leaf();
+        string kind;
+        // we only load it if it is in types or plugins subdir:
+        if (subdir == "types") kind = "typekit";
+        if (subdir == "plugins") kind = "plugin";
+        if ( !kind.empty() ) {
+            if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
+                throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
+            return true;
+        }
+        // file exists but not typekit or plugin:
+        return false;
+    }
+
+    // bail out if absolute path
+    if ( arg.is_complete() )
+        return false;
+
+    // try relative match:
+    path dir = arg.parent_path();
+    string file = arg.filename();
+    vector<string> paths = splitPaths(plugin_path);
+    vector<string> tryouts( paths.size() * 8 );
+    tryouts.clear();
+
+    // search in plugins/types:
+    string subdir = "plugins"; string kind = "plugin";
+    while (true) {
+        for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
+        {
+            path p = path(*it) / dir / subdir / (file + SO_EXT);
+            tryouts.push_back( p.string() );
+            if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
+                return true;
+            p = path(*it) / dir / subdir / ("lib" + file + SO_EXT);
+            tryouts.push_back( p.string() );
+            if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
+                return true;
+            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (file + SO_EXT);
+            tryouts.push_back( p.string() );
+            if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
+                return true;
+            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + file + SO_EXT);
+            tryouts.push_back( p.string() );
+            if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
+                return true;
+        }
+        if (subdir == "types")
+            break;
+        subdir = "types";
+        kind   = "typekit";
+    }
+    log(Debug) << "No such "<< kind << " found in path: " << name << ". Tried:"<< endlog();
+    for(vector<string>::iterator it=tryouts.begin(); it != tryouts.end(); ++it)
+        log(Debug) << *it << endlog();
+
+    return false;
+}
+
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
 	// If exact match, load it directly:
-    path arg( name );
-    if (is_regular_file(arg)) {
-	    if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
-	        throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
-	    return true;
+    if (loadLibrary(name)) {
+        return true;
     }
 
     if ( isLoadedInternal(name) ) {
@@ -332,11 +394,11 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
 
-    string paths = path_list;
-    if (paths.empty())
-    	paths = plugin_path;
+    string paths;
+    if (path_list.empty())
+    	paths = plugin_path + default_delimiter + ".";
     else
-    	paths = plugin_path + default_delimiter + path_list;
+    	paths = path_list;
 
     // search in '.' if really no paths are given.
     if (paths.empty())
@@ -349,6 +411,13 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     for(vector<string>::iterator it = vpaths.begin(); it != vpaths.end(); ++it) {
         path p(*it);
         p = p / name;
+        // we only search in existing directories:
+        if (is_directory( p )) {
+            path_found = true;
+            paths += p.string() + default_delimiter;
+        }
+        p = *it;
+        p = p / OROCOS_TARGET_NAME / name;
         // we only search in existing directories:
         if (is_directory( p )) {
             path_found = true;

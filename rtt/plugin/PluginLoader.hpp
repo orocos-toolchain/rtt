@@ -162,6 +162,13 @@ namespace RTT {
             static void Release();
 
             /**
+             * Loads a library as plugin or typekit.
+             * @param path an absolute or relative path to a library.
+             * Relative paths are interpreted with regard to the plugin path.
+             */
+            bool loadLibrary(std::string const& path);
+
+            /**
              * Load any typekit found in the 'types/' subdirectory of each path in path_list in the process.
              * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
