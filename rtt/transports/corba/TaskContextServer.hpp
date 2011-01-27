@@ -79,6 +79,9 @@ namespace RTT
 
         PortableServer::POA_var mpoa;
 
+	typedef std::map<TaskContext*, std::string> IorMap;
+	static IorMap iors;
+
         /**
          * Private constructor which creates a new servant.
          */
@@ -171,6 +174,15 @@ namespace RTT
          * and can be used to tell other (remote) objects where to find it.
          */
         CTaskContext_ptr server() const;
+
+	/**
+	* Get the IOR of a given TaskContext
+	* @param tc The TaskContext to find the IOR for
+	* @return IOR of the provided TaskContext or an empty string if the TaskContext is unknown
+	*/
+	static std::string getIOR(TaskContext* tc);
+
+
     };
 }}
 #endif

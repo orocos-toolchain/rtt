@@ -72,10 +72,15 @@ namespace RTT
 
     bool TaskContextServer::is_shutdown = false;
 
+    std::map<TaskContext*, std::string> TaskContextServer::iors;
+
   TaskContextServer::~TaskContextServer()
   {
     Logger::In in("~TaskContextServer()");
     servers.erase(mtaskcontext);
+
+    // Remove taskcontext ior reference
+    iors.erase(mtaskcontext);
 
     PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
     mpoa->deactivate_object(oid);
@@ -139,6 +144,10 @@ namespace RTT
             RTT_corba_CTaskContext_i* serv;
             mtask_i = serv = new RTT_corba_CTaskContext_i( taskc, mpoa );
             mtask   = serv->activate_this();
+
+            // Store reference to iors
+            CORBA::String_var ior = orb->object_to_string( mtask.in() );
+            iors[taskc] = std::string( ior.in() );
 
             if ( use_naming ) {
                 CORBA::Object_var rootObj;
@@ -432,6 +441,15 @@ namespace RTT
     {
         // we're not a factory function, so we don't _duplicate.
         return mtask.in();
+    }
+
+    std::string TaskContextServer::getIOR(TaskContext* tc)
+    {
+	IorMap::const_iterator it = iors.find(tc);
+	if (it != iors.end())
+	    return it->second;
+
+	return std::string("");
     }
 
 }}
