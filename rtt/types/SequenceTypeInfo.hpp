@@ -44,6 +44,7 @@
 #include "../internal/DataSourceGenerator.hpp"
 #include "SequenceConstructor.hpp"
 #include "TemplateConstructor.hpp"
+#include "PropertyComposition.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT
