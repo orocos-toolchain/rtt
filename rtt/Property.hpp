@@ -419,15 +419,6 @@ namespace RTT
         Property<T>* res = dynamic_cast<Property<T>*>( prop );
         return res;
     }
-
-#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
-    extern template class Property<double>;
-    extern template class Property<bool>;
-    extern template class Property<float>;
-    extern template class Property<int>;
-    extern template class Property<unsigned int>;
-    extern template class Property<std::string>;
-#endif
 }
 
 #include "base/PropertyIntrospection.hpp"
