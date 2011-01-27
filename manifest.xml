@@ -15,5 +15,6 @@
 			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
 			<cpp cflags="-I${prefix}/install/include -DOROCOS_TARGET=gnulinux" lflags="-L${prefix}/install/lib -lorocos-rtt-gnulinux -lpthread -lrt"/>
 		</export>
+    <tags>stable</tags>
 </package>
 
