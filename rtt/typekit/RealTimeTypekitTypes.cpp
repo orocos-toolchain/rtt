@@ -45,7 +45,10 @@
 #endif
 #include "BoolTypeInfo.hpp"
 #include "../types/TypeInfoName.hpp"
-#include "../typekit/Types.hpp"
+
+// This include must be as soon as possible in order to avoid a gcc
+// compiler warning about visibility.
+#include "Types.inc"
 
 namespace RTT
 {
@@ -61,7 +64,6 @@ namespace RTT
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 
         // The standard C types + std::string are defined here,
-
         ti->addType( new StdTypeInfo<int>("int") );
         ti->addType( new StdTypeInfo<unsigned int>("uint") );
         ti->addType( new StdTypeInfo<double>("double") );
@@ -83,4 +85,3 @@ namespace RTT
     }
 }
 
-#include "Types.inc"
