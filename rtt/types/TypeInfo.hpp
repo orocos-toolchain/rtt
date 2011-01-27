@@ -168,6 +168,12 @@ namespace RTT
          * Usability function which converts a string to data.
          */
         virtual bool fromString( const std::string& value, base::DataSourceBase::shared_ptr out ) const;
+
+        /**
+         * Returns true if this type is directly streamable
+         * using read()/write() or toString()/fromString().
+         */
+        virtual bool isStreamable() const = 0;
         /** @} */
 
         /**
@@ -241,6 +247,8 @@ namespace RTT
          * here for transitional purposes.
          */
         virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
+
+        virtual
         /**
          * @}
          */

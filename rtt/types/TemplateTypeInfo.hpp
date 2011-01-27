@@ -243,6 +243,10 @@ namespace RTT
             return os;
         }
 
+        virtual bool isStreamable() const {
+            return use_ostream;
+        }
+
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
             // First, try a plain update.
             if ( result->update( source.get() ) )
