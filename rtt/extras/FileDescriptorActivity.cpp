@@ -80,7 +80,6 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     : Activity(priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
-    , runner(_r)
 {
     FD_ZERO(&m_fd_set);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -99,7 +98,6 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     : Activity(scheduler, priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
-    , runner(_r)
 {
     FD_ZERO(&m_fd_set);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
