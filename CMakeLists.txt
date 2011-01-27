@@ -165,4 +165,4 @@ INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
                                       NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
 
 # Package use file + helper files
-INSTALL(FILES UseOROCOS-RTT.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")
+INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")
