@@ -105,6 +105,8 @@ namespace RTT { namespace internal {
          */
         virtual void clear()
         {
+	    if(last_sample_p)
+		buffer->Release(last_sample_p);
 	    last_sample_p = 0;
             buffer->clear();
             base::ChannelElement<T>::clear();
