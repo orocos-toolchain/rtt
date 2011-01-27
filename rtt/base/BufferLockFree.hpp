@@ -134,10 +134,12 @@ namespace RTT
                 return false;
             // copy over.
             *mitem = item;
-            if (bufs.enqueue( mitem ) == false ) { // can this ever happen ?
-                //mpool.deallocate( mitem );
-                //return false;
-                assert(false && "Race detected in Push()");
+            if (bufs.enqueue( mitem ) == false ) {
+		//got memory, but buffer is full
+		//this can happen, as the memory pool is
+		//bigger than the buffer
+                mpool.deallocate( mitem );
+                return false;
             }
             return true;
         }
