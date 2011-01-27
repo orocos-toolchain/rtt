@@ -62,7 +62,7 @@ namespace RTT
      * of an assignment of a DataSource with a base::DataSourceBase
      * differ.
      */
-    struct RTT_EXPORT bad_assignment : public std::exception
+    struct RTT_API bad_assignment : public std::exception
     {
         virtual ~bad_assignment() throw();
         virtual const char* what() const throw();
