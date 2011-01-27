@@ -22,6 +22,7 @@
 #include <marsh/PropertyDemarshaller.hpp>
 #include <Property.hpp>
 #include <PropertyBag.hpp>
+#include <types/PropertyComposition.hpp>
 
 #include "unit.hpp"
 
@@ -116,7 +117,9 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     BOOST_CHECK_EQUAL( bag.rvalue().size(), 7 );
 
     // update bag -> array.
-    BOOST_CHECK( updateProperties( source, target) );
+    PropertyBag composed;
+    BOOST_CHECK( composePropertyBag(target, composed));
+    BOOST_CHECK( updateProperties( source, composed) );
 
     //p1 = source.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
@@ -149,9 +152,9 @@ BOOST_AUTO_TEST_CASE( testPropMarshVectLegacy )
     BOOST_CHECK_EQUAL( bag.value().size() , 7 );
 
     // update bag -> array.
-    cout <<"target: "<< target <<endl;
-    cout <<"source: "<< source <<endl;
-    BOOST_CHECK( refreshProperties( target, source) );
+    PropertyBag composed;
+    BOOST_CHECK( composePropertyBag(source, composed));
+    BOOST_CHECK( refreshProperties( target, composed) );
 
     //p1 = target.getProperty("p1");
     BOOST_REQUIRE( p1->ready() );
