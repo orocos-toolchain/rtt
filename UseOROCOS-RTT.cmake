@@ -35,6 +35,12 @@ if(OROCOS-RTT_FOUND)
   # Infer package name from directory name.                                                                                                                                                                                                  
   get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
   message("[UseOrocos] Building package ${orocos_package}")
+
+  # By default, install libs in /target/ subdir in order to allow
+  # multi-target installs.
+  if ( NOT OROCOS_SUFFIX )
+    set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
+  endif()
   
   if (ROS_ROOT)
     # In ros builds, we need to set the pkg-config path such that RTT is found by
