@@ -43,7 +43,7 @@
 #include <map>
 #include <vector>
 #include "rtt-fwd.hpp"
-#include "rtt-config.hpp"
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -122,8 +122,8 @@ namespace RTT
  */
 #define ORO_CREATE_COMPONENT(CNAME) \
 extern "C" { \
-  RTT_EXPORT TaskContext* createComponent(std::string instance_name); \
-  TaskContext* createComponent(std::string instance_name) \
+  RTT_EXPORT RTT::TaskContext* createComponent(std::string instance_name); \
+  RTT::TaskContext* createComponent(std::string instance_name) \
   { \
     return new CNAME(instance_name); \
   } \
@@ -143,7 +143,7 @@ extern "C" { \
 #define ORO_CREATE_COMPONENT_TYPE() \
 RTT::FactoryMap* RTT::ComponentFactories::Factories = 0;	\
 extern "C" { \
-  RTT_EXPORT TaskContext* createComponentType(std::string instance_name, std::string type_name) \
+  RTT_EXPORT RTT::TaskContext* createComponentType(std::string instance_name, std::string type_name) \
   { \
     if( RTT::ComponentFactories::Instance().count(type_name) ) \
       return RTT::ComponentFactories::Instance()[type_name](instance_name); \
