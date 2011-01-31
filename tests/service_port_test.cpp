@@ -91,6 +91,7 @@ BOOST_AUTO_TEST_CASE(testUsePort)
     BOOST_CHECK( read.ready() );
     FlowStatus fs = read( result  );
     BOOST_CHECK_EQUAL( result, 3);
+    BOOST_CHECK_EQUAL( fs, NewData );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
