@@ -195,9 +195,6 @@ namespace RTT
         oreg->add( newBinaryOperator( "<=", std::less_equal<std::string>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<std::string>() ) );
         oreg->add( newBinaryOperator( "[]", string_index() ) );
-        oreg->add( newDotOperator( "size", get_size<const std::string&>() ) );
-        oreg->add( newDotOperator( "length", get_size<const std::string&>() ) );
-        oreg->add( newDotOperator( "capacity", get_capacity<const std::string&>() ) );
 
 #ifndef ORO_EMBEDDED
         // chars
@@ -223,8 +220,6 @@ namespace RTT
         oreg->add( newBinaryOperator( "*", multiplies3<const std::vector<double>&, const std::vector<double>&, double>() ) );
         oreg->add( newBinaryOperator( "/", divides3<const std::vector<double>&, const std::vector<double>&, double>() ) );
 #endif
-        oreg->add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
-        oreg->add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
 #endif
 
         // FlowStatus
