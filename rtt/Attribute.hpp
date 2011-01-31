@@ -142,7 +142,8 @@ namespace RTT
          * If successful, this attribute will always have the same
          * value as \a ab and vice versa.
          *
-         * @param ab The Attribute to mirror.
+         * @param ab The Attribute to mirror.  If null, this will clear
+         * this attribute and clear its name.
          * @see ready() to check if \a ab was accepted.
          */
         Attribute( base::AttributeBase* ab)
@@ -155,6 +156,8 @@ namespace RTT
          * Initialise an Attribute which \a mirrors an base::AttributeBase \a ab.
          * If successful, this attribute will always have the same
          * value as \a ab and vice versa.
+         * @param ab The attribute to mirror. If null, this will clear
+         * this attribute and clear its name.
          * @see ready() to check if ab was accepted.
          */
         Attribute<T>& operator=(base::AttributeBase* ab)
@@ -164,6 +167,7 @@ namespace RTT
 
             if (!ab) {
                 data = 0;
+                mname.clear();
                 return *this;
             }
             typename internal::AssignableDataSource<T>::shared_ptr a
@@ -171,6 +175,8 @@ namespace RTT
             if (a) {
                 data = a;
                 mname = ab->getName();
+            } else {
+                data = 0;
             }
             return *this;
         }
@@ -280,33 +286,41 @@ namespace RTT
          * Create a constant which mirrors an Attribute.
          * If successful, this constant will always have the same
          * value as \a ab.
+         * @param ab The attribute to mirror. If null, this will clear
+         * this attribute and clear its name.
          * @see ready() to check if ab was accepted.
          */
         Constant( base::AttributeBase* ab )
-            : base::AttributeBase( ab ? ab->getName() : "")
+            : base::AttributeBase( ab ? ab->getName() : ""),
+              data( ab ? internal::DataSource<T>::narrow( ab->getDataSource().get() ) : 0 )
         {
-            if ( !ab )
-                return;
-            data = ab->getDataSource();
         }
 
         /**
          * Initialise an Attribute which mirrors an AttributeBase.
          * If successful, this constant will always have the same
          * value as \a ab.
-         * In case \a ab is non constant, it is not accepted.
+         * @param ab The attribute to mirror. If null, this will clear
+         * this attribute and clear its name.
          * @see ready() to check if ab was accepted.
          */
         Constant<T>& operator=(base::AttributeBase* ab)
         {
-            if (!ab) {
-                data = 0;
-                return *this;
-            }
             if ( ab == this)
                 return *this;
-            mname = ab->getName();
-            data = ab->getDataSource();
+            if (!ab) {
+                data = 0;
+                mname.clear();
+                return *this;
+            }
+            typename internal::DataSource<T>::shared_ptr a
+                = boost::dynamic_pointer_cast<internal::DataSource<T> >( ab->getDataSource() );
+            if (a) {
+                data = a;
+                mname = ab->getName();
+            } else {
+                data = 0;
+            }
         }
 
         /**
@@ -343,12 +357,12 @@ namespace RTT
      * temporary expressions like literal values, and rhs
      * expressions.
      */
-    class Alias
+    class RTT_API Alias
         : public base::AttributeBase
     {
         base::DataSourceBase::shared_ptr data;
     public:
-        RTT_API Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
+        Alias(const std::string& name, base::DataSourceBase::shared_ptr d );
 
         /**
          * Create an alias from a datasource with an owner.

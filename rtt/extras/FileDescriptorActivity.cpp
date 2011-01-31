@@ -80,7 +80,6 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
     : Activity(priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
-    , runner(_r)
 {
     FD_ZERO(&m_fd_set);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -99,7 +98,6 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
     : Activity(scheduler, priority, 0.0, _r, name)
     , m_running(false)
     , m_timeout(0)
-    , runner(_r)
 {
     FD_ZERO(&m_fd_set);
     m_interrupt_pipe[0] = m_interrupt_pipe[1] = -1;
@@ -142,7 +140,7 @@ void FileDescriptorActivity::clearAllWatches()
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    int w = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
