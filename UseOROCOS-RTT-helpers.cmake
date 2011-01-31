@@ -42,7 +42,7 @@ function( orocos_use_package PACKAGE )
     return()
   endif (PACKAGE STREQUAL "rtt")
   if (ROS_ROOT)
-    if (NOT ${PACKAGE}_PACKAGE_PATH)
+    if (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
       # use rospack to find package directories of *all* dependencies.
       # We need these because a .pc file may depend on another .pc file in another package.
       # This package + the packages this package depends on:
@@ -50,14 +50,15 @@ function( orocos_use_package PACKAGE )
       string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
       foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
         # Skip previously found packages
-        if (NOT ${ROSDEP}_PACKAGE_PATH)
+        if (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
           rosbuild_find_ros_package( ${ROSDEP} )
-            set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}:${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}" )
-          endif (NOT ${ROSDEP}_PACKAGE_PATH)
-	endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+          set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}:${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}" )
+	  set( USE_FOUND_${ROSDEP}_PACKAGE_PATH 1 ) # mark we don't need to find it again.
+        endif (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
+      endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
 
-	#message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
-      endif (NOT ${PACKAGE}_PACKAGE_PATH)
+      #message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
+      endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
   else(ROS_ROOT)
     #Use default pkg-config path
     #message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH.")
