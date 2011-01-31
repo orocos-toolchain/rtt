@@ -280,7 +280,7 @@ namespace RTT {
 
     bool TaskCore::breakUpdateHook()
     {
-        return false;
+        return true;
     }
 
     void TaskCore::exceptionHook() {

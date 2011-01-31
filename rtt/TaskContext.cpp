@@ -390,8 +390,11 @@ namespace RTT
     {
         if ( !this->isRunning() )
             return false;
-        ports()->cleanupHandles();
-        return TaskCore::stop(); // calls stopHook()
+        if (TaskCore::stop()) { // calls stopHook()
+            ports()->cleanupHandles();
+            return true;
+        }
+        return false;
     }
 
     void TaskContext::dataOnPort(PortInterface* port)
