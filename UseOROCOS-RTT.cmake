@@ -23,6 +23,8 @@ if(OROCOS-RTT_FOUND)
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX)
     SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
+  else (CMAKE_COMPILER_IS_GNUCXX)
+    SET(USE_OROCOS_LINK_FLAGS " ")
   endif (CMAKE_COMPILER_IS_GNUCXX)
 
   # Detect user flag: install with orocos
