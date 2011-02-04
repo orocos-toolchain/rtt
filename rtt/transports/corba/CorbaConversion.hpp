@@ -353,7 +353,7 @@ namespace RTT {
       static bool toCorbaType(CorbaType& cb, const StdType& tp) {
         bool res = true;
         cb.length(tp.size());
-        StdType::const_iterator it = tp.begin();
+        typename StdType::const_iterator it = tp.begin();
 
         for(size_t i = 0; i != tp.size(); i++) {
           res = res &&AnyConversion<std::pair<T1, T2> >::toCorbaType(cb[(CORBA::ULong)(i)], *it);
@@ -379,9 +379,9 @@ namespace RTT {
       }
 
       static StdType get(const CorbaType* cb) {
-        StdType cb;
-        toStdType(cb, *tp);
-        return cb;
+        StdType sb;
+        toStdType(sb, *cb);
+        return sb;
       }
 
       static bool update(const CORBA::Any& any, StdType& _value) {
