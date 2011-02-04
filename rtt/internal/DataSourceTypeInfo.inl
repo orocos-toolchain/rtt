@@ -35,6 +35,20 @@ namespace RTT
         template< class T>
         types::TypeInfo* DataSourceTypeInfo<T>::TypeInfoObject = 0;
 
+		template< class T>
+		const types::TypeInfo* DataSourceTypeInfo<T*>::getTypeInfo() {
+			// return DataSourceTypeInfo< T >::getTypeInfo(); 
+            if (!TypeInfoObject) {
+                TypeInfoObject = types::TypeInfoRepository::Instance()->getTypeInfo<T*>();
+                if (!TypeInfoObject)
+                    return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            }
+            return TypeInfoObject;
+		}
+
+        template< class T>
+        types::TypeInfo* DataSourceTypeInfo<T*>::TypeInfoObject = 0;
+
     }
 
 }

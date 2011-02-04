@@ -96,10 +96,10 @@ namespace RTT
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
     peerpath = peerparser.locator();
-    object= (commonparser.identifier >> ".")[bind(&DataCallParser::seenobjectname, this, _1, _2)];
-    method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
+    object= (commonparser.identifier >> ".")[boost::bind(&DataCallParser::seenobjectname, this, _1, _2)];
+    method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[boost::bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
     datacall =
-        ( peerpath >> !object >> method[ bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ bind( &DataCallParser::seendatacall, this ) ];
+        ( peerpath >> !object >> method[ boost::bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ boost::bind( &DataCallParser::seendatacall, this ) ];
   };
 
   void DataCallParser::seensend() {
@@ -201,7 +201,7 @@ namespace RTT
     if ( (obj == "this" && TypeInfoRepository::Instance()->type( meth )) ||
           (TypeInfoRepository::Instance()->type( obj + "." + meth) ) ) {
         if (obj == "this")
-            ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
+        ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
         else
             ret = TypeInfoRepository::Instance()->type( obj +"."+ meth )->construct( args );
         if (!ret) {
@@ -340,59 +340,59 @@ namespace RTT
             >> andexp[ bind( &ExpressionParser::seen_assign, this)] );
     andexp =
       orexp >> *( ( str_p( "&&" ) ) >> orexp[
-                    bind( &ExpressionParser::seen_binary, this, "&&" ) ] );
+                    boost::bind( &ExpressionParser::seen_binary, this, "&&" ) ] );
     orexp =
       notequalexp >> *( ( str_p( "||" ) ) >> notequalexp[
-                        bind( &ExpressionParser::seen_binary, this, "||" ) ] );
+                        boost::bind( &ExpressionParser::seen_binary, this, "||" ) ] );
     notequalexp =
       equalexp >> *( "!=" >> equalexp[
-                       bind( &ExpressionParser::seen_binary, this, "!=" ) ] );
+                       boost::bind( &ExpressionParser::seen_binary, this, "!=" ) ] );
     equalexp =
          greatereqexp
       >> *( "==" >> greatereqexp[
-              bind( &ExpressionParser::seen_binary, this, "==" ) ] );
+              boost::bind( &ExpressionParser::seen_binary, this, "==" ) ] );
     greatereqexp =
          greaterexp
       >> *( ">=" >> greaterexp[
-              bind( &ExpressionParser::seen_binary, this, ">=" ) ] );
+              boost::bind( &ExpressionParser::seen_binary, this, ">=" ) ] );
     greaterexp =
          smallereqexp
       >> *( '>' >> smallereqexp[
-              bind( &ExpressionParser::seen_binary, this, ">" ) ] );
+              boost::bind( &ExpressionParser::seen_binary, this, ">" ) ] );
     smallereqexp =
          smallerexp
       >> *( "<=" >> smallerexp[
-              bind( &ExpressionParser::seen_binary, this, "<=" ) ] );
+              boost::bind( &ExpressionParser::seen_binary, this, "<=" ) ] );
     smallerexp =
       plus_or_min >> *( '<' >> plus_or_min[
-                       bind( &ExpressionParser::seen_binary, this, "<" ) ] );
+                       boost::bind( &ExpressionParser::seen_binary, this, "<" ) ] );
 
     plus_or_min =
               modexp >> *( ('-' >> modexp[
-                    bind( &ExpressionParser::seen_binary, this, "-" ) ] )
+                    boost::bind( &ExpressionParser::seen_binary, this, "-" ) ] )
                | ('+' >> modexp[
-                    bind( &ExpressionParser::seen_binary, this, "+" ) ] ) );
+                    boost::bind( &ExpressionParser::seen_binary, this, "+" ) ] ) );
 
     modexp =
       div_or_mul >> *( '%' >> div_or_mul[
-                     bind( &ExpressionParser::seen_binary, this, "%" ) ] );
+                     boost::bind( &ExpressionParser::seen_binary, this, "%" ) ] );
     div_or_mul =
       unaryplusexp >> *( ('/' >> unaryplusexp[
-            bind( &ExpressionParser::seen_binary, this, "/" ) ] )
+            boost::bind( &ExpressionParser::seen_binary, this, "/" ) ] )
        | ('*' >> unaryplusexp[
-            bind( &ExpressionParser::seen_binary, this, "*" ) ] ) );
+            boost::bind( &ExpressionParser::seen_binary, this, "*" ) ] ) );
 
     unaryplusexp =
         '+' >> unaryminusexp[
-          bind( &ExpressionParser::seen_unary, this, "+" ) ]
+          boost::bind( &ExpressionParser::seen_unary, this, "+" ) ]
       | unaryminusexp;
     unaryminusexp =
         '-' >> unarynotexp[
-          bind( &ExpressionParser::seen_unary, this, "-" ) ]
+          boost::bind( &ExpressionParser::seen_unary, this, "-" ) ]
       | unarynotexp;
     unarynotexp =
         ch_p('!') >> atomicexpression[
-            bind( &ExpressionParser::seen_unary, this, "!" ) ]
+            boost::bind( &ExpressionParser::seen_unary, this, "!" ) ]
         | atomicexpression;
 
     // note the order is important: commonparser.identifier throws a
@@ -410,7 +410,7 @@ namespace RTT
         ) >> *( dotexp | indexexp);
 
     // if it's value.keyword then pass it on to the call_expression.
-    value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
+    value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[boost::bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
                                                         [ bind( &ExpressionParser::seenvalue, this ) ];
     call_expression  = my_guard( datacallparser.parser() )[&handle_no_datacall]
                                 [bind( &ExpressionParser::seendatacall, this ) ];
@@ -419,7 +419,7 @@ namespace RTT
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_index, this)] >> expect_close( ch_p( ']') ) );
 
     dotexp =
-        ( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
+        ( ch_p('.') >> commonparser.identifier[ boost::bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..
@@ -431,7 +431,7 @@ namespace RTT
         (str_p("time")>>eps_p(~commonparser.identchar | eol_p | end_p ))[bind(&ExpressionParser::seentimeexpr, this)]
         |
         ( (eps_p[boost::lambda::var(commonparser.skipeol) = false] >> uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
-           >> (str_p( "s" ) | "ms" | "us" | "ns" )[boost::lambda::var(commonparser.skipeol) = true][bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ])
+           >> (str_p( "s" ) | "ms" | "us" | "ns" )[boost::lambda::var(commonparser.skipeol) = true][boost::bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ])
           | (eps_p[boost::lambda::var(commonparser.skipeol) = true] >> nothing_p) // eps_p succeeds always, then fail.
           )
           ; // enable skipeol.
