@@ -66,8 +66,8 @@ namespace RTT {
 
             RTT_CORBA_API static os::Mutex* mlock;
 
-            static int defaultScheduler;
-            static int defaultPriority;
+            RTT_CORBA_API static int defaultScheduler;
+            RTT_CORBA_API static int defaultPriority;
 
             CorbaDispatcher( const std::string& name)
             : Activity(defaultScheduler, defaultPriority, 0.0, 0, name),
