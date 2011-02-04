@@ -328,6 +328,7 @@ namespace RTT
             } else {
                 data = 0;
             }
+            return *this;
         }
 
         /**
