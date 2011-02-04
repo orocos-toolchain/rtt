@@ -108,7 +108,7 @@ namespace RTT {
          * If the ConnPolicy says so, this interface can also build
          * connections using other transports.
          */
-        class CDataFlowInterface_i
+        class RTT_CORBA_API CDataFlowInterface_i
             : public virtual POA_RTT::corba::CDataFlowInterface
         {
             DataFlowInterface* mdf;

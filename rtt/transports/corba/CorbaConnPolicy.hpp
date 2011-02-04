@@ -46,7 +46,7 @@
  * @param policy RTT policy
  * @return Corba policy
  */
-RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy);
+RTT_CORBA_API RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy);
 
 /**
  * Converts a Corba CConnPolicy object to a RTT ConPolicy object.
@@ -54,5 +54,5 @@ RTT::corba::CConnPolicy toCORBA(RTT::ConnPolicy const& policy);
  * @param policy Corba policy
  * @return RTT policy
  */
-RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy);
+RTT_CORBA_API RTT::ConnPolicy toRTT(RTT::corba::CConnPolicy const& corba_policy);
 

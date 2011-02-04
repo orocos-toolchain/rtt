@@ -51,22 +51,22 @@ namespace RTT
 { namespace corba {
 
     template<>
-    struct RTT_CORBA_API AnyConversion<double> : public AnyConversionHelper<double> {};
+    struct AnyConversion<double> : public AnyConversionHelper<double> {};
 
     template<>
-    struct RTT_CORBA_API AnyConversion<float> : public AnyConversionHelper<float> {};
+    struct AnyConversion<float> : public AnyConversionHelper<float> {};
 
     template<>
-    struct RTT_CORBA_API AnyConversion<int> : public AnyConversionHelper<int, CORBA::Long> {};
+    struct AnyConversion<int> : public AnyConversionHelper<int, CORBA::Long> {};
 
     //template<>
-    //struct RTT_CORBA_API AnyConversion<long> : public AnyConversionHelper<long> {};
+    //struct AnyConversion<long> : public AnyConversionHelper<long> {};
 
     template<>
-    struct RTT_CORBA_API AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int, CORBA::ULong> {};
+    struct AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int, CORBA::ULong> {};
 
     template<>
-    struct RTT_CORBA_API AnyConversion<CORBA::Any_ptr>
+    struct AnyConversion<CORBA::Any_ptr>
     {
         typedef CORBA::Any_ptr CorbaType;
         typedef CORBA::Any_ptr StdType;
@@ -90,7 +90,7 @@ namespace RTT
     };
 
     template<>
-    struct RTT_CORBA_API AnyConversion<CORBA::Any_var>
+    struct AnyConversion<CORBA::Any_var>
     {
         typedef CORBA::Any_ptr CorbaType;
         typedef CORBA::Any_var StdType;
@@ -114,7 +114,7 @@ namespace RTT
     };
 
     template<>
-    struct RTT_CORBA_API AnyConversion<bool>
+    struct AnyConversion<bool>
     {
         typedef CORBA::Boolean CorbaType;
         typedef bool StdType;
@@ -151,7 +151,7 @@ namespace RTT
     };
 
     template<>
-    struct RTT_CORBA_API AnyConversion<char>
+    struct AnyConversion<char>
     {
         typedef CORBA::Char CorbaType;
         typedef char StdType;
@@ -187,7 +187,7 @@ namespace RTT
     };
 
     template<>
-    struct RTT_CORBA_API AnyConversion<std::string>
+    struct AnyConversion<std::string>
     {
         typedef const char* CorbaType;
         typedef std::string StdType;
@@ -227,7 +227,7 @@ namespace RTT
      * for converting between RTT::ConnPolicy and RTT::corba::CConPolicy.
      */
     template<>
-    struct RTT_CORBA_API AnyConversion<ConnPolicy>
+    struct AnyConversion<ConnPolicy>
     {
         typedef RTT::corba::CConnPolicy CorbaType;
         typedef RTT::ConnPolicy StdType;
@@ -263,7 +263,7 @@ namespace RTT
     };
 
     template<>
-    struct RTT_CORBA_API AnyConversion<RTT::TaskContext*>
+    struct AnyConversion<RTT::TaskContext*>
     {
         typedef RTT::corba::CTaskContext_ptr CorbaType;
         typedef RTT::TaskContext* StdType;
@@ -298,7 +298,7 @@ namespace RTT
 
 
     template<>
-    struct RTT_CORBA_API AnyConversion< std::vector<double> >
+    struct AnyConversion< std::vector<double> >
     {
         typedef corba::CDoubleSequence CorbaType;
         typedef std::vector<double> StdType;

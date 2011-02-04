@@ -49,7 +49,7 @@ namespace RTT { namespace scripting
    * a keyword is wrongly used as an identifier. In current implementation
    * it almost never throws.
    */
-  class RTT_API CommonParser
+  class RTT_SCRIPTING_API CommonParser
   {
       std::string lastparsedident;
   public:
