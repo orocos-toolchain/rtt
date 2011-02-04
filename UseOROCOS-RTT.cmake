@@ -465,7 +465,7 @@ endmacro( orocos_install_headers )
 #
 # Usage example: orocos_uninstall_target()
 macro( orocos_uninstall_target )
-  if (NOT OROCOS_UNINSTALL_DONE)
+  if (NOT OROCOS_UNINSTALL_DONE AND NOT TARGET uninstall)
     CONFIGURE_FILE(
       "${OROCOS-RTT_USE_FILE_PATH}/cmake_uninstall.cmake.in"
       "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -473,7 +473,7 @@ macro( orocos_uninstall_target )
 
     ADD_CUSTOM_TARGET(uninstall
       "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-  endif (NOT OROCOS_UNINSTALL_DONE)
+  endif (NOT OROCOS_UNINSTALL_DONE AND NOT TARGET uninstall)
   set(OROCOS_UNINSTALL_DONE)
 endmacro( orocos_uninstall_target )
 
