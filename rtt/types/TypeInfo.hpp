@@ -248,7 +248,6 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
 
-        virtual
         /**
          * @}
          */
