@@ -245,8 +245,8 @@ namespace RTT {
       /**
       * Use for the conversion from a stl container to a sequence<string>
       */
-      template<bool dummy>
-      static bool toCorbaType(TAO::details::string_sequence_element<TAO::details::string_traits<char, dummy> >& dest, const StdType& src) {
+      template<class dummy>
+      static bool toCorbaType(dummy& dest, const StdType& src) {
         dest = src.c_str();
         return true;
       }
