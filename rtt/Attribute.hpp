@@ -246,6 +246,13 @@ namespace RTT
         typename internal::DataSource<T>::shared_ptr data;
 
         /**
+         * Create a Constant with no name and \b no value.
+         */
+        Constant()
+        {
+        }
+
+        /**
          * Create a constant with a fixed value \a t.
          * @param name The name of this instance.
          * @param t The value for initialisation.
