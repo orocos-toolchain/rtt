@@ -54,17 +54,7 @@ namespace RTT
     using namespace std;
     using namespace detail;
 
-    struct string_index
-        : public std::binary_function<const std::string&, int, char>
-    {
-        char operator()(const std::string& s, int index) const
-        {
-            if ( index >= (int)(s.length()) || index < 0)
-                return 0;
-            return s[index];
-        }
-    };
-
+#ifndef RTT_NO_STD_TYPES
     template<class T>
     struct get_capacity
         : public std::unary_function<T, int>
@@ -85,20 +75,6 @@ namespace RTT
         }
     };
 
-
-#ifndef ORO_EMBEDDED
-    struct array_index
-        : public std::binary_function<const std::vector<double>&, int, double>
-    {
-        double operator()(const std::vector<double>& v, int index) const
-        {
-            if ( index >= (int)(v.size()) || index < 0)
-                return 0;
-            return v[index];
-        }
-    };
-#endif
-
     /** @cond */
     /** Strings concatenation
      */
@@ -111,6 +87,7 @@ namespace RTT
         }
     };
     /** @endcond */
+#endif
 
     bool RealTimeTypekitPlugin::loadOperators()
     {
@@ -180,6 +157,7 @@ namespace RTT
         oreg->add( newBinaryOperator( "==", std::equal_to<float>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<float>() ) );
 #endif
+#ifndef RTT_NO_STD_TYPES
         // strings
         // causes memory allocation....
         oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
@@ -195,7 +173,7 @@ namespace RTT
         oreg->add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
         oreg->add( newBinaryOperator( "<=", std::less_equal<std::string>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<std::string>() ) );
-        oreg->add( newBinaryOperator( "[]", string_index() ) );
+#endif
 
 #ifndef ORO_EMBEDDED
         // chars
@@ -205,12 +183,6 @@ namespace RTT
         oreg->add( newBinaryOperator( ">", std::greater<char>() ) );
         oreg->add( newBinaryOperator( "<=", std::less_equal<char>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<char>() ) );
-
-        // array :
-        oreg->add( newBinaryOperator( "[]", array_index() ) );
-        oreg->add( newBinaryOperator( "==", std::equal_to<const std::vector<double>&>() ) );
-        oreg->add( newBinaryOperator( "!=", std::not_equal_to<const std::vector<double>&>() ) );
-
 #if 0
         // causes memory allocation....
         oreg->add( newUnaryOperator( "-", std::negate<const std::vector<double>&>() ) );

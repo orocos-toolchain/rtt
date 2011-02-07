@@ -155,8 +155,6 @@ namespace RTT {
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<int>() );
             if ( name == "double" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<double>() );
-            if ( name == "string" )
-                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
             if ( name == "float" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<float>() );
             if ( name == "uint" )
@@ -167,8 +165,12 @@ namespace RTT {
 //                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<PropertyBag>() );
             if ( name == "bool" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<bool>() );
+#ifndef RTT_NO_STD_TYPES
+            if ( name == "string" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
             if ( name == "array" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
+#endif
             if ( name == "void" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
             if ( name == "ConnPolicy")
