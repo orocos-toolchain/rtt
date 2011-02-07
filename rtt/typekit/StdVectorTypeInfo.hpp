@@ -37,17 +37,14 @@
 
 
 #include <vector>
+#include "../types/TypeStream.hpp"
 #include "../types/SequenceTypeInfo.hpp"
 #include "../types/VectorComposition.hpp"
-#include "../types/TypeStream.hpp"
 
 namespace RTT
 {
     namespace types
     {
-        using namespace std;
-        using namespace detail;
-
         /**
          * This class tells Orocos how to handle std::vector<double>.
          */

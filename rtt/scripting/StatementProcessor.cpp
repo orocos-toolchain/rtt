@@ -55,7 +55,7 @@ using namespace boost;
 namespace RTT
 {
     using namespace detail;
-    class StatementProcessor::D
+    struct StatementProcessor::D
     {
 	public:
         TaskContext* tc;
@@ -107,6 +107,7 @@ namespace RTT
                 Logger::log() <<'"'<< dss->get() << '"' ;
                 return;
             }
+#if 0
             DataSource<std::vector<double> >* dsvval = DataSource< std::vector<double> >::narrow(ds);
             if (dsvval) {
                 Logger::log()  << dsvval->get() ;
@@ -117,6 +118,7 @@ namespace RTT
                 Logger::log()  << ds6d->get() ;
                 return;
             }
+#endif
             DataSource<double>* dsd = DataSource<double>::narrow(ds);
             if (dsd) {
                 Logger::log() << dsd->get() ;

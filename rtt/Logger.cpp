@@ -97,7 +97,7 @@ namespace RTT
     /**
      * This hidden struct stores all data structures required for logging.
      */
-    class Logger::D
+    struct Logger::D
     {
     public:
         D(std::ostream& str, char const* logfile_name) :

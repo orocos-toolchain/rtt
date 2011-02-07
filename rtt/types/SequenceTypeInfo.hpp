@@ -133,6 +133,7 @@ namespace RTT
                 this->addConstructor( newConstructor( sequence_ctor2<T>() ) );
             }
 
+            using TemplateTypeInfo<T, has_ostream>::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const
             {
                 // if a sizehint is given

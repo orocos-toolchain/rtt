@@ -150,10 +150,10 @@ namespace RTT
 
         virtual bool isStreamable() const { return false; }
 
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
+        virtual base::DataSourceBase::shared_ptr decomposeType( base::DataSourceBase::shared_ptr source ) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not decompose "<<tname<<"."<<Logger::endl;
-            return false;
+            Logger::log() << Logger::Debug << "Can not decompose "<<tname<<"."<<Logger::endl;
+            return source;
         }
 
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {

@@ -36,12 +36,13 @@
  ***************************************************************************/
 
 
-#ifndef TYPESTREAM_HPP
-#define TYPESTREAM_HPP
+#ifndef ORO_TYPESTREAM_HPP
+#define ORO_TYPESTREAM_HPP
 
 #include <vector>
-#include "../extras/MultiVector.hpp"
 #include <ostream>
+#include <istream>
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace types {

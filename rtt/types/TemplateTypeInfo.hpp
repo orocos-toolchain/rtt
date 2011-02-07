@@ -63,7 +63,7 @@ namespace RTT
         template<typename T>
         struct TypeStreamSelector<T,true>
         {
-            static std::ostream& write(std::ostream& os, T t)
+            static std::ostream& write(std::ostream& os, T const& t)
             {
 #ifdef OS_HAVE_STREAMS
                 os << t;
@@ -247,7 +247,7 @@ namespace RTT
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
             if ( d && use_ostream )
-                detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
+                types::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
 #ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
@@ -261,7 +261,7 @@ namespace RTT
         virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
             typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( out );
             if ( d && use_ostream ) {
-                detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
+                types::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
             }
             return os;

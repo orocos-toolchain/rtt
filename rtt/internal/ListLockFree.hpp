@@ -58,12 +58,13 @@ namespace RTT
             IntrusiveStorage();
             virtual ~IntrusiveStorage();
         };
+
+        void RTT_API intrusive_ptr_add_ref(RTT::internal::IntrusiveStorage* p );
+        void RTT_API intrusive_ptr_release(RTT::internal::IntrusiveStorage* p );
+
     }
 }
 
-
-void RTT_API intrusive_ptr_add_ref(RTT::internal::IntrusiveStorage* p );
-void RTT_API intrusive_ptr_release(RTT::internal::IntrusiveStorage* p );
 
 namespace RTT
 { namespace internal {

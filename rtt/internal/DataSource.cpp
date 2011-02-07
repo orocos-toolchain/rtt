@@ -47,6 +47,17 @@ namespace RTT {
         {
             return mobj->getTypeInfo()->write( os, mobj );
         }
+
+        void intrusive_ptr_add_ref(const RTT::base::DataSourceBase* p )
+        {
+            p->ref();
+        }
+
+        void intrusive_ptr_release(const RTT::base::DataSourceBase* p )
+        {
+            p->deref();
+        };
+
     }
 
     using namespace detail;
@@ -165,14 +176,4 @@ namespace RTT {
         }
     }
 }
-
-void intrusive_ptr_add_ref(const RTT::base::DataSourceBase* p )
-{
-  p->ref();
-}
-
-void intrusive_ptr_release(const RTT::base::DataSourceBase* p )
-{
-  p->deref();
-};
 

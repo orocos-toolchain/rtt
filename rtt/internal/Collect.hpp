@@ -61,6 +61,7 @@ namespace RTT
             : public CollectImpl< boost::function_traits< typename CollectType<F>::Ft >::arity, typename CollectType<F>::Ft, BaseImpl >
         {
             typedef typename boost::function_traits< F >::result_type result_type;
+            using CollectImpl< boost::function_traits< typename CollectType<F>::Ft >::arity, typename CollectType<F>::Ft, BaseImpl >::collectIfDone;
 
                 SendStatus collect()
                 {

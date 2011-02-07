@@ -257,8 +257,8 @@ namespace RTT
      */
     RTT_API std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
 
-    void RTT_API intrusive_ptr_add_ref( RTT::base::DataSourceBase* p );
-    void RTT_API intrusive_ptr_release( RTT::base::DataSourceBase* p );
+    RTT_API void intrusive_ptr_add_ref( const RTT::base::DataSourceBase* p );
+    RTT_API void intrusive_ptr_release( const RTT::base::DataSourceBase* p );
 
 }}
 
