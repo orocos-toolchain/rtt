@@ -132,7 +132,7 @@ namespace RTT
             isqueued = false;
         }
 
-        virtual bool valid() {
+        virtual bool valid() const {
             return maccept;
         }
 
