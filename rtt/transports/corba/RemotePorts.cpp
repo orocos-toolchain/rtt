@@ -79,10 +79,11 @@ void RemotePort<BaseClass>::disconnect()
     dataflow->disconnectPort(this->getName().c_str());
 }
 template<typename BaseClass>
-void RemotePort<BaseClass>::disconnect(PortInterface& port)
+bool RemotePort<BaseClass>::disconnect(PortInterface* port)
 {
     Logger::In in("RemotePort::disconnect(PortInterface& port)");
     log(Error) << "Disconnecting a single port not yet supported." <<endlog();
+    return false;
 }
 template<typename BaseClass>
 PortableServer::POA_ptr RemotePort<BaseClass>::_default_POA()
