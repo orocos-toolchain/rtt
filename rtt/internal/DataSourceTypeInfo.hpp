@@ -176,7 +176,7 @@ namespace RTT
          * (void) is a special case.
          */
         template<>
-        class RTT_API DataSourceTypeInfo<void> {
+        struct RTT_API DataSourceTypeInfo<void> {
             static const std::string tname;
         public:
             typedef void value_type;
