@@ -104,11 +104,12 @@ namespace RTT
             typename base::ChannelElement<T>::shared_ptr channel_el_input =
                 static_cast< base::ChannelElement<T>* >(channel_input.get());
 
-            if (has_initial_sample || (written && keeps_last_written_value))
+            if (has_initial_sample)
             {
-                if ( channel_el_input->data_sample(sample->rvalue()) ) {
-                    if ( written && policy.init )
-                        return channel_el_input->write(sample->rvalue());
+                T const& initial_sample = sample.Get();
+                if ( channel_el_input->data_sample(initial_sample) ) {
+                    if ( has_last_written_value && policy.init )
+                        return channel_el_input->write(initial_sample);
                     return true;
                 } else {
                     Logger::In in("OutputPort");
@@ -120,23 +121,19 @@ namespace RTT
             return channel_el_input->data_sample( T() );
         }
 
-        bool written;
+        /// True if \c sample has been set at least once by a call to write()
+        bool has_last_written_value;
+        /// True if \c sample has been written at least once, either by calling
+        // data_sample or by calling write() with keeps_next_written_value or
+        // keeps_last_written_value to true
         bool has_initial_sample;
+        /// If true, the next call to write() will save the sample in \c sample.
+        // This is used to initialize connections with a known sample
+        bool keeps_next_written_value;
+        /// If true, all calls to write() will save the sample in \c sample.
+        // This is used to allow the use of the 'init' connection policy option
         bool keeps_last_written_value;
-        typename internal::AssignableDataSource<T>::shared_ptr sample;
-
-        void createSampleHolder()
-        {
-            if (!sample)
-            {
-                sample = new internal::ValueDataSource<T>();
-            }
-        }
-
-        void deleteSampleHolder()
-        {
-            sample = 0;
-        }
+        base::DataObject<T> sample;
 
     public:
         /**
@@ -157,8 +154,9 @@ namespace RTT
          */
         OutputPort(std::string const& name = "unnamed", bool keep_last_written_value = true)
             : base::OutputPortInterface(name)
-            , written(false)
+            , has_last_written_value(false)
             , has_initial_sample(false)
+            , keeps_next_written_value(false)
             , keeps_last_written_value(false)
         {
             if (keep_last_written_value)
@@ -168,10 +166,6 @@ namespace RTT
         void keepLastWrittenValue(bool keep)
         {
             keeps_last_written_value = keep;
-            if (!keeps_last_written_value && !has_initial_sample)
-                deleteSampleHolder();
-            else
-                createSampleHolder();
         }
 
         bool keepsLastWrittenValue() const { return keeps_last_written_value; }
@@ -183,9 +177,7 @@ namespace RTT
          */
         T getLastWrittenValue() const
         {
-            if (written && keeps_last_written_value)
-                return sample->rvalue();
-            else return T();
+            return sample.Get();
         }
 
         /**
@@ -196,9 +188,9 @@ namespace RTT
          */
         bool getLastWrittenValue(T& sample) const
         {
-            if (written && keeps_last_written_value)
+            if (has_last_written_value)
             {
-                sample = this->sample->rvalue();
+                this->sample.Get(sample);
                 return true;
             }
             return false;
@@ -206,8 +198,9 @@ namespace RTT
 
         virtual base::DataSourceBase::shared_ptr getDataSource() const
         {
-            if (keeps_last_written_value)
-                return this->sample;
+            // There's no existing data source that allows to access a
+            // dataobject. Keep the method around for the sake of not breaking
+            // the task browser's compilation
             return base::DataSourceBase::shared_ptr();
         }
 
@@ -222,9 +215,9 @@ namespace RTT
          */
         void setDataSample(const T& sample)
         {
-            createSampleHolder();
-            this->sample->set(sample);
+            this->sample.Set(sample);
             has_initial_sample = true;
+            has_last_written_value = false;
 
             cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_init, this, boost::ref(sample), _1)
@@ -237,9 +230,13 @@ namespace RTT
          */
         void write(const T& sample)
         {
-            if (keeps_last_written_value)
-                this->sample->set(sample);
-            written = true;
+            if (keeps_last_written_value || keeps_next_written_value)
+            {
+                keeps_next_written_value = false;
+                has_initial_sample = true;
+                this->sample.Set(sample);
+            }
+            has_last_written_value = keeps_last_written_value;
 
             cmanager.delete_if( boost::bind(
                         &OutputPort<T>::do_write, this, boost::ref(sample), boost::lambda::_1)
