@@ -63,6 +63,7 @@
 #include <Property.hpp>
 #include "../base/PropertyIntrospection.hpp"
 #include <Logger.hpp>
+#include "../typekit/Types.hpp"
 
 namespace RTT
 {

@@ -74,6 +74,7 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
 endif()
 
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
+OPTION(PLUGINS_STD_TYPES_SUPPORT "Enable support for the std::string and std::vector<double> types in the RTT typekit & transports." ON)
     
 ###########################################################
 #                                                         #

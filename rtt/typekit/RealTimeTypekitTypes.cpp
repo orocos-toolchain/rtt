@@ -37,6 +37,10 @@
 
 
 #include "rtt-typekit-config.h"
+// This include must be as soon as possible in order to avoid a gcc
+// compiler warning about visibility.
+#include "Types.inc"
+
 #include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
 #include "StdStringTypeInfo.hpp"
@@ -45,6 +49,7 @@
 #endif
 #include "BoolTypeInfo.hpp"
 #include "../types/TypeInfoName.hpp"
+
 
 namespace RTT
 {
@@ -60,7 +65,6 @@ namespace RTT
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 
         // The standard C types + std::string are defined here,
-
         ti->addType( new StdTypeInfo<int>("int") );
         ti->addType( new StdTypeInfo<unsigned int>("uint") );
         ti->addType( new StdTypeInfo<double>("double") );
@@ -71,7 +75,9 @@ namespace RTT
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
+#ifndef RTT_NO_STD_TYPES
         ti->addType( new StdStringTypeInfo() );
+#endif
 #ifdef OS_RT_MALLOC
         ti->addType( new RTStringTypeInfo() );
 #endif
@@ -81,3 +87,4 @@ namespace RTT
         return true;
     }
 }
+

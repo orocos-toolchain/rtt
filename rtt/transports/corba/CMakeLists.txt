@@ -1,6 +1,11 @@
 # this option was set in global_rules.cmake
 IF(ENABLE_CORBA)
   MESSAGE( "Building CORBA Transport library.")
+  OPTION(PLUGINS_CORBA_TRANSPORT_TYPES "Enable corba transport for RTT typekit types." ON)
+
+  if (NOT PLUGINS_STD_TYPES_SUPPORT)
+    ADD_DEFINITIONS( -DRTT_NO_STD_TYPES )
+  endif (NOT PLUGINS_STD_TYPES_SUPPORT)
 
   INCLUDE_DIRECTORIES(BEFORE ${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os $ ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
   INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
@@ -74,9 +79,11 @@ IF ( BUILD_STATIC )
           ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
-  SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
-  ADD_RTT_TYPEKIT(rtt-transport-corba ${RTT_VERSION} CorbaLib.cpp)
-  target_link_libraries(rtt-transport-corba-${OROCOS_TARGET}_plugin  orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
+  if (PLUGINS_CORBA_TRANSPORT_TYPES)
+    SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
+    ADD_RTT_TYPEKIT(rtt-transport-corba ${RTT_VERSION} CorbaLib.cpp)
+    target_link_libraries(rtt-transport-corba-${OROCOS_TARGET}_plugin  orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
+  endif()
 
 
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
