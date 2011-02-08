@@ -164,6 +164,18 @@ namespace RTT
         std::string getPortDescription(const std::string& name) const;
 
         /**
+         * Sets the description for the service of an added port.
+         * It's prefered to use getPort(name)->doc(description) instead
+         * of this method, since this function only updates the documentation
+         * of the service representing this port, and not the documentation
+         * stored in the port.
+         * @param name The port name
+         * @param description The new description for this port's service
+         * @return true if the port was found and the description was set, false otherwise.
+         */
+        bool setPortDescription(const std::string& name, const std::string description);
+
+        /**
          * Returns the component this interface belongs to.
          */
         TaskContext* getOwner() const;

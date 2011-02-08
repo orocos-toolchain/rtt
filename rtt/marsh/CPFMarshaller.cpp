@@ -65,6 +65,23 @@ namespace RTT {
     }
 
 
+    void CPFMarshaller<std::ostream>::doWrite( const Property<char> &v, const std::string& type )
+    {
+        *(this->s) <<indent << "<simple ";
+        if ( !v.getName().empty() )
+            *(this->s) <<"name=\"" << this->escape( v.getName() ) <<"\" ";
+        *(this->s) << "type=\""<< type <<"\">";
+        if ( !v.getDescription().empty() )
+            *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
+        if ( v.get() == '\0' )
+            *(this->s)<< "<value></value></simple>\n";
+        else {
+            std::string toescape(1, v.get());
+            *(this->s) << "<value>" << this->escape( toescape ) << "</value></simple>\n";
+        }
+    }
+
+
     std::string CPFMarshaller<std::ostream>::escape(std::string s)
     {
         std::string::size_type n=0;

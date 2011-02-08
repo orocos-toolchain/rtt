@@ -110,7 +110,6 @@ namespace RTT { namespace extras {
         fd_set m_fd_work;
         bool m_has_error;
         bool m_has_timeout;
-        base::RunnableInterface* runner;
 
         static const int CMD_BREAK_LOOP  = 0;
         static const int CMD_TRIGGER     = 1;

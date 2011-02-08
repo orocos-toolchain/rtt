@@ -151,12 +151,14 @@ namespace RTT
                                                                " Value should contain '0' or '1', got '"+ value_string +"'.").c_str());
                         }
                         else if ( type == "char" ) {
-                            if ( value_string.length() != 1 )
-                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
-                                                               " Value should contain a single character, got '"+ value_string +"'.").c_str());
+                            if ( value_string.empty() )
+                                bag_stack.top().first->add( new Property<char>( name, description, '\0' ) );
                             else
-                                bag_stack.top().first->add
-                                    ( new Property<char>( name, description, value_string[0] ) );
+                                if ( value_string.length() != 1 )
+                                    throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain a single character, got '"+ value_string +"'.").c_str());
+                                else
+                                    bag_stack.top().first->add( new Property<char>( name, description, value_string[0] ) );
                         }
                         else if ( type == "uchar" ) {
                             if ( value_string.length() != 1 )

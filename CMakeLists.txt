@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.2.0 )
+SET( RTT_VERSION 2.2.1 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -45,12 +45,15 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
       "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
       )
   ENDIF(MSVC)
-  IF(ROS_ROOT)
-    SET(CMAKE_INSTALL_PREFIX
-      ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
-      )
-  ENDIF(ROS_ROOT)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+# We force it in case of ROS builds because the UseOrocos.cmake scripts will always look
+# in this path, also during an autoproj/bootstrap build.
+IF(ROS_ROOT)
+  SET(CMAKE_INSTALL_PREFIX
+    ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
+    )
+ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
@@ -77,7 +80,7 @@ endif( NOT OROCOS_SUFFIX )
 #                                                 #
 ###################################################
 
-OPTION(ENABLE_TESTS "Turn on to enable the testing framework." ON)
+OPTION(ENABLE_TESTS "Turn on to enable the testing framework." OFF)
 IF(ENABLE_TESTS)
   INCLUDE(CTest)
   ENABLE_TESTING()

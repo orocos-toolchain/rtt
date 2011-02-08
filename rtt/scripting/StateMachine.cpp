@@ -262,6 +262,14 @@ namespace RTT {
     bool StateMachine::execute()
     {
         TRACE_INIT();
+        os::MutexLock lock(execlock);
+        // before dealing with transitional states,
+        // check if we're actually running.
+        if (smStatus == Status::inactive || smStatus == Status::unloaded) {
+            smpStatus = nill;
+            return true;
+        }
+
         // internal transitional issues.
         switch (smpStatus) {
         case pausing:
@@ -1085,6 +1093,8 @@ namespace RTT {
     bool StateMachine::executeProgram(ProgramInterface*& cp, bool stepping)
     {
         TRACE_INIT();
+        if ( cp == 0)
+            return false;
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
         if ( stepping )
@@ -1190,6 +1200,7 @@ namespace RTT {
             TRACE("Won't deactivate: already inactive.");
             return false;
         }
+        os::MutexLock lock(execlock);
 
         // disable all event handlers
         disableGlobalEvents();

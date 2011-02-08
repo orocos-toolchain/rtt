@@ -237,8 +237,10 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
 	        return false;
 	    }
 	}
-	else
+	else {
 	    log(Info) << "Creating "<< filename << endlog();
+	    return store(filename, target);
+	}
 
 	// Write results
 	PropertyBag* compProps = target->properties();

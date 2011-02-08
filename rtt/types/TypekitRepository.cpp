@@ -54,7 +54,7 @@ namespace RTT {
         Logger::In in("TypekitRepository::Import");
         for( vector<TypekitPlugin*>::iterator it = Typekits.begin(); it != Typekits.end(); ++it ) {
             if ( (*it)->getName() == tkp->getName() ) {
-                log( Debug ) << "Typekit "<<tkp->getName() <<" already loaded."<<Logger::endl;
+                log( Debug ) << "Typekit "<<tkp->getName() <<" already loaded: keeping old instance."<<Logger::endl;
                 delete tkp;
                 return;
             }
@@ -83,7 +83,7 @@ namespace RTT {
         Logger::In in("TypekitRepository::Import");
         for( vector<TransportPlugin*>::iterator it = Transports.begin(); it != Transports.end(); ++it ) {
             if ( (*it)->getName() == trp->getName() ) {
-                log(Debug) << "Transport "<<trp->getTransportName() <<"://"<< trp->getTypekitName()<<" already loaded by plugin '"<<(*it)->getName()<<"'"<<Logger::endl;
+                log(Debug) << "Transport "<<trp->getTransportName() <<"://"<< trp->getTypekitName()<<" already loaded by plugin '"<<(*it)->getName()<<"': keeping old instance."<<Logger::endl;
                 delete trp;
                 return;
             }

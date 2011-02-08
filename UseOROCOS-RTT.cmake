@@ -23,8 +23,14 @@ if(OROCOS-RTT_FOUND)
 
   # Detect user flag: install with orocos
   if (INSTALL_PATH STREQUAL "orocos")
-    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH})
+    set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
+    mark_as_advanced(INSTALL_PATH)
+    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by UseOrocos.cmake" FORCE)
   endif (INSTALL_PATH STREQUAL "orocos")
+
+  if (ROS_ROOT)
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
+  endif(ROS_ROOT)
 
 #
 # Include and link against required stuff
@@ -180,16 +186,13 @@ endmacro( orocos_library )
 
 # Executables should add themselves by calling 'orocos_executable()'
 # instead of 'ADD_EXECUTABLE' in CMakeLists.txt.
-# You can set a variable COMPONENT_VERSION x.y.z to set a version or
-# specify the optional VERSION parameter. For ros builds, the version
-# number is ignored.
 #
-# Usage: orocos_executable( executablename src1 src2 src3 [VERSION x.y.z] )
+# Usage: orocos_executable( executablename src1 src2 src3 [INSTALL bin] )
 #
 macro( orocos_executable EXE_TARGET_NAME )
 
   ORO_PARSE_ARGUMENTS(ORO_EXECUTABLE
-    "INSTALL;VERSION"
+    "INSTALL"
     ""
     ${ARGN}
     )
@@ -213,23 +216,15 @@ macro( orocos_executable EXE_TARGET_NAME )
   else()
     ADD_EXECUTABLE( ${EXE_TARGET_NAME} SHARED ${SOURCES} )
   endif()
-  if (COMPONENT_VERSION)
-    set( EXE_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
-  endif(COMPONENT_VERSION)
-  if (ORO_EXECUTABLE_VERSION)
-    set( EXE_COMPONENT_VERSION VERSION ${ORO_EXECUTABLE_VERSION})
-  endif(ORO_EXECUTABLE_VERSION)
   SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${EXE_NAME}
-    ${EXE_COMPONENT_VERSION}
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${AC_INSTALL_DIR}"
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
     )
   TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
-
-  INSTALL(TARGETS ${EXE_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
+  INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_executable )
@@ -253,6 +248,8 @@ macro( orocos_typegen_headers )
     execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
       )
+    # work around generated manifest.xml file:
+    execute_process( COMMAND ${CMAKE} remove -f typekit/manifest.xml )
     add_subdirectory( typekit )
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )

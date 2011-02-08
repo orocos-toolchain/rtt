@@ -706,8 +706,7 @@
       </para>
       <para>
 	Mimick the code of the
-	<classname>RTT::RealTimeTypekitPlugin</classname> and KDL's
-	<classname>KDL::KDLTypekitPlugin</classname> to build
+	<classname>RTT::types::RealTimeTypekitPlugin</classname> to build
 	your own.
       </para>
       <para> Your typekit header file might look like:

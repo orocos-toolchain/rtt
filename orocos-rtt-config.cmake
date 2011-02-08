@@ -42,9 +42,9 @@
 #  OROCOS-RTT_USE_FILE     : Allows you to write: include( ${OROCOS-RTT_USE_FILE} )
 #
 # This script additionally sets variables for each requested find_package COMPONENTS (OROCOS-RTT plugins).
-# For example, for the foo plugin this would be:
-#  OROCOS-RTT_FOO_FOUND: Boolean that indicates if the component was found
-#  OROCOS-RTT_FOO_LIBRARY: Libraries to link against to use this component (notice singular _LIBRARY suffix)
+# For example, for the ''rtt-scripting'' plugin this would be:
+#  OROCOS-RTT_RTT-SCRIPTING_FOUND: Boolean that indicates if the component was found
+#  OROCOS-RTT_RTT-SCRIPTING_LIBRARY: Libraries to link against to use this component (notice singular _LIBRARY suffix)
 #
 # Note for advanced users: Apart from the OROCOS-RTT_*_LIBRARIES variables, non-COMPONENTS targets can be accessed by
 # their imported name, e.g., target_link_libraries(bar @IMPORTED_TARGET_PREFIX@orocos-rtt-gnulinux_dynamic).
@@ -52,8 +52,8 @@
 # variables is recommended.
 #
 # Example usage:
-#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED scripting foo)
-#  find_package(OROCOS-RTT QUIET COMPONENTS scripting foo)
+#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting foo)
+#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-scripting foo)
 #
 ########################################################################################################################
 
@@ -163,7 +163,7 @@ foreach(CUSTOM_COMPONENT_PATH $ENV{RTT_COMPONENT_PATH})
 endforeach()
 
 # Find components
-foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS})
+foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS} ${Orocos-RTT_FIND_COMPONENTS})
 
   # Find individual plugin
   string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
@@ -183,7 +183,7 @@ foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS})
 endforeach()
 
 # Signal error if required components are not found
-if(OROCOS-RTT_FIND_REQUIRED AND MISSING_COMPONENTS)
+if( (OROCOS-RTT_FIND_REQUIRED OR Orocos-RTT_FIND_REQUIRED) AND MISSING_COMPONENTS)
   message(FATAL_ERROR "Could not find the following required OROCOS-RTT plugins: ${MISSING_COMPONENTS}. You may want to append the plugins folder location to the RTT_COMPONENT_PATH environment variable. E.g., if the plugin is located at /path/to/plugins/libfoo-plugin.so, add /path/to to RTT_COMPONENT_PATH")
 endif()
 
@@ -194,7 +194,7 @@ endif()
 #
 ########################################################################################################################
 
-if(NOT OROCOS-RTT_FIND_QUIETLY)
+if(NOT OROCOS-RTT_FIND_QUIETLY AND NOT Orocos-RTT_FIND_QUIETLY)
 
   # Basic message
   if(FOUND_TRANSPORTS)

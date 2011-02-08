@@ -60,8 +60,16 @@ namespace RTT
     {}
 
     PropertyBag::PropertyBag( const PropertyBag& orig)
-        : mproperties( orig.getProperties() ), type( orig.getType() )
+        : mproperties(), type( orig.getType() )
     {
+        for( const_iterator i = orig.mproperties.begin(); i != orig.mproperties.end(); ++i) {
+            if ( orig.ownsProperty( *i ) ) {
+                PropertyBase* copy = (*i)->clone();
+                this->ownProperty( copy );
+            } else {
+                this->add( *i );
+            }
+        }
     }
 
     PropertyBag::~PropertyBag()
@@ -91,11 +99,11 @@ namespace RTT
         return true;
     }
 
-    bool PropertyBag::ownsProperty(PropertyBase* p)
+    bool PropertyBag::ownsProperty(PropertyBase* p) const
     {
         if (p == 0)
             return false;
-        iterator i = std::find(mowned_props.begin(), mowned_props.end(), p);
+        const_iterator i = std::find(mowned_props.begin(), mowned_props.end(), p);
         if ( i != mowned_props.end() )
             return true;
         return false;

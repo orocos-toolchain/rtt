@@ -185,6 +185,15 @@ namespace RTT
         return "";
     }
 
+    bool DataFlowInterface::setPortDescription(const std::string& name, const std::string description) {
+        Service::shared_ptr srv = mservice->getService(name);
+        if (srv) {
+            srv->doc(description);
+            return true;
+        }
+        return false;
+    }
+
     Service* DataFlowInterface::createPortObject(const std::string& name) {
         PortInterface* p = this->getPort(name);
         if ( !p )

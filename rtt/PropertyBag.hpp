@@ -192,7 +192,7 @@ namespace RTT
         /**
          * Returns true if this property is owned by this Bag.
          */
-        bool ownsProperty(base::PropertyBase* p);
+        bool ownsProperty(base::PropertyBase* p) const;
 
         /**
          * Removes all PropertyBases from this bag, without deleting
