@@ -145,6 +145,10 @@
     extern template class RTT::Attribute< char >;
 #endif
 
+
+// Disable string for now, we have specilisations in DataSources.hpp which 
+// confuse our logic or our compiler:
+#if 0
 #ifdef CORELIB_DATASOURCE_HPP
     extern template class RTT::internal::DataSource< std::string >;
     extern template class RTT::internal::AssignableDataSource< std::string >;
@@ -153,6 +157,7 @@
     extern template class RTT::internal::ValueDataSource< std::string >;
     extern template class RTT::internal::ConstantDataSource< std::string >;
     extern template class RTT::internal::ReferenceDataSource< std::string >;
+#endif
 #endif
 #ifdef ORO_INPUT_PORT_HPP
     extern template class RTT::OutputPort< std::string >;
@@ -166,6 +171,7 @@
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
     extern template class RTT::Attribute< std::string >;
 #endif
+
 
 #ifdef CORELIB_DATASOURCE_HPP
     extern template class RTT::internal::DataSource< std::vector<double> >;

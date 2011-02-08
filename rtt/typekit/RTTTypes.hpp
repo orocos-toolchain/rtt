@@ -55,6 +55,7 @@
     extern template class RTT::Attribute< RTT::SendStatus >;
 #endif
 
+#if 0
 #ifdef CORELIB_DATASOURCE_HPP
     extern template class RTT::internal::DataSource< RTT::PropertyBag >;
     extern template class RTT::internal::AssignableDataSource< RTT::PropertyBag >;
@@ -75,6 +76,7 @@
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
     extern template class RTT::Attribute< RTT::PropertyBag >;
+#endif
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP

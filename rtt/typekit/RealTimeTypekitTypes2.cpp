@@ -38,6 +38,7 @@
 
 
 #include "rtt-typekit-config.h"
+#include "Types2.inc"
 #include "RealTimeTypekit.hpp"
 #include "../types/Types.hpp"
 #include "../types/TypeInfoName.hpp"
@@ -52,7 +53,6 @@
 #include "../ConnPolicy.hpp"
 #include "ConnPolicyType.hpp"
 #include "TaskContext.hpp"
-#include "Types2.inc"
 
 namespace RTT
 {
