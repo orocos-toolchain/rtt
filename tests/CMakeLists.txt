@@ -166,7 +166,7 @@ IF (BUILD_TESTING)
           list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
     
           # This server is required to run when the corba-ipc-test runs
-          ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp operations_fixture.cpp)
+          ADD_EXECUTABLE( corba-ipc-server corba_ipc_server.cpp )
           TARGET_LINK_LIBRARIES( corba-ipc-server 
                 orocos-rtt-${OROCOS_TARGET}_dynamic 
                 orocos-rtt-corba-${OROCOS_TARGET}_dynamic 
