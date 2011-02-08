@@ -145,5 +145,13 @@ namespace RTT
         }
     };
 }};
+
+#ifdef __clang__
+namespace std {
+    using RTT::types::operator<<;
+    using RTT::types::operator>>;
+}
+#endif
+
 #endif
 

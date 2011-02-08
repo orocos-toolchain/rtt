@@ -54,4 +54,13 @@ namespace RTT
     //std::ostream& operator<<(std::ostream& os, const Double6D& v);
 
 }}
+
+// Work around clang not finding our operators, unless they are in the std namespace
+// This violates the C++ standard, so remove this again when clang improves.
+#ifdef __clang__
+namespace std {
+    using RTT::types::operator<<;
+    using RTT::types::operator>>;
+}
+#endif
 #endif
