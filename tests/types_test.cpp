@@ -114,7 +114,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     copy.getDataSource()->update( str.getDataSource().get() );
 
     BOOST_CHECK_EQUAL( copy.get().size(), 5 );
-    BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
+    // We can't assume much here: on Linux copy.get().capacity() returns 5, on win32: 10
+    //BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
     copy.set() = "world";
@@ -143,7 +144,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     delete act;
 
     BOOST_CHECK_EQUAL( copy.get().size(), 5 );
-    BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
+    // We can't assume much here: on Linux copy.get().capacity() returns 5, on win32: 10
+    //BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
     copy.set() = "world";
