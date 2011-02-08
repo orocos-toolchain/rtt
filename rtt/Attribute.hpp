@@ -184,15 +184,15 @@ namespace RTT
         /**
          * Get the value of this Attribute.
          */
-        T get() const
+        T const& get() const
         {
-            return data->get();
+            return data->rvalue();
         }
 
         /**
          * Set the value of this Attribute.
          */
-        void set( T t )
+        void set( T const& t )
         {
             data->set(t);
         }
