@@ -135,13 +135,6 @@ namespace RTT {
         return this;
     }
 
-    template<>
-    bool DataSource<bool>::evaluate() const
-    {
-        this->get();
-        return true;
-    }
-
     namespace internal {
 
         TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;

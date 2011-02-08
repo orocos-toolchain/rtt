@@ -55,10 +55,6 @@ namespace RTT
       return true;
   }
 
-  template<>
-  RTT_API bool DataSource<bool>::evaluate() const;
-
-
     template<typename T>
     AssignableDataSource<T>::~AssignableDataSource()
     {}
