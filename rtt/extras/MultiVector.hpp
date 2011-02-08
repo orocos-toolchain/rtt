@@ -421,13 +421,6 @@ namespace RTT
      */
     typedef MultiVector<6, long> Long6D;
 
-#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
-    extern template struct MultiVector<6, double>;
-    extern template struct MultiVector<6, int>;
-    extern template struct MultiVector<6, bool>;
-    extern template struct MultiVector<6, long>;
-#endif
-
     /**
      * Output to standard C++ output stream
      */
