@@ -87,6 +87,7 @@ namespace RTT { namespace scripting
       //@}
 
       CommonParser();
+      ~CommonParser();
 
       void seenillegalidentifier();
   };

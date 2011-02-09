@@ -69,8 +69,8 @@ namespace RTT
 	// outside our interface
 	propertylocator =
 	    !my_guard
-	    ( +(commonparser.notassertingidentifier >> ".")[bind( &PropertyParser::locateproperty, this, _1, _2 ) ])
-	    [ bind(&PropertyParser::handle_no_property, this, _1, _2) ];
+	    ( +(commonparser.notassertingidentifier >> ".")[boost::bind( &PropertyParser::locateproperty, this, _1, _2 ) ])
+	    [ boost::bind(&PropertyParser::handle_no_property, this, _1, _2) ];
     }
 
     void PropertyParser::setPropertyBag( PropertyBag* bg )

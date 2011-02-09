@@ -99,7 +99,7 @@ namespace RTT {
 
   bool ConfigurationInterface::removeValue( const std::string& name )
   {
-    map_t::iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
+    map_t::iterator i = find_if( values.begin(), values.end(), boost::bind(equal_to<std::string>(),name, boost::bind(&AttributeBase::getName, _1)) );
     if ( i != values.end() ) {
         delete (*i);
         values.erase( i );
@@ -110,14 +110,14 @@ namespace RTT {
 
   AttributeBase* ConfigurationInterface::getValue( const std::string& name ) const
   {
-    map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
+    map_t::const_iterator i = find_if( values.begin(), values.end(), boost::bind(equal_to<std::string>(),name, boost::bind(&AttributeBase::getName, _1)) );
     if ( i == values.end() ) return 0;
     else return *i;
   }
 
   bool ConfigurationInterface::hasAttribute( const std::string& name ) const
   {
-    map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
+    map_t::const_iterator i = find_if( values.begin(), values.end(), boost::bind(equal_to<std::string>(),name, boost::bind(&AttributeBase::getName, _1)) );
     return i != values.end();
   }
 
@@ -138,7 +138,7 @@ namespace RTT {
     std::vector<std::string> ConfigurationInterface::getAttributeNames() const
     {
         std::vector<std::string> ret;
-        std::transform( values.begin(), values.end(), back_inserter(ret), bind(&AttributeBase::getName, _1) );
+        std::transform( values.begin(), values.end(), back_inserter(ret), boost::bind(&AttributeBase::getName, _1) );
         return ret;
     }
 

@@ -26,8 +26,8 @@ ELSE ()
     SET (TAO_FOUND FALSE)
 ENDIF ()
 
-# See if TAO_ROOT is not already set in CMake
-IF (NOT TAO_ROOT)
+# See if TAO_ROOT is not already set in CMake, ignore if hints are set correctly
+IF (NOT TAO_ROOT AND NOT TAO_INCLUDE_HINTS AND NOT TAO_LIBRARY_HINTS AND NOT TAO_RUNTIME_HINTS)
     # See if TAO_ROOT is set in process environment
     IF ( NOT $ENV{TAO_ROOT} STREQUAL "" )
         SET (TAO_ROOT "$ENV{TAO_ROOT}")

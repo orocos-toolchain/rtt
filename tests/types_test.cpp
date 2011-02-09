@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
 }
 
 /**
- * Tests some random operations, and alos the operator+ for strings.
+ * Tests some random operations, and alow the operator+ for strings.
  */
 BOOST_AUTO_TEST_CASE( testOperators )
 {

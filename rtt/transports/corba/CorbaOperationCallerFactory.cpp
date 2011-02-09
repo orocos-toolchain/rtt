@@ -89,7 +89,7 @@ const TypeInfo* CorbaOperationCallerFactory::getArgumentType(unsigned int i) con
 const TypeInfo* CorbaOperationCallerFactory::getCollectType(unsigned int i) const {
     try {
         CORBA::String_var tname = mfact->getCollectType( method.c_str(), i);
-        return Types()->getTypeById( tname.in() );
+        return Types()->type( tname.in() );
     } catch (...){
         return 0;
     }
