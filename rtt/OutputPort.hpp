@@ -163,6 +163,11 @@ namespace RTT
                 keepLastWrittenValue(true);
         }
 
+        void keepNextWrittenValue(bool keep)
+        {
+            keeps_next_written_value = keep;
+        }
+
         void keepLastWrittenValue(bool keep)
         {
             keeps_last_written_value = keep;
