@@ -10,95 +10,96 @@
 #include "../SendStatus.hpp"
 #include "../FlowStatus.hpp"
 #include "../PropertyBag.hpp"
+#include "rtt-typekit-config.h"
 
 #ifdef CORELIB_DATASOURCE_HPP
-    extern template class RTT::internal::DataSource< RTT::FlowStatus >;
-    extern template class RTT::internal::AssignableDataSource< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::FlowStatus >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-    extern template class RTT::internal::ValueDataSource< RTT::FlowStatus >;
-    extern template class RTT::internal::ConstantDataSource< RTT::FlowStatus >;
-    extern template class RTT::internal::ReferenceDataSource< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::FlowStatus >;
 #endif
 #ifdef ORO_INPUT_PORT_HPP
-    extern template class RTT::OutputPort< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::FlowStatus >;
 #endif
 #ifdef ORO_OUTPUT_PORT_HPP
-    extern template class RTT::InputPort< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::FlowStatus >;
 #endif
 #ifdef ORO_PROPERTY_HPP
-    extern template class RTT::Property< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< RTT::FlowStatus >;
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
-    extern template class RTT::Attribute< RTT::FlowStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::FlowStatus >;
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP
-    extern template class RTT::internal::DataSource< RTT::SendStatus >;
-    extern template class RTT::internal::AssignableDataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::SendStatus >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-    extern template class RTT::internal::ValueDataSource< RTT::SendStatus >;
-    extern template class RTT::internal::ConstantDataSource< RTT::SendStatus >;
-    extern template class RTT::internal::ReferenceDataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::SendStatus >;
 #endif
 #ifdef ORO_INPUT_PORT_HPP
-    extern template class RTT::OutputPort< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::SendStatus >;
 #endif
 #ifdef ORO_OUTPUT_PORT_HPP
-    extern template class RTT::InputPort< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::SendStatus >;
 #endif
 #ifdef ORO_PROPERTY_HPP
-    extern template class RTT::Property< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< RTT::SendStatus >;
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
-    extern template class RTT::Attribute< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::SendStatus >;
 #endif
 
 #if 0
 #ifdef CORELIB_DATASOURCE_HPP
-    extern template class RTT::internal::DataSource< RTT::PropertyBag >;
-    extern template class RTT::internal::AssignableDataSource< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::PropertyBag >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-    extern template class RTT::internal::ValueDataSource< RTT::PropertyBag >;
-    extern template class RTT::internal::ConstantDataSource< RTT::PropertyBag >;
-    extern template class RTT::internal::ReferenceDataSource< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::PropertyBag >;
 #endif
 #ifdef ORO_INPUT_PORT_HPP
-    extern template class RTT::OutputPort< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::PropertyBag >;
 #endif
 #ifdef ORO_OUTPUT_PORT_HPP
-    extern template class RTT::InputPort< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::PropertyBag >;
 #endif
 #ifdef ORO_PROPERTY_HPP
-    extern template class RTT::Property< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< RTT::PropertyBag >;
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
-    extern template class RTT::Attribute< RTT::PropertyBag >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::PropertyBag >;
 #endif
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP
-    extern template class RTT::internal::DataSource< RTT::ConnPolicy >;
-    extern template class RTT::internal::AssignableDataSource< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
-    extern template class RTT::internal::ValueDataSource< RTT::ConnPolicy >;
-    extern template class RTT::internal::ConstantDataSource< RTT::ConnPolicy >;
-    extern template class RTT::internal::ReferenceDataSource< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_INPUT_PORT_HPP
-    extern template class RTT::OutputPort< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_OUTPUT_PORT_HPP
-    extern template class RTT::InputPort< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_PROPERTY_HPP
-    extern template class RTT::Property< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Property< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_CORELIB_ATTRIBUTE_HPP
-    extern template class RTT::Attribute< RTT::ConnPolicy >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::ConnPolicy >;
 #endif
 
 
