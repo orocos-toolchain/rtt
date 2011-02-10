@@ -21,6 +21,7 @@
 #define ORO_DATASOURCE_FIXTURE_HPP_
 
 #include <rtt-config.h>
+#include "unit.hpp"
 #include <iostream>
 #include <RTT.hpp>
 #include <boost/array.hpp>
@@ -66,10 +67,10 @@ struct AType
 typedef std::vector<AType> ATypes;
 
 
-bool operator==(const AType& a, const AType& b);
+RTT_UNIT_API bool operator==(const AType& a, const AType& b);
 
-std::ostream& operator<<(std::ostream& os, const AType& a);
-std::ostream& operator<<(std::ostream& os, const ATypes& as);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const AType& a);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const ATypes& as);
 
 /**
  * BType uses simple C types and C arrays
@@ -106,10 +107,10 @@ struct BType
 };
 typedef std::vector<BType> BTypes;
 
-bool operator==(const BType& a, const BType& b);
+RTT_UNIT_API bool operator==(const BType& a, const BType& b);
 
-std::ostream& operator<<(std::ostream& os, const BType& a);
-std::ostream& operator<<(std::ostream& os, const BTypes& a);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const BType& a);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const BTypes& a);
 
 /**
  * CType uses composite A/B types
@@ -137,10 +138,10 @@ struct CType
 
 typedef std::vector<CType> CTypes;
 
-bool operator==(const CType& a, const CType& b);
+RTT_UNIT_API bool operator==(const CType& a, const CType& b);
 
-std::ostream& operator<<(std::ostream& os, const CType& a);
-std::ostream& operator<<(std::ostream& os, const CTypes& a);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const CType& a);
+RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const CTypes& a);
 
 namespace boost {
 namespace serialization {
