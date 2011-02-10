@@ -12,4 +12,4 @@
 	SET_TARGET_PROPERTIES( testtypes_plugin PROPERTIES
 	  LINK_FLAGS "-Wl,-zdefs")
   ENDIF ()
-  target_link_libraries(testtypes_plugin orocos-rtt-${OROCOS_TARGET}_dynamic)
+  target_link_libraries(testtypes_plugin orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
