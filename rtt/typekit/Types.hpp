@@ -14,6 +14,11 @@
 #include <string>
 #include <vector>
 
+// Disable extern template warning on MSVC
+#if !defined( __MINGW__ ) && defined( WIN32 )
+# pragma warning( disable : 4231 )
+#endif
+
 #ifdef CORELIB_DATASOURCE_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< int >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< int >;
