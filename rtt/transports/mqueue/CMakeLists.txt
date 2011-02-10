@@ -62,6 +62,7 @@ ENDIF( BUILD_STATIC )
   SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
   ADD_RTT_TYPEKIT( rtt-transport-mqueue ${RTT_VERSION} MQLib.cpp)
   target_link_libraries( rtt-transport-mqueue-${OROCOS_TARGET}_plugin orocos-rtt-mqueue-${OROCOS_TARGET}_dynamic)
+  target_link_libraries( rtt-transport-mqueue-${OROCOS_TARGET}_plugin rtt-typekit-${OROCOS_TARGET}_plugin )
   set_target_properties( rtt-transport-mqueue-${OROCOS_TARGET}_plugin PROPERTIES
     LINK_FLAGS "${MQ_LDFLAGS} ${CMAKE_LD_FLAGS_ADD}")
 
