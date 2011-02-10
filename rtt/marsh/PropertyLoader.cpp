@@ -51,7 +51,7 @@
 
 using namespace std;
 using namespace RTT;
-using namespace detail;
+using namespace RTT::detail;
 
 bool PropertyLoader::load(const std::string& filename, TaskContext* target) const
 {

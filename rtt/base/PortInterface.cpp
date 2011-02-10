@@ -42,7 +42,7 @@
 #include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
-using namespace detail;
+using namespace RTT::detail;
 using namespace std;
 
 PortInterface::PortInterface(const std::string& name)
