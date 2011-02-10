@@ -49,50 +49,44 @@ using namespace RTT::detail;
 
 namespace RTT {
     namespace mqueue {
-
-        struct MQLibPlugin
-            : public TransportPlugin
+        bool MQLibPlugin::registerTransport(std::string name, TypeInfo* ti)
         {
-            bool registerTransport(std::string name, TypeInfo* ti)
-            {
-                assert( name == ti->getTypeName() );
-                if ( name == "int" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<int>() );
-                if ( name == "double" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<double>() );
-                //if ( name == "string" )
-                //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<std::string>() );
-                if ( name == "float" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<float>() );
-                if ( name == "uint" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<unsigned int>() );
-                if ( name == "char" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<char>() );
-                //if ( name == "long" )
-                //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<long>() );
-                //if ( name == "PropertyBag" )
-                //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<PropertyBag>() );
-                if ( name == "bool" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<bool>() );
-                if ( name == "array" )
-                    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQSerializationProtocol< std::vector<double> >() );
-                //if ( name == "void" )
-                //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQFallBackProtocol(false)); // warn=false
-                return false;
-            }
+            assert( name == ti->getTypeName() );
+            if ( name == "int" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<int>() );
+            if ( name == "double" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<double>() );
+            //if ( name == "string" )
+            //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<std::string>() );
+            if ( name == "float" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<float>() );
+            if ( name == "uint" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<unsigned int>() );
+            if ( name == "char" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<char>() );
+            //if ( name == "long" )
+            //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<long>() );
+            //if ( name == "PropertyBag" )
+            //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<PropertyBag>() );
+            if ( name == "bool" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<bool>() );
+            if ( name == "array" )
+                return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQSerializationProtocol< std::vector<double> >() );
+            //if ( name == "void" )
+            //    return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQFallBackProtocol(false)); // warn=false
+            return false;
+        }
 
-            std::string getTransportName() const {
-                return "mqueue";
-            }
+        std::string MQLibPlugin::getTransportName() const {
+            return "mqueue";
+        }
 
-            std::string getTypekitName() const {
-                return "rtt-types";
-            }
-            std::string getName() const {
-                return "rtt-mqueue-transport";
-            }
-
-        };
+        std::string MQLibPlugin::getTypekitName() const {
+            return "rtt-types";
+        }
+        std::string MQLibPlugin::getName() const {
+            return "rtt-mqueue-transport";
+        }
     }
 }
 
