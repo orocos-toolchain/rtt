@@ -137,12 +137,12 @@ namespace RTT
                     // 'data available in a data element'.
                     typename base::ChannelElement<T>::shared_ptr input =
                         this->getInput();
-                    if( input->read(read_sample->set(), false) == NewData )
+                    if( input && input->read(read_sample->set(), false) == NewData )
                         return this->write(read_sample->rvalue());
                 } else {
                     typename base::ChannelElement<T>::shared_ptr output =
                         this->getOutput();
-                    if (mqRead(read_sample))
+                    if (output && mqRead(read_sample))
                         return output->write(read_sample->rvalue());
                 }
                 return false;
