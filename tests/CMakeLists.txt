@@ -38,13 +38,17 @@ IF (BUILD_TESTING)
     TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} rtt-typekit-${OROCOS_TARGET}_plugin )
     LIST(APPEND TEST_LIBRARIES fixtures rtt-typekit-${OROCOS_TARGET}_plugin )
     SET_TARGET_PROPERTIES( fixtures PROPERTIES
+      COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
       DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
       SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
       VERSION "${RTT_VERSION}"
       # Set accumulated compilation flags: (.so and .a)
       COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
-      LINK_FLAGS "-Wl,-z,defs"
       )
+    IF (UNIX AND NOT APPLE)
+      SET_TARGET_PROPERTIES( fixtures PROPERTIES
+         LINK_FLAGS "-Wl,-z,defs")
+    ENDIF ()
 
     IF(ENABLE_CORBA)
       INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/rtt/transports/corba/ ${CORBA_INCLUDE_DIRS})
@@ -84,6 +88,7 @@ IF (BUILD_TESTING)
       ADD_EXECUTABLE( list-test test-runner.cpp  listlocked_test.cpp )
       TARGET_LINK_LIBRARIES( list-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( list-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
 	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )

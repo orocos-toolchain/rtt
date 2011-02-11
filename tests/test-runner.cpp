@@ -79,7 +79,10 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     }
 
     // sets environment if not set by user.
-    setenv("RTT_COMPONENT_PATH","../rtt", 0);
+    // On Unix, the build dir is on the top level, on windows,
+    // the build dir is for each subdir, so we need two paths
+    // and find out at run-time which one works.
+    setenv("RTT_COMPONENT_PATH","../rtt:../../rtt", 0);
 	__os_init(argc, argv);
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
