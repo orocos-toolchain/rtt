@@ -50,7 +50,6 @@
 #include "RTTCorbaConversion.hpp"
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
-#include "../../typekit/Types.hpp"
 
 using namespace std;
 using namespace RTT::detail;

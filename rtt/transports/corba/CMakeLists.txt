@@ -84,7 +84,6 @@ ENDIF( BUILD_STATIC )
     SET(RTT_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}")
     ADD_RTT_TYPEKIT(rtt-transport-corba ${RTT_VERSION} CorbaLib.cpp)
     target_link_libraries(rtt-transport-corba-${OROCOS_TARGET}_plugin orocos-rtt-corba-${OROCOS_TARGET}_dynamic )
-    target_link_libraries(rtt-transport-corba-${OROCOS_TARGET}_plugin rtt-typekit-${OROCOS_TARGET}_plugin )
   endif()
 
 

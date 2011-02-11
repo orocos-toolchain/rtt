@@ -43,7 +43,6 @@
 #include "../../types/TransportPlugin.hpp"
 #include "../../types/TypekitPlugin.hpp"
 #include <boost/serialization/vector.hpp>
-#include "../../typekit/Types.hpp"
 
 using namespace std;
 using namespace RTT::detail;

@@ -38,7 +38,6 @@
 
 #include "CPFMarshaller.hpp"
 #include "../rtt-config.h"
-#include "../typekit/Types.hpp"
 
 namespace RTT {
     using namespace detail;

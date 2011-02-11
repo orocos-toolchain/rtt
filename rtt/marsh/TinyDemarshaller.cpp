@@ -56,7 +56,6 @@ using namespace std;
 #include <Property.hpp>
 #include <PropertyBag.hpp>
 #include <Logger.hpp>
-#include "../typekit/Types.hpp"
 
 namespace RTT
 {
