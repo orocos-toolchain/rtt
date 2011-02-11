@@ -74,16 +74,16 @@ macro(ADD_RTT_TYPEKIT name version)
   get_target_property(DEBUG_TYPEKITLIB_DIR ${name}-${OROCOS_TARGET}_plugin DEBUG_LOCATION)
 
   # Only copy if it was built:
-  if (EXISTS TYPEKITLIB_DIR)
+  if (EXISTS "${TYPEKITLIB_DIR}")
       add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJ_BINARY_DIR}/rtt/types"
           COMMAND ${CMAKE_COMMAND} -E copy "${TYPEKITLIB_DIR}" "${PROJ_BINARY_DIR}/rtt/types"
           COMMENT "Copying ${TYPEKITLIB_DIR} to ${PROJ_BINARY_DIR}/rtt/types")
   endif()
-  if (WIN32 AND EXISTS DEBUG_TYPEKITLIB_DIR)
+  if (WIN32 AND EXISTS "${DEBUG_TYPEKITLIB_DIR}")
       add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJ_BINARY_DIR}/rtt/types"
-          COMMAND ${CMAKE_COMMAND} -E copy "${DEBUG_TYPEKITLIB_DIR} ${PROJ_BINARY_DIR}/rtt/types"
+          COMMAND ${CMAKE_COMMAND} -E copy "${DEBUG_TYPEKITLIB_DIR}" "${PROJ_BINARY_DIR}/rtt/types"
           COMMENT "Copying ${DEBUG_TYPEKITLIB_DIR} to ${PROJ_BINARY_DIR}/rtt/types")
   endif()
   
@@ -135,16 +135,16 @@ macro(ADD_RTT_PLUGIN name version)
   get_target_property(DEBUG_PLUGINLIB_DIR ${name}-${OROCOS_TARGET}_plugin DEBUG_LOCATION)
 
   # Only copy if it was built:
-  if (EXISTS PLUGINLIB_DIR)
+  if (EXISTS "${PLUGINLIB_DIR}")
       add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJ_BINARY_DIR}/rtt/plugins"
           COMMAND ${CMAKE_COMMAND} -E copy "${PLUGINLIB_DIR}" "${PROJ_BINARY_DIR}/rtt/plugins"
           COMMENT "Copying ${PLUGINLIB_DIR} to ${PROJ_BINARY_DIR}/rtt/plugins")
   endif()
-  if (WIN32 AND EXISTS DEBUG_PLUGINLIB_DIR)
+  if (WIN32 AND EXISTS "${DEBUG_PLUGINLIB_DIR}")
       add_custom_command(TARGET ${name}-${OROCOS_TARGET}_plugin POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJ_BINARY_DIR}/rtt/plugins"
-          COMMAND ${CMAKE_COMMAND} -E copy "${DEBUG_PLUGINLIB_DIR} ${PROJ_BINARY_DIR}/rtt/plugins"
+          COMMAND ${CMAKE_COMMAND} -E copy "${DEBUG_PLUGINLIB_DIR}" "${PROJ_BINARY_DIR}/rtt/plugins"
           COMMENT "Copying ${DEBUG_PLUGINLIB_DIR} to ${PROJ_BINARY_DIR}/rtt/plugins")
   endif()
   
