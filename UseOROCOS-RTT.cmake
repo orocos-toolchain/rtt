@@ -216,7 +216,7 @@ macro( orocos_executable EXE_TARGET_NAME )
   if (ROS_ROOT)
     rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
   else()
-    ADD_EXECUTABLE( ${EXE_TARGET_NAME} SHARED ${SOURCES} )
+    ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
   endif()
   SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${EXE_NAME}
