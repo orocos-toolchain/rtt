@@ -96,7 +96,7 @@ namespace RTT {
     Service::shared_ptr Service::provides() {
         try {
             return shared_from_this();
-        } catch( bad_weak_ptr& bw ) {
+        } catch( boost::bad_weak_ptr& bw ) {
             log(Error) <<"You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();
             log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
             throw std::runtime_error("Illegal use of provides()");

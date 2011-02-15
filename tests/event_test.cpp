@@ -51,7 +51,7 @@ struct Runner : public RunnableInterface
         result = false;
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h1 = e.connect( bind(&Runner::handle,this, _1) );
+        h1 = e.connect( boost::bind(&Runner::handle,this, _1) );
         return true;
     }
     void step() {
@@ -90,7 +90,7 @@ struct SelfRemover : public RunnableInterface
     bool initialize() {
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h1 = e.setup( bind(&SelfRemover::handle,this));
+        h1 = e.setup( boost::bind(&SelfRemover::handle,this));
         return true;
     }
     void step() {
@@ -120,9 +120,9 @@ struct CrossRemover : public RunnableInterface
 
     bool initialize() {
         // connect sync handler with event
-        e.connect( bind(&CrossRemover::handle,this));
-        h1 = e.connect( bind(&CrossRemover::handle,this));
-        e.connect( bind(&CrossRemover::handle,this));
+        e.connect( boost::bind(&CrossRemover::handle,this));
+        h1 = e.connect( boost::bind(&CrossRemover::handle,this));
+        e.connect( boost::bind(&CrossRemover::handle,this));
         return true;
     }
     void step() {
