@@ -88,7 +88,9 @@ function( orocos_use_package PACKAGE )
     endif (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_LIBRARIES)
 
   else (${PACKAGE}_COMP_FOUND)
-    message("[UseOrocos] ${PACKAGE} does not provide a .pc file for exporting its build/link flags (or one of it 'Requires' dependencies was not found).")
+    if (VERBOSE)
+      message("[UseOrocos] ${PACKAGE} does not provide a .pc file for exporting its build/link flags (or one of it 'Requires' dependencies was not found).")
+    endif (VERBOSE)
   endif (${PACKAGE}_COMP_FOUND)
     
 endfunction( orocos_use_package PACKAGE )
