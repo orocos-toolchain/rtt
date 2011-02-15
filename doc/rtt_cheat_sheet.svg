@@ -23,15 +23,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.0149342"
-     inkscape:cx="587.11632"
-     inkscape:cy="117.16931"
+     inkscape:zoom="1.04"
+     inkscape:cx="680.42843"
+     inkscape:cy="396.2135"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
      showguides="true"
@@ -366,16 +366,6 @@
        y1="346"
        x2="464.3125"
        y2="361.85828" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient10796"
-       id="linearGradient6560"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.2783092,0,0,2.3335881,473.34862,39.140444)"
-       x1="334.45001"
-       y1="199.45"
-       x2="334.54999"
-       y2="318.54999" />
     <filter
        id="filter6672">
       <feGaussianBlur
@@ -688,6 +678,23 @@
        inkscape:vp_y="0 : 1000 : 0"
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3353"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient10796"
+       id="linearGradient3398"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2783092,0,0,2.3335881,473.34862,39.140444)"
+       x1="334.45001"
+       y1="199.45"
+       x2="334.54999"
+       y2="318.54999" />
   </defs>
   <metadata
      id="metadata7">
@@ -697,7 +704,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -736,9 +743,9 @@
        inkscape:export-ydpi="100"
        inkscape:export-xdpi="100"
        inkscape:export-filename="/home/sebastien/Workspace/VCS-Evaluation/Mercurial-Usage-v0.9-100dpi.png"
-       y="394.32275"
+       y="402.21686"
        x="16.964573"
-       height="72.842087"
+       height="39.703522"
        width="990.85992"
        id="rect8310"
        style="fill:#1c4eff;fill-opacity:1;fill-rule:nonzero;stroke:none" />
@@ -747,7 +754,7 @@
        inkscape:export-xdpi="100"
        inkscape:export-filename="/home/sebastien/Workspace/VCS-Evaluation/Mercurial-Usage-v0.9-100dpi.png"
        id="path5418"
-       d="m 243.02373,464.99858 0,573.94702"
+       d="m 243.02373,452.99858 0,573.94702"
        style="fill:#1c4eff;fill-opacity:1;fill-rule:evenodd;stroke:#1c4eff;stroke-width:0.98715049px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <text
        inkscape:export-ydpi="100"
@@ -766,25 +773,25 @@
          id="tspan5406"
          sodipodi:role="line"
          x="168.90216"
-         y="387.47928">RTT v2.2 / sheet v1.0</tspan></text>
+         y="387.47928">RTT v2.2 / sheet v1.1</tspan></text>
     <g
        transform="translate(1137.8302,249.30855)"
        id="g2755" />
     <text
        xml:space="preserve"
-       style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+       style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
        x="24.687248"
-       y="493.41687"
+       y="481.41687"
        id="text9319-0-7-9"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan9321-8-6-3"
          x="24.687248"
-         y="493.41687">TaskContext</tspan></text>
+         y="481.41687">TaskContext</tspan></text>
     <rect
        ry="6.5120306"
        rx="4.9418092"
-       y="496.76611"
+       y="484.76611"
        x="18.40357"
        height="173.27039"
        width="213.72763"
@@ -792,89 +799,89 @@
        style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none" />
     <text
        xml:space="preserve"
-       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
        x="27.918465"
-       y="508.72607"
+       y="496.72607"
        id="text9128-0-1"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="27.918465"
-         y="508.72607"
+         y="496.72607"
          id="tspan12215-1-0">1 component type == 1 TaskContext</tspan></text>
     <text
        sodipodi:linespacing="115%"
        id="text9142-1-8"
-       y="521.42645"
+       y="509.42645"
        x="36.416924"
-       style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999761999998782%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"><tspan
          id="tspan12241-5-5"
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="521.42645"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="509.42645"
          x="36.416924"
          sodipodi:role="line">#include &lt;rtt/RTT.hpp&gt;</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="532.72748"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="520.72748"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6592">using namespace RTT;</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="532.72748"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="532.0285"
          x="36.416924"
          sodipodi:role="line"
          id="tspan5961" /><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="544.0285"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="543.32947"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6572">class MyComp : public TaskContext</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="555.32947"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="554.63049"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6574">{</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="566.63049"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="565.93152"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6576">     public:</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="577.93152"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="577.23254"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6578">     MyComp(string name)</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="589.23254"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="588.53357"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6582">          : TaskContext(name, </tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="600.53357"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="599.83459"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6594">                                PreOperational)</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="611.83459"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="611.13556"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6584">     {}</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="623.13556"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="622.43658"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6586">};</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="634.43658"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="633.73761"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6588" /><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="645.73761"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="645.03864"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6590">ORO_CREATE_COMPONENT(MyComp)</tspan><tspan
-         style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999761999998782%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-         y="657.03864"
+         style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:114.99999762%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#0737e3;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         y="656.33966"
          x="36.416924"
          sodipodi:role="line"
          id="tspan6580" /></text>
@@ -883,7 +890,7 @@
        id="g12829-9" />
     <g
        id="g7417"
-       transform="translate(0,-6)">
+       transform="translate(0,-18)">
       <g
          transform="translate(0,-46.101525)"
          id="g3370">
@@ -901,125 +908,125 @@
            id="text9142-3"
            y="667.09705"
            x="261.58096"
-           style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
+           style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
            xml:space="preserve"><tspan
              id="tspan7163"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="667.09705"
              x="261.58096"
              sodipodi:role="line">// class member variable:</tspan><tspan
              id="tspan7316"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="676.88586"
              x="261.58096"
              sodipodi:role="line">InputPort&lt;Type&gt; name;</tspan><tspan
              id="tspan12807"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="686.67462"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7312"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="696.46344"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7314"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="706.25226"
              x="261.58096"
              sodipodi:role="line">// in constructor or configureHook():</tspan><tspan
              id="tspan7308"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="716.04102"
              x="261.58096"
              sodipodi:role="line">addPort(&quot;name&quot;,name).doc(&quot;...&quot;);</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="725.82983"
              x="261.58096"
              sodipodi:role="line"
              id="tspan5959">addEventPort(&quot;name&quot;,name).doc(&quot;...&quot;);</tspan><tspan
              id="tspan7359"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="735.61865"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7361"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="745.40747"
              x="261.58096"
              sodipodi:role="line">Type sample;</tspan><tspan
              id="tspan7363"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="755.19623"
              x="261.58096"
              sodipodi:role="line">if (name.read(sample) != RTT::NoData)</tspan><tspan
              id="tspan7365"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="764.98505"
              x="261.58096"
              sodipodi:role="line">{</tspan><tspan
              id="tspan7367"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="774.77386"
              x="261.58096"
              sodipodi:role="line">    // either a new, or an already-read</tspan><tspan
              id="tspan7369"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="784.56262"
              x="261.58096"
              sodipodi:role="line">    // sample on name.</tspan><tspan
              id="tspan7371"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="794.35144"
              x="261.58096"
              sodipodi:role="line">}</tspan><tspan
              id="tspan7373"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="804.14026"
              x="261.58096"
              sodipodi:role="line">if (name.read(sample) == RTT::NewData)</tspan><tspan
              id="tspan7375"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="813.92902"
              x="261.58096"
              sodipodi:role="line">{</tspan><tspan
              id="tspan7377"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="823.71783"
              x="261.58096"
              sodipodi:role="line">    // there was a never-read sample</tspan><tspan
              id="tspan7379"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="833.50665"
              x="261.58096"
              sodipodi:role="line">    // on name</tspan><tspan
              id="tspan7381"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="843.29547"
              x="261.58096"
              sodipodi:role="line">}</tspan><tspan
              id="tspan7383"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="853.08423"
              x="261.58096"
              sodipodi:role="line">if (name.connected())</tspan><tspan
              id="tspan7385"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="862.87305"
              x="261.58096"
              sodipodi:role="line">{</tspan><tspan
              id="tspan7387"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="872.66187"
              x="261.58096"
              sodipodi:role="line">    // do something only if the port</tspan><tspan
              id="tspan7389"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="882.45062"
              x="261.58096"
              sodipodi:role="line">    // is connected</tspan><tspan
              id="tspan7391"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="892.23944"
              x="261.58096"
              sodipodi:role="line">}</tspan></text>
@@ -1029,7 +1036,7 @@
          id="text9319-0-7-9-1"
          y="604.02954"
          x="257.54437"
-         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            y="604.02954"
            x="257.54437"
@@ -1038,7 +1045,7 @@
     </g>
     <g
        id="g7447"
-       transform="translate(0,6)">
+       transform="translate(0,-6)">
       <g
          id="g12866"
          transform="translate(379.96906,15.29875)">
@@ -1056,85 +1063,85 @@
            id="text9142-3-8"
            y="867.2182"
            x="-118.28746"
-           style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
+           style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
            xml:space="preserve"><tspan
              id="tspan12241-4-9"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="867.2182"
              x="-118.28746"
              sodipodi:role="line">// class member variable:</tspan><tspan
              id="tspan7401"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="877.00702"
              x="-118.28746"
              sodipodi:role="line">OutputPort&lt;Type&gt; name;</tspan><tspan
              id="tspan7393"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="886.79578"
              x="-118.28746"
              sodipodi:role="line" /><tspan
              id="tspan7395"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="896.58459"
              x="-118.28746"
              sodipodi:role="line">// in constructor or configureHook():</tspan><tspan
              id="tspan7403"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="906.37341"
              x="-118.28746"
              sodipodi:role="line">addPort(&quot;name&quot;,name).doc(&quot;...&quot;);</tspan><tspan
              id="tspan7397"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="916.16217"
              x="-118.28746"
              sodipodi:role="line" /><tspan
              id="tspan7399"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="925.95099"
              x="-118.28746"
              sodipodi:role="line">Type sample;</tspan><tspan
              id="tspan12735"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="935.73981"
              x="-118.28746"
              sodipodi:role="line">// write data into 'sample'</tspan><tspan
              id="tspan12737"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="945.52863"
              x="-118.28746"
              sodipodi:role="line">name.write(sample);</tspan><tspan
              id="tspan12639-3"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="955.31738"
              x="-118.28746"
              sodipodi:role="line" /><tspan
              id="tspan12789"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="965.1062"
              x="-118.28746"
              sodipodi:role="line" /><tspan
              id="tspan12783"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="974.89502"
              x="-118.28746"
              sodipodi:role="line">if (name.connected())</tspan><tspan
              id="tspan12785"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="984.68378"
              x="-118.28746"
              sodipodi:role="line">{</tspan><tspan
              id="tspan12809"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="994.4726"
              x="-118.28746"
              sodipodi:role="line">    // do something only if the port</tspan><tspan
              id="tspan12811"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="1004.2614"
              x="-118.28746"
              sodipodi:role="line">    // is connected</tspan><tspan
              id="tspan12787"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="1014.0502"
              x="-118.28746"
              sodipodi:role="line">}</tspan></text>
@@ -1152,13 +1159,14 @@
            sodipodi:role="line">Output Ports</tspan></text>
     </g>
     <g
-       id="g7405">
+       id="g7405"
+       transform="translate(0,-12)">
       <text
          sodipodi:linespacing="125%"
          id="text9319-0-7-9-1-7"
          y="493.41687"
          x="257.54437"
-         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            y="493.41687"
            x="257.54437"
@@ -1181,40 +1189,40 @@
            id="text9128-63-0"
            y="513.7915"
            x="273.92737"
-           style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:115%;writing-mode:lr;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+           style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
            xml:space="preserve"><tspan
              id="tspan12215-3-4"
              y="513.7915"
              x="273.92737"
              sodipodi:role="line"
-             style="font-size:9.82696915000000004px;fill:#0737e3;fill-opacity:1;-inkscape-font-specification:Sans;font-family:Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:115%">// class member variable:</tspan><tspan
+             style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:Sans;-inkscape-font-specification:Sans">// class member variable:</tspan><tspan
              id="tspan7155"
-             y="526.67151"
+             y="525.09253"
              x="273.92737"
              sodipodi:role="line"
-             style="font-size:9.82696915000000004px;fill:#0737e3;fill-opacity:1;-inkscape-font-specification:Sans;font-family:Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:115%">int myprop;</tspan></text>
+             style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:Sans;-inkscape-font-specification:Sans">int myprop;</tspan></text>
         <text
            sodipodi:linespacing="115%"
            id="text9128-63-0-0"
            y="545.90015"
            x="273.92737"
-           style="font-size:9.82696915000000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:115%;writing-mode:lr;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+           style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
            xml:space="preserve"><tspan
              id="tspan12215-3-4-8"
              y="545.90015"
              x="273.92737"
              sodipodi:role="line"
-             style="font-size:9.82696915000000004px;fill:#0737e3;fill-opacity:1;-inkscape-font-specification:Sans;font-family:Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:115%">// in constructor or configureHook():</tspan><tspan
+             style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:Sans;-inkscape-font-specification:Sans">// in constructor or configureHook():</tspan><tspan
              id="tspan7157"
-             y="558.78015"
+             y="557.20117"
              x="273.92737"
              sodipodi:role="line"
-             style="font-size:9.82696915000000004px;fill:#0737e3;fill-opacity:1;-inkscape-font-specification:Sans;font-family:Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:115%">addProperty(&quot;myprop&quot;,myprop).doc(&quot;...&quot;);</tspan></text>
+             style="font-size:9.82696915px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:114.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:Sans;-inkscape-font-specification:Sans">addProperty(&quot;myprop&quot;,myprop).doc(&quot;...&quot;);</tspan></text>
       </g>
     </g>
     <text
        xml:space="preserve"
-       style="font-size:17.54213714999999851px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold;"
+       style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
        x="500.98172"
        y="538.55566"
        id="text9319-0-7-9-1-2-2"
@@ -1222,7 +1230,7 @@
          sodipodi:role="line"
          id="tspan9321-8-6-3-2-6-2"
          x="500.98172"
-         y="538.55566">CMake</tspan></text>
+         y="538.55566">UseOrocos-RTT.cmake</tspan></text>
     <g
        id="g6661"
        inkscape:tile-cx="622.14286"
@@ -1231,36 +1239,36 @@
        inkscape:tile-h="37.375507"
        inkscape:tile-x0="504.15701"
        inkscape:tile-y0="243.64954"
-       transform="translate(-10,30)">
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,75.27076)">
       <rect
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;"
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none"
          id="rect2021-4-7-7"
          width="235.97169"
          height="37.375507"
          x="504.15701"
          y="551.91724"
-         rx="4.9418092"
-         ry="6.5120301" />
+         rx="5.3833785"
+         ry="7.0939045" />
       <text
          sodipodi:linespacing="125%"
          id="text9128-63-2-4"
          y="568.05292"
          x="513.72449"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          xml:space="preserve"><tspan
            id="tspan12215-3-5-1"
            y="568.05292"
            x="513.72449"
            sodipodi:role="line"
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;">orocos_component( name files.cpp )<tspan
-   style="fill:#000000;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans">orocos_component( name files.cpp )<tspan
+   style="fill:#000000"
    id="tspan3550">*</tspan></tspan></text>
       <text
          sodipodi:linespacing="123%"
          id="text9128-17"
          y="581.51282"
          x="508.59799"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          xml:space="preserve"><tspan
            id="tspan16245"
            y="581.51282"
@@ -1269,51 +1277,15 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:17.23002243px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr;text-anchor:start;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
-       x="173.08997"
-       y="459.11676"
+       style="font-size:17.23002243px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+       x="153.08997"
+       y="427.11676"
        id="text6068-5-0"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6070-4-0"
-         x="173.08997"
-         y="459.11676">Implementation</tspan></text>
-    <g
-       id="g17143"
-       transform="translate(140.23827,-73.677142)">
-      <rect
-         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         id="rect2021-8-7"
-         width="271.31198"
-         height="37.020245"
-         x="-35.138283"
-         y="474.22757"
-         rx="4.9418092"
-         ry="6.5120306" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text9128-4-5-6"
-         y="488.56165"
-         x="-30.32781"
-         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:OldSansBlack"
-         xml:space="preserve"><tspan
-           id="tspan12215-83-1-2"
-           y="488.56165"
-           x="-30.32781"
-           sodipodi:role="line"
-           style="font-size:12px;font-weight:bold">Typography:</tspan><tspan
-           id="tspan17135"
-           y="503.56165"
-           x="-30.32781"
-           sodipodi:role="line"
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:94.99999881%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#1c4eff;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:ProggyTinyTT;-inkscape-font-specification:Bitstream Vera Sans"><tspan
-   id="tspan4264"
-   style="font-size:12px;font-weight:bold;line-height:125%;fill:#000000;font-family:OldSansBlack"><tspan
-   id="tspan17141"
-   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:OldSansBlack;-inkscape-font-specification:Bitstream Vera Sans">description</tspan>, </tspan>C++ code, <tspan
-   style="fill:#fb5050;fill-opacity:1"
-   id="tspan4362">script syntax</tspan></tspan></text>
-    </g>
+         x="153.08997"
+         y="427.11676">C++ Implementation</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot4197"
@@ -1347,11 +1319,11 @@
          style="font-size:9.62486553px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:80.00000119%;writing-mode:lr-tb;text-anchor:middle;fill:#1c4eff;fill-opacity:1;font-family:ProggyTinyTT" /></text>
     <path
        style="fill:#ff7e7e;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       d="m 765.3125,525.50312 0,27.40625 280.2813,0 0,-27.40625 -280.2813,0 z"
+       d="m 765.3125,525.50312 0,27.40625 261.9184,0 0,-27.40625 -261.9184,0 z"
        id="rect8310-6" />
     <path
-       style="fill:none;stroke:url(#linearGradient6560);stroke-width:3.79133844;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 765.25,525.56563 0,236.30648 c 0,8.96703 2.64564,16.17724 5.9375,16.17724 l 274.4063,0 0,-252.48372 -280.3438,0 z"
+       style="fill:none;stroke:url(#linearGradient3398);stroke-width:3.79133844;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 765.25,525.56563 0,236.30648 c 0,8.96703 2.47235,16.17724 5.54858,16.17724 l 256.43232,0 0,-252.48372 -261.9809,0 z"
        id="rect9825" />
     <text
        xml:space="preserve"
@@ -1528,12 +1500,12 @@
            sodipodi:role="line">Loads a service in a component</tspan></text>
     </g>
     <path
-       style="fill:#1c4eff;fill-opacity:1;fill-rule:nonzero;stroke:#1c4eff;stroke-opacity:1"
-       d="m 765.22697,784.76818 0,27.40625 280.28133,0 0,-27.40625 -280.28133,0 z"
+       style="fill:#1c4eff;fill-opacity:1;fill-rule:nonzero;stroke:#1c4eff;stroke-width:1;stroke-opacity:1"
+       d="m 765.22697,784.76818 0,27.40625 263.40733,0 0,-27.40625 -263.40733,0 z"
        id="rect8310-6-5" />
     <path
        style="fill:none;stroke:#1c4eff;stroke-width:3.79133868;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 765.16447,784.83071 0,224.97189 c 0,8.5369 2.64564,15.4013 5.9375,15.4013 l 274.40633,0 0,-240.37319 -280.34383,0 z"
+       d="m 765.16447,784.83071 0,224.97189 c 0,8.5369 2.47235,15.4013 5.54859,15.4013 l 256.43234,0 0,-240.37319 -261.98093,0 z"
        id="rect9825-2" />
     <text
        xml:space="preserve"
@@ -1670,7 +1642,7 @@
            id="tspan5877-2-5-0-5"
            y="976.75751"
            x="783.78912"
-           sodipodi:role="line">Help about the taskbrowser or an operation or interface</tspan></text>
+           sodipodi:role="line">Help</tspan></text>
     </g>
     <rect
        style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -1757,24 +1729,24 @@
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6670"
-       transform="translate(-10,67.375507)">
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,109.58056)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="513.72449"
          y="568.05292"
          id="text6752"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6754">orocos_install_headers( headers.hpp )<tspan
-   style="fill:#000000;"
+   style="fill:#000000"
    id="tspan3552">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="508.59799"
          y="581.51282"
          id="text6756"
@@ -1783,42 +1755,42 @@
            x="508.59799"
            y="581.51282"
            id="tspan6758">Installs headers in <tspan
-   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
+   style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan3540">include/orocos/projectname</tspan></tspan><tspan
            sodipodi:role="line"
            x="508.59799"
-           y="593.4986"
+           y="593.30682"
            id="tspan3538">during 'make install'</tspan></text>
     </g>
     <g
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6676"
-       transform="translate(-10,116.75101)">
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,154.90606)">
       <rect
-         ry="6.5120301"
-         rx="4.9418092"
+         ry="7.0939045"
+         rx="5.3833785"
          y="551.91724"
          x="504.15701"
          height="47.467621"
          width="235.97169"
          id="rect6738"
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;" />
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none" />
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="513.72449"
          y="568.05292"
          id="text6740"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6742">orocos_typegen_headers( datatypes.hpp )</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="508.59799"
          y="581.51282"
          id="text6744"
@@ -1829,35 +1801,35 @@
            id="tspan6746">Creates one typekit from data types compatible</tspan><tspan
            sodipodi:role="line"
            x="508.59799"
-           y="593.4986"
+           y="593.30682"
            id="tspan6818">with the <tspan
-   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
+   style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan3562">typegen<tspan
-   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
+   style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan3564"> tool</tspan></tspan></tspan></text>
     </g>
     <g
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6682"
-       transform="translate(-10,166.12652)">
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,200.23156)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="513.72449"
          y="568.05292"
          id="text6728"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6730">orocos_library( name files.cpp)<tspan
-   style="fill:#000000;"
+   style="fill:#000000"
    id="tspan3554">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="508.59799"
          y="581.51282"
          id="text6732"
@@ -1871,37 +1843,37 @@
        inkscape:tile-y0="393.15157"
        inkscape:tile-x0="504.15701"
        id="use6688"
-       transform="translate(-10,203.50203)"
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,234.54136)"
        inkscape:tile-cx="622.14286"
        inkscape:tile-cy="411.83932"
        inkscape:tile-w="235.97169"
        inkscape:tile-h="37.375507">
       <rect
-         ry="6.5120301"
-         rx="4.9418092"
+         ry="7.0939045"
+         rx="5.3833785"
          y="551.91724"
          x="504.15701"
          height="37.375507"
          width="235.97169"
          id="rect6714"
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;" />
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans" />
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="513.72449"
          y="568.05292"
          id="text6716"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6718">orocos_service( name files.cpp)<tspan
-   style="fill:#000000;"
+   style="fill:#000000"
    id="tspan3556">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
          x="508.59799"
          y="581.51282"
          id="text6720"
@@ -1910,30 +1882,30 @@
            x="508.59799"
            y="581.51282"
            id="tspan6722"
-           style="-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Creates a service library containing one service</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans">Creates a service library containing one service</tspan></text>
     </g>
     <g
        inkscape:tile-y0="243.64954"
        inkscape:tile-x0="504.15701"
        id="use6694"
-       transform="translate(-10,240.87754)">
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,268.85117)">
       <text
          xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="513.72449"
          y="568.05292"
          id="text6704"
          sodipodi:linespacing="125%"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
            sodipodi:role="line"
            x="513.72449"
            y="568.05292"
            id="tspan6706">orocos_plugin( name files.cpp)<tspan
-   style="fill:#000000;"
+   style="fill:#000000"
    id="tspan3558">*</tspan></tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          x="508.59799"
          y="581.51282"
          id="text6708"
@@ -1944,39 +1916,39 @@
            id="tspan6710">Creates a plugin library containing one plugin</tspan></text>
     </g>
     <g
-       transform="translate(-10,278.25304)"
+       transform="matrix(0.91797546,0,0,0.91797546,31.353249,303.16096)"
        id="use6788"
        inkscape:tile-x0="504.15701"
        inkscape:tile-y0="393.15157">
       <rect
-         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;"
+         style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none"
          id="rect6796"
          width="235.97169"
          height="37.375507"
          x="504.15701"
          y="551.91724"
-         rx="4.9418092"
-         ry="6.5120301" />
+         rx="5.3833785"
+         ry="7.0939045" />
       <text
          sodipodi:linespacing="125%"
          id="text6798"
          y="568.05292"
          x="513.72449"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          xml:space="preserve"><tspan
            id="tspan6800"
            y="568.05292"
            x="513.72449"
            sodipodi:role="line"
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans;">orocos_typekit( name files.cpp)<tspan
-   style="fill:#000000;"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans">orocos_typekit( name files.cpp)<tspan
+   style="fill:#000000"
    id="tspan3560">*</tspan></tspan></text>
       <text
          sodipodi:linespacing="123%"
          id="text6802"
          y="581.51282"
          x="508.59799"
-         style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          xml:space="preserve"><tspan
            id="tspan6804"
            y="581.51282"
@@ -1999,20 +1971,20 @@
        id="text6802-9"
        y="554.32178"
        x="501.30322"
-       style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans;"
+       style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans"
        xml:space="preserve"><tspan
          id="tspan6804-6"
          y="554.32178"
          x="501.30322"
          sodipodi:role="line">You may mix these Orocos specific macros with</tspan><tspan
-         y="566.30756"
+         y="566.11578"
          x="501.30322"
          sodipodi:role="line"
-         id="tspan6849">standard CMake commands. The 'target' name</tspan><tspan
-         y="578.29333"
+         id="tspan6849">standard CMake commands. A CMake TARGET name</tspan><tspan
+         y="577.90979"
          x="501.30322"
          sodipodi:role="line"
-         id="tspan6851">is each time identical to the 'name' argument.</tspan></text>
+         id="tspan6851">is created for each 'name' argument.</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot7098"
@@ -2039,7 +2011,7 @@
     <g
        style="display:inline"
        id="g7417-1"
-       transform="translate(-234.28834,100.69283)">
+       transform="translate(-234.28834,88.69283)">
       <g
          transform="translate(0,-46.101525)"
          id="g3370-6">
@@ -2057,99 +2029,99 @@
            id="text9142-3-2"
            y="667.09705"
            x="261.58096"
-           style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
+           style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
            xml:space="preserve"><tspan
              id="tspan7163-4"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="667.09705"
              x="261.58096"
              sodipodi:role="line">// class member Function:</tspan><tspan
              id="tspan7316-9"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="676.88586"
              x="261.58096"
              sodipodi:role="line">bool checkFoo(double arg) { .... }</tspan><tspan
              id="tspan7312-2"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="686.67462"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7314-8"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="696.46344"
              x="261.58096"
              sodipodi:role="line">// in constructor or configureHook():</tspan><tspan
              id="tspan7308-5"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="706.25226"
              x="261.58096"
              sodipodi:role="line">addOperation(&quot;checkFoo&quot;,</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="716.04102"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7619">                      &amp;MyComp::checkFoo)</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="725.82983"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7621">                      .doc(&quot;...&quot;).arg(&quot;arg&quot;,&quot;...&quot;);</tspan><tspan
              id="tspan7359-3"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="735.61865"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7391-9"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="745.40747"
              x="261.58096"
              sodipodi:role="line">// Add C function:</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="755.19623"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7758">addOperation(&quot;cFoo&quot;,</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="764.98505"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7760">                      &amp;cFoo)</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="774.77386"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7762">                      .doc(&quot;...&quot;).arg(&quot;arg&quot;,&quot;...&quot;);</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="784.56262"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7764" /><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="794.35144"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7766">// Execute in own thread:</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="804.14026"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7774">addOperation(&quot;checkFoo&quot;,</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="813.92902"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7768">                      &amp;MyComp::checkFoo,</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="823.71783"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7776">                      OwnThread)</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="833.50665"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7770">                      .doc(&quot;...&quot;).arg(&quot;arg&quot;,&quot;...&quot;);</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="843.29547"
              x="261.58096"
              sodipodi:role="line"
@@ -2160,7 +2132,7 @@
          id="text9319-0-7-9-1-6"
          y="604.02954"
          x="257.54437"
-         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            y="604.02954"
            x="257.54437"
@@ -2170,7 +2142,7 @@
     <g
        style="display:inline"
        id="g7417-1-2"
-       transform="translate(-234.28834,327.69044)">
+       transform="translate(-234.28834,315.69044)">
       <g
          transform="translate(0,-46.101525)"
          id="g3370-6-0">
@@ -2188,59 +2160,59 @@
            id="text9142-3-2-9"
            y="667.09705"
            x="261.58096"
-           style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
+           style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;stroke:none;font-family:ProggyTinyTT"
            xml:space="preserve"><tspan
              id="tspan7163-4-3"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="667.09705"
              x="261.58096"
              sodipodi:role="line">// class member:</tspan><tspan
              id="tspan7316-9-2"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="676.88586"
              x="261.58096"
              sodipodi:role="line">OperationCaller&lt;bool(double)&gt; cFoo;</tspan><tspan
              id="tspan7312-2-1"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="686.67462"
              x="261.58096"
              sodipodi:role="line" /><tspan
              id="tspan7314-8-4"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="696.46344"
              x="261.58096"
              sodipodi:role="line">// in configureHook():</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="706.25226"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7941">if ( getPeer(&quot;Foo&quot;) )</tspan><tspan
              id="tspan7359-3-3"
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="716.04102"
              x="261.58096"
              sodipodi:role="line">    cFoo = getPeer(&quot;Foo&quot;)</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="725.82983"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7883">             -&gt;getOperation(&quot;checkFoo&quot;);</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="735.61865"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7881" /><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="745.40747"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7770-6">if ( cFoo.ready() )</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="755.19623"
              x="261.58096"
              sodipodi:role="line"
              id="tspan7939">    bool ret = cFoo( 1.234 );</tspan><tspan
-             style="font-size:10.30399990000000088px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999880999999391%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
+             style="font-size:10.3039999px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:94.99999881%;writing-mode:lr-tb;text-anchor:start;fill:#0737e3;fill-opacity:1;font-family:ProggyTinyTT"
              y="764.98505"
              x="261.58096"
              sodipodi:role="line"
@@ -2251,7 +2223,7 @@
          id="text9319-0-7-9-1-6-9"
          y="604.02954"
          x="257.54437"
-         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+         style="font-size:17.54213715px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#aaaaaa;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            y="604.02954"
            x="257.54437"
@@ -2261,17 +2233,17 @@
     <text
        sodipodi:linespacing="123%"
        id="text6802-9-5"
-       y="876.78516"
-       x="538.90265"
-       style="font-size:9.58861351000000006px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+       y="884.07172"
+       x="606.95703"
+       style="font-size:8.0360775px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:FreeSans;-inkscape-font-specification:FreeSans"
        xml:space="preserve"><tspan
-         y="876.78516"
-         x="538.90265"
+         y="884.07172"
+         x="606.95703"
          sodipodi:role="line"
          id="tspan6851-0">*Takes optional <tspan
-   style="font-weight:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-style:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
+   style="font-size:8.0360775px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan3548">INSTALL <tspan
-   style="font-style:normal;-inkscape-font-specification:FreeSans;font-family:FreeSans;font-weight:normal;font-stretch:normal;font-variant:normal;font-size:9.58861351000000006px;text-anchor:start;text-align:start;writing-mode:lr;line-height:123%;"
+   style="font-size:8.0360775px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan4756">path</tspan></tspan> argument.</tspan></text>
     <text
        sodipodi:linespacing="123%"
@@ -2352,18 +2324,18 @@
          style="fill:none;stroke:#000000;stroke-width:0.99999988px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutM)" />
       <text
          id="text4669"
-         y="1048.536"
-         x="511.66025"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1818;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         y="1046.6187"
+         x="511.83102"
+         style="font-size:9.41243935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1818;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          xml:space="preserve"><tspan
-           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1818;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
-           y="1048.536"
-           x="511.66025"
+           style="font-size:9.41243935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff1818;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+           y="1046.6187"
+           x="511.83102"
            id="tspan4671"
            sodipodi:role="line"><tspan
-   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+   style="font-size:9.41243935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan4762">in</tspan> RTT_COMPONENT_PATH <tspan
-   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+   style="font-size:9.41243935px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;font-family:FreeSans;-inkscape-font-specification:FreeSans"
    id="tspan4760">or using</tspan> path(&quot;prefix/lib/orocos&quot;)</tspan></text>
     </g>
     <g
@@ -2384,6 +2356,38 @@
            x="529.02405"
            id="tspan4671-0"
            sodipodi:role="line">import(&quot;package&quot;)</tspan></text>
+    </g>
+    <g
+       style="display:inline"
+       transform="matrix(0.91797546,0,0,0.91797546,32.525205,335.98477)"
+       id="use6788-2"
+       inkscape:tile-x0="504.15701"
+       inkscape:tile-y0="393.15157">
+      <text
+         sodipodi:linespacing="125%"
+         id="text6798-4"
+         y="568.05292"
+         x="513.72449"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         xml:space="preserve"><tspan
+           id="tspan6800-3"
+           y="568.05292"
+           x="513.72449"
+           sodipodi:role="line"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ff1515;fill-opacity:1;font-family:FreeSans;-inkscape-font-specification:FreeSans">orocos_generate_package( )<tspan
+   style="fill:#000000"
+   id="tspan3560-5" /></tspan></text>
+      <text
+         sodipodi:linespacing="123%"
+         id="text6802-1"
+         y="581.51282"
+         x="508.59799"
+         style="font-size:9.58861351px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:123.00000191%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
+         xml:space="preserve"><tspan
+           id="tspan6804-7"
+           y="581.51282"
+           x="508.59799"
+           sodipodi:role="line">Last statement which generates &amp; installs a .pc file</tspan></text>
     </g>
   </g>
   <g
