@@ -54,12 +54,20 @@ endif()
 # Set the target operating system. One of [lxrt gnulinux xenomai macosx win32]
 # You may leave this as-is or force a certain target by removing the if... logic.
 #
-if (MSVC)
-  set( OROCOS_TARGET win32 CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx win32]")
-elseif( APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-  set( OROCOS_TARGET macosx CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx win32]")
-else()
-  set( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx win32]")
+if(NOT DEFINED OROCOS_TARGET)
+  set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
+  if (ENV{OROCOS_TARGET})
+    set(OROCOS_TARGET $ENV{OROCOS_TARGET} CACHE STRING "${DOC_STRING}")
+    message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
+  else()
+    if(MSVC)
+      set(OROCOS_TARGET win32    CACHE STRING "${DOC_STRING}")
+    elseif(APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(OROCOS_TARGET macosx   CACHE STRING "${DOC_STRING}")
+    else()
+      set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
+    endif()
+  endif()
 endif()
 
 # Useful for Windows/MSVC builds, sets all libraries and executables in one place.
