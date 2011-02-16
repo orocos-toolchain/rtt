@@ -2,19 +2,16 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY oldversion  "2.2">
 <!ENTITY version     "2.3">
-<!ENTITY rtai        "<acronym>RTAI</acronym>">
-<!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
 >
 
 <article>
   <articleinfo>
     <title>
-      Orocos Toolchain &version; Release Series
+      &orocos; Toolchain &version; Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle>
@@ -23,7 +20,7 @@
   </articleinfo>
   <para>
     This document provides a quick overview of what changed between
-    the Orocos Toolchain &oldversion; and version &version;.
+    the &orocos; Toolchain &oldversion; and version &version;.
   </para>
   <para>
     Please consult the online wiki for all available information about
@@ -47,10 +44,14 @@
 					This release is binary incompatible with RTT &oldversion;.x. You need to recompile the
 					whole toolchain and all your applications in order to use this release.
 				</para>
+				<para>
+					Take care that all components and plugins in the lib/orocos directory and subdirectories
+					are removed, since the deployment/plugin logic may want to load it.
+				</para>
       </listitem>
       <listitem>
 				<para>
-					<emphasis>OCL installation directory</emphasis>
+					<emphasis>OCL installation directory has changed</emphasis>
 				</para>
 				<para>
 					The Orocos Component Library (OCL) libraries are now installed in the <filename>lib/orocos/ocl</filename>
@@ -58,6 +59,20 @@
 					will still automatically import that directory, but if you have a custom deployment application
 					and you rely on OCL, you'll need to add an import("ocl") statement in C++, scripting or your
 					deployer XML file.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>Component/plugin/typekit installation directory has changed</emphasis>
+				</para>
+				<para>
+					The Orocos components, typekits and libraries are now put in the
+					<filename>lib/orocos/&lt;OROCOS_TARGET&gt;</filename> directory instead of the
+					<filename>lib/orocos</filename> directory. This is so in order to allow multi-target
+					installs of the same sources. Both the ROS builds ( in
+					<filename>project/lib/orocos/&lt;OROCOS_TARGET&gt;</filename> ) and the non-ROS builds (
+					in <filename>install/lib/orocos/&lt;OROCOS_TARGET&gt;/project</filename> ) have changed
+					to this convention.
 				</para>
       </listitem>
       <listitem>
@@ -81,7 +96,7 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						These Orocos RTT cheat-sheet has been updated:
+						The Orocos RTT cheat-sheet has been updated:
 					</para>
 					<para>
 						<itemizedlist> 
@@ -96,12 +111,13 @@
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis>New UseOrocos-RTT.cmake macro: orocos_generated_package()</emphasis>
+					<emphasis>New UseOrocos-RTT.cmake macro: orocos_generate_package()</emphasis>
 				</para>
 				<para>
 					This new macro replaces your orocos_uninstall_target() and macros for generating and installing a .pc file.
 					The .pc file is now automatically generated. Existing macros will keep working, but it's advised to
-					gradually upgrade to the orocos_generated_package macro.
+					gradually upgrade to the orocos_generate_package macro. This macro takes as optional arguments the
+					package name and a version number. See the UseOrocos-RTT.cmake file for documentation.
 				</para>
       </listitem>
 				<listitem>
@@ -198,12 +214,55 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						In ROS systems, the deployer will only load components and plugins from the
+						<filename>package/lib/orocos/OROCOS_TARGET</filename> directory <emphasis>if it
+						exists</emphasis>, and ignore any libraries in the <filename>package/lib/orocos</filename>
+						directory.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
 						See the Caveats section on top for the change of the installation directory
 						of OCL components.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+    <section>
+      <title>TaskBrowser</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						Displaying the values of output ports is now more consistent and reflects what
+						the user expects. It returns the 'last()' value of the port.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The TaskBrowser history no longer stores two consecutive duplicate commands.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The TaskBrowser can now provide 'help' for sub-services. For example:
+						<programlisting>Deployer [S]> <emphasis>help myservice.port</emphasis>
+
+Printing Interface of 'port' :
+
+ connected( ) : bool
+   Check if this port is connected and ready for use.
+ disconnect( ) : void
+   Disconnects this port from any connection it is part of.
+ name( ) : /std/string const&amp; const&amp;
+   Returns the port name.
+ read( double &amp; sample ) : FlowStatus
+   Reads a sample from the port.
+   sample :
+Deployer [S]> <emphasis>help myservice.port.connected</emphasis>
+
+ connected( ) : bool
+   Check if this port is connected and ready for use.
+</programlisting>
 					</para>
 				</listitem>
 			</itemizedlist>
