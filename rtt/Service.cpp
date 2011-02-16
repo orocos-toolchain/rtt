@@ -54,7 +54,9 @@ namespace RTT {
     }
 
     Service::Service(const std::string& name, TaskContext* owner)
-    : mname(name), mowner(owner), parent()
+    : mname(name),
+      mowner(owner),
+      parent()
     {
         // Inform DataFlowInterface.
         mservice = this;
@@ -97,8 +99,7 @@ namespace RTT {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& bw ) {
-            log(Error) <<"You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();
-            log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
+            log(Error) <<"bad_weak_ptr in shared_from_this(). This shouldn't happen. Contact the orocos-dev mailing list." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
     }

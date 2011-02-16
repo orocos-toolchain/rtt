@@ -58,6 +58,11 @@
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function_types/components.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#if BOOST_VERSION >= 104000
+#include <boost/smart_ptr/enable_shared_from_this2.hpp>
+#else
+#include "internal/enable_shared_from_this2.hpp"
+#endif
 
 namespace RTT
 {
@@ -79,7 +84,7 @@ namespace RTT
         : public OperationInterface,
           public ConfigurationInterface,
           public DataFlowInterface,
-          public boost::enable_shared_from_this<Service>
+          public boost::enable_shared_from_this2<Service>
     {
     public:
         typedef OperationInterface Factory;
