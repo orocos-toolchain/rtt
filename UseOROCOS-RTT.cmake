@@ -152,7 +152,7 @@ macro( orocos_component COMPONENT_NAME )
   if (ROS_ROOT)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}
     )
   else()
     ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
@@ -354,7 +354,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
   if (ROS_ROOT)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/types
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types
     )
   else()
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
@@ -419,7 +419,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
     MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos/plugins
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/plugins
     )
   else()
     MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
@@ -550,19 +550,21 @@ macro( orocos_generate_package )
     set(PC_LIBS "${PC_LIBS} -L\${libdir} ${OROCOS_DEFINED_LIBS}")
   endif (OROCOS_DEFINED_LIBS)
   if (OROCOS_DEFINED_COMPS)
-    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME} ${OROCOS_DEFINED_COMPS}")
+    set(PC_LIBS "${PC_LIBS} -L\${orocos_libdir} ${OROCOS_DEFINED_COMPS}")
   endif (OROCOS_DEFINED_COMPS)
   if (OROCOS_DEFINED_PLUGINS)
-    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins ${OROCOS_DEFINED_PLUGINS}")
+    set(PC_LIBS "${PC_LIBS} -L\${orocos_libdir}/plugins ${OROCOS_DEFINED_PLUGINS}")
   endif (OROCOS_DEFINED_PLUGINS)
   if (OROCOS_DEFINED_TYPES)
-    set(PC_LIBS "${PC_LIBS} -L\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types ${OROCOS_DEFINED_TYPES}")
+    set(PC_LIBS "${PC_LIBS} -L\${orocos_libdir}/types ${OROCOS_DEFINED_TYPES}")
   endif (OROCOS_DEFINED_TYPES)
 
   set(PC_PREFIX ${CMAKE_INSTALL_PREFIX})
+  set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
   set(PC_CONTENTS "prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
 includedir=\${prefix}/include/orocos
+orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
@@ -579,12 +581,14 @@ Cflags: -I\${includedir}
 
   # For ros package trees, we install the .pc file also next to the manifest file:
   if (ROS_ROOT)
-    set(PC_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
+    set(PC_PREFIX ${PROJECT_SOURCE_DIR})
+    set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
     # For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
     # so we need to reset it. CMake bug ???
   set(PC_CONTENTS "prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
 includedir=\${prefix}/include/orocos
+orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
@@ -594,7 +598,7 @@ ${PC_LIBS}
 Cflags: -I\${includedir}
 ")
     string(CONFIGURE "${PC_CONTENTS}" ROS_PC_CONTENTS @ONLY)
-    file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
+    file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
   endif (ROS_ROOT)
 
   # Also set the uninstall target:
