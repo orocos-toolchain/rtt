@@ -60,8 +60,8 @@
 typedef struct { rt_mutex_t m; volatile int counter; } oro_atomic_t;
 
 #define ORO_ATOMIC_INIT(i)	{ (i) }
-#define ORO_ATOMIC_SETUP(v,i)	rtos_mutex_init(&((v)->m)); (v)->counter = (i);
-#define ORO_ATOMIC_CLEANUP(v)	rtos_mutex_destroy(&((v)->m));
+#define ORO_ATOMIC_SETUP(v,i)	rtos_mutex_init(&((v)->m)); (v)->counter = (i)
+#define ORO_ATOMIC_CLEANUP(v)	rtos_mutex_destroy(&((v)->m))
 
 /**
  * oro_atomic_read - read atomic variable

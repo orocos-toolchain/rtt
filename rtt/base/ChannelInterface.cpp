@@ -47,7 +47,12 @@ ChannelElementBase::ChannelElementBase()
     : input(0)
 
 {
-    oro_atomic_set(&refcount,0);
+    ORO_ATOMIC_SETUP(&refcount,0);
+}
+
+ChannelElementBase::~ChannelElementBase()
+{
+    ORO_ATOMIC_CLEANUP(&refcount);
 }
 
 ChannelElementBase::shared_ptr ChannelElementBase::getInput()

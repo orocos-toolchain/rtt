@@ -85,7 +85,7 @@ namespace RTT { namespace base {
          * setOutput().
          */
         ChannelElementBase();
-        virtual ~ChannelElementBase() {}
+        virtual ~ChannelElementBase();
 
         /**
          * Removes the input channel (if any).
