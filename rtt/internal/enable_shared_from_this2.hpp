@@ -53,11 +53,11 @@ template< class T > class enable_shared_from_this2
 {
 protected:
 
-    enable_shared_from_this2()
+    enable_shared_from_this2() : weak_init(false)
     {
     }
 
-    enable_shared_from_this2( enable_shared_from_this2 const & )
+    enable_shared_from_this2( enable_shared_from_this2 const & ) : weak_init(false)
     {
     }
 
@@ -75,6 +75,7 @@ private:
 
     mutable weak_ptr<T> weak_this_;
     mutable shared_ptr<T> shared_this_;
+    mutable bool weak_init; // we deviate from the boost 1.40 implementation because weak_this_._empty() is not available in older versions.
 
 public:
 
@@ -94,10 +95,11 @@ private:
 
     void init_weak_once() const
     {
-        if( weak_this_._empty() )
+        if( !weak_init )
         {
             shared_this_.reset( static_cast< T* >( 0 ), detail::esft2_deleter_wrapper() );
             weak_this_ = shared_this_;
+            weak_init = true;
         }
     }
 
