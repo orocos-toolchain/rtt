@@ -98,7 +98,7 @@ namespace RTT {
     Service::shared_ptr Service::provides() {
         try {
             return shared_from_this();
-        } catch( boost::bad_weak_ptr& bw ) {
+        } catch( boost::bad_weak_ptr& /*bw*/ ) {
             log(Error) <<"bad_weak_ptr in shared_from_this(). This shouldn't happen. Contact the orocos-dev mailing list." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
