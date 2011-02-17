@@ -149,6 +149,7 @@ namespace RTT
                 if ( data.empty() )
                     return false;
                 result = data.front();
+                data.pop_front();
             }
             return true;
         }
