@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( testReferenceDataSource )
     atype.a = -atype.a;
     BOOST_CHECK_EQUAL( d->set(), atype );
 
-    d->set().a = 55.5;
+    d->set().a = 55;
     BOOST_CHECK_EQUAL( d->set(), atype );
 }
 

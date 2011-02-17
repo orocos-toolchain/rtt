@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testEmptyProgram)
     try {
         pg_list = parser.parseProgram( prog, tc );
     }
-    catch( const file_parse_exception& exc )
+    catch( const file_parse_exception& /*exc*/ )
         {
             BOOST_CHECK( false );
         }

@@ -74,7 +74,7 @@ namespace RTT
         {
             if ( start_bit < mchannels.size() && stop_bit < mchannels.size() )
                 for (unsigned int i = start_bit; i <= stop_bit; ++i)
-                    mchannels[i] = value & ( 1<<( i - start_bit ) );
+                    mchannels[i] = (value & ( 1<<( i - start_bit ) )) != 0 ;
         }
 
         virtual bool checkBit(unsigned int n) const
