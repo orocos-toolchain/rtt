@@ -171,12 +171,13 @@ list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
 
 # Append additional user-defined plugin search paths
-foreach(CUSTOM_PLUGIN_PATH $ENV{RTT_COMPONENT_PATH})
+file(TO_CMAKE_PATH "$ENV{RTT_COMPONENT_PATH}" ENV_RTT_COMPONENT_PATH)
+foreach(CUSTOM_COMPONENT_PATH ${ENV_RTT_COMPONENT_PATH})
   list(APPEND OROCOS-RTT_PLUGIN_PATH "${CUSTOM_COMPONENT_PATH}/plugins"
                                         "${CUSTOM_COMPONENT_PATH}/types")
 endforeach()
 # Append additional user-defined component search paths
-foreach(CUSTOM_COMPONENT_PATH $ENV{RTT_COMPONENT_PATH})
+foreach(CUSTOM_COMPONENT_PATH ${ENV_RTT_COMPONENT_PATH})
   list(APPEND OROCOS-RTT_COMPONENT_PATH "${CUSTOM_COMPONENT_PATH}")
 endforeach()
 
@@ -185,6 +186,9 @@ foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS} ${Orocos-RTT_FIND_COMPONENTS})
 
   # Find individual plugin
   string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
+  set(OROCOS-RTT_${COMPONENT_UPPER}_FOUND FALSE)
+  unset(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY CACHE)
+
   find_library(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY NAMES ${COMPONENT} ${COMPONENT}-${OROCOS_TARGET}
                                                      PATHS ${OROCOS-RTT_PLUGIN_PATH} NO_DEFAULT_PATH)
   mark_as_advanced(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY)
