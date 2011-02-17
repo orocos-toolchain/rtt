@@ -138,9 +138,9 @@ namespace RTT
         unsigned int int_to_uint(int i) { return (unsigned int)(i); }
         int uint_to_int(unsigned int ui) { return int(ui); }
 #endif
-        bool flow_to_bool(FlowStatus fs) { return bool(fs); }
-        bool send_to_bool(SendStatus ss) { return bool(ss); }
-        bool int_to_bool(int i) { return bool(i); }
+        bool flow_to_bool(FlowStatus fs) { return fs != NoData ; }
+        bool send_to_bool(SendStatus ss) { return ss == SendSuccess; }
+        bool int_to_bool(int i) { return i != 0; }
         int bool_to_int(bool b) { return int(b); }
 
         struct string_ctor
