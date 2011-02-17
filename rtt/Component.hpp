@@ -201,9 +201,9 @@ extern "C" { \
 #define ORO_LIST_COMPONENT_TYPE(CLASS_NAME) namespace { namespace ORO_CONCAT_LINE(LOADER_) { RTT::ComponentFactoryLoader<CLASS_NAME> m_cloader(ORO_LIST_COMPONENT_TYPE_str(CLASS_NAME)); } }
 
 /**
- * Backwards compatibility macro which is now replaced by ORO_CREATE_COMPONENT_LIBRARY( Classname )
+ * Backwards compatibility macro which is now replaced by ORO_CREATE_COMPONENT_LIBRARY( )
  */
-#define ORO_CREATE_COMPONENT_TYPE(CLASS_NAME) ORO_CREATE_COMPONENT_LIBRARY(CLASS_NAME)
+#define ORO_CREATE_COMPONENT_TYPE( ) ORO_CREATE_COMPONENT_LIBRARY( )
 
 #endif
 
