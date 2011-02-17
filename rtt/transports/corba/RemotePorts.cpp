@@ -117,7 +117,7 @@ RemoteInputPort::RemoteInputPort(RTT::types::TypeInfo const* type_info,
 RTT::base::DataSourceBase* RemoteInputPort::getDataSource()
 { throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
-RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
+RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOutput(
         RTT::base::OutputPortInterface& output_port,
         RTT::types::TypeInfo const* type,
         RTT::base::InputPortInterface& reader_,
@@ -129,7 +129,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
     // First we delegate this call to the remote side, which will create a corba channel element,
     // buffers and channel output and attach this to the real input port.
     CRemoteChannelElement_var remote;
-    RTT::base::ChannelElementBase* buf = 0;
+    RTT::base::ChannelElementBase::shared_ptr buf;
     try {
         CConnPolicy cpolicy = toCORBA(policy);
         CChannelElement_var ret = dataflow->buildChannelOutput(getName().c_str(), cpolicy);
@@ -157,7 +157,7 @@ RTT::base::ChannelElementBase* RemoteInputPort::buildRemoteChannelOutput(
     remote->setRemoteSide(proxy.in());
     local->_remove_ref();
 
-    RTT::base::ChannelElementBase* corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
+    RTT::base::ChannelElementBase::shared_ptr corba_ceb = dynamic_cast<RTT::base::ChannelElementBase*>(local);
 
     // Note: this probably needs to factored out, see also DataFlowI.cpp:buildChannelOutput() for the counterpart of this code.
     // If the user specified OOB, we prepend the prefered transport.

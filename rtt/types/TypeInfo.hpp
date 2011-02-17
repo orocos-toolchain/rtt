@@ -41,6 +41,7 @@
 #include <vector>
 #include <string>
 #include "../base/DataSourceBase.hpp"
+#include "../base/ChannelElementBase.hpp"
 
 namespace RTT
 { namespace types {
@@ -312,9 +313,9 @@ namespace RTT
          * @param policy Describes the kind of storage requested by the user
          * @return a storage element.
          */
-        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const = 0;
-        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const = 0;
-        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const = 0;
+        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
+        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
+        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
 
     protected:
         /**

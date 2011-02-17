@@ -168,12 +168,12 @@ namespace RTT
         { return 0; }
         virtual base::OutputPortInterface* outputPort(std::string const& name) const
         { return 0; }
-        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const
-        { return 0; }
-        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const
-        { return 0; }
-        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const
-        { return 0; }
+        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const
+        { return base::ChannelElementBase::shared_ptr(); }
+        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
+        { return base::ChannelElementBase::shared_ptr(); }
+        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
+        { return base::ChannelElementBase::shared_ptr(); }
 
     };
 

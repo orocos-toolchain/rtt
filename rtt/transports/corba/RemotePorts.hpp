@@ -155,7 +155,7 @@ namespace RTT {
              * @param policy The policy for the ConnFactory.
              * @return The local endpoint for the output.
              */
-            base::ChannelElementBase* buildRemoteChannelOutput(
+            base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
                     base::OutputPortInterface& output_port,
                     types::TypeInfo const* type,
                     base::InputPortInterface& reader_,
