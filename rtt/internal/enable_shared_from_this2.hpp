@@ -57,6 +57,8 @@ protected:
     {
     }
 
+    // note: the copy constructor and operator= don't do anything, ie, they don't copy
+    // refcount status from the other object.
     enable_shared_from_this2( enable_shared_from_this2 const & ) : weak_init(false)
     {
     }
@@ -113,6 +115,7 @@ public: // actually private, but avoids compiler template friendship issues
         if( weak_this_.use_count() == 0 )
         {
             weak_this_ = shared_ptr<T>( *ppx, py );
+            weak_init = true;
         }
         else if( shared_this_.use_count() != 0 )
         {
