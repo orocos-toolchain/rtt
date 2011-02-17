@@ -224,8 +224,7 @@ void CDataFlowInterface_i::deregisterChannel(CChannelElement_ptr channel)
     ChannelList::iterator it=channel_list.begin();
     for (; it != channel_list.end(); ++it) {
         if (it->first->_is_equivalent (channel) ) {
-            CORBA::release(it->first);
-            channel_list.erase(it);
+            channel_list.erase(it); // it->first is a _var so releases automatically.
             return;
         }
     }
