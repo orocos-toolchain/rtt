@@ -166,6 +166,14 @@ namespace RTT
                 continue;
             }
 
+            // Skip if they have the same type
+            if((dynamic_cast<OutputPortInterface*>(*it) && dynamic_cast<OutputPortInterface*>(peerport)) ||
+               (dynamic_cast<InputPortInterface*>(*it) &&  dynamic_cast<InputPortInterface*>(peerport)))
+              {
+                log(Debug)<< (*it)->getName() << " and " << peerport->getName() << " have the same type" << endlog();
+                continue;
+              }
+
             // Try to find a way to connect them
             if ( !(*it)->connectTo( peerport ) ) {
                 log(Debug)<< "Data flow incompatible between ports "
