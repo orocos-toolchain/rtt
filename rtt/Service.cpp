@@ -55,7 +55,11 @@ namespace RTT {
 
     Service::Service(const std::string& name, TaskContext* owner)
     : mname(name),
+#if BOOST_VERSION >= 104000
       mowner(owner),
+#else
+      mowner(0),
+#endif
       parent()
     {
         // Inform DataFlowInterface.
@@ -99,7 +103,8 @@ namespace RTT {
         try {
             return shared_from_this();
         } catch( boost::bad_weak_ptr& /*bw*/ ) {
-            log(Error) <<"bad_weak_ptr in shared_from_this(). This shouldn't happen. Contact the orocos-dev mailing list." <<endlog();
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();                                                                                                     log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
+            log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
     }

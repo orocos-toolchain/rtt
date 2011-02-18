@@ -95,6 +95,7 @@ namespace RTT
 
     void TaskContext::setup()
     {
+        tcservice->setOwner(this);
         // from Service
         provides()->doc("The interface of this TaskContext.");
 
