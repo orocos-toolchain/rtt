@@ -116,6 +116,7 @@ namespace RTT {
         if (sp)
             return sp;
         sp = boost::make_shared<Service>(service_name, mowner);
+        sp->setOwner( mowner );
         sp->setParent( shared_from_this() );
         services[service_name] = sp;
         return sp;
