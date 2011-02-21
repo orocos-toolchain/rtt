@@ -107,6 +107,10 @@ namespace RTT
 // ORO_CREATE_COMPONENT and ORO_CREATE_COMPONENT_LIBRARY are only used in shared libraries.
 #if defined(OCL_DLL_EXPORT) || defined (RTT_COMPONENT)
 
+#ifdef _MSC_VER
+#pragma warning (disable:4190)
+#endif
+
 /**
  * Use this macro to register a single component in a shared library (plug-in).
  * You can only use this macro \b once in a .cpp file for the whole shared library \b and

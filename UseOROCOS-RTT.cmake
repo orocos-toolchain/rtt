@@ -26,12 +26,24 @@ if(OROCOS-RTT_FOUND)
   else (CMAKE_COMPILER_IS_GNUCXX)
     SET(USE_OROCOS_LINK_FLAGS " ")
   endif (CMAKE_COMPILER_IS_GNUCXX)
+  # Suppress API decoration warnings in Win32:
+  if (MSVC)
+    set(USE_OROCOS_COMPILE_FLAGS "/wd4251" )
+  else (MSVC)
+    set(USE_OROCOS_COMPILE_FLAGS " " )
+  endif (MSVC)
 
   # Detect user flag: install with orocos
   if (INSTALL_PATH STREQUAL "orocos")
     set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
     mark_as_advanced(INSTALL_PATH)
-    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by UseOrocos.cmake" FORCE)
+    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
+  else (INSTALL_PATH STREQUAL "orocos")
+    if (WIN32)
+      set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
+      mark_as_advanced(INSTALL_PATH)
+      set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
+    endif (WIN32)
   endif (INSTALL_PATH STREQUAL "orocos")
   
   # Infer package name from directory name.                                                                                                                                                                                                  
@@ -166,6 +178,7 @@ macro( orocos_component COMPONENT_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX};${CMAKE_INSTALL_PREFIX}/lib;${AC_INSTALL_DIR}"
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
+    COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS}
     )
   TARGET_LINK_LIBRARIES( ${COMPONENT_NAME} ${OROCOS-RTT_LIBRARIES} ${OROCOS-RTT_TYPEKIT_LIBRARIES} )
 
@@ -232,6 +245,7 @@ macro( orocos_library LIB_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${AC_INSTALL_DIR}"
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
+    COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS}
     )
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ${OROCOS-RTT_TYPEKIT_LIBRARIES} )
 
@@ -281,6 +295,7 @@ macro( orocos_executable EXE_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${AC_INSTALL_DIR}"
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
+    COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS}
     )
   TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
@@ -431,6 +446,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins;${AC_INSTALL_DIR}"
     LINK_FLAGS ${USE_OROCOS_LINK_FLAGS}
+    COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS}
     )
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ${OROCOS-RTT_TYPEKIT_LIBRARIES} )
 
