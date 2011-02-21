@@ -526,15 +526,19 @@ namespace RTT {
             nsecs nsperiod = ns + 1000* 1000* 1000* s ;
             if (nsperiod < 0)
                 return false;
+            // logic to switch from per->nper || nper->per
             if ( (nsperiod == 0 && period != 0) || (nsperiod != 0 && period == 0)) {
                 // switch between periodic/non-periodic
                 // note for RTAI: the fosi_internal layer must detect if this is called from
                 // within rtos_task or outside the thread.
                 rtos_task_make_periodic(&rtos_task, nsperiod);
                 // jump from non periodic into periodic: first sample.
-                if ( period == 0)
+                if ( period == 0) {
+                    period = nsperiod; // avoid race with sem in thread func.
                     rtos_sem_signal(&sem);
+                }
             }
+            // update rate:
             period = nsperiod;
 
             return true;
