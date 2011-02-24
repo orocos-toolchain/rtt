@@ -78,9 +78,10 @@ namespace RTT
         chholder = XMLString::transcode( c );
         if ( chholder ) {
             res = chholder;
-            delete[] chholder;
+            XMLString::release( &chholder );
             return true;
         }
+        log(Error) << "Could not transcode XMLCh* !" <<endlog();
         return false;
     }
 
@@ -91,9 +92,10 @@ namespace RTT
         chholder = XMLString::transcode( c );
         if ( chholder ) {
             res = chholder;
-            delete[] chholder;
+            XMLString::release( &chholder );
             return res;
         }
+        log(Error) << "Could not transcode XMLCh* !" <<endlog();
         return res;
     }
 
@@ -345,7 +347,11 @@ namespace RTT
             {
                 throw exception;
             }
+#if XERCES_VERSION_MAJOR < 3
             void characters( const XMLCh* const chars, const unsigned int length )
+#else
+            void characters( const XMLCh* const chars, const XMLSize_t length )
+#endif
             {
                 //char *ln = XMLString::transcode( chars );
                 switch ( tag_stack.top() )
@@ -404,7 +410,7 @@ namespace RTT
             {
                 Logger::log() << Logger::Error << "Opening file: General System Exception !" << Logger::endl;
             }
-        delete[] name;
+        XMLString::release( &name );
     }
 
     CPFDemarshaller::~CPFDemarshaller()
