@@ -147,7 +147,6 @@ namespace RTT {
 
         bool CorbaLibPlugin::registerTransport(std::string name, TypeInfo* ti)
         {
-            assert( name == ti->getTypeName() );
             if ( name == "unknown_t") // register fallback also.
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol());
             if ( name == "int" )
