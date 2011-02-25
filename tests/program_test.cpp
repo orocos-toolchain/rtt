@@ -53,7 +53,7 @@ public:
     void loopProgram( ProgramInterfacePtr );
 
     ProgramTest()
-    : sa( new ScriptingService(tc) )
+        : sa( ScriptingService::Create(tc) )
     {
         tc->stop();
         BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
