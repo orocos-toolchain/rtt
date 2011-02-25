@@ -108,24 +108,24 @@ namespace RTT
                             }
                         }
                         else if ( type == "char" ) {
-                            if ( value_string.length() != 1 ) {
+                            if ( value_string.length() > 1 ) {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain a single character, got '"+ value_string +"'." << endlog();
                                 return false;
                             }
                             else
                                 bag_stack.top().first->add
-                                    ( new Property<char>( name, description, value_string[0] ) );
+                                    ( new Property<char>( name, description, value_string.empty() ? '\0' : value_string[0] ) );
                         }
                         else if ( type == "uchar" ) {
-                            if ( value_string.length() != 1 ) {
+                            if ( value_string.length() > 1 ) {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain a single unsigned character, got '"+ value_string +"'." << endlog();
                                 return false;
                             }
                             else
                                 bag_stack.top().first->add
-                                    ( new Property<unsigned char>( name, description, value_string[0] ) );
+                                    ( new Property<unsigned char>( name, description, value_string.empty() ? '\0' : value_string[0] ) );
                         }
                         else if ( type == "long" || type == "short")
                         {
