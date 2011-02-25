@@ -253,32 +253,34 @@ BOOST_AUTO_TEST_CASE(testLocalOperationCallerFactory)
     BOOST_CHECK( !m1.ready() );
     BOOST_CHECK( !m2.ready() );
 
-    Service to("task");
+    // We deliberately omit the owner 'tc' here:
+    Service::shared_ptr to = Service::Create("task");
 
     // allow to add an operation even if no owner is set.
-    BOOST_CHECK( to.addLocalOperation(m0) );
+    BOOST_CHECK( to->addLocalOperation(m0) );
     BOOST_CHECK( !m0.ready() );
-    to.setOwner(tc);
+    // now set the owner and check the op:
+    to->setOwner(tc);
     BOOST_CHECK( m0.ready() );
 
     // Overriding and adding:
-    BOOST_CHECK( to.addLocalOperation(m0) );
-    BOOST_CHECK( to.addLocalOperation(m0) );
-    BOOST_CHECK( to.addLocalOperation(m1) );
-    BOOST_CHECK( to.addLocalOperation(m2) );
+    BOOST_CHECK( to->addLocalOperation(m0) );
+    BOOST_CHECK( to->addLocalOperation(m0) );
+    BOOST_CHECK( to->addLocalOperation(m1) );
+    BOOST_CHECK( to->addLocalOperation(m2) );
 
     // test constructor
-    OperationCaller<double(void)> mm0 = to.getLocalOperation("m0");
+    OperationCaller<double(void)> mm0 = to->getLocalOperation("m0");
     BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
 
     // test operator=()
     OperationCaller<double(int)> mm1;
-    mm1 = to.getLocalOperation("m1");
+    mm1 = to->getLocalOperation("m1");
     BOOST_CHECK( mm1.getOperationCallerImpl() );
     BOOST_CHECK( mm1.ready() );
 
-    OperationCaller<double(int,double)> mm2 = to.getLocalOperation("m2");
+    OperationCaller<double(int,double)> mm2 = to->getLocalOperation("m2");
     BOOST_CHECK( mm2.getOperationCallerImpl() );
     BOOST_CHECK( mm2.ready() );
 
@@ -291,22 +293,22 @@ BOOST_AUTO_TEST_CASE(testLocalOperationCallerFactory)
     // test error cases:
     // Add uninitialised op:
     Operation<void(void)> ovoid("ovoid");
-    BOOST_CHECK(to.addLocalOperation( ovoid ) == true);
+    BOOST_CHECK(to->addLocalOperation( ovoid ) == true);
     ovoid = Operation<void(void)>("ovoid");
-    BOOST_CHECK(to.addLocalOperation( ovoid ) == true);
+    BOOST_CHECK(to->addLocalOperation( ovoid ) == true);
 
     // wrong type 1:
     OperationCaller<void(void)> mvoid;
-    mvoid = to.getLocalOperation("m1");
+    mvoid = to->getLocalOperation("m1");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
-    mvoid = to.getLocalOperation("m2");
+    mvoid = to->getLocalOperation("m2");
     BOOST_CHECK( mvoid.ready() == false );
     // wrong type 3:
-    mvoid = to.getLocalOperation("m0");
+    mvoid = to->getLocalOperation("m0");
     BOOST_CHECK( mvoid.ready() == false );
     // non existing
-    mvoid = to.getLocalOperation("voidm");
+    mvoid = to->getLocalOperation("voidm");
     BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:
@@ -354,7 +356,7 @@ BOOST_AUTO_TEST_CASE(testRefAndConstRefOperationCallerCall_OwnThread)
 
 BOOST_AUTO_TEST_CASE(testDSOperationCaller)
 {
-    ServicePtr to (new Service("task", tc) );
+    ServicePtr to = Service::Create("task", tc);
 
     // A operationCaller of which the first argument type is a pointer to the object
     // on which it must be invoked. The pointer is internally stored as a weak_ptr,

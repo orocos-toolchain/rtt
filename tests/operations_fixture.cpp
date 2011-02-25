@@ -53,7 +53,7 @@ OperationsFixture::~OperationsFixture()
 
 void OperationsFixture::createOperationCallerFactories(TaskContext* target)
 {
-    Service::shared_ptr dat = Service::Create("test");
+    Service::shared_ptr dat = Service::Create("test", target);
     dat->addAttribute("i", i);
     dat->addOperation("assert", &OperationsFixture::assertBool, this).doc("assert").arg("b", "bd");
     dat->addOperation("assertEqual", &OperationsFixture::assertEqual, this);
@@ -66,7 +66,6 @@ void OperationsFixture::createOperationCallerFactories(TaskContext* target)
     dat->addOperation("good", &OperationsFixture::good, this).doc("Returns true.");
     dat->addOperation("print", &OperationsFixture::print, this).doc("Print message");
     dat->addOperation("printNumber", &OperationsFixture::printNumber, this).doc("Print message + number");
-    target->provides()->addService( dat );
 
     createOperationCallerFactories0(target);
     createOperationCallerFactories1(target);
