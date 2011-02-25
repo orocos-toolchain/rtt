@@ -50,7 +50,10 @@ namespace RTT {
     using namespace boost;
 
     Service::shared_ptr Service::Create(const std::string& name, TaskContext* owner) {
-        return shared_ptr(new Service(name,owner));
+        shared_ptr ret(new Service(name,owner));
+        if (owner)
+            owner->provides()->addService( ret );
+        return ret;
     }
 
     Service::Service(const std::string& name, TaskContext* owner)
