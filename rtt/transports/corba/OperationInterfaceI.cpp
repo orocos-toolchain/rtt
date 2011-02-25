@@ -328,7 +328,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             }
         }
         mc.check();
-    } catch (no_asynchronous_operation_exception& nao) {
+    } catch (no_asynchronous_operation_exception& ) {
         throw ::RTT::corba::CNoSuchNameException(operation);
     } catch (name_not_found_exception& nnf) {
         throw ::RTT::corba::CNoSuchNameException(nnf.name.c_str());
@@ -381,9 +381,9 @@ void RTT_corba_COperationInterface_i::checkOperation (
         } else {
             orig.check(); // will throw
         }
-    } catch (no_asynchronous_operation_exception& nao) {
+    } catch (no_asynchronous_operation_exception& ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );
@@ -418,9 +418,9 @@ void RTT_corba_COperationInterface_i::checkOperation (
         } else {
             orig.check(); // will throw
         }
-    } catch (no_asynchronous_operation_exception& nao) {
+    } catch (no_asynchronous_operation_exception& ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
-    } catch ( name_not_found_exception& nnf ) {
+    } catch ( name_not_found_exception& ) {
         throw ::RTT::corba::CNoSuchNameException( operation );
     } catch ( wrong_number_of_args_exception& wna ) {
         throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );

@@ -77,7 +77,7 @@ const TypeInfo* CorbaOperationCallerFactory::getArgumentType(unsigned int i) con
             log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" return type " << tname.in() << " is unknown in this process." << endlog();
         else
             log(Warning) << "CorbaOperationCallerFactory: remote operation's "<< method <<" argument "<< i <<" of type " << tname.in() << " is unknown in this process." << endlog();
-    } catch ( CNoSuchNameException& nsne) {
+    } catch ( CNoSuchNameException& ) {
         assert(false);
     }
     catch ( CWrongArgumentException& wae){
@@ -199,11 +199,11 @@ public:
                 }
             }
             return true;
-        } catch ( corba::CNoSuchNameException& nsn ) {
+        } catch ( corba::CNoSuchNameException& ) {
             return false;
-        } catch ( corba::CWrongNumbArgException& wa ) {
+        } catch ( corba::CWrongNumbArgException& ) {
             return false;
-        } catch ( corba::CWrongTypeArgException& wta ) {
+        } catch ( corba::CWrongTypeArgException& ) {
             return false;
         }
 
@@ -353,9 +353,9 @@ public:
                 }
             }
             return mss;
-        }  catch ( corba::CWrongNumbArgException& wa ) {
+        }  catch ( corba::CWrongNumbArgException& ) {
             return mss;
-        } catch ( corba::CWrongTypeArgException& wta ) {
+        } catch ( corba::CWrongTypeArgException& ) {
             return mss;
         }
     }
