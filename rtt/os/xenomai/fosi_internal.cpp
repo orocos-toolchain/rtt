@@ -157,7 +157,12 @@ namespace RTT
 # endif
 #endif
             log(Info) << "Installing SIGXCPU handler." <<endlog();
-            signal(SIGXCPU, warn_upon_switch);
+            //signal(SIGXCPU, warn_upon_switch);
+            struct sigaction sa;
+            sa.sa_handler = warn_upon_switch;
+            sigemptyset( &sa.sa_mask );
+            sa.sa_flags = 0;
+            sigaction(SIGXCPU, &sa, 0);
 
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
             return 0;
