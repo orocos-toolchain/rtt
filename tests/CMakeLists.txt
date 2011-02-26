@@ -72,8 +72,8 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ)
 
     # Copy over CPF files. It *must* be done like this to work on MSVC:
-    add_custom_target(SetupTests ALL ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf ${CMAKE_CFG_INTDIR})
-    add_custom_target(SetupTests ALL ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf ${CMAKE_CFG_INTDIR})
+    add_custom_target(SetupTests ALL ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf ${CMAKE_CFG_INTDIR}
+                      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf ${CMAKE_CFG_INTDIR})
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic)

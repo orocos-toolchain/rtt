@@ -54,6 +54,9 @@ BOOST_AUTO_TEST_CASE( testTypePlugins )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
+    // one-time setup of plugin path (required for MSVC)
+    pl->setPluginPath(pl->getPluginPath() + ";.." );
+
     BOOST_CHECK( pl->isLoaded("typekit_plugin") == false);
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") == false);
     pl->loadTypekits("testproject");
