@@ -40,12 +40,13 @@
 #include "rtt-typekit-config.h"
 #include "RealTimeTypekit.hpp"
 #include "../types/Types.hpp"
-#include "../types/TemplateConstructor.hpp"
-#include "../internal/DataSources.hpp"
-#include "../internal/mystd.hpp"
-#include "../rtt-fwd.hpp"
 #include "../FlowStatus.hpp"
 #include "../ConnPolicy.hpp"
+#include "../internal/DataSources.hpp"
+#include "../typekit/Types.hpp"
+#include "../rtt-fwd.hpp"
+#include "../internal/mystd.hpp"
+#include "../types/TemplateConstructor.hpp"
 
 namespace RTT
 {
