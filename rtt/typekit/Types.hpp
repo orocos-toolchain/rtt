@@ -41,10 +41,6 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< int >;
 #endif
 
-#ifdef CORELIB_DATASOURCE_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< bool >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< bool >;
-#endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< bool >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< bool >;

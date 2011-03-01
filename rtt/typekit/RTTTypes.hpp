@@ -4,7 +4,7 @@
  * Orocos RTT classes only. It does not contain any 'standard C' types.
  */
 
-#ifndef RTT_PURE_TYPEKIT_TYPES
+#ifndef RTT_PURE_TYPEKIT_TYPES_HPP
 
 #include "../ConnPolicy.hpp"
 #include "../SendStatus.hpp"
@@ -18,9 +18,20 @@
 #endif
 
 #ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< bool >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< bool >;
+#endif
+
+#ifdef CORELIB_DATASOURCE_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::FlowStatus >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::FlowStatus >;
 #endif
+
+#ifdef CORELIB_DATASOURCE_HPP
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::SendStatus >;
+    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::SendStatus >;
+#endif
+
 #ifdef ORO_CORELIB_DATASOURCES_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::FlowStatus >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::FlowStatus >;
@@ -39,10 +50,6 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::Attribute< RTT::FlowStatus >;
 #endif
 
-#ifdef CORELIB_DATASOURCE_HPP
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::DataSource< RTT::SendStatus >;
-    RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::AssignableDataSource< RTT::SendStatus >;
-#endif
 #ifdef ORO_CORELIB_DATASOURCES_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ValueDataSource< RTT::SendStatus >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::SendStatus >;
