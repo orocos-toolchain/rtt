@@ -45,16 +45,17 @@
 					This release is binary incompatible with RTT &oldversion;.x. You need to recompile the
 					whole toolchain and all your applications in order to use this release.
 				</para>
-				<para>
+				<note><para>
 					<emphasis>Take care that all previously built components and plugins in the lib/orocos directory and subdirectories
 					are removed, since the deployment/plugin logic may want to load it. Especially on 'ROS' systems, which have
 					such files in their lib/ directory.</emphasis>
-				</para>
+				</para></note>
       </listitem>
-      <listitem>
-				<para>
+		</itemizedlist>
+		<section>
+				<title>
 					<emphasis>OCL installation directory has changed</emphasis>
-				</para>
+				</title>
 				<para>
 					The Orocos Component Library (OCL) libraries are now installed in the <filename>lib/orocos/ocl</filename>
 					directory instead of the 'top-level' <filename>lib/orocos</filename> directory. The OCL applications
@@ -62,11 +63,11 @@
 					and you rely on OCL, you'll need to add an import("ocl") statement in C++, scripting or your
 					deployer XML file.
 				</para>
-      </listitem>
-      <listitem>
-				<para>
+		</section>
+		<section>
+				<title>
 					<emphasis>Component/plugin/typekit installation directory has changed</emphasis>
-				</para>
+				</title>
 				<para>
 					The Orocos components, typekits and libraries are now put in the
 					<filename>lib/orocos/&lt;OROCOS_TARGET&gt;</filename> directory instead of the
@@ -80,11 +81,11 @@
 					<emphasis>Be sure to remove the old files before upgrading such that the upgraded installation
 					will not be confused by the older files</emphasis>
 				</para>
-      </listitem>
-      <listitem>
-				<para>
+		</section>
+		<section>
+				<title>
 					<emphasis>UseOrocos-RTT.cmake macros links your libraries by using the manifest.xml file</emphasis>
-				</para>
+				</title>
 				<para>
 					The Orocos CMake macro's now read your package's manifest.xml file to
 					learn about dependencies. If a package you depend on provides a .pc file, 
@@ -92,11 +93,11 @@
 					libraries listed in that .pc file. In order to disable this behavior, define
 					the SET(OROCOS_NO_AUTO_LINKING TRUE) on top of your CMakeLists.txt file.
 				</para>
-      </listitem>
-      <listitem>
-				<para>
+		</section>
+		<section>
+				<title>
 					<emphasis>Boost version 1.40.0 or newer is recommended if you use <classname>RTT::Service</classname></emphasis>
-				</para>
+				</title>
 				<para>
 					The Service class could throw exceptions (boost::bad_weak_ptr) prior to this release. If you are
 					using the <classname>RTT::Service</classname> class, it is recommended to upgrade to a Boost
@@ -104,11 +105,11 @@
 					create ports, nor use provides(), nor create subservices in the <emphasis>constructor</emphasis> of
 					your service sub-class.
 				</para>
-      </listitem>
-      <listitem>
-				<para>
+		</section>
+		<section>
+				<title>
 					<emphasis>Remove stale (old) rtt-config.h and ocl-config.h files from your existing trees</emphasis>
-				</para>
+				</title>
 				<para>
 					It is possible that your RTT or OCL source trees contain an rtt-config.h or ocl-config.h
 					file in the <emphasis>source directory</emphasis> instead of in the <emphasis>build
@@ -116,11 +117,11 @@
 					<emphasis>must</emphasis> remove the one in the source directory in order to have the
 					build succeed. Fresh checkouts of RTT/OCL are not influenced by this.
 				</para>
-      </listitem>
-      <listitem>
-				<para>
+		</section>
+		<section>
+				<title>
 					<emphasis> <command>ctaskbrowser</command> only loads RTT and OCL typekits by default</emphasis>
-				</para>
+				</title>
 				<para>
 					The <command>ctaskbrowser</command> does not make use of the 'import' semantics found in
 					the deployer applications. Hence it can not be used to import data types of packages from
@@ -129,8 +130,7 @@
 					ctaskbrowser. The RTT and OCL installation directories are loaded by default, so if you
 					install your own typekits in these directories, they will be found as well.
 				</para>
-      </listitem>
-    </itemizedlist>
+		</section>
   </section>
   <section>
     <title>Improvements</title>
