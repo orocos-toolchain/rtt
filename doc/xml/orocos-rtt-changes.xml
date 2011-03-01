@@ -66,7 +66,7 @@
 		</section>
 		<section>
 				<title>
-					<emphasis>Component/plugin/typekit installation directory has changed</emphasis>
+					<emphasis>Component, plugin and typekit installation directory has changed</emphasis>
 				</title>
 				<para>
 					The Orocos components, typekits and libraries are now put in the
@@ -76,6 +76,12 @@
 					<filename>project/lib/orocos/&lt;OROCOS_TARGET&gt;</filename> ) and the non-ROS builds (
 					in <filename>install/lib/orocos/&lt;OROCOS_TARGET&gt;/project</filename> ) have changed
 					to this convention.
+				</para>
+				<para>
+					You can revert to the old installation directory without the OROCOS_TARGET suffix by
+					setting -DOROCOS_SUFFIX="" with the CMake configuration step or by adding at the
+					top of your CMakeLists.txt file: <programlisting> set(OROCOS_SUFFIX)</programlisting>.
+					This option is available when compiling RTT, OCL or your own component packages.
 				</para>
 				<para>
 					<emphasis>Be sure to remove the old files before upgrading such that the upgraded installation

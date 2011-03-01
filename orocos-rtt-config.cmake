@@ -88,6 +88,12 @@ if(NOT DEFINED OROCOS_TARGET)
   endif()
 endif()
 
+# By default, install libs in /target/ subdir in order to allow
+# multi-target installs.
+if ( NOT OROCOS_SUFFIX )
+  set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
+endif()
+
 # Path to current file
 get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
