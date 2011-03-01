@@ -34,7 +34,7 @@
 #   define RTT_SCRIPTING_HIDE   
 #  else
 #   define RTT_SCRIPTING_API    __declspec(dllimport)
-#   define RTT_SCRIPTING_EXPORT __declspec(dllimport)
+#   define RTT_SCRIPTING_EXPORT __declspec(dllexport)
 #   define RTT_SCRIPTING_HIDE 
 #  endif
 # else

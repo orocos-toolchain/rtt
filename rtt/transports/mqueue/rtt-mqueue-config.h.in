@@ -32,7 +32,7 @@
 #   define RTT_MQUEUE_HIDE   
 #  else
 #   define RTT_MQUEUE_API	 __declspec(dllimport)
-#   define RTT_MQUEUE_EXPORT __declspec(dllimport)
+#   define RTT_MQUEUE_EXPORT __declspec(dllexport)
 #   define RTT_MQUEUE_HIDE 
 #  endif
 # else

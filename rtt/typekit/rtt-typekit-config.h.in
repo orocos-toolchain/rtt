@@ -36,7 +36,7 @@
 #   define RTT_TYPEKIT_EXT_TMPL
 #  else
 #   define RTT_TYPEKIT_API	 __declspec(dllimport)
-#   define RTT_TYPEKIT_EXPORT __declspec(dllimport)
+#   define RTT_TYPEKIT_EXPORT __declspec(dllexport)
 #   define RTT_TYPEKIT_HIDE 
 #   define RTT_TYPEKIT_EXT_TMPL extern
 #  endif

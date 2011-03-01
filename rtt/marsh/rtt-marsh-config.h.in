@@ -34,7 +34,7 @@
 #   define RTT_MARSH_HIDE   
 #  else
 #   define RTT_MARSH_API    __declspec(dllimport)
-#   define RTT_MARSH_EXPORT __declspec(dllimport)
+#   define RTT_MARSH_EXPORT __declspec(dllexport)
 #   define RTT_MARSH_HIDE 
 #  endif
 # else
