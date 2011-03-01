@@ -394,7 +394,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
     }
 
-    string paths;
+    string paths, trypaths;
     if (path_list.empty())
     	paths = plugin_path + default_delimiter + ".";
     else
@@ -415,6 +415,8 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         if (is_directory( p )) {
             path_found = true;
             paths += p.string() + default_delimiter;
+        } else {
+            trypaths += p.string() + default_delimiter;
         }
         p = *it;
         p = p / OROCOS_TARGET_NAME / name;
@@ -422,6 +424,8 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         if (is_directory( p )) {
             path_found = true;
             paths += p.string() + default_delimiter;
+        } else {
+            trypaths += p.string() + default_delimiter;
         }
     }
 
@@ -431,7 +435,12 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
         return loadPluginsInternal(paths,subdir,kind);
     }
     log(Error) << "No such "<< kind << " found in path: " << name << ". Looked for these directories: "<< endlog();
-    log(Error) << paths << endlog();
+    if ( !paths.empty() )
+        log(Error) << "Exist, but don't contain it: " << paths << endlog();
+    else
+        log(Error) << "None of the search paths exist !" << endlog();
+    if ( !trypaths.empty() )
+        log(Error) << "Don't exist: " << trypaths << endlog();
     return false;
 }
 
