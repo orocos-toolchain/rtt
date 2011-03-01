@@ -36,7 +36,7 @@ struct MarshallingFixture : public OperationsFixture
     boost::shared_ptr<Marshalling> marsh;
     MarshallingFixture() {
         PluginLoader::shared_ptr pl = PluginLoader::Instance();
-        pl->loadTypekits("testtypes");
+        pl->loadTypekit("testtypes",".;..");
         marsh = tc->getProvider<Marshalling>("marshalling");
     }
 };
