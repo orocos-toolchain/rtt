@@ -22,20 +22,21 @@
     This document provides a quick overview of what changed between
     the &orocos; Toolchain &oldversion; and version &version;.
   </para>
-  <para>
-    Please consult the online wiki for all available information about
-    the 1.x to 2.x transition:
-    <ulink
-				url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.
-    The Real-Time Toolkit is no longer released as a single entity, but as part
-    of a complete set of tools and libraries for creating real-time applications.
-    See also the changes documents of the previous major releases:
+  <section id="upgrading">
+    <title>Upgrading from RTT 1.x to Toolchain 2.x</title>
+		<para>
+			Please consult the online wiki for all available information about the 1.x to 2.x transition:
+			<ulink url="http://www.orocos.org/wiki/rtt/rtt-20">The Road to RTT 2.0</ulink>.  The
+			Real-Time Toolkit is no longer released as a single entity, but as part of a complete set of
+			tools and libraries for creating real-time applications.  See also the changes documents of
+			the previous major releases:
 		 <itemizedlist>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.0.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.0 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.1.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.1 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.2 Changes</ulink></para></listitem>
 		 </itemizedlist>
-  </para>
+		</para>
+	</section>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -45,8 +46,9 @@
 					whole toolchain and all your applications in order to use this release.
 				</para>
 				<para>
-					Take care that all components and plugins in the lib/orocos directory and subdirectories
-					are removed, since the deployment/plugin logic may want to load it.
+					<emphasis>Take care that all previously built components and plugins in the lib/orocos directory and subdirectories
+					are removed, since the deployment/plugin logic may want to load it. Especially on 'ROS' systems, which have
+					such files in their lib/ directory.</emphasis>
 				</para>
       </listitem>
       <listitem>
@@ -74,6 +76,10 @@
 					in <filename>install/lib/orocos/&lt;OROCOS_TARGET&gt;/project</filename> ) have changed
 					to this convention.
 				</para>
+				<para>
+					<emphasis>Be sure to remove the old files before upgrading such that the upgraded installation
+					will not be confused by the older files</emphasis>
+				</para>
       </listitem>
       <listitem>
 				<para>
@@ -85,6 +91,43 @@
 					it will read that file and link every component, plugin or typekit of your package with the
 					libraries listed in that .pc file. In order to disable this behavior, define
 					the SET(OROCOS_NO_AUTO_LINKING TRUE) on top of your CMakeLists.txt file.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>Boost version 1.40.0 or newer is recommended if you use <classname>RTT::Service</classname></emphasis>
+				</para>
+				<para>
+					The Service class could throw exceptions (boost::bad_weak_ptr) prior to this release. If you are
+					using the <classname>RTT::Service</classname> class, it is recommended to upgrade to a Boost
+					version 1.40.0 or newer in order to avoid these exceptions. If this is not possible, you may not
+					create ports, nor use provides(), nor create subservices in the <emphasis>constructor</emphasis> of
+					your service sub-class.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>Remove stale (old) rtt-config.h and ocl-config.h files from your existing trees</emphasis>
+				</para>
+				<para>
+					It is possible that your RTT or OCL source trees contain an rtt-config.h or ocl-config.h
+					file in the <emphasis>source directory</emphasis> instead of in the <emphasis>build
+					directory</emphasis>.  In case you are upgrading in-place (like, using 'git pull' ), you
+					<emphasis>must</emphasis> remove the one in the source directory in order to have the
+					build succeed. Fresh checkouts of RTT/OCL are not influenced by this.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis> <command>ctaskbrowser</command> only loads RTT and OCL typekits by default</emphasis>
+				</para>
+				<para>
+					The <command>ctaskbrowser</command> does not make use of the 'import' semantics found in
+					the deployer applications. Hence it can not be used to import data types of packages from
+					the command line or a script. Set the RTT_COMPONENT_PATH to point to the installation
+					directories of your custom typekits in order to have them available in the
+					ctaskbrowser. The RTT and OCL installation directories are loaded by default, so if you
+					install your own typekits in these directories, they will be found as well.
 				</para>
       </listitem>
     </itemizedlist>
@@ -130,8 +173,19 @@
 				</listitem>
 				<listitem>
 					<para>
-						We support bootstrapping (using the bootstrap.sh script) of the RTT packages in a ROS environment.
+						We support bootstrapping (using the bootstrap.sh script) of the RTT packages in a <emphasis>ROS</emphasis> environment.
 						You must however run the <filename>bootstrap.sh</filename> script in a (sub-)directory of your ROS_PACKAGE_PATH.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Once the RTT is installed, all component packages that use the UseOrocos-RTT cmake macros
+						can override the default OROCOS_TARGET by defining an environment variable OROCOS_TARGET.
+						This comes handy when you want to manage multiple targets on the same machine, or want to
+						set a global default. For example in a component package :
+						<programlisting> export OROCOS_TARGET=xenomai
+ cd build ; cmake ..  # Looks for Xenomai target
+ make                 # Builds Xenomai components</programlisting>
 					</para>
 				</listitem>
       </itemizedlist>
@@ -139,6 +193,14 @@
     <section>
       <title>TaskContext and Services</title>
       <itemizedlist>
+				<listitem>
+					<para>
+						An <filename>rtt/Component.hpp</filename> file is now provided such that the OCL is no longer
+						required as a dependency to build an RTT component. It defines exactly the same macros as the
+						file <filename>ocl/Component.hpp</filename>. If you want to switch using this file, you may
+						also remove 'ocl' as a dependency in your manifest.xml file.
+					</para>
+				</listitem>
 				<listitem>
 					<para>
 						<function>addProperty("name", property)</function> will detect if 'property' is a plain C/C++ 
@@ -154,7 +216,8 @@
 				</listitem>
 				<listitem>
 					<para>
-						
+						Using provides(), addPort() and adding subservices in a Service constructor is now
+						possible if you use Boost 1.40.0 or higher. See the caveats section at the top.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -171,6 +234,47 @@
 						instead of <function>"thename" == type_info->getTypeName()</function>.
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						There was a return value API change in the <classname>RTT::types::TypeInfo</classname> class in
+						order to allow better shared_ptr memory management of port connections.
+						This should not influence downstream code, since RTT's TemplateTypeInfo provides the implementation
+						of that function.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						typegen has been improved to work around some issues that popped up when being used
+						as a part of an UseOrocos-RTT project, using the orocos_typegen_headers() CMake function.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						A <filename>typekit/Types.hpp</filename> file is now available for RTT and each typegen
+						generated package which pre-defines all data types such that compilation times will
+						speed-up drastically. Including this file in your component source files will reduce
+						compilation times, but will also require that your component library links to that typekit.
+					</para>
+					<para>
+						This feature is experimental, but enthousiastic users might try it and report success
+						or failure in order to tune the build system to this new way of building components.
+					</para>
+					<para>
+						Users of rock/orogen already have this feature in their generated deployments.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						There is a new CMake option to disable building the std::string and
+						std::vector&lt;double> C++ types in the RTT typekit. This is handy when using typegen
+						or ros types, which provide their own implementation of these typekits.
+					</para>
+					<para>
+						Note that for the TaskBrowser interface and Orocos scripting, the RTT typekits add
+						additional constructors and operations to these types that might not be available when
+						using typegen generated typekits.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
@@ -178,8 +282,29 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						Many patches went in to support Win32 builds 'out-of-the-box'. We'd be glad to be informed about the
-						your success or failures with compiling the Toolchain on Windows.
+						Many patches went in to support Win32 builds 'out-of-the-box'. We'd be glad to be
+						informed about the your success or failures with compiling the Toolchain on Windows.
+						We fixed thread synchronisation, atomic operations (intrinsics), export DLL symbols
+						and some smart pointer management code. Be sure to compile with the OROBLD_NOASM CMake flag to the
+						default 'OFF' setting.
+					</para>
+					<para>
+						All unit tests should pass after the INSTALL target has been built, and for the unit
+						tests, the PATH=install/bin;install/lib and RTT_COMPONENT_PATH=build/tests have been
+						set.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The orocreate-pkg tool is also available on Win32/Cygwin systems. It will create a new
+						package which CMake can turn into Visual Studio project. No special configurations need
+						to be set, except defining the CMAKE_PREFIX_PATH CMake variable to "c:\Program
+						Files\orocos" (in case this variable was not created automatically).
+					</para>
+					<para>
+						All unit tests should pass after the INSTALL target has been built, and for the unit
+						tests, the PATH=install/bin;install/lib and RTT_COMPONENT_PATH=build/tests have been
+						set (Win32 only).
 					</para>
 				</listitem>
       </itemizedlist>
@@ -212,6 +337,21 @@
     <section>
       <title>Deployment</title>
       <itemizedlist>
+				<listitem>
+					<para>
+						Linking with another Orocos component library should no longer cause your own
+						library to be 'hidden' when being loaded by the DeploymentComponent.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The ORO_CREATE_COMPONENT_TYPE() macro has been deprecated in favor of
+						ORO_CREATE_COMPONENT_LIBRARY(). The new name reflects better the purpose of the macro
+						in your .cpp files, and has the exact same behavior. The old macro is kept for
+						backwards compatibility. Adding a component to a component library is still
+						done with ORO_LIST_COMPONENT_TYPE( ClassName ).
+					</para>
+				</listitem>
 				<listitem>
 					<para>
 						In ROS systems, the deployer will only load components and plugins from the
