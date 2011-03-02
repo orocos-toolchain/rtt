@@ -35,7 +35,7 @@ using namespace RTT::detail;
 using namespace boost;
 using namespace std;
 
-#if defined(__GNUG__) && defined(__unix__)
+#if defined(__GNUG__) && (defined(__unix__) || defined(__APPLE__))
 
 # if defined(RTT_UNIT_DLL_EXPORT)
    // Use RTT_UNIT_API for normal function exporting
