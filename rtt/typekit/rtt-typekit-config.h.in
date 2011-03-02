@@ -7,7 +7,7 @@
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //
 #cmakedefine RTT_GCC_HASVISIBILITY
-#if defined(__GNUG__) && defined(__unix__) && defined(RTT_GCC_HASVISIBILITY)
+#if defined(__GNUG__) && defined(RTT_GCC_HASVISIBILITY) && (defined(__unix__) || defined(__APPLE__))
 
 # if defined(RTT_TYPEKIT_DLL_EXPORT)
    // Use RTT_TYPEKIT_API for normal function exporting
