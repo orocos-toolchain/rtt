@@ -52,7 +52,8 @@ function( orocos_use_package PACKAGE )
         # Skip previously found packages
         if (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
           rosbuild_find_ros_package( ${ROSDEP} )
-          set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}:${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}" )
+	  # We prefer looking in the install directory above the package's own directory:
+          set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:${${ROSDEP}_PACKAGE_PATH}:$ENV{PKG_CONFIG_PATH}" )
 	  set( USE_FOUND_${ROSDEP}_PACKAGE_PATH 1 ) # mark we don't need to find it again.
         endif (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
       endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
