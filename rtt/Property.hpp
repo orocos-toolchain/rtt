@@ -144,7 +144,7 @@ namespace RTT
             if ( source && ! _value ) {
                 log(Error) <<"Can not initialize Property from "<<source->getName() <<": ";
                 if ( source->getDataSource() )
-                    log() << "incompatible type ("<< source->getDataSource()->getTypeName() << ")."<<endlog();
+                    log() << "incompatible type ( destination type: "<< getType() << ", source type: "<< source->getDataSource()->getTypeName() << ")."<<endlog();
                 else
                     log() << "source Property was not ready."<<endlog();
             }

@@ -17,7 +17,8 @@ bool RTT::types::composePropertyBag( PropertyBag const& sourcebag, PropertyBag& 
     PropertyBag::const_iterator sit = sourcebag.begin();
     for( ; sit != sourcebag.end(); ++sit) {
         // test if it's a property bag, then we need to recurse:
-        Property<PropertyBag> isbag = *sit;
+        Property<PropertyBag> isbag;
+        isbag = *sit; // separate assignment avoids error message !
         if ( isbag.ready() && isbag.value().getType() != "PropertyBag") {
             // typed property bag, need to compose it.
             TypeInfo* ti = Types()->type( isbag.value().getType() );
