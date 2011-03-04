@@ -26,6 +26,6 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   set(DLL_EXPORT_PREFIX marsh)
   ADD_RTT_PLUGIN( rtt-marshalling ${RTT_VERSION} ${CPPS})
   GLOBAL_ADD_INCLUDE( rtt/marsh ${CMAKE_CURRENT_BINARY_DIR}/rtt-marsh-config.h)
-  target_link_libraries( rtt-marshalling-${OROCOS_TARGET}_plugin rtt-typekit-${OROCOS_TARGET}_plugin )
+  target_link_libraries( rtt-marshalling-${OROCOS_TARGET}_plugin )
   
 ENDIF(PLUGINS_ENABLE_MARSHALLING)
