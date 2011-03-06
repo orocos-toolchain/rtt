@@ -21,11 +21,11 @@ if(OROCOS-RTT_FOUND)
   set(ROS_ROOT $ENV{ROS_ROOT})
 
   # This is for not allowing undefined symbols when using gcc
-  if (CMAKE_COMPILER_IS_GNUCXX)
+  if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
     SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
-  else (CMAKE_COMPILER_IS_GNUCXX)
+  else (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
     SET(USE_OROCOS_LINK_FLAGS " ")
-  endif (CMAKE_COMPILER_IS_GNUCXX)
+  endif (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
   # Suppress API decoration warnings in Win32:
   if (MSVC)
     set(USE_OROCOS_COMPILE_FLAGS "/wd4251" )
