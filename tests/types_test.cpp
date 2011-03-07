@@ -381,6 +381,29 @@ BOOST_AUTO_TEST_CASE( testConversions )
 }
 
 /**
+ * Tests hexadecimals
+ */
+BOOST_AUTO_TEST_CASE( testHex )
+{
+    string prog = string("program x {\n") +
+        "var uint i = 0xabc\n" +
+        "test.assert( i == 0xabc )\n"+
+        "test.assert( i == 2748 )\n"+
+        "i = 0Xcba\n" +
+        "test.assert( i == 0Xcba )\n"+
+        "test.assert( i == 3258 )\n"+
+        "i = 0XABC\n" +
+        "test.assert( i == 0XABC )\n"+
+        "test.assert( i == 2748 )\n"+
+        "i = 0xCBA\n" +
+        "test.assert( i == 0xCBA )\n"+
+        "test.assert( i == 3258 )\n"+
+        "}";
+    // execute
+    executePrograms(prog);
+}
+
+/**
  * Tests reading/writing property(bags) in scripting.
  */
 BOOST_AUTO_TEST_CASE( testProperties )
@@ -452,6 +475,7 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 3*2 < 6+1 )\n" +
         "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
         "do test.assert( 3*(2+1) == 9 )\n" +
+        "do test.assert( 1 - 1 + 5 == 5 )\n" +  // not: -5
         "}";
     // execute
     executePrograms(prog);

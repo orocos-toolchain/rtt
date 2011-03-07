@@ -52,6 +52,7 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( const_float );
     BOOST_SPIRIT_DEBUG_RULE( const_double );
     BOOST_SPIRIT_DEBUG_RULE( const_int );
+    BOOST_SPIRIT_DEBUG_RULE( const_hex );
     BOOST_SPIRIT_DEBUG_RULE( const_uint );
     BOOST_SPIRIT_DEBUG_RULE( const_char );
     BOOST_SPIRIT_DEBUG_RULE( const_bool );
@@ -64,6 +65,7 @@ namespace RTT
     constant =
         const_float
       | const_double
+      | const_hex
       | const_int
       | const_uint
       | const_bool
@@ -78,6 +80,10 @@ namespace RTT
     const_double =
       strict_real_p [
         boost::bind( &ValueParser::seendoubleconstant, this, _1 ) ];
+
+    const_hex = (str_p("0x") | str_p("0X")) >>
+      hex_p [
+        boost::bind( &ValueParser::seenhexconstant, this, _1 ) ];
 
     const_int =
       int_p [
@@ -171,6 +177,11 @@ namespace RTT
     void ValueParser::seencharconstant( iter_t c )
     {
         ret = new ConstantDataSource<char>( *c );
+    }
+
+    void ValueParser::seenhexconstant( unsigned int i )
+    {
+      ret = new ConstantDataSource<unsigned int>( i );
     }
 
   void ValueParser::seenintconstant( int i )
