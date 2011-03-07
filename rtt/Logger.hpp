@@ -52,6 +52,8 @@
 #endif
 
 #include "os/TimeService.hpp"
+#include "os/Mutex.hpp"
+#include "os/MutexLock.hpp"
 
 namespace RTT
 {
@@ -94,6 +96,14 @@ namespace RTT
     {
         struct D;
         D* d;
+        /**
+         * These three are required to have a correct
+         * operator<<(T t) behavior for setting the stream
+         * formatting etc.
+         */
+        os::Mutex& inpguard;
+        std::ostream& logline;
+        std::ostream& fileline;
     public:
 
         /**
@@ -309,6 +319,8 @@ namespace RTT
          * was not started.
          */
         bool mayLog() const;
+        bool mayLogStdOut() const;
+        bool mayLogFile() const;
 
         Logger(std::ostream& str=std::cerr);
         ~Logger();
