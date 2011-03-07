@@ -86,7 +86,7 @@ namespace RTT
                           |
                           expressionparser.parser()[boost::bind(&ProgramGraphParser::seenforinit_expr, this)])>> semicolon
                      >> condition >> semicolon >> !str_p("set ")
-                     >> !expressionparser.parser()[boost::bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
+                     >> ( (expressionparser.parser()[boost::bind(&ProgramGraphParser::seenforincr, this)] >> closebrace ) | closebrace[boost::bind(&ProgramGraphParser::seenemptyforincr, this)])
                      ) [boost::bind(&ProgramGraphParser::seenforstatement, this)]
                                   >> expect_ifblock( ifblock[ boost::bind(&ProgramGraphParser::endforstatement, this) ]);
 

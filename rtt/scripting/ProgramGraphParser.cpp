@@ -93,7 +93,6 @@ namespace RTT
         peerparser(rootc, commonparser),
         program_builder( new FunctionGraphBuilder() ),
         for_init_command(0),
-        for_incr_command(0),
         exportf(false),
         ln_offset(0)
   {
@@ -590,7 +589,12 @@ namespace RTT
     {
         DataSourceBase::shared_ptr expr = expressionparser.getResult();
         expressionparser.dropResult();
-        for_incr_command = new CommandDataSource( expr );
+        for_incr_command.push( new CommandDataSource( expr ) );
+    }
+
+    void ProgramGraphParser::seenemptyforincr()
+    {
+        for_incr_command.push( 0 );
     }
 
     void ProgramGraphParser::seenforstatement() {
@@ -615,15 +619,16 @@ namespace RTT
 
     void ProgramGraphParser::endforstatement() {
         // the last statement is a _conditional_ increment of the 'counter'
-        if ( for_incr_command )
+        ActionInterface* incr = for_incr_command.top();
+        for_incr_command.pop();
+        // is null or an action to increment
+        if ( incr )
             {
-                program_builder->setCommand( for_incr_command );
+                program_builder->setCommand( incr );
                 // Since a valuechange does not add edges, we use this variant
                 // to create one.
                 program_builder->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
             }
-        for_incr_command = 0;
-
         program_builder->endWhileBlock(mpositer.get_position().line - ln_offset);
     }
 
@@ -761,8 +766,10 @@ namespace RTT
       try_cond = 0;
       delete for_init_command;
       for_init_command = 0;
-      delete for_incr_command;
-      for_incr_command = 0;
+      while (!for_incr_command.empty() ) {
+          delete for_incr_command.top();
+          for_incr_command.pop();
+      }
       // cleanup all functions :
       delete fcontext;
       fcontext = 0;

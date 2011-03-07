@@ -285,6 +285,104 @@ BOOST_AUTO_TEST_CASE(testProgramBreak)
     this->finishProgram( tc, "x");
 }
 
+BOOST_AUTO_TEST_CASE(testProgramLoops)
+{
+    // see if (nested) loop statements work
+    string prog = string("program x { \n")
+        + "do test.resetI()\n"
+        // single while loop
+        + "while (test.increase() != 100) {\n"
+        + "}\n"
+        + "if test.i != 100 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // double while loop
+        + "while (test.increase() != 200) {\n"
+        + "   while (test.i < 100) {\n"
+        + "       test.increase()\n"
+        + "   }\n"
+        + "   if test.i < 100 then \n"
+        + "      do test.fail() \n"
+        + "}\n"
+        + "if test.i != 200 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // single for loop
+        + "for (var int j = 0; j != 100  ; j = test.increase() ) {\n"
+        + "}\n"
+        + "if test.i != 100 then \n" // 20
+        + "    do test.fail() \n"
+        + "if j != 100 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // double for loop
+        + "for ( j = 0; j != 100  ; j = test.increase() ) {\n"
+        + "   for (var int j2 = 0; j2 != 100  ; j2 = j2 + 1 ) {\n"
+        + "   }\n"
+        + "   if j2 != 100 then \n"
+        + "      do test.fail() \n"
+        + "}\n"
+        + "if test.i != 100 then \n"
+        + "    do test.fail() \n"
+        + "if j != 100 then \n"
+        + "    do test.fail() \n"
+        + "if j2 != 100 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // for loop in while loop
+        + "while (test.increase() != 200) {\n"
+        + "   for (var int j3 = 0; j3 != 100  ; j3 = j3 + 1 ) {\n"
+        + "   }\n"   // 40
+        + "}\n"
+        + "if test.i != 200 then \n"
+        + "    do test.fail() \n"
+        + "if j3 != 100 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // for loop in while loop + break in for
+        + "while (test.increase() != 200) {\n"
+        + "   for (var int j3b = 0; j3b != 100  ; j3b = j3b + 1 ) {\n"
+        + "      if j3b == 50 then break \n"
+        + "   }\n"
+        + "   if j3b != 50 then \n"
+        + "      do test.fail() \n"
+        + "}\n"
+        + "if test.i != 200 then \n"
+        + "    do test.fail() \n"
+        + "if j3b != 50 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // while loop in for loop
+        + "for (var int j4 = 0; j4 != 100  ; j4 = j4 + 1 ) {\n"
+        + "   test.resetI()\n" // 60
+        + "   while (test.increase() != 200) {\n"
+        + "   }\n"
+        + "}\n"
+        + "if test.i != 200 then \n"
+        + "    do test.fail() \n"
+        + "if j4 != 100 then \n"
+        + "    do test.fail() \n"
+        + "do test.resetI()\n"
+        // while loop in for loop + break in while
+        + "for (var int j5 = 0; j5 != 100  ; j5 = j5 + 1 ) {\n"
+        + "   test.resetI()\n"
+        + "   while (test.increase() != 200) {\n"
+        + "      if test.i == 50 then break \n"
+        + "   }\n"
+        + "   if test.i != 50 then test.fail() \n"
+        + "}\n"
+        + "if test.i != 50 then \n"
+        + "    do test.fail() \n"
+        + "if j5 != 100 then  {\n"
+        + "    do test.print(\" j5 is:\" + j5 ) \n"
+        + "    do test.fail() \n" // 80
+        + " }\n"
+        + "do test.resetI()\n"
+        + "}";
+    this->doProgram( prog, tc );
+    this->finishProgram( tc, "x");
+}
+
 BOOST_AUTO_TEST_CASE(testProgramAnd)
 {
     // see if checking a remote condition works

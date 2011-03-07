@@ -165,6 +165,7 @@ namespace RTT { namespace scripting
       void seenforinit();
       void seenforinit_expr();
       void seenforincr();
+      void seenemptyforincr();
       void endforstatement();
 
       void startofprogram();
@@ -197,7 +198,7 @@ namespace RTT { namespace scripting
       std::vector< FunctionGraphPtr > program_list;
 
       base::ActionInterface* for_init_command;
-      base::ActionInterface* for_incr_command;
+      std::stack<base::ActionInterface*> for_incr_command;
       std::string program_text;
       bool exportf;
       int ln_offset;
