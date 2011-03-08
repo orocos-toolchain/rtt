@@ -47,7 +47,6 @@
 
 namespace RTT
 {
-    namespace {
     /**
      * This signature defines how a component can be instantiated.
      */
@@ -93,7 +92,6 @@ namespace RTT
             return new C(instance_name);
         }
     };
-    }
 }
 
 // Helper macros.
