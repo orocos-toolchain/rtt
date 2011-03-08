@@ -96,4 +96,47 @@ function( orocos_use_package PACKAGE )
     
 endfunction( orocos_use_package PACKAGE )
 
+macro(_orocos_list_to_string _string _list)
+    set(${_string})
+    foreach(_item ${_list})
+        string(LENGTH "${${_string}}" _len)
+        if(${_len} GREATER 0)
+          set(${_string} "${${_string}} ${_item}")
+        else(${_len} GREATER 0)
+          set(${_string} "${_item}")
+        endif(${_len} GREATER 0)
+    endforeach(_item)
+endmacro(_orocos_list_to_string)
+
+macro(orocos_add_compile_flags target)
+  set(args ${ARGN})
+  separate_arguments(args)
+  get_target_property(_flags ${target} COMPILE_FLAGS)
+  if(NOT _flags)
+    set(_flags ${ARGN})
+  else(NOT _flags)
+    separate_arguments(_flags)
+    list(APPEND _flags "${args}")
+  endif(NOT _flags)
+
+  _orocos_list_to_string(_flags_str "${_flags}")
+  set_target_properties(${target} PROPERTIES
+                        COMPILE_FLAGS "${_flags_str}")
+endmacro(orocos_add_compile_flags)
+
+macro(orocos_add_link_flags target)
+  set(args ${ARGN})
+  separate_arguments(args)
+  get_target_property(_flags ${target} LINK_FLAGS)
+  if(NOT _flags)
+    set(_flags ${ARGN})
+  else(NOT _flags)
+    separate_arguments(_flags)
+    list(APPEND _flags "${args}")
+  endif(NOT _flags)
+
+  _orocos_list_to_string(_flags_str "${_flags}")
+  set_target_properties(${target} PROPERTIES
+                        LINK_FLAGS "${_flags_str}")
+endmacro(orocos_add_link_flags)
 
