@@ -53,17 +53,20 @@ function( orocos_use_package PACKAGE )
       # use rospack to find package directories of *all* dependencies.
       # We need these because a .pc file may depend on another .pc file in another package.
       # This package + the packages this package depends on:
-      rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE}_prefix DEPS depends)
-      string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
-      foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
-        # Skip previously found packages
-        if (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
-          rosbuild_find_ros_package( ${ROSDEP} )
-	  # We prefer looking in the install directory above the package's own directory:
-          set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:${${ROSDEP}_PACKAGE_PATH}:$ENV{PKG_CONFIG_PATH}" )
-	  set( USE_FOUND_${ROSDEP}_PACKAGE_PATH 1 ) # mark we don't need to find it again.
-        endif (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
-      endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+      rosbuild_find_ros_package(${PACKAGE})
+      if (${PACKAGE}_PACKAGE_PATH)
+        rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE}_prefix DEPS depends)
+        string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
+        foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+          # Skip previously found packages
+          if (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
+            rosbuild_find_ros_package( ${ROSDEP} )
+	    # We prefer looking in the install directory above the package's own directory:
+            set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:${${ROSDEP}_PACKAGE_PATH}:$ENV{PKG_CONFIG_PATH}" )
+            set( USE_FOUND_${ROSDEP}_PACKAGE_PATH 1 ) # mark we don't need to find it again.
+          endif (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
+        endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
+      endif (${PACKAGE}_PACKAGE_PATH)
 
       #message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
       endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
