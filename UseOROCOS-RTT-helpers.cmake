@@ -96,35 +96,4 @@ function( orocos_use_package PACKAGE )
     
 endfunction( orocos_use_package PACKAGE )
 
-macro(orocos_add_compile_flags target)
-  set(args ${ARGN})
-  separate_arguments(args)
-  get_target_property(_flags ${target} COMPILE_FLAGS)
-  if(NOT _flags)
-    set(_flags ${ARGN})
-  else(NOT _flags)
-    separate_arguments(_flags)
-    list(APPEND _flags "${args}")
-  endif(NOT _flags)
-
-  _rosbuild_list_to_string(_flags_str "${_flags}")
-  set_target_properties(${target} PROPERTIES
-                        COMPILE_FLAGS "${_flags_str}")
-endmacro(orocos_add_compile_flags)
-
-macro(orocos_add_link_flags target)
-  set(args ${ARGN})
-  separate_arguments(args)
-  get_target_property(_flags ${target} LINK_FLAGS)
-  if(NOT _flags)
-    set(_flags ${ARGN})
-  else(NOT _flags)
-    separate_arguments(_flags)
-    list(APPEND _flags "${args}")
-  endif(NOT _flags)
-
-  _rosbuild_list_to_string(_flags_str "${_flags}")
-  set_target_properties(${target} PROPERTIES
-                        LINK_FLAGS "${_flags_str}")
-endmacro(orocos_add_link_flags)
 
