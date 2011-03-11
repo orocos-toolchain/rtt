@@ -54,10 +54,10 @@ namespace RTT
   using namespace detail;
 
     namespace {
-        assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
-        assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
-        assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
+        boost::spirit::classic::assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
+        boost::spirit::classic::assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
     }
     // Work around GCC 4.1 bug: not too much templates in one.cpp file.
   void ProgramGraphParser::setup2()

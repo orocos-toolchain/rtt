@@ -28,7 +28,7 @@ namespace RTT
     using namespace std;
 
     namespace {
-        assertion<std::string> expect_eof("Invalid input in file.");
+        boost::spirit::classic::assertion<std::string> expect_eof("Invalid input in file.");
         guard<std::string> no_function_guard;
 
         error_status<> handle_no_function(scanner_t const& scan, parser_error<std::string, iter_t>&e )

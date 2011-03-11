@@ -76,25 +76,25 @@ namespace RTT
             transition_expected,
         };
 
-        assertion<GraphSyntaxErrors> expect_state(state_expected);
-        assertion<GraphSyntaxErrors> expect_handle(handle_expected);
-        assertion<GraphSyntaxErrors> expect_transition(transition_expected);
-        assertion<std::string> expect_end("Ending '}' expected ( or could not find out what this line means ).");
-        assertion<std::string> expect_end_of_state("Exptected ending '}' at end of state ( or could not find out what this line means ).");
-        assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
-        assertion<std::string> expect_select("'select' statement required after emty transition program.");
-        assertion<std::string> expect_select_ident("'select' requires a valid state name.");
-        assertion<std::string> expect_comma("Expected a comma separator.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_event_or_if("Expected an event name or an if clause in transition statement.");
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_eof("Invalid input in file.");
-        assertion<std::string> expect_eol("Newline expected at end of statement.");
-        assertion<std::string> expect_semicolon("Semi colon expected after statement.");
-        assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
-        assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
-        assertion<std::string> expect_eventselect("'select' statement required after event or transition program.");
-        assertion<std::string> expect_eventargs("Could not parse arguments after event.");
+        boost::spirit::classic::assertion<GraphSyntaxErrors> expect_state(state_expected);
+        boost::spirit::classic::assertion<GraphSyntaxErrors> expect_handle(handle_expected);
+        boost::spirit::classic::assertion<GraphSyntaxErrors> expect_transition(transition_expected);
+        boost::spirit::classic::assertion<std::string> expect_end("Ending '}' expected ( or could not find out what this line means ).");
+        boost::spirit::classic::assertion<std::string> expect_end_of_state("Exptected ending '}' at end of state ( or could not find out what this line means ).");
+        boost::spirit::classic::assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
+        boost::spirit::classic::assertion<std::string> expect_select("'select' statement required after emty transition program.");
+        boost::spirit::classic::assertion<std::string> expect_select_ident("'select' requires a valid state name.");
+        boost::spirit::classic::assertion<std::string> expect_comma("Expected a comma separator.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_event_or_if("Expected an event name or an if clause in transition statement.");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
+        boost::spirit::classic::assertion<std::string> expect_eof("Invalid input in file.");
+        boost::spirit::classic::assertion<std::string> expect_eol("Newline expected at end of statement.");
+        boost::spirit::classic::assertion<std::string> expect_semicolon("Semi colon expected after statement.");
+        boost::spirit::classic::assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
+        boost::spirit::classic::assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
+        boost::spirit::classic::assertion<std::string> expect_eventselect("'select' statement required after event or transition program.");
+        boost::spirit::classic::assertion<std::string> expect_eventargs("Could not parse arguments after event.");
     }
 
 

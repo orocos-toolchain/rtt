@@ -47,6 +47,7 @@
 #include "../TaskContext.hpp"
 #include "../Logger.hpp"
 #include <boost/filesystem.hpp>
+#include <boost/version.hpp>
 #include "../os/StartStopManager.hpp"
 #include "../os/MutexLock.hpp"
 #include "../internal/GlobalService.hpp"
@@ -250,7 +251,11 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
 	// If exact match, load it directly:
     path arg( path_list );
     if (is_regular_file(arg)) {
+#if BOOST_VERSION >= 104600
+        if ( loadInProcess(arg.string(), makeShortFilename(arg.filename().string()), kind, true) == false)
+#else
         if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
+#endif
             throw std::runtime_error("The plugin "+path_list+" was found but could not be loaded !");
         return true;
     }
@@ -276,7 +281,11 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
                     found = true;
+#if BOOST_VERSION >= 104600
+                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ), kind, true) && all_good;
+#else
                     all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
+#endif
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -298,7 +307,11 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
                     found = true;
+#if BOOST_VERSION >= 104600
+                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ), kind, true) && all_good;
+#else
                     all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
+#endif
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -321,13 +334,21 @@ bool PluginLoader::loadLibrary( std::string const& name )
     // If exact match, load it directly:
     path arg( name );
     if (is_regular_file(arg)) {
+#if BOOST_VERSION >= 104600
+        string subdir = arg.remove_filename().filename().string();
+#else
         string subdir = arg.remove_filename().leaf();
+#endif
         string kind;
         // we only load it if it is in types or plugins subdir:
         if (subdir == "types") kind = "typekit";
         if (subdir == "plugins") kind = "plugin";
         if ( !kind.empty() ) {
+#if BOOST_VERSION >= 104600
+            if ( loadInProcess(arg.string(), makeShortFilename(arg.filename().string()), kind, true) == false)
+#else
             if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
+#endif
                 throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
             return true;
         }
@@ -341,7 +362,11 @@ bool PluginLoader::loadLibrary( std::string const& name )
 
     // try relative match:
     path dir = arg.parent_path();
+#if BOOST_VERSION >= 104600
+    string file = arg.filename().string();
+#else
     string file = arg.filename();
+#endif
     vector<string> paths = splitPaths(plugin_path);
     vector<string> tryouts( paths.size() * 8 );
     tryouts.clear();
@@ -487,7 +512,11 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     }
 
     //------------- if you get here, the library has been loaded -------------
+#if BOOST_VERSION >= 104600
+    string libname = p.filename().string();
+#else
     string libname = p.filename();
+#endif
     log(Debug)<<"Found library "<<libname<<endlog();
     LoadedLib loading_lib(libname,shortname,handle);
     dlerror();    /* Clear any existing error */

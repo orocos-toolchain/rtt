@@ -62,14 +62,14 @@ namespace RTT
     using namespace std;
 
     namespace {
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
-        assertion<std::string> expect_type("Unknown type. Please specify a type.");
-        assertion<std::string> expect_expr("Expected a valid expression.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_init("Expected an initialisation value of the value.");
-        assertion<std::string> expect_comma("Expected the ',' separator after expression.");
-        assertion<std::string> expect_timespec("Expected a time specification (e.g. > 10s or > varname ) after 'time' .");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        boost::spirit::classic::assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        boost::spirit::classic::assertion<std::string> expect_expr("Expected a valid expression.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_init("Expected an initialisation value of the value.");
+        boost::spirit::classic::assertion<std::string> expect_comma("Expected the ',' separator after expression.");
+        boost::spirit::classic::assertion<std::string> expect_timespec("Expected a time specification (e.g. > 10s or > varname ) after 'time' .");
 
         guard<std::string> my_guard;
     }

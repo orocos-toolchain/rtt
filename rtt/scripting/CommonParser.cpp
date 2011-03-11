@@ -45,7 +45,7 @@ namespace RTT {
     using namespace detail;
 
     namespace {
-        assertion<std::string> expect_eos("End of statement expected. Use a newline or ';' to separate statements.");
+        boost::spirit::classic::assertion<std::string> expect_eos("End of statement expected. Use a newline or ';' to separate statements.");
     }
 
     CommonParser::~CommonParser() {}

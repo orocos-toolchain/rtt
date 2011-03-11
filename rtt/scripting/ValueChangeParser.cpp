@@ -54,19 +54,19 @@ namespace RTT
     using namespace boost;;
 
     namespace {
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
-        assertion<std::string> expect_type("Unknown type. Please specify a type.");
-        assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
-        assertion<std::string> expect_expr("Expected a valid expression.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_init("Expected an initialisation value of the variable.");
-        assertion<std::string> expect_cis("Expected a initialisation ('=') of const.");
-        assertion<std::string> expect_ais("Expected a initialisation ('=') of alias.");
-        assertion<std::string> expect_index("Expected an index: [index].");
-        assertion<std::string> expect_integer("Expected a positive integer expression.");
-        assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
-        assertion<std::string> expect_decl("Expected a declaration list.");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        boost::spirit::classic::assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
+        boost::spirit::classic::assertion<std::string> expect_expr("Expected a valid expression.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_init("Expected an initialisation value of the variable.");
+        boost::spirit::classic::assertion<std::string> expect_cis("Expected a initialisation ('=') of const.");
+        boost::spirit::classic::assertion<std::string> expect_ais("Expected a initialisation ('=') of alias.");
+        boost::spirit::classic::assertion<std::string> expect_index("Expected an index: [index].");
+        boost::spirit::classic::assertion<std::string> expect_integer("Expected a positive integer expression.");
+        boost::spirit::classic::assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
+        boost::spirit::classic::assertion<std::string> expect_decl("Expected a declaration list.");
     }
 
 

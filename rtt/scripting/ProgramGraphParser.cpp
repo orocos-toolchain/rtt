@@ -64,20 +64,20 @@ namespace RTT
 
 
     namespace {
-        assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
-        assertion<std::string> expect_closecurly("Closing curly brace '}' expected in statement block (or could not find out what this line means).");
-        assertion<std::string> expect_closefunction("Closing curly brace '}' expected at end of program or function (or could not find out what this line means).");
-        assertion<std::string> expect_open("Open brace '(' expected.");
-        assertion<std::string> expect_close("Closing brace ')' expected.");
-        assertion<std::string> expect_comma("Expected a comma separator.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
-        assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
-        assertion<std::string> expect_expression("Expected an expression.");
-        assertion<std::string> expect_command("Expected a command after 'do'.");
-        assertion<std::string> expect_nl("Expected a newline after statement.");
-        assertion<std::string> expect_eof("Invalid input in file.");
-        assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
+        boost::spirit::classic::assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
+        boost::spirit::classic::assertion<std::string> expect_closecurly("Closing curly brace '}' expected in statement block (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_closefunction("Closing curly brace '}' expected at end of program or function (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace '(' expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace ')' expected.");
+        boost::spirit::classic::assertion<std::string> expect_comma("Expected a comma separator.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
+        boost::spirit::classic::assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
+        boost::spirit::classic::assertion<std::string> expect_expression("Expected an expression.");
+        boost::spirit::classic::assertion<std::string> expect_command("Expected a command after 'do'.");
+        boost::spirit::classic::assertion<std::string> expect_nl("Expected a newline after statement.");
+        boost::spirit::classic::assertion<std::string> expect_eof("Invalid input in file.");
+        boost::spirit::classic::assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
     }
 
 
