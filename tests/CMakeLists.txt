@@ -9,6 +9,9 @@ IF (BUILD_TESTING)
      message(FATAL_ERROR "Can't build unit tests without Boost unit_test_framework.")
    endif()
 
+   SET(BUILD_TEST_RT_MEM_POOL_SIZE "20000" CACHE STRING "Size of real-time memory pool used by test cases (bytes)")
+   SET(COMPILE_DEFS "${OROCOS-RTT_DEFINITIONS};BUILD_TEST_RT_MEM_POOL_SIZE=${BUILD_TEST_RT_MEM_POOL_SIZE}")
+
    IF (OROCOS_TARGET STREQUAL win32)
       #SET(TEST_LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
       LIST(APPEND OROCOS-RTT_DEFINITIONS BOOST_TEST_NO_LIB)
@@ -80,7 +83,7 @@ IF (BUILD_TESTING)
     SET_TARGET_PROPERTIES( main-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( main-test ${RUNTIME_OUTPUT_DIRECTORY}/main-test )
 
     if ( ${Boost_VERSION} GREATER 103599 )
@@ -90,7 +93,7 @@ IF (BUILD_TESTING)
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-	COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+	COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( list-test ${RUNTIME_OUTPUT_DIRECTORY}/list-test )
       list(APPEND ORO_EXTRA_TESTS "list-test")
     endif()
@@ -101,7 +104,7 @@ IF (BUILD_TESTING)
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( core-test ${RUNTIME_OUTPUT_DIRECTORY}/core-test )
 
     ADD_EXECUTABLE( task-test test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
@@ -109,7 +112,7 @@ IF (BUILD_TESTING)
     SET_TARGET_PROPERTIES( task-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     ADD_TEST( task-test ${RUNTIME_OUTPUT_DIRECTORY}/task-test )
 
     #ADD_EXECUTABLE( taskcontext-test test-runner.cpp generictask_test.cpp generictask_test_3.cpp) # generictask_test_2.cpp
@@ -117,7 +120,7 @@ IF (BUILD_TESTING)
     #SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
     #COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     #LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-    #COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+    #COMPILE_DEFINITIONS "${COMPILE_DEFS}")
     #ADD_TEST( taskcontext-test ${RUNTIME_OUTPUT_DIRECTORY}/taskcontext-test )
 
     IF(UNIX AND NOT OROCOS_TARGET STREQUAL "xenomai" )
@@ -127,7 +130,7 @@ IF (BUILD_TESTING)
       SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+        COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( specactivities-test ${RUNTIME_OUTPUT_DIRECTORY}/specactivities-test )
           list(APPEND ORO_EXTRA_TESTS "specactivities-test")
     ENDIF()
@@ -141,7 +144,7 @@ IF (BUILD_TESTING)
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
 	   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-	   COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+	   COMPILE_DEFINITIONS "${COMPILE_DEFS}"
 	   )
       ADD_TEST( corba-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-test )
       list(APPEND ORO_EXTRA_TESTS "corba-test")
@@ -151,7 +154,7 @@ IF (BUILD_TESTING)
            # Launches our servers.
            ADD_EXECUTABLE(setup_corba setup_corba.cpp)
            SET_TARGET_PROPERTIES( setup_corba PROPERTIES
-                COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+                COMPILE_DEFINITIONS "${COMPILE_DEFS}"
            )
            # Launched before ctest.
            SET(CORBA_SETUP_COMMAND COMMAND setup_corba)
@@ -165,7 +168,7 @@ IF (BUILD_TESTING)
           SET_TARGET_PROPERTIES( corba-ipc-test PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
             LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-ipc-test )
           list(APPEND ORO_EXTRA_TESTS "corba-ipc-test")
@@ -179,7 +182,7 @@ IF (BUILD_TESTING)
           SET_TARGET_PROPERTIES( corba-ipc-server PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
             LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_SIMPLE_TEST(test-corba-main ORO_EXTRA_TESTS "orocos-rtt-corba-${OROCOS_TARGET}_dynamic" ) 
     ENDIF(ENABLE_CORBA)
@@ -191,7 +194,7 @@ IF (BUILD_TESTING)
       SET_TARGET_PROPERTIES( mqueue-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+        COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
 
@@ -207,7 +210,7 @@ IF (BUILD_TESTING)
       SET_TARGET_PROPERTIES( corba-mqueue-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
         LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-        COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" )
+        COMPILE_DEFINITIONS "${COMPILE_DEFS}")
       ADD_TEST( corba-mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "corba-mqueue-test")
       
@@ -222,7 +225,7 @@ IF (BUILD_TESTING)
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-test PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
             LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
           ADD_TEST( corba-mqueue-ipc-test ${RUNTIME_OUTPUT_DIRECTORY}/corba-mqueue-ipc-test )
           list(APPEND ORO_EXTRA_TESTS "corba-mqueue-ipc-test")
@@ -237,7 +240,7 @@ IF (BUILD_TESTING)
           SET_TARGET_PROPERTIES( corba-mqueue-ipc-server PROPERTIES
             COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
             LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
-            COMPILE_DEFINITIONS "${OROCOS-RTT_DEFINITIONS}" 
+            COMPILE_DEFINITIONS "${COMPILE_DEFS}"
             )
      ENDIF()
 

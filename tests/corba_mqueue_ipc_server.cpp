@@ -17,6 +17,10 @@
  ***************************************************************************/
 
 
+// need access to all TLSF functions embedded in RTT
+// this call must occur before ALL RTT include's!!
+#define ORO_MEMORY_POOL
+#include <rtt/os/tlsf/tlsf.h>
 
 #include <transports/corba/TaskContextServer.hpp>
 #include <transports/corba/TaskContextProxy.hpp>
@@ -58,6 +62,15 @@ public:
 
 int ORO_main(int argc, char** argv)
 {
+	void*   rtMem=0;
+	size_t  freeMem=0;
+
+	/// setup real-time memory allocation
+	rtMem		= malloc(BUILD_TEST_RT_MEM_POOL_SIZE);	// don't calloc() as is first thing TLSF does.
+	assert(0 != rtMem);
+	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
+	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
+
     corba::TaskContextProxy::InitOrb(argc,argv);
 
     PluginLoader::Instance()->loadTypekits("../rtt");
