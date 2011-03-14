@@ -170,9 +170,11 @@ namespace RTT {
 
             /**
              * Load any typekit found in the 'types/' subdirectory of each path in path_list in the process.
+             * This is not a 'smart' function. It will only look into that directory and will not try
+             * to guess a target specific subdir or any other means for locating typekits.
              * @return false if some typekit caused an error, or some path was not found.
              * @param path_list A colon or semi-colon seperated list of paths
-             * to look for typekits.
+             * to look for typekits. No other paths will be searched.
              * @throw std::runtime_exception if one of the found typekits refused to load.
              */
             bool loadTypekits(std::string const& path_list);

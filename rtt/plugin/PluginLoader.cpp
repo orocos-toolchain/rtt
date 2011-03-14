@@ -108,8 +108,8 @@ namespace {
         PluginLoader::Instance()->setPluginPath(plugin_paths);
         // we load the plugins/typekits which are in each plugin path directory (but not subdirectories).
         try {
-            PluginLoader::Instance()->loadPlugins(plugin_paths);
-            PluginLoader::Instance()->loadTypekits(plugin_paths);
+            PluginLoader::Instance()->loadPlugin("rtt", plugin_paths);
+            PluginLoader::Instance()->loadTypekit("rtt", plugin_paths);
         } catch(std::exception& e) {
             log(Warning) << e.what() <<endlog();
             log(Warning) << "Corrupted files found in '" << plugin_paths << "'. Fix or remove these plugins."<<endlog();
@@ -246,6 +246,7 @@ bool PluginLoader::loadService(string const& servicename, TaskContext* tc) {
     return false;
 }
 
+// This is a DUMB function and does not scan subdirs, possible filenames etc.
 bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
 	// If exact match, load it directly:
@@ -257,6 +258,8 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         if ( loadInProcess(arg.string(), makeShortFilename(arg.filename()), kind, true) == false)
 #endif
             throw std::runtime_error("The plugin "+path_list+" was found but could not be loaded !");
+        log(Warning) << "You supplied a filename to 'loadPlugins(path)' or 'loadTypekits(path)'."<< nlog();
+        log(Warning) << "Please use 'loadLibrary(filename)' instead since the function you use will only scan directories in future releases."<<endlog();
         return true;
     }
 
@@ -296,33 +299,6 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
         }
         else
             log(Debug) << "No such directory: " << p << endlog();
-#if 0
-        // Repeat for OROCOS_TARGET/package/sub/types:
-        p = path(*it) / subdir / OROCOS_TARGET_NAME;
-        if (is_directory(p))
-        {
-            log(Info) << "Loading plugin libraries from directory " << p.string() << " ..."<<endlog();
-            for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
-            {
-                log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
-                    found = true;
-#if BOOST_VERSION >= 104600
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ), kind, true) && all_good;
-#else
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
-#endif
-                } else {
-                    if (!is_regular_file(itr->status()))
-                        log(Debug) << "not a regular file: ignored."<<endlog();
-                    else
-                        log(Debug) << "not a " + SO_EXT + " library: ignored."<<endlog();
-                }
-            }
-        }
-        else
-            log(Debug) << "No such directory: " << p << endlog();
-#endif
     }
     if (!all_good)
         throw std::runtime_error("Some found plugins could not be loaded !");
@@ -408,15 +384,18 @@ bool PluginLoader::loadLibrary( std::string const& name )
 bool PluginLoader::loadPluginInternal( std::string const& name, std::string const& path_list, std::string const& subdir, std::string const& kind )
 {
 	// If exact match, load it directly:
-    if (loadLibrary(name)) {
+    // special case for ourselves, rtt plugins are not in an 'rtt' subdir:
+    if (name != "rtt" && loadLibrary(name)) {
+        log(Warning) << "You supplied a filename as first argument to 'loadPlugin(name,path)' or 'loadTypekit(name,path)'."<<nlog();
+        log(Warning) << "Please use 'loadLibrary(filename)' instead since the function you use will only interprete 'name' as a directory name in future releases."<<endlog();
         return true;
     }
 
     if ( isLoadedInternal(name) ) {
-        log(Debug) <<"Plugin '"<< name <<"' already loaded. Not reloading it." <<endlog();
+        log(Debug) <<kind << " '"<< name <<"' already loaded. Not reloading it." <<endlog();
         return true;
     } else {
-        log(Info) << "Plugin '"<< name <<"' not loaded before." <<endlog();
+        log(Info) << kind << " '"<< name <<"' not loaded before." <<endlog();
     }
 
     string paths, trypaths;
@@ -433,9 +412,12 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     vector<string> vpaths = splitPaths(paths);
     paths.clear();
     bool path_found = false;
+    string plugin_dir = name;
+    if (name == "rtt" ) // special case for ourselves, rtt plugins are not in an 'rtt' subdir:
+        plugin_dir = ".";
     for(vector<string>::iterator it = vpaths.begin(); it != vpaths.end(); ++it) {
         path p(*it);
-        p = p / name;
+        p = p / plugin_dir;
         // we only search in existing directories:
         if (is_directory( p )) {
             path_found = true;
@@ -444,7 +426,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
             trypaths += p.string() + default_delimiter;
         }
         p = *it;
-        p = p / OROCOS_TARGET_NAME / name;
+        p = p / OROCOS_TARGET_NAME / plugin_dir;
         // we only search in existing directories:
         if (is_directory( p )) {
             path_found = true;
