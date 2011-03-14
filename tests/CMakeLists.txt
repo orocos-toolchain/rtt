@@ -195,7 +195,7 @@ IF (BUILD_TESTING)
       ADD_TEST( mqueue-test ${RUNTIME_OUTPUT_DIRECTORY}/mqueue-test )
       list(APPEND ORO_EXTRA_TESTS "mqueue-test")
 
-      ADD_UNIT_TEST(mqueue_archive_test EXTRA_TESTS "${TEST_LIBRARIES}")
+      ADD_UNIT_TEST(mqueue_archive_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}")
 
     ENDIF(ENABLE_MQ)
 
@@ -246,12 +246,12 @@ IF (BUILD_TESTING)
 
     if( TESTS_OS_NO_ASM )
     else()
-        ADD_UNIT_TEST(buffers_test EXTRA_TESTS "${TEST_LIBRARIES}")
+        ADD_UNIT_TEST(buffers_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}")
     endif()
         
-    ADD_UNIT_TEST(method_test EXTRA_TESTS "fixtures" )
+    ADD_UNIT_TEST(method_test ORO_EXTRA_TESTS "fixtures" )
     if (ORO_REMOTING)
-        ADD_UNIT_TEST(remote_method_test EXTRA_TESTS "${TEST_LIBRARIES}" )
+        ADD_UNIT_TEST(remote_method_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     endif()
     ADD_UNIT_TEST(functors_test ORO_EXTRA_TESTS "${TEST_LIBRARIES}" )
     ADD_UNIT_TEST(service_test ORO_EXTRA_TESTS "fixtures" )
