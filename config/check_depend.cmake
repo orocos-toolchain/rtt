@@ -340,6 +340,41 @@ IF (CMAKE_COMPILER_IS_GNUCXX)
 ENDIF()
 
 #
+# Set flags for code coverage, and setup coverage target
+#
+IF (BUILD_ENABLE_COVERAGE)
+
+  FIND_PACKAGE(Lcov REQUIRED)
+
+  # for required flags see
+  # http://git.benboeckel.net/?p=chasmd.git;a=blob;f=CMakeLists.txt
+  # http://www.cmake.org/Wiki/CTest:Coverage
+  # man gcov
+
+  SET(CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS_ADD} -fprofile-arcs -ftest-coverage")
+
+  # coverage
+  ADD_CUSTOM_TARGET(coverage)
+  ADD_CUSTOM_COMMAND(TARGET coverage
+    COMMAND mkdir -p coverage
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --directory . --zerocounters
+    COMMAND make check
+	# all coverage data
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --directory . --capture --output-file ./coverage/all.info
+	# RTT-only coverage data
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --output-file ./coverage/rtt.info -e ./coverage/all.info '${CMAKE_SOURCE_DIR}/*'
+	# generate based on RTT-only data
+    COMMAND ${LCOV_GENHTML_EXECUTABLE} -t "Orocos RTT coverage" -p "${CMAKE_SOURCE_DIR}"  -o ./coverage ./coverage/rtt.info
+    COMMAND echo "Open ${CMAKE_BINARY_DIR}/coverage/index.html to view the coverage analysis results."
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+  # todo dependancy of coverage on test?
+
+ENDIF (BUILD_ENABLE_COVERAGE)
+
+#
 # Check for Doxygen and enable documentation building
 #
 find_package( Doxygen )

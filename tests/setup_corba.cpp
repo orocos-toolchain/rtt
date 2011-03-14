@@ -23,8 +23,8 @@
 
 int main(int argc, char** argv)
 {
-    int i = system("./corba-ipc-server &");
-    i = system("./corba-mqueue-ipc-server &");
+    int i = system("[ ! -r ./corba-ipc-server ] || ./corba-ipc-server &");
+    i = system("[ ! -r ./corba-mqueue-ipc-server ] || ./corba-mqueue-ipc-server &");
     usleep(500000);
     return i;
 }

@@ -295,6 +295,11 @@ IF (BUILD_TESTING)
        ADD_SIMPLE_TEST(cleanup_corba ORO_EXTRA_TESTS "")
     ENDIF(ENABLE_CORBA AND UNIX)
     
+	# link to root build dir, to pick up CTest options when run from this dir
+	EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+	  ${CMAKE_BINARY_DIR}/DartConfiguration.tcl
+	  ${CMAKE_CURRENT_BINARY_DIR}/DartConfiguration.tcl)
+
     ADD_CUSTOM_TARGET(check ${CMAKE_COMMAND} -E remove *.tst core *.ior orocos.log
       ${CORBA_SETUP_COMMAND}
       COMMAND ctest -V
