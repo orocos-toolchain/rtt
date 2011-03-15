@@ -69,7 +69,11 @@ function( orocos_use_package PACKAGE )
       endif (${PACKAGE}_PACKAGE_PATH)
 
       #message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
-      endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
+    else (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
+      if (VERBOSE)
+	message("[UseOrocos] Note: '${PACKAGE}' is not a ROS package. Trying .pc file...")
+      endif (VERBOSE)
+    endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
   else(ROS_ROOT)
     #Use default pkg-config path
     #message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH.")
