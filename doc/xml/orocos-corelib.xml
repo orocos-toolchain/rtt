@@ -117,6 +117,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Cleanup for RTT 2.0.</revremark>
       </revision>
+      <revision>
+	<revnumber>2.3</revnumber>
+	<date>Mar 25, 2011</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Removing naming service class docs.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -839,52 +845,6 @@ ORO_main( int argc, char** argv)
   </section>
   <section id="corelib-extras">
     <title>Extra Stuff</title>
-    <section id="corelib-nameserver">
-      <title>The NameServer</title>
-      <para>
-	The name server class in the &orocos; framework stores (name, object) pairs
-	of only one (base) class type of object in the local process. It is mainly used
-	in the device abstraction layer such that device drivers are created in one place
-	and can be used in different places throughout the program.
-      </para>
-      <para>
-	The local object server is called
-	<classname>RTT::dev::NameServer</classname>.  The most
-	common usage syntax is given below.
-      </para>
-      <note><para>
-	The most common use of name serving is keeping track of pointers to objects.
-	A NameServer almost always takes pointers to an object as arguments and 
-	returns a pointer when the object is looked up again.</para>
-      </note>
-      <programlisting>  // A NameServer collecting pointers to ClassA objects
-  <classname>RTT::dev::NameServer</classname>&lt; ClassA* &gt; nameserver;
-  ClassA my_a;
-  nameserver.registerObject( &amp;my_a, "ATeam" );
-  // ...
-  ClassA* an_a = nameserver.getObject( "ATeam" );
-  if (an_a != 0 )
-      cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
-      <para>
-	A typical use of name serving is that the nameserver is nested inside the class
-	it is name serving itself. For convenience, the constructor of that class is then
-	extended to take a string as argument to indicate the (optional) desired name
-	of the object. Imagine that the above ClassA had such a nested nameserver,
-	in that case, it would be used as follows :
-      </para>
-      <programlisting>  ClassA my_a( "The ATeam" ); // give name in constructor
-  // ...
-  // notice the scope ClassA:: the nameserver is nested in :
-  ClassA* an_a = ClassA::nameserver.getObject( "The ATeam" );
-  if (an_a != 0 )
-    cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
-      <para>
-	The above technique is used in many classes inside &orocos;. Events, Devices, 
-	Control Kernels and Components, ... anything you wish to configure at run-time
-	can be name served.
-      </para>
-    </section>
-  </section>
   <section id="corelib-buffers-data">
     <title>Buffers and DataObjects</title>
     <para>
