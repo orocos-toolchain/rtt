@@ -562,7 +562,12 @@
 	writing:
       </para>
       <programlisting>
-  ProgramInterfacePtr p = dynamic_cast&lt;<classname>RTT::scripting::ScriptingAccess</classname>*&gt;(this->getService("scripting"))->getProgram("progname");
+  // Services are always accessed using a shared_ptr
+  // cast the "scripting" RTT::Service to an RTT::scripting::ScriptingService shared_ptr:
+  RTT::scripting::ScriptingService::shared_ptr ss 
+     = boost::dynamic_pointer_cast&lt;<classname>RTT::scripting::ScriptingService</classname>&gt;( this->provides()->getService("scripting") );
+
+  ProgramInterfacePtr p = ss->getProgram("progname");
 
   // start a program :
   p->start();</programlisting>  
@@ -1115,8 +1120,12 @@
 	writing:
       </para>
       <programlisting>
-  StateMachinePtr sm = dynamic_cast&lt;<classname>RTT::scripting::ScriptingAccess</classname>*&gt;(this->getService("scripting"))
-                          ->getStateMachine("MachineInstanceName");
+  // Services are always accessed using a shared_ptr
+  // cast the "scripting" RTT::Service to an RTT::scripting::ScriptingService shared_ptr:
+  RTT::scripting::ScriptingService::shared_ptr ss 
+     = boost::dynamic_pointer_cast&lt;<classname>RTT::scripting::ScriptingService</classname>&gt;( this->provides()->getService("scripting") );
+
+  StateMachinePtr sm = ss->getStateMachine("MachineInstanceName");
 
   // activate and start a StateMachine :
   sm->activate();
