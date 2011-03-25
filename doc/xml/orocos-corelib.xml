@@ -855,21 +855,6 @@ ORO_main( int argc, char** argv)
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
-    <figure><title>DataObjects versus Buffers</title>
-    <mediaobject>
-      <imageobject role="html">
-	<imagedata fileref="images/DataObjectBuffer" />
-      </imageobject>
-      <imageobject role="fo">
-	<imagedata fileref="images/hires/DataObjectBuffer"  width="50%" scalefit="1"/>
-      </imageobject>
-      <caption><para>DataObjects are most suitable for single writer, many readers,
-      and always return the last written value. Buffers have a fixed queue length
-      and are used for processing all produced data by any number of producers and
-      consumers.
-      </para></caption>
-    </mediaobject>
-    </figure>
     <section id="corelib-buffers">
       <title>Buffers</title>
       <para>
