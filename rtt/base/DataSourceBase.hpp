@@ -135,7 +135,6 @@ namespace RTT
       /**
        * Force an evaluation of the DataSourceBase.
        * @return true on successful evaluation.
-       * If the internal::DataSource itself contains a boolean, return that boolean.
        */
       virtual bool evaluate() const = 0;
 
