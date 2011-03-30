@@ -549,6 +549,7 @@ namespace RTT
                 data[i].data = initial_value;
                 data[i].next = &data[i+1];
             }
+            data[BUF_LEN-1].data = initial_value;
             data[BUF_LEN-1].next = &data[0];
         }
 
