@@ -1,25 +1,30 @@
 #
 # Parses the manifest.xml file and stores the dependencies in RESULT.
-# Relies on xpath.
+# Relies on xpath. If no manifest is found, returns an empty RESULT.
 #
 # Usage: orocos_get_manifest_deps DEPS)
 #
-macro( orocos_get_manifest_deps RESULT)
+function( orocos_get_manifest_deps RESULT)
+  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
+     message("Note: this package has no manifest.xml file. No dependencies can be auto-configured.")
+     return()
+  endif ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
+
   find_program(XPATH_EXE xpath )
   if (NOT XPATH_EXE)
     message("Warning: xpath not found. Can't read dependencies in manifest.xml file.")
   else(NOT XPATH_EXE)
-	IF (APPLE)
+    IF (APPLE)
       execute_process(COMMAND ${XPATH_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml "package/depend/@package" RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
       SET(REGEX_STR " package=\"([^\"]+)\"")
-	ELSE (APPLE)
+    ELSE (APPLE)
       execute_process(COMMAND ${XPATH_EXE} -q -e "package/depend/@package" ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
       SET(REGEX_STR " package=\"([^\"]+)\"\n")
-	ENDIF (APPLE)
+    ENDIF (APPLE)
     if (NOT RES EQUAL 0)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
-    
+
     string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
 
     #message("Deps are: '${DEPS}'")
@@ -27,7 +32,7 @@ macro( orocos_get_manifest_deps RESULT)
     set(${RESULT} ${RR_RESULT})
   endif (NOT XPATH_EXE)
 
-endmacro( orocos_get_manifest_deps RESULT)
+endfunction( orocos_get_manifest_deps RESULT)
 
 #
 # Find a package, pick up its include dirs and link with its libraries.
