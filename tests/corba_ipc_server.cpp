@@ -99,6 +99,7 @@ public:
 
 int ORO_main(int argc, char** argv)
 {
+#ifdef OR_RT_MALLOC
 	void*   rtMem=0;
 	size_t  freeMem=0;
 
@@ -107,7 +108,7 @@ int ORO_main(int argc, char** argv)
 	assert(0 != rtMem);
 	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
-
+#endif
     corba::TaskContextProxy::InitOrb(argc,argv);
 
     PluginLoader::Instance()->loadTypekits("../rtt");

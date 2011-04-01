@@ -90,7 +90,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 
     // sets environment if not set by user.
     setenv("RTT_COMPONENT_PATH","../rtt", 0);
-
+#ifdef OS_RT_MALLOC
 	void*   rtMem=0;
 	size_t  freeMem=0;
 
@@ -99,7 +99,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 	assert(0 != rtMem);
 	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
 	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
-
+#endif
 	__os_init(argc, argv);
 
     corba::TaskContextServer::InitOrb(argc,argv);
