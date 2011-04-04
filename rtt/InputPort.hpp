@@ -91,7 +91,11 @@ namespace RTT
 
         ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
 
-        FlowStatus read(base::DataSourceBase::shared_ptr source, bool copy_old_data = true)
+        /** \overload */
+        FlowStatus read(base::DataSourceBase::shared_ptr source)
+        { return read(source, true); }
+
+        FlowStatus read(base::DataSourceBase::shared_ptr source, bool copy_old_data)
         {
             typename internal::AssignableDataSource<T>::shared_ptr ds =
                 boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >(source);
@@ -121,6 +125,10 @@ namespace RTT
             return readNewest(ds->set(), copy_old_data);
         }
 
+        /** \overload */
+        FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+        { return read(sample, true); }
+
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a new sample is available. 
 	 * 
@@ -132,7 +140,7 @@ namespace RTT
 	 * In case @arg copy_old_data is false and an old sample is available, the
 	 * method will still return RTT::OldData but the sample will not be updated
          */
-        FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data = true)
+        FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
         {
             FlowStatus result = NoData;
             // read and iterate if necessary.
@@ -199,9 +207,9 @@ namespace RTT
         {
             Service* object = base::InputPortInterface::createPortObject();
             // Force resolution on the overloaded write method
-            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t, bool copy_old_data);
+            typedef FlowStatus (InputPort<T>::*ReadSample)(typename base::ChannelElement<T>::reference_t);
             ReadSample read_m = &InputPort<T>::read;
-            object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "").arg("Copy the data sample if status == OldData", "");
+            object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;
         }
     };
