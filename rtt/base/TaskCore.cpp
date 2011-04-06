@@ -269,7 +269,7 @@ namespace RTT {
         return this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->isActive();
     }
 
-    double TaskCore::getPeriod() const
+    Seconds TaskCore::getPeriod() const
     {
         return this->engine()->getActivity() ? this->engine()->getActivity()->getPeriod() : -1.0;
     }
@@ -277,6 +277,16 @@ namespace RTT {
     bool TaskCore::setPeriod(Seconds s)
     {
         return this->engine()->getActivity() ? this->engine()->getActivity()->setPeriod(s) : false;
+    }
+
+    unsigned TaskCore::getCpuAffinity() const
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->getCpuAffinity() : ~0;
+    }
+
+    bool TaskCore::setCpuAffinity(unsigned cpu)
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->setCpuAffinity(cpu) : false;
     }
 
     bool TaskCore::configureHook() {

@@ -65,6 +65,16 @@ namespace RTT {
         return false;
     }
 
+    unsigned SequentialActivity::getCpuAffinity() const
+    {
+      return ~0;
+    }
+
+    bool SequentialActivity::setCpuAffinity(unsigned cpu)
+    {
+      return false;
+    }
+
     os::ThreadInterface* SequentialActivity::thread()
     {
         return os::MainThread::Instance();

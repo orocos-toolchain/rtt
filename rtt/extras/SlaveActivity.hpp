@@ -122,6 +122,10 @@ namespace RTT
 
         bool setPeriod(Seconds s);
 
+        unsigned getCpuAffinity() const;
+
+        bool setCpuAffinity(unsigned cpu);
+
         os::ThreadInterface* thread();
 
         bool initialize();
