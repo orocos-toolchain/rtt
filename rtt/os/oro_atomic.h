@@ -51,6 +51,8 @@
 #   include "oro_x86_64/oro_atomic.h"
 #  elif defined( OROBLD_OS_ARCH_ppc )
 #   include "oro_powerpc/oro_atomic.h"
+#  elif defined( OROBLD_OS_ARCH_arm )
+#   include "oro_arm/oro_atomic.h"
 #  endif
 # endif
 #else

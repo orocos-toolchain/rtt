@@ -50,6 +50,8 @@
 #  include "oro_x86_64/oro_system.h"
 # elif defined( OROBLD_OS_ARCH_ppc )
 #  include "oro_powerpc/oro_system.h"
+# elif defined( OROBLD_OS_ARCH_arm )
+#  include "oro_arm/oro_system.h"
 # endif
 #else
 #define new _new
