@@ -79,9 +79,9 @@ static inline unsigned long __oro_cmpxchg_mb(volatile void *ptr, unsigned long o
 {
 	unsigned long ret;
 
-	barrier();
+	oro_smp_mb();
 	ret = __oro_cmpxchg(ptr, old, newv, size);
-	barrier();
+	oro_smp_mb();
 
 	return ret;
 }

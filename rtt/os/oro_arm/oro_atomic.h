@@ -32,21 +32,21 @@ extern "C"
 
 // The barrier for SMP is different on ARMv6 and ARMv7. 
 #if defined(USE_ARMV7_INSTRUCTIONS)
-# define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
+# define oro_dmb() __asm__ __volatile__ ("dmb" : : : "memory")
 #elif defined(USE_ARMV6_INSTRUCTIONS)
-# define dmb() __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" \
+# define oro_dmb() __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" \
                                         : : "r" (0) : "memory")
 #else
 # error This ARM architecture is not supported.
 #endif
 
-#define barrier() __asm__ __volatile__("": : :"memory")
+#define oro_barrier() __asm__ __volatile__("": : :"memory")
 
 // CONFIG_FORCE_UP optimize for single cpu
 #ifndef CONFIG_FORCE_UP
-#define smp_mb()        dmb()
+#define oro_smp_mb()        oro_dmb()
 #else
-#define smp_mb()        barrier()
+#define oro_smp_mb()        oro_barrier()
 #endif
 
 typedef struct { volatile int counter; } oro_atomic_t;
@@ -89,7 +89,7 @@ static inline int oro_atomic_add_return(int i, oro_atomic_t *v)
 	unsigned long tmp;
 	int result;
 
-	smp_mb();
+	oro_smp_mb();
 
 	__asm__ __volatile__("@ atomic_add_return\n"
 "1:	ldrex	%0, [%3]\n"
@@ -101,7 +101,7 @@ static inline int oro_atomic_add_return(int i, oro_atomic_t *v)
 	: "r" (&v->counter), "Ir" (i)
 	: "cc");
 
-	smp_mb();
+	oro_smp_mb();
 
 	return result;
 }
@@ -127,7 +127,7 @@ static inline int oro_atomic_sub_return(int i, oro_atomic_t *v)
 	unsigned long tmp;
 	int result;
 
-	smp_mb();
+	oro_smp_mb();
 
 	__asm__ __volatile__("@ atomic_sub_return\n"
 "1:	ldrex	%0, [%3]\n"
@@ -139,7 +139,7 @@ static inline int oro_atomic_sub_return(int i, oro_atomic_t *v)
 	: "r" (&v->counter), "Ir" (i)
 	: "cc");
 
-	smp_mb();
+	oro_smp_mb();
 
 	return result;
 }
@@ -148,7 +148,7 @@ static inline int oro_atomic_cmpxchg(oro_atomic_t *ptr, int old, int newv)
 {
 	unsigned long oldval, res;
 
-	smp_mb();
+	oro_smp_mb();
 
 	do {
 		__asm__ __volatile__("@ atomic_cmpxchg\n"
@@ -161,7 +161,7 @@ static inline int oro_atomic_cmpxchg(oro_atomic_t *ptr, int old, int newv)
 		    : "cc");
 	} while (res);
 
-	smp_mb();
+	oro_smp_mb();
 
 	return oldval;
 }
@@ -194,10 +194,10 @@ static inline void oro_atomic_clear_mask(unsigned long mask, unsigned long *addr
 
 #define oro_atomic_add_negative(i,v)    (oro_atomic_add_return(i, v) < 0)
 
-#define smp_mb__before_oro_atomic_dec() smp_mb()
-#define smp_mb__after_oro_atomic_dec()	smp_mb()
-#define smp_mb__before_oro_atomic_inc()	smp_mb()
-#define smp_mb__after_oro_atomic_inc()	smp_mb()
+#define smp_mb__before_oro_atomic_dec() oro_smp_mb()
+#define smp_mb__after_oro_atomic_dec()	oro_smp_mb()
+#define smp_mb__before_oro_atomic_inc()	oro_smp_mb()
+#define smp_mb__after_oro_atomic_inc()	oro_smp_mb()
 
 #ifdef _cplusplus
 } // end extern "C"
