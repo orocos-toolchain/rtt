@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY( oro_x86_64 )
 ADD_SUBDIRECTORY( oro_powerpc )
 ADD_SUBDIRECTORY( oro_msvc )
 ADD_SUBDIRECTORY( oro_noasm )
+ADD_SUBDIRECTORY( oro_gcc )
 
 # Target specific config files
 ADD_SUBDIRECTORY( targets )

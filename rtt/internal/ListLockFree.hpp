@@ -40,7 +40,7 @@
 #define ORO_LIST_LOCK_FREE_HPP
 
 #include <vector>
-#include "../os/oro_atomic.h"
+#include "../os/oro_arch.h"
 #include "../os/CAS.hpp"
 #include <boost/intrusive_ptr.hpp>
 #include "../rtt-config.h"

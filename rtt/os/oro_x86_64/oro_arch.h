@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_atomic.h 
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_atomic.h
 
                         oro_atomic.h -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,17 +34,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "../../rtt-config.h"
-#ifndef __ARCH_I386_ORO_ATOMIC__
-#define __ARCH_I386_ORO_ATOMIC__
-
-/*
- * Atomic operations that C can't guarantee us.  Useful for
- * resource counting etc..
- */
+#ifndef __ORO_ARCH_x86_64__
+#define __ORO_ARCH_x86_64__
 
 #ifndef CONFIG_FORCE_UP
 #define ORO_LOCK "lock ; "
@@ -52,45 +47,16 @@
 #define ORO_LOCK ""
 #endif
 
-/*
- * Make sure gcc doesn't try to be clever and move things around
- * on us. We need to use _exactly_ the address the user gave us,
- * not some alias that contains the same information.
- */
 typedef struct { volatile int counter; } oro_atomic_t;
 
-#define ORO_ATOMIC_INIT(i)	{ (i) }
 #define ORO_ATOMIC_SETUP	oro_atomic_set
-#define ORO_ATOMIC_CLEANUP(v)	
+#define ORO_ATOMIC_CLEANUP(v)
 
-/**
- * oro_atomic_read - read atomic variable
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically reads the value of @v.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 #define oro_atomic_read(v)		((v)->counter)
 
-/**
- * oro_atomic_set - set atomic variable
- * @v: pointer of type oro_atomic_t
- * @i: required value
- * 
- * Atomically sets the value of @v to @i.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 #define oro_atomic_set(v,i)		(((v)->counter) = (i))
 
-/**
- * oro_atomic_add - add integer to atomic variable
- * @i: integer value to add
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically adds @i to @v.  Note that the guaranteed useful range
- * of an oro_atomic_t is only 24 bits.
- */
-static __inline__ void oro_atomic_add(int i, oro_atomic_t *v)
+static __inline__ void oro_atomic_add(oro_atomic_t *v, int i)
 {
 	__asm__ __volatile__(
 		ORO_LOCK "addl %1,%0"
@@ -98,15 +64,7 @@ static __inline__ void oro_atomic_add(int i, oro_atomic_t *v)
 		:"ir" (i), "m" (v->counter));
 }
 
-/**
- * oro_atomic_sub - subtract the atomic variable
- * @i: integer value to subtract
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically subtracts @i from @v.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */
-static __inline__ void oro_atomic_sub(int i, oro_atomic_t *v)
+static __inline__ void oro_atomic_sub(oro_atomic_t *v, int i)
 {
 	__asm__ __volatile__(
 		ORO_LOCK "subl %1,%0"
@@ -114,17 +72,7 @@ static __inline__ void oro_atomic_sub(int i, oro_atomic_t *v)
 		:"ir" (i), "m" (v->counter));
 }
 
-/**
- * oro_atomic_sub_and_test - subtract value from variable and test result
- * @i: integer value to subtract
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically subtracts @i from @v and returns
- * true if the result is zero, or false for all
- * other cases.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */
-static __inline__ int oro_atomic_sub_and_test(int i, oro_atomic_t *v)
+static __inline__ int oro_atomic_sub_and_test(oro_atomic_t *v, int i)
 {
 	unsigned char c;
 
@@ -135,13 +83,6 @@ static __inline__ int oro_atomic_sub_and_test(int i, oro_atomic_t *v)
 	return c;
 }
 
-/**
- * oro_atomic_inc - increment atomic variable
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically increments @v by 1.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 static __inline__ void oro_atomic_inc(oro_atomic_t *v)
 {
 	__asm__ __volatile__(
@@ -150,13 +91,6 @@ static __inline__ void oro_atomic_inc(oro_atomic_t *v)
 		:"m" (v->counter));
 }
 
-/**
- * oro_atomic_dec - decrement atomic variable
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically decrements @v by 1.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 static __inline__ void oro_atomic_dec(oro_atomic_t *v)
 {
 	__asm__ __volatile__(
@@ -165,15 +99,6 @@ static __inline__ void oro_atomic_dec(oro_atomic_t *v)
 		:"m" (v->counter));
 }
 
-/**
- * oro_atomic_dec_and_test - decrement and test
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically decrements @v by 1 and
- * returns true if the result is 0, or false for all other
- * cases.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *v)
 {
 	unsigned char c;
@@ -185,15 +110,6 @@ static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *v)
 	return c != 0;
 }
 
-/**
- * oro_atomic_inc_and_test - increment and test 
- * @v: pointer of type oro_atomic_t
- * 
- * Atomically increments @v by 1
- * and returns true if the result is zero, or false for all
- * other cases.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 static __inline__ int oro_atomic_inc_and_test(oro_atomic_t *v)
 {
 	unsigned char c;
@@ -205,16 +121,6 @@ static __inline__ int oro_atomic_inc_and_test(oro_atomic_t *v)
 	return c != 0;
 }
 
-/**
- * oro_atomic_add_negative - add and test if negative
- * @v: pointer of type oro_atomic_t
- * @i: integer value to add
- * 
- * Atomically adds @i to @v and returns true
- * if the result is negative, or false when
- * result is greater than or equal to zero.  Note that the guaranteed
- * useful range of an oro_atomic_t is only 24 bits.
- */ 
 static __inline__ int oro_atomic_add_negative(int i, oro_atomic_t *v)
 {
 	unsigned char c;
@@ -226,20 +132,53 @@ static __inline__ int oro_atomic_add_negative(int i, oro_atomic_t *v)
 	return c;
 }
 
-/* These are x86-specific, used by some header files */
-#define oro_atomic_clear_mask(mask, addr) \
-__asm__ __volatile__(ORO_LOCK "andl %0,%1" \
-: : "r" (~(mask)),"m" (*addr) : "memory")
+#ifndef CONFIG_FORCE_UP
+#define ORO_LOCK_PREFIX "lock ; "
+#else
+#define ORO_LOCK_PREFIX ""
+#endif
 
-#define oro_atomic_set_mask(mask, addr) \
-__asm__ __volatile__(ORO_LOCK "orl %0,%1" \
-: : "r" (mask),"m" (*(addr)) : "memory")
+struct oro__xchg_dummy { unsigned long a[100]; };
+#define oro__xg(x) ((struct oro__xchg_dummy *)(x))
 
-/* Atomic operations are already serializing on x86 */
-#define smp_mb__before_oro_atomic_dec()	barrier()
-#define smp_mb__after_oro_atomic_dec()	barrier()
-#define smp_mb__before_oro_atomic_inc()	barrier()
-#define smp_mb__after_oro_atomic_inc()	barrier()
+static inline unsigned long __oro_cmpxchg(volatile void *ptr, unsigned long old,
+                      unsigned long _new, int size)
+{
+    unsigned long prev;
+    switch (size) {
+    case 1:
+        __asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgb %b1,%2"
+                     : "=a"(prev)
+                     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
+                     : "memory");
+        return prev;
+    case 2:
+        __asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgw %w1,%2"
+                     : "=a"(prev)
+                     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
+                     : "memory");
+        return prev;
+    case 4:
+        __asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgl %k1,%2"
+                     : "=a"(prev)
+                     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
+                     : "memory");
+        return prev;
+    case 8:
+        __asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgq %1,%2"
+                     : "=a"(prev)
+                     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
+                     : "memory");
+        return prev;
 
+    }
+    return old;
+}
+
+#define oro_cmpxchg(ptr,o,n)\
+    ((__typeof__(*(ptr)))__oro_cmpxchg((ptr),(unsigned long)(o),\
+                    (unsigned long)(n),sizeof(*(ptr))))
+
+#undef ORO_LOCK_PREFIX
 #undef ORO_LOCK
 #endif
