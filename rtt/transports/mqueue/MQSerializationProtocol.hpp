@@ -106,7 +106,7 @@ namespace RTT
                 io::stream<io::array_sink>  outbuf(sink,1);
                 binary_data_oarchive out( outbuf, false );
                 out << tsample->get();
-                //std::cout << "sample is "<< sample.size() <<" arch is " << out.getArchiveSize() <<std::endl;
+                //std::cout << "sample size is "<< tsample->rvalue().size() <<" archive is " << out.getArchiveSize() <<std::endl; //disable all types but std::vector<double> for this to compile
                 return out.getArchiveSize();
             }
         };
