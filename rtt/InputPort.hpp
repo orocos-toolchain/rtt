@@ -84,12 +84,21 @@ namespace RTT
             }
             return false;
         }
+
+        /**
+         * You are not allowed to copy ports.
+         * In case you want to create a container of ports,
+         * use pointers to ports instead of the port object
+         * itself.
+         */
+        InputPort(InputPort const& orig);
+        InputPort& operator=(InputPort const& orig);
     public:
         InputPort(std::string const& name = "unnamed", ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
             , data_source(0) {}
 
-        ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
+        virtual ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
 
         FlowStatus read(base::DataSourceBase::shared_ptr source)
         {

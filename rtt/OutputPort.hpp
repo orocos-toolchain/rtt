@@ -129,6 +129,15 @@ namespace RTT
             return channel_el_input->data_sample( T() );
         }
 
+        /**
+         * You are not allowed to copy ports.
+         * In case you want to create a container of ports,
+         * use pointers to ports instead of the port object
+         * itself.
+         */
+        OutputPort( OutputPort const& orig );
+        OutputPort& operator=(OutputPort const& orig);
+
     public:
         /**
          * Creates a named Output port.
