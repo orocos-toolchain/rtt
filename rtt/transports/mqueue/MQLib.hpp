@@ -35,13 +35,24 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#ifndef RTT_TRANSPORTS_MQUEUE_MQLIB
+#define RTT_TRANSPORTS_MQUEUE_MQLIB
 
 #include "rtt-mqueue-config.h"
+#include <string>
+#include <rtt/types/TransportPlugin.hpp>
 
 namespace RTT {
     namespace mqueue {
+        struct MQLibPlugin : public RTT::types::TransportPlugin
+        {
+            bool registerTransport(std::string name, RTT::types::TypeInfo* ti);
+            std::string getTransportName() const;
+            std::string getTypekitName() const;
+            std::string getName() const;
+        };
     }
 }
 
 #define ORO_MQUEUE_PROTOCOL_ID 2
+#endif

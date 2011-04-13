@@ -73,6 +73,7 @@
 #include "../../rtt-detail-fwd.hpp"
 #include "../../internal/OperationCallerC.hpp"
 #include "../../internal/SendHandleC.hpp"
+#include "../../Logger.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

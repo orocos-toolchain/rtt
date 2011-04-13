@@ -329,7 +329,12 @@ namespace RTT
                 try {
                     taskc->prepareUpdateHook();
                     taskc->updateHook();
+                } catch(std::exception const& e) {
+                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
+                    log(Error) << "  " << e.what() << endlog();
+                    taskc->exception();
                 } catch(...){
+                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
                     taskc->exception(); // calls stopHook,cleanupHook
                 }
             }
@@ -337,7 +342,12 @@ namespace RTT
             if (  taskc->mTaskState == TaskCore::RunTimeError ) {
                 try {
                     taskc->errorHook();
-                } catch(...) {
+                } catch(std::exception const& e) {
+                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
+                    log(Error) << "  " << e.what() << endlog();
+                    taskc->exception();
+                } catch(...){
+                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     taskc->exception(); // calls stopHook,cleanupHook
                 }
             }
@@ -350,13 +360,23 @@ namespace RTT
                 try {
                     (*it)->prepareUpdateHook();
                     (*it)->updateHook();
-                } catch(...){
+                } catch(std::exception const& e) {
+                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
+                    log(Error) << "  " << e.what() << endlog();
                     (*it)->exception();
+                } catch(...){
+                    log(Error) << "in updateHook(): switching to exception state because of unhandled exception" << endlog();
+                    (*it)->exception(); // calls stopHook,cleanupHook
                 }
             if (  (*it)->mTaskState == TaskCore::RunTimeError )
                 try {
                     (*it)->errorHook();
-                } catch(...) {
+                } catch(std::exception const& e) {
+                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
+                    log(Error) << "  " << e.what() << endlog();
+                    (*it)->exception();
+                } catch(...){
+                    log(Error) << "in errorHook(): switching to exception state because of unhandled exception" << endlog();
                     (*it)->exception(); // calls stopHook,cleanupHook
                 }
             if ( !this->getActivity() || ! this->getActivity()->isRunning() ) return;

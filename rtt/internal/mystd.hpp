@@ -38,7 +38,12 @@
 #ifndef ORO_MYSTD_HPP
 #define ORO_MYSTD_HPP
 
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/add_const.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/remove_const.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/logical.hpp>
 #include <boost/utility.hpp>

@@ -250,7 +250,14 @@ CORBA::Boolean CDataFlowInterface_i::channelReady(const char * reader_port_name,
         ChannelList::iterator it=channel_list.begin();
         for (; it != channel_list.end(); ++it) {
             if (it->first->_is_equivalent (channel) ) {
-                return ip->channelReady( it->second );
+                try {
+                    return ip->channelReady( it->second );
+                }
+                catch(std::exception const& e)
+                {
+                    log(Error) << "call to channelReady threw " << e.what() << endlog();
+                    throw;
+                }
             }
         }
     }
@@ -386,6 +393,7 @@ CChannelElement_ptr CDataFlowInterface_i::buildChannelOutput(
         if ( type_info->getProtocol(corba_policy.transport) == 0 ) {
             log(Error) << "Could not create out-of-band transport for port "<< port_name << " with transport id " << corba_policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your corba_policy.transport settings or add the transport for type "<< type_info->getTypeName() <<endlog();
+            return RTT::corba::CChannelElement::_nil();
         }
         RTT::base::ChannelElementBase* ceb = type_info->getProtocol(corba_policy.transport)->createStream(port, policy2, false);
         // if no user supplied name, pass on the new name.

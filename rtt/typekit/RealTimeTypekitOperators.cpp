@@ -48,6 +48,8 @@
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
 #include "../typekit/Types.hpp"
+#include <ostream>
+#include <sstream>
 
 namespace RTT
 {

@@ -55,22 +55,26 @@ namespace RTT
         {
         protected:
             /**
-             * Data source used to store the result of a receive
-             * or to read the value to send.
-             */
-            base::DataSourceBase::shared_ptr mqdata_source;
-            /**
              * Transport marshaller used for size calculations
              * and data updates.
              */
             types::TypeMarshaller const& mtransport;
             /**
+             * A private blob that is returned by mtransport.getCookie(). It is
+             * used by the marshallers if they need private internal data to do
+             * the marshalling
+             */
+            void* marshaller_cookie;
+            /**
              * MQueue file descriptor.
              */
             mqd_t mqdes;
             /**
-             * Send/Receive buffer, with size equal to the size
-             * of mqdata_source, or the value provided by the ConnPolicy
+             * Send/Receive buffer. It is initialized to the size of the value
+             * provided by the ConnPolicy or, if the policy has a zero data
+             * size, the sample given to setupStream
+             *
+             * Its size is saved in max_size
              */
             char* buf;
             /**
@@ -115,28 +119,29 @@ namespace RTT
              * data in mqdata_source, or the value set in mdata_size;
              * @param sample
              */
-            virtual void mqNewSample();
+            virtual void mqNewSample(base::DataSourceBase::shared_ptr ds);
 
             /**
              * Works only in receive mode, waits for a new sample and
              * adapts the receive buffer to match it's size.
              * @return
              */
-            virtual bool mqReady(base::ChannelElementBase* chan);
+            virtual bool mqReady(base::DataSourceBase::shared_ptr ds, base::ChannelElementBase* chan);
 
             /**
              * Read from the message queue.
              * @param sample stores the resulting data sample.
              * @return true if an item could be read.
              */
-            bool mqRead();
+            bool mqRead(base::DataSourceBase::shared_ptr ds);
 
             /**
              * Write to the message queue
-             * @param sample the data sample to write
+             * @param ds the data sample to write
+             * @param is_data_sample true if the sample is used for initialization, false if it is a proper write
              * @return true if it could be sent.
              */
-            bool mqWrite();
+            bool mqWrite(base::DataSourceBase::shared_ptr ds);
         };
     }
 }

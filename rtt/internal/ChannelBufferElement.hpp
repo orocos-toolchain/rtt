@@ -41,7 +41,6 @@
 
 #include "../base/ChannelElement.hpp"
 #include "../base/BufferInterface.hpp"
-#include "../internal/DataSources.hpp"
 
 namespace RTT { namespace internal {
 
@@ -51,14 +50,20 @@ namespace RTT { namespace internal {
     class ChannelBufferElement : public base::ChannelElement<T>
     {
         typename base::BufferInterface<T>::shared_ptr buffer;
-        typename internal::AssignableDataSource<T>::shared_ptr last;
-        bool written;
+        typename base::ChannelElement<T>::value_t *last_sample_p;
     public:
         typedef typename base::ChannelElement<T>::param_t param_t;
         typedef typename base::ChannelElement<T>::reference_t reference_t;
+	typedef typename base::ChannelElement<T>::value_t value_t;
 
         ChannelBufferElement(typename base::BufferInterface<T>::shared_ptr buffer)
-            : buffer(buffer), last ( new internal::ValueDataSource<T>() ), written(false) {}
+            : buffer(buffer), last_sample_p(0) {}
+            
+	virtual ~ChannelBufferElement()
+	{
+	    if(last_sample_p)
+		buffer->Release(last_sample_p);
+	}
  
         /** Appends a sample at the end of the FIFO
          *
@@ -66,7 +71,6 @@ namespace RTT { namespace internal {
          */
         virtual bool write(param_t sample)
         {
-            written = true;
             if (buffer->Push(sample))
                 return this->signal();
             return true;
@@ -76,14 +80,20 @@ namespace RTT { namespace internal {
          *
          * @return false if the FIFO was empty, and true otherwise
          */
-        virtual FlowStatus read(reference_t sample)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-            if ( buffer->Pop(sample) ) {
-                last->set(sample);
+	    value_t *new_sample_p;
+            if ( (new_sample_p = buffer->PopWithoutRelease()) ) {
+		if(last_sample_p)
+		    buffer->Release(last_sample_p);
+		
+		last_sample_p = new_sample_p;
+		sample = *new_sample_p;
                 return NewData;
             }
-            if (written) {
-                sample = last->get();
+            if (last_sample_p) {
+		if(copy_old_data)
+		    sample = *(last_sample_p);
                 return OldData;
             }
             return NoData;
@@ -94,8 +104,10 @@ namespace RTT { namespace internal {
          * meantime).
          */
         virtual void clear()
-        { 
-            written = false;
+        {
+	    if(last_sample_p)
+		buffer->Release(last_sample_p);
+	    last_sample_p = 0;
             buffer->clear();
             base::ChannelElement<T>::clear();
         }

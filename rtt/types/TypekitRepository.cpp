@@ -46,8 +46,8 @@ namespace RTT {
     using namespace detail;
     using namespace std;
 
-    std::vector<TypekitPlugin*> TypekitRepository::Typekits;
-    std::vector<TransportPlugin*> TypekitRepository::Transports;
+    static std::vector<TypekitPlugin*> Typekits;
+    static std::vector<TransportPlugin*> Transports;
 
     void TypekitRepository::Import( TypekitPlugin* tkp )
     {

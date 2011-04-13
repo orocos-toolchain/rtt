@@ -55,6 +55,9 @@ namespace RTT
       return true;
   }
 
+  template<>
+  inline void const* DataSource<void>::getRawConstPointer() { return 0; }
+
     template<typename T>
     AssignableDataSource<T>::~AssignableDataSource()
     {}

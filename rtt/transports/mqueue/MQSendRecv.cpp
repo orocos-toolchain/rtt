@@ -61,7 +61,7 @@ using namespace RTT::mqueue;
 
 
 MQSendRecv::MQSendRecv(types::TypeMarshaller const& transport) :
-    mqdata_source(), mtransport(transport), buf(0), mis_sender(false), minit_done(false), max_size(0), mdata_size(0)
+    mtransport(transport), marshaller_cookie(0), buf(0), mis_sender(false), minit_done(false), max_size(0), mdata_size(0)
 {
 }
 
@@ -70,9 +70,9 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
 {
     Logger::In in("MQSendRecv");
 
-    mqdata_source = ds;
     mdata_size = policy.data_size;
-    max_size = policy.data_size ? policy.data_size : mtransport.getSampleSize(mqdata_source);
+    max_size = policy.data_size ? policy.data_size : mtransport.getSampleSize(ds);
+    marshaller_cookie = mtransport.createCookie();
     mis_sender = is_sender;
 
     std::stringstream namestr;
@@ -165,6 +165,9 @@ void MQSendRecv::cleanupStream()
     // both sender and receiver close their end.
     mq_close( mqdes);
 
+    if (marshaller_cookie)
+        mtransport.deleteCookie(marshaller_cookie);
+
     if (buf)
     {
         delete[] buf;
@@ -173,17 +176,17 @@ void MQSendRecv::cleanupStream()
 }
 
 
-void MQSendRecv::mqNewSample()
+void MQSendRecv::mqNewSample(RTT::base::DataSourceBase::shared_ptr ds)
 {
     // only deduce if user did not specify it explicitly:
     if (mdata_size == 0)
-        max_size = mtransport.getSampleSize(mqdata_source);
+        max_size = mtransport.getSampleSize(ds);
     delete[] buf;
     buf = new char[max_size];
     memset(buf, 0, max_size); // necessary to trick valgrind
 }
 
-bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
+bool MQSendRecv::mqReady(base::DataSourceBase::shared_ptr ds, base::ChannelElementBase* chan)
 {
     if (minit_done)
         return true;
@@ -191,6 +194,9 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
     if (!mis_sender)
     {
         // Try to get the initial sample
+        //
+        // The output port implementation guarantees that there will be one
+        // after the connection is ready
         struct timespec abs_timeout;
         clock_gettime(CLOCK_REALTIME, &abs_timeout);
         abs_timeout.tv_nsec += Seconds_to_nsecs(0.5);
@@ -200,7 +206,7 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
         ssize_t ret = mq_timedreceive(mqdes, buf, max_size, 0, &abs_timeout);
         if (ret != -1)
         {
-            if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+            if (mtransport.updateFromBlob((void*) buf, ret, ds, marshaller_cookie))
             {
                 minit_done = true;
                 // ok, now we can add the dispatcher.
@@ -215,7 +221,7 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
         }
         else
         {
-            log(Error) << "Failed to receive initial data sample for MQ Channel Element." << endlog();
+            log(Error) << "Failed to receive initial data sample for MQ Channel Element: " << strerror(errno) << endlog();
             return false;
         }
     }
@@ -228,7 +234,7 @@ bool MQSendRecv::mqReady(base::ChannelElementBase* chan)
 }
 
 
-bool MQSendRecv::mqRead()
+bool MQSendRecv::mqRead(RTT::base::DataSourceBase::shared_ptr ds)
 {
     int bytes = 0;
     if ((bytes = mq_receive(mqdes, buf, max_size, 0)) == -1)
@@ -236,21 +242,31 @@ bool MQSendRecv::mqRead()
         //log(Debug) << "Tried read on empty mq!" <<endlog();
         return false;
     }
-    if (mtransport.updateFromBlob((void*) buf, max_size, mqdata_source))
+    if (mtransport.updateFromBlob((void*) buf, bytes, ds, marshaller_cookie))
     {
         return true;
     }
     return false;
 }
 
-bool MQSendRecv::mqWrite()
+bool MQSendRecv::mqWrite(RTT::base::DataSourceBase::shared_ptr ds)
 {
-    std::pair<void*, int> blob = mtransport.fillBlob(mqdata_source, (void*) buf, max_size);
-    char* lbuf = (char*) blob.first;
-    if (mq_send(mqdes, lbuf, blob.second, 0))
+    std::pair<void const*, int> blob = mtransport.fillBlob(ds, buf, max_size, marshaller_cookie);
+    if (blob.first == 0)
     {
-        //log(Error) << "Failed to write into MQChannel !" <<endlog();
+        log(Error) << "MQChannel: failed to marshal sample" << endlog();
+        return false;
+    }
+
+    char* lbuf = (char*) blob.first;
+    if (mq_send(mqdes, lbuf, blob.second, 0) == -1)
+    {
+        if (errno == EAGAIN)
+            return true;
+
+        log(Error) << "MQChannel became invalid: " << strerror(errno) << endlog();
         return false;
     }
     return true;
 }
+
