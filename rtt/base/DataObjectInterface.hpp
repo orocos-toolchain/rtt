@@ -39,7 +39,7 @@
 #define CORELIB_DATAOBJECTINTERFACE_HPP
 
 
-#include "../internal/DataSource.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 { namespace base {
