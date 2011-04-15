@@ -104,10 +104,10 @@ namespace RTT {
                 return false;
             }
 
-            virtual ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
+            virtual ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Could create Stream for port '"<<port->getName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
-                return 0;
+                return ChannelElementBase::shared_ptr();
             }
 
             virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const { return 0; }

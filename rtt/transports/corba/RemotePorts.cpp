@@ -170,7 +170,7 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
             log(Error) << "Could not create out-of-band transport for port "<< name << " with transport id " << policy.transport <<endlog();
             log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
         }
-        RTT::base::ChannelElementBase* ceb = type->getProtocol(policy.transport)->createStream(this, policy, true);
+        RTT::base::ChannelElementBase::shared_ptr ceb = type->getProtocol(policy.transport)->createStream(this, policy, true);
         if (ceb) {
             // insertion before corba.
             ceb->setOutput( corba_ceb );

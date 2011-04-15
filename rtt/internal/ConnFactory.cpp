@@ -169,7 +169,7 @@ bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, Con
 
     // note: don't refcount this final input chan, because no one will
     // take a reference to it. It would be destroyed upon return of this function.
-    RTT::base::ChannelElementBase* chan = type->getProtocol(policy.transport)->createStream(&input_port,policy, false);
+    RTT::base::ChannelElementBase::shared_ptr chan = type->getProtocol(policy.transport)->createStream(&input_port,policy, false);
 
     if ( !chan ) {
         log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
