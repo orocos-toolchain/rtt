@@ -612,9 +612,9 @@
      inkscape:cy="358.43693"
      inkscape:current-layer="layer1"
      id="namedview3782"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -1111,22 +1111,24 @@
          id="tspan17382">updateHook() is called.</tspan></text>
     <rect
        y="242.1118"
-       x="193.30536"
-       height="43.53812"
-       width="133.28993"
+       x="173.46182"
+       height="140.11"
+       width="153.13347"
        id="rect1392"
-       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086687;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2.77086687;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
+       ry="17.197733" />
     <text
        xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
-       x="209.99728"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
+       x="201.99728"
        y="271.2038"
        id="text1394"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan1396"
-         x="209.99728"
-         y="271.2038">Activity</tspan></text>
+         x="201.99728"
+         y="271.2038"
+         style="-inkscape-font-specification:Arial;font-family:Arial;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">Activity</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.41653514;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 325.72269,265.20378 L 433.53038,265.20378"
@@ -1141,7 +1143,7 @@
          sodipodi:role="line"
          id="tspan2275"
          x="341.11197"
-         y="258.29572">calls</tspan></text>
+         y="258.29572">runs</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:2.4165349;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 535.52114,241.95778 L 618.71968,241.95778"
@@ -1244,7 +1246,7 @@
          id="tspan3307">}</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:18.95421028px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+       style="font-size:18.95421028000000163px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
        x="550.23724"
        y="431.58661"
        id="text3309"
@@ -1252,30 +1254,11 @@
          sodipodi:role="line"
          id="tspan3311"
          x="550.23724"
-         y="431.58661">calls</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
-       x="200.89343"
-       y="312.82828"
-       id="text3313"
-       sodipodi:linespacing="125%"><tspan
+         y="431.58661">calls</tspan><tspan
          sodipodi:role="line"
-         id="tspan3315"
-         x="200.89343"
-         y="312.82828">-Activity</tspan><tspan
-         sodipodi:role="line"
-         x="200.89343"
-         y="337.82828"
-         id="tspan3317">-PeriodicActivity</tspan><tspan
-         sodipodi:role="line"
-         x="200.89343"
-         y="362.82828"
-         id="tspan3319">-SlaveActivity</tspan><tspan
-         sodipodi:role="line"
-         x="200.89343"
-         y="387.82828"
-         id="tspan3321">-....</tspan></text>
+         x="550.23724"
+         y="455.27936"
+         id="tspan20231">in Running state</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
@@ -1302,5 +1285,26 @@
          id="tspan6467-2"
          x="195.59869"
          y="193.16344">Thread type</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="206.21632"
+       y="299.6618"
+       id="text20233"><tspan
+         sodipodi:role="line"
+         id="tspan20235"
+         x="206.21632"
+         y="299.6618"
+         style="font-size:20px;-inkscape-font-specification:Arial;font-family:Arial;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">- period</tspan><tspan
+         sodipodi:role="line"
+         x="206.21632"
+         y="324.6618"
+         id="tspan20237"
+         style="font-size:20px;-inkscape-font-specification:Arial;font-family:Arial;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">- periority</tspan><tspan
+         sodipodi:role="line"
+         x="206.21632"
+         y="349.6618"
+         id="tspan20239"
+         style="font-size:20px;-inkscape-font-specification:Arial;font-family:Arial;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">- scheduler</tspan></text>
   </g>
 </svg>

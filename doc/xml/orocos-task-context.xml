@@ -652,10 +652,10 @@ Hello[R] &gt;
       </title>
       <mediaobject>
 	<imageobject role="html">
-	  <imagedata fileref="images/ComponentArch-4" />
+	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentArch-4"  width="100%" scalefit="1"/>
+	  <imagedata fileref="images/hires/ATaskContext"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
