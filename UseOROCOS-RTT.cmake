@@ -605,9 +605,15 @@ Cflags: -I\${includedir}
     set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
     # For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
     # so we need to reset it. CMake bug ???
-  set(PC_CONTENTS "prefix=@PC_PREFIX@
+  set(PC_CONTENTS "# Rationale:
+# - The prefix is equal to the package directory.
+# - The libdir is where the libraries were built, ie, package/lib
+# - The include dir in cflags allows top-level headers and in package/include/package/header.h
+# - If this doesn't fit your package layout, don't use orocos_generate_package() and write the .pc file yourself
+
+prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
-includedir=\${prefix}/include/orocos
+includedir=\${prefix}/include
 orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
@@ -615,7 +621,7 @@ Description: ${PC_NAME} package for Orocos
 Requires: orocos-rtt-${OROCOS_TARGET}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
-Cflags: -I\${includedir}
+Cflags: -I\${includedir} -I\${prefix}/..
 ")
     string(CONFIGURE "${PC_CONTENTS}" ROS_PC_CONTENTS @ONLY)
     file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
