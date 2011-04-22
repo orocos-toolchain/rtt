@@ -52,8 +52,8 @@
 # variables is recommended.
 #
 # Example usage:
-#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting foo)
-#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-scripting foo)
+#  find_package(OROCOS-RTT 2.0.5 EXACT REQUIRED rtt-scripting foo) # Defines OROCOS-RTT_RTT-SCRIPTING_*
+#  find_package(OROCOS-RTT QUIET COMPONENTS rtt-transport-mqueue foo) # Defines OROCOS-RTT_RTT-TRANSPORT-MQUEUE_*
 #
 ########################################################################################################################
 
@@ -63,13 +63,6 @@
 # Initialization
 #
 ########################################################################################################################
-
-# Do nothing if already found.
-# This test is very important, otherwise running this script multiple times in the same project will try to add multiple
-# imported targets with the same name, yielding a configuration-time error
-if(OROCOS-RTT_FOUND)
-  return()
-endif()
 
 # Set the default target operating system, if unspecified
 if(NOT DEFINED OROCOS_TARGET)
@@ -105,6 +98,11 @@ include(${SELF_DIR}/orocos-rtt-config-${OROCOS_TARGET}.cmake)
 # OROCOS-RTT core
 #
 ########################################################################################################################
+
+# Only check for new modules if already found.
+# This test is very important, otherwise running this script multiple times in the same project will try to add multiple
+# imported targets with the same name, yielding a configuration-time error
+if(NOT OROCOS-RTT_FOUND)
 
 # Import targets
 set(OROCOS-RTT_IMPORT_FILE "${SELF_DIR}/orocos-rtt-${OROCOS_TARGET}-libraries.cmake")
@@ -155,9 +153,12 @@ set(OROCOS-RTT_USE_FILE ${SELF_DIR}/UseOROCOS-RTT.cmake)
 message("Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
 set(OROCOS-RTT_FOUND ${OROCOS-RTT_IMPORT_FILE})
 
+endif()
+
+
 ########################################################################################################################
 #
-# Components
+# Components: This is called each time a find_package is done:
 #
 ########################################################################################################################
 
