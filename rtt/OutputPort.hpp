@@ -135,6 +135,16 @@ namespace RTT
         // This is used to allow the use of the 'init' connection policy option
         bool keeps_last_written_value;
         typename base::DataObjectInterface<T>::shared_ptr sample;
+
+        /**
+         * You are not allowed to copy ports.
+         * In case you want to create a container of ports,
+         * use pointers to ports instead of the port object
+         * itself.
+         */
+        OutputPort( OutputPort const& orig );
+        OutputPort& operator=(OutputPort const& orig);
+
     public:
         /**
          * Creates a named Output port.

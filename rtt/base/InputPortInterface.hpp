@@ -66,10 +66,12 @@ namespace RTT
         ConnPolicy        default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
+        InputPortInterface(const InputPortInterface& orig);
     public:
 
         InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
-        ~InputPortInterface();
+
+        virtual ~InputPortInterface();
 
         /** Clears the connection. After call to read() will return false after
          * clear() has been called

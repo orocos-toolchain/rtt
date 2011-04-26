@@ -14,10 +14,10 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    version="1.0"
    sodipodi:docname="ATaskContext.svg"
-   inkscape:export-filename="/media/disk/XUM/2009/ComponentArch-2-1.png"
+   inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
    inkscape:output_extension="org.inkscape.output.svg.inkscape">
@@ -1424,10 +1424,10 @@
      inkscape:cx="302.8048"
      inkscape:cy="384.10833"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:current-layer="layer4"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      showgrid="false"
      showguides="true"
@@ -1441,7 +1441,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2312,7 +2312,7 @@
            sodipodi:end="8.0008861"
            sodipodi:start="4.7761732"
            transform="translate(354.0066,-173.8676)"
-           d="m 148.94207,253.48509 c 13.8059,0.8818 24.28296,12.78852 23.40116,26.59442 -0.88179,13.8059 -12.78852,24.28295 -26.59442,23.40116 -0.6927,-0.0442 -1.38327,-0.11726 -2.06991,-0.21887"
+           d="M 148.94207,253.48509 A 25.048725,25.048725 0 1 1 143.6789,303.2618"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2330,7 +2330,7 @@
            style="fill:none;stroke:#000000;stroke-width:4.1796217;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
         <path
            transform="translate(354.0066,-173.8676)"
-           d="m 172.39417,278.48288 c 0,13.83403 -11.2147,25.04872 -25.04873,25.04872 -13.83403,0 -25.04872,-11.21469 -25.04872,-25.04872 0,-13.83403 11.21469,-25.04873 25.04872,-25.04873 13.83403,0 25.04873,11.2147 25.04873,25.04873 z"
+           d="m 172.39417,278.48288 a 25.048725,25.048725 0 1 1 -50.09745,0 25.048725,25.048725 0 1 1 50.09745,0 z"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2493,14 +2493,14 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Bitstream Vera Sans"
-       x="357.84167"
+       x="269.84167"
        y="646.99811"
        id="text2810"><tspan
          sodipodi:role="line"
          id="tspan2812"
-         x="357.84167"
+         x="269.84167"
          y="646.99811"
-         style="font-size:32px">Influencing behaviour</tspan></text>
+         style="font-size:32px">Offering and requesting Services</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"

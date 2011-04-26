@@ -59,6 +59,8 @@ namespace RTT
          * Upcall to OutputPort.
          */
         virtual bool connectionAdded(ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy) = 0;
+
+        OutputPortInterface(OutputPortInterface const& orig);
     public:
         /**
          * Adds a new connection to this output port and initializes the connection if required by \a policy.
@@ -68,7 +70,8 @@ namespace RTT
         virtual bool addConnection(internal::ConnID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
 
         OutputPortInterface(std::string const& name);
-        ~OutputPortInterface();
+
+        virtual ~OutputPortInterface();
 
         /**
          * Returns true if this port records the last written value.

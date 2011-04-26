@@ -13,7 +13,7 @@
    height="1052.3622047"
    id="svg19159"
    version="1.1"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="services-and-operations.svg">
   <defs
      id="defs19161">
@@ -111,9 +111,9 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      inkscape:window-maximized="1" />
   <metadata
@@ -124,7 +124,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -260,13 +260,13 @@
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="537.96466"
+       x="573.96466"
        y="381.71799"
        id="text5263"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5265"
-         x="537.96466"
+         x="573.96466"
          y="381.71799">RTT::OperationCaller</tspan></text>
     <text
        sodipodi:linespacing="125%"

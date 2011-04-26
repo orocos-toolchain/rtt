@@ -14,7 +14,7 @@
    height="210mm"
    id="svg7559"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="ComponentFlows.svg"
    inkscape:export-filename="/home/sspr/src/documents/EURON/2009/presentation/rtt/ComponentFlows.png"
    inkscape:export-xdpi="200"
@@ -560,10 +560,10 @@
      inkscape:cy="393.05359"
      inkscape:current-layer="layer1"
      id="namedview7563"
-     inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
+     inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="false"
@@ -1646,7 +1646,7 @@
          sodipodi:role="line"
          id="tspan18354"
          x="450.04883"
-         y="120.52368">OperationCaller invocations</tspan></text>
+         y="120.52368">Invoking Operations</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:33.82831573px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"

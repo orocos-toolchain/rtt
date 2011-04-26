@@ -384,20 +384,20 @@ namespace RTT
     Logger& Logger::in(const std::string& modname)
     {
         os::MutexLock lock( d->inpguard );
-        d->moduleptr = modname;
+        d->moduleptr = modname.c_str();
         return *this;
     }
 
     Logger& Logger::out(const std::string& oldmod)
     {
         os::MutexLock lock( d->inpguard );
-        d->moduleptr = oldmod;
+        d->moduleptr = oldmod.c_str();
         return *this;
     }
 
     std::string Logger::getLogModule() const {
         os::MutexLock lock( d->inpguard );
-        std::string ret = d->moduleptr;
+        std::string ret = d->moduleptr.c_str();
         return ret;
     }
 

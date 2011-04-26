@@ -13,7 +13,7 @@
    height="1052.3622047"
    id="svg19159"
    version="1.1"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="services-and-requests.svg"
    inkscape:export-filename="/home/kaltan/src/git/orocos-rtt/build-2.0/doc/xml/images/hires/services-and-requests.png"
    inkscape:export-xdpi="150"
@@ -114,9 +114,9 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      inkscape:window-maximized="1" />
   <metadata
@@ -127,7 +127,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -386,22 +386,22 @@
     <text
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="653.18481"
-       y="608.79071"
+       x="651.75623"
+       y="585.93359"
        id="text19300-7"><tspan
          sodipodi:role="line"
          id="tspan19302-1"
-         x="653.18481"
-         y="608.79071"
+         x="651.75623"
+         y="585.93359"
          style="font-size:22px">Many methods</tspan><tspan
          sodipodi:role="line"
-         x="653.18481"
-         y="636.29071"
+         x="651.75623"
+         y="613.43359"
          id="tspan19304-8"
          style="font-size:22px">=</tspan><tspan
          sodipodi:role="line"
-         x="653.18481"
-         y="663.79071"
+         x="651.75623"
+         y="640.93359"
          style="font-size:22px"
          id="tspan19341">one requested</tspan></text>
     <path

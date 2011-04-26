@@ -652,10 +652,10 @@ Hello[R] &gt;
       </title>
       <mediaobject>
 	<imageobject role="html">
-	  <imagedata fileref="images/ComponentArch-4" />
+	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentArch-4"  width="100%" scalefit="1"/>
+	  <imagedata fileref="images/hires/ATaskContext"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -1010,8 +1010,31 @@ Hello[R] &gt;
 	be tuned for your setup: buffering of data, thread-safety
 	and initialisation of the connection are parameters provided
 	by the user when the connection is created. We call these
-	<emphasis>Connection Policies</emphasis>.
+	<emphasis>Connection Policies</emphasis> and use the
+	<classname>RTT::ConnPolicy</classname>
+	object when creating the connection between ports.
       </para>
+      <figure id="fig-data-flow-ports">
+	<title>
+	  Data flow ports are connected with a connection policy
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/DataFlowPorts" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/DataFlowPorts"  width="80%" scalefit="1"/>
+	  </imageobject>
+	  <caption>
+	    <para>
+	      This figure shows that input and output ports
+	      can be connected in an N:M way. See
+	      <xref linkend="setup-data-flow" /> on how to connect ports and
+	      which connection policy to choose.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
       <section>
 	<title>Which data can be transfered ?</title>
 	<para>
@@ -1100,12 +1123,6 @@ Hello[R] &gt;
 	  Only <classname>RTT::InputPort</classname> can be added as EventPort and
 	  will cause your component to be triggered (ie wake up and
 	  call updateHook).
-	</para>
-	<para>
-	  If you call addEventPort(), your TaskContext will be stopped shortly
-	  in case it's running in order to be able to install the correct handles.
-	  This means your stopHook()/startHook() pair will be called. It's advised
-	  to not add new ports to a component with TaskState = 'Running'.
 	</para>
 	</note>
       </section>
@@ -2202,7 +2219,7 @@ Hello[R] &gt;
       TaskContext can be connected to each other
       such that they can use each other's Services.
     </para>
-    <section>
+    <section id="connect-peers">
       <title>Connecting Peer Components</title>
       <note>
 	  <para>
@@ -2259,7 +2276,7 @@ Hello[R] &gt;
       depth. Thus you can access your peer's peers.
     </para>
     </section>
-    <section>
+    <section id="setup-data-flow">
       <title>Setting up the Data Flow</title>
       <note>
 	<para>

@@ -14,7 +14,7 @@
    height="744.09448"
    id="svg11151"
    version="1.1"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="DataFlowPorts.svg"
    inkscape:export-filename="/home/kaltan/src/git/orocos-rtt/build-2.0/doc/xml/images/hires/DataFlowPorts.png"
    inkscape:export-xdpi="200"
@@ -1729,9 +1729,9 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      inkscape:window-maximized="1" />
   <metadata
@@ -1742,7 +1742,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2165,7 +2165,7 @@
        id="g14400">
       <path
          transform="matrix(0,-0.15405945,-0.15405945,0,393.52792,635.638)"
-         d="m 172.39417,278.48288 a 25.048725,25.048725 0 1 1 -50.09745,0 25.048725,25.048725 0 1 1 50.09745,0 z"
+         d="m 172.39417,278.48288 c 0,13.83403 -11.2147,25.04872 -25.04873,25.04872 -13.83403,0 -25.04872,-11.21469 -25.04872,-25.04872 0,-13.83403 11.21469,-25.04873 25.04872,-25.04873 13.83403,0 25.04873,11.2147 25.04873,25.04873 z"
          sodipodi:ry="25.048725"
          sodipodi:rx="25.048725"
          sodipodi:cy="278.48288"
@@ -2534,14 +2534,18 @@
       <text
          sodipodi:linespacing="125%"
          id="text6987-9-3"
-         y="458.18079"
+         y="428.18079"
          x="473.62967"
          style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
          xml:space="preserve"><tspan
            id="tspan6991-8-6"
-           y="458.18079"
+           y="428.18079"
            x="473.62967"
-           sodipodi:role="line">Channel / Connection</tspan></text>
+           sodipodi:role="line">Connection specified</tspan><tspan
+           y="450.828"
+           x="473.62967"
+           sodipodi:role="line"
+           id="tspan15762">by RTT::ConnPolicy</tspan></text>
       <path
          transform="translate(0,308.2677)"
          id="path13486"
@@ -3777,5 +3781,19 @@
         </g>
       </g>
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="775.71429"
+       y="706.64789"
+       id="text15764"><tspan
+         sodipodi:role="line"
+         id="tspan15766"
+         x="775.71429"
+         y="706.64789">N:M connections</tspan><tspan
+         sodipodi:role="line"
+         x="775.71429"
+         y="724.14789"
+         id="tspan15768">between ports</tspan></text>
   </g>
 </svg>
