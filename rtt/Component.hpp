@@ -47,7 +47,6 @@
 
 namespace RTT
 {
-    namespace {
     /**
      * This signature defines how a component can be instantiated.
      */
@@ -93,7 +92,6 @@ namespace RTT
             return new C(instance_name);
         }
     };
-    }
 }
 
 // Helper macros.
@@ -104,12 +102,19 @@ namespace RTT
 #define ORO_LIST_COMPONENT_TYPE_str(s) ORO_LIST_COMPONENT_TYPE__str(s)
 #define ORO_LIST_COMPONENT_TYPE__str(s) #s
 
-// ORO_CREATE_COMPONENT and ORO_CREATE_COMPONENT_TYPE are only used in shared libraries.
+// ORO_CREATE_COMPONENT and ORO_CREATE_COMPONENT_LIBRARY are only used in shared libraries.
 #if defined(OCL_DLL_EXPORT) || defined (RTT_COMPONENT)
+
+#ifdef _MSC_VER
+#pragma warning (disable:4190)
+#endif
 
 /**
  * Use this macro to register a single component in a shared library (plug-in).
- * You can only use this macro once in a .cpp file for the whole shared library.
+ * You can only use this macro \b once in a .cpp file for the whole shared library \b and
+ * you may \b not link with another component library when using this macro. Use
+ * ORO_CREATE_COMPONENT_LIBRARY if you are in that situation.
+ * 
  * It adds a function 'createComponent', which will return a new instance of
  * the library's component type and a function 'getComponentType', which returns
  * the type (namespace::class) name of the component.
@@ -135,12 +140,13 @@ extern "C" { \
 } /* extern "C" */
 
 /**
- * Use this macro to export all components listed with
- * ORO_LIST_COMPONENT_TYPE in a shared library (plug-in).  It will add
- * a C function 'createComponentType' which can create a component of
+ * Use this macro to create a component library which contains all components listed with
+ * ORO_LIST_COMPONENT_TYPE. 
+ *
+ * It will add to your library an extern "C" function 'createComponentType' which can create a component of
  * each class added with ORO_LIST_COMPONENT_TYPE.
  */
-#define ORO_CREATE_COMPONENT_TYPE() \
+#define ORO_CREATE_COMPONENT_LIBRARY() \
 RTT::FactoryMap* RTT::ComponentFactories::Factories = 0;	\
 extern "C" { \
   RTT_EXPORT RTT::TaskContext* createComponentType(std::string instance_name, std::string type_name) \
@@ -173,19 +179,17 @@ extern "C" { \
 // Static OCL library:
 // Identical to ORO_LIST_COMPONENT_TYPE:
 #define ORO_CREATE_COMPONENT(CLASS_NAME) namespace { namespace ORO_CONCAT_LINE(LOADER_) { RTT::ComponentFactoryLoader<CLASS_NAME> m_cloader(ORO_LIST_COMPONENT_TYPE_str(CLASS_NAME)); } }
-#define ORO_CREATE_COMPONENT_TYPE() __attribute__((weak)) RTT::FactoryMap* RTT::ComponentFactories::Factories = 0;
+#define ORO_CREATE_COMPONENT_LIBRARY() __attribute__((weak)) RTT::FactoryMap* RTT::ComponentFactories::Factories = 0;
 
 #endif
 
 /**
  * Use this macro to register multiple components in a shared library (plug-in).
  * For each component, add this line in the .cpp file. Use this macro in combination with
- * ORO_CREATE_COMPONENT_TYPE.
+ * ORO_CREATE_COMPONENT_LIBRARY.
  *
  * The advantage of this approach is that one library can create different component
- * \a types.
- * The disadvantage is that the user needs to know the component types which are in the shared library.
- * You can get the component types of a library by calling \a getComponentTypeNames().
+ * \a types and that you may link multiple component libraries with each other.
  *
  * This macro can be used for both shared and static libraries. In case of a shared library,
  * the component factory will be registered to the shared library's local FactoryMap. In case
@@ -198,6 +202,10 @@ extern "C" { \
 
 #define ORO_LIST_COMPONENT_TYPE(CLASS_NAME) namespace { namespace ORO_CONCAT_LINE(LOADER_) { RTT::ComponentFactoryLoader<CLASS_NAME> m_cloader(ORO_LIST_COMPONENT_TYPE_str(CLASS_NAME)); } }
 
+/**
+ * Backwards compatibility macro which is now replaced by ORO_CREATE_COMPONENT_LIBRARY( )
+ */
+#define ORO_CREATE_COMPONENT_TYPE( ) ORO_CREATE_COMPONENT_LIBRARY( )
 
 #endif
 

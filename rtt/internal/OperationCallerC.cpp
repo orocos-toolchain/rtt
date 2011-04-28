@@ -68,7 +68,7 @@ namespace RTT {
                     m = ofp->produce(args, caller );
                     try {
                         s = ofp->produceSend(args, caller );
-                    } catch( no_asynchronous_operation_exception const& e) {
+                    } catch( no_asynchronous_operation_exception const& /*e*/) {
                         // leave s empty.
                     }
                     args.clear();
@@ -77,7 +77,7 @@ namespace RTT {
                     if (rta)
                         try {
                             m = new DataSourceCommand( rta->updateAction( m.get() ) );
-                        } catch( bad_assignment& ba ) {
+                        } catch( bad_assignment& /*ba*/ ) {
                             log(Error) << "Error in OperationCallerC::ret : can not convert return value of type "<< m->getType() << " to given type "<< rta->getType()<<endlog();
                         }
 
@@ -185,7 +185,7 @@ namespace RTT {
             if (m) {
                 try {
                     m = new DataSourceCommand(r->getDataSource()->updateAction( m.get() ) );
-                } catch( bad_assignment& ba ) {
+                } catch( bad_assignment& /*ba*/ ) {
                     log(Error) << "Error in OperationCallerC::ret : can not convert return value of type "<< m->getType() << " to given type "<< r->getDataSource()->getType()<<endlog();
                 }
             } else
@@ -238,7 +238,7 @@ namespace RTT {
         DataSourceBase::shared_ptr h;
         try {
             h = ofp->produceHandle();
-        } catch( no_asynchronous_operation_exception const& nao) {
+        } catch( no_asynchronous_operation_exception const& /*nao*/) {
             log(Error) <<"OperationCallerC::send(): Can not send a synchronous operation." << endlog();
             return SendHandleC();
         }

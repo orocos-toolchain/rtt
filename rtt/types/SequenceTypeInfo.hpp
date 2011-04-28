@@ -44,6 +44,7 @@
 #include "../internal/DataSourceGenerator.hpp"
 #include "SequenceConstructor.hpp"
 #include "TemplateConstructor.hpp"
+#include "PropertyComposition.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT
@@ -132,6 +133,7 @@ namespace RTT
                 this->addConstructor( newConstructor( sequence_ctor2<T>() ) );
             }
 
+            using TemplateTypeInfo<T, has_ostream>::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const
             {
                 // if a sizehint is given
@@ -172,7 +174,21 @@ namespace RTT
                     // no size found, inform parent of number of elements to come:
                     result.resize( source.size() );
                 }
-                return TemplateTypeInfo<T,has_ostream>::composeTypeImpl(source,result);
+                // recurse into items of this sequence:
+                PropertyBag target( source.getType() );
+                PropertyBag decomp;
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                // we compose each item in this sequence and then update result with target's result.
+                // 1. each child is composed into target (this is a recursive thing)
+                // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                    assert(result.size() == source.size());
+                    assert(source.size() == target.size());
+                    assert(source.size() == decomp.size());
+                    return true;
+                }
+                return false;
             }
 
             virtual std::vector<std::string> getMemberNames() const {

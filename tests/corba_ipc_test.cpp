@@ -421,12 +421,12 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     corba::CDataFlowInterface_var ports2 = s2->ports();
 
     // Test cases that should not connect
-    BOOST_CHECK_THROW( !ports->createConnection("mo", ports2, "does_not_exist", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "mi", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mo", ports2, "mo", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mi", ports2, "mi", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mi", ports2, "mo", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mo", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("does_not_exist", ports2, "mi", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("does_not_exist", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mo", ports2, "mo", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mi", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mo", policy), CNoSuchPortException );
 
     // WARNING: in the following, there is four configuration tested. There is
     // also three different ways to disconnect. We need to test those three

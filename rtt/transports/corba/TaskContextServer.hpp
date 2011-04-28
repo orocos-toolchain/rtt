@@ -56,9 +56,6 @@ class RTT_corba_CTaskContext_i;
 namespace RTT
 {namespace corba
 {
-    class OrbRunner;
-    class TaskContextProxy;
-
     /**
      * This class manages the creation of TaskContext Corba Servers
      * and a Corba Object Request Broker (Orb) which executes the servers.

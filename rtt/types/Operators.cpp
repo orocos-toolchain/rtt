@@ -73,11 +73,6 @@ namespace RTT
   {
   }
 
-  void OperatorRepository::add( DotOp* a )
-  {
-    dotops.push_back( a );
-  }
-
   void OperatorRepository::add( UnaryOp* a )
   {
     unaryops.push_back( a );
@@ -91,22 +86,8 @@ namespace RTT
   OperatorRepository::~OperatorRepository()
   {
     delete_all( unaryops.begin(), unaryops.end() );
-    delete_all( dotops.begin(), dotops.end() );
     delete_all( binaryops.begin(), binaryops.end() );
  }
-
-  DataSourceBase* OperatorRepository::applyDot(
-    const std::string& mem, DataSourceBase* a )
-  {
-    typedef std::vector<DotOp*> vec;
-    typedef vec::iterator iter;
-    for ( iter i = dotops.begin(); i != dotops.end(); ++i )
-    {
-      DataSourceBase* ret = (*i)->build( mem, a );
-      if ( ret ) return ret;
-    }
-    return 0;
-  }
 
   DataSourceBase* OperatorRepository::applyUnary(
     const std::string& op, DataSourceBase* a )
@@ -138,10 +119,6 @@ namespace RTT
       if ( ret ) return ret;
     }
     return 0;
-  }
-
-  DotOp::~DotOp()
-  {
   }
 
   UnaryOp::~UnaryOp()

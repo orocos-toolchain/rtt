@@ -74,13 +74,24 @@ endif()
 # Set the default target operating system, if unspecified
 if(NOT DEFINED OROCOS_TARGET)
   set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
-  if(MSVC)
-    set(OROCOS_TARGET win32    CACHE STRING "${DOC_STRING}")
-  elseif(APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(OROCOS_TARGET macosx   CACHE STRING "${DOC_STRING}")
+  if(NOT $ENV{OROCOS_TARGET} STREQUAL "")
+    set(OROCOS_TARGET $ENV{OROCOS_TARGET} CACHE STRING "${DOC_STRING}")
+    message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
   else()
-    set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
+    if(MSVC)
+      set(OROCOS_TARGET win32    CACHE STRING "${DOC_STRING}")
+    elseif(APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(OROCOS_TARGET macosx   CACHE STRING "${DOC_STRING}")
+    else()
+      set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
+    endif()
   endif()
+endif()
+
+# By default, install libs in /target/ subdir in order to allow
+# multi-target installs.
+if ( NOT OROCOS_SUFFIX )
+  set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
 endif()
 
 # Path to current file
@@ -108,6 +119,13 @@ if(TARGET ${OROCOS-RTT_TARGET})
   set(OROCOS-RTT_LIBRARIES ${OROCOS-RTT_TARGET})
 else()
   message(FATAL_ERROR "Imported target ${PREFIX}orocos-rtt-${OROCOS_TARGET}_dynamic not found. Please contact a project developer to fix this issue")
+endif()
+
+# Typekit support
+set(OROCOS-RTT_TYPEKIT_TARGET "${PREFIX}rtt-typekit-${OROCOS_TARGET}_plugin")
+if(TARGET ${OROCOS-RTT_TYPEKIT_TARGET})
+  set(OROCOS-RTT_TYPEKIT_FOUND TRUE)
+  set(OROCOS-RTT_TYPEKIT_LIBRARIES ${OROCOS-RTT_TYPEKIT_TARGET})
 endif()
 
 # Corba support
@@ -153,12 +171,13 @@ list(APPEND OROCOS-RTT_PLUGIN_PATH "${OROCOS-RTT_PLUGINS_PATH}"
                                       "${OROCOS-RTT_TYPES_PATH}")
 
 # Append additional user-defined plugin search paths
-foreach(CUSTOM_PLUGIN_PATH $ENV{RTT_COMPONENT_PATH})
+file(TO_CMAKE_PATH "$ENV{RTT_COMPONENT_PATH}" ENV_RTT_COMPONENT_PATH)
+foreach(CUSTOM_COMPONENT_PATH ${ENV_RTT_COMPONENT_PATH})
   list(APPEND OROCOS-RTT_PLUGIN_PATH "${CUSTOM_COMPONENT_PATH}/plugins"
                                         "${CUSTOM_COMPONENT_PATH}/types")
 endforeach()
 # Append additional user-defined component search paths
-foreach(CUSTOM_COMPONENT_PATH $ENV{RTT_COMPONENT_PATH})
+foreach(CUSTOM_COMPONENT_PATH ${ENV_RTT_COMPONENT_PATH})
   list(APPEND OROCOS-RTT_COMPONENT_PATH "${CUSTOM_COMPONENT_PATH}")
 endforeach()
 
@@ -167,6 +186,9 @@ foreach(COMPONENT ${OROCOS-RTT_FIND_COMPONENTS} ${Orocos-RTT_FIND_COMPONENTS})
 
   # Find individual plugin
   string(TOUPPER ${COMPONENT} COMPONENT_UPPER)
+  set(OROCOS-RTT_${COMPONENT_UPPER}_FOUND FALSE)
+  unset(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY CACHE)
+
   find_library(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY NAMES ${COMPONENT} ${COMPONENT}-${OROCOS_TARGET}
                                                      PATHS ${OROCOS-RTT_PLUGIN_PATH} NO_DEFAULT_PATH)
   mark_as_advanced(OROCOS-RTT_${COMPONENT_UPPER}_LIBRARY)

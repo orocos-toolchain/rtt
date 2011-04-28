@@ -85,6 +85,11 @@ namespace RTT
                 port->removeConnection( cid );
             }
         }
+
+        virtual base::PortInterface* getPort() const {
+            return this->port;
+        }
+
     };
 
 }}

@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.2.1 )
+SET( RTT_VERSION 2.3.1 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -53,6 +53,11 @@ IF(ROS_ROOT)
   SET(CMAKE_INSTALL_PREFIX
     ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
     )
+  # Necessary when building Debian packages:
+  set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
+  if (ROS_STACK_DIR_FINAL)
+    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain_ros/rtt/install/lib/orocos")
+  endif(ROS_STACK_DIR_FINAL)
 ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.
@@ -66,9 +71,9 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 # Export file name
 set(LIBRARY_EXPORT_FILE "orocos-rtt-${OROCOS_TARGET}-libraries")
 
-# The installation dir suffix for the 'orocos' diretory
+# The installation dir suffix for the 'orocos' directory
 if ( NOT OROCOS_SUFFIX )
-  set(OROCOS_SUFFIX) # defaults to the empty string
+  set(OROCOS_SUFFIX /${OROCOS_TARGET}) # defaults to the target name
 endif( NOT OROCOS_SUFFIX )
 
 # Make compilation verbose
@@ -81,7 +86,9 @@ endif( NOT OROCOS_SUFFIX )
 ###################################################
 
 OPTION(ENABLE_TESTS "Turn on to enable the testing framework." OFF)
+SET(BUILD_TEST_TIMEOUT 1500 CACHE STRING "Global timeout on all tests (seconds).")
 IF(ENABLE_TESTS)
+  SET(DART_TESTING_TIMEOUT "${BUILD_TEST_TIMEOUT}" CACHE STRING "" FORCE)
   INCLUDE(CTest)
   ENABLE_TESTING()
 ENDIF()
@@ -89,6 +96,14 @@ IF(BUILD_TESTING)
   SET(BUILDNAME "${BUILDNAME}" CACHE STRING "Name of build on the dashboard")
   MARK_AS_ADVANCED(BUILDNAME)
 ENDIF(BUILD_TESTING)
+
+# turn on code coverage of tests
+include (CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION(BUILD_ENABLE_COVERAGE "Turn on code coverage of all tests." OFF "ENABLE_TESTS" OFF)
+IF (BUILD_ENABLE_COVERAGE)
+  # coverage requires test
+  SET(ENABLE_TESTS ON CACHE BOOL "" FORCE)
+ENDIF (BUILD_ENABLE_COVERAGE)
 
 # MESSAGE("Looking for compiler:")
 INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
@@ -165,4 +180,4 @@ INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
                                       NAMESPACE   "${IMPORTED_TARGET_PREFIX}")
 
 # Package use file + helper files
-INSTALL(FILES UseOROCOS-RTT.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")
+INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")

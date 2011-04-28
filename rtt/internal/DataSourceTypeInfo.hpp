@@ -121,7 +121,8 @@ namespace RTT
             static std::string getType()  { return getTypeName() + getQualifier(); }
             static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::ptrqual; }
-            static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+            static const types::TypeInfo* getTypeInfo();
+            static types::TypeInfo* TypeInfoObject;
         };
 
         template< class T>
@@ -176,7 +177,7 @@ namespace RTT
          * (void) is a special case.
          */
         template<>
-        class RTT_API DataSourceTypeInfo<void> {
+        struct RTT_API DataSourceTypeInfo<void> {
             static const std::string tname;
         public:
             typedef void value_type;

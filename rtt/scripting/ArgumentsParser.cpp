@@ -44,9 +44,9 @@ namespace RTT
   using boost::bind;
 
     namespace {
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
-        assertion<std::string> expect_arg("No argument given after comma.");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        boost::spirit::classic::assertion<std::string> expect_arg("No argument given after comma.");
     }
 
   ArgumentsParser::ArgumentsParser(

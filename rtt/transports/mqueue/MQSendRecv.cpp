@@ -136,7 +136,7 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
         throw std::runtime_error("Could not open message queue: mq_open returned -1.");
     }
 
-    log(Debug) << "Opened '" << policy.name_id << "' with mqdes='" << mqdes << "' for " << (is_sender ? "writing." : "reading.") << endlog();
+    log(Debug) << "Opened '" << policy.name_id << "' with mqdes='" << mqdes << "', msg size='"<<mattr.mq_msgsize<<"' an queue length='"<<mattr.mq_maxmsg<<"' for " << (is_sender ? "writing." : "reading.") << endlog();
 
     buf = new char[max_size];
     memset(buf, 0, max_size); // necessary to trick valgrind
@@ -145,6 +145,8 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
 
 MQSendRecv::~MQSendRecv()
 {
+    if ( mqdes > 0)
+        mq_close(mqdes);
 }
 
 void MQSendRecv::cleanupStream()
@@ -264,7 +266,7 @@ bool MQSendRecv::mqWrite(RTT::base::DataSourceBase::shared_ptr ds)
         if (errno == EAGAIN)
             return true;
 
-        log(Error) << "MQChannel became invalid: " << strerror(errno) << endlog();
+        log(Error) << "MQChannel "<< mqdes << " became invalid (mq length="<<max_size<<", msg length="<<blob.second<<"): " << strerror(errno) << endlog();
         return false;
     }
     return true;

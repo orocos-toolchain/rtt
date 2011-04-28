@@ -72,8 +72,24 @@ namespace RTT
 
         /**
          * Add a type to the Orocos type repository.
+         * @param ti A type info object that becomes owned by
+         * the TypeInfoRepository. It's name must be unique.
+         * @return false if \a ti was already added or if
+         * ti->getTypeName() already exists in this repository.
          */
-        bool addType( TypeInfo* );
+        bool addType( TypeInfo* ti);
+
+        /**
+         * Alias a type in the Orocos type repository with a new type info object.
+         * If \a alias has an existing type info object, it is deleted.
+         * @param alias The alias for \a source, i.e. when requesting
+         * the alias, the type info of source is returned.
+         * @param source The type info that represents 'orig' and 'alias'.
+         * Note that this is not the same as using addType() above, you
+         * still need \a source to be added with addType().
+         * @return false if source is null.
+         */
+        bool aliasType( const std::string& alias, TypeInfo* source = 0 );
 
         /**
          * List all types registered with their original

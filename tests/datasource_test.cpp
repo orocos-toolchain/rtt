@@ -26,7 +26,7 @@
 #include <internal/DataSources.hpp>
 #include <internal/PartDataSource.hpp>
 #include <internal/ArrayPartDataSource.hpp>
-#include <internal/OffsetPartDataSource.hpp>
+//#include <internal/OffsetPartDataSource.hpp>
 #include <internal/carray.hpp>
 
 #include <boost/serialization/array.hpp>
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( testReferenceDataSource )
     atype.a = -atype.a;
     BOOST_CHECK_EQUAL( d->set(), atype );
 
-    d->set().a = 55.5;
+    d->set().a = 55;
     BOOST_CHECK_EQUAL( d->set(), atype );
 }
 

@@ -53,7 +53,7 @@ public:
     OutputPort<double> d_event_source;
     OutputPort<bool>   b_event_source;
     OutputPort<int>    t_event_source;
-    ScriptingService* sa;
+    ScriptingService::shared_ptr sa;
 
     void log(const std::string& msg) {
         Logger::log(Logger::Info) << msg << endlog();
@@ -69,8 +69,8 @@ public:
     StateTest()
         :
          d_event("d_event"), b_event("b_event"), t_event("t_event"), o_event("o_event"),
-         d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source"),
-         sa( new ScriptingService(tc) )
+         d_event_source("d_event_source"), b_event_source("b_event_source"), t_event_source("t_event_source")
+         ,sa( ScriptingService::Create(tc) )
     {
         tc->stop();
         tc->setActivity( new SimulationActivity(0.001) );

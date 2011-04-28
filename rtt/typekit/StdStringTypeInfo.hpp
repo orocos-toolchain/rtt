@@ -49,7 +49,6 @@ namespace RTT
          */
         struct StdStringTypeInfo: public SequenceTypeInfo<std::string, true>
         {
-
             StdStringTypeInfo(const std::string& tname = "string") :
                 SequenceTypeInfo<std::string, true> (tname)
             {

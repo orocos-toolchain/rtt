@@ -38,13 +38,13 @@
 
 
 #include "rtt-typekit-config.h"
+#include "Types2.inc"
 #include "RealTimeTypekit.hpp"
 #include "../types/Types.hpp"
 #include "../types/TypeInfoName.hpp"
 #include "../types/TemplateTypeInfo.hpp"
 #include "../types/SequenceTypeInfo.hpp"
 #include "StdTypeInfo.hpp"
-#include "StdVectorTypeInfo.hpp"
 #include "../types/StructTypeInfo.hpp"
 
 #include "../rtt-fwd.hpp"
@@ -70,10 +70,11 @@ namespace RTT
              ti->addType( new StdTypeInfo<FlowStatus>("FlowStatus"));
              ti->addType( new StdTypeInfo<SendStatus>("SendStatus"));
              ti->addType( new TemplateTypeInfo<PropertyBag, true>("PropertyBag") );
-             ti->addType( new StdVectorTypeInfo("array") );
              ti->addType( new StructTypeInfo<ConnPolicy,false>("ConnPolicy") );
              ti->addType( new TemplateTypeInfo<EmptySendHandle>("SendHandle") ); //dummy, replaced by real stuff when seen by parser.
              ti->addType( new TemplateTypeInfo<TaskContext*>("TaskContext"));
          }
      }
 }
+
+

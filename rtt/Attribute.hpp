@@ -47,6 +47,7 @@ namespace RTT
 {
     /**
      * An Attribute has a name and contains data which can be set and get.
+     * Accessing an attribute (reading/writing) is \b not thread-safe.
      * It is used to expose a C/C++ variable to the interface of a TaskContext
      * in order to allow plugins or external tools to read and write it.
      * @param T The type of data this attribute holds.
@@ -184,21 +185,27 @@ namespace RTT
         /**
          * Get the value of this Attribute.
          */
-        T get() const
+        T const& get() const
         {
-            return data->get();
+            data->evaluate();
+            return data->rvalue();
         }
 
         /**
          * Set the value of this Attribute.
+         * In case the attribute is owned by a remote component,
+         * the value will be transfered.
          */
-        void set( T t )
+        void set( T const& t )
         {
             data->set(t);
         }
 
         /**
-         * Set the value of this Attribute.
+         * Allow to set the value of this Attribute by reference.
+         * Don't use this function to set attributes of remote components,
+         * since set() will return in that case a copy of the data and
+         * the remote side will not be updated.
          */
         typename internal::AssignableDataSource<T>::reference_t set() {
             return data->set();
@@ -244,6 +251,13 @@ namespace RTT
     {
     public:
         typename internal::DataSource<T>::shared_ptr data;
+
+        /**
+         * Create a Constant with no name and \b no value.
+         */
+        Constant()
+        {
+        }
 
         /**
          * Create a constant with a fixed value \a t.
@@ -321,6 +335,7 @@ namespace RTT
             } else {
                 data = 0;
             }
+            return *this;
         }
 
         /**

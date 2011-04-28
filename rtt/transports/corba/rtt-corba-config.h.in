@@ -18,7 +18,7 @@
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //
 #cmakedefine RTT_GCC_HASVISIBILITY
-#if defined(__GNUG__) && defined(__unix__) && defined(RTT_GCC_HASVISIBILITY)
+#if defined(__GNUG__) && defined(RTT_GCC_HASVISIBILITY) && (defined(__unix__) || defined(__APPLE__))
 
 # if defined(RTT_CORBA_DLL_EXPORT)
    // Use RTT_CORBA_API for normal function exporting
@@ -45,7 +45,7 @@
 #   define RTT_CORBA_HIDE   
 #  else
 #   define RTT_CORBA_API	 __declspec(dllimport)
-#   define RTT_CORBA_EXPORT __declspec(dllimport)
+#   define RTT_CORBA_EXPORT __declspec(dllexport)
 #   define RTT_CORBA_HIDE 
 #  endif
 # else

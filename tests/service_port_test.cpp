@@ -22,7 +22,7 @@ public:
     InputPort<int> ip;
     InputPort<int> ip2;
     OutputPort<int> op;
-    TestService() : Service("portservice")
+    TestService(TaskContext* owner = 0) : Service("portservice", owner)
     {
         addPort("ip",ip).doc("ip");
         addPort("ip",ip2).doc("ip"); // overrides ip
@@ -35,7 +35,7 @@ public:
     InputPort<int> ip;
     InputPort<int> ip2;
     OutputPort<int> op;
-    TestEventService() : Service("portservice")
+    TestEventService(TaskContext* owner = 0) : Service("portservice", owner)
     {
         addEventPort("ip",ip).doc("ip");
         addEventPort("ip",ip2).doc("ip"); // overrides ip
@@ -57,6 +57,21 @@ BOOST_AUTO_TEST_CASE(testAddPort)
     BOOST_CHECK( tc.provides("portservice")->getPort("op") == &ts->op );
 }
 
+BOOST_AUTO_TEST_CASE(testAddPortWithOwner)
+{
+    TaskContext tc("tc");
+    TestService* ts = new TestService( &tc );
+    Service::shared_ptr s( ts );
+
+    tc.provides()->addService( s );
+
+    // check that last port is the real thing:
+    BOOST_CHECK( tc.provides("portservice")->getPort("ip") == &ts->ip2 );
+
+    BOOST_CHECK( tc.provides("portservice")->getPort("op") == &ts->op );
+}
+
+
 BOOST_AUTO_TEST_CASE(testAddEventPort)
 {
     TestEventService* ts = new TestEventService();
@@ -70,6 +85,21 @@ BOOST_AUTO_TEST_CASE(testAddEventPort)
 
     BOOST_CHECK( tc.provides("portservice")->getPort("op") == &ts->op );
 }
+
+BOOST_AUTO_TEST_CASE(testAddEventPortWithOwner)
+{
+    TaskContext tc("tc");
+    TestEventService* ts = new TestEventService(&tc);
+    Service::shared_ptr s( ts );
+
+    tc.provides()->addService( s );
+
+    // check that last port is the real thing:
+    BOOST_CHECK( tc.provides("portservice")->getPort("ip") == &ts->ip2 );
+
+    BOOST_CHECK( tc.provides("portservice")->getPort("op") == &ts->op );
+}
+
 
 BOOST_AUTO_TEST_CASE(testUsePort)
 {
@@ -91,6 +121,30 @@ BOOST_AUTO_TEST_CASE(testUsePort)
     BOOST_CHECK( read.ready() );
     FlowStatus fs = read( result  );
     BOOST_CHECK_EQUAL( result, 3);
+    BOOST_CHECK_EQUAL( fs, NewData );
+}
+
+BOOST_AUTO_TEST_CASE(testUsePortWithOwner)
+{
+    TaskContext tc("tc");
+    TestService* ts = new TestService(&tc);
+    Service::shared_ptr s( ts );
+
+    tc.provides()->addService( s );
+
+    ts->ip2.connectTo( &ts->op );
+
+    // use operation interface of port:
+    OperationCaller<void(int const&)> write = tc.provides("portservice")->provides("op")->getOperation("write");
+    BOOST_CHECK( write.ready() );
+    write( 3 );
+
+    int result;
+    OperationCaller<FlowStatus(int&)> read = tc.provides("portservice")->provides("ip")->getOperation("read");
+    BOOST_CHECK( read.ready() );
+    FlowStatus fs = read( result  );
+    BOOST_CHECK_EQUAL( result, 3);
+    BOOST_CHECK_EQUAL( fs, NewData );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

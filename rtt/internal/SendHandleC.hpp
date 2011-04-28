@@ -62,33 +62,16 @@ namespace RTT
     {
         /**
          * The 'd' pointer pattern.
-         * It's hiding our factory code.
+         * It's hiding our factory code. Will be cleaned up
+         * when factory is no longer needed.
          */
         class D;
+        /**
+         * Same as D but is persistent.
+         */
+        class E;
         D* d;
-        /**
-         * This data source will do a collect/collectIfDone when
-         * being evaluated().
-         */
-        internal::DataSource<SendStatus>::shared_ptr s;
-        /**
-         * Stores the blocking/non blocking flag for collect/collectIfDone.
-         */
-        internal::AssignableDataSource<bool>::shared_ptr b;
-        /**
-         * Stores the operation in order to avoid its premature destruction.
-         */
-        base::DataSourceBase::shared_ptr mop;
-
-        struct OperationKeeper;
-        boost::shared_ptr<OperationKeeper> mopkeeper;
-
-        /**
-         * Stores the OperationInterfacePart pointer contained in this SendHandle
-         */
-        OperationInterfacePart* orp;
-
-
+        E* e;
     public:
         /**
          * The default constructor.

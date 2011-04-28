@@ -33,6 +33,11 @@
 #ifndef ORO_PLUGIN_HPP
 #define ORO_PLUGIN_HPP 1
 
+// Disable foo() has C-linkage specified, but returns UDT 'bar' which is incompatible with C
+#ifdef _MSC_VER
+#pragma warning (disable:4190)
+#endif
+
 /**
  * @file Plugin.hpp
  * This file defines the Orocos plugin API.

@@ -46,11 +46,12 @@
 #include "../Logger.hpp"
 #include "../TaskContext.hpp"
 #include "PropertyBagIntrospector.hpp"
+#include "../types/PropertyComposition.hpp"
 #include <fstream>
 
 using namespace std;
 using namespace RTT;
-using namespace detail;
+using namespace RTT::detail;
 
 bool PropertyLoader::load(const std::string& filename, TaskContext* target) const
 {
@@ -82,14 +83,20 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
 
         if ( demarshaller->deserialize( propbag ) )
         {
+            // compose propbag:
+            PropertyBag composed_props;
+            if ( composePropertyBag(propbag, composed_props) == false) {
+                delete demarshaller;
+                return false;
+            }
             // take restore-copy;
             PropertyBag backup;
             copyProperties( backup, *target->provides()->properties() );
             // First test if the updateProperties will succeed:
-            if ( refreshProperties(  *target->provides()->properties(), propbag, false) ) { // not strict
+            if ( refreshProperties(  *target->provides()->properties(), composed_props, false) ) { // not strict
                 // this just adds the new properties, *should* never fail, but
                 // let's record failure to be sure.
-                failure = !updateProperties( *target->provides()->properties(), propbag );
+                failure = !updateProperties( *target->provides()->properties(), composed_props );
             } else {
                 // restore backup in case of failure:
                 refreshProperties( *target->provides()->properties(), backup, false ); // not strict
@@ -145,11 +152,16 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
         if ( demarshaller->deserialize( propbag ) )
         {
-            // Lookup props vs attrs :
+            // compose propbag:
+            PropertyBag composed_props;
+            if ( composePropertyBag(propbag, composed_props) == false) {
+                delete demarshaller;
+                return false;
+            }
             // take restore-copy;
             PropertyBag backup;
             copyProperties( backup, *target->provides()->properties() );
-            if ( refreshProperties( *target->provides()->properties(), propbag, all ) == false ) {
+            if ( refreshProperties( *target->provides()->properties(), composed_props, all ) == false ) {
                 // restore backup:
                 refreshProperties( *target->provides()->properties(), backup );
                 failure = true;
@@ -309,7 +321,13 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
         PropertyBag propbag;
         if ( demarshaller->deserialize( propbag ) )
         {
-            failure = !refreshProperty( *(task->provides()->properties()), propbag, name );
+            // compose propbag:
+            PropertyBag composed_props;
+            if ( composePropertyBag(propbag, composed_props) == false) {
+                delete demarshaller;
+                return false;
+            }
+            failure = !refreshProperty( *(task->provides()->properties()), composed_props, name );
         }
         else
             {

@@ -42,7 +42,7 @@ class CorbaTest : public OperationsFixture
 {
 public:
     CorbaTest() :
-        pint1("pint1", "", 3), pdouble1("pdouble1", "", -3.0),
+        pint1("pint1", "", 3), pdouble1(new Property<double>("pdouble1", "", -3.0)),
         aint1(3), adouble1(-3.0), wait(0)
     {
     // connect DataPorts
@@ -64,7 +64,7 @@ public:
 
         // store nested properties:
         tc->provides()->addProperty(pint1);
-        storeProperty(*tc->provides()->properties(), "s1.s2", pdouble1.clone() );
+        storeProperty(*tc->provides()->properties(), "s1.s2", pdouble1 );
 
         tc->addAttribute("aint1", aint1);
         tc->addAttribute("adouble1", adouble1);
@@ -99,7 +99,7 @@ public:
     OutputPort<double>* mo2;
 
     Property<int> pint1;
-    Property<double> pdouble1;
+    Property<double>* pdouble1;
 
     int aint1;
     double adouble1;
@@ -203,12 +203,29 @@ BOOST_AUTO_TEST_CASE( testAttributes )
     BOOST_CHECK( tp->provides()->hasAttribute("aint1") );
     Attribute<int> proxy_int = tp->provides()->getAttribute("aint1");
     BOOST_REQUIRE( proxy_int.ready() );
+
+    // initial read through get:
     BOOST_CHECK_EQUAL( proxy_int.get(), 3);
+    // reading through set:
+    aint1 = 4;
+    BOOST_CHECK_EQUAL( proxy_int.set(), 4);
+    // doing remote set:
+    proxy_int.set( 5 );
+    BOOST_CHECK_EQUAL( aint1, 5);
 
     BOOST_CHECK( tp->provides()->hasAttribute("adouble1") );
     Attribute<double> proxy_double = tp->provides()->getAttribute("adouble1");
     BOOST_REQUIRE( proxy_double.ready() );
-    BOOST_CHECK_EQUAL( proxy_double.get(), -3.0);
+
+    // initial reading through set:
+    BOOST_CHECK_EQUAL( proxy_double.set(), -3.0 );
+    // doing remote set, check local and remote result:
+    proxy_double.set( 5.0 );
+    BOOST_CHECK_EQUAL( adouble1, 5.0 );
+    BOOST_CHECK_EQUAL( proxy_double.get(), 5.0);
+    adouble1 = 6.0;
+    // reading changed remote:
+    BOOST_CHECK_EQUAL( proxy_double.get(), 6.0);
 }
 
 BOOST_AUTO_TEST_CASE( testProperties )
@@ -221,12 +238,27 @@ BOOST_AUTO_TEST_CASE( testProperties )
     BOOST_CHECK( findProperty( *tp->provides()->properties(), "pint1") );
     Property<int> proxy_int = findProperty( *tp->provides()->properties(), "pint1");
     BOOST_REQUIRE( proxy_int.ready() );
-    BOOST_CHECK_EQUAL( proxy_int.value(), 3);
+    // initial read through get:
+    BOOST_CHECK_EQUAL( proxy_int.get(), 3);
+    // reading through set:
+    pint1 = 4;
+    BOOST_CHECK_EQUAL( proxy_int.set(), 4);
+    // doing remote set:
+    proxy_int.set( 5 );
+    BOOST_CHECK_EQUAL( pint1, 5);
 
     BOOST_CHECK( findProperty( *tp->provides()->properties(), "s1.s2.pdouble1") );
     Property<double> proxy_d = findProperty( *tp->provides()->properties(), "s1.s2.pdouble1");
     BOOST_REQUIRE( proxy_d.ready() );
-    BOOST_CHECK_EQUAL( proxy_d.value(), -3.0);
+    // initial reading through set:
+    BOOST_CHECK_EQUAL( proxy_d.set(), -3.0 );
+    // doing remote set, check local and remote result:
+    proxy_d.set( 5.0 );
+    BOOST_CHECK_EQUAL( pdouble1->get(), 5.0 );
+    BOOST_CHECK_EQUAL( proxy_d.get(), 5.0);
+    pdouble1->set( 6.0 );
+    // reading changed remote:
+    BOOST_CHECK_EQUAL( proxy_d.get(), 6.0);
 }
 
 BOOST_AUTO_TEST_CASE( testOperationCallerC_Call )
@@ -454,12 +486,12 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     corba::CDataFlowInterface_var ports2 = ts2->server()->ports();
 
     // Test cases that should not connect
-    BOOST_CHECK_THROW( !ports->createConnection("mo", ports2, "does_not_exist", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "mi", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mo", ports2, "mo", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mi", ports2, "mi", policy), CNoSuchPortException );
-    BOOST_CHECK_THROW( !ports->createConnection("mi", ports2, "mo", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mo", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("does_not_exist", ports2, "mi", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("does_not_exist", ports2, "does_not_exist", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mo", ports2, "mo", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mi", policy), CNoSuchPortException );
+    BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mo", policy), CNoSuchPortException );
 
     // WARNING: in the following, there is four configuration tested. There is
     // also three different ways to disconnect. We need to test those three

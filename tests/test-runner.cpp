@@ -16,6 +16,10 @@
  *                                                                         *
  ***************************************************************************/
 
+// need access to all TLSF functions embedded in RTT
+// this call must occur before ALL RTT include's!!
+#define ORO_MEMORY_POOL
+#include <rtt/os/tlsf/tlsf.h>
 
 #include <os/main.h>
 #include <Logger.hpp>
@@ -79,7 +83,20 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     }
 
     // sets environment if not set by user.
-    setenv("RTT_COMPONENT_PATH","../rtt", 0);
+    // On Unix, the build dir is on the top level, on windows,
+    // the build dir is for each subdir, so we need two paths
+    // and find out at run-time which one works.
+    setenv("RTT_COMPONENT_PATH","../rtt:../../rtt", 0);
+#ifdef OS_RT_MALLOC
+	void*   rtMem=0;
+	size_t  freeMem=0;
+
+	/// setup real-time memory allocation
+	rtMem		= malloc(BUILD_TEST_RT_MEM_POOL_SIZE);	// don't calloc() as is first thing TLSF does.
+	assert(0 != rtMem);
+	freeMem		= init_memory_pool(BUILD_TEST_RT_MEM_POOL_SIZE, rtMem);
+	assert((size_t)-1 != freeMem); // increase MEMORY_SIZE above most likely, as TLSF has a several kilobyte overhead
+#endif
 	__os_init(argc, argv);
 
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.

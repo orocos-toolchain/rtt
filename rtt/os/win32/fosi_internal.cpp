@@ -146,16 +146,16 @@ void ErrorHandler(LPTSTR lpszFunction)
         // TODO implement scheduler by using CreateProcess
         // Set name
         task->wait_policy = ORO_WAIT_ABS;
-        if (strlen(name) == 0)
+        if (name == 0 || strlen(name) == 0)
             name = "Thread";
-        task->name = strcpy((char*) malloc((strlen(name) + 1)
-                * sizeof(char)), name);
+        task->name = strncpy((char*) malloc((strlen(name) + 1)
+                                           * sizeof(char)), name, strlen(name) + 1);
 
         ThreadWrapperData* data = new ThreadWrapperData;
         data->realThread = start_routine;
         data->realData = obj;
 
-        task->handle = CreateThread(NULL, 0, ThreadWrapper, data, 0,
+        task->handle = CreateThread(NULL, 2*1000*1000, ThreadWrapper, data, 0,
                                     &task->threadId);
 
         if (task->handle == NULL)
@@ -260,6 +260,8 @@ void ErrorHandler(LPTSTR lpszFunction)
       //printf(" rtos_task_delete ");
       //DWORD exitCode;
       //TerminateThread(mytask->handle, exitCode);
+      WaitForSingleObject( mytask->handle, INFINITE );
+
       CloseHandle(mytask->handle);
       free(mytask->name);
       mytask->name = NULL;

@@ -50,23 +50,27 @@ using namespace plugin;
 BOOST_FIXTURE_TEST_SUITE(  PluginsSuite,  PluginsFixture )
 
 
+/** loads a complete project with a given path
+ */
 BOOST_AUTO_TEST_CASE( testTypePlugins )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
     BOOST_CHECK( pl->isLoaded("typekit_plugin") == false);
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") == false);
-    pl->loadTypekits("testproject");
+    pl->loadTypekit("testproject",".;..");
     BOOST_CHECK( pl->isLoaded("typekit_plugin") );
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") );
 
 }
 
+/** loads a single library/plugin with a given path.
+ */
 BOOST_AUTO_TEST_CASE( testTypePlugin )
 {
     PluginLoader::shared_ptr pl = PluginLoader::Instance();
 
-    BOOST_REQUIRE( pl->loadTypekit("typekit_plugin", "testproject") );
+    BOOST_REQUIRE( pl->loadTypekit("typekit_plugin", "testproject;../testproject") );
     BOOST_CHECK( pl->isLoaded("typekit_plugin") );
     BOOST_CHECK( pl->isLoaded("TypesPluginTest") );
 }
@@ -77,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testServicePlugins )
 
     BOOST_CHECK( pl->isLoaded("service_plugin") == false);
     BOOST_CHECK( pl->isLoaded("serviceplugin") == false);
-    pl->loadPlugins("testproject");
+    pl->loadPlugin("testproject",".;..");
     BOOST_CHECK( pl->isLoaded("service_plugin") );
     BOOST_CHECK( pl->isLoaded("serviceplugin") );
 

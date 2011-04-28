@@ -43,26 +43,27 @@
 #include "ListLockFree.hpp"
 
 
-void RTT_API intrusive_ptr_add_ref( RTT::internal::IntrusiveStorage* p ) {
-    oro_atomic_inc( &p->ref );
-}
-
-void RTT_API intrusive_ptr_release( RTT::internal::IntrusiveStorage* p ) {
-    if (oro_atomic_dec_and_test( &p->ref ) )
-        delete p;
-}
-
 namespace RTT {
-    using namespace internal;
+    namespace internal {
 
-    IntrusiveStorage::IntrusiveStorage() {
-      oro_atomic_set(&ref,0);
-    }
-    IntrusiveStorage::~IntrusiveStorage() {
-    }
+        void RTT_API intrusive_ptr_add_ref( RTT::internal::IntrusiveStorage* p ) {
+            oro_atomic_inc( &p->ref );
+        }
+
+        void RTT_API intrusive_ptr_release( RTT::internal::IntrusiveStorage* p ) {
+            if (oro_atomic_dec_and_test( &p->ref ) )
+                delete p;
+        }
+
+        IntrusiveStorage::IntrusiveStorage() {
+            oro_atomic_set(&ref,0);
+        }
+        IntrusiveStorage::~IntrusiveStorage() {
+        }
 
 #if defined(__GNUC__)
-    // Force an instantiation, so that the compiler checks the syntax.
-    template class ListLockFree<double>;
+        // Force an instantiation, so that the compiler checks the syntax.
+        template class ListLockFree<double>;
 #endif
+    }
 }

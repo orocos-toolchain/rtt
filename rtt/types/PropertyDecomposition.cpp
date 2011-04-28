@@ -60,17 +60,17 @@ using namespace RTT::detail;
 
 namespace RTT { namespace types {
 
-bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag )
+bool propertyDecomposition( base::PropertyBase* source, PropertyBag& targetbag, bool recurse )
 {
     if (!source)
         return false;
     DataSourceBase::shared_ptr dsb = source->getDataSource();
     if (!dsb)
         return false;
-    return typeDecomposition( dsb, targetbag);
+    return typeDecomposition( dsb, targetbag, recurse);
 }
 
-bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targetbag)
+bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targetbag, bool recurse)
 {
     if (!dsb)
         return false;
@@ -87,13 +87,16 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
         } else {
             // it converted to something else than a bag.
             // In cases where decomposeType() returned dsb itself, we stop the decomposition here.
+            log(Debug) << "propertyDecomposition: decomposeType() of "<<  dsb->getTypeName() << " did not return a PropertyBag but a " << decomposed->getTypeName() << endlog();
             return false;
         }
     }
 
     vector<string> parts = dsb->getMemberNames();
-    if ( parts.empty() )
+    if ( parts.empty() ) {
+        log(Debug) << "propertyDecomposition: "<<  dsb->getTypeName() << " does not have any members." << endlog();
         return false;
+    }
 
     targetbag.setType( dsb->getTypeName() );
 
@@ -108,7 +111,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
         }
         if ( !part->isAssignable() ) {
             // For example: the case for size() and capacity() in SequenceTypeInfo
-            //log(Debug)<<"propertyDecomposition: Part "<< *it << ":"<< part->getTypeName() << " is not changeable."<<endlog();
+            log(Debug)<<"propertyDecomposition: Part "<< *it << ":"<< part->getTypeName() << " is not changeable."<<endlog();
             continue;
         }
         // finally recurse or add it to the target bag:
@@ -117,7 +120,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             log(Error)<< "Decomposition failed because Part '"<<*it<<"' is not known to type system."<<endlog();
             continue;
         }
-        if (!propertyDecomposition( newpb, recurse_bag->value()) ) {
+        if ( !recurse || !propertyDecomposition( newpb, recurse_bag->value(), true) ) {
             assert( recurse_bag->value().empty() );
             targetbag.ownProperty( newpb ); // leaf
         } else {
@@ -146,10 +149,11 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
                 }
                 // finally recurse or add it to the target bag:
                 PropertyBase* newpb = item->getTypeInfo()->buildProperty( "Element" + indx,"Sequence Element",item);
-                if (!propertyDecomposition( newpb, recurse_bag->value()) ) {
+                if ( !recurse || !propertyDecomposition( newpb, recurse_bag->value()) ) {
                     targetbag.ownProperty( newpb ); // leaf
                 } else {
-                    recurse_bag->setName( indx );
+                    delete newpb;
+                    recurse_bag->setName( "Element" + indx );
                     // setType() is done by recursive of self.
                     targetbag.ownProperty( recurse_bag.release() ); //recursed.
                     recurse_bag.reset( new Property<PropertyBag>("recurse_bag","Item") );
@@ -157,8 +161,9 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             }
         }
     }
-
-    return !targetbag.empty();
+    if (targetbag.empty() )
+        log(Debug) << "propertyDecomposition: "<<  dsb->getTypeName() << " returns an empty property bag." << endlog();
+    return true;
 }
 
 }}

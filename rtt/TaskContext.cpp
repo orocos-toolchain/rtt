@@ -95,6 +95,7 @@ namespace RTT
 
     void TaskContext::setup()
     {
+        tcservice->setOwner(this);
         // from Service
         provides()->doc("The interface of this TaskContext.");
 
@@ -165,6 +166,14 @@ namespace RTT
                 log(Debug)<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << endlog();
                 continue;
             }
+
+            // Skip if they have the same type
+            if((dynamic_cast<OutputPortInterface*>(*it) && dynamic_cast<OutputPortInterface*>(peerport)) ||
+               (dynamic_cast<InputPortInterface*>(*it) &&  dynamic_cast<InputPortInterface*>(peerport)))
+              {
+                log(Debug)<< (*it)->getName() << " and " << peerport->getName() << " have the same type" << endlog();
+                continue;
+              }
 
             // Try to find a way to connect them
             if ( !(*it)->connectTo( peerport ) ) {
@@ -390,8 +399,11 @@ namespace RTT
     {
         if ( !this->isRunning() )
             return false;
-        ports()->cleanupHandles();
-        return TaskCore::stop(); // calls stopHook()
+        if (TaskCore::stop()) { // calls stopHook()
+            ports()->cleanupHandles();
+            return true;
+        }
+        return false;
     }
 
     void TaskContext::dataOnPort(PortInterface* port)

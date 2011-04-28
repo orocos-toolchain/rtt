@@ -64,20 +64,20 @@ namespace RTT
 
 
     namespace {
-        assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
-        assertion<std::string> expect_closecurly("Closing curly brace '}' expected in statement block (or could not find out what this line means).");
-        assertion<std::string> expect_closefunction("Closing curly brace '}' expected at end of program or function (or could not find out what this line means).");
-        assertion<std::string> expect_open("Open brace '(' expected.");
-        assertion<std::string> expect_close("Closing brace ')' expected.");
-        assertion<std::string> expect_comma("Expected a comma separator.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
-        assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
-        assertion<std::string> expect_expression("Expected an expression.");
-        assertion<std::string> expect_command("Expected a command after 'do'.");
-        assertion<std::string> expect_nl("Expected a newline after statement.");
-        assertion<std::string> expect_eof("Invalid input in file.");
-        assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
+        boost::spirit::classic::assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
+        boost::spirit::classic::assertion<std::string> expect_closecurly("Closing curly brace '}' expected in statement block (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_closefunction("Closing curly brace '}' expected at end of program or function (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace '(' expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace ')' expected.");
+        boost::spirit::classic::assertion<std::string> expect_comma("Expected a comma separator.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
+        boost::spirit::classic::assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
+        boost::spirit::classic::assertion<std::string> expect_expression("Expected an expression.");
+        boost::spirit::classic::assertion<std::string> expect_command("Expected a command after 'do'.");
+        boost::spirit::classic::assertion<std::string> expect_nl("Expected a newline after statement.");
+        boost::spirit::classic::assertion<std::string> expect_eof("Invalid input in file.");
+        boost::spirit::classic::assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
     }
 
 
@@ -93,7 +93,6 @@ namespace RTT
         peerparser(rootc, commonparser),
         program_builder( new FunctionGraphBuilder() ),
         for_init_command(0),
-        for_incr_command(0),
         exportf(false),
         ln_offset(0)
   {
@@ -150,39 +149,39 @@ namespace RTT
     opencurly = expect_opencurly( ch_p('{') );
     closecurly = expect_closecurly( ch_p('}') );
     semicolon = expect_semicolon( ch_p(';') );
-    condition = expect_condition( conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] );
+    condition = expect_condition( conditionparser.parser()[ boost::bind(&ProgramGraphParser::seencondition, this) ] );
 
     // program is the production rule of this grammar.  The
     // production rule is the rule that the entire input should be
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = *( program | function )[bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
+    production = *( program | function )[boost::bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
 
     // a function is very similar to a program, but it also has a name
     function = (
-       !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
-       >> (str_p( "function" ) | commonparser.notassertingidentifier[bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
-       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
+       !str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)]
+       >> (str_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
+       >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
        >> content
-       >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
+       >> expect_closefunction( ch_p('}') )[ boost::bind( &ProgramGraphParser::seenfunctionend, this ) ]
        );
 
     // the function's definition args :
     funcargs = ch_p('(') >> ( ch_p(')') | ((
-         valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
-             >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
+         valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]
+             >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
 
     // a program looks like "program { content }".
     program =
         str_p( "program" )
-      >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
+      >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> opencurly
       >> content
-      >> expect_closefunction( ch_p('}') )[ bind( &ProgramGraphParser::seenprogramend, this ) ];
+      >> expect_closefunction( ch_p('}') )[ boost::bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
     content = *line;
@@ -192,23 +191,23 @@ namespace RTT
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
     //line = !( statement ) >> eol_p;
-    line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
+    line = statement[boost::bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[boost::bind(&ProgramGraphParser::skip_eol, this )];
 
     statement = valuechange | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | dostatement;
 
-    valuechange = valuechangeparser.parser()[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
+    valuechange = valuechangeparser.parser()[ boost::bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     // take into account deprecated 'do' and 'set'
     dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >>
             (
-              ( str_p("yield") | "nothing")[bind(&ProgramGraphParser::seenyield,this)]
-            | expressionparser.parser()[ bind(&ProgramGraphParser::seenstatement,this) ]
+              ( str_p("yield") | "nothing")[boost::bind(&ProgramGraphParser::seenyield,this)]
+            | expressionparser.parser()[ boost::bind(&ProgramGraphParser::seenstatement,this) ]
             );
 
     // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
         lexeme_d[str_p("try ")]
-         >> expect_command ( expressionparser.parser()[ bind( &ProgramGraphParser::seentrystatement, this ) ] )
+         >> expect_command ( expressionparser.parser()[ boost::bind( &ProgramGraphParser::seentrystatement, this ) ] )
          >> !catchpart;
 
   }
@@ -373,7 +372,7 @@ namespace RTT
       // Fake a 'return' statement at the last line.
       program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
       program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
-      shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
+      boost::shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
 
       // export the function in the context's interface.
       if (exportf) {
@@ -590,7 +589,12 @@ namespace RTT
     {
         DataSourceBase::shared_ptr expr = expressionparser.getResult();
         expressionparser.dropResult();
-        for_incr_command = new CommandDataSource( expr );
+        for_incr_command.push( new CommandDataSource( expr ) );
+    }
+
+    void ProgramGraphParser::seenemptyforincr()
+    {
+        for_incr_command.push( 0 );
     }
 
     void ProgramGraphParser::seenforstatement() {
@@ -615,15 +619,16 @@ namespace RTT
 
     void ProgramGraphParser::endforstatement() {
         // the last statement is a _conditional_ increment of the 'counter'
-        if ( for_incr_command )
+        ActionInterface* incr = for_incr_command.top();
+        for_incr_command.pop();
+        // is null or an action to increment
+        if ( incr )
             {
-                program_builder->setCommand( for_incr_command );
+                program_builder->setCommand( incr );
                 // Since a valuechange does not add edges, we use this variant
                 // to create one.
                 program_builder->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
             }
-        for_incr_command = 0;
-
         program_builder->endWhileBlock(mpositer.get_position().line - ln_offset);
     }
 
@@ -761,8 +766,10 @@ namespace RTT
       try_cond = 0;
       delete for_init_command;
       for_init_command = 0;
-      delete for_incr_command;
-      for_incr_command = 0;
+      while (!for_incr_command.empty() ) {
+          delete for_incr_command.top();
+          for_incr_command.pop();
+      }
       // cleanup all functions :
       delete fcontext;
       fcontext = 0;

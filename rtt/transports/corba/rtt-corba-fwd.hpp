@@ -5,6 +5,7 @@ namespace RTT {
     namespace corba {
         class CorbaDispatcher;
         class CorbaTypeTransporter;
+        class OrbRunner;
         class RemoteInputPort;
         class RemoteOutputPort;
         struct ApplicationServer;
@@ -12,6 +13,8 @@ namespace RTT {
         struct NonExistingDataSource;
         struct RemoteConnID;
         struct UpdatedCommand;
+        class TaskContextProxy;
+        class TaskContextServer;
         template<class T>
         class CORBAAssignableExpression;
         template<class T>

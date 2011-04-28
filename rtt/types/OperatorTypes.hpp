@@ -120,38 +120,6 @@ namespace RTT
             }
         };
 
-        /**
-         *  Dot : '.' for member access of composite values
-         */
-        template<typename function>
-        class DotOperator
-            : public DotOp
-        {
-            typedef typename internal::remove_cr<typename function::argument_type>::type arg1_t;
-            typedef typename internal::remove_cr<typename function::result_type>::type result_t;
-            const char* memb;
-            function fun;
-        public:
-            /**
-             * Create a Dot '.' accessor to a composite parser type.
-             */
-            DotOperator( const char* m, function f )
-                : memb( m ), fun( f )
-            {
-            }
-            internal::DataSource<result_t>* build( const std::string& member, base::DataSourceBase* a)
-            {
-                if ( member != memb ) return 0;
-                //         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
-                base::DataSourceBase::shared_ptr dsb = a;
-                typename internal::DataSource<arg1_t>::shared_ptr arg1 =
-                    boost::dynamic_pointer_cast< internal::DataSource<arg1_t> >( dsb );
-                if ( !arg1 ) return 0;
-                //         Logger::log() << "success !"<< Logger::endl;
-                return new internal::UnaryDataSource<function>( arg1, fun );
-            }
-        };
-
     /**
      * helper function to create a new UnaryOperator
      */
@@ -172,14 +140,5 @@ namespace RTT
         return new BinaryOperator<function>( op, f );
     }
 
-    /**
-     * helper function to create a new DotOperator
-     */
-    template<typename function>
-    DotOperator<function>*
-    newDotOperator( const char* member, function f )
-    {
-        return new DotOperator<function>( member, f );
-    }
 }}
 #endif

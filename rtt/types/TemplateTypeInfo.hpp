@@ -63,7 +63,7 @@ namespace RTT
         template<typename T>
         struct TypeStreamSelector<T,true>
         {
-            static std::ostream& write(std::ostream& os, T t)
+            static std::ostream& write(std::ostream& os, T const& t)
             {
 #ifdef OS_HAVE_STREAMS
                 os << t;
@@ -135,13 +135,37 @@ namespace RTT
         TemplateTypeInfo(std::string name)
             : tname(name)
         {
+        }
+
+        virtual ~TemplateTypeInfo()
+        {
+            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject == this)
+                internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = 0;
+        }
+
+        bool installTypeInfoObject() {
             // Install the type info object for T.
-            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                log(Warning) << "Overriding TypeInfo for '"
-                        << internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
-                        << "' with '" << name <<"'."<< endlog();
+            TypeInfo* orig = internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
+            if ( orig != 0) {
+                string oname = orig->getTypeName();
+                if ( oname != tname ) {
+                    log(Info) << "TypeInfo for type '" << tname << "' already exists as '"
+                              << oname
+                              << "': I'll alias the original and install the new instance." << endlog();
+                    this->migrateProtocols( orig );
+                    Types()->aliasType( oname, this); // deletes orig !
+                }
+            } else {
+                // check for type name conflict (ie "string" for "std::string" and "Foo::Bar"
+                if ( Types()->type(tname) ) {
+                    log(Error) << "You attemted to register type name "<< tname << " which is already "
+                               << "in use for a different C++ type." <<endlog();
+                    return false;
+                }
             }
+            // finally install it:
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            return true;
         }
 
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
@@ -223,7 +247,7 @@ namespace RTT
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
             if ( d && use_ostream )
-                detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
+                types::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
 #ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
@@ -237,10 +261,14 @@ namespace RTT
         virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
             typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( out );
             if ( d && use_ostream ) {
-                detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
+                types::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
             }
             return os;
+        }
+
+        virtual bool isStreamable() const {
+            return use_ostream;
         }
 
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
@@ -329,17 +357,17 @@ namespace RTT
         base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
         base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
 
-        base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const {
+        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
             return internal::ConnFactory::buildDataStorage<T>(policy);
         }
 
-        base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
         {
             return internal::ConnFactory::buildChannelOutput(
                     static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
         }
 
-        base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
         {
             return internal::ConnFactory::buildChannelInput(
                     static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );

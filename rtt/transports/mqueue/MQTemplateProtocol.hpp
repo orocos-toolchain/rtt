@@ -101,7 +101,7 @@ namespace RTT
                   base::ChannelElementBase* mq = new MQChannelElement<T>(port, *this, policy, is_sender);
                   if ( !is_sender ) {
                       // the receiver needs a buffer to store his messages in.
-                      base::ChannelElementBase* buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
+                      base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
                       mq->setOutput(buf);
                   }
                   return mq;

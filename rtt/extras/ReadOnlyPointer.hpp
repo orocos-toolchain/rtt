@@ -65,7 +65,7 @@ namespace RTT
             }
             bool deref()
             { os::MutexLock do_lock(lock);
-                return (--readers);
+                return (--readers) != 0;
             }
         };
 
@@ -110,7 +110,7 @@ namespace RTT
 
         /** True if this refers to a non-NULL pointer */
         bool valid() const
-        { return internal->value; }
+        { return internal->value != 0; }
 
         /** Modifies the value referenced by this smart pointer
          *

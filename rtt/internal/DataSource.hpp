@@ -59,7 +59,7 @@ namespace RTT
      * of an assignment of a DataSource with a base::DataSourceBase
      * differ.
      */
-    struct RTT_EXPORT bad_assignment : public std::exception
+    struct RTT_API bad_assignment : public std::exception
     {
         virtual ~bad_assignment() throw();
         virtual const char* what() const throw();
@@ -123,12 +123,16 @@ namespace RTT
 
       /**
        * Return the result of the last \a evaluate() function.
+       * You must call evaluate() prior to calling this function in order to get
+       * the most recent value of this attribute.
        */
       virtual result_t value() const = 0;
 
       /**
-       * Get a const reference (or null) to the value of this DataSource.
-       * Getting a reference to an internal data structure is not thread-safe.
+       * Get a const reference to the value of this DataSource.
+       * You must call evaluate() prior to calling this function in order to get
+       * the most recent value of this attribute.
+       * @note Getting a reference to an internal data structure is not thread-safe.
        */
       virtual const_reference_t rvalue() const = 0;
 

@@ -54,19 +54,19 @@ namespace RTT
     using namespace boost;;
 
     namespace {
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
-        assertion<std::string> expect_type("Unknown type. Please specify a type.");
-        assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
-        assertion<std::string> expect_expr("Expected a valid expression.");
-        assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_init("Expected an initialisation value of the variable.");
-        assertion<std::string> expect_cis("Expected a initialisation ('=') of const.");
-        assertion<std::string> expect_ais("Expected a initialisation ('=') of alias.");
-        assertion<std::string> expect_index("Expected an index: [index].");
-        assertion<std::string> expect_integer("Expected a positive integer expression.");
-        assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
-        assertion<std::string> expect_decl("Expected a declaration list.");
+        boost::spirit::classic::assertion<std::string> expect_open("Open brace expected.");
+        boost::spirit::classic::assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
+        boost::spirit::classic::assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        boost::spirit::classic::assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
+        boost::spirit::classic::assertion<std::string> expect_expr("Expected a valid expression.");
+        boost::spirit::classic::assertion<std::string> expect_ident("Expected a valid identifier.");
+        boost::spirit::classic::assertion<std::string> expect_init("Expected an initialisation value of the variable.");
+        boost::spirit::classic::assertion<std::string> expect_cis("Expected a initialisation ('=') of const.");
+        boost::spirit::classic::assertion<std::string> expect_ais("Expected a initialisation ('=') of alias.");
+        boost::spirit::classic::assertion<std::string> expect_index("Expected an index: [index].");
+        boost::spirit::classic::assertion<std::string> expect_integer("Expected a positive integer expression.");
+        boost::spirit::classic::assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
+        boost::spirit::classic::assertion<std::string> expect_decl("Expected a declaration list.");
     }
 
 
@@ -110,40 +110,40 @@ namespace RTT
         constantdefinition =
             lexeme_d[str_p("const ")]
             // the type
-                >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-                >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )]
-                >> *(ch_p(',') >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )] );
+                >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+                >> constdecl[boost::bind( &ValueChangeParser::seenconstantdefinition, this )]
+                >> *(ch_p(',') >> constdecl[boost::bind( &ValueChangeParser::seenconstantdefinition, this )] );
 
 
         aliasdefinition =
             lexeme_d[str_p("alias ")]
             // the type
-                >> expect_type(type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+                >> expect_type(type_name [ boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
             // next the name for the alias
-                >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+                >> expect_ident( commonparser.identifier[ boost::bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
                 >> expect_ais( ch_p('=') )
             // and a value to assign to it
-                >> expect_init( expressionparser.parser() )[ bind( &ValueChangeParser::seenaliasdefinition, this ) ];
+                >> expect_init( expressionparser.parser() )[ boost::bind( &ValueChangeParser::seenaliasdefinition, this ) ];
 
         variabledefinition =
             lexeme_d[str_p("var ")]
-                >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-                >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ]
-                >> *(ch_p(',') >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
+                >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+                >> vardecl[boost::bind( &ValueChangeParser::seenvariabledefinition, this ) ]
+                >> *(ch_p(',') >> vardecl[boost::bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
 
         paramdefinition =
             "param"
-                >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-                >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this ) ]
-                >> *(ch_p(',') >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this ) ] );
+                >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+                >> baredecl[boost::bind( &ValueChangeParser::seenbaredefinition, this ) ]
+                >> *(ch_p(',') >> baredecl[boost::bind( &ValueChangeParser::seenbaredefinition, this ) ] );
 
         baredefinition =
-            type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )]
-                >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this )];
+            type_name[ boost::bind( &ValueChangeParser::seentype, this, _1, _2 )]
+                >> baredecl[boost::bind( &ValueChangeParser::seenbaredefinition, this )];
 
         baredecl =
-            expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-                >> !( ch_p('(') >> expect_integer( expressionparser.parser()[bind( &ValueChangeParser::seensizehint, this)]) >> expect_close( ch_p(')')) ) ;
+            expect_ident( commonparser.identifier[ boost::bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
+                >> !( ch_p('(') >> expect_integer( expressionparser.parser()[boost::bind( &ValueChangeParser::seensizehint, this)]) >> expect_close( ch_p(')')) ) ;
 
         vardecl =
             baredecl >> !( ch_p('=') >> expect_init( expressionparser.parser() ) );

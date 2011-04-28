@@ -42,10 +42,11 @@
 
 #ifdef __GNUC__
 namespace RTT {
-    using namespace extras;
-    template class MultiVector<6, double>;
-    template class MultiVector<6, int>;
-    template class MultiVector<6, bool>;
-    template class MultiVector<6, long>;
+    namespace extras {
+        template struct MultiVector<6, double>;
+        template struct MultiVector<6, int>;
+        template struct MultiVector<6, bool>;
+        template struct MultiVector<6, long>;
+    }
 }
 #endif

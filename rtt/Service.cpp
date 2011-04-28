@@ -50,11 +50,20 @@ namespace RTT {
     using namespace boost;
 
     Service::shared_ptr Service::Create(const std::string& name, TaskContext* owner) {
-        return shared_ptr(new Service(name,owner));
+        shared_ptr ret(new Service(name,owner));
+        if (owner)
+            owner->provides()->addService( ret );
+        return ret;
     }
 
     Service::Service(const std::string& name, TaskContext* owner)
-    : mname(name), mowner(owner), parent()
+    : mname(name),
+#if BOOST_VERSION >= 104000
+      mowner(owner),
+#else
+      mowner(0),
+#endif
+      parent()
     {
         // Inform DataFlowInterface.
         mservice = this;
@@ -96,9 +105,9 @@ namespace RTT {
     Service::shared_ptr Service::provides() {
         try {
             return shared_from_this();
-        } catch( bad_weak_ptr& bw ) {
-            log(Error) <<"You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();
-            log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
+        } catch( boost::bad_weak_ptr& /*bw*/ ) {
+            log(Error) <<"When using boost < 1.40.0 : You are not allowed to call provides() on a Service that does not yet belong to a TaskContext or another Service." << endlog();                                                                                                     log(Error) <<"Try to avoid using provides() in this case: omit it or use the service directly." <<endlog();
+            log(Error) <<"OR: upgrade to boost 1.40.0, then this error will go away." <<endlog();
             throw std::runtime_error("Illegal use of provides()");
         }
     }
@@ -110,6 +119,7 @@ namespace RTT {
         if (sp)
             return sp;
         sp = boost::make_shared<Service>(service_name, mowner);
+        sp->setOwner( mowner );
         sp->setParent( shared_from_this() );
         services[service_name] = sp;
         return sp;

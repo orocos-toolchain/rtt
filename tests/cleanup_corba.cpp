@@ -24,8 +24,8 @@
 
 int main(int argc, char** argv)
 {
-    int i = system("kill -9 $(cat corba-ipc-server.pid)");
-    i = system("kill -9 $(cat corba-mqueue-ipc-server.pid)");
+    int i = system("[ ! -r corba-ipc-server.pid ] || kill -9 $(cat corba-ipc-server.pid)");
+    i = system("[ ! -r corba-mqueue-ipc-server.pid ] || kill -9 $(cat corba-mqueue-ipc-server.pid)");
     usleep(500000);
     return i;
 }

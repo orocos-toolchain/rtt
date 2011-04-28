@@ -147,27 +147,30 @@ namespace RTT {
 
         bool CorbaLibPlugin::registerTransport(std::string name, TypeInfo* ti)
         {
-            assert( name == ti->getTypeName() );
             if ( name == "unknown_t") // register fallback also.
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol());
             if ( name == "int" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<int>() );
             if ( name == "double" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<double>() );
-            if ( name == "string" )
-                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
             if ( name == "float" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<float>() );
             if ( name == "uint" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<unsigned int>() );
+            if ( name == "char" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<char>() );
             //if ( name == "long" )
             //    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<long>() );
 //                if ( name == "PropertyBag" )
 //                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<PropertyBag>() );
             if ( name == "bool" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<bool>() );
+#ifndef RTT_NO_STD_TYPES
+            if ( name == "string" )
+                return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<std::string>() );
             if ( name == "array" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
+#endif
             if ( name == "void" )
                 return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
             if ( name == "ConnPolicy")

@@ -85,9 +85,13 @@ namespace RTT
 
     TypeInfoRepository::~TypeInfoRepository()
     {
-        map_t::const_iterator i = data.begin();
-        for( ; i != data.end(); ++i )
-            delete i->second;
+        // because of aliases, we only want unique pointers:
+        vector<TypeInfo*> todelete = values(data);
+        sort(todelete.begin(), todelete.end());
+        vector<TypeInfo*>::iterator begin, last = unique( todelete.begin(), todelete.end() );
+        begin = todelete.begin();
+        for( ; begin != last; ++begin )
+            delete *begin;
         delete DataSourceTypeInfo<UnknownType>::TypeInfoObject;
         DataSourceTypeInfo<UnknownType>::TypeInfoObject = 0;
     }
@@ -106,14 +110,32 @@ namespace RTT
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
         std::string tname = t->getTypeName();
-        if ( data.count( tname ) != 0 ) {
-            log(Warning) << "Registering Type name '"<<tname <<"' twice to the Orocos Type System: replacing."<<Logger::endl;
-        } else
-            log(Debug) << "Registered Type name '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
+        // keep track of this type:
+        if ( !t->installTypeInfoObject() ) {
+            // log reason why in installTypeInfoObject().
+            delete t;
+            return false;
+        }
+        // keep track of this type:
         data[ tname ] = t;
+
+        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
         for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
             if ( (*it)->registerTransport( tname, t) )
                 log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
+        return true;
+    }
+
+    bool TypeInfoRepository::aliasType(const string& alias, TypeInfo* source)
+    {
+        if (source) {
+            if (data.count(alias) && data[alias] != source)
+                delete data[alias];
+            data[alias] = source;
+        } else {
+            log(Error) << "Could not alias type name "<< alias <<" with (null) type info object."<<endlog();
+            return false;
+        }
         return true;
     }
 
@@ -145,7 +167,7 @@ namespace RTT
     {
         transports.reserve( transports.size() + 1 );
         transports.push_back( tr );
-        // infor transport of existing types.
+        // inform transport of existing types.
         map_t::const_iterator i = data.begin();
         for( ; i != data.end(); ++i )
             if ( tr->registerTransport( i->first , i->second ) )

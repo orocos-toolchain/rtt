@@ -41,6 +41,7 @@
 
 #include "base/OutputPortInterface.hpp"
 #include "base/DataObject.hpp"
+#include "internal/DataObjectDataSource.hpp"
 #include "internal/Channels.hpp"
 #include "internal/ConnFactory.hpp"
 #include "Service.hpp"
@@ -106,7 +107,7 @@ namespace RTT
 
             if (has_initial_sample)
             {
-                T const& initial_sample = sample.Get();
+                T const& initial_sample = sample->Get();
                 if ( channel_el_input->data_sample(initial_sample) ) {
                     if ( has_last_written_value && policy.init )
                         return channel_el_input->write(initial_sample);
@@ -133,8 +134,7 @@ namespace RTT
         /// If true, all calls to write() will save the sample in \c sample.
         // This is used to allow the use of the 'init' connection policy option
         bool keeps_last_written_value;
-        base::DataObject<T> sample;
-
+        typename base::DataObjectInterface<T>::shared_ptr sample;
     public:
         /**
          * Creates a named Output port.
@@ -158,6 +158,7 @@ namespace RTT
             , has_initial_sample(false)
             , keeps_next_written_value(false)
             , keeps_last_written_value(false)
+            , sample( new base::DataObject<T>() )
         {
             if (keep_last_written_value)
                 keepLastWrittenValue(true);
@@ -182,7 +183,7 @@ namespace RTT
          */
         T getLastWrittenValue() const
         {
-            return sample.Get();
+            return sample->Get();
         }
 
         /**
@@ -195,7 +196,7 @@ namespace RTT
         {
             if (has_last_written_value)
             {
-                this->sample.Get(sample);
+                this->sample->Get(sample);
                 return true;
             }
             return false;
@@ -203,10 +204,8 @@ namespace RTT
 
         virtual base::DataSourceBase::shared_ptr getDataSource() const
         {
-            // There's no existing data source that allows to access a
-            // dataobject. Keep the method around for the sake of not breaking
-            // the task browser's compilation
-            return base::DataSourceBase::shared_ptr();
+            // we create this on the fly.
+            return new internal::DataObjectDataSource<T>( sample );
         }
 
         /**
@@ -220,7 +219,7 @@ namespace RTT
          */
         void setDataSample(const T& sample)
         {
-            this->sample.Set(sample);
+            this->sample->Set(sample);
             has_initial_sample = true;
             has_last_written_value = false;
 
@@ -239,7 +238,7 @@ namespace RTT
             {
                 keeps_next_written_value = false;
                 has_initial_sample = true;
-                this->sample.Set(sample);
+                this->sample->Set(sample);
             }
             has_last_written_value = keeps_last_written_value;
 

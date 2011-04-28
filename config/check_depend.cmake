@@ -76,6 +76,7 @@ if (OS_NO_ASM AND Boost_VERSION LESS 103600)
 endif()
 
 OPTION(PLUGINS_ENABLE "Enable plugins" ON)
+OPTION(PLUGINS_STD_TYPES_SUPPORT "Enable support for the std::string and std::vector<double> types in the RTT typekit & transports." ON)
     
 ###########################################################
 #                                                         #
@@ -99,6 +100,9 @@ endif()
 if(Boost_INCLUDE_DIR)
   message("Boost found in ${Boost_INCLUDE_DIR}")
   list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIR} )
+  if(OROCOS_TARGET STREQUAL "win32")
+    add_definitions(-DBOOST_ALL_NO_LIB)
+  endif()
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
 else(Boost_INCLUDE_DIR)
@@ -278,10 +282,11 @@ if(OROCOS_TARGET STREQUAL "win32")
         set(NUM_PARALLEL_BUILD 4 CACHE STRING "Number of parallel builds")
         set(PARALLEL_FLAG "/MP${NUM_PARALLEL_BUILD}")
     endif()
-    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /bigobj ${PARALLEL_FLAG}")
+    set(CMAKE_CXX_FLAGS_ADD "/wd4355 /wd4251 /wd4180 /wd4996 /wd4250 /wd4748 /bigobj /Oi ${PARALLEL_FLAG}")
     list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib Ws2_32.lib winmm.lib)
   endif()
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  set(CMAKE_DEBUG_POSTFIX "d")
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")
@@ -333,6 +338,41 @@ IF (CMAKE_COMPILER_IS_GNUCXX)
     MESSAGE("Could not determine gcc version: ${CXX_HAS_VERSION}")
   ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
 ENDIF()
+
+#
+# Set flags for code coverage, and setup coverage target
+#
+IF (BUILD_ENABLE_COVERAGE)
+
+  FIND_PACKAGE(Lcov REQUIRED)
+
+  # for required flags see
+  # http://git.benboeckel.net/?p=chasmd.git;a=blob;f=CMakeLists.txt
+  # http://www.cmake.org/Wiki/CTest:Coverage
+  # man gcov
+
+  SET(CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS_ADD} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_LD_FLAGS_ADD "${CMAKE_LD_FLAGS_ADD} -fprofile-arcs -ftest-coverage")
+
+  # coverage
+  ADD_CUSTOM_TARGET(coverage)
+  ADD_CUSTOM_COMMAND(TARGET coverage
+    COMMAND mkdir -p coverage
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --directory . --zerocounters
+    COMMAND make check
+	# all coverage data
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --directory . --capture --output-file ./coverage/all.info
+	# RTT-only coverage data
+    COMMAND ${LCOV_LCOV_EXECUTABLE} --output-file ./coverage/rtt.info -e ./coverage/all.info '${CMAKE_SOURCE_DIR}/*'
+	# generate based on RTT-only data
+    COMMAND ${LCOV_GENHTML_EXECUTABLE} -t "Orocos RTT coverage" -p "${CMAKE_SOURCE_DIR}"  -o ./coverage ./coverage/rtt.info
+    COMMAND echo "Open ${CMAKE_BINARY_DIR}/coverage/index.html to view the coverage analysis results."
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+  # todo dependancy of coverage on test?
+
+ENDIF (BUILD_ENABLE_COVERAGE)
 
 #
 # Check for Doxygen and enable documentation building

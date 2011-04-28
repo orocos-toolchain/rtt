@@ -108,11 +108,11 @@ BOOST_AUTO_TEST_CASE( testTicksConversion )
     // Test ticks conversion invariance :
     // margin is in % rounding error.
     int margin = 1;
-#if defined( OROCOS_TARGET_LXRT) || defined(OROCOS_TARGET_XENOMAI)
-    int small_margin = 25; // 25% of 8ns : allow a two-off.
-#else
-    int small_margin = 10; // 10% of 8ns : allow a one-off.
-#endif
+//#if defined( OROCOS_TARGET_LXRT) || defined(OROCOS_TARGET_XENOMAI)
+//    int small_margin = 25; // 25% of 8ns : allow a two-off.
+//#else
+//    int small_margin = 10; // 10% of 8ns : allow a one-off.
+//#endif
 
     // I'm removing the small conversions because they test more the underlying RTOS than Orocos and the underlying RTOS
     // isn't fixing this for years...

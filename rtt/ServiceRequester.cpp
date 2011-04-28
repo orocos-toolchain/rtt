@@ -125,7 +125,7 @@ namespace RTT
     void ServiceRequester::disconnect()
     {
         for_each(mmethods.begin(), mmethods.end(),
-                 bind(&OperationCallerBaseInvoker::disconnect, bind(&OperationCallers::value_type::second, _1) )
+                 boost::bind(&OperationCallerBaseInvoker::disconnect, boost::bind(&OperationCallers::value_type::second, _1) )
                  );
     }
 

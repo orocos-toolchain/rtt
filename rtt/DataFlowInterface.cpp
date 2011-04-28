@@ -108,11 +108,11 @@ namespace RTT
     }
 
     void DataFlowInterface::setupHandles() {
-        for_each(handles.begin(), handles.end(), bind(&Handle::connect, _1));
+        for_each(handles.begin(), handles.end(), boost::bind(&Handle::connect, _1));
     }
 
     void DataFlowInterface::cleanupHandles() {
-        for_each(handles.begin(), handles.end(), bind(&Handle::disconnect, _1));
+        for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
     }
 
     InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {

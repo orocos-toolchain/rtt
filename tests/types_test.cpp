@@ -93,26 +93,29 @@ BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
 BOOST_AUTO_TEST_CASE( testStringCapacity )
 {
     Attribute<string> str = Types()->type("string")->buildVariable("str",10);
-
+    size_t strCapacity=str.get().capacity();
     // check size hint:
     BOOST_CHECK_EQUAL( str.get().size() , 10 );
-    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
+
+    // False test http://www.cplusplus.com/reference/string/string/capacity/
+    // BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     str.set() = "hello"; // note: assign to C string preserves capacity
-
     BOOST_CHECK_EQUAL( str.get().size() , 5 );
-    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , strCapacity );
 
     // create empty target:
     Attribute<string> copy("copy");
     BOOST_CHECK_EQUAL( copy.get().size() , 0 );
-    BOOST_CHECK_EQUAL( copy.get().capacity() , 0 );
+    // False test http://www.cplusplus.com/reference/string/string/capacity/
+    //BOOST_CHECK_EQUAL( copy.get().capacity() , 0 );
 
     // copy str to target and check:
     copy.getDataSource()->update( str.getDataSource().get() );
 
     BOOST_CHECK_EQUAL( copy.get().size(), 5 );
-    BOOST_CHECK_EQUAL( copy.get().capacity(), 5 );
+    // We can't assume much here: on Linux copy.get().capacity() returns 5, on win32: 10
+    //BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
     copy.set() = "world";
@@ -120,16 +123,18 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     // now copy target back to str and check if capacity remains:
     str.getDataSource()->update( copy.getDataSource().get() );
     BOOST_CHECK_EQUAL( str.get().size() , 5 );
-    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 
 
     // Same exercise as above, but with updateCommand():
     str.set() = "hello"; // note: assign to C string preserves capacity
+    strCapacity=str.get().capacity();
 
     BOOST_CHECK_EQUAL( str.get().size() , 5 );
-    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
+    // False test http://www.cplusplus.com/reference/string/string/capacity/
+    //BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
 
     // copy str to target and check:
     ActionInterface* act = copy.getDataSource()->updateAction( str.getDataSource().get() );
@@ -139,7 +144,8 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     delete act;
 
     BOOST_CHECK_EQUAL( copy.get().size(), 5 );
-    BOOST_CHECK_EQUAL( copy.get().capacity(), 5 );
+    // We can't assume much here: on Linux copy.get().capacity() returns 5, on win32: 10
+    //BOOST_CHECK_EQUAL( copy.get().capacity(), strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
     copy.set() = "world";
@@ -152,11 +158,10 @@ BOOST_AUTO_TEST_CASE( testStringCapacity )
     delete act;
 
     BOOST_CHECK_EQUAL( str.get().size() , 5 );
-    BOOST_CHECK_EQUAL( str.get().capacity() , 10 );
+    BOOST_CHECK_EQUAL( str.get().capacity() , strCapacity );
     BOOST_CHECK_EQUAL( copy.get(), str.get() );
 
 }
-
 BOOST_AUTO_TEST_CASE( testTypes )
 {
     string test =
@@ -213,16 +218,17 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert(ar4[2]==4.0)\n"+
         "do test.assert(ar4[3]==5.0)\n"+
         "var string str(10)\n"+
+        "var int strCapacity = str.capacity\n"
         // 50:
 //        "do test.print(str.size)\n"+
 //        "do test.print(str.capacity)\n"+
         "do test.assertEqual( str.size, 10)\n"+
-        "do test.assertEqual( str.capacity, 10)\n"
+//        "do test.assertEqual( str.capacity, 10)\n"
         "set str = \"hello\"\n"+
 //        "do test.print(str.size)\n"+
 //        "do test.print(str.capacity)\n"+
         "do test.assertEqual( str.size, 5)\n"+
-        "do test.assertEqual( str.capacity, 10)\n"+ // if this fails, the COW implementation of std::string fooled us again.
+        "do test.assertEqual( str.capacity, strCapacity)\n"+ // if this fails, the COW implementation of std::string fooled us again.
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+
@@ -284,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
 }
 
 /**
- * Tests some random operations, and alos the operator+ for strings.
+ * Tests some random operations, and alow the operator+ for strings.
  */
 BOOST_AUTO_TEST_CASE( testOperators )
 {
@@ -375,6 +381,29 @@ BOOST_AUTO_TEST_CASE( testConversions )
 }
 
 /**
+ * Tests hexadecimals
+ */
+BOOST_AUTO_TEST_CASE( testHex )
+{
+    string prog = string("program x {\n") +
+        "var uint i = 0xabc\n" +
+        "test.assert( i == 0xabc )\n"+
+        "test.assert( i == 2748 )\n"+
+        "i = 0Xcba\n" +
+        "test.assert( i == 0Xcba )\n"+
+        "test.assert( i == 3258 )\n"+
+        "i = 0XABC\n" +
+        "test.assert( i == 0XABC )\n"+
+        "test.assert( i == 2748 )\n"+
+        "i = 0xCBA\n" +
+        "test.assert( i == 0xCBA )\n"+
+        "test.assert( i == 3258 )\n"+
+        "}";
+    // execute
+    executePrograms(prog);
+}
+
+/**
  * Tests reading/writing property(bags) in scripting.
  */
 BOOST_AUTO_TEST_CASE( testProperties )
@@ -446,6 +475,7 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 3*2 < 6+1 )\n" +
         "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
         "do test.assert( 3*(2+1) == 9 )\n" +
+        "do test.assert( 1 - 1 + 5 == 5 )\n" +  // not: -5
         "}";
     // execute
     executePrograms(prog);
@@ -494,7 +524,6 @@ BOOST_AUTO_TEST_CASE( testFlowStatus )
     // execute
     executePrograms(prog);
 }
-
 BOOST_AUTO_TEST_SUITE_END()
 
 void TypesTest::executePrograms(const std::string& prog )

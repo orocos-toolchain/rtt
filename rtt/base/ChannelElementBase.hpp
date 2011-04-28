@@ -45,6 +45,7 @@
 #include <boost/call_traits.hpp>
 
 #include <rtt/os/Mutex.hpp>
+#include "rtt-base-fwd.hpp"
 
 namespace RTT { namespace base {
 
@@ -84,7 +85,7 @@ namespace RTT { namespace base {
          * setOutput().
          */
         ChannelElementBase();
-        virtual ~ChannelElementBase() {}
+        virtual ~ChannelElementBase();
 
         /**
          * Removes the input channel (if any).
@@ -160,6 +161,13 @@ namespace RTT { namespace base {
          * endpoint. Otherwise, it has been initiated by the output endpoint.
          */
         virtual void disconnect(bool forward);
+
+        /**
+         * Gets the port this channel element is connected to.
+         * @return null if no port is connected to this element, the
+         * port (or a proxy representing the port) otherwise.
+         */
+        virtual PortInterface* getPort() const;
     };
 
     void RTT_API intrusive_ptr_add_ref( ChannelElementBase* e );

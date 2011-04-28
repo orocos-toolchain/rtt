@@ -389,14 +389,14 @@
   #include &lt;rtt/types/CArrayTypeInfo.hpp>
   #include &lt;rtt/types/BoostArrayTypeInfo.hpp>
 
- // Register a std::vector (or compatible) of some type:
+ // Register a <emphasis>std::vector&lt;ControlData&gt;</emphasis> (or compatible) :
  RTT::types::Types()->addType( new <classname>RTT::types::SequenceTypeInfo</classname>&lt;std::vector&lt;ControlData> >("std.vector&lt;ControlData>") );
 
- // Register a C-Array of some type:
- RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;types::carray&lt;ControlData&gt; >("ControlData[]");
+ // Register a C-Array <emphasis>ControlData[ N ]</emphasis> or <emphasis>ControlData*</emphasis> :
+ RTT::types::Types()->addType( new <classname>RTT::types::CArrayTypeInfo</classname>&lt;types::carray&lt;ControlData&gt; >("ControlData[]") );
 
- // Register a Boost-Array of some type:
- RTT::types::Types()->addType( new <classname>RTT::types::BoostArrayTypeInfo</classname>&lt;boost::array&lt;ControlData> >("boost.array&lt;ControlData>");
+ // Register a Boost-Array <emphasis>boost::array&lt;ControlData&gt;</emphasis> :
+ RTT::types::Types()->addType( new <classname>RTT::types::BoostArrayTypeInfo</classname>&lt;boost::array&lt;ControlData> >("boost.array&lt;ControlData>") );
 	</programlisting>
     <para>Note that we have adapted TypeInfo's type name argument to fit the scripting
 	  type name syntax.

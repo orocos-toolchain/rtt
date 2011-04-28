@@ -4,7 +4,6 @@
 namespace RTT {
     namespace types {
         class BinaryOp;
-        class DotOp;
         class EmptyTypeInfo;
         class GlobalsRepository;
         class OperatorRepository;
@@ -39,8 +38,6 @@ namespace RTT {
         struct TypeInfoName;
         template<typename function>
         class BinaryOperator;
-        template<typename function>
-        class DotOperator;
         template<typename function>
         class UnaryOperator;
     }

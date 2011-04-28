@@ -47,11 +47,11 @@
 
 namespace RTT { namespace mqueue { class Dispatcher; } }
 
-RTT_API void intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
-RTT_API void intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
-
 namespace RTT {
     namespace mqueue {
+        RTT_API void intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
+        RTT_API void intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
+
         /**
          * This object waits on a set of open message queue
          * file descriptors and signals the channel that has
@@ -61,8 +61,8 @@ namespace RTT {
          */
         class Dispatcher : public Activity
         {
-            friend void ::intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
-            friend void ::intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
+            friend void intrusive_ptr_add_ref(const RTT::mqueue::Dispatcher* p );
+            friend void intrusive_ptr_release(const RTT::mqueue::Dispatcher* p );
             mutable os::AtomicInt refcount;
             static Dispatcher* DispatchI;
 

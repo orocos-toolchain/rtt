@@ -135,7 +135,6 @@ namespace RTT
       /**
        * Force an evaluation of the DataSourceBase.
        * @return true on successful evaluation.
-       * If the internal::DataSource itself contains a boolean, return that boolean.
        */
       virtual bool evaluate() const = 0;
 
@@ -273,9 +272,9 @@ namespace RTT
      */
     RTT_API std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
 
-}}
+    RTT_API void intrusive_ptr_add_ref( const RTT::base::DataSourceBase* p );
+    RTT_API void intrusive_ptr_release( const RTT::base::DataSourceBase* p );
 
-RTT_API void intrusive_ptr_add_ref(const RTT::base::DataSourceBase* p );
-RTT_API void intrusive_ptr_release(const RTT::base::DataSourceBase* p );
+}}
 
 #endif

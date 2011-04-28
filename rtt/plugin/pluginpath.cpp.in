@@ -7,7 +7,7 @@ namespace RTT
 { 
     namespace plugin {
         /** @cond */
-        char const* default_plugin_path = "@DEFAULT_PLUGIN_PATH@@OROCOS_SUFFIX@";
+        char const* default_plugin_path = "@DEFAULT_PLUGIN_PATH@";
         /** @endcond */
     }
 }

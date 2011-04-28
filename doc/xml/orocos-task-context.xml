@@ -14,7 +14,7 @@
     </title>
     <subtitle>Designing Real-Time Orocos Applications</subtitle>
     <copyright>
-      <year>2004,2005,2006,2007,2008,2009,2010</year>
+      <year>2004,2005,2006,2007,2008,2009,2010,2011</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -980,27 +980,26 @@ Hello[R] &gt;
       </section>
     </section>
     <section>
-      <title>The Port Interface</title>
+      <title>Data Flow Ports</title>
       <note><title>Purpose</title>
-	<para>Ports define a 'Data Flow' which is a 'stream of data'
-	  from one's output port to another's input port, 
-	  which are used to perform calculations. A classical control
-	  loop can be implemented using ports. Ports can buffer
-	  data. A Task can be woken up if data arrives at one or
-	  more ports or it can 'poll' for new data on its ports.
+	<para>A component has ports in order to send or receive a
+	  stream of data. The algorithm writes Output ports to publish
+	  data to other components, while input ports allow an
+	  algorithm to receive data from other components.  A
+	  component can be woken up if data arrives at one or more
+	  input ports or it can 'poll' for new data on its input
+	  ports.
 	</para>
 	<para>
 	  Reading and writing data ports is always real-time and
 	  thread-safe, on the condition that copying your data
-	  (i.e. your operator=() ) is as well.
+	  (i.e. your operator= ) is as well.
 	</para>
       </note>
       <para>
-	The Orocos Data Flow is implemented with the
-	<emphasis>Port-Connector</emphasis> software pattern. Each
-	task defines its data exchange ports and inter-task connectors
+	Each component defines its data exchange ports and connections
 	transmit data from one port to another. A Port is defined by a
-	name, unique within that task, the data type it wants to
+	name, unique within that component, the data type it wants to
 	exchange and if its for reading (Input) or writing (Output) data samples.
 	Finally,
 	you can opt that new data on selected Input ports wake up your task.
@@ -1029,12 +1028,12 @@ Hello[R] &gt;
 	  allocate enough room for the new size.
 	</para>
 	<para>
-	  In addition, if you want to tranfer your data out of your
+	  In addition, if you want to send your data out of your
 	  process to another process or host, it will additionally
 	  need:
 	  <itemizedlist>
-	    <listitem><para>Registration of 'X' with the type system (see the manual about Writing Plugins)</para></listitem>
-	    <listitem><para>A transport for the data type registered with the type system (see the transport (CORBA,MQueue,...) documentation)</para></listitem>
+	    <listitem><para>Registration of 'X' with the type system (see the manual about Typekits)</para></listitem>
+	    <listitem><para>A transport for the data type registered with the type system (see the transport (ROS,CORBA,MQueue,...) documentation)</para></listitem>
 	  </itemizedlist>
 	  The standard C++ and std::vector&lt;double> data types are
 	  already included in the RTT library for real-time transfer
@@ -1043,14 +1042,6 @@ Hello[R] &gt;
       </section>
       <section>
 	<title>Setting up the Data Flow Interface</title>
-	<important>
-	  <para>
-	    The ready-to-execute code of this section can be found in the
-	    'dataflow-task' package on the <ulink
-	    url="http://www.orocos.org/rtt/source">RTT Source code</ulink>
-	    page of the Orocos.org website.
-	  </para>
-	</important>
 	<para>
 	  Any kind of data can be exchanged (also user defined C/C++ types)
 	  but for readability, only the 'double' C type is used here.
@@ -1064,7 +1055,6 @@ Hello[R] &gt;
     <classname>RTT::InputPort</classname>&lt;double&gt; evPort;
 
     // Input port: We will poll this one
-
     <classname>RTT::InputPort</classname>&lt;double&gt; inPort;
 
     // Output ports are allways 'send and forget'
@@ -1104,11 +1094,6 @@ Hello[R] &gt;
 	or <function>addEventPort()</function>. In the latter case,
 	new data arriving on the port will wake up ('trigger') the
 	activity of our TaskContext and updateHook() get's executed.
-	If you want to know which port caused the wake-up, do not implement
-	<function>updateHook()</function> (ie remove this function from your component) and use 
-	<function>updateHook(const std::vector&lt;PortInterface*&gt;&amp; updatedPorts)</function>
-	which provides you a list of all ports having received new data. If your task woke up
-	for another reason, updatedPorts will be empty.
       </para>
       <note>
 	<para>

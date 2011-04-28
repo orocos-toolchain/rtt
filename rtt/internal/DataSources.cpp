@@ -39,7 +39,7 @@
 #include "DataSources.hpp"
 
 namespace RTT {
-    using namespace detail;
+    namespace internal { 
 
     template<>
     void ValueDataSource<std::string>::set( AssignableDataSource<std::string>::param_t t )
@@ -52,5 +52,5 @@ namespace RTT {
         : mdata( t.c_str() )
     {
     }
-
+    }
 }

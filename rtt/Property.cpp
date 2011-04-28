@@ -44,16 +44,6 @@
 namespace RTT {
     using namespace detail;
 
-#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
-     template class Property<double>;
-     template class Property<bool>;
-     template class Property<float>;
-     template class Property<int>;
-     template class Property<unsigned int>;
-     template class Property<std::string>;
-#endif
-
-
     void PropertyBase::identify( PropertyBagVisitor* pbi)
     {
         pbi->introspect( this );

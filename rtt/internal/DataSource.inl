@@ -56,9 +56,6 @@ namespace RTT
   }
 
   template<>
-  RTT_API bool DataSource<bool>::evaluate() const;
-
-  template<>
   inline void const* DataSource<void>::getRawConstPointer() { return 0; }
 
     template<typename T>

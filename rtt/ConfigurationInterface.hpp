@@ -90,7 +90,7 @@ namespace RTT
         bool hasAttribute( const std::string& name ) const;
 
         /**
-         * Adds a variable of any type as read/write attribute to the attribute interface.
+         * Adds a variable of any type as read/write attribute to the configuration interface.
          * An Alias is created which causes contents of the \a attr
          * variable always to be in sync
          * with the contents of the attribute object in the interface.
@@ -104,31 +104,86 @@ namespace RTT
         }
 
         /**
-         * Adds a variable of any type as read-only attribute to the attribute interface.
-         * An Alias is created which causes contents of the
-         * attribute always to be in sync
-         * with the contents of \a attr, but it can only be read through the interface.
-         * @param name The name of this attribute
-         * @param attr The variable that will be aliased.
+         * Adds an existing attribute object to the configuration interface.
+         * @param name The name of this attribute. \a attr will be initialized with this name.
+         * @param attr The attribute to add
+         * @return the Attribute object by reference, which you can further query or use.
+         * @post attr.ready() == true
          */
         template<class T>
-        bool addConstant( const std::string& name, const T& attr) {
-            Alias a(name, new internal::ConstReferenceDataSource<T>(attr));
+        Attribute<T>& addAttribute( const std::string& name, Attribute<T>& attr) {
+            if ( !attr.ready() )
+                attr = Attribute<T>(name);
+            else
+                attr.setName(name);
+            this->addAttribute( attr );
+            assert(attr.ready());
+            return attr;
+        }
+
+        /**
+         * Adds a variable of any type as read-only attribute to the configuration interface.
+         * An Alias is created which causes contents of the
+         * attribute always to be in sync
+         * with the contents of \a cnst, but it can only be read through the interface.
+         * @param name The name of this attribute
+         * @param cnst The variable that will be aliased.
+         */
+        template<class T>
+        bool addConstant( const std::string& name, const T& cnst) {
+            Alias a(name, new internal::ConstReferenceDataSource<T>(cnst));
             return this->addAttribute( a );
         }
 
         /**
-         * Adds a variable of any type as a property to the attribute interface.
+         * Adds an existing constant object to the configuration interface.
+         * @param name The name of this constant. \a cnst will be initialized with this name.
+         * @param cnst The constant to add. If cnst has not been initialized, it will
+         * be initialized to T(). You can change it later-on using the Constant's API.
+         * @return the Constant object by reference, which you can further query or use.
+         * @post cnst.ready() == true
+         */
+        template<class T>
+        Constant<T>& addConstant( const std::string& name, Constant<T>& cnst) {
+            if ( !cnst.ready() )
+                cnst = Constant<T>(name, T());
+            else
+                cnst.setName(name);
+            this->addConstant( cnst );
+            assert(cnst.ready());
+            return cnst;
+        }
+
+        /**
+         * Adds a variable of any type as a property to the configuration interface.
          * A Property is created which causes contents of the
          * property always to be in sync
-         * with the contents of \a attr.
+         * with the contents of \a prop.
          * @param name The name of this property
-         * @param attr The variable that will be aliased.
+         * @param prop The variable that will be aliased.
          * @return the Property object by reference, which you can further query or document.
          */
         template<class T>
-        Property<T>& addProperty( const std::string& name, T& attr) {
-            return this->properties()->addProperty( name, attr );
+        Property<T>& addProperty( const std::string& name, T& prop) {
+            return this->properties()->addProperty( name, prop );
+        }
+
+        /**
+         * Adds an existing property object to the configuration interface.
+         * @param name The name of this property. \a prop will be initialized with this name.
+         * @param prop The property to add
+         * @return the Property object by reference, which you can further query or document.
+         * @post prop.ready() == true
+         */
+        template<class T>
+        Property<T>& addProperty( const std::string& name, Property<T>& prop) {
+            if ( !prop.ready() )
+                prop = Property<T>(name);
+            else
+                prop.setName(name);
+            this->properties()->addProperty( prop );
+            assert(prop.ready());
+            return prop;
         }
 
         /**

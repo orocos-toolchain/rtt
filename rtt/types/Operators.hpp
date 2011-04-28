@@ -100,35 +100,12 @@ namespace RTT { namespace types
                               base::DataSourceBase* b ) = 0;
   };
 
-  /**
-   * The Dot Operator allows access to members of composite types,
-   * such as in frame.pos.x .
-   * This is used if a dot was parsed on a value type. It is different by semantics of the
-   * UnaryOp because the dot is parsed as a binary operator but
-   * actually is a unary ( hard to explain, look at the code...)
-   */
-  class RTT_API DotOp
-  {
-  public:
-    virtual ~DotOp();
-    /**
-     * If op is the operator you are responsible for, and if the
-     * argument internal::DataSource is of the correct type, then return an
-     * appropriate DataSource. ( i.e. a internal::DataSource that will apply a
-     * certain operation on the value it gets from its argument
-     * internal::DataSource, and will return that value ).  Otherwise, return 0.
-     */
-    virtual base::DataSourceBase* build( const std::string& member,
-                                   base::DataSourceBase* a ) = 0;
-  };
-
     /**
      * This class builds on upon construction all expression
      * operators known to Orocos. Mainly used for scripting.
      */
     class RTT_API OperatorRepository
     {
-        std::vector<DotOp*> dotops;
         std::vector<UnaryOp*> unaryops;
         std::vector<BinaryOp*> binaryops;
         OperatorRepository();
@@ -136,7 +113,6 @@ namespace RTT { namespace types
 
     public:
         void add( UnaryOp* o );
-        void add( DotOp* o );
         void add( BinaryOp* o );
 
         typedef boost::shared_ptr<OperatorRepository> shared_ptr;
@@ -145,7 +121,6 @@ namespace RTT { namespace types
          * Returns a shared pointer to the singleton of this class.
          */
         static shared_ptr Instance();
-        base::DataSourceBase* applyDot( const std::string& member, base::DataSourceBase* value );
         base::DataSourceBase* applyUnary( const std::string& op, base::DataSourceBase* a );
         base::DataSourceBase* applyBinary(
                                     const std::string& op, base::DataSourceBase* a, base::DataSourceBase* b );

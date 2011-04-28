@@ -96,7 +96,7 @@ namespace RTT
          * no template can be used and therefore the connection setup should be
          * done based on the types::TypeInfo object
          */
-        virtual base::ChannelElementBase* buildRemoteChannelOutput(
+        virtual base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
                 base::OutputPortInterface& output_port,
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy) = 0;
@@ -163,10 +163,10 @@ namespace RTT
          * @see buildChannelOutput
          */
         template<typename T>
-        static base::ChannelElementBase* buildChannelInput(OutputPort<T>& port, ConnID* conn_id, base::ChannelElementBase::shared_ptr output_channel)
+        static base::ChannelElementBase::shared_ptr buildChannelInput(OutputPort<T>& port, ConnID* conn_id, base::ChannelElementBase::shared_ptr output_channel)
         {
             assert(conn_id);
-            base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase::shared_ptr endpoint = new ConnInputEndpoint<T>(&port, conn_id);
             if (output_channel)
                 endpoint->setOutput(output_channel);
             return endpoint;
@@ -183,11 +183,11 @@ namespace RTT
          * to this element.
          */
         template<typename T>
-        static base::ChannelElementBase* buildBufferedChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr output_channel)
+        static base::ChannelElementBase::shared_ptr buildBufferedChannelInput(OutputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr output_channel)
         {
             assert(conn_id);
-            base::ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port, conn_id);
-            base::ChannelElementBase* data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
+            base::ChannelElementBase::shared_ptr endpoint = new ConnInputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T>(policy, port.getLastWrittenValue() );
             endpoint->setOutput(data_object);
             if (output_channel)
                 data_object->setOutput(output_channel);
@@ -202,10 +202,10 @@ namespace RTT
          * @see buildChannelInput
          */
         template<typename T>
-        static base::ChannelElementBase* buildChannelOutput(InputPort<T>& port, ConnID* conn_id)
+        static base::ChannelElementBase::shared_ptr buildChannelOutput(InputPort<T>& port, ConnID* conn_id)
         {
             assert(conn_id);
-            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase::shared_ptr endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
             return endpoint;
         }
 
@@ -219,11 +219,11 @@ namespace RTT
          * @param initial_value The value to use to initialize the connection's storage buffer.
          */
         template<typename T>
-        static base::ChannelElementBase* buildBufferedChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
+        static base::ChannelElementBase::shared_ptr buildBufferedChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
         {
             assert(conn_id);
-            base::ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
-            base::ChannelElementBase* data_object = buildDataStorage<T>(policy, initial_value);
+            base::ChannelElementBase::shared_ptr endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
+            base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T>(policy, initial_value);
             data_object->setOutput(endpoint);
             return data_object;
         }

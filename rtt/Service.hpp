@@ -58,6 +58,9 @@
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function_types/components.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#if BOOST_VERSION >= 104000
+#include <boost/smart_ptr/enable_shared_from_this2.hpp>
+#endif
 
 namespace RTT
 {
@@ -79,7 +82,11 @@ namespace RTT
         : public OperationInterface,
           public ConfigurationInterface,
           public DataFlowInterface,
+#if BOOST_VERSION >= 104000
+          public boost::enable_shared_from_this2<Service>
+#else
           public boost::enable_shared_from_this<Service>
+#endif
     {
     public:
         typedef OperationInterface Factory;
@@ -92,6 +99,9 @@ namespace RTT
          * set afterwards with setOwner.
          * @param name The name of this service.
          * @param owner The TaskContext that will execute the operations of this service.
+         * @warning When using boost < 1.40, the owner is not stored in the Service, until
+         * the Service object is effectively added to the TaskContext.
+         * @see getOwner()
          */
         static Service::shared_ptr Create(const std::string& name, TaskContext* owner = 0);
 
@@ -101,6 +111,9 @@ namespace RTT
          * set afterwards with setOwner.
          * @param name The name of this service.
          * @param owner The TaskContext that will execute the operations of this service.
+         * @warning When using boost < 1.40, the owner is not stored in the Service, until
+         * the Service object is effectively added to the TaskContext.
+         * @see getOwner()
          */
         Service(const std::string& name, TaskContext* owner = 0);
 
@@ -151,7 +164,9 @@ namespace RTT
 
         /**
          * The owner is the top-level TaskContext owning this service
-         * (indirectly).
+         * (indirectly). A Service can only belong to one TaskContext.
+         * @note This function will only return the owner after the Service
+         * has been added to the TaskContext.
          */
         TaskContext* getOwner() const { return mowner; }
 

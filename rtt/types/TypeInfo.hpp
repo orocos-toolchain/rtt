@@ -41,6 +41,7 @@
 #include <vector>
 #include <string>
 #include "../base/DataSourceBase.hpp"
+#include "../base/ChannelElementBase.hpp"
 
 namespace RTT
 { namespace types {
@@ -62,6 +63,18 @@ namespace RTT
          * Return unique the type name.
          */
         virtual const std::string& getTypeName() const = 0;
+
+        /**
+         * Installs the type info object in the global data source type info handler.
+         * This will be called by the TypeInfoRepository, prior to registering this
+         * type. If installation fails the TypeInfoRepository will delete this object,
+         * and all its associated constructors.
+         *
+         * @retval true installation succeeded. This object should not be deleted
+         * during the execution of the current process.
+         * @retval false installation failed. This object is not used and may be deleted.
+         */
+        virtual bool installTypeInfoObject() = 0;
 
         /**
          * @name Type building/factory functions
@@ -168,6 +181,12 @@ namespace RTT
          * Usability function which converts a string to data.
          */
         virtual bool fromString( const std::string& value, base::DataSourceBase::shared_ptr out ) const;
+
+        /**
+         * Returns true if this type is directly streamable
+         * using read()/write() or toString()/fromString().
+         */
+        virtual bool isStreamable() const = 0;
         /** @} */
 
         /**
@@ -241,6 +260,7 @@ namespace RTT
          * here for transitional purposes.
          */
         virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
+
         /**
          * @}
          */
@@ -293,10 +313,20 @@ namespace RTT
          * @param policy Describes the kind of storage requested by the user
          * @return a storage element.
          */
-        virtual base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy) const = 0;
-        virtual base::ChannelElementBase* buildChannelOutput(base::InputPortInterface& port) const = 0;
-        virtual base::ChannelElementBase* buildChannelInput(base::OutputPortInterface& port) const = 0;
-};
+        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
+        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
+        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
+
+    protected:
+        /**
+         * Migrates all protocols present in \a orig to this
+         * type info object. It is meant as a helper when a type
+         * info object is replaced by a new instance.
+         * @pre This type has no transports registered yet, ie,
+         * it is newly constructed.
+         */
+        void migrateProtocols(TypeInfo* orig);
+    };
 
 }}
 

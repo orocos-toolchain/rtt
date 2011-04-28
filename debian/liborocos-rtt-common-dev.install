@@ -62,6 +62,7 @@ usr/include/rtt/internal
 usr/include/rtt/Activity.hpp
 usr/include/rtt/ArgumentDescription.hpp
 usr/include/rtt/Attribute.hpp
+usr/include/rtt/Component.hpp
 usr/include/rtt/ConfigurationInterface.hpp
 usr/include/rtt/ConnPolicy.hpp
 usr/include/rtt/DataFlowInterface.hpp
@@ -93,5 +94,6 @@ usr/include/rtt/Time.hpp
 usr/include/rtt/rtt-config.h
 usr/lib/cmake/orocos-rtt/orocos-rtt-config-version.cmake
 usr/lib/cmake/orocos-rtt/UseOROCOS-RTT.cmake
+usr/lib/cmake/orocos-rtt/UseOROCOS-RTT-helpers.cmake
 usr/lib/cmake/orocos-rtt/orocos-rtt-config.cmake
 usr/lib/cmake/orocos-rtt/cmake_uninstall.cmake.in

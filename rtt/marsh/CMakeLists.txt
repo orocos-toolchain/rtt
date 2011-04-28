@@ -4,6 +4,7 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   INCLUDE_DIRECTORIES(BEFORE ${PROJ_SOURCE_DIR} ${PROJ_SOURCE_DIR}/rtt ${PROJ_SOURCE_DIR}/rtt/os ${PROJ_SOURCE_DIR}/rtt/os/${OROCOS_TARGET} )
   INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt ${PROJ_BINARY_DIR}/rtt/os ${PROJ_BINARY_DIR}/rtt/os/${OROCOS_TARGET} )
   INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt/marsh )
+  INCLUDE_DIRECTORIES(BEFORE ${PROJ_BINARY_DIR}/rtt/typekit ) # For rtt-typekit-config.h
 
   GLOBAL_ADD_INCLUDE( rtt/marsh PropertyMarshaller.hpp PropertyDemarshaller.hpp MarshallInterface.hpp MarshallingService.hpp PropertyBagIntrospector.hpp)
   SET( CPPS PropertyMarshaller.cpp PropertyDemarshaller.cpp PropertyBagIntrospector.cpp)
@@ -25,5 +26,6 @@ IF (PLUGINS_ENABLE_MARSHALLING)
   set(DLL_EXPORT_PREFIX marsh)
   ADD_RTT_PLUGIN( rtt-marshalling ${RTT_VERSION} ${CPPS})
   GLOBAL_ADD_INCLUDE( rtt/marsh ${CMAKE_CURRENT_BINARY_DIR}/rtt-marsh-config.h)
+  target_link_libraries( rtt-marshalling-${OROCOS_TARGET}_plugin )
   
 ENDIF(PLUGINS_ENABLE_MARSHALLING)

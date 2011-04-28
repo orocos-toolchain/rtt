@@ -85,7 +85,7 @@ namespace RTT {
             bool createStream( const ConnPolicy& policy );
             virtual bool addConnection(internal::ConnID* port_id, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy);
             void disconnect();
-            void disconnect(base::PortInterface& p);
+            bool disconnect(base::PortInterface* p);
         };
 
         /**
@@ -155,7 +155,7 @@ namespace RTT {
              * @param policy The policy for the ConnFactory.
              * @return The local endpoint for the output.
              */
-            base::ChannelElementBase* buildRemoteChannelOutput(
+            base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
                     base::OutputPortInterface& output_port,
                     types::TypeInfo const* type,
                     base::InputPortInterface& reader_,

@@ -138,7 +138,6 @@ namespace RTT
         	data = new DataBuf[BUF_LEN];
         	read_ptr = &data[0];
         	write_ptr = &data[1];
-            data[BUF_LEN-1].next = &data[0];
             data_sample(initial_value);
         }
 
@@ -220,7 +219,8 @@ namespace RTT
                 data[i].data = sample;
                 data[i].next = &data[i+1];
             }
-
+            data[BUF_LEN-1].data = sample;
+            data[BUF_LEN-1].next = &data[0];
         }
     };
 }}

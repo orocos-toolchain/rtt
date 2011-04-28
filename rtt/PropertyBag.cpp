@@ -470,7 +470,12 @@ namespace RTT
                 if ( tgtprop->refresh( srcprop ) == false) {
                     // try conversion
                     DataSourceBase::shared_ptr converted = tgtprop->getTypeInfo()->convert( srcprop->getDataSource() );
-                    if ( converted != srcprop->getDataSource() ) {
+                    if ( converted == srcprop->getDataSource() ) {
+                        converted = tgtprop->getTypeInfo()->buildValue();
+                        if ( tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), converted ) == false)
+                            converted = 0;
+                    }
+                    if ( converted && converted != srcprop->getDataSource()) {
                         PropertyBase* dummy = tgtprop->getTypeInfo()->buildProperty("","");
                         dummy->getDataSource()->update(converted.get());
                         assert(dummy);
@@ -479,18 +484,11 @@ namespace RTT
                                 << tgtprop->getType() << " "<< srcprop->getName() << " to type " <<dummy->getType()
                                 << " from type "  << srcprop->getType() << endlog();
                     } else {
-                        // try composition:
-                        if ( !tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), tgtprop->getDataSource())) {
-                            log(Error) << "Could not update, nor compose Property "
-                                    << tgtprop->getType() << " "<< srcprop->getName()
-                                    << ": type mismatch, can not refresh with type "
-                                    << srcprop->getType() << endlog();
-                            failure = true;
-                        } else {
-                            log(Debug) << "Composed Property "
-                                    << tgtprop->getType() << " "<< srcprop->getName()
-                                    << " from type "  << srcprop->getType() << endlog();
-                        }
+                        log(Error) << "Could not refresh Property "
+                                << tgtprop->getType() << " "<< srcprop->getName()
+                                << ": type mismatch, can not refresh with type "
+                                << srcprop->getType() << endlog();
+                        failure = true;
                     }
                 }
                 // ok.
@@ -572,7 +570,12 @@ namespace RTT
                     if ( (*mit)->update( (*sit) ) == false ) {
                         // try conversion
                         DataSourceBase::shared_ptr converted = (*mit)->getTypeInfo()->convert( (*sit)->getDataSource() );
-                        if ( converted != (*sit)->getDataSource() ) {
+                        if ( converted == (*sit)->getDataSource() ) {
+                            converted = (*mit)->getTypeInfo()->buildValue();
+                            if ((*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), converted ) == false)
+                                converted = 0;
+                        }
+                        if ( converted && converted != (*sit)->getDataSource()) {
                             PropertyBase* dummy = (*mit)->getTypeInfo()->buildProperty("","");
                             dummy->getDataSource()->update(converted.get());
                             assert(dummy);
@@ -581,16 +584,13 @@ namespace RTT
                                     << (*mit)->getType() << " "<< (*sit)->getName()
                                     << " from type "  << (*sit)->getType() << endlog();
                         } else {
-                            // try composition:
-                            // if *sit is a bag, and we can decompose target, and we can update it, we have success, otherwise failure:
-                            if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) ) {
-                                Logger::log() << Logger::Error;
-                                Logger::log() << "updateProperties: Could not update, nor compose Property "
-                                        << (*mit)->getType() << " "<< (*mit)->getName()
-                                        << ": type mismatch, can not update with "
-                                        << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
-                                return false;
-                            }
+                            //if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) )
+                            Logger::log() << Logger::Error;
+                            Logger::log() << "updateProperties: Could not update, nor convert Property "
+                                    << (*mit)->getType() << " "<< (*mit)->getName()
+                                    << ": type mismatch, can not update with "
+                                    << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
+                            return false;
                         }
                     }
                     // ok.
@@ -606,6 +606,7 @@ namespace RTT
 #endif
                         // step 1: test for composing a typed property bag:
                         PropertyBase* temp = 0;
+#if 0
                         Property<PropertyBag>* tester = dynamic_cast<Property<PropertyBag>* >(*sit);
                         if (tester && tester->value().getType() != "PropertyBag") {
                             if (TypeInfo* ti = types::Types()->type(tester->value().getType())) {
@@ -615,6 +616,7 @@ namespace RTT
                                 if (!res ) return false;
                             }
                         }
+#endif
                         if (!temp) {
                             // fallback : clone a new instance (non deep copy)
                             temp = (*sit)->create();
@@ -674,12 +676,24 @@ namespace RTT
             else {
                 // found it, update !
                 if (target_walker->update(source_walker) == false ) {
-                    // try composition:
-                    PropertyBag decomp;
-                    Property<PropertyBag> source = source_walker;
-                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
-                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
-                        log(Error) << "Could not update nor compose Property "
+                    // try conversion
+                    DataSourceBase::shared_ptr converted = target_walker->getTypeInfo()->convert( source_walker->getDataSource() );
+                    if ( converted == source_walker->getDataSource() ) {
+                        converted = target_walker->getTypeInfo()->buildValue();
+                        if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), converted ) == false) {
+                            converted = 0;
+                        }
+                    }
+                    if ( converted && converted != source_walker->getDataSource()) {
+                        PropertyBase* dummy = target_walker->getTypeInfo()->buildProperty("","");
+                        dummy->getDataSource()->update(converted.get());
+                        assert(dummy);
+                        target_walker->update(dummy);
+                        log(Debug) << "Converted Property "
+                                << target_walker->getType() << " "<< source_walker->getName()
+                                << " from type "  << source_walker->getType() << endlog();
+                    } else {
+                        log(Error) << "Could not update Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not update with type "
                                    << source_walker->getType() << Logger::endl;
@@ -740,12 +754,23 @@ namespace RTT
             else {
                 // found it, refresh !
                 if (target_walker->refresh(source_walker) == false ) {
-                    // try composition:
-                    PropertyBag decomp;
-                    Property<PropertyBag> source = source_walker;
-                    // if source_walker is a bag, and we can decompose target_walker, and we can update it, we have success, otherwise failure:
-                    if ( !source.ready() || !propertyDecomposition( target_walker, decomp) || !updateProperties(decomp, source.value() ) ) {
-                        log(Error) << "Could not refresh nor compose Property "
+                    DataSourceBase::shared_ptr converted = target_walker->getTypeInfo()->convert( source_walker->getDataSource() );
+                    if ( converted == source_walker->getDataSource() ) {
+                        converted = target_walker->getTypeInfo()->buildValue();
+                        if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), converted ) == false) {
+                            converted = 0;
+                        }
+                    }
+                    if ( converted && converted != source_walker->getDataSource()) {
+                        PropertyBase* dummy = target_walker->getTypeInfo()->buildProperty("","");
+                        dummy->getDataSource()->update(converted.get());
+                        assert(dummy);
+                        target_walker->refresh(dummy);
+                        log(Debug) << "Converted Property "
+                                << target_walker->getType() << " "<< source_walker->getName()
+                                << " from type "  << source_walker->getType() << endlog();
+                    } else {
+                        log(Error) << "Could not refresh Property "
                                    << target_walker->getType() << " "<< target_walker->getName()
                                    << ": type mismatch, can not refresh with type "
                                    << source_walker->getType() << Logger::endl;

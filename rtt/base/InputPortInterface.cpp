@@ -89,7 +89,7 @@ bool InputPortInterface::connectTo(PortInterface* other)
 bool InputPortInterface::addConnection(ConnID* port_id, ChannelElementBase::shared_ptr channel_output, const ConnPolicy& policy)
 {
     // input ports don't check the connection policy.
-    cmanager.addConnection( port_id, channel_output);
+    cmanager.addConnection( port_id, channel_output, policy);
     return true;
 }
 

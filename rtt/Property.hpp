@@ -146,7 +146,7 @@ namespace RTT
             if ( source && ! _value ) {
                 log(Error) <<"Can not initialize Property from "<<source->getName() <<": ";
                 if ( source->getDataSource() )
-                    log() << "incompatible type ("<< source->getDataSource()->getTypeName() << ")."<<endlog();
+                    log() << "incompatible type ( destination type: "<< getType() << ", source type: "<< source->getDataSource()->getTypeName() << ")."<<endlog();
                 else
                     log() << "source Property was not ready."<<endlog();
             }
@@ -195,15 +195,15 @@ namespace RTT
                 this->setDescription( source->getDescription() );
                 typename internal::AssignableDataSource<DataSourceType>::shared_ptr vptr
                     = internal::AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
-                if (vptr)
+                if (vptr) {
                     _value = vptr;
-                else
-                    _value = new internal::ValueDataSource<value_t>() ;
-            } else {
-                this->setName( "" );
-                this->setDescription( "" );
-                _value = 0;
+                    return *this;
+                }
             }
+            // wrong assignment: mark not ready.
+            this->setName( "" );
+            this->setDescription( "" );
+            _value = 0;
             return *this;
         }
 
@@ -421,15 +421,6 @@ namespace RTT
         Property<T>* res = dynamic_cast<Property<T>*>( prop );
         return res;
     }
-
-#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
-    extern template class Property<double>;
-    extern template class Property<bool>;
-    extern template class Property<float>;
-    extern template class Property<int>;
-    extern template class Property<unsigned int>;
-    extern template class Property<std::string>;
-#endif
 }
 
 #include "base/PropertyIntrospection.hpp"

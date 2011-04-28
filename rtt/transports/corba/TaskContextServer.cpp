@@ -317,9 +317,10 @@ namespace RTT
     /**
      * Class which runs an orb in an Orocos thread.
      */
-    struct OrbRunner
+    class OrbRunner
         : public Activity
     {
+    public:
         OrbRunner()
             : Activity(RTT::os::LowestPriority)
         {}

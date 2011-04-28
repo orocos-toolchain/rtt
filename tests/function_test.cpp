@@ -31,7 +31,7 @@ class FunctionsFixture : public OperationsFixture
 {
 public:
     FunctionsFixture()
-    : sa( new ScriptingService(tc) )
+        : sa( ScriptingService::Create(tc) )
     {
         tc->stop();
         tc->setActivity(new SimulationActivity(0.01));
@@ -39,7 +39,7 @@ public:
         tc->start();
     }
     Parser parser;
-    ScriptingService* sa;
+    ScriptingService::shared_ptr sa;
 
     void doFunction( const std::string& prog, TaskContext*, bool test=true );
     void finishFunction( TaskContext* , std::string );

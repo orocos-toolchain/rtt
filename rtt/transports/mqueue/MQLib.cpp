@@ -51,7 +51,6 @@ namespace RTT {
     namespace mqueue {
         bool MQLibPlugin::registerTransport(std::string name, TypeInfo* ti)
         {
-            assert( name == ti->getTypeName() );
             if ( name == "int" )
                 return ti->addProtocol(ORO_MQUEUE_PROTOCOL_ID, new MQTemplateProtocol<int>() );
             if ( name == "double" )

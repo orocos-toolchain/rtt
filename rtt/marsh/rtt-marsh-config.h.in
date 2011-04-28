@@ -7,7 +7,7 @@
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //
 #cmakedefine RTT_GCC_HASVISIBILITY
-#if defined(__GNUG__) && defined(__unix__) && defined(RTT_GCC_HASVISIBILITY)
+#if defined(__GNUG__) && defined(RTT_GCC_HASVISIBILITY) && (defined(__unix__) || defined(__APPLE__))
 
 # if defined(RTT_MARSH_DLL_EXPORT)
    // Use RTT_MARSH_API for normal function exporting
@@ -34,7 +34,7 @@
 #   define RTT_MARSH_HIDE   
 #  else
 #   define RTT_MARSH_API    __declspec(dllimport)
-#   define RTT_MARSH_EXPORT __declspec(dllimport)
+#   define RTT_MARSH_EXPORT __declspec(dllexport)
 #   define RTT_MARSH_HIDE 
 #  endif
 # else

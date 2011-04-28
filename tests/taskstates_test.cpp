@@ -59,6 +59,7 @@ public:
         do_breakUH=false;
         do_block=false;
         do_checks=true;
+        do_stop=false;
     }
 
     void resetFlags()
@@ -72,6 +73,7 @@ public:
         didexcept = false;
         didbreakUH = false;
         updatecount=0;
+        do_stop=false;
     }
 
     bool configureHook() {
@@ -137,6 +139,8 @@ public:
         }
         if (do_block)
             usleep(1*1000*1000);
+        if (do_stop)
+            this->stop();
     }
 
     bool breakUpdateHook() {
@@ -161,7 +165,7 @@ public:
     bool didstop;
     bool didcleanup;
     bool didupdate,diderror,didexcept, didbreakUH;
-    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger, do_breakUH, do_block, do_checks;
+    bool do_fatal, do_error, do_throw,do_throw2,do_throw3, do_trigger, do_breakUH, do_block, do_checks, do_stop;
     int  updatecount;
 };
 
@@ -308,6 +312,40 @@ BOOST_AUTO_TEST_CASE( testBreakUpdateHook )
     BOOST_CHECK_EQUAL( breaktc.stop(), true );
     BOOST_CHECK_EQUAL( breaktc.didbreakUH, true);
     BOOST_CHECK_EQUAL( breaktc.didstop, true);
+}
+
+/**
+ * Tests the calling stop() from updateHook().
+ */
+BOOST_AUTO_TEST_CASE( testStopInUpdateHook )
+{
+    // Check default TC + stop in UH
+    StatesTC breaktc;
+    breaktc.do_checks = false;
+    breaktc.do_stop = true;
+    BOOST_CHECK( breaktc.getPeriod() == 0.0 );
+    BOOST_CHECK( breaktc.isActive() );
+    BOOST_CHECK( breaktc.configure() );
+    BOOST_CHECK( breaktc.start() );
+    usleep(100*1000);
+    // check a failed stop() from UH:
+    breaktc.do_breakUH = false;
+    BOOST_CHECK_EQUAL( breaktc.didupdate, true );
+    BOOST_CHECK_EQUAL( breaktc.didbreakUH, true);
+    BOOST_CHECK_EQUAL( breaktc.didstop, false);
+    BOOST_CHECK_EQUAL( breaktc.isRunning(), true);
+
+    // check a succesful stop() from UH:
+    breaktc.do_breakUH = true;
+    breaktc.didbreakUH = false;
+    breaktc.didstop = false;
+    breaktc.didupdate = false;
+    BOOST_CHECK( breaktc.trigger() );
+    usleep(100*1000);
+    BOOST_CHECK_EQUAL( breaktc.didupdate, true );
+    BOOST_CHECK_EQUAL( breaktc.didbreakUH, true);
+    BOOST_CHECK_EQUAL( breaktc.didstop, true);
+    BOOST_CHECK_EQUAL( breaktc.isRunning(), false);
 }
 
 /**

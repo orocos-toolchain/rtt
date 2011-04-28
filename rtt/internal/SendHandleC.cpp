@@ -48,11 +48,37 @@ namespace RTT {
     using namespace detail;
 
 
+    class SendHandleC::E
+    {
+    public:
+        E(base::DataSourceBase::shared_ptr op) : s(), b(), mop(op), orp(0) {}
+
+        ~E() {
+            // force synchronisation in case we are the last SendHandleC. We may not cleanup mop (holds data!), until the op
+            // completed or failed.
+            // Reduce refcount on mopkeeper
+            mopkeeper.reset();
+        }
+
+        /**
+         * This data source will do a collect/collectIfDone when
+         * being evaluated().
+         */
+        internal::DataSource<SendStatus>::shared_ptr s;
+        /**
+         * Stores the blocking/non blocking flag for collect/collectIfDone.
+         */
+        internal::AssignableDataSource<bool>::shared_ptr b;
+        /**
+         * Stores the operation in order to avoid its premature destruction.
+         */
+        base::DataSourceBase::shared_ptr mop;
+
     /**
      * This is a custom deleter that blocks on an asynchronous
      * operation
      */
-    struct SendHandleC::OperationKeeper
+    struct OperationKeeper
     {
 	DataSource<SendStatus>::shared_ptr ms;
 	AssignableDataSource<bool>::shared_ptr mb;
@@ -65,6 +91,16 @@ namespace RTT {
 		}
 	}
     };
+
+        boost::shared_ptr<OperationKeeper> mopkeeper;
+
+        /**
+         * Stores the OperationInterfacePart pointer contained in this SendHandle
+         */
+        OperationInterfacePart* orp;
+    };
+
+
 
     class SendHandleC::D
     {
@@ -119,25 +155,25 @@ namespace RTT {
     };
 
     SendHandleC::SendHandleC()
-        : d(0), s(), b()
+        : d(0), e( new E(0) )
     {
     }
 
     SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr op, base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
-        : d( ofp ? new D( sh, ofp, name ) : 0 ), s(), b(), mop(op)
+        : d( ofp ? new D( sh, ofp, name ) : 0 ), e( new E(op) )
     {
         if ( d->s ) {
-            this->s = d->s;
-            this->b = d->blocking;
-            this->mopkeeper.reset( new OperationKeeper( s, b) );
+            e->s = d->s;
+            e->b = d->blocking;
+            e->mopkeeper.reset( new E::OperationKeeper( e->s, e->b) );
             delete d;
             d = 0;
         }
-        this->orp = ofp;
+        this->e->orp = ofp;
     }
 
     SendHandleC::SendHandleC(const SendHandleC& other)
-        : d( other.d ? new D(*other.d) : 0 ), s( other.s ? other.s : 0), b( other.b ? other.b : 0), mop(other.mop), mopkeeper(other.mopkeeper), orp( other.orp ? other.orp : NULL)
+        : d( other.d ? new D(*other.d) : 0 ), e( new E(*other.e) )
     {
     }
 
@@ -147,21 +183,18 @@ namespace RTT {
             return *this;
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
-        s = other.s;
-        b = other.b;
-        mop = other.mop;
-        mopkeeper = other.mopkeeper;
-        orp = other.orp;
+        e->s = other.e->s;
+        e->b = other.e->b;
+        e->mop = other.e->mop;
+        e->mopkeeper = other.e->mopkeeper;
+        e->orp = other.e->orp;
         return *this;
     }
 
     SendHandleC::~SendHandleC()
     {
         delete d;
-        // force synchronisation in case we are the last SendHandleC. We may not cleanup mop (holds data!), until the op
-        // completed or failed.
-        // Reduce refcount on mopkeeper
-        mopkeeper.reset();
+        delete e;
     }
 
     SendHandleC& SendHandleC::arg( DataSourceBase::shared_ptr a )
@@ -172,10 +205,10 @@ namespace RTT {
             Logger::log() <<Logger::Warning << "Extra argument discarded for SendHandleC."<<Logger::endl;
         }
         if ( d && d->s ) {
-            this->s = d->s;
-            this->b = d->blocking;
-            this->orp = d->mofp;
-            this->mopkeeper.reset( new OperationKeeper( s, b) );
+            e->s = d->s;
+            e->b = d->blocking;
+            e->orp = d->mofp;
+            e->mopkeeper.reset( new E::OperationKeeper( e->s, e->b) );
             delete d;
             d = 0;
         }
@@ -183,10 +216,10 @@ namespace RTT {
     }
 
     SendStatus SendHandleC::collect() {
-        if (s) {
-            b->set(true); // blocking
-            s->evaluate();
-            return s->value();
+        if (e->s) {
+            e->b->set(true); // blocking
+            e->s->evaluate();
+            return e->s->value();
         }
         else {
             Logger::log() <<Logger::Error << "collect() called on incomplete SendHandleC."<<Logger::endl;
@@ -201,12 +234,12 @@ namespace RTT {
     }
 
     SendStatus SendHandleC::collectIfDone() {
-        if (s) {
-            b->set(false); // non blocking
+        if (e->s) {
+            e->b->set(false); // non blocking
             // does the send.
-            s->evaluate();
+            e->s->evaluate();
             // pass on handle.
-            return s->value();
+            return e->s->value();
         }
         else {
             Logger::log() <<Logger::Error << "collectIfDone() called on incomplete SendHandleC."<<Logger::endl;
@@ -222,12 +255,12 @@ namespace RTT {
 
     bool SendHandleC::ready() const
     {
-        return s;
+        return e->s;
     }
 
     void SendHandleC::setAutoCollect(bool on_off) {
-    	if (mopkeeper)
-    		mopkeeper->autocollect = on_off;
+    	if (e->mopkeeper)
+    		e->mopkeeper->autocollect = on_off;
     }
 
     void SendHandleC::check() {
@@ -241,7 +274,7 @@ namespace RTT {
     }
 
 
-    DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return s; }
+    DataSourceBase::shared_ptr SendHandleC::getSendHandleDataSource() { return e->s; }
 
-    OperationInterfacePart* SendHandleC::getOrp() { return orp; }
+    OperationInterfacePart* SendHandleC::getOrp() { return e->orp; }
 }
