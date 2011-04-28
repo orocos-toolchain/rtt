@@ -44,6 +44,13 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
+// deal with boost v2/v3 filename differences
+#if (3==BOOST_FILESYSTEM_VERSION)
+#   define FILENAME()   filename().string()
+#else
+#   define FILENAME()   filename()
+#endif
+
 
 namespace {
     /**
@@ -174,7 +181,7 @@ void PluginLoader::loadPluginsInternal( std::string const& package, std::string 
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().FILENAME() ), kind, true);
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -195,7 +202,7 @@ void PluginLoader::loadPluginsInternal( std::string const& package, std::string 
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
                 if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
-                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true);
+                    loadInProcess( itr->path().string(), makeShortFilename(itr->path().FILENAME() ), kind, true);
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -296,7 +303,7 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     }
 
     //------------- if you get here, the library has been loaded -------------
-    string libname = p.filename();
+    string libname = p.FILENAME();
     log(Debug)<<"Found library "<<libname<<endlog();
     LoadedLib loading_lib(libname,shortname,handle);
     dlerror();    /* Clear any existing error */
