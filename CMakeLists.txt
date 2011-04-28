@@ -63,7 +63,9 @@ ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
 ###################################################
 
 OPTION(ENABLE_TESTS "Turn on to enable the testing framework." ON)
+SET(BUILD_TEST_TIMEOUT 1500 CACHE STRING "Global timeout on all tests (seconds).")
 IF(ENABLE_TESTS)
+  SET(DART_TESTING_TIMEOUT "${BUILD_TEST_TIMEOUT}" CACHE STRING "" FORCE)
   INCLUDE(CTest)
   ENABLE_TESTING()
 ENDIF()
