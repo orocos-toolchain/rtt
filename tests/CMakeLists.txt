@@ -138,6 +138,11 @@ IF (BUILD_TESTING)
       list(APPEND ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
 
+	# link to root build dir, to pick up CTest options when run from this dir
+	EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+	  ${CMAKE_BINARY_DIR}/DartConfiguration.tcl
+	  ${CMAKE_CURRENT_BINARY_DIR}/DartConfiguration.tcl)
+
     ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS main-test core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}")
