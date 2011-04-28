@@ -59,6 +59,8 @@
 #include <boost/fusion/include/make_unfused_generic.hpp>
 #endif
 
+#include <boost/lambda/lambda.hpp>
+
 #include <vector>
 #include <string>
 
