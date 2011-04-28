@@ -72,6 +72,14 @@ IF(BUILD_TESTING)
   MARK_AS_ADVANCED(BUILDNAME)
 ENDIF(BUILD_TESTING)
 
+# turn on code coverage of tests
+include (CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION(BUILD_ENABLE_COVERAGE "Turn on code coverage of all tests." OFF "ENABLE_TESTS" OFF)
+IF (BUILD_ENABLE_COVERAGE)
+  # coverage requires test
+  SET(ENABLE_TESTS ON CACHE BOOL "" FORCE)
+ENDIF (BUILD_ENABLE_COVERAGE)
+
 # MESSAGE("Looking for compiler:")
 INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 
