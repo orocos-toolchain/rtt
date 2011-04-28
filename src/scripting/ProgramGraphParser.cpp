@@ -49,7 +49,7 @@
 
 namespace RTT
 {
-  using namespace boost;
+  using boost::bind;
   using namespace detail;
 
 
@@ -342,7 +342,7 @@ namespace RTT
       // Fake a 'return' statement at the last line.
       program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
       program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
-      shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
+      boost::shared_ptr<ProgramInterface> mfunc = program_builder->endFunction( mpositer.get_position().line - ln_offset );
 
       // export the function in the context's interface.
       if (exportf) {

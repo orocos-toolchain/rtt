@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-  using namespace boost;
+  using boost::bind;
   using namespace detail;
 
     namespace {
@@ -119,8 +119,8 @@ namespace RTT
         str_p( "if" )
             >> condition
             >> expect_then( str_p("then") )
-            >> (callpart | returnpart | continuepart)[lambda::var(commonparser.skipeol) = false]
-            >> commonparser.eos[lambda::var(commonparser.skipeol) = true];
+            >> (callpart | returnpart | continuepart)[boost::lambda::var(commonparser.skipeol) = false]
+            >> commonparser.eos[boost::lambda::var(commonparser.skipeol) = true];
 
     continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
 

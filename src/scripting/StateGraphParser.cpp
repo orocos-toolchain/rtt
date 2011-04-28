@@ -58,7 +58,6 @@
 
 namespace RTT
 {
-    using namespace boost;
     using namespace detail;
     using boost::bind;
 
@@ -172,7 +171,7 @@ namespace RTT
         // Zero or more declarations and Zero or more states
         statemachinecontent = *( varline | state | transitions | transition);
 
-        varline = vardec[lambda::var(commonparser->skipeol) = false] >> commonparser->eos[lambda::var(commonparser->skipeol) = true];
+        varline = vardec[boost::lambda::var(commonparser->skipeol) = false] >> commonparser->eos[boost::lambda::var(commonparser->skipeol) = true];
 
         vardec = subMachinedecl | machinememvar | machineparam;
 
@@ -223,7 +222,7 @@ namespace RTT
             | transitions
             | transition
             | exit
-            | (machinememvar[lambda::var(commonparser->skipeol) = false] >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
+            | (machinememvar[boost::lambda::var(commonparser->skipeol) = false] >> commonparser->eos[boost::lambda::var(commonparser->skipeol) = true]);
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
@@ -298,8 +297,8 @@ namespace RTT
 
         selector =  str_p( "select" ) >> expect_select_ident(( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
                                            >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
-                                          )[lambda::var(commonparser->skipeol) = false]
-                                                       >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
+                                          )[boost::lambda::var(commonparser->skipeol) = false]
+                                                       >> commonparser->eos[boost::lambda::var(commonparser->skipeol) = true]);
 
     }
 

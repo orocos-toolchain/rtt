@@ -47,10 +47,9 @@
 namespace RTT
 {
     using namespace detail;
+    using boost::bind;
 
     using namespace std;
-
-    using namespace boost;;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");
