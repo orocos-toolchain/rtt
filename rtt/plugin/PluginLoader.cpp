@@ -313,7 +313,7 @@ bool PluginLoader::loadLibrary( std::string const& name )
 #if BOOST_VERSION >= 104600
         string subdir = arg.remove_filename().filename().string();
 #else
-        string subdir = arg.remove_filename().leaf();
+        string subdir = arg.parent_path().leaf();
 #endif
         string kind;
         // we only load it if it is in types or plugins subdir:
@@ -328,6 +328,8 @@ bool PluginLoader::loadLibrary( std::string const& name )
                 throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
             return true;
         }
+
+        log(Error) << "refusing to load " << name << " as I could not autodetect its type (name=" << name << ", path=" << arg.string() << ", subdir=" << subdir << ")" << endlog();
         // file exists but not typekit or plugin:
         return false;
     }
