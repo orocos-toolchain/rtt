@@ -311,7 +311,7 @@ bool PluginLoader::loadLibrary( std::string const& name )
     path arg( name );
     if (is_regular_file(arg)) {
 #if BOOST_VERSION >= 104600
-        string subdir = arg.remove_filename().filename().string();
+        string subdir = arg.parent_path().filename().string();
 #else
         string subdir = arg.parent_path().leaf();
 #endif
