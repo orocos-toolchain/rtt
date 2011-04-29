@@ -918,6 +918,7 @@ ORO_main( int argc, char** argv)
       </para>
     </section>
   </section>
+  </section>
   <section id="corelib-logging">
     <title>Logging</title>
     <para>
