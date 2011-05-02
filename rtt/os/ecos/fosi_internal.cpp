@@ -58,6 +58,7 @@ namespace RTT
 				       int priority,
 				       const char * name,
 				       int sched_type,
+				       size_t stack_size,
 				       void * (*start_routine)(void *),
 				       ThreadInterface* obj) {
       /* sched_type is unused in eCos */
@@ -67,7 +68,7 @@ namespace RTT
       task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
 
       // Allocate necessary stack...
-      task->stack = (char *)malloc(OROSEM_OS_ECOS_STACK_SIZE);
+      task->stack = (char *)malloc(stack_size?stack_size:OROSEM_OS_ECOS_STACK_SIZE);
 
       // Create the thread
       cyg_thread_create((cyg_addrword_t) priority, // priority
