@@ -1,4 +1,5 @@
 ifdef ROS_ROOT
+EXTRA_CMAKE_FLAGS=-DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
 default: install
 include $(shell rospack find mk)/cmake.mk
 install: all
