@@ -18,20 +18,26 @@ if (ENABLE_CORBA)
         ELSE(NOT TAO_FOUND)
             MESSAGE(STATUS "CORBA enabled: ${TAO_FOUND_COMPONENTS}")
 
-	    # Copy flags:
+	# Copy flags:
         SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
-	    SET(CORBA_CFLAGS ${TAO_CPP_FLAGS})
+	SET(CORBA_CFLAGS ${TAO_CPP_FLAGS})
         SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
-	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
-	    # Flag used in rtt-corba-config.h
-	    SET(CORBA_IS_TAO 1)
+	SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
+	# Flag used in rtt-corba-config.h
+	SET(CORBA_IS_TAO 1)
 
-	    if( TAO_Messaging_FOUND )
-	      SET(CORBA_TAO_HAS_MESSAGING 1)
-	    endif()
+	if( TAO_Messaging_FOUND )
+	  SET(CORBA_TAO_HAS_MESSAGING 1)
+	endif()
 
- 	    # Including a TAO header is sufficient to depend on this library.
-	    set(CORBA_USER_LINK_LIBS ${TAO_CLIENT_LIBRARIES})
+ 	# Including a TAO header is sufficient to depend on this library.
+	set(CORBA_USER_LINK_LIBS ${TAO_CLIENT_LIBRARIES} )
+
+	# We noticed TAO depends on librt as well on Linux platforms
+	if(${OROCOS_TARGET} MATCHES "gnulinux|xenomai|lxrt")
+	  set(CORBA_LIBRARIES ${CORBA_LIBRARIES} rt )
+	  set(CORBA_USER_LINK_LIBS ${CORBA_USER_LINK_LIBS} rt )
+	endif()
 
        ENDIF(NOT TAO_FOUND)
     ELSEIF(CORBA_IMPLEMENTATION STREQUAL "OMNIORB")
