@@ -50,17 +50,17 @@ static __forceinline int oro_atomic_inc_and_test(oro_atomic_t *a_int)
 	return (_InterlockedIncrement((long *)a_int) == 0);
 }
 
-static __forceinline int oro_atomic_add_negative(int n, oro_atomic_t *a_int)
+static __forceinline int oro_atomic_add_negative(oro_atomic_t *a_int, int n)
 {
 	return ((_InterlockedExchangeAdd((long *)a_int, n) + n) < 0);
 }
 
-static __forceinline int oro_atomic_add_return(int n, oro_atomic_t *a_int)
+static __forceinline int oro_atomic_add_return(oro_atomic_t *a_int, int n)
 {
 	return _InterlockedExchangeAdd((long *)a_int, n) + n;
 }
 
-static __forceinline int oro_atomic_sub_return(int n, oro_atomic_t *a_int)
+static __forceinline int oro_atomic_sub_return(oro_atomic_t *a_int, int n)
 {
 	return oro_atomic_add_return(-n, a_int);
 }
@@ -75,12 +75,12 @@ static __forceinline int oro_atomic_dec_return(oro_atomic_t *a_int)
 	return _InterlockedDecrement((long *)a_int);
 }
 
-static __forceinline int oro_atomic_clear_mask(int mask, oro_atomic_t *a_int)
+static __forceinline int oro_atomic_clear_mask(oro_atomic_t *a_int, int mask)
 {
 	return _InterlockedAnd((long *)a_int, ~mask);
 }
 
-static __forceinline int oro_atomic_set_mask(int mask, oro_atomic_t *a_int)
+static __forceinline int oro_atomic_set_mask(oro_atomic_t *a_int, int mask)
 {
 	return _InterlockedOr((long *)a_int, mask);
 }

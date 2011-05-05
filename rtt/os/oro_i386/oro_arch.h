@@ -56,7 +56,7 @@ typedef struct { volatile int counter; } oro_atomic_t;
 
 #define oro_atomic_set(v,i)		(((v)->counter) = (i))
 
-static __inline__ void oro_atomic_add(int i, oro_atomic_t *v)
+static __inline__ void oro_atomic_add( oro_atomic_t *v, int i)
 {
 	__asm__ __volatile__(
 		ORO_LOCK "addl %1,%0"
@@ -64,7 +64,7 @@ static __inline__ void oro_atomic_add(int i, oro_atomic_t *v)
 		:"ir" (i), "m" (v->counter));
 }
 
-static __inline__ void oro_atomic_sub(int i, oro_atomic_t *v)
+static __inline__ void oro_atomic_sub( oro_atomic_t *v, int i)
 {
 	__asm__ __volatile__(
 		ORO_LOCK "subl %1,%0"

@@ -21,7 +21,7 @@ typedef struct {
 /**
  * Add n to a_int
  */
-static __inline__ void oro_atomic_add(int n, oro_atomic_t *a_int)
+static __inline__ void oro_atomic_add(oro_atomic_t *a_int, int n)
 {
     (void)__sync_add_and_fetch(&a_int->cnt, n);
 }
@@ -29,7 +29,7 @@ static __inline__ void oro_atomic_add(int n, oro_atomic_t *a_int)
 /**
  * Substract n from a_int
  */
-static __inline__ void oro_atomic_sub(int n, oro_atomic_t *a_int)
+static __inline__ void oro_atomic_sub(oro_atomic_t *a_int, int n)
 {
     (void)__sync_sub_and_fetch(&a_int->cnt, n);
 }
@@ -37,7 +37,7 @@ static __inline__ void oro_atomic_sub(int n, oro_atomic_t *a_int)
 /**
  * Substract n from a_int and test for zero
  */
-static __inline__ int oro_atomic_sub_and_test(int n, oro_atomic_t *a_int)
+static __inline__ int oro_atomic_sub_and_test(oro_atomic_t *a_int, int n)
 {
     return !(__sync_sub_and_fetch(&a_int->cnt, n));
 }
