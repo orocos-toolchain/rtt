@@ -510,6 +510,73 @@ BOOST_AUTO_TEST_CASE(testPortSignalling)
     BOOST_CHECK(0 == signalled_port);
 }
 
+BOOST_AUTO_TEST_CASE(testPortAddRemove)
+{
+    OutputPort<double>* wp1 = new OutputPort<double>("Write");
+    InputPort<double>*  rp1 = new InputPort<double>("Read");
+    InputPort<double>*  ep1 = new InputPort<double>("ERead");
+    TaskContext tc("tc");
+    tc.addPort( *wp1 );
+    tc.addPort( *rp1 );
+    tc.addEventPort( *ep1 );
+
+    Handle hl( rp1->getNewDataOnPortEvent()->setup(
+                boost::bind(&PortsTestFixture::new_data_listener, this, _1) ) );
+    hl.connect();
+
+    wp1->createConnection(*rp1, ConnPolicy::data());
+    wp1->createConnection(*ep1, ConnPolicy::data());
+
+    tc.start();
+    wp1->write(0.1);
+    tc.stop();
+
+    tc.ports()->removePort("Write");
+    tc.ports()->removePort("Read");
+    tc.ports()->removePort("ERead");
+
+    wp1->write(0.1);
+
+    delete wp1;
+    delete rp1;
+    delete ep1;
+
+    tc.start();
+    tc.stop();
+
+    wp1 = new OutputPort<double>("Write");
+    rp1 = new InputPort<double>("Read");
+    ep1 = new InputPort<double>("ERead");
+
+    tc.addPort( *wp1 );
+    tc.addPort( *rp1 );
+    tc.addEventPort( *ep1 );
+
+    hl = rp1->getNewDataOnPortEvent()->setup(
+                boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
+    hl.connect();
+
+    wp1->createConnection(*rp1, ConnPolicy::data());
+    wp1->createConnection(*ep1, ConnPolicy::data());
+
+    tc.start();
+    wp1->write(0.1);
+    tc.stop();
+
+    tc.ports()->removePort("Write");
+    tc.ports()->removePort("Read");
+    tc.ports()->removePort("ERead");
+
+    wp1->write(0.1);
+
+    delete wp1;
+    delete rp1;
+    delete ep1;
+
+    tc.start();
+    tc.stop();
+}
+
 BOOST_AUTO_TEST_CASE(testEventPortSignalling)
 {
     OutputPort<double> wp1("Write");
