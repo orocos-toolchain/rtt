@@ -14,10 +14,10 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.0 r9654"
    version="1.0"
    sodipodi:docname="ATaskContext.svg"
-   inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+   inkscape:export-filename="ATaskContext-services.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
    inkscape:output_extension="org.inkscape.output.svg.inkscape">
@@ -1441,7 +1441,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1453,11 +1453,17 @@
     <path
        style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        d="m 273.71271,462.7796 512.76214,0"
-       id="path5293" />
+       id="path5293"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
        transform="translate(540.78454,-2.8447027)"
        style="stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;display:inline"
-       id="g4441-0">
+       id="g4441-0"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <path
          id="path3606-1"
          d="m 245.02397,341.62964 26.86398,35.93628 -25.78942,34.49881"
@@ -1470,9 +1476,15 @@
     <path
        style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 273.71271,374.06032 512.76214,0"
-       id="path5291" />
+       id="path5291"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
-       id="g16485">
+       id="g16485"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <rect
          rx="40.837555"
          ry="34.283031"
@@ -1895,7 +1907,10 @@
        width="114.92944"
        height="162.17102"
        x="327.54254"
-       y="278.48914" />
+       y="278.48914"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <rect
        transform="matrix(0.356692,0,0,1.201673,628.795,-10.621485)"
        style="fill:#ffa500;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:5.04050684;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
@@ -1903,11 +1918,17 @@
        width="114.92944"
        height="162.17102"
        x="327.54254"
-       y="278.48914" />
+       y="278.48914"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
        style="display:inline"
        id="g2177"
-       transform="translate(470.8321,65.748585)">
+       transform="translate(470.8321,65.748585)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          transform="matrix(0.356692,0,0,1.201673,157.9629,-76.37007)"
          id="g2179"
@@ -1928,7 +1949,10 @@
     <g
        style="display:inline"
        id="g2171"
-       transform="translate(0,64)">
+       transform="translate(0,64)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          transform="matrix(0.356692,0,0,1.201673,157.9629,-76.37007)"
          id="g2019"
@@ -1952,7 +1976,10 @@
        x="195.45236"
        y="411.07983"
        id="text3390"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan3392"
          x="195.45236"
@@ -1967,7 +1994,10 @@
        x="865.42688"
        y="413.04086"
        id="text3394"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan3396"
          x="865.42688"
@@ -1978,7 +2008,10 @@
          id="tspan10691">Ports</tspan></text>
     <g
        style="display:inline"
-       id="g3412">
+       id="g3412"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          id="g3335-2"
          style="display:inline"
@@ -2017,7 +2050,10 @@
     <g
        style="display:inline"
        id="g3420"
-       transform="translate(-3.31083,0)">
+       transform="translate(-3.31083,0)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          id="g3335-2-2"
          style="display:inline"
@@ -2058,7 +2094,10 @@
     </g>
     <g
        style="display:inline"
-       id="g3569">
+       id="g3569"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <rect
          y="244.30965"
          x="70.990929"
@@ -2098,7 +2137,10 @@
     </g>
     <g
        id="g4441"
-       style="stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none">
+       style="stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <path
          id="path3606"
          d="m 245.02397,337.62964 26.86398,35.93628 -25.78942,34.49881"
@@ -2109,7 +2151,10 @@
          style="fill:none;stroke:#000000;stroke-width:3.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
     </g>
     <g
-       id="g4520">
+       id="g4520"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <path
          style="fill:none;stroke:#000000;stroke-width:1.36930048;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
          d="m 89.207594,274.13938 10.509959,14.0593 -10.08956,13.49693"
@@ -2130,7 +2175,10 @@
        style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="489.35498"
        y="320.42227"
-       id="text19427"><tspan
+       id="text19427"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan19429"
          x="489.35498"
@@ -2140,7 +2188,7 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Extras"
-     style="display:inline">
+     style="display:none">
     <g
        style="display:inline"
        id="g2033"
@@ -2148,7 +2196,8 @@
       <path
          style="fill:none;stroke:#000000;stroke-width:2.99999881;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
          d="m 633.4689,581.49501 0,-20.56564"
-         id="path2037" />
+         id="path2037"
+         inkscape:connector-curvature="0" />
     </g>
     <g
        style="display:inline"
@@ -2157,7 +2206,8 @@
       <path
          style="fill:none;stroke:#000000;stroke-width:2.99999881;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
          d="m 633.4689,581.49501 0,-20.56564"
-         id="path2043" />
+         id="path2043"
+         inkscape:connector-curvature="0" />
     </g>
     <rect
        style="fill:#c2ffff;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
@@ -2220,21 +2270,27 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Config"
-     style="display:inline">
+     style="display:none">
     <rect
        style="fill:#ffff40;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000043;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
        id="rect1930"
        width="230.75278"
        height="57.569439"
        x="419.40613"
-       y="550.13525" />
+       y="550.13525"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
        style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
        x="530.0451"
        y="573.60284"
        id="text1934"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan1936"
          x="530.0451"
@@ -2249,7 +2305,10 @@
        x="531.81964"
        y="704.27527"
        id="text10708"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan10710"
          x="531.81964"
@@ -2258,19 +2317,30 @@
        transform="matrix(0.644653,0,0,1,189.4087,54)"
        id="path6188"
        d="m 382.74834,449.4036 0,25.04872 294.69089,0 0,-23.57527"
-       style="fill:none;stroke:#000000;stroke-width:4.98192024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
+       style="fill:none;stroke:#000000;stroke-width:4.98192024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
        style="display:inline"
        id="g10714"
-       transform="matrix(0.644653,0,0,1,189.4087,54)">
+       transform="matrix(0.644653,0,0,1,189.4087,54)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <path
          id="path6190"
          d="m 530.09378,474.43245 0,23.14021"
-         style="fill:none;stroke:#000000;stroke-width:4.98192024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+         style="fill:none;stroke:#000000;stroke-width:4.98192024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         inkscape:connector-curvature="0" />
     </g>
     <g
        style="display:inline"
-       id="g3335">
+       id="g3335"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          transform="matrix(1,0,0,1.1980891,-102,-65.484953)"
          id="g10704"
@@ -2278,7 +2348,8 @@
         <path
            id="path10701"
            d="m 633.4689,581.49501 0,-20.56564"
-           style="fill:none;stroke:#000000;stroke-width:2.7407949;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
+           style="fill:none;stroke:#000000;stroke-width:2.7407949;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+           inkscape:connector-curvature="0" />
       </g>
       <path
          transform="matrix(0.35888405,0.62160542,-0.62160542,0.35888405,652.12396,456.66773)"
@@ -2296,9 +2367,12 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="ExecFlow"
-     style="display:inline">
+     style="display:none">
     <g
-       id="g13319">
+       id="g13319"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <g
          transform="matrix(-0.35888405,0.62160542,0.62160542,0.35888405,683.21332,-196.63938)"
          id="g5188-7"
@@ -2306,13 +2380,14 @@
         <path
            id="path5192-4"
            d="m 528.64306,105.19807 71.15465,0"
-           style="fill:none;stroke:#000000;stroke-width:4.1796217;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+           style="fill:none;stroke:#000000;stroke-width:4.1796217;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           inkscape:connector-curvature="0" />
         <path
            sodipodi:open="true"
            sodipodi:end="8.0008861"
            sodipodi:start="4.7761732"
            transform="translate(354.0066,-173.8676)"
-           d="M 148.94207,253.48509 A 25.048725,25.048725 0 1 1 143.6789,303.2618"
+           d="m 148.94207,253.48509 c 13.8059,0.8818 24.28296,12.78852 23.40116,26.59442 -0.88179,13.8059 -12.78852,24.28295 -26.59442,23.40116 -0.6927,-0.0442 -1.38327,-0.11726 -2.06991,-0.21887"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2327,10 +2402,11 @@
         <path
            id="path5192"
            d="m 528.64306,105.19807 71.15465,0"
-           style="fill:none;stroke:#000000;stroke-width:4.1796217;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+           style="fill:none;stroke:#000000;stroke-width:4.1796217;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           inkscape:connector-curvature="0" />
         <path
            transform="translate(354.0066,-173.8676)"
-           d="m 172.39417,278.48288 a 25.048725,25.048725 0 1 1 -50.09745,0 25.048725,25.048725 0 1 1 50.09745,0 z"
+           d="m 172.39417,278.48288 c 0,13.83403 -11.2147,25.04872 -25.04873,25.04872 -13.83403,0 -25.04872,-11.21469 -25.04872,-25.04872 0,-13.83403 11.21469,-25.04873 25.04872,-25.04873 13.83403,0 25.04873,11.2147 25.04873,25.04873 z"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2346,14 +2422,20 @@
        width="330.0538"
        height="68.642021"
        x="365.06689"
-       y="210.81886" />
+       y="210.81886"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
        style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="527.84607"
        y="241.86327"
        id="text1938"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          x="527.84607"
          y="241.86327"
@@ -2369,10 +2451,16 @@
        height="162.17102"
        width="153.4794"
        id="rect1952"
-       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible" />
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
        id="g2005"
-       transform="translate(94,64)">
+       transform="translate(94,64)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <text
          sodipodi:linespacing="125%"
          id="text1964"
@@ -2400,10 +2488,16 @@
        height="162.17102"
        width="147.22803"
        id="rect1950"
-       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000043;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible" />
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000043;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <g
        id="g2012"
-       transform="translate(50,64)">
+       transform="translate(50,64)"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100">
       <text
          sodipodi:linespacing="125%"
          id="text1970"
@@ -2426,7 +2520,10 @@
        x="684.72888"
        y="145.64458"
        id="text5263"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan5265"
          x="684.72888"
@@ -2437,7 +2534,10 @@
        y="429.20731"
        x="381.55435"
        style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          y="429.20731"
          x="381.55435"
          sodipodi:role="line"
@@ -2452,7 +2552,10 @@
        y="425.89716"
        x="562.21747"
        style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          y="425.89716"
          x="562.21747"
          sodipodi:role="line"
@@ -2468,18 +2571,29 @@
     <path
        style="fill:none;stroke:#000000;stroke-width:3.19999909;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Sstart);marker-end:url(#Arrow1Send);display:inline"
        d="m 528.84709,282.93438 -93.24455,55.04871"
-       id="path3402" />
+       id="path3402"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:3.19999957;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Sstart);marker-end:url(#Arrow1Send);display:inline"
        d="m 533.43664,283.25438 86.16728,54.44112"
-       id="path4291" />
+       id="path4291"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
        x="387.9324"
        y="145.64458"
        id="text5263-8"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan5265-8"
          x="387.9324"
@@ -2495,7 +2609,10 @@
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Bitstream Vera Sans"
        x="269.84167"
        y="646.99811"
-       id="text2810"><tspan
+       id="text2810"
+       inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan2812"
          x="269.84167"
@@ -2506,12 +2623,13 @@
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="Basics"
-     style="display:none">
+     style="display:inline">
     <path
        style="fill:url(#linearGradient9243);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00379932;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        sodipodi:nodetypes="ccccccc"
        id="path647"
-       d="m 112.09208,358.24044 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z" />
+       d="m 112.09208,358.24044 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z"
+       inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
@@ -2530,7 +2648,8 @@
        style="fill:none;stroke:#000000;stroke-width:2.9000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 593.03193,471.95743 208.98052,125.15469 35.14796,-0.13018"
        id="path9263"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="ccc"
+       inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
@@ -2564,16 +2683,19 @@
        style="fill:url(#linearGradient4550);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00379932;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        sodipodi:nodetypes="ccccccc"
        id="path647-5"
-       d="m 140.10615,447.29292 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z" />
+       d="m 140.10615,447.29292 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z"
+       inkscape:connector-curvature="0" />
     <path
        style="fill:url(#linearGradient4550-7);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00379932;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        sodipodi:nodetypes="ccccccc"
        id="path647-6"
-       d="m 821.40002,357.43203 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z" />
+       d="m 821.40002,357.43203 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z"
+       inkscape:connector-curvature="0" />
     <path
        style="fill:url(#linearGradient4550-3);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00379932;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        sodipodi:nodetypes="ccccccc"
        id="path647-8"
-       d="m 863.6508,448.53528 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z" />
+       d="m 863.6508,448.53528 c -0.16598,0 55.10777,0.16388 55.10777,0.16388 l 8.13351,15.23815 -8.13351,15.89351 -55.27375,-0.3276 8.13343,-15.56591 -7.96745,-15.40203 z"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
