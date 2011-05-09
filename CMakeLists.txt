@@ -33,10 +33,10 @@ SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
 INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.cmake OPTIONAL)
 if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
   # Setup the default settings
-  INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
   MESSAGE(
     "No orocos-rtt.cmake file loaded, using default settings."
     "See orocos-rtt.default.cmake")
+  INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
 endif ()
 
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
