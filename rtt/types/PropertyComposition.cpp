@@ -32,18 +32,8 @@ bool RTT::types::composePropertyBag( PropertyBag const& sourcebag, PropertyBag& 
                 log(Debug) << "Used user's composition function for " << tgtprop->getName() <<":"<<tgtprop->getType()<<endlog();
                 target.ownProperty(tgtprop);
             } else {
-                // general case: user did not specify a composeType implementation, so we decompose
-                // our freshly built target, and try to update it with the source bag:
-
-                // we don't use ti->decomposeType() since that probably doesn't do what we wish
-                PropertyBag decomp;
-                if ( typeDecomposition( tgtprop->getDataSource(), decomp) && ( decomp.getType() == isbag.getType() ) && refreshProperties(decomp, isbag) ) {
-                    // note: we add tgtprop ! the decomp is just a way to get a reference to the parts of tgtprop
-                    target.ownProperty( tgtprop );
-                } else {
-                    log(Error) <<"The type '" << isbag.value().getType() <<"' did not provide a type composition function, but I need one to compose it from a PropertyBag." <<endlog();
-                    has_error = true;
-                }
+                log(Error) <<"The type '" << isbag.value().getType() <<"' did not provide a type composition function, but I need one to compose it from a PropertyBag." <<endlog();
+                has_error = true;
             }
         } else {
             if ( isbag.ready() ) {

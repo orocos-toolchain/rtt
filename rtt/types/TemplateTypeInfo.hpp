@@ -331,16 +331,9 @@ namespace RTT
 
         /**
          * User, implement this function in case you want to control reading the XML data format.
-         * TemplateTypeInfo provides a default, good for most types implementation in case getMember()
-         * is implemented.
          */
         virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
-            // The default implementation decomposes result and refreshes it with source.
-            internal::ReferenceDataSource<T> rds(result);
-            rds.ref(); // prevent dealloc.
-            PropertyBag decomp;
-            // only try refreshProperties if decomp's type is equal to source type.
-            return typeDecomposition( &rds, decomp) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
+            return false;
         }
 
         /**

@@ -92,6 +92,25 @@ namespace RTT
                 log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+            /**
+             * Implementation that updates result with the matching parts in source
+             * Relies on the fact that getMember returns a C++ reference to each part of \a result, which is then updated
+             * with a property found in source.
+             */
+            virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
+                // The default implementation decomposes result and refreshes it with source.
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                PropertyBag decomp;
+                // only try refreshProperties if decomp's type is equal to source type.
+                // update vs refresh: since it is intentional that the decomposition leads to references to parts of result,
+                // only refreshProperties() is meaningful (ie we have a one-to-one mapping). In case of sequences, this would
+                // of course not match, so this is struct specific.
+                return typeDecomposition( &rds, decomp, false) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
+            }
+
+
         };
     }
 }
