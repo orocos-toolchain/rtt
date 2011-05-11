@@ -33,6 +33,8 @@
 #include <Command.hpp>
 #include <StateMachine.hpp>
 #include <TaskObject.hpp>
+#include <Activity.hpp>
+#include <Attribute.hpp>
 
 using namespace std;
 
@@ -424,6 +426,97 @@ BOOST_AUTO_TEST_CASE( testStateEmpty)
         ;
      this->doState( prog, &gtc );
      this->finishState( &gtc, "x");
+}
+
+BOOST_AUTO_TEST_CASE( testStateRecursiveLoads)
+{
+    // test recursive loading of a SM
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     select TEST;\n" // only a transition
+        + " }\n"
+        + " }\n"
+        + " var int nbr = 0\n"
+        + " state TEST {\n"
+        + "     entry {\n"
+        + "        set nbr = i;\n"
+        + "        if ( i < 10 ) then { \n"
+        + "        do scripting.loadStateMachineText( prog + i + \"\\n\" );\n"
+        + "        do engine.activateStateMachine( \"x\" + i );\n"
+        + "        do engine.startStateMachine( \"x\" + i );\n"
+        + "        set i = i + 1;\n"
+        + "        }\n"
+        + "     }\n"
+        + "     }\n"
+        + " final state FINI {\n" // completely empty
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x" // instantiate a non hierarchical SC
+        ;
+     int i=2;
+     gtc.attributes()->addAttribute( new Alias<string>("prog", new ReferenceDataSource<string>(prog) ) );
+     gtc.attributes()->addAttribute( new Alias<int>("i", new ReferenceDataSource<int>(i) ) );
+     gtc.setActivity ( new Activity(ORO_SCHED_RT, OS::HighestPriority, 0.01) );
+     gtc.start();
+     // instantiate x etc:
+     gtc.scripting()->loadStateMachines(prog + "1\n", "state_test.cpp", false);
+     gtc.execution()->activateStateMachine("x1");
+     gtc.execution()->startStateMachine("x1");
+     sleep(1);
+}
+
+BOOST_AUTO_TEST_CASE( testStateConcurrentLoads)
+{
+    // test concurrent loading of a SM
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     select TEST;\n" // only a transition
+        + " }\n"
+        + " }\n"
+        + " state TEST {\n"
+        + "     }\n"
+        + " final state FINI {\n" // completely empty
+        + " }\n"
+        + " }\n"
+        + " RootMachine X " // instantiate a non hierarchical SC
+        ;
+    // load machines in running TC:
+    gtc.setActivity ( new Activity(ORO_SCHED_RT, OS::HighestPriority, 0.001) );
+    gtc.start();
+    // instantiate x etc:
+    gtc.scripting()->loadStateMachines(prog + "x1\n", "state_test.cpp", true);
+    gtc.execution()->activateStateMachine("x1");
+    gtc.execution()->startStateMachine("x1");
+    gtc.scripting()->loadStateMachines(prog + "x2\n", "state_test.cpp", true);
+    gtc.execution()->activateStateMachine("x2");
+    gtc.execution()->startStateMachine("x2");
+    gtc.scripting()->loadStateMachines(prog + "x3\n", "state_test.cpp", true);
+    gtc.execution()->activateStateMachine("x3");
+    gtc.execution()->startStateMachine("x3");
+    gtc.scripting()->loadStateMachines(prog + "x4\n", "state_test.cpp", true);
+    gtc.execution()->activateStateMachine("x4");
+    gtc.execution()->startStateMachine("x4");
+    gtc.scripting()->loadStateMachines(prog + "x5\n", "state_test.cpp", true);
+    gtc.execution()->activateStateMachine("x5");
+    gtc.execution()->startStateMachine("x5");
+    sleep(1);
+    gtc.execution()->stopStateMachine("x1");
+    gtc.execution()->deactivateStateMachine("x1");
+    gtc.scripting()->unloadStateMachine("x1");
+    gtc.execution()->stopStateMachine("x2");
+    gtc.execution()->deactivateStateMachine("x2");
+    gtc.scripting()->unloadStateMachine("x2");
+    gtc.execution()->stopStateMachine("x3");
+    gtc.execution()->deactivateStateMachine("x3");
+    gtc.scripting()->unloadStateMachine("x3");
+    gtc.execution()->stopStateMachine("x4");
+    gtc.execution()->deactivateStateMachine("x4");
+    gtc.scripting()->unloadStateMachine("x4");
+    gtc.execution()->stopStateMachine("x5");
+    gtc.execution()->deactivateStateMachine("x5");
+    gtc.scripting()->unloadStateMachine("x5");
 }
 
 BOOST_AUTO_TEST_CASE( testStateTransitions)
