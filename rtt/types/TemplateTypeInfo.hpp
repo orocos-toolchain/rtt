@@ -175,7 +175,7 @@ namespace RTT
             if ( res ) {
                 res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
-                return new Constant<PropertyType>( name, res->value() );
+                return new Constant<PropertyType>( name, res->rvalue() );
             }
             else
                 return 0;
@@ -247,7 +247,7 @@ namespace RTT
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
             if ( d && use_ostream )
-                types::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
+                types::TypeStreamSelector<T, use_ostream>::write( os, d->rvalue() );
             else {
 #ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
@@ -285,7 +285,7 @@ namespace RTT
                 return false;
 
             // last fall-back: use user supplied function:
-            if ( composeTypeImpl( pb->value(), ads->set() ) )
+            if ( composeTypeImpl( pb->rvalue(), ads->set() ) )
                 ads->updated();
             else {
                 Logger::log() <<Logger::Debug<<"Failed to compose from "<< source->getTypeName() <<Logger::endl;
