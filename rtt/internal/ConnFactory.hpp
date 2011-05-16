@@ -116,9 +116,6 @@ namespace RTT
                 typename base::DataObjectInterface<T>::shared_ptr data_object;
                 switch (policy.lock_policy)
                 {
-                case ConnPolicy::LOCKED:
-                    data_object.reset( new base::DataObjectLocked<T>(initial_value) );
-                    break;
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
                     data_object.reset( new base::DataObjectLockFree<T>(initial_value) );
