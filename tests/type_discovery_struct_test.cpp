@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
 {
     Types()->addType( new StructTypeInfo<AType>("AType") );
 
-    AssignableDataSource<AType>::shared_ptr atype = new ValueDataSource<AType>( AType() );
+    AssignableDataSource<AType>::shared_ptr atype = new ValueDataSource<AType>( AType(true) );
 
     BOOST_REQUIRE( Types()->type("AType") );
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testCTypeStruct )
     Types()->addType( new BoostArrayTypeInfo< boost::array<int,5> >("int5") );
     Types()->addType( new SequenceTypeInfo< vector<int> >("ints") );
 
-    AssignableDataSource<CType>::shared_ptr atype = new ValueDataSource<CType>( CType() );
+    AssignableDataSource<CType>::shared_ptr atype = new ValueDataSource<CType>( CType(true) );
 
     // decompose a complex type
     AssignableDataSource<AType>::shared_ptr a = AssignableDataSource<AType>::narrow( atype->getMember("a").get() );

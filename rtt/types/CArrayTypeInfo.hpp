@@ -45,6 +45,7 @@
 #include <boost/lexical_cast.hpp>
 #include "carray.hpp"
 #include "../internal/carray.hpp"
+#include "PropertyComposition.hpp"
 
 namespace RTT
 {
@@ -131,6 +132,34 @@ namespace RTT
                 log(Error) << "CArrayTypeInfo: Invalid index) for type " << this->getTypeName() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+            /**
+             * Uses Decomposition to update result from source.
+             */
+            virtual bool composeTypeImpl(const PropertyBag& source, typename internal::AssignableDataSource<T>::reference_t result) const
+            {
+                //result.resize( source.size() );
+                if(result.count() != source.size()) {
+                    log(Error) << "Refusing to compose C Arrays from a property list of different size. Use the same number of properties as the C array size." << endlog();
+                    return false;
+                }
+                // recurse into items of this sequence:
+                PropertyBag target( source.getType() );
+                PropertyBag decomp;
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                // we compose each item in this sequence and then update result with target's result.
+                // 1. each child is composed into target (this is a recursive thing)
+                // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                    assert(result.count() == source.size());
+                    assert(source.size() == target.size());
+                    assert(source.size() == decomp.size());
+                    return true;
+                }
+                return false;
+            }
+
         };
     }
 }
