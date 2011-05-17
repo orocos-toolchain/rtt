@@ -45,7 +45,12 @@ public:
 
     BType btype;
     BType btype_orig;
-    DataSourceTest() {  }
+    DataSourceTest() {
+        atype.init();
+        atype_orig.init();
+        btype.init();
+        btype_orig.init();
+    }
     ~DataSourceTest() {  }
 };
 

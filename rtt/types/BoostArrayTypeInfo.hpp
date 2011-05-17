@@ -80,7 +80,7 @@ namespace RTT
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ConstantDataSource<unsigned int>( T::static_size );
+                    return new ConstantDataSource<int>( T::static_size );
                 }
 
                 // contents of indx can change during program execution:
@@ -107,7 +107,7 @@ namespace RTT
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ConstantDataSource<unsigned int>( T::static_size );
+                        return new ConstantDataSource<int>( T::static_size );
                     }
                 }
 
@@ -117,6 +117,33 @@ namespace RTT
                 log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+            /**
+             * Uses Decomposition to update result from source.
+             */
+            virtual bool composeTypeImpl(const PropertyBag& source, typename internal::AssignableDataSource<T>::reference_t result) const
+            {
+                //result.resize( source.size() );
+                if(result.size() != source.size()) {
+                    log(Error) << "Refusing to compose Boost Arrays from a property list of different size. Use the same number of properties as the C++ boost array size." << endlog();
+                    return false;
+                }
+                // recurse into items of this sequence:
+                PropertyBag target( source.getType() );
+                PropertyBag decomp;
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                // we compose each item in this sequence and then update result with target's result.
+                // 1. each child is composed into target (this is a recursive thing)
+                // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                    assert(result.size() == source.size());
+                    assert(source.size() == target.size());
+                    assert(source.size() == decomp.size());
+                    return true;
+                }
+                return false;
+            }
+
         };
     }
 }

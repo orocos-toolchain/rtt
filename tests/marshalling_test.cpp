@@ -105,11 +105,12 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructAType)
 {
     // filled in type and zero type:
     AType at, atref;
+    at.init(); atref.init();
     AType atz; atz.clear();
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallAType.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallAType.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallAType.cpf") );
@@ -130,11 +131,12 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructBType)
 {
     // filled in type and zero type:
     BType at, atref;
+    at.init(); atref.init();
     BType atz; atz.clear();
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallBType.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallBType.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallBType.cpf") );
@@ -155,11 +157,12 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructCType)
 {
     // filled in type and zero type:
     CType at, atref;
+    at.init(); atref.init();
     CType atz; atz.clear();
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallCType.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallCType.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallCType.cpf") );
@@ -179,13 +182,14 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructCType)
 BOOST_AUTO_TEST_CASE(TestMarshallStructATypes)
 {
     // filled in type and zero type:
+    AType init; init.init();
     ATypes at, atref;
-    at.resize(5); atref.resize(5);
+    at.resize(5, init); atref.resize(5, init);
     ATypes atz;
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallATypes.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallATypes.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallATypes.cpf") );
@@ -205,13 +209,14 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructATypes)
 BOOST_AUTO_TEST_CASE(TestMarshallStructBTypes)
 {
     // filled in type and zero type:
+    BType init; init.init();
     BTypes at, atref;
-    at.resize(5); atref.resize(5);
+    at.resize(5,init); atref.resize(5,init);
     BTypes atz; atz.clear();
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallBTypes.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallBTypes.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallBTypes.cpf") );
@@ -231,13 +236,14 @@ BOOST_AUTO_TEST_CASE(TestMarshallStructBTypes)
 BOOST_AUTO_TEST_CASE(TestMarshallStructCTypes)
 {
     // filled in type and zero type:
+    CType init; init.init();
     CTypes at, atref;
-    at.resize(5); atref.resize(5);
+    at.resize(5,init); atref.resize(5,init);
     CTypes atz; atz.clear();
 
     tc->addProperty("at", at);
     // write a non-existing file:
-    BOOST_CHECK( marsh->writeProperties("TestMarshallCTypes.cpf") );
+    BOOST_CHECK( marsh->storeProperties("TestMarshallCTypes.cpf") );
     // zero out our copy:
     at = atz;
     BOOST_REQUIRE( marsh->readProperties("TestMarshallCTypes.cpf") );

@@ -51,7 +51,7 @@ BOOST_FIXTURE_TEST_SUITE(  TypeArchiveTestSuite,  TypeArchiveTest )
 // Test writing an AType data sample into a type data archive
 BOOST_AUTO_TEST_CASE( testATypeDiscovery )
 {
-    AssignableDataSource<AType>::shared_ptr atype = new ValueDataSource<AType>( AType() );
+    AssignableDataSource<AType>::shared_ptr atype = new ValueDataSource<AType>( AType(true) );
 
     // decompose a complex type
     type_discovery out( atype );
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
 // Test writing a BType data sample into a type data archive
 BOOST_AUTO_TEST_CASE( testBTypeDiscovery )
 {
-    AssignableDataSource<BType>::shared_ptr atype = new ValueDataSource<BType>( BType() );
+    AssignableDataSource<BType>::shared_ptr atype = new ValueDataSource<BType>( BType(true) );
 
     // decompose a complex type
     type_discovery out( atype );
