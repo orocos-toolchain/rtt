@@ -54,10 +54,10 @@ endif()
 # Set the target operating system. One of [lxrt gnulinux xenomai macosx win32]
 # You may leave this as-is or force a certain target by removing the if... logic.
 #
-if(NOT DEFINED OROCOS_TARGET)
+if(NOT OROCOS_TARGET )
   set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
-  if (ENV{OROCOS_TARGET})
-    set(OROCOS_TARGET $ENV{OROCOS_TARGET} CACHE STRING "${DOC_STRING}")
+  if ( NOT "$ENV{OROCOS_TARGET}" STREQUAL "" )
+    set(OROCOS_TARGET "$ENV{OROCOS_TARGET}" CACHE STRING "${DOC_STRING}")
     message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
   else()
     if(MSVC)
@@ -67,6 +67,7 @@ if(NOT DEFINED OROCOS_TARGET)
     else()
       set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
     endif()
+    message( "No OROCOS_TARGET environment variable detected. Using: ${OROCOS_TARGET}")
   endif()
 endif()
 

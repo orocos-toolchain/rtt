@@ -4,6 +4,12 @@ orocos-rtt (2.4.0-1) unstable; urgency=low
 
  -- Peter Soetens <peter@thesourceworks.com>  Sat, 30 Apr 2011 01:12:22 +0200
 
+orocos-rtt (2.3.2-1) maverick; urgency=low
+
+  * New upstream release
+
+ -- Peter Soetens <peter@thesourceworks.com>  Tue, 03 May 2011 18:08:41 +0200
+
 orocos-rtt (2.3.1-1) unstable; urgency=low
 
   * New upstream release

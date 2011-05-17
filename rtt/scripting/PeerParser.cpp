@@ -109,7 +109,7 @@ namespace RTT
             // last resort: browse the global service if not a single match and items in queue
             if (mcurobject == context->provides() && callqueue.size() != 0 ) {
                 mcurobject = GlobalService::Instance();
-                while ( callqueue.size() ) {
+                while ( callqueue.size() && mcurobject->hasService( callqueue.front() ) ) {
                     mcurobject = mcurobject->provides( callqueue.front() );
                     mlastobject = callqueue.front();
                     callqueue.pop();

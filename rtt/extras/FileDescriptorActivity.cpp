@@ -140,7 +140,9 @@ void FileDescriptorActivity::clearAllWatches()
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    // i works around warn_unused_result
+    int i = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    i = i;
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
