@@ -337,7 +337,7 @@ namespace RTT
 
     // TODO: implement the ifthenelse operator ?
     assignexp = andexp >> *( ch_p( '=' ) >> eps_p(~ch_p( '=' ))  // prevent parsing first '=' of "=="
-            >> andexp[ bind( &ExpressionParser::seen_assign, this)] );
+            >> assignexp)[ bind( &ExpressionParser::seen_assign, this)];
     andexp =
       orexp >> *( ( str_p( "&&" ) ) >> orexp[
                     boost::bind( &ExpressionParser::seen_binary, this, "&&" ) ] );
