@@ -134,6 +134,31 @@ BOOST_AUTO_TEST_CASE( testCreateRtstringFromRtString )
     this->finishState( "x", tc );
 }
 
+BOOST_AUTO_TEST_CASE( testConcatRtstring )
+{
+    string prog = string("StateMachine X {\n")
+        + "   initial state INIT {\n"
+        + "     var rt_string s1\n"
+        + "     entry {\n"
+        + "       s1 =  rt_string(\"Multiply \")\n"
+        + "       s1 =  s1 + 10\n"
+        + "       s1 =  s1 + rt_string(\" times \")\n"
+        + "       s1 =  s1 + 33.3\n"
+        + "       s1 =  rt_string(\"Now: \") + 1 + rt_string(\"st \") + s1 + '!'\n"
+        + "     }\n"
+        + "     transitions { select FINI }\n"
+        + "   }\n"
+        + "   final state FINI {\n"
+        + "   }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+
+    this->doState("x", prog, tc );
+    this->finishState( "x", tc );
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 void StateTest::doState(  const std::string& name, const std::string& prog, TaskContext* tc, bool test )
