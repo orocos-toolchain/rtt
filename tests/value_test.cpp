@@ -158,6 +158,40 @@ BOOST_AUTO_TEST_CASE( testConcatRtstring )
     this->finishState( "x", tc );
 }
 
+BOOST_AUTO_TEST_CASE( testRtstringConversion )
+{
+    string prog = string("StateMachine X {\n")
+        + "   initial state INIT {\n"
+        + "     var rt_string rts1\n"
+        + "     var string s1\n"
+        + "     entry {\n"
+        + "       s1 =  \"s1\"\n"
+        + "       rts1 =  rt_string(\"rts1\")\n"
+        + "       test.assert(s1 ==  \"s1\")\n"
+        + "       test.assert(rts1 ==  rt_string(\"rts1\"))\n"
+        + "       s1 = string(rts1)\n"
+        + "       test.assert(s1 == string(rts1))\n"
+        + "       test.assert(s1 == \"rts1\")\n"
+        + "       s1 =  \"s1\"\n"
+        + "       rts1 = rt_string(s1)\n"
+        + "       test.assert(rts1 == rt_string(\"s1\"))\n"
+        + "       s1 =  string( rt_string(\" s1 \") )\n"
+        + "       rts1 =  rt_string( string(\" rts1 \") )\n"
+        + "       test.assert(s1 ==  \" s1 \")\n"
+        + "       test.assert(rts1 ==  rt_string(\" rts1 \"))\n"
+        + "     }\n"
+        + "     transitions { select FINI }\n"
+        + "   }\n"
+        + "   final state FINI {\n"
+        + "   }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+
+    this->doState("x", prog, tc );
+    this->finishState( "x", tc );
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
