@@ -62,7 +62,7 @@ public:
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE( StateTestSuite, StateTest )
+BOOST_FIXTURE_TEST_SUITE( RtStringTestSuite, StateTest )
 
 BOOST_AUTO_TEST_CASE( testCreateRtString )
 {
@@ -98,6 +98,8 @@ BOOST_AUTO_TEST_CASE( testCreateRtstringOfFixedSize )
     this->finishState( "x", tc );
 }
 
+#if 0
+// this is incorrect syntax:
 BOOST_AUTO_TEST_CASE( testCreateRtstringFromCharPtr )
 {
     string prog = string("StateMachine X {\n")
@@ -113,6 +115,7 @@ BOOST_AUTO_TEST_CASE( testCreateRtstringFromCharPtr )
     this->doState("x", prog, tc );
     this->finishState( "x", tc );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testCreateRtstringFromRtString )
 {
