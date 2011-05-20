@@ -189,6 +189,21 @@ namespace RTT
                     return *(ptr);
                 }
             };
+
+        struct string_ctor_rt_string
+            : public std::unary_function<const rt_string&, const string&>
+        {
+            mutable boost::shared_ptr< string > ptr;
+            typedef const string& (Signature)( rt_string const& );
+            string_ctor_rt_string()
+            : ptr( new string() ) {}
+            const string& operator()( rt_string const& arg ) const
+            {
+                *ptr = arg.c_str();
+                return *(ptr);
+            }
+        };
+
 #endif
     }
 
@@ -209,6 +224,7 @@ namespace RTT
 #ifdef OS_RT_MALLOC
         ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_int() ) );
         ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_string() ) );
+        ti->type("string")->addConstructor( newConstructor( string_ctor_rt_string() ) );
 #endif
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
