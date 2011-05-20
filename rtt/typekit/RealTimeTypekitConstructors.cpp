@@ -162,12 +162,12 @@ namespace RTT
         };
 
 #ifdef OS_RT_MALLOC
-        struct rt_string_ctor
+        struct rt_string_ctor_int
             : public std::unary_function<int, const RTT::rt_string&>
         {
             mutable boost::shared_ptr< rt_string > ptr;
             typedef const rt_string& (Signature)( int );
-            rt_string_ctor()
+            rt_string_ctor_int()
                 : ptr( new rt_string() ) {}
             const rt_string& operator()( int size ) const
             {
@@ -175,6 +175,20 @@ namespace RTT
                 return *(ptr);
             }
         };
+
+            struct rt_string_ctor_string
+                : public std::unary_function<const std::string&, const RTT::rt_string&>
+            {
+                mutable boost::shared_ptr< rt_string > ptr;
+                typedef const rt_string& (Signature)( std::string const& );
+                rt_string_ctor_string()
+                    : ptr( new rt_string() ) {}
+                const rt_string& operator()( std::string const& arg ) const
+                {
+                    *ptr = arg.c_str();
+                    return *(ptr);
+                }
+            };
 #endif
     }
 
@@ -193,7 +207,8 @@ namespace RTT
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, true ));
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
 #ifdef OS_RT_MALLOC
-        ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor() ) );
+        ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_int() ) );
+        ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_string() ) );
 #endif
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
