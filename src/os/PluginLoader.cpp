@@ -234,7 +234,7 @@ bool PluginLoader::loadPluginInternal( std::string const& name, std::string cons
     }
 
     path dir = arg.parent_path();
-    string file = arg.filename();
+    string file = arg.FILENAME();
 
     for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
