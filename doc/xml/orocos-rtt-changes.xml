@@ -96,6 +96,12 @@
 						There are fixes for the serialization of complex properties (structs and sequences) into the XML file format.
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						A bug in the Signal implementation lead to a segfault when removing an event port from a TaskContext.
+						This has been fixed.
+					</para>
+				</listitem>
       </itemizedlist>
     </section>
     <section>
