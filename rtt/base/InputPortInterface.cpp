@@ -56,7 +56,6 @@ InputPortInterface::~InputPortInterface()
 {
     cmanager.disconnect();
     if ( new_data_on_port_event) {
-        new_data_on_port_event->disconnect();
         delete new_data_on_port_event;
     }
 }
