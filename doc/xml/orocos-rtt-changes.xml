@@ -55,29 +55,27 @@
 		</itemizedlist>
 		<section>
 				<title>
-					<emphasis></emphasis>
+					<emphasis>Changes in rtt/os/oro_atomic.h atomics headers</emphasis>
 				</title>
 				<para>
+					The atomic operations have been refactored in order to suit future maintainability.
+					The GCC-specific implementations have been rewritten in order to use the intrinsics.
+					For this, the oro_atomic.h and oro_system.h headers were removed and a new header,
+					oro_arch.h is in place for each target to implement the required atomics.
 				</para>
 		</section>
   </section>
   <section>
     <title>Improvements</title>
     <section>
-      <title>Documentation</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-					</para>
-				</listitem>
-      </itemizedlist>
-    </section>
-    <section>
       <title>Building</title>
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis></emphasis>
+					<emphasis>Building of executables on ROS systems using the UseOrocos cmake macros
+					has been improved such that <command>rosrun</command> will no longer offer two options.
+					If you upgrade OCL in-tree, In order to delete the old executables, use <command>git clean -xdf</command>
+					and then rebuild.</emphasis>
 				</para>
 				<para>
 				</para>
@@ -89,6 +87,13 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						The data flow port implementation has been optimized in order to reduce the number of copies to a
+						minimum.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						There are fixes for the serialization of complex properties (structs and sequences) into the XML file format.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -97,7 +102,18 @@
       <title>Data Types, Toolkits and Typekits</title>
       <itemizedlist>
 				<listitem>
-					<para>
+					<para> The <classname>RTT::rt_string</classname> type has been added to the type system,
+					allowing real-time string manipulations in scripts. It has the same featureset as the std string
+					type, but uses the real-time memory allocators. You can create an rt_string as such:
+					<programlisting>  var rt_string test = rt_string("Testit!") </programlisting>
+					You can pass an rt_string where is a string is expected and the other way around. Creating
+					the rt_string will always be hard real-time.
+					</para>
+				</listitem>
+				<listitem>
+					<para> The Posix MQueue transport for flow ports is now supported through orogen/typegen
+					using a generic transport plugin. It relies on the type specific typelib transport, which is generated
+					automatically when you use orogen/typegen. The traditional MQueue transport remains in place as well.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -107,6 +123,16 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						It's now possible to set CPU Affinity when creating an activity or a thread. If your
+						OS abstraction supports it, changing the affinity at run-time is possible too. Currently,
+						this is only implemented for Xenomai targets. On other targets, setCPUAffinity() will have
+						no effect.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						As of this version, Orocos will use the GCC intrinsics API in order to implement atomic
+						operations on data, when GCC 4.1.0 or newer is available.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -116,6 +142,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						There were fixes in the parsing of the assignment operator. Especially the case a = b = c
+						has now been fixed.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -128,6 +156,10 @@
 			<itemizedlist>      
 				<listitem>
 					<para>
+						Release 2.4.0 now has Lua 1.0-beta3, providing an as-good-as-stable API for creating
+						and using components and applications. A <ulink
+						url="http://www.orocos.org/wiki/orocos/toolchain/orocostoolchainluacookbook">LuaCookbook</ulink>
+						has been put online which is updated regularly.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -137,6 +169,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						You can now kickOut any component, also if it was created using a script. A bug was fixed
+						which did not shut down components which were not loaded using XML.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -146,6 +180,23 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						Allows to display all values in hex format using the .hex taskbrowser command.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+    <section>
+      <title>Logging Service</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						A new logger for logging to Apache ChainSaw has been added, the
+						<classname>OCL::Log4cxxLogger</classname> component. You need ChainSaw running before
+						your application starts in order to see the log events in the GUI. Any number of
+						applications in your network may log to ChainSaw. For more details about logging in
+						Orocos, see the <ulink
+						url="http://www.orocos.org/wiki/rtt/rtt-20/real-time-logging/using-real-time-logging">
+						LoggingService wiki page</ulink>.
 					</para>
 				</listitem>
 			</itemizedlist>
