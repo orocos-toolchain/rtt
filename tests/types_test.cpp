@@ -18,8 +18,6 @@
 
 #include "unit.hpp"
 
-#include "types_test.hpp"
-
 #include <iostream>
 #include <scripting/FunctionGraph.hpp>
 #include <OperationCaller.hpp>
@@ -27,7 +25,8 @@
 #include <extras/SimulationThread.hpp>
 #include <Service.hpp>
 #include <TaskContext.hpp>
-#include <scripting/Scripting.hpp>
+#include <scripting/ScriptingService.hpp>
+#include <scripting/Parser.hpp>
 #include <Service.hpp>
 #include <types/GlobalsRepository.hpp>
 #include <types/Types.hpp>
@@ -35,55 +34,31 @@
 #include <types/SequenceTypeInfo.hpp>
 
 #include "datasource_fixture.hpp"
+#include "operations_fixture.hpp"
 
 using namespace std;
+using namespace RTT;
+using namespace RTT::detail;
 
-
-void
-TypesTest::setUp()
+class TypesTest : public OperationsFixture
 {
-    tc =  new TaskContext( "root" );
-    tc->getProvider<Scripting>("scripting");
-    sa = dynamic_cast<scripting::ScriptingService*>( tc->provides()->getService("scripting").get() );
-    tc->provides()->addService( this->createOperationCallerFactory() );
-    tc->setActivity( new SimulationActivity( 0.001 ));
-    SimulationThread::Instance()->stop();
-}
+public:
+    Parser parser;
+    ScriptingService::shared_ptr sa;
+    void executePrograms(const std::string& prog);
+    void executeStates(const std::string& state);
 
-
-void
-TypesTest::tearDown()
-{
-    delete tc;
-}
-
-
-bool TypesTest::assertBool( bool b) {
-    return b;
-}
-bool TypesTest::assertEqual( double a, double b) {
-    BOOST_CHECK_EQUAL(a,b);
-    return a == b;
-}
-bool TypesTest::assertMsg( bool b, const std::string& msg) {
-    if ( !b )
-        cout <<"Asserting failed with: '''"<< msg <<"'''"<<endl;
-    BOOST_CHECK(b);
-    return b;
-}
-
-    Service::shared_ptr TypesTest::createOperationCallerFactory()
+    TypesTest()
+    : sa( ScriptingService::Create(tc) )
     {
-        Service::shared_ptr to = Service::Create("test");
-        to->addOperation("assert", &TypesTest::assertBool, this).doc("Assert").arg("bool", "");
-        to->addOperation("assertEqual", &TypesTest::assertEqual, this).doc("Assert equality").arg("a1", "").arg("a2", "");
-        to->addOperation("assertMsg", &TypesTest::assertMsg, this).doc("Assert message").arg("bool", "").arg("text", "text");
-        to->addOperation("print", &TypesTest::print, this ).doc("print").arg("v", "v");
-        to->addOperation("printb", &TypesTest::printb, this ).doc("printb").arg("v", "v");
-        to->addOperation("pass",&TypesTest::pass, this);
-        return to;
+        tc->stop();
+        BOOST_REQUIRE( tc->setActivity(new SimulationActivity(0.01)) );
+        BOOST_REQUIRE( tc->start() );
+        SimulationThread::Instance()->stop();
     }
-
+    ~TypesTest(){
+    }
+};
 
 
 // Registers the fixture into the 'registry'
@@ -476,6 +451,11 @@ BOOST_AUTO_TEST_CASE( testOperatorOrder )
         "do test.assert( 6 - 9 % 2*3 ==  15/3 % 3 + 1 )\n" + // 3 == 3
         "do test.assert( 3*(2+1) == 9 )\n" +
         "do test.assert( 1 - 1 + 5 == 5 )\n" +  // not: -5
+        "var int a,b,c;\n" +
+        " a = b = c = 3;\n" +  // not 0,0,3
+        "do test.assertEqual( a, 3 )\n" +
+        "do test.assertEqual( b, 3 )\n" +
+        "do test.assertEqual( c, 3 )\n" +
         "}";
     // execute
     executePrograms(prog);

@@ -40,8 +40,8 @@ using namespace std;
  */
 struct AType
 {
-    AType(bool ini) { if (ini) init(); }
-    AType() {}
+    AType(bool ini) { if (ini) init(); else clear(); }
+    AType() { clear(); }
 
     void init() {
         a = (3);
@@ -84,8 +84,8 @@ RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const ATypes& as);
  */
 struct BType
 {
-    BType() {}
-    BType(bool ini) { if (ini) init(); }
+    BType() { clear(); }
+    BType(bool ini) { if (ini) init(); else clear(); }
     void init() {
         a = (3);
         b = (9.9);
@@ -125,8 +125,8 @@ RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const BTypes& a);
  */
 struct CType
 {
-    CType() {}
-    CType(bool ini) { if (ini) init(); }
+    CType() { clear(); }
+    CType(bool ini) { if (ini) init(); else clear(); }
 
     void init() {
         a.init();

@@ -47,6 +47,9 @@
 #include "../rtt-fwd.hpp"
 #include "../internal/mystd.hpp"
 #include "../types/TemplateConstructor.hpp"
+#ifdef OS_RT_MALLOC
+#include "../rt_string.hpp"
+#endif
 
 namespace RTT
 {
@@ -157,6 +160,51 @@ namespace RTT
                 return *(ptr);
             }
         };
+
+#ifdef OS_RT_MALLOC
+        struct rt_string_ctor_int
+            : public std::unary_function<int, const RTT::rt_string&>
+        {
+            mutable boost::shared_ptr< rt_string > ptr;
+            typedef const rt_string& (Signature)( int );
+            rt_string_ctor_int()
+                : ptr( new rt_string() ) {}
+            const rt_string& operator()( int size ) const
+            {
+                ptr->resize( size );
+                return *(ptr);
+            }
+        };
+
+            struct rt_string_ctor_string
+                : public std::unary_function<const std::string&, const RTT::rt_string&>
+            {
+                mutable boost::shared_ptr< rt_string > ptr;
+                typedef const rt_string& (Signature)( std::string const& );
+                rt_string_ctor_string()
+                    : ptr( new rt_string() ) {}
+                const rt_string& operator()( std::string const& arg ) const
+                {
+                    *ptr = arg.c_str();
+                    return *(ptr);
+                }
+            };
+
+        struct string_ctor_rt_string
+            : public std::unary_function<const rt_string&, const string&>
+        {
+            mutable boost::shared_ptr< string > ptr;
+            typedef const string& (Signature)( rt_string const& );
+            string_ctor_rt_string()
+            : ptr( new string() ) {}
+            const string& operator()( rt_string const& arg ) const
+            {
+                *ptr = arg.c_str();
+                return *(ptr);
+            }
+        };
+
+#endif
     }
 
     bool RealTimeTypekitPlugin::loadConstructors()
@@ -173,6 +221,11 @@ namespace RTT
         ti->type("int")->addConstructor( newConstructor( &bool_to_int, true ));
         ti->type("uint")->addConstructor( newConstructor( &int_to_uint, true ));
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
+#ifdef OS_RT_MALLOC
+        ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_int() ) );
+        ti->type("rt_string")->addConstructor( newConstructor( rt_string_ctor_string() ) );
+        ti->type("string")->addConstructor( newConstructor( string_ctor_rt_string() ) );
+#endif
         ti->type("bool")->addConstructor( newConstructor( &flow_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &send_to_bool, true ) );
         ti->type("bool")->addConstructor( newConstructor( &int_to_bool, true ) );
