@@ -38,6 +38,7 @@
 
 #include "SlaveActivity.hpp"
 #include "os/MainThread.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 {
@@ -97,8 +98,16 @@ namespace RTT
 
     bool SlaveActivity::start()
     {
-        if ( (mmaster && !mmaster->isActive()) || active == true )
+        if (mmaster && !mmaster->isActive())
+        {
+            Logger::log() << Logger::Error << "Unable to start slave as master activity is not running" << Logger::endl;
             return false;
+        }
+        if ( active == true )
+        {
+            Logger::log() << Logger::Error  << "Unable to start slave as it is already started" << Logger::endl;
+            return false;
+        }
 
         active = true;
 
