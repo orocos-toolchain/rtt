@@ -79,6 +79,7 @@ namespace RTT
          */
         class RTT_API ConnectionBase
         {
+        protected:
             RTT_API friend void intrusive_ptr_add_ref(ConnectionBase*);
             RTT_API friend void intrusive_ptr_release(ConnectionBase*);
             bool mconnected;
@@ -99,7 +100,6 @@ namespace RTT
              */
             void deref();
 
-            ConnectionBase(const ConnectionBase&);
         protected:
             virtual ~ConnectionBase();
         public:
@@ -111,6 +111,9 @@ namespace RTT
             bool connect();
             bool disconnect();
             void destroy();
+        private:
+            ConnectionBase(const ConnectionBase& );
+            const ConnectionBase& operator=( const ConnectionBase& );
         };
 
         RTT_API void intrusive_ptr_add_ref( ConnectionBase* p );
@@ -168,12 +171,26 @@ namespace RTT
             bool emitting;
             SignalBase();
         public:
+            /**
+             * Deletes this Signal and will destroy all
+             * connections and handles of this object. It is
+             * not necessary to call disconnect() or disconnect() prior to
+             * destroying a SignalBase.
+             */
             virtual ~SignalBase();
 
             /**
-             * Removes all connections.
+             * Disconnects all connections.
+             * All Handles will be disconnected, but able to reconnect.
              */
             void disconnect();
+
+            /**
+             * Destroys all connections.
+             * This will destroy all connections of this Event.
+             * All Handles will be disconnected and unable to reconnect.
+             */
+            void destroy();
 
             /**
              * Reserves memory for a number of connections.
@@ -189,6 +206,10 @@ namespace RTT
              * Returns the arity (the number of arguments) of this signal.
              */
             virtual int arity() const = 0;
+        private:
+            SignalBase(const SignalBase& );
+            const SignalBase& operator=( const SignalBase& );
+
         };
     }// namespace detail
 

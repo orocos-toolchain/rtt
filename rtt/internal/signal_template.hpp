@@ -75,7 +75,8 @@ namespace RTT {
 
             void emit(OROCOS_SIGNATURE_PARMS)
             {
-                func(OROCOS_SIGNATURE_ARGS);
+                if (this->mconnected)
+                    func(OROCOS_SIGNATURE_ARGS);
             }
         private:
             slot_function func;
