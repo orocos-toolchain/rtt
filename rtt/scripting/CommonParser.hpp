@@ -71,7 +71,7 @@ namespace RTT { namespace scripting
       rule_t notassertingidentifier; //! plain 'C' identifier. Does not throw if keyword is parsed.
       lexeme_rule_t lexeme_identifier; //! See identifier, but in lexeme parsing mode.
       lexeme_rule_t lexeme_notassertingidentifier; //! See notassertingidentifier, but in lexeme parsing mode.
-
+      rule_t type_name;
       //@{
       /**
        * End Of Statement Parser. Identifies the end of a statement

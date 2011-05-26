@@ -100,7 +100,7 @@ namespace RTT
     method= ( commonparser.keyword | expect_ident(commonparser.tidentifier))[boost::bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]; // may be send, call or method name.
     datacall =
         ( peerpath >> !object >> method[ boost::bind( &DataCallParser::seendataname, this ) ] >> !arguments)[ boost::bind( &DataCallParser::seendatacall, this ) ];
-  };
+  }
 
   void DataCallParser::seensend() {
       mis_send = true;
@@ -134,12 +134,7 @@ namespace RTT
       Service::shared_ptr ops  = peerparser.taskObject();
       peerparser.reset();
 //      cout << "seendataname "<< mobject << "." << mmethod<<endl;
-      // Check if it is a constructor
-      if ( (ops == peerparser.taskObject() && TypeInfoRepository::Instance()->type( mmethod ))
-              ||
-              (TypeInfoRepository::Instance()->type( mobject + "." + mmethod )) ) {
-          // it is...
-      } else {
+      if (true) {
           // it ain't...
           // set the proper object name again in case of a send()
           if (mis_send && ops)
@@ -197,17 +192,7 @@ namespace RTT
     assert(peer && "peer may never be null.");
 //    cout << "seendatacall "<< mobject << "." << mmethod<<endl;
 
-    // separate track if we are handling a constructor:
-    if ( (obj == "this" && TypeInfoRepository::Instance()->type( meth )) ||
-          (TypeInfoRepository::Instance()->type( obj + "." + meth) ) ) {
-        if (obj == "this")
-        ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
-        else
-            ret = TypeInfoRepository::Instance()->type( obj +"."+ meth )->construct( args );
-        if (!ret) {
-            throw parse_exception_no_such_constructor( meth, args );
-        }
-    } else {
+    if ( true ) {
         // plain method or collect/collectIfDone
 
         Service::shared_ptr ops = peer;
@@ -267,30 +252,81 @@ namespace RTT
       delete argparsers.top();
       argparsers.pop();
     };
-  };
+  }
+
+  ConstructorParser::ConstructorParser( ExpressionParser& p, CommonParser& cp)
+      : commonparser(cp), expressionparser( p )
+  {
+    BOOST_SPIRIT_DEBUG_RULE( type_name );
+    BOOST_SPIRIT_DEBUG_RULE( arguments );
+
+    type_name =
+        ( commonparser.type_name[ boost::bind( &ConstructorParser::seen_type_name, this, _1, _2 ) ] >> !arguments)[ boost::bind( &ConstructorParser::seen_constructor, this ) ];
+  }
+
+  ConstructorParser::~ConstructorParser()
+  {
+    // if argparsers is not empty, then something went wrong during
+    // the parsing ( someone threw an exception ), and we're
+    // responsible for cleaning up the argparsers we created..
+    while ( ! argparsers.empty() )
+    {
+      delete argparsers.top();
+      argparsers.pop();
+    };
+  }
+
+
+  void ConstructorParser::seen_type_name( iter_t begin, iter_t end )
+  {
+      std::string name( begin, end );
+      TypeInfo* type = Types()->type( name );
+      if ( type == 0 )
+          throw_(iter_t(), "\"" + name + "\" is an unknown type...");
+
+      ArgumentsParser* argspar =
+          new ArgumentsParser( expressionparser, 0, Service::shared_ptr(), name, "" );
+
+      // keep hold of the argspar, we're still going to need it after
+      // it's done its work..  ( in seen_constructor(), that is.. )
+      argparsers.push( argspar );
+
+      // set the arguments parser to the parser provided by the
+      // ArgumentsParser we just created..
+      arguments = argspar->parser();
+
+  }
+
+  void ConstructorParser::seen_constructor( void )
+  {
+    ArgumentsParser* argspar = argparsers.top();
+    argparsers.pop();
+    std::string obj = argspar->objectname();
+    std::vector<DataSourceBase::shared_ptr> args = argspar->result();
+    delete argspar;
+
+    ret = TypeInfoRepository::Instance()->type( obj )->construct( args );
+
+    if (!ret) {
+        throw parse_exception_no_such_constructor( obj, args );
+    }
+
+  }
 
     /** @cond */
-    static error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
-    {
-        //std::cerr << "No value in EP : "<<e.descriptor<<std::endl;
-        // retry if it is a datacall, thus fail this rule
-        return error_status<>( error_status<>::fail );
-    }
-
-    static error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
-    {
-        //retry with a member :
-        //std::cerr << "No DataCall in EP : "<<e.descriptor<<std::endl;
-        return error_status<>( error_status<>::fail );
-    }
-
     static void abort_rule(const string& reason) {
         throw_(iter_t(), reason);
+    }
+
+    static error_status<> fail_rule(scanner_t const& scan, parser_error<std::string, iter_t>&e )
+    {
+        return error_status<>( error_status<>::fail );
     }
     /** @endcond */
 
   ExpressionParser::ExpressionParser( TaskContext* pc, ExecutionEngine* caller, CommonParser& cp )
       : datacallparser( *this, cp, pc, caller ),
+        constrparser(*this, cp),
         commonparser( cp ),
         valueparser( pc, cp ),
         _invert_time(false),
@@ -323,6 +359,7 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( close_brace );
     BOOST_SPIRIT_DEBUG_RULE( value_expression );
     BOOST_SPIRIT_DEBUG_RULE( call_expression );
+    BOOST_SPIRIT_DEBUG_RULE( constructor_expression );
 
     comma = expect_comma( ch_p(',') );
     close_brace = expect_close( ch_p(')') );
@@ -405,14 +442,17 @@ namespace RTT
       | time_expression
         // or a constant or user-defined value..
       | value_expression
+      | constructor_expression
       | call_expression
         // or an index or dot expression
         ) >> *( dotexp | indexexp);
 
+    constructor_expression = my_guard( constrparser.parser()[ boost::bind(&ExpressionParser::seenconstructor, this)])[&fail_rule];
+
     // if it's value.keyword then pass it on to the call_expression.
-    value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[boost::bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &handle_no_value ]
+    value_expression = my_guard( valueparser.parser() >> !('.' >> commonparser.keyword[boost::bind(&abort_rule,"Rule must be handled by datacallparser.")]))[ &fail_rule ]
                                                         [ bind( &ExpressionParser::seenvalue, this ) ];
-    call_expression  = my_guard( datacallparser.parser() )[&handle_no_datacall]
+    call_expression  = my_guard( datacallparser.parser() )[&fail_rule]
                                 [bind( &ExpressionParser::seendatacall, this ) ];
     // take index of an atomicexpression
     indexexp =
@@ -515,6 +555,12 @@ namespace RTT
       mhandle = datacallparser.getParseHandle();
   }
 
+  void ExpressionParser::seenconstructor()
+  {
+      DataSourceBase::shared_ptr n( constrparser.getParseResult() );
+      parsestack.push( n );
+  }
+
   ExpressionParser::~ExpressionParser()
   {
       // if parsestack is not empty, then something went wrong, someone
@@ -550,7 +596,7 @@ namespace RTT
         throw parse_exception_fatal_semantic_error( "Cannot apply unary operator \"" + op +
                                                     "\" to " + arg->getType() +"." );
     parsestack.push( ret );
-  };
+  }
 
   void ExpressionParser::seen_dotmember( iter_t s, iter_t f )
   {
@@ -563,7 +609,7 @@ namespace RTT
       throw parse_exception_fatal_semantic_error( arg->getType() + " does not have member \"" + member +
                                             "\"." );
     parsestack.push( ret );
-  };
+  }
 
   void ExpressionParser::seen_binary( const std::string& op )
   {
@@ -580,7 +626,7 @@ namespace RTT
       throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
                                             " "+arg1->getType() +"." );
     parsestack.push( ret );
-  };
+  }
 
   void ExpressionParser::seen_assign()
   {
@@ -625,7 +671,7 @@ namespace RTT
         ret = new DataSourceCommand( act ); // fall back into the old behavior of returning a boolean.
     }
     parsestack.push( ret );
-  };
+  }
 
   void ExpressionParser::seen_index()
   {
@@ -641,7 +687,7 @@ namespace RTT
       throw parse_exception_fatal_semantic_error( "Illegal use of []: "+ arg2->getType() +"[ "
                                                 +arg1->getType() +" ]." );
     parsestack.push( ret );
-  };
+  }
 
   void ExpressionParser::dropResult()
   {
