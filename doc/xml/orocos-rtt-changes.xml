@@ -52,6 +52,24 @@
 					such files in their lib/ directory.</emphasis>
 				</para></note>
       </listitem>
+      <listitem>
+				<para>
+					There are issues with plugin loading on the Mac OS-X platform which might have been fixed
+					with this release. We invite Mac users to test the Orocos toolchain on their platform and
+					to submit bug reports if some functionality does not work.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					We have confirmed reports of compilation time regressions when using GCC. We are looking into reducing them.
+					You can speed-up compilation times of components by including the 'Types.hpp' files of the typekits you
+					are using in data ports, properties or operations. For example:
+					<programlisting>
+  #include &lt;rtt/typekit/Types.hpp> // Speeds up compiling components using regular C types
+  #include &lt;geometry_msgs/typekit/Types.hpp> // Speeds up compiling ROS geometry message types (depends on rtt_ros_integration_geometry_messages)
+</programlisting>
+				</para>
+      </listitem>
 		</itemizedlist>
 		<section>
 				<title>
@@ -131,8 +149,8 @@
 					<para>
 						It's now possible to set CPU Affinity when creating an activity or a thread. If your
 						OS abstraction supports it, changing the affinity at run-time is possible too. Currently,
-						this is only implemented for Xenomai targets. On other targets, setCPUAffinity() will have
-						no effect.
+						this is only implemented for gnulinux targets. On other targets, setCPUAffinity() will have
+						no effect, until their OS interface makes use of it.
 					</para>
 				</listitem>
 				<listitem>
@@ -168,6 +186,18 @@
 						has been put online which is updated regularly.
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						You are now allowed to write:
+						<programlisting>  tc:provides():setPeriod( 0.01 ) -- calls operation immediately </programlisting>
+						instead of:
+						<programlisting>  op = tc:provides():getOperation("setPeriod") -- 'getOperation syntax'
+  op(0.01) -- calls 'setPeriod'</programlisting>
+						Both forms for calling operations is supported. The former is convenient, but may be slower,
+						the latter can be used in loops where the operation is first stored and then called with an
+						argument later on.
+					</para>
+				</listitem>
 			</itemizedlist>
 		</section>
     <section>
@@ -189,6 +219,11 @@
 						Allows to display all values in hex format using the .hex taskbrowser command.
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						Tab-completion on services has been fixed. Properties did not show up.
+					</para>
+				</listitem>
 			</itemizedlist>
 		</section>
     <section>
@@ -197,7 +232,7 @@
 				<listitem>
 					<para>
 						A new logger for logging to Apache ChainSaw has been added, the
-						<classname>OCL::Log4cxxLogger</classname> component. You need ChainSaw running before
+						<classname>OCL::logging::Log4cxxAppender</classname> component. You need ChainSaw running before
 						your application starts in order to see the log events in the GUI. Any number of
 						applications in your network may log to ChainSaw. For more details about logging in
 						Orocos, see the <ulink
