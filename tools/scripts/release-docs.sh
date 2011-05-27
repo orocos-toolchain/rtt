@@ -144,9 +144,10 @@ rm -rf doc api doc-xml &&
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 && 
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 &&
 rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 &&
-cd .. &&
-rm -f v2.x &&
-ln -s v$BRANCHVERSION.x v2.x
+cd .. && { linkv=$(ll 2.x | sed -e\"s/l.*-> //\" | sed -e\"s/\.//g\"); branchv=$(echo $VERSION | sed -e\"s/\.//g\"); if test $branchv0 -gt $linkv0; then
+rm -f v2.x && ln -s v$BRANCHVERSION.x v2.x ;
+fi;
+}
 "
 else
 ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/documentation/rtt/$VVERSION"
