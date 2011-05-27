@@ -144,8 +144,8 @@ rm -rf doc api doc-xml &&
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 && 
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 &&
 rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 &&
-cd .. && { linkv=\$(ls -l v2.x | sed -e\"s/l.*-> v//;s/\.//g\;s/x//\"); branchv=\$(echo $BRANCHVERSION | sed -e\"s/\.//g\"); if test 0\$branchv -gt 0\$linkv; then
-rm -f v2.x && ln -s v$BRANCHVERSION.x v2.x ;
+cd .. && { linkv=\$(ls -l v2.x | sed -e\"s/l.*-> v//;s/\.//g;s/x//\"); branchv=\$(echo $BRANCHVERSION | sed -e\"s/\.//g\"); if test 0\$branchv -gt 0\$linkv; then
+rm -f v2.x && ln -s v$BRANCHVERSION.x v2.x ; echo Updated link for new version.
 fi;
 }
 "
