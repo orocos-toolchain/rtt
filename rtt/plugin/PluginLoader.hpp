@@ -141,6 +141,15 @@ namespace RTT {
              * @see isLoaded()
              */
             bool isLoadedInternal(std::string name);
+            /**
+             * Internal helper function that validate if a plugin is compatible with the
+             * current target. Currently, there's a validation only on the win32 platform
+             * to avoid mixing debug/release runtime libraries.
+             * @param filepath Full path of plugin to validate (with extension)
+             * @return true if the plugin is compatible
+             */
+            bool isCompatiblePlugin(std::string const& filepath);
+
         public:
             PluginLoader();
             ~PluginLoader();
