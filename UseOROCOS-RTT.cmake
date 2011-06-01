@@ -57,6 +57,11 @@ if(OROCOS-RTT_FOUND)
   endif()
   
   if (ROS_ROOT)
+    if ( NOT ROSBUILD_init_called )
+      include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+      rosbuild_init()
+    endif()
+
     # In ros builds, we need to set the pkg-config path such that RTT is found by
     # the typekit/typegen/pc files logic:
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
