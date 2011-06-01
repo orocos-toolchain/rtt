@@ -66,9 +66,9 @@
 
 # Set the default target operating system, if unspecified
 set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
-set(OROCOS_TARGET_ENV ENV{OROCOS_TARGET}) # MUST use helper variable, otherwise not picked up !!!
-if(NOT ${OROCOS_TARGET_ENV} STREQUAL "")
-  set(OROCOS_TARGET $ENV{OROCOS_TARGET} CACHE STRING "${DOC_STRING}" FORCE)
+set(OROCOS_TARGET_ENV $ENV{OROCOS_TARGET}) # MUST use helper variable, otherwise not picked up !!!
+if(OROCOS_TARGET_ENV)
+  set(OROCOS_TARGET ${OROCOS_TARGET_ENV} CACHE STRING "${DOC_STRING}" FORCE)
   message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
 else()
   if(NOT DEFINED OROCOS_TARGET)
