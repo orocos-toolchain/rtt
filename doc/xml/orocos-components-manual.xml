@@ -16,7 +16,7 @@
     </subtitle>
     <subtitle>&oversion;</subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006,2007,2008,2009,2010</year>
+      <year>2002,2003,2004,2005,2006,2007,2008,2009,2010,2011</year>
       <holder>Peter Soetens</holder>
     </copyright>
     <copyright>
@@ -51,13 +51,9 @@
   <chapter>
     <title>How to Read this Manual</title>
     <para>
-      This manual is for Software developers who wish to write their
-      own software components using the Orocos Real-Time Toolkit.
-      There is also a Core Primitives Reference Chapter at the end to find out
-      the precise semantics of our communication primitives and other
-      important classes.  The Orocos hardware and OS abstraction is included
-      as well. The HTML version of this manual links to the 
-      API documentation of all classes.
+      This manual is for Software developers who wish to write their own software components using
+      the Orocos Toolchain. The HTML version of this manual links to the API documentation of all
+      classes.
     </para>
     <section><title>Component Interfaces</title>
     <para>
@@ -82,11 +78,16 @@
       as well since the scripting language allows to 'program'
       components without recompiling the source.
     </para>
+    <para>
+			If you're familiar with the Lua programming language, you can
+			also implement components an statemachines in real-time Lua scripts.
+			Check out the <ulink url="http://www.orocos.org/wiki/orocos/toolchain/luacookbook">Lua Cookbook</ulink> website.
+    </para>
     </section>
     <section>
-      <title>Orocos Real-Time Toolkit Overview</title>
+      <title>Orocos Toolchain Overview</title>
       <para>
-	The Real-Time Toolkit allows setup, distribution and
+	The Toolchain allows setup, distribution and
 	the building of real-time software components. It is
 	sometimes refered to as 'middleware' because it sits
 	between the application and the Operating System.
@@ -95,7 +96,7 @@
       </para>
       <figure id="fig-orocos-framework">
 	<title>
-	  Orocos as Middleware
+	  Orocos Toolchain as Middleware
 	</title>
 	<mediaobject>
 	  <imageobject role="html">
@@ -107,30 +108,21 @@
 	</mediaobject>
       </figure>
       <para>
-	Orocos provides a limited set of components for application
+	The <ulink url="http://www.orocos.org/toolchain">Toolchain
+	</ulink> provides a limited set of components for application
 	development. The Orocos Component Library (OCL) is a
-	collection of components ranging from general purpose to
-	hardware specific components. They serve as an example,
-	although some are using complex constructs of the Real-Time
-	Toolkit. Two noteworthy components are the
-	<classname>OCL::TaskBrowser</classname> and the
-	<classname>OCL::DeploymentComponent</classname>. The former
-	provides a console which allows you to manipulate remote or
-	in-process components and lets you browse the component
-	network. The latter is a component which can load other
-	components into the same process. For beginners, the
-	TaskBrowser is used to instruct the DeploymentComponent to
-	load, connect and configure a given list of components, but
-	for matured applications, the DeploymentComponent is given an
-	XML file which describes which components to load, connect and
-	start in the current application.
-      </para>
-      <para>
-	The components of the Orocos Component Library are documented
-	seperately on the <ulink url="http://www.orocos.org/ocl">OCL
-	webpage</ulink>.
+	collection of infrastructure components for building applications.
+			</para>
+			<para>
+  The Toolchain contains components for <ulink url="http://www.orocos.org/stable/documentation/ocl/v2.x/doc-xml/orocos-deployment.html">component deployment</ulink> and
+  <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-transports-corba.html">distribution</ulink>, <ulink url="http://www.orocos.org/wiki/Using_real-time_logging">real-time status logging</ulink> and 
+	<ulink url="http://www.orocos.org/stable/documentation/ocl/v2.x/doc-xml/orocos-reporting.html">data reporting</ulink>. It
+	also contains tools for <ulink url="http://www.orocos.org/wiki/orocos/toolchain/getting-started/using-orocreate-pkg">creating component packages</ulink>,
+	extremely <ulink url="http://www.orocos.org/wiki/orocos/toolchain/getting-started/cmake-and-building">simple build instructions</ulink> and <ulink url="http://www.rock-robotics.org/orogen/">
+	code generators</ulink> for plain C++ structs and <ulink url="http://www.ros.org/wiki/orocos_toolchain_ros">ROS messages</ulink>.
       </para>
     </section>
+<!--
     <section>
       <title>Orocos Real-Time Toolkit Software Structure</title>
       <para>
@@ -171,6 +163,7 @@
 	these libraries.
       </para>
     </section>
+-->
   </chapter>
   <chapter id="orocos-taskcontext">
     <title>Setting up the Component Interface</title>
