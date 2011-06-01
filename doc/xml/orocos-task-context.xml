@@ -2307,7 +2307,7 @@ Hello[R] &gt;
   a_port.connectTo( &amp;b_port, policy );
   // Create an unbuffered 'shared data' connection:
   policy = RTT::ConnPolicy::data();
-  a_port.connectTo( &amp;b_port, policy );</programlisting>
+  a_port.connectTo( &amp;c_port, policy );</programlisting>
 	The order of connections does not matter; the following would also work:
 	<programlisting>  b_port.connectTo( &amp;a_port, policy ); // ok...
   c_port.connectTo( &amp;a_port, policy ); // fine too.</programlisting>
