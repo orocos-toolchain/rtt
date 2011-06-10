@@ -40,7 +40,7 @@
 #define ORO_CARRAY_HPP_
 
 #include <boost/serialization/array.hpp>
-
+#include <boost/array.hpp>
 
 namespace RTT
 {
@@ -51,9 +51,14 @@ namespace RTT
          * from a DataSource.
          * Inspired on boost::serialization::array.
          *
-         * Default copy-constructible and assignable.
-         * An assignment makes a 'shallow copy', all copies
-         * refer to the same C array.
+         * Default copy-constructible (shallow copy).
+         *
+         * An assignment (operator=) makes a 'deep copy', while copy
+         * construction makes a 'shallow copy', where the copy
+         * refers to the same C array. This was chosen in the spirit
+         * of this class, where it keeps track of the original data,
+         * but when assigned from another carray, is meant as copying
+         * the data itself.
          *
          * You can also point to parts of arrays. An uninitialized
          * carray object returns null for both count() and address().
@@ -81,10 +86,25 @@ namespace RTT
 
             /**
              * We are constructible from boost::serialization::array<T>
+             * Makes a shallow copy in order to keep the reference to
+             * the original data.
              * @param orig
              */
             carray( boost::serialization::array<T> const& orig)
             : m_t( orig.address() ), m_element_count( orig.count() ) {
+                if (m_element_count == 0)
+                    m_t = 0;
+            }
+
+            /**
+             * We are constructible from boost::array<T,N>
+             * Makes a shallow copy in order to keep the reference to
+             * the original data.
+             * @param orig
+             */
+            template<std::size_t N>
+            carray( boost::array<T,N> const& orig)
+            : m_t( orig.c_array() ), m_element_count( N ) {
                 if (m_element_count == 0)
                     m_t = 0;
             }
@@ -106,6 +126,18 @@ namespace RTT
               return m_element_count;
             }
 
+            /**
+             * Assignment only copies max(this->count(), orig.count()) elements
+             * from orig to this object. If orig.count() is smaller than this->count()
+             * the contents of the remaining elements is left unmodified. If it's greater,
+             * the excess elements are ignored.
+             */
+            const carray<T>& operator=( const carray<T>& orig ) {
+                if (&orig != this)
+                    for(std::size_t i = 0; i != orig.count() && i != count(); ++i)
+                        m_t[i] = orig.address()[i];
+                return *this;
+            }
         private:
             value_type* m_t;
             std::size_t m_element_count;

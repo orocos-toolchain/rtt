@@ -113,6 +113,43 @@ namespace RTT
         return const_cast<ReferenceDataSource<T>*>(this); // no copy needed, data is outside.
     }
 
+    template<typename T>
+    ArrayDataSource<T>::~ArrayDataSource() { delete[] mdata; }
+
+    template<typename T>
+    ArrayDataSource<T>::ArrayDataSource( std::size_t size )
+        : mdata(new typename T::value_type[size] ), marray(mdata,size)
+    {
+    }
+
+    template<typename T>
+    void ArrayDataSource<T>::set( typename AssignableDataSource<T>::param_t t )
+    {
+        // makes a deep copy !
+        mdata = t;
+    }
+
+    template<typename T>
+    ArrayDataSource<T>* ArrayDataSource<T>::clone() const
+    {
+        ArrayDataSource<T>* ret = new ArrayDataSource<T>( marray.count() );
+        ret->set( marray );
+        return ret;
+    }
+
+    template<typename T>
+    ArrayDataSource<T>* ArrayDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const {
+        // if somehow a copy exists, return the copy, otherwise return this (see Attribute copy)
+        if ( replace[this] != 0 ) {
+            assert ( dynamic_cast<ArrayDataSource<T>*>( replace[this] ) == static_cast<ArrayDataSource<T>*>( replace[this] ) );
+            return static_cast<ArrayDataSource<T>*>( replace[this] );
+        }
+        // Other pieces in the code rely on insertion in the map :
+        replace[this] = const_cast<ArrayDataSource<T>*>(this);
+        // return this instead of a copy.
+        return const_cast<ArrayDataSource<T>*>(this);
+    }
+
         template< typename BoundT>
         UnboundDataSource<BoundT>::UnboundDataSource( typename BoundT::result_t data )
             : BoundT( data )
