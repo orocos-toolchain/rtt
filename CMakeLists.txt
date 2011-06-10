@@ -39,10 +39,15 @@ if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
   INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
 endif ()
 
+# On Windows, the default CMAKE_INSTALL_PREFIX is either:
+# C:\Program Files\orocos-rtt or C:\Program Files (x86)\orocos-rtt
+# However, we want it to be either:
+# C:\Program Files\orocos or C:\Program Files (x86)\orocos
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   IF (MSVC)
+    STRING(REPLACE "${PROJECT_NAME}" "orocos" OROCOS_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
     SET(CMAKE_INSTALL_PREFIX
-      "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
+      ${OROCOS_INSTALL_PREFIX} CACHE PATH "Orocos install prefix" FORCE
       )
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
