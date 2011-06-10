@@ -66,6 +66,8 @@ namespace RTT {
                 deletePropertyBag( res.value() );
                 return true;
             }
+            // Cleanup.
+            deletePropertyBag( res.value() );
             // All failed.
             return false;
         }

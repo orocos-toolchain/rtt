@@ -128,6 +128,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             // setType() is done by recursive of self.
             targetbag.ownProperty( recurse_bag.release() ); //recursed.
             recurse_bag.reset( new Property<PropertyBag>("recurse_bag","Part") );
+            delete newpb; // since we recursed, the recurse_bag now 'embodies' newpb.
         }
     }
 
