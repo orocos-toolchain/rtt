@@ -40,6 +40,7 @@
 #include "../types/TypeStream.hpp"
 #include "../types/SequenceTypeInfo.hpp"
 #include "../types/VectorComposition.hpp"
+#include "../types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {
@@ -48,17 +49,29 @@ namespace RTT
         /**
          * This class tells Orocos how to handle std::vector<double>.
          */
-        struct StdVectorTypeInfo: public SequenceTypeInfo<std::vector<double>, true>
+        struct StdVectorTypeInfo: public SequenceTypeInfo<std::vector<double>, true, TemplateTypeInfo<std::vector<double>, true> >
         {
+            typedef TemplateTypeInfo<std::vector<double>, true> TypeInfoBase;
+
             StdVectorTypeInfo(std::string name) :
-                SequenceTypeInfo<std::vector<double>, true> (name)
+                SequenceTypeInfo<std::vector<double>, true, TypeInfoBase > (name)
             {
             }
 
             //!Override default in order to take legacy formats into account.
-            bool composeTypeImpl(const PropertyBag& bag, std::vector<double>& result) const
+            virtual bool composeType( base::DataSourceBase::shared_ptr dssource, base::DataSourceBase::shared_ptr dsresult) const
             {
-                return composeProperty(bag, result) || SequenceTypeInfo<std::vector<double>, true>::composeTypeImpl(bag, result);
+                const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (dssource.get() );
+                if ( !pb )
+                    return false;
+                internal::AssignableDataSource<std::vector<double> >::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<std::vector<double> > >( dsresult );
+                if ( !ads )
+                    return false;
+
+                PropertyBag const& source = pb->rvalue();
+                internal::AssignableDataSource<std::vector<double> >::reference_t result = ads->set();
+
+                return composeProperty(source, result) || SequenceTypeInfo<std::vector<double>, true, TypeInfoBase >::composeType(dssource, dsresult);
             }
 
         };

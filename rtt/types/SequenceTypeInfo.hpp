@@ -39,12 +39,13 @@
 #ifndef ORO_SEQUENCE_TYPE_INFO_HPP
 #define ORO_SEQUENCE_TYPE_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
-#include "type_discovery.hpp"
-#include "../internal/DataSourceGenerator.hpp"
+#include "PrimitiveTypeInfo.hpp"
 #include "SequenceConstructor.hpp"
 #include "TemplateConstructor.hpp"
 #include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
+#include "../internal/FusedFunctorDataSource.hpp"
+#include "../internal/DataSourceGenerator.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace RTT
@@ -121,19 +122,19 @@ namespace RTT
          * This means that it must provide a serialize() function or that you define a free function
          * serialize() in the boost::serialization namespace.
          */
-        template<typename T, bool has_ostream = false>
-        class SequenceTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        template<typename T, bool has_ostream = false, typename Base = PrimitiveTypeInfo<T, has_ostream> >
+        class SequenceTypeInfo: public Base
         {
         public:
             SequenceTypeInfo(std::string name) :
-                TemplateTypeInfo<T, has_ostream> (name)
+                Base(name)
             {
                 this->addConstructor( new SequenceBuilder<T>() );
                 this->addConstructor( newConstructor( sequence_ctor<T>() ) );
                 this->addConstructor( newConstructor( sequence_ctor2<T>() ) );
             }
 
-            using TemplateTypeInfo<T, has_ostream>::buildVariable;
+            using Base::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const
             {
                 // if a sizehint is given
@@ -157,8 +158,17 @@ namespace RTT
             /**
              * Specialize to resize \a result given the size of \a source.
              */
-            virtual bool composeTypeImpl(const PropertyBag& source, typename internal::AssignableDataSource<T>::reference_t result) const
-            {
+            virtual bool composeType( base::DataSourceBase::shared_ptr dssource, base::DataSourceBase::shared_ptr dsresult) const {
+                const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (dssource.get() );
+                if ( !pb )
+                    return false;
+                typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( dsresult );
+                if ( !ads )
+                    return false;
+
+                PropertyBag const& source = pb->rvalue();
+                typename internal::AssignableDataSource<T>::reference_t result = ads->set();
+
                 // take into account sequences:
                 base::PropertyBase* sz = source.find("Size");
                 if (!sz)
@@ -186,10 +196,21 @@ namespace RTT
                     assert(result.size() == source.size());
                     assert(source.size() == target.size());
                     assert(source.size() == decomp.size());
+                    ads->updated();
+                    Logger::log() <<Logger::Debug<<"Successfuly composed type from "<< source.getType() <<Logger::endl;
                     return true;
                 }
                 return false;
             }
+
+            /**
+             * Use getMember() for decomposition...
+             */
+            virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
+            {
+                return base::DataSourceBase::shared_ptr();
+            }
+
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:

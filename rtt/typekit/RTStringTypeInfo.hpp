@@ -38,6 +38,7 @@
 
 #include "../rt_string.hpp"
 #include "../types/SequenceTypeInfo.hpp"
+#include "../types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {
@@ -46,10 +47,12 @@ namespace RTT
         /**
          * Standard string specialisation that removes decomposition.
          */
-        struct RTStringTypeInfo: public SequenceTypeInfo<rt_string, true>
+        struct RTStringTypeInfo: public SequenceTypeInfo<rt_string, true, TemplateTypeInfo<rt_string, true> >
         {
+            typedef TemplateTypeInfo<rt_string, true> TypeInfoBase;
+
             RTStringTypeInfo() :
-                SequenceTypeInfo<rt_string, true> ("rt_string")
+                SequenceTypeInfo<rt_string, true, TypeInfoBase> ("rt_string")
             {
             }
 
@@ -58,7 +61,7 @@ namespace RTT
                 rt_string t_init(size, ' '); // we can't use the default char(), which is null !
 
                 // returned type is identical to parent, but we set spaces.
-                base::AttributeBase* ret = SequenceTypeInfo<rt_string, true>::buildVariable(name, size);
+                base::AttributeBase* ret = SequenceTypeInfo<rt_string, true, TypeInfoBase>::buildVariable(name, size);
                 Attribute<rt_string> tt = ret;
                 tt.set(t_init);
                 return ret;
@@ -66,10 +69,7 @@ namespace RTT
 
             virtual bool composeType(base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const
             {
-                // First, try a plain update.
-                if (result->update(source.get()))
-                    return true;
-                return false;
+                return result->update( source.get() );
             }
 
             /**

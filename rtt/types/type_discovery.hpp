@@ -280,11 +280,11 @@ namespace RTT
              * @return *this
              */
             template<class T, std::size_t N>
-            type_discovery &load_a_type(const boost::array<T,N> &t, boost::mpl::false_)
+            type_discovery &load_a_type(boost::array<T,N> &t, boost::mpl::false_)
             {
                 if (mparent) {
-                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t,N), mparent) );
-                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t,N), mparent)  ));
+                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent)  ));
                 }
                 // probably not necessary:
                 //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
@@ -298,7 +298,7 @@ namespace RTT
              * @return
              */
             template<class T>
-            type_discovery &load_a_type(T* &, boost::mpl::false_)
+            type_discovery &load_a_type(const T* &, boost::mpl::false_)
             {
                 //pointers can not be serialized.
                 //BOOST_STATIC_ASSERT( boost::mpl::false_ );

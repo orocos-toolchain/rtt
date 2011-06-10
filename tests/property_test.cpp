@@ -314,9 +314,6 @@ BOOST_AUTO_TEST_CASE( testComposition )
     BOOST_REQUIRE( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
 
-    // Compatible-type -assignment:
-    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
-
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and back:
     BOOST_CHECK( typeDecomposition( pvd.getDataSource(), bag.value() ) );

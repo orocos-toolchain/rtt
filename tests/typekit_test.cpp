@@ -61,6 +61,8 @@ BOOST_AUTO_TEST_CASE( testVectorTypeInfo )
     Types()->type("ints")->addConstructor(new types::StdVectorBuilder<int>() );
 }
 
+//! This test tries to compose/decompose a default built variable of
+//! every known type. So this is not a test covering the nominal case...
 BOOST_AUTO_TEST_CASE( testComposeDecompose )
 {
     vector<string> names = Types()->getTypes();
@@ -71,8 +73,9 @@ BOOST_AUTO_TEST_CASE( testComposeDecompose )
         PropertyBase* input = ti->buildProperty("A","B");
         PropertyBase* output = ti->buildProperty("C","D");
         // if it's decomposable, compose it as well.
-        if ( input && output && ti->decomposeType(input->getDataSource()) )
-            BOOST_CHECK( ti->composeType( ti->decomposeType(input->getDataSource()), output->getDataSource()) );
+        if ( input && output && ti->decomposeType(input->getDataSource()) ) {
+            BOOST_CHECK_MESSAGE( ti->composeType( ti->decomposeType(input->getDataSource()), output->getDataSource()), "Decomposition/Composition of " + *it + " failed!" );
+        }
     }
 }
 

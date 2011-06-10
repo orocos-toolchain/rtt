@@ -53,8 +53,7 @@ namespace RTT
         StdVectorTemplateTypeInfo<T,has_ostream>( std::string name )
             : SequenceTypeInfo<std::vector<T>, has_ostream >(name)
         {
-        };
-
+        }
     };
 
     template<typename T>
@@ -68,13 +67,13 @@ namespace RTT
         }
 
         return os << ']';
-    };
+    }
 
     template<typename T>
     std::istream& operator >> (std::istream& is,std::vector<T>& vec)
     {
         return is;
-    };
+    }
 
     template<typename T>
     struct stdvector_ctor
@@ -144,7 +143,7 @@ namespace RTT
             return *(ptr);
         }
     };
-}};
+}}
 
 #ifdef __clang__
 namespace std {

@@ -319,7 +319,27 @@ namespace RTT
 
         typedef boost::intrusive_ptr<ArrayDataSource<T> > shared_ptr;
 
-        ArrayDataSource( std::size_t size );
+        /**
+         * Create and allocate an Array of a fixed size.
+         * In case you create an empty/default ArrayDataSource, you can
+         * assign it an array size later-on with newArray( size )
+         */
+        ArrayDataSource( std::size_t size = 0);
+
+        /**
+         * Creates an ArrayDataSource and initializes the array
+         * with the contents of another carray.
+         * A deep copy is made from odata.
+         */
+        ArrayDataSource( T const& odata );
+        /**
+         * Clears the array of this data source and creates a new one.
+         * Note that all references to this array will become invalid
+         * (types::carray may make shallow copies!) so only use this
+         * if you are sure no other object has a reference to the
+         * contained array.
+         */
+        void newArray( std::size_t size );
 
         typename DataSource<T>::result_t get() const
 		{

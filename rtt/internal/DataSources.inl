@@ -118,15 +118,30 @@ namespace RTT
 
     template<typename T>
     ArrayDataSource<T>::ArrayDataSource( std::size_t size )
-        : mdata(new typename T::value_type[size] ), marray(mdata,size)
+        : mdata(size ? new typename T::value_type[size] : 0 ), marray(mdata,size)
     {
+    }
+
+    template<typename T>
+    ArrayDataSource<T>::ArrayDataSource( T const& oarray )
+        : mdata( oarray.count() ? new typename T::value_type[oarray.count()] : 0 ), marray(mdata, oarray.count())
+    {
+        marray = oarray; // deep copy!
+    }
+
+    template<typename T>
+    void ArrayDataSource<T>::newArray( std::size_t size )
+    {
+        delete[] mdata;
+        mdata = size ? new typename T::value_type[size] : 0;
+        marray.init(mdata,size);
     }
 
     template<typename T>
     void ArrayDataSource<T>::set( typename AssignableDataSource<T>::param_t t )
     {
         // makes a deep copy !
-        mdata = t;
+        marray = t;
     }
 
     template<typename T>

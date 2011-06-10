@@ -82,6 +82,12 @@ namespace RTT
                 m_element_count(s)
             {}
 
+            /**
+             * Creates an empty carray.
+             * You are not allowed to read or write (operator=)
+             * to this array until it has been initialized.
+             * @see init() in order to initialize it later on.
+             */
             carray() : m_t(0), m_element_count(0) {}
 
             /**
@@ -103,10 +109,18 @@ namespace RTT
              * @param orig
              */
             template<std::size_t N>
-            carray( boost::array<T,N> const& orig)
+            carray( boost::array<T,N> & orig)
             : m_t( orig.c_array() ), m_element_count( N ) {
                 if (m_element_count == 0)
                     m_t = 0;
+            }
+
+            /**
+             * (Re-)initialize this carray to a new address and size.
+             */
+            void init(value_type* t, std::size_t s) {
+                m_t = s ? t : 0;
+                m_element_count = s;
             }
 
             /**
