@@ -67,7 +67,7 @@
 	<caption>
 	  <para>
 	    Components are loaded into the process by a deployer,
-	    which gets its configuration through an XML file. 
+	    which gets its configuration through an XML file.
 	    Communication between processes is transparant to the
 	    component, but your data must be known to Orocos
 	    (cfr 'typekits' and 'transports'). Most new users start
@@ -98,20 +98,23 @@
       The Orocos Component Model enables :
       <itemizedlist>
 	<listitem>
-	  <para>Lock free, thread-safe, inter-thread function calls.</para>
+	  <para>Lock free, thread-safe, inter-component communication in a single process.</para>
 	</listitem>
 	<listitem>
-	  <para>Communication between hard Real-Time and non Real-Time threads.</para>
+	  <para>Thread-safe, inter-process communication between (distributed) processes.</para>
+	</listitem>
+	<listitem>
+	  <para>Communication between hard Real-Time and non Real-Time components.</para>
 	</listitem>
 	<listitem>
 	  <para>Deterministic execution time during communication
 	  for the higher priority thread.</para>
 	</listitem>
 	<listitem>
-	  <para>Synchronous and asynchronous communication between threads.</para>
+	  <para>Synchronous and asynchronous communication between components.</para>
 	</listitem>
 	<listitem>
-	  <para>Interfaces for component distribution.</para>
+	  <para>Interfaces for run-time component introspection.</para>
 	</listitem>
 	<listitem>
 	  <para>C++ class implementations and scripting interface for all the above.</para>
@@ -125,13 +128,192 @@
   </section>
   <section>
     <title>Hello World !</title>
+		<important>
+			<para>
+				Before you proceed, make sure you printed the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos_cheat_sheet.pdf">Orocos Cheat Sheet</ulink> and
+				<ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/rtt_cheat_sheet.pdf">RTT Cheat Sheet</ulink> ! They will definately guide you through this lengthy
+				text.
+			</para>
+		</important>
     <para>
       This section introduces tasks through the "hello world"
-      application, which is included in the Orocos Component Library.
-      It contains one TaskContext component,
-      <classname>OCL::HelloWorld</classname>, which interface has one instance
-      of each communication primitive.
+      application, for which you will create a component package using the
+			<command>orocreate-pkg</command> command on the command line:
+			<programlisting>$	rosrun ocl orocreate-pkg HelloWorld    # ... for ROS users 
+			</programlisting>
+			<programlisting>$	orocreate-pkg HelloWorld    # ... for non-ROS users 
+			</programlisting>
     </para>
+		<para>
+			In a properly configured installation, you'll be able to enter this
+			directory and build your package right away:
+			<programlisting>$	cd HelloWorld
+$ make
+			</programlisting>
+			In case you are <emphasis>not</emphasis> using ROS to manage your packages, you also need to 
+			install your package:
+			<programlisting>$ make install
+			</programlisting>
+		</para>
+    <section>
+      <title>Using the Deployer</title>
+      <para>
+	The way we interact with TaskContexts during development of an
+	Orocos application is through the <emphasis>deployer
+	</emphasis>.  This application consists of the 
+	<classname>OCL::DeploymentComponent</classname> which is responsible
+	for creating applications out of component libraries and the 
+	<classname>OCL::DeploymentComponent</classname>  which is a powerful console
+	tool which helps you to explore, execute and debug
+	componentss in running
+	programs. 
+			</para>
+			<para>
+			The TaskBrowser uses the GNU readline library to easily enter
+			commands to the tasks in your system. This means you can press
+			TAB to complete your commands or press the up arrow to scroll
+			through previous commands. 
+      </para>
+			<para>
+				You can start the deployer in any directory like this:
+				<programlisting> $ deployer-gnulinux
+				</programlisting>
+				or in a ROS environment:
+				<programlisting> $ rosrun ocl deployer-gnulinux
+				</programlisting>
+			</para>
+			<para>
+				This is going to be your primary tool to explore the Orocos
+				component model so get your seatbelts fastened!
+			</para>
+    </section>
+    <section>
+      <title>Starting your First Application</title>
+      <para>
+	Now let's start the HelloWorld application we just created with
+	<command>orocreate-pkg</command>.
+      </para>
+      <para>
+	Create an 'helloworld.ops' Orocos Program Script (ops) file with
+	these contents:
+	<programlisting>
+ require("print")        // necessary for 'print.ln'
+ import("HelloWorld")    // 'HelloWorld' is a directory name to import      
+
+ print.ln("Script imported HelloWorld package:")
+ displayComponentTypes() // Function of the DeploymentComponent
+ 
+ loadComponent("Hello", "HelloWorld") // Creates a new component of type 'HelloWorld'
+ print.ln("Script created Hello Component with period: " + Hello.getPeriod() )
+</programlisting>
+        and load it into the deployer using this command:
+	<command>deployer-gnulinux -s helloworld.ops -linfo</command>
+	This command imports the HelloWorld package and any component library 
+	in there. Then it creates a component with name "Hello". We call this
+	a dynamic deployment, since the decision to create components is done
+	at run-time.
+			</para>
+			<para>
+			You could also create your component in a C++ program. We call this
+			static deployment, since the components are fixed at compilation time.
+			The figure below illustrates this difference:
+      </para>
+      <figure id="fig-hello-world-deployment">
+	<title>
+	  Dynamic vs static loading of components
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/HelloDeployment" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/HelloDeployment"  width="100%" scalefit="1"/>
+	  </imageobject>
+	  <caption>
+	    <para>The 'helloworld' executable is a static deployment of one component in a process, which
+	    means it is hard-coded in the helloworld.cpp file.
+	    In contrast, using the deployer application allows you to load a component library dynamically.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+      The output of the deployer should be similar to what we show below. Finally, type <command>cd
+	Hello</command> to start with the exercise.
+      </para>
+      <screen>
+0.000 [ Info   ][Logger] Real-time memory: 14096 bytes free of 20480 allocated.
+0.000 [ Info   ][Logger] No RTT_COMPONENT_PATH set. Using default: <emphasis>.../rtt/install/lib/orocos</emphasis>
+0.000 [ Info   ][Logger] plugin 'rtt' not loaded before.
+
+<emphasis>...</emphasis>
+
+0.046 [ Info   ][Logger] Loading Service or Plugin scripting in TaskContext Deployer
+0.047 [ Info   ][Logger] Found complete interface of requested service 'scripting'
+0.047 [ Info   ][Logger] Running Script helloworld.ops ...
+0.050 [ Info   ][DeploymentComponent::import] Importing directory <emphasis>.../HelloWorld/lib/orocos/gnulinux</emphasis> ...
+0.050 [ Info   ][DeploymentComponent::import] Loaded component type 'HelloWorld'
+Script imported HelloWorld package:
+I can create the following component types: 
+   HelloWorld
+   OCL::ConsoleReporting
+   OCL::FileReporting
+   OCL::HMIConsoleOutput
+   OCL::HelloWorld
+   OCL::TcpReporting
+   OCL::TimerComponent
+   OCL::logging::Appender
+   OCL::logging::FileAppender
+   OCL::logging::LoggingService
+   OCL::logging::OstreamAppender
+   TaskContext
+0.052 [ Info   ][Thread] Creating Thread for scheduler: 0
+0.052 [ Info   ][Hello] Thread created with scheduler type '0', priority 0, cpu affinity 15 and period 0.
+HelloWorld constructed !
+0.052 [ Info   ][DeploymentComponent::loadComponent] Adding Hello as new peer:  OK.
+Script created Hello Component with period: 0
+0.053 [ Info   ][Thread] Creating Thread for scheduler: 0
+0.053 [ Info   ][TaskBrowser] Thread created with scheduler type '0', priority 0, cpu affinity 15 and period 0.
+   Switched to : Deployer
+0.053 [ Info   ][Logger] Entering Task Deployer
+
+  This console reader allows you to browse and manipulate TaskContexts.
+  You can type in an operation, expression, create or change variables.
+  (type 'help' for instructions and 'ls' for context info)
+    TAB completion and HISTORY is available ('bash' like)
+
+Deployer [S]> cd Hello
+   Switched to : Hello
+Hello [S]>
+      </screen>
+      <para>
+	The first <command>[ Info ]</command> lines are printed by the
+	Orocos <classname>RTT::Logger</classname>, which has been
+	configured to display informative messages to
+	console with the <command>-linfo</command> program option.
+	Normally, only warnings or worse are displayed by
+	Orocos. You can always watch the log file 'orocos.log' in the
+	same directory to see all messages.  After the <command>[Log
+	Level]</command>, the <command>[Origin]</command> of the
+	message is printed, and finally the message itself. These
+	messages leave a trace of what was going on in the main()
+	function before the prompt appeared.
+      </para>
+      <para>
+	Depending on what you type, the TaskBrowser will act
+	differently.  The built-in commands <command>cd</command>,
+	<command>help</command>, <command>quit</command>,
+	<command>ls</command> etc,  are seen as commands to the TaskBrowser
+	itself, if you typed something else, it tries to execute your
+	command according to the Orocos scripting language syntax.
+      </para>
+      <screen>
+Hello[R] > <command>1+1</command>
+   = <command>2</command>
+      </screen>
+    </section>
+    <section>
+      <title>Displaying a TaskContext</title>
     <para>
       A component's interface consists of: Attributes and Properties, Operations,
       and Data Flow ports which are all public.
@@ -157,161 +339,34 @@
 	</caption>
       </mediaobject>
     </figure>
-    <section>
-      <title>Using the TaskBrowser</title>
       <para>
-	The way we interact with TaskContexts during development of an
-	Orocos application is through the <emphasis>Task
-	Browser</emphasis>.  The
-	<classname>OCL::TaskBrowser</classname> is a powerful console
-	tool which helps you to explore, execute and debug
-	<classname>RTT::TaskContext</classname>s in running
-	programs. It is created for interactive deployers, such as
-	the <command>deployer</command> and the <command>deployer-corba</command>,
-	The TaskBrowser uses the GNU readline library to easily enter
-	commands to the tasks in your system. This means you can press
-	TAB to complete your commands or press the up arrow to scroll
-	through previous commands. 
-      </para>
-    </section>
-    <section>
-      <title>Starting your First Application</title>
-      <para>
-	Now let's start the helloworld application. If you downloaded
-	OCL and compiled it from source, You can do this by
-	entering the helloworld subdirectory of your OCL build
-	directory and running <command>ORO_LOGLEVEL=5 ./helloworld</command>
-      </para>
-      <para>
-	In case you got OCL as a binary package, create an 'helloworld.xml' XML file with
-	these contents:
-	<programlisting>  &lt;?xml version="1.0" encoding="UTF-8"?>
-  &lt;!DOCTYPE properties SYSTEM "cpf.dtd">
-  &lt;properties>
-    &lt;struct name="HelloWorld" type="OCL::HelloWorld">
-    &lt;/struct>
-  &lt;/properties> </programlisting>
-        and load it into the deployer using this command:
-	<command>deployer-gnulinux -s helloworld.xml -linfo</command>
-	This command loads the Orocos-HelloWorld component library and
-	creates a component with name "Hello". The difference between both
-	executables are shown in the figure below:
-      </para>
-      <figure id="fig-hello-world-deployment">
-	<title>
-	  Dynamic vs static loading of components
-	</title>
-	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="images/HelloDeployment" />
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/HelloDeployment"  width="100%" scalefit="1"/>
-	  </imageobject>
-	  <caption>
-	    <para>The 'helloworld' executable is a static deployment of one component in a process, which
-	    means it is hard-coded in the helloworld.cpp file.
-	    In contrast, using the deployer application allows you to load a component library dynamically.
-	    </para>
-	  </caption>
-	</mediaobject>
-      </figure>
-      <para>
-      Finally, type <command>cd
-	Hello</command> to start with the exercise.
-      </para>
-      <screen>
-0.003 [ Info   ][main()] **** Creating the 'Hello' component ****
-0.003 [ Info   ][Thread] Creating Thread for scheduler: 0
-0.003 [ Info   ][Hello] Thread created with scheduler type '0', priority 0 and period 0.
-0.007 [ Info   ][Thread] Creating Thread for scheduler: 0
-0.007 [ Info   ][GlobalEngine] Thread created with scheduler type '0', priority 0 and period 0.
-0.008 [ Info   ][Thread] Creating Thread for scheduler: 1
-0.008 [ Warning][Thread] Lowering scheduler type to SCHED_OTHER for non-privileged users..
-0.008 [ Warning][Activity] Lowering scheduler type to SCHED_OTHER for non-privileged users..
-0.008 [ Info   ][Activity] Thread created with scheduler type '0', priority 0 and period 0.01.
-0.009 [ Info   ][main()] **** Starting the 'Hello' component ****
-0.009 [ Info   ][main()] **** Using the 'Hello' component    ****
-0.009 [ Info   ][main()] **** Reading a RTT::Property:            ****
-0.009 [ Info   ][main()]      the_property = Hello World
-0.009 [ Info   ][main()] **** Starting the TaskBrowser       ****
-0.009 [ Info   ][Thread] Creating Thread for scheduler: 0
-0.009 [ Info   ][TaskBrowser] Thread created with scheduler type '0', priority 0 and period 0.
-
-TaskBrowser connects to all data ports of Hello
-0.010 [ Info   ][TaskBrowser] Connected output port the_results successfully to the_results
-0.010 [ Info   ][TaskBrowser] Connected output port the_input_port successfully to the_input_port
-   Switched to : Hello
-0.018 [ Info   ][main()] Entering Task Hello
-
-  This console reader allows you to browse and manipulate TaskContexts.
-  You can type in a command, event, method, expression or change variables.
-  (type 'help' for instructions)
-    TAB completion and HISTORY is available ('bash' like)
-
-Hello[R] > 
-      </screen>
-      <para>
-	The first <command>[ Info ]</command> lines are printed by the
-	Orocos <classname>RTT::Logger</classname>, which has been
-	configured to display informative messages to
-	console. Normally, only warnings or worse are displayed by
-	Orocos. You can always watch the log file 'orocos.log' in the
-	same directory to see all messages.  After the <command>[Log
-	Level]</command>, the <command>[Origin]</command> of the
-	message is printed, and finally the message itself. These
-	messages leave a trace of what was going on in the main()
-	function before the prompt appeared.
-      </para>
-      <para>
-	Depending on what you type, the TaskBrowser will act
-	differently.  The built-in commands <command>cd</command>,
-	<command>help</command>, <command>quit</command>,
-	<command>ls</command> etc,  are seen as commands to the TaskBrowser
-	itself, if you typed something else, it tries to execute your
-	command according to the Orocos scripting language syntax.
-      </para>
-      <screen>
-Hello[R] > <command>1+1</command>
-   = <command>2</command>
-      </screen>
-    </section>
-    <section>
-      <title>Displaying a TaskContext</title>
-      <para>
-	To display the contents of the current task, type
+	To display the contents of the current component, type
 	<command>ls</command>, and switch to one of the listed peers
 	with <command>cd</command>, while <command>cd ..</command>
-	takes you one peer back in history. Since there are no peers
-	other than the TaskBrowser itself, one can not
-	<command>cd</command> anywhere in this example.
+	takes you one peer back in history. We have two peers here:
+	the Deployer and your component, Hello.
       </para>
       <screen>
-Hello[R] > <command>ls</command>
+Hello [S]> <command>ls</command>
 
- Listing TaskContext Hello :
+ Listing TaskContext Hello[S] :
 
- Configuration Properties:
-     string <emphasis>the_property</emphasis>   = Hello World          (the_property Description)
+ Configuration Properties: (none)
 
- Execution Interface:
-  Attributes   :
-     string <emphasis>the_attribute</emphasis>  = Hello World
-     string <emphasis>the_constant</emphasis>   = Hello World
+ Provided Interface:
+  Attributes   : (none)
+  Operations   : activate cleanup configure error getCpuAffinity getPeriod inFatalError inRunTimeError isActive isConfigured isRunning setCpuAffinity setPeriod start stop trigger update 
 
-  Operations      : activate cleanup configure error getPeriod inFatalError inRunTimeError isActive isConfigured isRunning resetError start stop the_command the_method trigger update
+ Data Flow Ports: (none)
 
- Data Flow Ports:
- Out(C)      string <emphasis>the_results</emphasis>    =&gt;
-  In(C)      string <emphasis>the_input_port</emphasis> &lt;=  (sent from TaskBrowser)
+ Services: 
+(none)
 
- Services:
-  <emphasis>marshalling</emphasis>    ( Read and write Properties to a file. )
-  <emphasis>scripting</emphasis>      ( Serves the Scripting interface. Use this object in order to load or query programs or state machines. )
-  <emphasis>the_input_port</emphasis> ( (No description set for this Port) )
-  <emphasis>the_results</emphasis>    ( (No description set for this Port) )
+ Requires Operations :  (none)
+ Requests Services   :  (none)
 
  Peers        : (none)
+Hello [S]>
       </screen>
       <note>
 	<para>To get a quick overview of the commands, type
@@ -319,10 +374,10 @@ Hello[R] > <command>ls</command>
 	</para>
       </note>
       <para>
-	The first line shows the status between square brackets. The [R] here
-	means that the component is in the running state. Other states can 
-	be 'S' - stopped, 'U' - unconfigured, 'E' - run-time Error, 'F' - fatal error,
-	'X' - exception.
+	The first line shows the status between square brackets. The [S] here
+	means that the component is in the stopped state. Other states can 
+	be 'R' - Running, 'U' - Unconfigured, 'E' - run-time Error, 'F' - Fatal error,
+	'X' - C++ eXception in user code.
       </para>
       <para>
 	First you get a list of the Properties and Attributes
@@ -332,35 +387,12 @@ Hello[R] > <command>ls</command>
 	for debugging and are not persistent.
       </para>
       <para>
-	Next, the methods of this component are listed: each component
+	Next, the operations of this component are listed: each component
 	has some universal functions like activate, start, getPeriod etc.
-	Our component has two functions in addition: the_command and the_method.
       </para>
       <para>
-       The component has one output and one input port: the_results
-       and the_input_port.  When visiting a component, the
-       TaskBrowser connects to these ports which will allow you to
-       read and write them, while other components may also be using
-       them.
-      </para>
-      <para>
-	In the example, the current task has four services:
-	<emphasis>marshalling</emphasis>, <emphasis>scripting</emphasis>, <emphasis>the_results</emphasis>
-	and <emphasis>the_input_port</emphasis>. The
-	<emphasis>this</emphasis> service (not shown) serves as the public
-	interface of the Hello component. These services contain
-	methods and attributes in turn.  The
-	<emphasis>the_results</emphasis> and
-	<emphasis>the_input_port</emphasis> services are created to
-	represent the data ports of the Hello component to scripts. They allow
-	you to to send or receive data to these ports and check if
-	they are connected.
-      </para>
-      <para>
-	Last, the peers are shown, that is, the components which are
-	known, and may be used, by this component. The
-	<classname>OCL::HelloWorld</classname> component is a
-	stand-alone component and has no peers.
+				You can see that the component is pretty empty: no data flow ports,
+				services or peers. We will add some of these right away.
       </para>
     </section>
     <section>
@@ -371,7 +403,7 @@ Hello[R] > <command>ls</command>
 	or just short: <emphasis>help activate</emphasis>
 			</para>
       <screen>
-Hello[R] > <command>help this</command>
+Hello [R]> <command>help this</command>
 
 Printing Interface of 'Hello' :
 
@@ -381,50 +413,43 @@ Printing Interface of 'Hello' :
    Reset this TaskContext to the PreOperational state (write properties etc).
 ...
    Stop the Execution Engine of this TaskContext.
- <emphasis>the_command</emphasis>( string const&amp; <emphasis>the_arg</emphasis> ) : bool
-   'the_command' Description
-   the_arg : Use 'World' as argument to make the command succeed.
- <emphasis>the_method</emphasis>( ) : string
-   'the_method' Description
 
-Hello[R] > <command>help the_command</command>
- <emphasis>the_command</emphasis>( string const&amp; <emphasis>the_arg</emphasis> ) : bool
-   'the_command' Description
-   the_arg : Use 'World' as argument to make the command succeed.
-Hello[R] > 
+Hello [R]> <command>help getPeriod</command>
+ <emphasis>getPeriod</emphasis>( ) : double
+Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.
+
+Hello [R]> 
       </screen>
       <para>
-	Now we get more details about the methods
+	Now we get more details about the operations
 	registered in the public interface. We see now that
-	the <emphasis>the_command</emphasis> methods takes one argument
-	as a string, or that the <emphasis>the_method</emphasis> method
-	returns a string. You can invoke each one of them.
+	the <emphasis>getPeriod</emphasis> operations takes no arguments
+	You can invoke each operation right away.
     </para>
     </section>
     <section>
       <title>Calling an Operation</title>
       <screen>
-Hello[R] > <command>the_method()</command>
- = <command>Hello World</command>
+Hello [R]> <command>getPeriod()</command>
+ = <command>0</command>
       </screen>
       <para>
-	OperationCallers are called directly and the TaskBrowser prints the
-	result. The return value of the_method() was a string, which is
-	"Hello World". This works just like calling a 'C' function.
+	Operations are called directly and the TaskBrowser prints the
+	result. The return value of getPeriod() was a double, which is
+	0. This works just like calling a 'C' function.
 	You can express calling explicitly by writing:
-	<command>the_method.call()</command>.
+	<command>getPeriod.call()</command>.
       </para>
     </section>
     <section>
       <title>Sending a Operation</title>
       <para>
-	When a method is <emphasis>sent</emphasis> to
-	the Hello component, it will execute it in its own thread on
+	When an operation is <emphasis>sent</emphasis> to
+	the Hello component, another thread will execute it on
 	behalf of the sender. Each sent method returns a SendHandle object.
       </para>
       <screen>
-Hello[R] > <command>the_command.send("_World_")</command>
-<emphasis>Saying Hello '_World_' in own thread.</emphasis>
+Hello [R]> <command>getPeriod.send()</command>
  = (unknown_t)
       </screen>
       <para>
@@ -432,15 +457,19 @@ Hello[R] > <command>the_command.send("_World_")</command>
 	to be useful:
       </para>
       <screen>
-Hello[R] > <command>var SendHandle sh</command>
-Hello[R] > <command>sh = the_command.send("_World_")</command>
-<emphasis>Saying Hello '_World_' in own thread.</emphasis>
+Hello [R]> <command>var SendHandle sh</command>
+Hello [R]> <command>sh = getPeriod.send()</command>
  = true
-Hello[R] > <command>sh.collectIfDone( ret )</command>
+Hello [R]> <command>sh.collectIfDone( ret )</command>
  = SendSuccess
-Hello[R] > <command>ret</command>
- = true
+Hello [R]> <command>ret</command>
+ = 0
       </screen>
+			<para>
+				SendHandles are further explained down the document.
+				They are not required understanding for a first discovery
+				of the Orocos world.
+			</para>
     </section>
     <section>
       <title>Changing Values</title>
@@ -448,30 +477,33 @@ Hello[R] > <command>ret</command>
 	Besides calling or sending component methods, you can alter the
 	attributes of any task, program or state machine. The
 	TaskBrowser will confirm validity of the assignment with
-	'true' or 'false' :
+	the contents of the variable. Since Hello doesn't have any 
+	attributes, we create one dynamically:
       </para>
       <screen>
-Hello[R] > <command>the_attribute</command>
+Hello [R]> <command>var string the_attribute = "HelloWorld"</command>
+Hello [R]> <command>the_attribute</command>
  = <command>Hello World</command>
-Hello[R] > <command>the_attribute = "Veni Vidi Vici !"</command>
+Hello [R]> <command>the_attribute = "Veni Vidi Vici !"</command>
  = <command>"Veni Vidi Vici !"</command>
-Hello[R] > <command>the_attribute</command>
+Hello [R]> <command>the_attribute</command>
  = <command>Veni Vidi Vici !</command>
       </screen>
     </section>
     <section>
       <title>Reading and Writing Ports</title>
       <para>
-	The Data Ports can be accessed through the
-	<emphasis>the_results</emphasis> and
-	<emphasis>the_input_port</emphasis> object interfaces. 
+	The Data Ports allow seamless communication of calculation or 
+	measurement results between components. Adding and using ports is
+	described in <xref linkend="task-ports" />.
       </para>
+<!--
       <para>
 	Since each port has an associated service, we can inspect the
 	interface of a port by typing its name:
       </para>
       <screen>
-Hello[R] > the_input_port
+Hello [R]> the_input_port
 
 Printing Interface of 'the_input_port' :
 
@@ -491,7 +523,7 @@ Printing Interface of 'the_input_port' :
 	read it.
       </para>
       <screen>
- Hello[R] > <command>the_input_port.read(the_attribute)</command>
+ Hello [R]> <command>the_input_port.read(the_attribute)</command>
  = <emphasis>NoData</emphasis>
       </screen>
       <para>
@@ -501,7 +533,9 @@ Printing Interface of 'the_input_port' :
 	Writing to an outputport (using write() ) returns no value, it's purely send
 	and forget. Writing to an unconnected output port is not an error.
       </para>
+-->
     </section>
+<!--
     <section>
       <title>Advanced Component Browsing</title>
       <para>
@@ -513,9 +547,9 @@ Printing Interface of 'the_input_port' :
 	within the TaskBrowser itself:
       </para>
       <screen>
-Hello[R] > <command>leave</command>
+Hello [R]> <command>leave</command>
 21666.113 [ Info   ][main()] Watching Task Hello
-Hello[R] &lt; <command>ls</command>
+Hello [R]&lt; <command>ls</command>
 21667.334 [ Info   ][main()] Found complete interface of requested service 'scripting'
 
  Listing TaskContext TaskBrowser :
@@ -538,7 +572,7 @@ Hello[R] &lt; <command>ls</command>
 
  TaskBrowser Peers : Hello[R]
 
-Hello[R] &lt;</screen>
+Hello [R]&lt;</screen>
       <para>
 	The following things are noteworthy: 'ls' shows now the
 	contents of the TaskBrowser itself and no longer of the Hello
@@ -552,11 +586,12 @@ Hello[R] &lt;</screen>
 	<command>enter</command>:
       </para>
       <screen>
-Hello[R] &lt; <command>enter</command>
+Hello [R]&lt; <command>enter</command>
 <command>1322.653 [ Info   ][main()] Entering Task Hello</command>
-Hello[R] &gt;
+Hello [R]&gt;
       </screen>
     </section>
+-->
     <section>
       <title>Last Words</title>
       <para>
@@ -571,7 +606,7 @@ Hello[R] &gt;
 	In order to quit the TaskBrowser, enter <command>quit</command>:
       </para>
       <screen>
- Hello[R] > <command>quit</command>
+ Hello [R]> <command>quit</command>
 
 1575.720 [ Info   ][ExecutionEngine::setActivity] Hello is disconnected from its activity.
 1575.741 [ Info   ][Logger] Orocos Logging Deactivated.      
@@ -614,7 +649,7 @@ Hello[R] &gt;
     <para>
       <programlisting>
   #include &lt;rtt/TaskContext.hpp&gt;
-  #include &lt;ocl/Component.hpp&gt;
+  #include &lt;rtt/Component.hpp&gt;
 
   // we assume this is done in all the following code listings :
   using namespace RTT;
@@ -625,26 +660,23 @@ Hello[R] &gt;
        ATask(const std::string&amp; name) : public TaskContext(name) {}
   };
 
-  // requires -DRTT_COMPONENT :
+  // from Component.hpp:
   OCL_CREATE_COMPONENT( MyTask );
       </programlisting>
     </para>
     <para>
       The constructor argument is the (unique) name of the component.
-      Compile this code with the '-DRTT_COMPONENT' flag and as a shared
-      library. See the <ulink url="http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-installation.html">
-			Installation Manual</ulink> for instructions on building your own
-			components. You can load this component in a deployer by adding its
-      directory to the RTT_COMPONENT_PATH and verify that it has been 
+			You should create the component template and the CMakeLists.txt
+			file using the <command>orocreate-pkg</command> program such
+			that this compiles right away as in the HelloWorld example above.
+		</para>
+		<para>
+			You can load this component in a deployer by using the <command>import</command>
+			command at the TaskBrowser prompt and verify that it has been 
       found using <command>displayComponentTypes()</command> in the
       TaskBrowser. Next type <command>loadComponent("the_task","MyTask")</command>
       to load it into the process, or use an XML file such as in the
       helloworld example above.
-    </para>
-    <para>
-      A task's interface consists of : Operations, Ports,
-      Attributes and Properties, which are all public.  We
-      will refer to them as <emphasis>members</emphasis>.
     </para>
     <figure id="fig-a-task-context-intro">
       <title>
@@ -662,13 +694,13 @@ Hello[R] &gt;
 	    The component offers services through operations, and requests
 	    them through operation callers. The Data Flow is the propagation of data from
 	    one task to another, where one producer can have multiple
-	    consumers.
+	    consumers and the other way around.
 	  </para>
 	</caption>
       </mediaobject>
     </figure>
     <para>
-      The beating hart of the component is its Execution Engine will check (periodically)
+      The beating hart of the component is its Execution Engine will check
       for new messages in it's queue and execute programs which are
       running in the task. When a TaskContext is created, the ExecutionEngine 
       is always running. The complete state flow of a TaskContext is shown in
@@ -979,7 +1011,7 @@ Hello[R] &gt;
        reference.</para>
       </section>
     </section>
-    <section>
+    <section id="task-ports">
       <title>Data Flow Ports</title>
       <note><title>Purpose</title>
 	<para>A component has ports in order to send or receive a
@@ -1277,7 +1309,7 @@ Hello[R] &gt;
 	</para>
       </section>
     </section>
-    <section>
+    <section id="task-operations">
       <title>The OperationCaller/Operation Interface</title>
       <note><title>Purpose</title><para>A task's operations
         define which functions a component offers. Operations are grouped
@@ -1721,7 +1753,7 @@ Hello[R] &gt;
     <section>
       <title>Adding Task Attributes or Properties</title>
       <para>
-	An attribute can be added in the task's interface
+	An attribute can be added in the comonent's interface
 	(<classname>RTT::ConfigurationInterface</classname>) like this :</para>
       <para>
 	<programlisting>  #include &lt;rtt/Property.hpp>
@@ -2307,7 +2339,7 @@ Hello[R] &gt;
   a_port.connectTo( &amp;b_port, policy );
   // Create an unbuffered 'shared data' connection:
   policy = RTT::ConnPolicy::data();
-  a_port.connectTo( &amp;b_port, policy );</programlisting>
+  a_port.connectTo( &amp;c_port, policy );</programlisting>
 	The order of connections does not matter; the following would also work:
 	<programlisting>  b_port.connectTo( &amp;a_port, policy ); // ok...
   c_port.connectTo( &amp;a_port, policy ); // fine too.</programlisting>

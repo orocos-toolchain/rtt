@@ -613,16 +613,16 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     CORBA::Any_var sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNoData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), CNoData );
     // Check read of new data
     mo1->write( 3.33 );
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), CNewData );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 
     // Check re-read of old data.
     sample <<= 0.0;
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), COldData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), COldData );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 
@@ -675,20 +675,20 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     CORBA::Any_var sample = new CORBA::Any();
     BOOST_REQUIRE( cce.in() );
 
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNoData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), CNoData );
     // Check read of new data
     mo1->write( 6.33 );
     mo1->write( 3.33 );
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), CNewData );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 6.33);
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), CNewData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), CNewData );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 
     // Check re-read of old data.
     sample <<= 0.0;
-    BOOST_CHECK_EQUAL( cce->read( sample.out() ), COldData );
+    BOOST_CHECK_EQUAL( cce->read( sample.out(), true ), COldData );
     sample >>= result;
     BOOST_CHECK_EQUAL( result, 3.33);
 

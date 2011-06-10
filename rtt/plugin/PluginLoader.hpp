@@ -67,8 +67,6 @@ namespace RTT {
          */
         class RTT_API PluginLoader
         {
-            static boost::shared_ptr<PluginLoader> minstance;
-
             /**
              * Keep a list of all loaded libraries such that double
              * loads are avoided during import/loadLibrary.

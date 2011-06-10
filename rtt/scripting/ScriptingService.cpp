@@ -73,6 +73,11 @@ namespace RTT {
     {
         this->doc("Orocos Scripting service. Use this service in order to load or query programs or state machines.");
         this->createInterface();
+        ZeroPeriodWarning = true;
+        this->addProperty("ZeroPeriodWarning",ZeroPeriodWarning)
+			.doc("If this is set to false, the warning log when loading a program or a state machine into a Component"
+					" with a null period will not be printed. Be sure you have something else triggering periodically"
+					" your Component activity unless your script may not work.");
     }
 
     ScriptingService::~ScriptingService()
@@ -189,8 +194,12 @@ namespace RTT {
         if (this->recursiveCheckLoadStateMachine( sc ) == false)
             return false; // throws load_exception
 
-        if ( getOwner()->getPeriod() == 0 ) {
-            log(Warning) << "Loading StateMachine "<< sc->getName() << " in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
+        if ( getOwner()->getPeriod() == 0 && ZeroPeriodWarning) {
+            log(Warning) << "Loading StateMachine "<< sc->getName()
+            << " in a TaskContext with getPeriod() == 0."
+            << " Use setPeriod(period) in order to setup execution of scripts."
+            << " If you know what you are doing, you may disable this warning using scripting.ZeroPeriodWarning=false"
+            <<endlog();
         }
 
         this->recursiveLoadStateMachine( sc );
@@ -353,8 +362,12 @@ namespace RTT {
            log(Error) << "Could not load Program "<< pi->getName() << " in ScriptingService: name already in use."<<endlog();
            return false;
        }
-       if ( getOwner()->getPeriod() == 0 ) {
-           log(Warning) << "Loading program " << pi->getName() << " in a TaskContext with getPeriod() == 0. Use setPeriod(period) in order to setup execution of scripts." <<endlog();
+       if ( getOwner()->getPeriod() == 0 && ZeroPeriodWarning ) {
+           log(Warning) << "Loading program " << pi->getName()
+			   << " in a TaskContext with getPeriod() == 0."
+			   << " Use setPeriod(period) in order to setup execution of scripts."
+			   << " If you know what you are doing, you may disable this warning using scripting.ZeroPeriodWarning=false"
+			   << endlog();
        }
        programs[pi->getName()] = pi;
        pi->reset();

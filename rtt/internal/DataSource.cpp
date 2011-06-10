@@ -112,6 +112,10 @@ namespace RTT {
     void DataSourceBase::updated()
     {}
 
+    void* DataSourceBase::getRawPointer()
+    { return 0; }
+    void const* DataSourceBase::getRawConstPointer()
+    { return 0; }
 
     ActionInterface* DataSourceBase::updateAction( DataSourceBase* ) {
         return 0;

@@ -44,7 +44,7 @@
 namespace RTT {
     namespace types {
         /**
-         * An ConfigurationInterface for holding global variables.
+         * An RTT::ConfigurationInterface for holding global variables.
          * The RTT uses this to export enumerations to scripting,
          * but users may extend this as well for their own applications.
          *
@@ -52,7 +52,7 @@ namespace RTT {
          * globals, such that they become owned by the GlobalsRepository.
          */
         class RTT_API GlobalsRepository
-            : public ConfigurationInterface
+            : public RTT::ConfigurationInterface
         {
         public:
             typedef boost::shared_ptr<GlobalsRepository> shared_ptr;

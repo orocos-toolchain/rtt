@@ -85,6 +85,24 @@ namespace RTT
          */
         virtual size_type Pop( std::vector<value_t>& items ) = 0;
 
+	/**
+	 * Returns a pointer to the first element in the buffer.
+	 * The pointer is only garanteed to stay valid until 
+	 * the next pop operation. 
+	 * 
+	 * Note the pointer needs the be released by calling Release
+	 * on the buffer.
+	 * 
+	 * @return a pointer to a sample or Zero if buffer is empty
+	 **/
+	virtual value_t* PopWithoutRelease() = 0;
+
+	/**
+	 *  Releases the pointer
+	 * @param item pointer aquired using PopWithoutRelease()
+	 **/
+	virtual void Release(value_t *item) = 0;
+	
         /**
          * Write a single value to the buffer.
          * @param item the value to write

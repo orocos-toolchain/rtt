@@ -39,7 +39,7 @@
 #ifndef ORO_CHANNEL_BASE_HPP
 #define ORO_CHANNEL_BASE_HPP
 
-#include "../os/oro_atomic.h"
+#include "../os/oro_arch.h"
 #include <utility>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>

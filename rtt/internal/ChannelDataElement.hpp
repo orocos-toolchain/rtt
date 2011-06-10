@@ -73,15 +73,19 @@ namespace RTT { namespace internal {
          *
          * @return false if no sample has ever been written, true otherwise
          */
-        virtual FlowStatus read(reference_t sample)
+        virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
             if (written)
             {
-                data->Get(sample);
                 if ( !mread ) {
+		    data->Get(sample);
                     mread = true;
                     return NewData;
                 }
+
+		if(copy_old_data)
+		    data->Get(sample);
+
                 return OldData;
             }
             return NoData;

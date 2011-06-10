@@ -66,7 +66,7 @@ namespace RTT
         mutable os::Mutex lock;
         BufferType data;
 
-        int cap;
+        unsigned int cap;
     public:
         typedef unsigned int size_type;
 

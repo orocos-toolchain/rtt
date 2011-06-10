@@ -38,6 +38,7 @@
 
 #include "SlaveActivity.hpp"
 #include "../os/MainThread.hpp"
+#include "Logger.hpp"
 
 namespace RTT {
     using namespace extras;
@@ -76,6 +77,18 @@ namespace RTT {
         return true;
     }
 
+    unsigned SlaveActivity::getCpuAffinity() const
+    {
+        if (mmaster)
+            return mmaster->getCpuAffinity();
+        return ~0;
+    }
+
+    bool SlaveActivity::setCpuAffinity(unsigned cpu)
+    {
+        return false;
+    }
+
     os::ThreadInterface* SlaveActivity::thread()
     {
         return mmaster ? mmaster->thread() : os::MainThread::Instance();
@@ -107,8 +120,16 @@ namespace RTT {
 
     bool SlaveActivity::start()
     {
-        if ( (mmaster && !mmaster->isActive()) || active == true )
+        if (mmaster && !mmaster->isActive())
+        {
+            Logger::log() << Logger::Error << "Unable to start slave as master activity is not running" << Logger::endl;
             return false;
+        }
+        if ( active == true )
+        {
+            Logger::log() << Logger::Error  << "Unable to start slave as it is already started" << Logger::endl;
+            return false;
+        }
 
         active = true;
 

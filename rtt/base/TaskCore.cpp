@@ -111,7 +111,12 @@ namespace RTT {
                     mTargetState = mTaskState = PreOperational;
                     return false;
                 }
+            } catch(std::exception const& e) {
+                log(Error) << "in configure(): switching to exception state because of unhandled exception" << endlog();
+                log(Error) << "  " << e.what() << endlog();
+                exception();
             } catch(...) {
+                log(Error) << "in configure(): switching to exception state because of unhandled exception" << endlog();
                 exception();
             }
         }
@@ -125,7 +130,12 @@ namespace RTT {
                 cleanupHook();
                 mTaskState = PreOperational;
                 return true;
+            } catch(std::exception const& e) {
+                log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
+                log(Error) << "  " << e.what() << endlog();
+                exception();
             } catch (...) {
+                log(Error) << "in cleanup(): switching to exception state because of unhandled exception" << endlog();
                 exception();
             }
         }
@@ -189,7 +199,12 @@ namespace RTT {
                     return true;
                 }
                 mTargetState = Stopped;
-            } catch(...) {
+            } catch(std::exception const& e) {
+                log(Error) << "in start(): switching to exception state because of unhandled exception" << endlog();
+                log(Error) << "  " << e.what() << endlog();
+                exception();
+            } catch (...) {
+                log(Error) << "in start(): switching to exception state because of unhandled exception" << endlog();
                 exception();
             }
         }
@@ -209,7 +224,12 @@ namespace RTT {
                     mTaskState = orig;
                     mTargetState = orig;
                 }
-            } catch(...) {
+            } catch(std::exception const& e) {
+                log(Error) << "in stop(): switching to exception state because of unhandled exception" << endlog();
+                log(Error) << "  " << e.what() << endlog();
+                exception();
+            } catch (...) {
+                log(Error) << "in stop(): switching to exception state because of unhandled exception" << endlog();
                 exception();
             }
         }
@@ -249,7 +269,7 @@ namespace RTT {
         return this->engine() && this->engine()->getActivity() && this->engine()->getActivity()->isActive();
     }
 
-    double TaskCore::getPeriod() const
+    Seconds TaskCore::getPeriod() const
     {
         return this->engine()->getActivity() ? this->engine()->getActivity()->getPeriod() : -1.0;
     }
@@ -257,6 +277,16 @@ namespace RTT {
     bool TaskCore::setPeriod(Seconds s)
     {
         return this->engine()->getActivity() ? this->engine()->getActivity()->setPeriod(s) : false;
+    }
+
+    unsigned TaskCore::getCpuAffinity() const
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->getCpuAffinity() : ~0;
+    }
+
+    bool TaskCore::setCpuAffinity(unsigned cpu)
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->setCpuAffinity(cpu) : false;
     }
 
     bool TaskCore::configureHook() {

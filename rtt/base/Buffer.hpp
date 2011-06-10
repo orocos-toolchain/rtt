@@ -83,7 +83,7 @@ namespace RTT
          */
         Buffer( int qsize, const T& initial_value = T())
 #if defined(OROBLD_OS_NO_ASM)
-            : BufferLocked<Ty>(qsize, initial_value)
+            : BufferLocked<T>(qsize, initial_value)
 #else
             : BufferLockFree<T>(qsize, initial_value)
 #endif

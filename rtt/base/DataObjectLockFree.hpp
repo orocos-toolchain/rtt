@@ -39,7 +39,7 @@
 #define CORELIB_DATAOBJECT_LOCK_FREE_HPP
 
 
-#include "../os/oro_atomic.h"
+#include "../os/oro_arch.h"
 #include "DataObjectInterface.hpp"
 
 namespace RTT
@@ -170,6 +170,7 @@ namespace RTT
             do {
                 reading = read_ptr;            // copy buffer location
                 oro_atomic_inc(&reading->counter); // lock buffer, no more writes
+                // XXX smp_mb
                 if ( reading != read_ptr )     // if read_ptr changed,
                     oro_atomic_dec(&reading->counter); // better to start over.
                 else
@@ -178,6 +179,7 @@ namespace RTT
             // from here on we are sure that 'reading'
             // is a valid buffer to read from.
             pull = reading->data;               // takes some time
+            // XXX smp_mb
             oro_atomic_dec(&reading->counter);       // release buffer
         }
 

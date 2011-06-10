@@ -65,16 +65,16 @@ namespace RTT
             MQSerializationProtocol() {
             }
 
-            virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
+            virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
             {
                 namespace io = boost::iostreams;
-                typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
+                typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( source );
                 if ( d ) {
                     // we use the boost iostreams library for re-using the blob buffer in the stream object.
                     // and the serialization library to write the data into stream.
                     io::stream<io::array_sink>  outbuf( (char*)blob, size);
                     binary_data_oarchive out( outbuf );
-                    out << d->set();
+                    out << d->rvalue();
                     return std::make_pair( blob, out.getArchiveSize() );
                 }
                 return std::make_pair((void*)0,int(0));
@@ -83,7 +83,7 @@ namespace RTT
             /**
             * Update \a target with the contents of \a blob which is an object of a \a protocol.
             */
-            virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const {
+            virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie) const {
                 namespace io = boost::iostreams;
                 typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
                 if ( ad ) {
@@ -95,7 +95,7 @@ namespace RTT
                 return false;
             }
 
-            virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr sample) const {
+            virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr sample, void* cookie) const {
                 typename internal::DataSource<T>::shared_ptr tsample = boost::dynamic_pointer_cast< internal::DataSource<T> >( sample );
                 if ( ! tsample ) {
                     log(Error) << "getSampleSize: sample has wrong type."<<endlog();
@@ -106,7 +106,7 @@ namespace RTT
                 io::stream<io::array_sink>  outbuf(sink,1);
                 binary_data_oarchive out( outbuf, false );
                 out << tsample->get();
-                //std::cout << "sample is "<< sample.size() <<" arch is " << out.getArchiveSize() <<std::endl;
+                //std::cout << "sample size is "<< tsample->rvalue().size() <<" archive is " << out.getArchiveSize() <<std::endl; //disable all types but std::vector<double> for this to compile
                 return out.getArchiveSize();
             }
         };

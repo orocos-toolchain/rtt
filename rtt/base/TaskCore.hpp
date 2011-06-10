@@ -243,6 +243,19 @@ namespace RTT
         virtual bool setPeriod(Seconds s);
 
         /**
+         * Get the configured cpu affinity of this component.
+         * @see ActivityInterface::getCpuAffinity()
+         */
+        virtual unsigned getCpuAffinity() const;
+
+        /**
+         * Sets the cpu affinity of this component.
+         * @return false if not allowed by the component's activity.
+         * @see ActivityInterface::setCpuAffinity()
+         */
+        virtual bool setCpuAffinity(unsigned cpu);
+
+        /**
          * Inspect if the component is in the FatalError state.
          * There is no possibility to recover from this state.
          * You need to destroy and recreate your component.

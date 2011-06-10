@@ -123,7 +123,7 @@ typedef struct { volatile int counter; } oro_atomic_t;
 #define oro_atomic_read(v)		((v)->counter)
 #define oro_atomic_set(v,i)		(((v)->counter) = (i))
 
-static __inline__ void oro_atomic_add(int a, oro_atomic_t *v)
+  static __inline__ void oro_atomic_add(oro_atomic_t *v, int n)
 {
 	int t;
 
@@ -138,7 +138,7 @@ static __inline__ void oro_atomic_add(int a, oro_atomic_t *v)
 	: "cc");
 }
 
-static __inline__ int oro_atomic_add_return(int a, oro_atomic_t *v)
+  static __inline__ int oro_atomic_add_return(oro_atomic_t *v, int n)
 {
 	int t;
 
@@ -174,7 +174,7 @@ static __inline__ void oro_atomic_sub(int a, oro_atomic_t *v)
 	: "cc");
 }
 
-static __inline__ int oro_atomic_sub_return(int a, oro_atomic_t *v)
+static __inline__ int oro_atomic_sub_return(oro_atomic_t *v, int n)
 {
 	int t;
 

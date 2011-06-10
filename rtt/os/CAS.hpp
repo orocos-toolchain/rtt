@@ -39,7 +39,7 @@
 #ifndef OS_COMMON_CAS_HPP
 #define OS_COMMON_CAS_HPP
 
-#include "oro_system.h"
+#include "oro_arch.h"
 
 namespace RTT
 { namespace os {

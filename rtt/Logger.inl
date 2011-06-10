@@ -16,9 +16,16 @@ namespace RTT
 #ifndef OROBLD_DISABLE_LOGGING
         if ( !mayLog() )
             return *this;
-        std::stringstream tmp;
-        tmp << t;
-        return this->operator<<( tmp.str() );
+
+        os::MutexLock lock( inpguard );
+        if ( this->mayLogStdOut() )
+            logline << t;
+
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
+        // log Info or better to log file, even if not started.
+        if ( this->mayLogFile() )
+            fileline << t;
+#endif
 #endif
         return *this;
     }

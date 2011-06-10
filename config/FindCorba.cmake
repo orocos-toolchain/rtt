@@ -55,6 +55,7 @@ if (ENABLE_CORBA)
 	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
 	    # Flag used in rtt-corba-config.h
 	    SET(CORBA_IS_OMNIORB 1)
+	    list(APPEND RTT_CORBA_PKGCONFIG_DEPENDS omniORB4)
 
         # Including an Omniorb header is sufficient to depend on this library.
         set(CORBA_USER_LINK_LIBS ${OMNIORB4_CLIENT_LIBRARIES} )

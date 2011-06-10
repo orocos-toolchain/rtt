@@ -572,6 +572,16 @@ namespace RTT
         ProgMap programs;
         typedef ProgMap::const_iterator ProgMapIt;
 
+        /** This is a property of the Scripting service
+         * It is true by default
+         * If this is set to false, the warning log when loading a program or a state machine
+         * into a Component with a null period will not be printed.
+         *
+         * Be sure you have something else triggering periodically your Component activity unless
+         * your script may not work.
+         */
+        bool ZeroPeriodWarning;
+
     };
 }}
 

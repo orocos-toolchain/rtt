@@ -105,6 +105,7 @@ namespace RTT {
         BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
+        BOOST_SPIRIT_DEBUG_RULE( type_name );
 
         // an identifier is a word which can be used to identify a
         // label, or be the name of an object or method.  it is required
@@ -140,6 +141,9 @@ namespace RTT {
         eos = expect_eos( notassertingeos ); // detect } as eos, but do not consume.
         notassertingeos = eol_p | ch_p(';') | eps_p(ch_p('}')); // detect } as eos, but do not consume.
         leos = *(space_p - eol_p) >> (eol_p | ch_p(';') | eps_p(ch_p('}')));
+
+        chset<> t_identchar( "a-zA-Z-_0-9/<>." );
+        type_name = lexeme_d[ alpha_p >> *t_identchar ] - keyword;
     }
 
     void CommonParser::seenillegalidentifier()

@@ -42,7 +42,9 @@
 #include "MQSendRecv.hpp"
 #include "../../Logger.hpp"
 #include "../../base/ChannelElement.hpp"
+#include "../../internal/DataSource.hpp"
 #include "../../internal/DataSources.hpp"
+#include <stdexcept>
 
 namespace RTT
 {
@@ -59,19 +61,25 @@ namespace RTT
         template<typename T>
         class MQChannelElement: public base::ChannelElement<T>, public MQSendRecv
         {
-            typename internal::ValueDataSource<T>::shared_ptr data_source;
+            /** Used as a temporary on the reading side */
+            typename internal::ValueDataSource<T>::shared_ptr read_sample;
+            /** Used in write() to refer to the sample that needs to be written */
+            typename internal::LateConstReferenceDataSource<T>::shared_ptr write_sample;
+
         public:
             /**
              * Create a channel element for remote data exchange.
              * @param transport The type specific object that will be used to marshal the data.
              */
             MQChannelElement(base::PortInterface* port, types::TypeMarshaller const& transport,
-                             const ConnPolicy& policy, bool is_sender) : MQSendRecv(transport),
-                             data_source(new internal::ValueDataSource<T>)
+                             const ConnPolicy& policy, bool is_sender)
+                : MQSendRecv(transport)
+                , read_sample(new internal::ValueDataSource<T>)
+                , write_sample(new internal::LateConstReferenceDataSource<T>)
 
             {
                 Logger::In in("MQChannelElement");
-                setupStream(data_source, port, policy, is_sender);
+                setupStream(read_sample, port, policy, is_sender);
             }
 
             ~MQChannelElement() {
@@ -79,12 +87,11 @@ namespace RTT
             }
 
             virtual bool inputReady() {
-                if ( mqReady( this ) ) {
-                    T sample = data_source->get();
+                if ( mqReady(read_sample, this) ) {
                     typename base::ChannelElement<T>::shared_ptr output =
                         this->getOutput();
                     assert(output);
-                    output->data_sample(sample);
+                    output->data_sample(read_sample->rvalue());
                     return true;
                 }
                 return false;
@@ -93,14 +100,14 @@ namespace RTT
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
             {
                 // send initial data sample to the other side using a plain write.
-                typename base::ChannelElement<T>::shared_ptr output =
-                    this->getOutput();
                 if (mis_sender) {
-                    data_source->set(sample);
+                    typename base::ChannelElement<T>::shared_ptr output =
+                        this->getOutput();
+
+                    write_sample->setPointer(&sample);
                     // update MQSendRecv buffer:
-                    mqNewSample();
-                    // send to other side, which waits for it in inputReady():
-                    return mqWrite();
+                    mqNewSample(write_sample);
+                    return mqWrite(write_sample);
                 }
                 return false;
             }
@@ -124,21 +131,19 @@ namespace RTT
              */
             bool signal()
             {
-
                 // copy messages into channel
                 if (mis_sender) {
-                    typename base::ChannelElement<T>::value_t sample; // XXX: real-time !
-                    // this read should always succeed since signal() means 'data available in a data element'.
+                    // this read should always succeed since signal() means
+                    // 'data available in a data element'.
                     typename base::ChannelElement<T>::shared_ptr input =
                         this->getInput();
-                    if( input->read(sample) == NewData )
-                        return this->write(sample);
+                    if( input && input->read(read_sample->set(), false) == NewData )
+                        return this->write(read_sample->rvalue());
                 } else {
-                    typename base::ChannelElement<T>::value_t sample;
                     typename base::ChannelElement<T>::shared_ptr output =
                         this->getOutput();
-                    if( this->read(sample) == NewData && output )
-                        return output->write(sample);
+                    if (output && mqRead(read_sample))
+                        return output->write(read_sample->rvalue());
                 }
                 return false;
             }
@@ -148,13 +153,9 @@ namespace RTT
              * @param sample stores the resulting data sample.
              * @return true if an item could be read.
              */
-            FlowStatus read(typename base::ChannelElement<T>::reference_t sample)
+            FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
             {
-                if ( mqRead() ) {
-                    sample = data_source->get();
-                    return NewData;
-                }
-                return NoData;
+                throw std::runtime_error("not implemented");
             }
 
             /**
@@ -164,8 +165,8 @@ namespace RTT
              */
             bool write(typename base::ChannelElement<T>::param_t sample)
             {
-                data_source->set(sample);
-                return mqWrite();
+                write_sample->setPointer(&sample);
+                return mqWrite(write_sample);
             }
 
         };

@@ -104,6 +104,25 @@ namespace RTT
          */
         PeriodicActivity(int scheduler, int priority, Seconds period, base::RunnableInterface* r=0 );
 
+        /**
+         * @brief Create a Periodic Activity with a given scheduler type, priority and period.
+         *
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority
+         *        The priority of this activity. A lookup will be done to locate a suitable
+         *        TimerThread with the same priority. If it exists and it has the same \a period,
+         *        this activity will be executed in that thread. Otherwise, a new TimerThread is created.
+         * @param period
+         *        The periodicity of the PeriodicActivity
+         * @param cpu_affinity
+         *        The prefered cpu to run on (a mask)
+         * @param r
+         *        The optional base::RunnableInterface to run exclusively within this Activity
+         */
+        PeriodicActivity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, base::RunnableInterface* r=0 );
+
 
         /**
          * @brief Create a Periodic Activity executing in a given thread.
@@ -166,6 +185,10 @@ namespace RTT
         virtual Seconds getPeriod() const;
 
         virtual bool setPeriod(Seconds s);
+
+        virtual unsigned getCpuAffinity() const;
+
+        virtual bool setCpuAffinity(unsigned cpu);
 
         virtual os::ThreadInterface* thread();
 

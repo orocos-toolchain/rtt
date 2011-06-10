@@ -83,7 +83,7 @@ static const std::string default_delimiter(":");
 # endif
 
 namespace RTT { namespace plugin {
-    extern std::string default_plugin_path;
+    extern char const* default_plugin_path;
 }}
 
 namespace {
@@ -92,6 +92,8 @@ namespace {
      */
     int loadPlugins()
     {
+        std::string default_plugin_path = ::default_plugin_path;
+
         char* paths = getenv("RTT_COMPONENT_PATH");
         string plugin_paths;
         if (paths) {
@@ -127,9 +129,7 @@ namespace {
     os::CleanupFunction plugin_unloader( &unloadPlugins );
 }
 
-boost::shared_ptr<PluginLoader> PluginLoader::minstance;
-
-boost::shared_ptr<PluginLoader> instance2;
+static boost::shared_ptr<PluginLoader> instance2;
 
 namespace {
 
@@ -311,9 +311,9 @@ bool PluginLoader::loadLibrary( std::string const& name )
     path arg( name );
     if (is_regular_file(arg)) {
 #if BOOST_VERSION >= 104600
-        string subdir = arg.remove_filename().filename().string();
+        string subdir = arg.parent_path().filename().string();
 #else
-        string subdir = arg.remove_filename().leaf();
+        string subdir = arg.parent_path().leaf();
 #endif
         string kind;
         // we only load it if it is in types or plugins subdir:
@@ -328,6 +328,8 @@ bool PluginLoader::loadLibrary( std::string const& name )
                 throw std::runtime_error("The plugin "+name+" was found but could not be loaded !");
             return true;
         }
+
+        log(Error) << "refusing to load " << name << " as I could not autodetect its type (name=" << name << ", path=" << arg.string() << ", subdir=" << subdir << ")" << endlog();
         // file exists but not typekit or plugin:
         return false;
     }

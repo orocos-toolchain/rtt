@@ -48,6 +48,8 @@
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
 #include "../typekit/Types.hpp"
+#include <ostream>
+#include <sstream>
 #ifdef OS_RT_MALLOC
 #include "../rt_string.hpp"
 #endif

@@ -248,6 +248,22 @@ namespace RTT
        * @see types::TypeInfo
        */
       std::string toString();
+
+      /**
+       * Returns a pointer to the sample contained in this data source, if there
+       * is any, and if it is an lvalue
+       *
+       * Returns 0 otherwise
+       */
+      virtual void* getRawPointer();
+
+      /**
+       * Returns a const pointer to the sample contained in this data source, if
+       * there is any
+       *
+       * Returns 0 otherwise
+       */
+      virtual void const* getRawConstPointer();
   };
 
     /**

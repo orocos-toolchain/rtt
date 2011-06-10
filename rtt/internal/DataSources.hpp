@@ -42,7 +42,6 @@
 #include "mystd.hpp"
 #include "DataSource.hpp"
 #include "DataSourceTypeInfo.hpp"
-#include "AssignCommand.hpp"
 #include <vector>
 
 namespace RTT
@@ -334,6 +333,15 @@ namespace RTT
                 return *mptr;
             }
 
+            void const* getRawDataConst()
+            {
+                return mptr;
+            }
+            void* getRawData()
+            {
+                return mptr;
+            }
+
             void set( typename AssignableDataSource<T>::param_t t ) {
                 *mptr = t;
             }
@@ -380,6 +388,11 @@ namespace RTT
 
                 void setPointer(const typename AssignableDataSource<T>::value_t* ptr ) {
                     mptr = ptr;
+                }
+
+                void const* getRawDataConst()
+                {
+                    return mptr;
                 }
 
                 typename DataSource<T>::result_t get() const

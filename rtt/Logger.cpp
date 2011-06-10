@@ -294,7 +294,8 @@ namespace RTT
     };
 
     Logger::Logger(std::ostream& str)
-        :d ( new Logger::D(str, getenv("ORO_LOGFILE")) )
+        :d ( new Logger::D(str, getenv("ORO_LOGFILE")) ),
+         inpguard(d->inpguard), logline(d->logline), fileline(d->fileline)
     {
       this->startup();
     }
@@ -306,6 +307,14 @@ namespace RTT
 
     bool Logger::mayLog() const {
         return d->maylog();
+    }
+
+    bool Logger::mayLogFile() const {
+        return d->maylogFile();
+    }
+
+    bool Logger::mayLogStdOut() const {
+        return d->maylogStdOut();
     }
 
     void Logger::mayLogStdOut(bool tf) {

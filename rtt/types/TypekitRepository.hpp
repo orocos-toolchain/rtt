@@ -55,10 +55,6 @@ namespace RTT
      */
     class RTT_API TypekitRepository
     {
-        /** Loaded typekits. */
-        static std::vector<TypekitPlugin*> Typekits;
-        /** Loaded transports. */
-        static std::vector<TransportPlugin*> Transports;
     public:
         /**
          * Import a typekit plugin into the type system of this process.

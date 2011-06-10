@@ -38,7 +38,7 @@
 #ifndef ORO_BUFFER_LOCK_FREE_HPP
 #define ORO_BUFFER_LOCK_FREE_HPP
 
-#include "../os/oro_atomic.h"
+#include "../os/oro_arch.h"
 #include "../os/CAS.hpp"
 #include "BufferInterface.hpp"
 #include "../internal/AtomicMWSRQueue.hpp"
@@ -84,7 +84,7 @@ namespace RTT
          * @param bufsize the capacity of the buffer.
 '         */
         BufferLockFree( unsigned int bufsize, const T& initial_value = T())
-            : bufs( bufsize ), mpool(bufsize)
+            : bufs( bufsize ), mpool(bufsize + 1)
         {
             mpool.data_sample( initial_value );
         }
@@ -134,10 +134,12 @@ namespace RTT
                 return false;
             // copy over.
             *mitem = item;
-            if (bufs.enqueue( mitem ) == false ) { // can this ever happen ?
-                //mpool.deallocate( mitem );
-                //return false;
-                assert(false && "Race detected in Push()");
+            if (bufs.enqueue( mitem ) == false ) {
+		//got memory, but buffer is full
+		//this can happen, as the memory pool is
+		//bigger than the buffer
+                mpool.deallocate( mitem );
+                return false;
             }
             return true;
         }
@@ -175,7 +177,20 @@ namespace RTT
             }
             return items.size();
         }
+        
+        value_t* PopWithoutRelease()
+	{
+            Item* ipop;
+            if (bufs.dequeue( ipop ) == false )
+                return 0;
+	    return ipop;
+	}
 
+	void Release(value_t *item) 
+	{
+            if (mpool.deallocate( item ) == false )
+                assert(false);  
+	}
     };
 }}
 

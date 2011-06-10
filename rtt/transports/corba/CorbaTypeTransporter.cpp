@@ -49,6 +49,6 @@
 using namespace RTT;
 using namespace RTT::corba;
 
-base::ChannelElementBase* CorbaTypeTransporter::createStream( base::PortInterface* /*port*/, const ConnPolicy& p, bool /*is_sender*/) const {
-    return 0;
+base::ChannelElementBase::shared_ptr CorbaTypeTransporter::createStream( base::PortInterface* /*port*/, const ConnPolicy& p, bool /*is_sender*/) const {
+    return base::ChannelElementBase::shared_ptr();
 }

@@ -89,7 +89,7 @@ namespace RTT {
 	     * The CORBA transport does not support creating 'CORBA' streams.
 	     * @return null
 	     */
-        virtual base::ChannelElementBase* createStream( base::PortInterface* /*port*/, const ConnPolicy& /*policy*/, bool /*is_sender*/) const;
+	    virtual base::ChannelElementBase::shared_ptr createStream( base::PortInterface* /*port*/, const ConnPolicy& /*policy*/, bool /*is_sender*/) const;
 
         /**
          * Create a data source for an attribute or property.

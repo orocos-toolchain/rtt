@@ -50,7 +50,7 @@ extern "C" {
 #endif
 
 	// Orocos Implementation (CPU specific)
-#include "../oro_atomic.h"
+#include "../oro_arch.h"
 
 #include "../../rtt-config.h"
 

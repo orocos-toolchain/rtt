@@ -39,7 +39,7 @@
 #ifndef OS_COMMON_ORO_ATOMIC_HPP
 #define OS_COMMON_ORO_ATOMIC_HPP
 
-#include "oro_atomic.h"
+#include "oro_arch.h"
 
 namespace RTT
 { namespace os {
@@ -80,74 +80,20 @@ namespace RTT
          * Set the integer to a new value.
          */
         void set(int i) { oro_atomic_set( &_val, i ); }
-        /**
-         * oro_atomic_add - add integer to atomic variable
-         * @i: integer value to add
-         * 
-         * Atomically adds @i to @v.  Note that the guaranteed useful range
-         * of an oro_atomic_t is only 24 bits.
-         */
-        void add(int i) { oro_atomic_add( i, &_val ); }
-        /**
-         * oro_atomic_sub - subtract the atomic variable
-         * @i: integer value to subtract
-         * 
-         * Atomically subtracts @i from @v.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */
-        void sub(int i) { oro_atomic_sub( i, &_val ); }
-        /**
-         * oro_atomic_sub_and_test - subtract value from variable and test result
-         * @i: integer value to subtract
-         * 
-         * Atomically subtracts @i from @v and returns
-         * true if the result is zero, or false for all
-         * other cases.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */
-        bool sub_and_test(int i) { return oro_atomic_sub_and_test( i, &_val) != 0; }
-        /**
-         * oro_atomic_inc - increment atomic variable
-         * 
-         * Atomically increments @v by 1.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */ 
+
+        void add(int i) { oro_atomic_add( &_val, i ); }
+
+        void sub(int i) { oro_atomic_sub( &_val, i ); }
+
+        bool sub_and_test(int i) { return oro_atomic_sub_and_test( &_val, i) != 0; }
+
         void inc() { oro_atomic_inc( &_val ); }
-        /**
-         * oro_atomic_dec - decrement atomic variable
-         * 
-         * Atomically decrements @v by 1.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */ 
+
         void dec() { oro_atomic_dec( &_val ); }
-        /**
-         * oro_atomic_dec_and_test - decrement and test
-         * 
-         * Atomically decrements @v by 1 and
-         * returns true if the result is 0, or false for all other
-         * cases.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */ 
+
         bool dec_and_test() { return oro_atomic_dec_and_test( &_val ) != 0; }
-        /**
-         * oro_atomic_inc_and_test - increment and test 
-         * 
-         * Atomically increments @v by 1
-         * and returns true if the result is zero, or false for all
-         * other cases.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */ 
+
         bool inc_and_test() { return oro_atomic_inc_and_test( &_val ) != 0; }
-        /**
-         * oro_atomic_add_negative - add and test if negative
-         * @i: integer value to add
-         * 
-         * Atomically adds @i to @v and returns true
-         * if the result is negative, or false when
-         * result is greater than or equal to zero.  Note that the guaranteed
-         * useful range of an oro_atomic_t is only 24 bits.
-         */ 
-        bool add_negative(int i) { return oro_atomic_add_negative(i, &_val ) != 0; }
     };
 
 }}

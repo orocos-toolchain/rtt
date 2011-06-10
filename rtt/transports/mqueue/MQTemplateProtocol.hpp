@@ -42,9 +42,6 @@
 #include "MQLib.hpp"
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
-#include "../../types/Types.hpp"
-#include "../../InputPort.hpp"
-#include "../../OutputPort.hpp"
 
 #include <boost/type_traits/has_virtual_destructor.hpp>
 #include <boost/static_assert.hpp>
@@ -74,20 +71,15 @@ namespace RTT
            * The given \a T parameter is the type for reading DataSources.
            */
           typedef T UserType;
-          /**
-           * When Properties of \a T are constructed, they are non-const, non-reference.
-           */
-          typedef typename Property<T>::DataSourceType PropertyType;
 
-          virtual std::pair<void*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size) const
+          virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
           {
-              typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( source );
-              if ( d )
-                  return std::make_pair((void*) &(d->set()), int(sizeof(T)));
-              return std::make_pair((void*)0,int(0));
+              if ( sizeof(T) <= (unsigned int)size)
+                  return std::make_pair(source->getRawConstPointer(), int(sizeof(T)));
+              return std::make_pair((void const*)0,int(0));
           }
 
-          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target) const
+          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie) const
           {
             typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
             assert( size == sizeof(T) );
@@ -98,15 +90,15 @@ namespace RTT
             return false;
           }
 
-          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored) const
+          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored, void* cookie) const
           {
               // re-implement this in case of complex types, like std::vector<T>.
               return sizeof(T);
           }
 
-          virtual base::ChannelElementBase* createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
+          virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
               try {
-                  base::ChannelElementBase* mq = new MQChannelElement<T>(port, *this, policy, is_sender);
+                  base::ChannelElementBase::shared_ptr mq = new MQChannelElement<T>(port, *this, policy, is_sender);
                   if ( !is_sender ) {
                       // the receiver needs a buffer to store his messages in.
                       base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
@@ -116,8 +108,9 @@ namespace RTT
               } catch(std::exception& e) {
                   log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
               }
-              return 0;
+              return base::ChannelElementBase::shared_ptr();
           }
+
       };
 }
 }
