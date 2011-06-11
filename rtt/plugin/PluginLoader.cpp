@@ -82,6 +82,87 @@ static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
 
+/** Determine whether a file extension is actually part of a library version
+
+    @return true if \a ext satisfies "^\.[:digit:]+$"
+
+    So for example
+    returns true  for ".1", ".12", ".123"
+    returns false for ".a", "1", "123", ".123 ", "a", "", ".1.a", ".1a2"
+*/
+bool isExtensionVersion(const std::string& ext)
+{
+    bool isExtensionVersion = false;
+
+	if (!ext.empty() && ('.' == ext[0]))
+	{
+        std::istringstream	iss;
+        int					i;
+
+		iss.str(ext.substr((size_t)1));	    // take all after the '.'
+        iss >> std::dec >> std::noskipws >> i;
+        isExtensionVersion = !iss.fail() && iss.eof();
+    }
+
+    return isExtensionVersion;
+}
+
+/* Is this a dynamic library that we should load from within a directory scan?
+
+   Versioned libraries are not loaded, to prevent loading both libfoo.so and
+   libfoo.so.1 (which is typically a symlink to libfoo.so, and so loading
+   the same library twice).
+
+   Libraries are either (NB x.y.z is version, and could also be x or x.y)
+
+   Linux
+   libfoo.so          = load this
+   libfoo.so.x.y.z    = don't load this
+
+   Windows
+   libfoo.dll         = load this
+
+   Mac OS X
+   libfoo.dylib       = load this
+   libfoo.x.y.z.dylib = don't load this
+
+   All the above also apply without the "lib" prefix.
+*/
+bool isLoadableLibrary(const path& filename)
+{
+    bool isLoadable = false;
+
+#if     defined(__APPLE__)
+	std::string	ext;
+	ext = filename.extension().string();
+    // ends in SO_EXT?
+	if (0 == ext.compare(SO_EXT))
+	{
+		// Ends in SO_EXT and so must not be a link for us to load
+		// Links are of the form abc.x.dylib or abc.x.y.dylib or abc.x.y.z.dylib,
+		// where x,y,z are positive numbers
+		path	name	= filename.stem();	    // drop SO_EXT
+		path	ext 	= name.extension();
+		isLoadable =
+			// wasn't just SO_EXT
+			!name.empty() &&
+			// and if there is and extension then it is not a number
+			(ext.empty() || !isExtensionVersion(ext.string()));
+    }
+    // else is not loadable
+
+#else
+    // Linux or Windows
+
+    // must end in SO_EXT and have a non-extension part
+    isLoadable =
+        (filename.extension() == SO_EXT) &&
+        !filename.stem().empty();
+#endif
+
+    return isLoadable;
+}
+
 namespace RTT { namespace plugin {
     extern char const* default_plugin_path;
 }}
@@ -282,7 +363,7 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
+                if (is_regular_file(itr->status()) && isLoadableLibrary(itr->path()) ) {
                     found = true;
 #if BOOST_VERSION >= 104600
                     all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ), kind, true) && all_good;
