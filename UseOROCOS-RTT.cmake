@@ -33,18 +33,34 @@ if(OROCOS-RTT_FOUND)
     set(USE_OROCOS_COMPILE_FLAGS " " )
   endif (MSVC)
 
-  # Detect user flag: install with orocos
-  if (INSTALL_PATH STREQUAL "orocos")
-    set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
-    mark_as_advanced(INSTALL_PATH)
-    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
-  else (INSTALL_PATH STREQUAL "orocos")
-    if (WIN32)
-      set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
-      mark_as_advanced(INSTALL_PATH)
-      set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
-    endif (WIN32)
-  endif (INSTALL_PATH STREQUAL "orocos")
+  # On windows, the CMAKE_INSTALL_PREFIX is forced to the Orocos-RTT path.
+  # There's two alternatives to disable this behavior:
+  #
+  # 1. Use the ORO_DEFAULT_INSTALL_PREFIX variable to modify the default
+  #    installation path:
+  #
+  #     set(ORO_DEFAULT_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+  #     include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+  #
+  # 2. Force a non-default CMAKE_INSTALL_PREFIX prior to executing cmake:
+  #
+  #     cmake -DCMAKE_INSTALL_PREFIX="<your install prefix>" [...]
+  #
+  # In all cases, the Orocos macros will always honor any change to the cached
+  # CMAKE_INSTALL_PREFIX variable.
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+    if(WIN32)
+        set(ORO_DEFAULT_INSTALL_PREFIX "orocos")
+    endif(WIN32)
+  endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+
+  if(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+    if(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+        set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Install prefix forced to orocos by ORO_DEFAULT_INSTALL_PREFIX" FORCE)
+    else(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+        set (CMAKE_INSTALL_PREFIX ${ORO_DEFAULT_INSTALL_PREFIX} CACHE PATH "Install prefix forced by ORO_DEFAULT_INSTALL_PREFIX" FORCE)
+    endif(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+  endif(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
   
   # Infer package name from directory name.                                                                                                                                                                                                  
   get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
