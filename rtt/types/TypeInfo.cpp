@@ -80,12 +80,17 @@ namespace RTT
     {
 
         DataSourceBase::shared_ptr ds;
+        // build default constructible:
         if ( args.empty() ) {
             AttributeBase* ab = this->buildVariable("constructor");
             ds = ab->getDataSource();
             delete ab;
             return ds;
         }
+
+        // return same type if equal:
+        if ( args.size() == 1 && args.front()->getTypeInfo() == this )
+            return args.front();
 
         Constructors::const_iterator i= constructors.begin();
         while (i != constructors.end() ) {
@@ -94,6 +99,7 @@ namespace RTT
                 return ds;
             ++i;
         }
+        // returns empty data source to indicate not constructible
         return ds;
     }
 

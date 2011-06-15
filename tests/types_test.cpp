@@ -264,6 +264,48 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 }
 
+BOOST_AUTO_TEST_CASE( testCharType )
+{
+    string test =
+        // Line 2 (see below):
+        string("var char c = char('c');\n") +
+//        "do test.assert( c == c ); \n" +
+//        "do test.assert( char('c') == c ); \n" +
+        "var char d = char('d');\n" +
+//        "do test.assert( c != d ); \n" +
+//        "set c = 'a';\n" +
+        "set c = char('a');\n" +
+        "do test.assert( char('a') == c ); \n" +
+        "do test.assert( c != d ); \n" +
+        "do test.assert( c <  d ); \n" +
+        "do test.assert( c <= d ); \n" +
+        "do test.assert( d >  c ); \n" +
+        "do test.assert( d >= c ); \n" +
+        "set d = c;\n" +
+        "do test.assert( c == d ); \n" +
+        "do test.assert( char('a') == d ); \n" +
+        "do test.assert( char('a') == char('a') ); \n" +
+        "do test.assert( char('a') != char('b') ); \n" +
+        "do test.assert( char('a') <  char('b') ); \n" +
+        "do test.assert( char('a') <= char('b') ); \n" +
+        "do test.assert( char('a') <= char('a') ); \n" +
+        "do test.assert( char('z') >  char('w') ); \n" +
+        "do test.assert( char('z') >= char('w') ); \n" +
+        "do test.assert( char('z') >= char('z') ); \n"
+        ;
+
+    string state = string("StateMachine X { initial state Init { entry {\n")
+        +test
+        +"} }\n"
+        +"final state Fini {} }\n"
+        +"RootMachine X x\n";
+
+    string prog = string("program x {\n") + test + "}\n";
+    // execute
+    executePrograms(prog);
+    executeStates(state);
+}
+
 /**
  * Tests some random operations, and alow the operator+ for strings.
  */
