@@ -84,9 +84,16 @@ if(OROCOS-RTT_FOUND)
     
   endif (ROS_ROOT)
 
+  # Necessary to find rtt when we scan the manifest.xml file.
   if (ROS_ROOT)
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
   endif(ROS_ROOT)
+
+  # Necessary for correctly building mixed libraries on win32.
+  if(OROCOS_TARGET STREQUAL "win32")
+    set(CMAKE_DEBUG_POSTFIX "d")
+  endif(OROCOS_TARGET STREQUAL "win32")
+
 
 #
 # Include and link against required stuff
@@ -299,6 +306,9 @@ macro( orocos_executable EXE_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+    if(CMAKE_DEBUG_POSTFIX)
+        set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+    endif(CMAKE_DEBUG_POSTFIX)
   orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
 
