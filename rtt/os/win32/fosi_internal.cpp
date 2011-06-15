@@ -136,8 +136,8 @@ void ErrorHandler(LPTSTR lpszFunction)
 
     INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
                        int priority,
-                       const char * name,
                        unsigned cpu_affinity,
+                       const char * name,
                        int sched_type,
                        size_t stack_size,
                        void * (*start_routine)(void *),
