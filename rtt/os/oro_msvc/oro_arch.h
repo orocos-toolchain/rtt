@@ -22,7 +22,7 @@ static __forceinline void oro_atomic_add(oro_atomic_t *a_int, int n)
 
 static __forceinline void oro_atomic_sub(oro_atomic_t *a_int, int n)
 {
-	oro_atomic_add(-n, a_int);
+	oro_atomic_add(a_int, -n);
 }
 
 static __forceinline int oro_atomic_sub_and_test(oro_atomic_t *a_int, int n)
@@ -62,7 +62,7 @@ static __forceinline int oro_atomic_add_return(oro_atomic_t *a_int, int n)
 
 static __forceinline int oro_atomic_sub_return(oro_atomic_t *a_int, int n)
 {
-	return oro_atomic_add_return(-n, a_int);
+	return oro_atomic_add_return(a_int, -n);
 }
 
 static __forceinline int oro_atomic_inc_return(oro_atomic_t *a_int)
