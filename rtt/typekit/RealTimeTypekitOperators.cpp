@@ -91,6 +91,7 @@ namespace RTT
             return oss.str();
         }
     };
+#ifdef OS_RT_MALLOC
     template <class T>
     struct rt_string_concatenation : public std::binary_function<const rt_string&, T, rt_string> {
         rt_string operator()(const rt_string& s, T t) const {
@@ -99,6 +100,7 @@ namespace RTT
             return oss.str();
         }
     };
+#endif
     /** @endcond */
 #endif
 
