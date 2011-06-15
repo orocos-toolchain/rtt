@@ -25,9 +25,10 @@
 #include "plugin/Plugin.hpp"
 #include "plugin/PluginLoader.hpp"
 
-// functions internal to rtt/PluginLoader.cpp
-extern bool isLoadableLibrary(const boost::filesystem::path& filename);
-extern bool isExtensionVersion(const std::string& ext);
+/* For internal use only - check if extension contains a version. */
+RTT_API bool isExtensionVersion(const std::string& ext);
+/* For internal use only - check if library should be loaded */
+RTT_API bool isLoadableLibrary(const boost::filesystem::path& filename);
 
 /**
  * Fixture.
