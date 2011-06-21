@@ -58,8 +58,9 @@ namespace RTT
     {
         std::string name;
         std::string mdesc;
-        DataFlowInterface* iface;
     protected:
+        DataFlowInterface* iface;
+
         PortInterface(const std::string& name);
 
     public:

@@ -39,7 +39,10 @@
 #include "PortInterface.hpp"
 #include "InputPortInterface.hpp"
 #include "OutputPortInterface.hpp"
+#include "DataFlowInterface.hpp"
 #include "../Logger.hpp"
+#include <exception>
+#include <stdexcept>
 
 using namespace RTT;
 using namespace detail;
@@ -50,26 +53,32 @@ InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const
 : PortInterface(name)
   , cmanager(this)
   , default_policy( default_policy )
-  , new_data_on_port_event(0) {}
+#ifdef ORO_SIGNALLING_PORTS
+  , new_data_on_port_event(0)
+#endif
+{}
 
 InputPortInterface::~InputPortInterface()
 {
     cmanager.disconnect();
+#ifdef ORO_SIGNALLING_PORTS
     if ( new_data_on_port_event) {
         delete new_data_on_port_event;
     }
+#endif
 }
 
 ConnPolicy InputPortInterface::getDefaultPolicy() const
 { return default_policy; }
 
+#ifdef ORO_SIGNALLING_PORTS
 InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEvent()
 {
     if (!new_data_on_port_event)
         new_data_on_port_event = new NewDataOnPortEvent();
     return new_data_on_port_event;
 }
-
+#endif
 bool InputPortInterface::connectTo(PortInterface* other, ConnPolicy const& policy)
 {
     OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(other);
@@ -112,6 +121,12 @@ bool InputPortInterface::channelReady(ChannelElementBase::shared_ptr channel)
 bool InputPortInterface::removeConnection(ConnID* conn)
 {
     return cmanager.removeConnection(conn);
+}
+
+void InputPortInterface::signal()
+{
+    if (iface)
+        iface->dataOnPort(this);
 }
 
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)

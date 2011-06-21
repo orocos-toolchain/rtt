@@ -44,7 +44,9 @@
 #include <boost/fusion/include/vector.hpp>
 #include "base/OperationBase.hpp"
 #include "internal/LocalOperationCaller.hpp"
+#ifdef ORO_SIGNALLING_OPERATIONS
 #include "internal/Signal.hpp"
+#endif
 #include "internal/OperationCallerBinder.hpp"
 
 namespace RTT

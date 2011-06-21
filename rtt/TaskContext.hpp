@@ -527,6 +527,7 @@ namespace RTT
             return ports()->addPort(port);
         }
 
+        typedef boost::function<void(base::PortInterface*)> SlotFunction;
         /**
          * Name and add an Event triggering Port to the interface of this task and
          * add a Service with the same name of the port.
@@ -536,7 +537,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+        base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, SlotFunction callback = SlotFunction() ) {
             port.setName(name);
             return ports()->addEventPort(port,callback);
         }
@@ -549,7 +550,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, SlotFunction callback = SlotFunction() ) {
             return ports()->addEventPort(port,callback);
         }
 
@@ -620,7 +621,7 @@ namespace RTT
 
         friend class DataFlowInterface;
         internal::MWSRQueue<base::PortInterface*>* portqueue;
-        typedef std::map<base::PortInterface*, boost::shared_ptr<base::InputPortInterface::NewDataOnPortEvent> > UserCallbacks;
+        typedef std::map<base::PortInterface*, SlotFunction > UserCallbacks;
         UserCallbacks user_callbacks;
 
         /**
@@ -637,7 +638,7 @@ namespace RTT
         /**
          * Function to call in the thread of this component if data on the given port arrives.
          */
-        void dataOnPortCallback(base::InputPortInterface* port, base::InputPortInterface::SlotFunction callback);
+        void dataOnPortCallback(base::InputPortInterface* port, SlotFunction callback);
         /**
          * Inform that a given port will no longer raise dataOnPort() events.
          */

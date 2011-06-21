@@ -393,7 +393,9 @@ namespace RTT
     {
         if ( this->isRunning() )
             return false;
+#ifdef ORO_SIGNALLING_PORTS
         ports()->setupHandles();
+#endif
         return TaskCore::start(); // calls startHook()
     }
 
@@ -402,7 +404,9 @@ namespace RTT
         if ( !this->isRunning() )
             return false;
         if (TaskCore::stop()) { // calls stopHook()
+#ifdef ORO_SIGNALLING_PORTS
             ports()->cleanupHandles();
+#endif
             return true;
         }
         return false;
@@ -410,28 +414,24 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
+        cout << "Data on port"<<endl;
         portqueue->enqueue( port );
         this->getActivity()->trigger();
     }
 
-    void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {
-        // creates a Signal that holds the connection for callback.
+    void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
         // user_callbacks will only be emitted from updateHook().
-
+        cout << "Data on port callback added"<<endl;
         MutexLock lock(mportlock);
-        UserCallbacks::iterator it = user_callbacks.find(port);
-        if (it == user_callbacks.end() ) {
-            user_callbacks[port] = boost::make_shared<InputPortInterface::NewDataOnPortEvent>();
-        }
-        user_callbacks[port]->connect(callback);
+        user_callbacks[port] = callback;
     }
 
     void TaskContext::dataOnPortRemoved(PortInterface* port) {
         MutexLock lock(mportlock);
+        cout << "Data on port callback removed"<<endl;
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {
-            user_callbacks[port]->disconnect();
-            user_callbacks.erase(port);
+            user_callbacks.erase(it);
         }
     }
 
@@ -441,8 +441,9 @@ namespace RTT
         PortInterface* port = 0;
         while ( portqueue->dequeue( port ) == true ) {
             UserCallbacks::iterator it = user_callbacks.find(port);
+            cout << "Data on port callback called"<<endl;
             if (it != user_callbacks.end() )
-                it->second->emit(port); // fire the user callbacks.
+                it->second(port); // fire the user callback
         }
     }
 }
