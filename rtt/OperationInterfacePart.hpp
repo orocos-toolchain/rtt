@@ -179,6 +179,7 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const = 0;
 
+#ifdef ORO_SIGNALLING_OPERATIONS
         /**
          * Attach a Signal Handle to this operation which fills in the given data sources and
          * executes a given function.
@@ -189,7 +190,7 @@ namespace RTT
          * @throw no_asynchronous_operation_exception
          */
         virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
-
+#endif
         /**
          * Returns any local operation associated with this operation.
          * @return null if no such operation exists, the operation's implementation

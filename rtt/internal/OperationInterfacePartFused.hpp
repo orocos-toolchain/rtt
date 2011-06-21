@@ -171,6 +171,7 @@ namespace RTT
                 return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
             }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                 // convert our args and signature into a boost::fusion Sequence.
                 if ( args.size() != OperationInterfacePartFused::arity() ) throw wrong_number_of_args_exception(OperationInterfacePartFused::arity(), args.size() );
@@ -191,7 +192,7 @@ namespace RTT
                                    );
 #endif
             }
-
+#endif
             boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
                 return op->getImplementation();
             }
@@ -222,15 +223,16 @@ namespace RTT
             { throw no_asynchronous_operation_exception("cannot use produceSend on synchronous operations"); }
             virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const
             { throw no_asynchronous_operation_exception("cannot use produceCollect on synchronous operations"); }
+#ifdef ORO_SIGNALLING_OPERATIONS
             virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const
             { throw no_asynchronous_operation_exception("cannot use produceSignal on synchronous operations"); }
+#endif
             virtual base::DataSourceBase::shared_ptr produceHandle() const
             { throw no_asynchronous_operation_exception("cannot use produceHandle on synchronous operations"); }
 
             virtual std::string getName() const {
                 return op->getName();
             }
-
             virtual std::string description() const {
                 return OperationInterfacePartHelper::description( op );
             }
@@ -376,7 +378,7 @@ namespace RTT
                     // we need to ask FusedMCollectDataSource what the arg types are, based on the collect signature.
                     return new FusedMCollectDataSource<Signature>( create_sequence<typename FusedMCollectDataSource<Signature>::handle_and_arg_types >::sources(args.begin()), blocking );
                 }
-
+#ifdef ORO_SIGNALLING_OPERATIONS
                 virtual Handle produceSignal( base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const {
                     if ( args.size() != arity() ) throw wrong_number_of_args_exception(arity(), args.size() );
                     // the user won't give the necessary object argument, so we glue it in front.
@@ -401,7 +403,7 @@ namespace RTT
                                        );
     #endif
                 }
-
+#endif
                 boost::shared_ptr<base::DisposableInterface> getLocalOperation() const {
                     return op->getImplementation();
                 }

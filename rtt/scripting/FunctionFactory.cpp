@@ -197,13 +197,14 @@ namespace RTT {
         	throw no_asynchronous_operation_exception("Send not yet implemented for scripting functions.");
             return 0;
         }
+#ifdef ORO_SIGNALLING_OPERATIONS
         Handle FunctionFactory::produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args
                                    ) const {
             log(Error) <<"Installing a signal handler on dynamic function is not yet supported." <<endlog();
         	throw no_asynchronous_operation_exception("Send not yet implemented for scripting functions.");
             return Handle();
         }
-
+#endif
 }
 
 

@@ -542,9 +542,11 @@ namespace RTT {
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
-        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"'."<<Logger::endl;
-        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
 
+        log(Debug) << "Creating Signal handler for Operation '"<< ename <<"'."<<Logger::endl;
+#ifdef ORO_SIGNALLING_OPERATIONS
+        handle = sp->produceSignal( ename, new CommandFunction( boost::bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto) ), args );
+#endif
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
             return false; // event does not exist...

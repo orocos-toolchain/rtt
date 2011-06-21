@@ -177,6 +177,7 @@ namespace RTT
          */
         base::DataSourceBase::shared_ptr produceCollect(const std::string& name, const Arguments& args, internal::DataSource<bool>::shared_ptr blocking) const;
 
+#ifdef ORO_SIGNALLING_OPERATIONS
         /**
          * Attach a Signal Handle to this operation which fills in the given data sources and
          * executes a given function.
@@ -193,7 +194,7 @@ namespace RTT
          * @throw no_asynchronous_operation_exception
          */
         Handle produceSignal(const std::string& name, base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
-
+#endif
         /**
          * The descriptions of an argumentlist.
          */

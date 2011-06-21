@@ -142,8 +142,10 @@ namespace RTT
             // creates a Local OperationCaller
             ExecutionEngine* null_e = 0;
             impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, this->mowner, null_e, et);
+#ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);
+#endif
             return *this;
         }
 
@@ -160,11 +162,14 @@ namespace RTT
             // creates a Local OperationCaller or sets function
             ExecutionEngine* null_e = 0;
             impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, this->mowner, null_e, et);
+#ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);
+#endif
             return *this;
         }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
         /**
          * Indicate that this operation signals a given function.
          * @param func The function to call after the operation is executed
@@ -192,13 +197,14 @@ namespace RTT
         Handle signals(Function func, Object o) {
             return this->signals( internal::OperationCallerBinder<Signature>()(func, o) );
         }
-
+#endif
         virtual base::DisposableInterface::shared_ptr getImplementation() { return impl; }
         virtual const base::DisposableInterface::shared_ptr getImplementation() const { return impl; }
 
         virtual typename base::OperationCallerBase<Signature>::shared_ptr getOperationCaller() { return impl; }
         virtual const typename base::OperationCallerBase<Signature>::shared_ptr getOperationCaller() const { return impl; }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
         /**
          * You can signal this operation instead of calling it.
          * This triggers all attached signal handlers added with signals().
@@ -206,6 +212,7 @@ namespace RTT
          * to check it first.
          */
         typename internal::Signal<Signature>::shared_ptr signal;
+#endif
     private:
         typename internal::LocalOperationCaller<Signature>::shared_ptr impl;
         virtual void ownerUpdated() {
