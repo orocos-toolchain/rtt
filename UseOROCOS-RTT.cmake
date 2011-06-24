@@ -563,12 +563,21 @@ endmacro( orocos_uninstall_target )
 # If you didn't specify VERSION but COMPONENT_VERSION has been set,
 # that variable will be used to set the version number.
 #
-# orocos_generate_package( [name] [VERSION version] )
+# You may specify a dependency list of .pc files to depend on with DEPENDS. You will need this
+# to set the include paths correctly if a public header of
+# this package includes a header of another (non-Orocos) package. This dependency
+# will end up in the Requires: field of the .pc file.
+#
+# You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGET
+# This is similar to DEPENDS, but the -<target> suffix is added for every package name.
+# This dependency will end up in the Requires: field of the .pc file.
+#
+# orocos_generate_package( [name] [VERSION version] [DEPENDS packagenames....])
 #
 macro( orocos_generate_package )
 
   oro_parse_arguments(ORO_CREATE_PC
-    "VERSION"
+    "VERSION;DEPENDS;DEPENDS_TARGETS"
     ""
     ${ARGN}
     )
@@ -600,6 +609,11 @@ macro( orocos_generate_package )
     set(PC_NAME ${PC_NAME}-${OROCOS_TARGET})
   endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
+  # Create dependency list
+  foreach( DEP ${ORO_CREATE_PC_DEPENDS_TARGETS})
+     list(APPEND ${ORO_CREATE_PC_DEPENDS} ${DEP}-${OROCOS_TARGET})
+  endforeach()
+
   # Create lib-path list
   set(PC_LIBS "Libs: ")
   if (OROCOS_DEFINED_LIBS)
@@ -624,7 +638,7 @@ orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
-Requires: orocos-rtt-${OROCOS_TARGET}
+Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
 Cflags: -I\${includedir}
@@ -654,7 +668,7 @@ orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
-Requires: orocos-rtt-${OROCOS_TARGET}
+Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
 Cflags: -I\${includedir} -I\${prefix}/..
