@@ -318,14 +318,13 @@ namespace RTT
             Storage bufptr;
             Item* orig(0);
             Item* nextbuf(0);
-            int items = 0;
             do {
                 if (orig) {
                     oro_atomic_dec(&orig->count);
                     oro_atomic_dec(&nextbuf->count);
                 }
                 orig = lockAndGetActive(bufptr);
-                items = orig->data.size();
+                orig->data.size();
                 nextbuf = findEmptyBuf(bufptr); // find unused Item in bufs
                 nextbuf->data.clear();
             } while ( os::CAS(&active, orig, nextbuf ) == false );

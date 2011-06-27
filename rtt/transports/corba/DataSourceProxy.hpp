@@ -192,11 +192,10 @@ namespace RTT
                 internal::ValueDataSource<T> vds(t);
                 vds.ref();
                 CORBA::Any_var toset = ctp->createAny(&vds);
-                bool res;
                 if ( misproperty ) {
-                    res = mserv->setProperty( mname.c_str(), toset.in() );
+                    mserv->setProperty( mname.c_str(), toset.in() );
                 } else {
-                    res = mserv->setAttribute( mname.c_str(), toset.in() );
+                    mserv->setAttribute( mname.c_str(), toset.in() );
                 }
                 storage->set( t );
             }

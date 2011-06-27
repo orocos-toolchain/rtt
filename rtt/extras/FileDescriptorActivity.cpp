@@ -229,7 +229,7 @@ void FileDescriptorActivity::loop()
             m_has_timeout = true;
         }
 
-        bool do_break = false, do_trigger = true, do_update_sets = false;
+        bool do_break = false, do_trigger = true;
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe
 
@@ -248,8 +248,7 @@ void FileDescriptorActivity::loop()
                     {
                         do_break = true;
                     }
-                    else if (code == CMD_UPDATE_SETS)
-                        do_update_sets = true;
+                    else if (code == CMD_UPDATE_SETS){}
                     else
                         do_trigger = true;
                 }

@@ -436,7 +436,6 @@ namespace RTT
                 return false;
             }
 
-        int errorCount = 0;
 
         Logger::In in("CPFDemarshaller");
 
@@ -468,7 +467,7 @@ namespace RTT
                 delete[] buffer;
 
                 parser->parse( *fis );
-                errorCount = parser->getErrorCount();
+                parser->getErrorCount();
                 delete parser;
                 XMLPlatformUtils::Terminate();
             }
