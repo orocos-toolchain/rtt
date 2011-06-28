@@ -91,6 +91,8 @@ namespace RTT
             return base::ChannelElement<T>::inputReady();
         }
 
+        using base::ChannelElement<T>::write;
+
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */

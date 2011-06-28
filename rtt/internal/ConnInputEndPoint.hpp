@@ -63,6 +63,8 @@ namespace RTT
             delete cid;
         }
 
+        using base::ChannelElement<T>::read;
+
         /** Reads a new sample from this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
