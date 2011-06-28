@@ -56,12 +56,12 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # in this path, also during an autoproj/bootstrap build.
 IF(ROS_ROOT)
   SET(CMAKE_INSTALL_PREFIX
-    ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
+    ${PROJECT_SOURCE_DIR}/../install CACHE PATH "Orocos install prefix for ROS builds" FORCE
     )
   # Necessary when building Debian packages:
   set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
   if (ROS_STACK_DIR_FINAL)
-    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain_ros/rtt/install/lib/orocos")
+    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
   endif(ROS_STACK_DIR_FINAL)
 ENDIF(ROS_ROOT)
 
