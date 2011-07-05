@@ -42,6 +42,7 @@
 #include "mystd.hpp"
 #include "DataSource.hpp"
 #include "DataSourceTypeInfo.hpp"
+#include "Reference.hpp"
 #include <vector>
 
 namespace RTT
@@ -207,10 +208,10 @@ namespace RTT
      */
     template<typename T>
     class ReferenceDataSource
-        : public AssignableDataSource<T>
+	    : public AssignableDataSource<T>, public Reference
     {
-        // a reference to a value_t
-        typename AssignableDataSource<T>::reference_t mref;
+        // a pointer to a value_t
+        T* mptr;
     public:
         /**
          * Use shared_ptr.
@@ -221,26 +222,36 @@ namespace RTT
 
         ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref );
 
+        void setReference(void* ref)
+        {
+            mptr = static_cast<T*>(ref);
+        }
+        void setReference(base::DataSourceBase::shared_ptr dsb)
+        {
+            typename AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast<AssignableDataSource<T> >(dsb);
+            if (ads) mptr = &ads->set();
+        }
+
         typename DataSource<T>::result_t get() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         typename DataSource<T>::result_t value() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
         typename AssignableDataSource<T>::reference_t set()
 		{
-			return mref;
+			return *mptr;
 		}
 
         typename AssignableDataSource<T>::const_reference_t rvalue() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         virtual ReferenceDataSource<T>* clone() const;

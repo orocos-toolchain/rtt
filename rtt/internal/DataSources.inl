@@ -93,19 +93,19 @@ namespace RTT
 
     template<typename T>
     ReferenceDataSource<T>::ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref )
-        : mref( ref )
+        : mptr( &ref )
     {
     }
     template<typename T>
     void ReferenceDataSource<T>::set( typename AssignableDataSource<T>::param_t t )
     {
-        mref = t;
+        *mptr = t;
     }
 
     template<typename T>
     ReferenceDataSource<T>* ReferenceDataSource<T>::clone() const
     {
-        return new ReferenceDataSource<T>(mref);
+        return new ReferenceDataSource<T>(*mptr);
     }
 
     template<typename T>
