@@ -136,6 +136,9 @@ IF ( OS_RT_MALLOC )
 
 ENDIF (OS_RT_MALLOC )
 
+### Use of Signal Class:
+OPTION(ORO_SIGNALLING_OPERATIONS "Enable the signal function of operations. scripting::StateMachine needs this for responding to operations." OFF)
+OPTION(ORO_SIGNALLING_PORTS "Enable the signal callback mechanism on ports. Enable if you want to attach multiple callbacks to flow ports." OFF)
 
 ###
 #   Collect Sources:
