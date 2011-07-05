@@ -38,6 +38,7 @@
 
 #include <string>
 #include "../types/SequenceTypeInfo.hpp"
+#include "../types/TemplateTypeInfo.hpp"
 
 namespace RTT
 {
@@ -67,10 +68,7 @@ namespace RTT
 
             virtual bool composeType(base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const
             {
-                // First, try a plain update.
-                if (result->update(source.get()))
-                    return true;
-                return false;
+                return result->update( source.get() );
             }
 
             /**

@@ -40,6 +40,7 @@
 #define ORO_STRUCT_TYPE_INFO_HPP
 
 #include "TemplateTypeInfo.hpp"
+#include "PropertyDecomposition.hpp"
 #include "type_discovery.hpp"
 
 namespace RTT

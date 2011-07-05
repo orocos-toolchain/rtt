@@ -44,55 +44,16 @@
 #include "../Logger.hpp"
 #include "../InputPort.hpp"
 #include "../OutputPort.hpp"
-#include <ostream>
-#include "../internal/FusedFunctorDataSource.hpp"
-#include "../internal/CreateSequence.hpp"
-#include "PropertyDecomposition.hpp"
-
-#include <boost/type_traits/function_traits.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include "PrimitiveTypeInfo.hpp"
 
 #include "../rtt-config.h"
 
 namespace RTT
 {
     namespace types {
-        template<typename T, bool b_value>
-        struct TypeStreamSelector;
-        template<typename T>
-        struct TypeStreamSelector<T,true>
-        {
-            static std::ostream& write(std::ostream& os, T const& t)
-            {
-#ifdef OS_HAVE_STREAMS
-                os << t;
-#endif
-                return os;
-            }
-            static std::istream& read(std::istream& os, T& t)
-            {
-#ifdef OS_HAVE_STREAMS
-                os >> t;
-#endif
-                return os;
-            }
-        };
-        template<typename T>
-        struct TypeStreamSelector<T,false>
-        {
-            static std::ostream& write(std::ostream& os, T)
-            {
-                return os;
-            }
-            static std::istream& read(std::istream& os, T& )
-            {
-                return os;
-            }
-        };
 
     /**
-     * This template class allows user types to be added to Orocos.
+     * This template class allows user types to be used in all Orocos primitives.
      * It provides 'default' implementations for virtual functions of TypeInfo.
      * For user defined types, this is very likely not satisfactory and
      * the user needs to override the methods of this class in a subclass
@@ -109,9 +70,8 @@ namespace RTT
      */
     template<typename T, bool use_ostream = false>
     class TemplateTypeInfo
-        : public TypeInfo
+        : public PrimitiveTypeInfo<T, use_ostream>
     {
-        const std::string tname;
     public:
         using TypeInfo::buildConstant;
         using TypeInfo::buildVariable;
@@ -133,150 +93,15 @@ namespace RTT
          *
          */
         TemplateTypeInfo(std::string name)
-            : tname(name)
+            : PrimitiveTypeInfo<T,use_ostream>(name)
         {
         }
 
         virtual ~TemplateTypeInfo()
         {
-            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject == this)
-                internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = 0;
-        }
-
-        bool installTypeInfoObject() {
-            // Install the type info object for T.
-            TypeInfo* orig = internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
-            if ( orig != 0) {
-                string oname = orig->getTypeName();
-                if ( oname != tname ) {
-                    log(Info) << "TypeInfo for type '" << tname << "' already exists as '"
-                              << oname
-                              << "': I'll alias the original and install the new instance." << endlog();
-                    this->migrateProtocols( orig );
-                    Types()->aliasType( oname, this); // deletes orig !
-                }
-            } else {
-                // check for type name conflict (ie "string" for "std::string" and "Foo::Bar"
-                if ( Types()->type(tname) ) {
-                    log(Error) << "You attemted to register type name "<< tname << " which is already "
-                               << "in use for a different C++ type." <<endlog();
-                    return false;
-                }
-            }
-            // finally install it:
-            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
-            return true;
-        }
-
-        base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
-        {
-            typename internal::DataSource<PropertyType>::shared_ptr res =
-                boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( internal::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
-            if ( res ) {
-                res->get();
-                Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
-                return new Constant<PropertyType>( name, res->rvalue() );
-            }
-            else
-                return 0;
-        }
-
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            // A variable starts its life as unbounded.
-            Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
-            return new Attribute<T>( name, new internal::UnboundDataSource<internal::ValueDataSource<T> >() );
-        }
-
-        base::AttributeBase* buildAttribute( std::string name, base::DataSourceBase::shared_ptr in) const
-        {
-            typename internal::AssignableDataSource<PropertyType>::shared_ptr ds;
-            if ( !in )
-                ds = new internal::ValueDataSource<PropertyType>();
-            else
-                ds = internal::AssignableDataSource<PropertyType>::narrow( in.get() );
-            if (!ds)
-                return 0;
-            // A variable starts its life as unbounded.
-            Logger::log() << Logger::Debug << "Building Attribute '"<< name <<"' of type " << tname <<Logger::endl;
-            return new Attribute<PropertyType>( name, ds.get() );
-        }
-
-        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
-        {
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
-            if ( ! ds )
-                return 0;
-            return new Alias( name, ds );
-        }
-
-        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
-        {
-            typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( in ); // no type conversion is done.
-            if ( ads )
-                return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
-
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( in ); // no type conversion is done.
-            if ( ! ds )
-                return 0;
-            return new internal::ActionAliasDataSource<T>(action, ds.get());
-        }
-
-        virtual const std::string& getTypeName() const { return tname; }
-
-        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
-            if (source) {
-               typename internal::AssignableDataSource<PropertyType>::shared_ptr ad
-                    = boost::dynamic_pointer_cast< internal::AssignableDataSource<PropertyType> >( source );
-                if (ad)
-                    return new Property<PropertyType>(name, desc, ad );
-                else {
-                    log(Error) <<"Failed to build 'Property<"<< this->tname <<"> "<<name<<"' from given DataSourceBase. Returning default."<<endlog();
-                }
-            }
-            return new Property<PropertyType>(name, desc, PropertyType());
-        }
-
-        virtual base::DataSourceBase::shared_ptr buildValue() const {
-            return new internal::ValueDataSource<PropertyType>();
-        }
-        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
-            return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
-        }
-
-        virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
-            typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
-            if ( d && use_ostream )
-                types::TypeStreamSelector<T, use_ostream>::write( os, d->rvalue() );
-            else {
-#ifdef OS_HAVE_STREAMS
-                std::string output = std::string("(")+ in->getTypeName() +")";
-                os << output;
-#endif
-            }
-            return os;
-            //return os << "("<< tname <<")"
-        }
-
-        virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
-            typename internal::AssignableDataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( out );
-            if ( d && use_ostream ) {
-                types::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
-                d->updated(); // because use of set().
-            }
-            return os;
-        }
-
-        virtual bool isStreamable() const {
-            return use_ostream;
         }
 
         virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
-            // First, try a plain update.
-            if ( result->update( source.get() ) )
-                return true;
-
-            // Did not work, maybe the type needs to be composed.
             const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (source.get() );
             if ( !pb )
                 return false;
@@ -303,13 +128,6 @@ namespace RTT
          */
         virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
         {
-            // backwards-compatibility with convertType(): if it returns a bag, return that bag for decomposition.
-            // otherwise, proceed with normal decomposition. To be removed after 2.3 release, see api doc of convertType()
-            base::DataSourceBase::shared_ptr bc_convert = convertType(source);
-            typename internal::DataSource<PropertyBag>::shared_ptr bc_ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyBag> >( bc_convert );
-            if ( bc_ds )
-                return bc_ds;
-
             // Extract typed values
             typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
             if ( !ds )
@@ -318,15 +136,6 @@ namespace RTT
             if (decomposeTypeImpl( ds->rvalue(), targetbag_p.value() ))
                 return targetbag_p.getDataSource();
             return base::DataSourceBase::shared_ptr();
-        }
-
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
-            // Extract typed values
-            typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
-            if ( !ds )
-                return false; // happens in the case of 'unknown type'
-            // Try user's function.
-            return decomposeTypeImpl( ds->rvalue(), targetbag );
         }
 
         /**
@@ -343,9 +152,6 @@ namespace RTT
         virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
             return false;
         }
-
-		std::string getTypeIdName() const { return typeid(T).name(); }
-
 
         base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
         base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }

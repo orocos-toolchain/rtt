@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
     AssignableDataSource<int>::shared_ptr a = AssignableDataSource<int>::narrow( out.mparts[0].get() );
     AssignableDataSource<double>::shared_ptr b = AssignableDataSource<double>::narrow( out.mparts[1].get() );
     AssignableDataSource<string>::shared_ptr c = AssignableDataSource<string>::narrow( out.mparts[2].get());
-    AssignableDataSource<boost::array<int,5> >::shared_ptr ai = AssignableDataSource<boost::array<int,5> >::narrow( out.mparts[3].get());
+    AssignableDataSource<types::carray<int> >::shared_ptr ai = AssignableDataSource<types::carray<int> >::narrow( out.mparts[3].get());
     AssignableDataSource<vector<double> >::shared_ptr vd = AssignableDataSource<vector<double> >::narrow( out.mparts[4].get());
 
     BOOST_REQUIRE( a );
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testATypeDiscovery )
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
     BOOST_CHECK_EQUAL( b->get(), atype->get().b );
     BOOST_CHECK_EQUAL( c->get(), atype->get().c );
-    BOOST_CHECK_EQUAL( ai->get()[3], atype->get().ai[3] );
+    BOOST_CHECK_EQUAL( ai->get().address()[3], atype->get().ai[3] );
     BOOST_CHECK_EQUAL( vd->get()[3], atype->get().vd[3] );
 
     // Check writing a part (must change in parent too).
