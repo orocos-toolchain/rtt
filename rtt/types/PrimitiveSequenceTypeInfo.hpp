@@ -1,7 +1,7 @@
-#ifndef ORO_SEQUENCE_TYPE_INFO_HPP
-#define ORO_SEQUENCE_TYPE_INFO_HPP
+#ifndef ORO_PRIMITIVE_SEQUENCE_TYPE_INFO_HPP
+#define ORO_PRIMITIVE_SEQUENCE_TYPE_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
+#include "PrimitiveTypeInfo.hpp"
 #include "SequenceTypeInfoBase.hpp"
 
 namespace RTT
@@ -9,19 +9,21 @@ namespace RTT
     namespace types
     {
         /**
-         * Old-style SequenceTypeInfo which offers type info for sequences
-         * which can be sent over flow ports.
+         * New-style SequenceTypeInfo which offers type info for sequences
+         * which can \b NOT be sent over flow ports. This has huge code size
+         * reduction, while still being able to use these sequences in structs
+         * which \b are sent over flow ports.
          */
         template<class T, bool has_ostream=false>
-        class SequenceTypeInfo
-        : public TemplateTypeInfo<T,has_ostream>, public SequenceTypeInfoBase<T>
+        class PrimitiveSequenceTypeInfo
+        : public PrimitiveTypeInfo<T,has_ostream>, public SequenceTypeInfoBase<T>
         {
         public:
-            SequenceTypeInfo(std::string name)
-            : TemplateTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase<T>(this)
+            PrimitiveSequenceTypeInfo(std::string name)
+            : PrimitiveTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase(this)
             {}
 
-            using TemplateTypeInfo<T,has_ostream>::buildVariable;
+            using PrimitiveTypeInfo<T,has_ostream>::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const
             {
                 return SequenceTypeInfoBase<T>::buildVariable(name,size);

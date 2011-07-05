@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     AssignableDataSource<int>::shared_ptr a = AssignableDataSource<int>::narrow( atype->getMember("a").get() );
     AssignableDataSource<double>::shared_ptr b = AssignableDataSource<double>::narrow( atype->getMember("b").get() );
     AssignableDataSource<string>::shared_ptr c = AssignableDataSource<string>::narrow( atype->getMember("c").get());
-    AssignableDataSource<boost::array<int,5> >::shared_ptr ai = AssignableDataSource<boost::array<int,5> >::narrow( atype->getMember("ai").get());
+    AssignableDataSource<carray<int> >::shared_ptr ai = AssignableDataSource<carray<int> >::narrow( atype->getMember("ai").get());
     AssignableDataSource<vector<double> >::shared_ptr vd = AssignableDataSource<vector<double> >::narrow( atype->getMember("vd").get());
 
     BOOST_REQUIRE( a );
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testATypeStruct )
     BOOST_CHECK_EQUAL( a->get(), atype->get().a );
     BOOST_CHECK_EQUAL( b->get(), atype->get().b );
     BOOST_CHECK_EQUAL( c->get(), atype->get().c );
-    BOOST_CHECK_EQUAL( ai->get()[3], atype->get().ai[3] );
+    BOOST_CHECK_EQUAL( ai->get().address()[3], atype->get().ai[3] );
     BOOST_CHECK_EQUAL( vd->get()[3], atype->get().vd[3] );
 
     // Check writing a part (must change in parent too).

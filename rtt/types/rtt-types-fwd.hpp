@@ -26,7 +26,7 @@ namespace RTT {
         class BoostArrayTypeInfo;
         template<typename T, bool has_ostream>
         class CArrayTypeInfo;
-        template<typename T, bool has_ostream, typename Base>
+        template<typename T, bool has_ostream>
         class SequenceTypeInfo;
         template<typename T, bool has_ostream>
         class StructTypeInfo;

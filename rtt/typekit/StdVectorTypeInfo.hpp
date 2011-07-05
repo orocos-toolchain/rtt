@@ -49,12 +49,10 @@ namespace RTT
         /**
          * This class tells Orocos how to handle std::vector<double>.
          */
-        struct StdVectorTypeInfo: public SequenceTypeInfo<std::vector<double>, true, TemplateTypeInfo<std::vector<double>, true> >
+        struct StdVectorTypeInfo: public SequenceTypeInfo<std::vector<double>, true>
         {
-            typedef TemplateTypeInfo<std::vector<double>, true> TypeInfoBase;
-
             StdVectorTypeInfo(std::string name) :
-                SequenceTypeInfo<std::vector<double>, true, TypeInfoBase > (name)
+                SequenceTypeInfo<std::vector<double>, true> (name)
             {
             }
 
@@ -71,7 +69,7 @@ namespace RTT
                 PropertyBag const& source = pb->rvalue();
                 internal::AssignableDataSource<std::vector<double> >::reference_t result = ads->set();
 
-                return composeProperty(source, result) || SequenceTypeInfo<std::vector<double>, true, TypeInfoBase >::composeType(dssource, dsresult);
+                return composeProperty(source, result) || SequenceTypeInfo<std::vector<double>, true>::composeType(dssource, dsresult);
             }
 
         };

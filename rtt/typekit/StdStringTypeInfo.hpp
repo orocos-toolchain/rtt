@@ -48,12 +48,10 @@ namespace RTT
         /**
          * Standard string specialisation that removes decomposition.
          */
-        struct StdStringTypeInfo: public SequenceTypeInfo<std::string, true, TemplateTypeInfo<std::string, true> >
+        struct StdStringTypeInfo: public SequenceTypeInfo<std::string, true>
         {
-            typedef TemplateTypeInfo<std::string, true> TypeInfoBase;
-
             StdStringTypeInfo(const std::string& tname = "string") :
-                SequenceTypeInfo<std::string, true, TypeInfoBase> (tname)
+                SequenceTypeInfo<std::string, true> (tname)
             {
             }
 
@@ -62,7 +60,7 @@ namespace RTT
                 string t_init(size, ' '); // we can't use the default char(), which is null !
 
                 // returned type is identical to parent, but we set spaces.
-                base::AttributeBase* ret = SequenceTypeInfo<std::string, true, TypeInfoBase>::buildVariable(name, size);
+                base::AttributeBase* ret = SequenceTypeInfo<std::string, true>::buildVariable(name, size);
                 Attribute<std::string> tt = ret;
                 tt.set(t_init);
                 return ret;
