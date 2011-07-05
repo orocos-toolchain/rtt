@@ -1,6 +1,7 @@
 
 include (CMakeDependentOption)
 include (CreatePCFlags)
+include (SelectOneLibrary)
 
 ###
 ### List user options first before traversing sub-directories:
@@ -23,21 +24,8 @@ if (ORO_OS_USE_BOOST_THREAD)
     message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
   endif()
 
-  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
-  # with that in pkgconfig, we take 1) the library for this build type, or
-  # 2) the library if only one is listed, or 3) we error out. 
-  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
-  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
-	if (NOT WIN32)
-		if (1 LESS COUNT_Boost_THREAD_LIBRARY)
-			MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
-		endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
-	endif()
-	list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY} )
-  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+  SELECT_ONE_LIBRARY("Boost_THREAD_LIBRARY" BOOST_THREAD_LIB)
+  list(APPEND OROCOS-RTT_LIBRARIES ${BOOST_THREAD_LIB} ${Boost_DATE_TIME_LIBRARY})
 
 endif()
 

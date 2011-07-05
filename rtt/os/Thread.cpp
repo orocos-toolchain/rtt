@@ -256,7 +256,11 @@ namespace RTT {
             // we do this under lock in order to force the thread to wait until we're done.
             MutexLock lock(breaker);
 
-            log(Info) << "Creating Thread for scheduler: " << msched_type << endlog();
+            log(Info) << "Creating Thread for scheduler=" << msched_type
+                      << ", priority=" << _priority
+                      << ", CPU affinity=" << cpu_affinity
+                      << ", with name='" << name << "'"
+                      << endlog();
             ret = rtos_sem_init(&sem, 0);
             if (ret != 0)
             {

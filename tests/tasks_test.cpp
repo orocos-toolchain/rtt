@@ -67,9 +67,12 @@ struct TestPeriodic
     bool stepped;
 
     TimeService::ticks ts;
+    // LINUX: cpu of last step(), 0 if not yet set
+    // non-LINUX: 0
+    int cpu;
 
     TestPeriodic()
-        : overfail(0), underfail(0), succ(0), stepped(false)
+            : overfail(0), underfail(0), succ(0), stepped(false), cpu(0)
     {
     }
 
@@ -97,6 +100,10 @@ struct TestPeriodic
             }
             ts = TimeService::Instance()->getTicks();
         }
+#if defined( OROCOS_TARGET_GNULINUX )
+        cpu = sched_getcpu();
+        BOOST_REQUIRE_NE(ENOSYS, cpu);
+#endif
     }
     void finalize() {
         if (overfail || underfail)
@@ -107,6 +114,7 @@ struct TestPeriodic
         overfail = 0;
         underfail = 0;
         succ = 0;
+        cpu = 0;
         stepped = false;
     }
 };
@@ -316,6 +324,66 @@ BOOST_AUTO_TEST_CASE( testThread )
   t->run(0);
 }
 
+#if defined( OROCOS_TARGET_GNULINUX )
+// run on just the target CPU
+void testAffinity2(boost::scoped_ptr<TestPeriodic>& run,
+                   boost::scoped_ptr<Activity>& t,
+                   int targetCPU)
+{
+    bool r = false;
+
+    t->run( run.get() );
+
+    BOOST_CHECK(t->setCpuAffinity(1 << targetCPU));
+    BOOST_CHECK_EQUAL((1 << targetCPU), t->getCpuAffinity());
+
+    if ( t->getScheduler() == os::HighestPriority) {
+        r = t->start();
+        BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
+        r = t->stop();
+        BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
+        BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
+        BOOST_CHECK_EQUAL(targetCPU, run->cpu);
+        BOOST_CHECK_LT(0, run->succ);
+        run->reset();
+    }
+    BOOST_CHECK_EQUAL(0, run->cpu);
+    r = t->start();
+    BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
+    sleep(1);
+    r = t->stop();
+    BOOST_CHECK_MESSAGE( r, "Failed to stop Thread" );
+    BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
+    BOOST_CHECK_EQUAL(targetCPU, run->cpu);
+    BOOST_CHECK_LT(0, run->succ);
+
+    t->run(0);
+}
+
+BOOST_AUTO_TEST_CASE( testAffinity )
+{
+    // this test is kind of irrelevant with only 1 CPU
+    int numCPU = sysconf( _SC_NPROCESSORS_ONLN );
+    if (1 < numCPU)
+    {
+        boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
+        boost::scoped_ptr<Activity> t( new Activity(ORO_SCHED_RT, os::HighestPriority, 0.1, ~0, 0, "PThread") );
+        // returned affinity depends on the number of actual CPUs, and won't be "~0"
+        unsigned    mask=0;
+        for (int i=0; i<numCPU; ++i)
+        {
+            mask |= (1 << i);
+        }
+        BOOST_CHECK_EQUAL(mask, t->getCpuAffinity());
+
+        // test just a couple of cases
+        testAffinity2(run, t, 0);
+        testAffinity2(run, t, numCPU-1);
+    }
+    // else ignore test as insufficient number of CPUs
+}
+
+#endif
 
 BOOST_AUTO_TEST_CASE( testNonPeriodic )
 {
