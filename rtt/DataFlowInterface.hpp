@@ -84,6 +84,7 @@ namespace RTT
          * @param port The port to add.
          */
         base::PortInterface& addPort(const std::string& name, base::PortInterface& port) {
+            if ( !chkPtr("addPort", name, &port) ) return port;
             port.setName(name);
             return addPort(port);
         }
@@ -108,6 +109,7 @@ namespace RTT
          * directly using base::PortInterface::getNewDataOnPort().
          */
         base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+            if ( !chkPtr("addEventPort", name, &port) ) return port;
             port.setName(name);
             return addEventPort(port,callback);
         }
@@ -239,6 +241,7 @@ namespace RTT
          */
         Service* createPortObject(const std::string& name);
 
+        bool chkPtr(const std::string &where, const std::string& name, const void* ptr);
         /**
          * All our ports.
          */

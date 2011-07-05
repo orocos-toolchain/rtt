@@ -57,6 +57,7 @@ namespace RTT
     }
 
     PortInterface& DataFlowInterface::addPort(PortInterface& port) {
+        if ( !chkPtr("addPort", "PortInterface", &port) ) return port;
         this->addLocalPort(port);
         if (mservice && mservice->hasService( port.getName()) != 0) {
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
@@ -91,6 +92,7 @@ namespace RTT
 
 
     InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        if ( !chkPtr("addEventPort", "PortInterface", &port) ) return port;
         this->addLocalEventPort(port, callback);
         if (mservice && mservice->hasService( port.getName()) != 0) {
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
@@ -220,4 +222,14 @@ namespace RTT
         }
         mports.clear();
     }
+
+    bool DataFlowInterface::chkPtr(const std::string & where, const std::string & name, const void *ptr)
+    {
+        if ( ptr == 0) {
+            log(Error) << "You tried to add a null pointer in '"<< where << "' for the object '" << name << "'. Fix your code !"<< endlog();
+            return false;
+        }
+        return true;
+    }
+
 }
