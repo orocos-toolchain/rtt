@@ -20,6 +20,20 @@ if(OROCOS-RTT_FOUND)
   add_definitions(${OROCOS-RTT_DEFINITIONS})
   set(ROS_ROOT $ENV{ROS_ROOT})
 
+  if (ROS_ROOT)
+    set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
+    #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
+    foreach( path IN ROS_PACKAGE_PATH )
+      if ( path MATCHES ${CMAKE_CURRENT_SOURCE_DIR} )
+	set(IS_ROS_PACKAGE TRUE)
+	message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
+      endif()
+    endforeach()
+    if(NOT IS_ROS_PACKAGE)
+      message("ROS_ROOT was detected but this package is in NOT your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
+    endif()
+  endif()
+
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
     SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
@@ -77,7 +91,7 @@ if(OROCOS-RTT_FOUND)
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
   
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     if ( NOT ROSBUILD_init_called )
       include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
       rosbuild_init()
@@ -95,7 +109,7 @@ if(OROCOS-RTT_FOUND)
     foreach(ROSDEP ${pkg_DEPS2})
         orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
-  else (ROS_ROOT)
+  else (IS_ROS_PACKAGE)
     # Fall back to 'manually' processing the manifest.xml file.
     orocos_get_manifest_deps( DEPS )
     #message("Dependencies are: ${DEPS}")
@@ -103,12 +117,12 @@ if(OROCOS-RTT_FOUND)
         orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
     
-  endif (ROS_ROOT)
+  endif (IS_ROS_PACKAGE)
 
   # Necessary to find rtt when we scan the manifest.xml file.
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
-  endif(ROS_ROOT)
+  endif(IS_ROS_PACKAGE)
 
   # Necessary for correctly building mixed libraries on win32.
   if(OROCOS_TARGET STREQUAL "win32")
@@ -194,7 +208,7 @@ macro( orocos_component COMPONENT_NAME )
   MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
 
   # Use rosbuild in ros environments:
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}
@@ -261,7 +275,7 @@ macro( orocos_library LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
   else()
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
@@ -317,7 +331,7 @@ macro( orocos_executable EXE_TARGET_NAME )
       set( EXE_NAME ${EXE_TARGET_NAME})
   endif()
   MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
   else()
     ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
@@ -335,11 +349,11 @@ macro( orocos_executable EXE_TARGET_NAME )
 
   TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     message("Note: not installing ${EXE_TARGET_NAME} since we're in a ROS package.")
-  else(ROS_ROOT)
+  else(IS_ROS_PACKAGE)
     INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-  endif(ROS_ROOT)
+  endif(IS_ROS_PACKAGE)
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_executable )
@@ -406,7 +420,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
   MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types
@@ -470,7 +484,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -650,7 +664,7 @@ Cflags: -I\${includedir}
   #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
   # For ros package trees, we install the .pc file also next to the manifest file:
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     set(PC_PREFIX ${PROJECT_SOURCE_DIR})
     set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
     # For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
@@ -675,7 +689,7 @@ Cflags: -I\${includedir} -I\${prefix}/..
 ")
     string(CONFIGURE "${PC_CONTENTS}" ROS_PC_CONTENTS @ONLY)
     file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
-  endif (ROS_ROOT)
+  endif (IS_ROS_PACKAGE)
 
   # Also set the uninstall target:
   orocos_uninstall_target()

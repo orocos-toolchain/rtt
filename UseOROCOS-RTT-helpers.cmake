@@ -53,7 +53,7 @@ function( orocos_use_package PACKAGE )
   if (PACKAGE STREQUAL "rtt")
     return()
   endif (PACKAGE STREQUAL "rtt")
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     if (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
       # use rospack to find package directories of *all* dependencies.
       # We need these because a .pc file may depend on another .pc file in another package.
@@ -79,10 +79,10 @@ function( orocos_use_package PACKAGE )
 	message("[UseOrocos] Note: '${PACKAGE}' is not a ROS package. Trying .pc file...")
       endif (VERBOSE)
     endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
-  else(ROS_ROOT)
+  else(IS_ROS_PACKAGE)
     #Use default pkg-config path
     #message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH.")
-  endif(ROS_ROOT)
+  endif(IS_ROS_PACKAGE)
 
   # Now we are ready to get the flags from the .pc files:
   #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
