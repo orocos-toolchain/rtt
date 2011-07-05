@@ -115,8 +115,8 @@ namespace RTT
         virtual bool signal()
         {
             InputPort<T>* port = this->port;
-            if (port && port->new_data_on_port_event)
-                (*port->new_data_on_port_event)(port);
+            if (port )
+                port->signal();
             return true;
         }
 

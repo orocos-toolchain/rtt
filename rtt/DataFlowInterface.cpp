@@ -90,8 +90,7 @@ namespace RTT
         return port;
     }
 
-
-    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, SlotFunction callback) {
         if ( !chkPtr("addEventPort", "PortInterface", &port) ) return port;
         this->addLocalEventPort(port, callback);
         if (mservice && mservice->hasService( port.getName()) != 0) {
@@ -109,6 +108,7 @@ namespace RTT
         return port;
     }
 
+#ifdef ORO_SIGNALLING_PORTS
     void DataFlowInterface::setupHandles() {
         for_each(handles.begin(), handles.end(), boost::bind(&Handle::connect, _1));
     }
@@ -116,22 +116,18 @@ namespace RTT
     void DataFlowInterface::cleanupHandles() {
         for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
     }
+#endif
+    void DataFlowInterface::dataOnPort(base::PortInterface* port)
+    {
+        if ( mservice && mservice->getOwner() )
+            mservice->getOwner()->dataOnPort(port);
+    }
 
-    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, SlotFunction callback) {
         this->addLocalPort(port);
 
         if (mservice == 0 || mservice->getOwner() == 0) {
             log(Error) << "addLocalEventPort "<< port.getName() <<": DataFlowInterface not part of a TaskContext. Will not trigger any TaskContext nor register callback." <<endlog();
-            return port;
-        }
-
-        // setup synchronous callback, only purpose is to register that port fired and trigger the TC's engine.
-        Handle h = port.getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mservice->getOwner(), _1) );
-        if (h) {
-            log(Info) << mservice->getName() << " will be triggered when new data is available on InputPort " << port.getName() << endlog();
-            handles.push_back(h);
-        } else {
-            log(Error) << mservice->getName() << " can't connect to event of InputPort " << port.getName() << endlog();
             return port;
         }
 

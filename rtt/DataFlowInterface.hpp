@@ -45,6 +45,7 @@
 #include "base/InputPortInterface.hpp"
 #include "base/OutputPortInterface.hpp"
 #include "rtt-fwd.hpp"
+#include <boost/function.hpp>
 
 namespace RTT
 {
@@ -67,6 +68,8 @@ namespace RTT
          * A sequence of names of ports.
          */
         typedef std::vector<std::string> PortNames;
+
+        typedef boost::function<void(base::PortInterface*)> SlotFunction;
 
         /**
          * Construct the DataFlow interface of a Service.
@@ -108,7 +111,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using base::PortInterface::getNewDataOnPort().
          */
-        base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() ) {
+        base::InputPortInterface& addEventPort(const std::string& name, base::InputPortInterface& port, SlotFunction callback = SlotFunction() ) {
             if ( !chkPtr("addEventPort", name, &port) ) return port;
             port.setName(name);
             return addEventPort(port,callback);
@@ -126,7 +129,7 @@ namespace RTT
          * regard to the arrival of data on the port.
          * @return \a port
          */
-        base::InputPortInterface& addEventPort(base::InputPortInterface& port, base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+        base::InputPortInterface& addEventPort(base::InputPortInterface& port, SlotFunction callback = SlotFunction() );
 
         /**
          * Remove a Port from this interface.
@@ -210,7 +213,7 @@ namespace RTT
          * @return \a port
          */
         base::InputPortInterface& addLocalEventPort(base::InputPortInterface& port,
-                base::InputPortInterface::NewDataOnPortEvent::SlotFunction callback = base::InputPortInterface::NewDataOnPortEvent::SlotFunction() );
+                SlotFunction callback = SlotFunction() );
 
         /**
          * Get a port of a specific type.
@@ -226,6 +229,7 @@ namespace RTT
          */
         void clear();
 
+#ifdef ORO_SIGNALLING_PORTS
         /**
          * Called by TaskContext::start() to setup all triggers of EventPorts.
          */
@@ -234,6 +238,12 @@ namespace RTT
          * Called by TaskContext::stop() to remove all triggers of EventPorts.
          */
         void cleanupHandles();
+#else
+        /**
+         * Used by the input ports to notify this class of new data.
+         */
+        void dataOnPort(base::PortInterface* port);
+#endif
     protected:
         /**
          * Create a Service through which one can access a Port.
@@ -250,13 +260,14 @@ namespace RTT
          * The parent Service. May be null in exceptional cases.
          */
         Service* mservice;
+#ifdef ORO_SIGNALLING_PORTS
         /**
          * These handles contain the links from an event port's signal to
          * the TaskContext::dataOnPort method.
          */
         typedef std::vector< Handle > Handles;
         Handles handles;
-
+#endif
 
     };
 

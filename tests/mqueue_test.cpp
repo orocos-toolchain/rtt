@@ -56,7 +56,7 @@ public:
         tc->ports()->addPort( *mw1 );
 
         t2 = new TaskContext("other");
-        t2->ports()->addEventPort( *mr2 );
+        t2->ports()->addEventPort( *mr2, boost::bind(&MQueueTest::new_data_listener, this, _1) );
         t2->ports()->addPort( *mw2 );
 
         tc->start();
@@ -89,7 +89,6 @@ public:
     InputPort<double>*  mr2;
     OutputPort<double>* mw2;
 
-    Handle hl;
     ConnPolicy policy;
 
     // helper test functions
@@ -109,11 +108,6 @@ public:
         policy.size = 0;
         policy.pull = true;
         policy.transport = ORO_MQUEUE_PROTOCOL_ID;
-
-        // Set up an event handler to check if signalling works properly as well
-        hl = mr2->getNewDataOnPortEvent()->setup(
-                    boost::bind(&MQueueTest::new_data_listener, this, _1) );
-
     }
 };
 
@@ -123,7 +117,6 @@ public:
     rtos_disable_rt_warning(); \
     usleep(100000); \
     rtos_enable_rt_warning(); \
-    BOOST_CHECK( hl.connected() ); \
     BOOST_CHECK( read_port == signalled_port );
 
 void MQueueTest::testPortDataConnection()
@@ -196,8 +189,6 @@ BOOST_FIXTURE_TEST_SUITE(  MQueueTestSuite,  MQueueFixture )
  */
 BOOST_AUTO_TEST_CASE( testPortConnections )
 {
-    BOOST_CHECK( hl.connect() );
-
 #if 1
     // WARNING: in the following, there is four configuration tested.
     // We need to manually disconnect both sides since mqueue are connection-less.
@@ -250,8 +241,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
 
 BOOST_AUTO_TEST_CASE( testPortStreams )
 {
-    BOOST_CHECK( hl.connect() );
-
     // Test all four configurations of Data/Buffer & push/pull
     policy.type = ConnPolicy::DATA;
     policy.pull = false;
@@ -338,8 +327,6 @@ BOOST_AUTO_TEST_CASE( testPortStreamsWrongName )
 // copied from testPortStreams
 BOOST_AUTO_TEST_CASE( testVectorTransport )
 {
-    BOOST_CHECK( hl.connect() );
-
     DataFlowInterface* ports  = tc->ports();
     DataFlowInterface* ports2 = t2->ports();
 

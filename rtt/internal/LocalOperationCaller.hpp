@@ -330,7 +330,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit();
+#endif
                     if ( this->mmeth )
                         return this->mmeth(); // ClientThread
                     else
@@ -355,7 +357,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else{
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1);
                     else
@@ -375,7 +379,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2);
                     else
@@ -395,7 +401,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2,a3);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2,a3);
                     else
@@ -415,7 +423,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2,a3,a4);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2,a3,a4);
                     else
@@ -435,7 +445,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2,a3,a4,a5);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2,a3,a4,a5);
                     else
@@ -455,7 +467,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2,a3,a4,a5,a6);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2,a3,a4,a5,a6);
                     else
@@ -475,7 +489,9 @@ namespace RTT
                     else
                         throw SendFailure;
                 } else {
+#ifdef ORO_SIGNALLING_OPERATIONS
                     if (this->msig) this->msig->emit(a1,a2,a3,a4,a5,a6,a7);
+#endif
                     if ( this->mmeth )
                         return this->mmeth(a1,a2,a3,a4,a5,a6,a7);
                     else
@@ -647,15 +663,18 @@ namespace RTT
                 return this->mmeth;
             }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
             void setSignal(typename Signal<Signature>::shared_ptr sig) {
                 this->msig = sig;
             }
-
+#endif
             base::OperationCallerBase<Signature>* cloneI(ExecutionEngine* caller) const
             {
                 LocalOperationCaller<Signature>* ret = new LocalOperationCaller<Signature>(*this);
                 ret->setCaller( caller );
+#ifdef ORO_SIGNALLING_OPERATIONS
                 ret->setSignal( this->msig );
+#endif
                 return ret;
             }
 

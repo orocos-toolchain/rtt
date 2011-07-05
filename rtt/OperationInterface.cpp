@@ -134,6 +134,7 @@ base::DataSourceBase::shared_ptr OperationInterface::produceCollect(const std::s
     return i->second->produceCollect(args, blocking);
 }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
 Handle OperationInterface::produceSignal(const std::string& name, base::ActionInterface* act, const Arguments& args) const
 {
     map_t::const_iterator i = data.find(name);
@@ -141,7 +142,7 @@ Handle OperationInterface::produceSignal(const std::string& name, base::ActionIn
         ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
     return i->second->produceSignal(act, args);
 }
-
+#endif
 OperationInterface::Descriptions OperationInterface::getArgumentList(const std::string& name) const
 {
     map_t::const_iterator i = data.find(name);

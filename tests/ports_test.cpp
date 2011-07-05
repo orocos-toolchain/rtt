@@ -483,6 +483,7 @@ BOOST_AUTO_TEST_CASE( testPortObjects)
     BOOST_CHECK( tc->ports()->getPort("Writer") == 0 );
 }
 
+#ifdef ORO_SIGNALLING_PORTS
 BOOST_AUTO_TEST_CASE(testPortSignalling)
 {
     OutputPort<double> wp1("Write");
@@ -509,6 +510,7 @@ BOOST_AUTO_TEST_CASE(testPortSignalling)
     wp1.write(0.1);
     BOOST_CHECK(0 == signalled_port);
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(testPortAddRemove)
 {
@@ -517,12 +519,8 @@ BOOST_AUTO_TEST_CASE(testPortAddRemove)
     InputPort<double>*  ep1 = new InputPort<double>("ERead");
     TaskContext tc("tc");
     tc.addPort( *wp1 );
-    tc.addPort( *rp1 );
+    tc.addEventPort( *rp1, boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
     tc.addEventPort( *ep1 );
-
-    Handle hl( rp1->getNewDataOnPortEvent()->setup(
-                boost::bind(&PortsTestFixture::new_data_listener, this, _1) ) );
-    hl.connect();
 
     wp1->createConnection(*rp1, ConnPolicy::data());
     wp1->createConnection(*ep1, ConnPolicy::data());
@@ -549,12 +547,8 @@ BOOST_AUTO_TEST_CASE(testPortAddRemove)
     ep1 = new InputPort<double>("ERead");
 
     tc.addPort( *wp1 );
-    tc.addPort( *rp1 );
+    tc.addEventPort( *rp1, boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
     tc.addEventPort( *ep1 );
-
-    hl = rp1->getNewDataOnPortEvent()->setup(
-                boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
-    hl.connect();
 
     wp1->createConnection(*rp1, ConnPolicy::data());
     wp1->createConnection(*ep1, ConnPolicy::data());

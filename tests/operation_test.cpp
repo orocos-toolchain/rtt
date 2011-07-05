@@ -268,6 +268,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall0 )
     BOOST_CHECK_EQUAL( 1.0, m0.call() );
 }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
 // Test adding and signalling an operation without an implementation
 BOOST_AUTO_TEST_CASE( testOperationSignal )
 {
@@ -313,6 +314,6 @@ BOOST_AUTO_TEST_CASE( testOperationCallAndSignal )
     op0.signal->emit();
     BOOST_CHECK_EQUAL( -1.0, sig );
 }
-
+#endif
 BOOST_AUTO_TEST_SUITE_END()
 
