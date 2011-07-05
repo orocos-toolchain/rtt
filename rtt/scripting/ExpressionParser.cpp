@@ -152,11 +152,16 @@ namespace RTT
                       mobject = "GlobalService";
                       ops = GlobalService::Instance();
                   } else {
+                      if ( ops == peerparser.taskObject() && ops->provides("scripting")->hasMember(mmethod) ) {
+                          mobject = "scripting";
+                          ops = ops->provides("scripting");
+                      } else {
                       //DumpObject( peer );
                       if ( mobject != "this" )
                           throw parse_exception_no_such_method_on_component( mobject, mmethod );
                       else
                           throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+                      }
                   }
               }
           }

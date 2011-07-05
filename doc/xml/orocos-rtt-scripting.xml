@@ -125,6 +125,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Documented typekit integration</revremark>
       </revision> 
+      <revision>
+	<revnumber>2.5.0</revnumber>
+	<date>5 Jul 2011</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Improved call semantics for functions: local/export/global keywords</revremark>
+      </revision> 
    </revhistory>
 
     <legalnotice>
@@ -209,9 +215,12 @@
 	    <member>double</member>
 	    <member>else</member>
 	    <member>end</member>
+	    <member>export</member>
+	    <member>local</member>
 	    <member>false</member>
 	    <member>for</member>
 	    <member>foreach</member>
+	    <member>global</member>
 	    <member>if</member>
 	    <member>include</member>
 	    <member>int</member>
@@ -789,7 +798,7 @@
 	  call another function which is earlier defined. Thus recursive
 	  function calling is not allowed in this language.
 	</para>
-	<programlisting>  // A function only known in the current script
+	<programlisting>  // A function only known in the current scripting service
   void func_name( int arg1, double arg2 ) {
     // an arbitrary number of statements
   }
@@ -798,40 +807,63 @@
   export double func_name(bool arg) {
     // ...
     if ( arg ) then return +10.0; else return -10.0;
+  }
+
+  // A function put in the global service interface of the current process
+  global double global_func_name(bool arg) {
+    // ...
+    if ( arg ) then return +10.0; else return -10.0;
   }</programlisting>
         <para>
-	  A function can have any number of arguments, which are
-	  passed by value, and may return a value. By default, a function
-	  is only known in the current script and can only be called by the 'call'
-	  statement, as shown below.
-	</para>
-	<para>
-	  A function can be exported using the
-	  <emphasis>export</emphasis> keyword, in which case it
-	  becomes an operation of the TaskContext it is loaded in.
-	  This allows you to extend the interface of a component at
-	  runtime.
-	</para>
+					A function can have any number of arguments, which are
+					passed by value, and may return a value.
+				</para>
+				<para> 
+					By default, a function is only known in the scripting service of the current
+					component.  You can make this explicit by writing the <emphasis>local</emphasis>
+					keyword in front of the return value. This function will be found as an operation in
+					the 'scripting' Service of the current component. You should not rely on the
+					presence or name of this Operation, since it is considered as 'internal' to the
+					scripting Service. Future releases may relocate or rename this function.
+				</para>
+				<para>
+					You can add a function to the interface of the current component by using the
+					<emphasis>export</emphasis> keyword. This allows you to extend the interface of a
+					component at run-time.
+				</para>
+				<para>
+					Finally, the <emphasis>global</emphasis> keyword puts the defined function in the
+					<classname>RTT::internal::GlobalService</classname>, which makes it available for any
+					component or script in the current process.
+				</para>
+				<para>
+					You may redefine a function with the same name, in which case a warning
+					will be logged and the new function is installed. In case the same
+					function name is in use locally, at the TaskContext interface or globally,
+					the local function is used first, then the TaskContext function and 
+					finally the global function.
+				</para>
       </section>
       <section>
 	<title>Calling functions</title>
 	<para>
-	  A function can be called in two fashions :
+	  A function can be called as a regular Operation :
 	</para>
 	  <programlisting>
-  foo(arg)      // only 'exported' functions
-  call foo(arg) // functions defined in the same file</programlisting>
+  foo(arg)      // is a global, local or exported function of the current component
+  </programlisting>
 	<para>
-	  The call keyword causes the function to be inlined in the
-	  current location. Omitting the call keyword is only allowed
-	  for exported function. In that case, the normal operation
-	  is invoked, just like any other operation.
+		
 	</para>
 	<para>
-	  If one of the statements of the exported function
-	  returns error, an exception is thrown and the calling
-	  program goes into the error state.
+	  If one of the statements of the called function
+	  throws an exception, an exception is thrown in the current 
+		program and the calling program goes into the error state.
 	</para>
+	<note>
+		<para>The 'call' keyword has been deprecated since version 2.5 and should
+		no longer be used.</para>
+	</note>
       </section>
       <section>
 	<title><symbol>return</symbol></title>

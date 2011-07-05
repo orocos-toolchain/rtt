@@ -45,6 +45,7 @@
 #include "TryCommand.hpp"
 #include "FunctionFactory.hpp"
 #include "../TaskContext.hpp"
+#include "../internal/GlobalService.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -93,7 +94,7 @@ namespace RTT
         peerparser(rootc, commonparser),
         program_builder( new FunctionGraphBuilder() ),
         for_init_command(0),
-        exportf(false),
+        exportf(false),globalf(false),
         ln_offset(0)
   {
       // putting the code in setup() works around a GCC 4.1 bug.
@@ -160,7 +161,8 @@ namespace RTT
 
     // a function is very similar to a program, but it also has a name
     function = (
-       !str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)]
+            // optional visibility qualifiers:
+       !( str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)] | str_p( "global" )[boost::bind(&ProgramGraphParser::globaldef, this)] | str_p("local") )
        >> (str_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
        >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
@@ -170,7 +172,7 @@ namespace RTT
        );
 
     // the function's definition args :
-    funcargs = ch_p('(') >> ( ch_p(')') | ((
+    funcargs = ch_p('(') >> ( (!str_p("void") >> ch_p(')')) | ((
          valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]
              >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
@@ -198,7 +200,7 @@ namespace RTT
     valuechange = valuechangeparser.parser()[ boost::bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     // take into account deprecated 'do' and 'set'
-    dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >>
+    dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >> !lexeme_d[str_p("call ")]  >>
             (
               ( str_p("yield") | "nothing")[boost::bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ boost::bind(&ProgramGraphParser::seenstatement,this) ]
@@ -314,6 +316,11 @@ namespace RTT
       exportf = true;
   }
 
+  void ProgramGraphParser::globaldef()
+  {
+      globalf = true;
+  }
+
   void ProgramGraphParser::seenreturntype( iter_t begin, iter_t end )
   {
       rettype = std::string(begin, end);
@@ -332,19 +339,18 @@ namespace RTT
 //       }
 
 //       if ( __f->hasPeer( funcdef ) )
+      // only redefining a function twice in the same file is an error. If the function
+      // was already added to the scripting or component interface before, we replace it
+      // and warn about it in seenfunctionend():
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->provides()->hasMember( funcdef ))
-          throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
-
       AttributeBase* retarg = 0;
-      if ( !rettype.empty() ) {
+      if ( !rettype.empty() && rettype != "void") {
           TypeInfo* type = TypeInfoRepository::Instance()->type( rettype );
           if ( type == 0 )
               throw_( iter_t(), "Return type '" + rettype + "' for function '"+ funcdef +"' is an unknown type." );
-          if (rettype != "void")
-              retarg = type->buildAttribute("result");
+          retarg = type->buildAttribute("result");
       }
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
@@ -378,16 +384,35 @@ namespace RTT
       if (exportf) {
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
+          if (rootc->provides()->hasMember( mfunc->getName() ) )
+              log(Warning) << "Redefining function '"<< rootc->getName() << "." << mfunc->getName() << "': only new programs will use this new function." <<endlog();
           rootc->provides()->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
+      // attach the function to the global service interface.
+      else if (globalf){
+          std::map<const DataSourceBase*, DataSourceBase*> dummy;
+          FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
+          if (GlobalService::Instance()->provides()->hasMember( mfunc->getName() ) )
+              log(Warning) << "Redefining function '"<< GlobalService::Instance()->getName() << "."<< mfunc->getName() << "': only new programs will use this new function." <<endlog();
+          GlobalService::Instance()->provides()->add(mfunc->getName(), cfi );
+          Logger::log() << Logger::Debug << "Seen Function '" << mfunc->getName() << "' for Global Service." <<Logger::endl;
+      } else {
+          std::map<const DataSourceBase*, DataSourceBase*> dummy;
+          FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
+          if (rootc->provides("scripting")->hasMember( mfunc->getName() ) )
+              log(Warning) << "Redefining function '"<< rootc->getName() << ".scripting."<< mfunc->getName() << "': only new programs will use this new function." <<endlog();
+          rootc->provides("scripting")->add(mfunc->getName(), cfi );
+          Logger::log() << Logger::Debug << "Seen Function '" << mfunc->getName() << "' for scripting service of '"<< rootc->getName() << "'" <<Logger::endl;
+      }
+
 
       delete fcontext;
       fcontext = 0;
       context.reset();
 
       // reset
-      exportf = false;
+      exportf = false; globalf = false;
 
       valuechangeparser.reset();
   }
@@ -446,7 +471,7 @@ namespace RTT
       // store the part after 'call'
       std::string fname(begin, end);
       if ( mfuncs.count(fname) == 0 )
-          throw parse_exception_semantic_error("calling function " + fname + " but it is not defined ( use 'do' for calling exported functions ).");
+          throw parse_exception_semantic_error("calling function " + fname + " but it is not defined ( remove the 'call' keyword ).");
       if ( fname == program_builder->getFunction()->getName() )
           throw parse_exception_semantic_error("calling function " + fname + " recursively is not allowed.");
 
@@ -466,6 +491,7 @@ namespace RTT
 
   void ProgramGraphParser::seencallfuncstatement()
   {
+      log(Warning) << " 'call' has been deprecated. Please remove this keyword." << endlog();
       // This function is called if the 'call func' is outside
       // a termination clause.
 
@@ -773,7 +799,7 @@ namespace RTT
       // cleanup all functions :
       delete fcontext;
       fcontext = 0;
-      exportf = false;
+      exportf = false; globalf = false;
       rettype.clear();
       if ( rootc == 0)
           return;
