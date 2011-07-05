@@ -111,7 +111,8 @@ namespace RTT
                 isqueued = true;
                 maccept = minit->execute() && mrunner->runFunction( _foo.get() );
                 // we ignore the ret value of start(). It could have been auto-started during loading() of the function.
-                _foo->start();
+                if ( _foo->needsStart() ) // _foo might be auto-started in runFunction()
+                    _foo->start();
                 if ( maccept ) {
                     // block for the result: foo stopped or in error
                     //mcaller->waitForFunctions(boost::bind(&CallFunction::fooDone,this) );

@@ -148,6 +148,14 @@ namespace RTT
         void setUnloadOnStop(bool unload_on_stop);
 
         /**
+         * Returns true if a start() is necessary when this function is loaded
+         * with ExecutionEngine::runFunction(). Functions that unload_on_stop == true
+         * don't need to be started since they will start themselves when loaded
+         * in the EE.
+         */
+        virtual bool needsStart() const { return !munload_on_stop; }
+
+        /**
          * To be called after a function is constructed.
          */
         void finish();

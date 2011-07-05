@@ -113,7 +113,7 @@ namespace RTT {
 
     FunctionGraph::~FunctionGraph()
     {
-        log(Debug) << "Destroying program '" << getName() << "'" <<endlog();
+        //log(Debug) << "Destroying program '" << getName() << "'" <<endlog();
         if ( this->isLoaded() ){
             getEngine()->removeFunction(this);
         }

@@ -189,6 +189,13 @@ namespace RTT
         virtual ProgramInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replacementdss ) const = 0;
 
         virtual ProgramInterface* clone() const = 0;
+
+        /**
+         * Returns true if a start() is necessary after this function is loaded
+         * with ExecutionEngine::runFunction().
+         */
+        virtual bool needsStart() const = 0;
+
 	};
 
 
