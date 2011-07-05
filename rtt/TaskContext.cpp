@@ -414,21 +414,18 @@ namespace RTT
 
     void TaskContext::dataOnPort(PortInterface* port)
     {
-        cout << "Data on port"<<endl;
         portqueue->enqueue( port );
         this->getActivity()->trigger();
     }
 
     void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
         // user_callbacks will only be emitted from updateHook().
-        cout << "Data on port callback added"<<endl;
         MutexLock lock(mportlock);
         user_callbacks[port] = callback;
     }
 
     void TaskContext::dataOnPortRemoved(PortInterface* port) {
         MutexLock lock(mportlock);
-        cout << "Data on port callback removed"<<endl;
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {
             user_callbacks.erase(it);
@@ -441,7 +438,6 @@ namespace RTT
         PortInterface* port = 0;
         while ( portqueue->dequeue( port ) == true ) {
             UserCallbacks::iterator it = user_callbacks.find(port);
-            cout << "Data on port callback called"<<endl;
             if (it != user_callbacks.end() )
                 it->second(port); // fire the user callback
         }
