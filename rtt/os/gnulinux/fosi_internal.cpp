@@ -345,16 +345,16 @@ namespace RTT
 	INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
 	{
         if( task && task->thread != 0) {
-        cpu_set_t cs;
-        CPU_ZERO(&cs);
-        for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
-        {
-          if(cpu_affinity & (1 << i)) { CPU_SET(i, &cs); }
-        }
-        return pthread_setaffinity_np(task->thread, sizeof(cs), &cs);
+            cpu_set_t cs;
+            CPU_ZERO(&cs);
+            for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
+                {
+                    if(cpu_affinity & (1 << i)) { CPU_SET(i, &cs); }
+                }
+            return pthread_setaffinity_np(task->thread, sizeof(cs), &cs);
         }
         return -1;
-        }
+    }
 
 	INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
 	{
