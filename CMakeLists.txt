@@ -65,7 +65,7 @@ IF(ROS_ROOT)
   endif(ROS_STACK_DIR_FINAL)
   # Necessary for backwards compatibility such that packages find RTT's cmake macros:
   execute_process ( 
-     COMMAND ${CMAKE_COMMAND} -E remove_file -f install
+     COMMAND ${CMAKE_COMMAND} -E remove_directory install
      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
      OUTPUT_QUIET ERROR_QUIET
