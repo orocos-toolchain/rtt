@@ -144,7 +144,11 @@ RTT_API bool isLoadableLibrary(const path& filename)
 
 #if     defined(__APPLE__)
 	std::string	ext;
+#if BOOST_VERSION >= 104600
 	ext = filename.extension().string();
+#else
+	ext = filename.extension();
+#endif
     // ends in SO_EXT?
 	if (0 == ext.compare(SO_EXT))
 	{
