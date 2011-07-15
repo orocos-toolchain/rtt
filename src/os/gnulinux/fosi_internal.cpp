@@ -123,7 +123,11 @@ namespace RTT
                               start_routine, obj);
         log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
 
-        rtos_task_set_cpu_affinity(task, cpu_affinity);
+        log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+        if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
+        {
+            log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
+        }
 
         return rv;
 	}
@@ -317,7 +321,7 @@ namespace RTT
         if( task && task->thread != 0) {
             cpu_set_t cs;
             CPU_ZERO(&cs);
-            for(unsigned i = 0; i < sizeof(cpu_affinity); i++)
+            for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
             {
                 if(cpu_affinity & (1 << i)) { CPU_SET(i, &cs); }
             }
@@ -332,7 +336,7 @@ namespace RTT
             unsigned cpu_affinity = 0;
             cpu_set_t cs;
             pthread_getaffinity_np(task->thread, sizeof(cs), &cs);
-            for(unsigned i = 0; i < sizeof(cpu_affinity); i++)
+            for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
             {
                 if(CPU_ISSET(i, &cs)) { cpu_affinity |= (1 << i); }
             }
