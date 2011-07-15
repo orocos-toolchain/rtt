@@ -56,6 +56,12 @@ namespace RTT
     {
     }
 
+    NonPeriodicActivity::NonPeriodicActivity(int scheduler, int priority, unsigned cpu_affinity, RunnableInterface* _r )
+        : ActivityInterface(_r),
+          OS::SingleThread(scheduler, priority, "NonPeriodicActivity", cpu_affinity )
+    {
+    }
+
     NonPeriodicActivity::NonPeriodicActivity(int priority, const std::string& name, RunnableInterface* _r )
         : ActivityInterface(_r),
         OS::SingleThread(priority, name )
@@ -68,6 +74,16 @@ namespace RTT
     }
 
     Seconds NonPeriodicActivity::getPeriod() const { return 0; }
+
+    unsigned NonPeriodicActivity::getCpuAffinity() const
+    {
+        return SingleThread::getCpuAffinity();
+    }
+
+    bool NonPeriodicActivity::setCpuAffinity(unsigned cpu)
+    {
+        return SingleThread::setCpuAffinity(cpu);
+    }
 
     OS::ThreadInterface* NonPeriodicActivity::thread() { return this; }
 

@@ -144,6 +144,12 @@ namespace RTT
             ->addMethod( method("getPeriod",&TaskContext::getPeriod, this),
                          "Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period." );
         this->methods()
+            ->addMethod( method("getCpuAffinity",&TaskContext::getCpuAffinity, this),
+                         "Get the configured cpu affinity." );
+        this->methods()
+            ->addMethod( method("setCpuAffinity",&TaskContext::setCpuAffinity, this),
+                         "Set the cpu affinity.", "cpu", "Cpu mask.");
+        this->methods()
             ->addMethod( method("isActive",&TaskContext::isActive, this),
                          "Is the Execution Engine of this TaskContext processing events and commands ?" );
         this->methods()

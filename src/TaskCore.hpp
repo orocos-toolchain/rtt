@@ -282,6 +282,19 @@ namespace RTT
         virtual double getPeriod() const;
 
         /**
+         * Get the configured cpu affinity of this component.
+         * @see ActivityInterface::getCpuAffinity()
+         */
+        virtual unsigned getCpuAffinity() const;
+
+        /**
+         * Sets the cpu affinity of this component.
+         * @return false if not allowed by the component's activity.
+         * @see ActivityInterface::setCpuAffinity()
+         */
+        virtual bool setCpuAffinity(unsigned cpu);
+
+        /**
          * Inspect if the component is in the FatalError state.
          */
         virtual bool inFatalError() const;

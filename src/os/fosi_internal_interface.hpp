@@ -81,6 +81,7 @@ namespace RTT {
              * @param task An uninitialised, by the user allocated struct which will be
              * used to store the task data in.
              * @param priority The priority of the thread, to be interpreted by the underlying RTOS.
+             * @param cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
              * @param name The name for the thread, or null if none is given.
              * @param sched_type The scheduler type, one of ORO_SCHED_OTHER, ORO_SCHED_RT or a value
              * defined by your RTOS.
@@ -92,6 +93,7 @@ namespace RTT {
              */
             int rtos_task_create(RTOS_TASK* task,
                                  int priority,
+                                 unsigned cpu_affinity,
                                  const char * name,
                                  int sched_type,
                                  size_t stack_size,
@@ -208,6 +210,23 @@ namespace RTT {
              * @return the priority, as recorded by the underlying RTOS.
              */
             int rtos_task_get_priority(const RTOS_TASK * task);
+
+            /**
+             * Set the cpu affinity of a thread.
+             * @param task The thread to change the cpu affinity of
+             * @param cpu_affinity is a bit mask with the cpu this thread should be bound.
+             *        The bit 0 is the cpu 0, the bit 1, the cpu 1 and so on.
+             *        For example ((1 << 0) | (1 << 1)) will bound to cpu 0 and 1.
+             * @return 0 if the cpu affinity could be set.
+             */
+            int rtos_task_set_cpu_affinity(RTOS_TASK * task,unsigned cpu_affinity);
+
+            /**
+             * Return the cpu affinity of a thread.
+             * @param task The thread to get the cpu affinity
+             * @return the cpu affinity (@see rtos_task_set_cpu_affinity)
+             */
+            unsigned rtos_task_get_cpu_affinity(const RTOS_TASK * task);
 
             /**
              * Returns the name by which a task is known in the RTOS.

@@ -12,17 +12,22 @@
 namespace RTT
 {
     Activity::Activity(RunnableInterface* _r, const std::string& name )
-        : ActivityInterface(_r), OS::Thread(ORO_SCHED_OTHER, 0, 0.0, name )
+        : ActivityInterface(_r), OS::Thread(ORO_SCHED_OTHER, 0, 0.0, ~0, name )
     {
     }
 
     Activity::Activity(int priority, Seconds period, RunnableInterface* r, const std::string& name )
-        : ActivityInterface(r), OS::Thread(ORO_SCHED_RT, priority, period, name )
+        : ActivityInterface(r), OS::Thread(ORO_SCHED_RT, priority, period, ~0, name )
     {
     }
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
-     : ActivityInterface(r), OS::Thread(scheduler, priority, period, name )
+     : ActivityInterface(r), OS::Thread(scheduler, priority, period, ~0, name )
+     {
+     }
+
+     Activity::Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r, const std::string& name )
+     : ActivityInterface(r), OS::Thread(scheduler, priority, period, cpu_affinity, name )
      {
      }
 
@@ -100,5 +105,15 @@ namespace RTT
 
     bool Activity::isPeriodic() const {
         return Thread::isPeriodic();
+    }
+
+    unsigned Activity::getCpuAffinity() const
+    {
+        return Thread::getCpuAffinity();
+    }
+
+    bool Activity::setCpuAffinity(unsigned cpu)
+    {
+        return Thread::setCpuAffinity(cpu);
     }
 }

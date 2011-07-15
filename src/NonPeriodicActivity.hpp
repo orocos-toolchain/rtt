@@ -87,6 +87,18 @@ namespace RTT
         NonPeriodicActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
 
         /**
+         * Create an NonPeriodicActivity with a given scheduler type, priority and
+         * RunnableInterface instance.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param cpu_affinity The prefered cpu to run on (a mask)
+         * @param _r The optional runner, if none, this->loop() is called.
+         */
+        NonPeriodicActivity(int scheduler, int priority, unsigned cpu_affinity, RunnableInterface* _r = 0 );
+
+        /**
          * Create an NonPeriodicActivity with a given priority, name and
          * RunnableInterface instance.
          * @param priority The priority of the underlying thread.
@@ -105,6 +117,10 @@ namespace RTT
         bool run( int ) { RunnableInterface* d(0); return ActivityInterface::run(d); }
 
         virtual Seconds getPeriod() const ;
+
+        virtual unsigned getCpuAffinity() const;
+
+        virtual bool setCpuAffinity(unsigned cpu);
 
         virtual ThreadInterface* thread();
 

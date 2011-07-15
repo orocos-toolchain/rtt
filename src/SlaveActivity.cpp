@@ -67,6 +67,16 @@ namespace RTT
         return mperiod;
     }
 
+    unsigned SlaveActivity::getCpuAffinity() const
+    {
+        return mmaster ? mmaster->getCpuAffinity() : ~0;
+    }
+
+    bool SlaveActivity::setCpuAffinity(unsigned cpu)
+    {
+        return mmaster ? mmaster->setCpuAffinity(cpu) : false;
+    }
+
     OS::ThreadInterface* SlaveActivity::thread()
     {
         return mmaster ? mmaster->thread() : OS::MainThread::Instance();

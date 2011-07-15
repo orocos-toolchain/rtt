@@ -137,6 +137,7 @@ namespace RTT
 
   SingleThread::SingleThread(int _priority,
                              const std::string& name,
+                             unsigned cpu_affinity,
                              RunnableInterface* r)
       : msched_type(ORO_SCHED_RT),
         active(false), prepareForExit(false),
@@ -145,11 +146,12 @@ namespace RTT
         , d(NULL)
 #endif
     {
-        this->setup(_priority, name);
+        this->setup(_priority, cpu_affinity, name);
     }
 
     SingleThread::SingleThread(int scheduler, int _priority,
                                const std::string& name,
+                                   unsigned cpu_affinity,
                                RunnableInterface* r)
         : msched_type(scheduler),
           active(false), prepareForExit(false),
@@ -158,10 +160,10 @@ namespace RTT
         , d(NULL)
 #endif
     {
-        this->setup(_priority, name);
+        this->setup(_priority, cpu_affinity, name);
     }
 
-    void SingleThread::setup(int _priority, const std::string& name)
+    void SingleThread::setup(int _priority, unsigned cpu_affinity, const std::string& name)
     {
         Logger::In in("SingleThread");
         Logger::log() << Logger::Debug << "Creating." <<Logger::endl;
@@ -180,7 +182,7 @@ namespace RTT
             }
 	}
 #endif
-	int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, 0, singleThread_f, this);
+        int rv = rtos_task_create( &rtos_task, _priority, cpu_affinity, name.c_str(), msched_type, 0, singleThread_f, this);
 	if ( rv != 0 ) {
 	    log(Critical) << "Could not create thread "
 			  << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
@@ -201,6 +203,7 @@ namespace RTT
 	const char* modname = getName();
 	Logger::In in2(modname);
 	log(Info)<< "SingleThread created with priority " << getPriority()
+             << ", cpu affinity " << getCpuAffinity()
 		 << " and period " << getPeriod() << "." << endlog();
 	log(Info) << "Scheduler type was set to `"<< getScheduler() << "'."<<endlog();
 
@@ -308,6 +311,16 @@ namespace RTT
         rtos_sem_signal(&sem);
 
         return true;
+    }
+
+    bool SingleThread::setCpuAffinity(unsigned cpu_affinity)
+    {
+        return rtos_task_set_cpu_affinity(&rtos_task, cpu_affinity) == 0;
+    }
+
+    unsigned SingleThread::getCpuAffinity() const
+    {
+        return rtos_task_get_cpu_affinity(&rtos_task);
     }
 
     void SingleThread::yield() {

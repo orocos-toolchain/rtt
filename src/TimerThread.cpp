@@ -59,6 +59,11 @@ namespace RTT
 
     TimerThreadPtr TimerThread::Instance(int scheduler, int pri, double per)
     {
+      return Instance(scheduler, pri, per, ~0);
+    }
+
+    TimerThreadPtr TimerThread::Instance(int scheduler, int pri, double per, unsigned cpu_affinity)
+    {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
         OS::CheckPriority(scheduler, pri);
@@ -76,19 +81,19 @@ namespace RTT
             }
             ++it;
         }
-        TimerThreadPtr ret( new TimerThread(scheduler, pri, "TimerThreadInstance", per) );
+        TimerThreadPtr ret( new TimerThread(scheduler, pri, "TimerThreadInstance", per, cpu_affinity) );
         TimerThreads.push_back( ret );
         return ret;
     }
 
-    TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : PeriodicThread( priority, name, periodicity), cleanup(false)
+    TimerThread::TimerThread(int priority, const std::string& name, double periodicity, unsigned cpu_affinity)
+            : PeriodicThread( priority, name, periodicity, cpu_affinity), cleanup(false)
     {
     	tasks.reserve(MAX_ACTIVITIES);
     }
 
-    TimerThread::TimerThread(int scheduler, int priority, const std::string& name, double periodicity)
-        : PeriodicThread(scheduler, priority, name, periodicity), cleanup(false)
+    TimerThread::TimerThread(int scheduler, int priority, const std::string& name, double periodicity, unsigned cpu_affinity)
+            : PeriodicThread(scheduler, priority, name, periodicity, cpu_affinity), cleanup(false)
     {
     	tasks.reserve(MAX_ACTIVITIES);
     }

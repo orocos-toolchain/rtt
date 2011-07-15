@@ -91,10 +91,11 @@ namespace RTT
          * an object to execute.
          * @param priority The priority of the thread, in the ORO_SCHED_RT domain.
          * @param name     The name of the Thread.
+         * @param cpu_affinity The cpu affinity of the thread, this is interpreted by your RTOS.
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own virtual functions are executed.
          */
-        SingleThread(int priority, const std::string& name, OS::RunnableInterface* r=0);
+        SingleThread(int priority, const std::string& name, unsigned cpu_affinity = ~0, OS::RunnableInterface* r=0);
 
         /**
          * Create a single-shot Thread with priority \a priority, a \a name and optionally,
@@ -102,10 +103,11 @@ namespace RTT
          * @param scheduler The scheduler, one of ORO_SCHED_RT or ORO_SCHED_OTHER.
          * @param priority The priority of the thread, in the \a scheduler domain.
          * @param name     The name of the Thread.
+         * @param cpu_affinity The cpu affinity of the thread, this is interpreted by your RTOS.
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own virtual functions are executed.
          */
-        SingleThread(int scheduler, int priority, const std::string& name, OS::RunnableInterface* r=0);
+        SingleThread(int scheduler, int priority, const std::string& name, unsigned cpu_affinity = ~0, OS::RunnableInterface* r=0);
 
         virtual ~SingleThread();
 
@@ -167,6 +169,18 @@ namespace RTT
 
         virtual int getPriority() const;
 
+        /**
+         * Set cpu affinity for this thread
+         * @cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
+         * @return true if the mask has been applied
+         */
+        virtual bool setCpuAffinity(unsigned cpu_affinity);
+
+        /**
+         * @return the cpu affinity (@see rtos_task_set_cpu_affinity)
+         */
+        virtual unsigned getCpuAffinity() const;
+
         virtual void yield();
 
     protected:
@@ -180,7 +194,7 @@ namespace RTT
         virtual void finalize();
 
     private:
-        void setup(int _priority, const std::string& name);
+        void setup(int _priority, unsigned cpu_affinity, const std::string& name);
 
         /**
          * Desired scheduler type.

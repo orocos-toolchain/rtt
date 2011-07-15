@@ -210,6 +210,16 @@ namespace RTT
         return this->engine()->getActivity() ? this->engine()->getActivity()->getPeriod() : -1.0;
     }
 
+    unsigned TaskCore::getCpuAffinity() const
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->getCpuAffinity() : ~0;
+    }
+
+    bool TaskCore::setCpuAffinity(unsigned cpu)
+    {
+        return this->engine()->getActivity() ? this->engine()->getActivity()->setCpuAffinity(cpu) : false;
+    }
+
     bool TaskCore::configureHook() {
         return true;
     }

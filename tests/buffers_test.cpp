@@ -684,10 +684,10 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
-        boost::scoped_ptr<Thread> athread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadA", aworker ));
-        boost::scoped_ptr<Thread> bthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadB", bworker ));
-        boost::scoped_ptr<Thread> cthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadC", cworker ));
-        boost::scoped_ptr<Thread> gthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadG", grower ));
+        boost::scoped_ptr<Thread> athread( new Thread(ORO_SCHED_OTHER, 0, 0, ~0, "ThreadA", aworker ));
+        boost::scoped_ptr<Thread> bthread( new Thread(ORO_SCHED_OTHER, 0, 0, ~0, "ThreadB", bworker ));
+        boost::scoped_ptr<Thread> cthread( new Thread(ORO_SCHED_OTHER, 0, 0, ~0, "ThreadC", cworker ));
+        boost::scoped_ptr<Thread> gthread( new Thread(ORO_SCHED_OTHER, 0, 0, ~0, "ThreadG", grower ));
 
         athread->start();
         bthread->start();
@@ -741,10 +741,10 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
     AQGrower* grower = new AQGrower( qt );
 
     {
-        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
-        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
-        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
-        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
+        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", ~0, aworker ));
+        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", ~0, bworker ));
+        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", ~0, cworker ));
+        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", ~0, grower ));
 
         // avoid system lock-ups
         athread->setScheduler(ORO_SCHED_OTHER);

@@ -125,7 +125,7 @@ namespace RTT
         mTimeserv = TimeService::Instance();
         mtimers.resize(max_timers);
         if (scheduler != -1) {
-            mThread = new OS::SingleThread(scheduler, priority, "Timer", this);
+            mThread = new OS::SingleThread(scheduler, priority, "Timer", ~0, this);
             mThread->start();
         }
     }

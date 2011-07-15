@@ -46,6 +46,10 @@ namespace RTT
 
         Seconds getPeriod() const;
 
+        unsigned getCpuAffinity() const;
+
+        bool setCpuAffinity(unsigned cpu);
+
         OS::ThreadInterface* thread();
 
         bool initialize();

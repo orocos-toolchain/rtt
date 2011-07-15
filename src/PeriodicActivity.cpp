@@ -62,6 +62,13 @@ namespace RTT
         this->init();
     }
 
+    PeriodicActivity::PeriodicActivity(int scheduler, int priority, Seconds period, unsigned cpu_affinity, RunnableInterface* r )
+        : ActivityInterface(r), running(false), active(false),
+          thread_( TimerThread::Instance(scheduler, priority, period, cpu_affinity) )
+    {
+        this->init();
+    }
+
     PeriodicActivity::PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r )
         : ActivityInterface(r), running(false), active(false),
           thread_( thread )
@@ -151,6 +158,16 @@ namespace RTT
     Seconds PeriodicActivity::getPeriod() const
     {
         return thread_->getPeriod();
+    }
+
+    unsigned PeriodicActivity::getCpuAffinity() const
+    {
+      return thread_->getCpuAffinity();
+    }
+
+    bool PeriodicActivity::setCpuAffinity(unsigned cpu)
+    {
+      return thread_->setCpuAffinity(cpu);
     }
 
     bool PeriodicActivity::initialize() {

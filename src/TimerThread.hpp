@@ -84,7 +84,7 @@ namespace RTT
          * @param periodicity
          *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
          */
-        TimerThread(int priority, const std::string& name, double periodicity);
+        TimerThread(int priority, const std::string& name, double periodicity, unsigned cpu_affinity = ~0);
 
         /**
          * Create a periodic Timer thread with a given scheduler type.
@@ -96,7 +96,7 @@ namespace RTT
          * @param periodicity
          *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
          */
-        TimerThread(int scheduler, int priority, const std::string& name, double periodicity);
+        TimerThread(int scheduler, int priority, const std::string& name, double periodicity, unsigned cpu_affinity = ~0);
 
         /**
          * Destructor
@@ -120,6 +120,10 @@ namespace RTT
          * Create a TimerThread with a given scheduler, priority and periodicity.
          */
         static TimerThreadPtr Instance(int scheduler, int priority, double periodicity);
+        /**
+         * Create a TimerThread with a given scheduler, priority and periodicity.
+         */
+        static TimerThreadPtr Instance(int scheduler, int priority, double periodicity, unsigned cpu_affinity);
     protected:
         virtual bool initialize();
         virtual void step();

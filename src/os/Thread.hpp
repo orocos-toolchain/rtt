@@ -124,11 +124,12 @@ namespace RTT
              * @param scheduler The scheduler, one of ORO_SCHED_RT or ORO_SCHED_OTHER.
              * @param priority The priority of the thread, this is interpreted by your RTOS.
              * @param period   The period in seconds (eg 0.001) of the thread, or zero if not periodic.
+             * @param cpu_affinity The cpu affinity of the thread, this is interpreted by your RTOS.
              * @param name     The name of the Thread. May be used by your OS to identify the thread.
              * @param r        The optional RunnableInterface instance to run. If not present,
              *                 the thread's own virtual functions are executed.
              */
-            Thread(int scheduler, int priority, double period,
+            Thread(int scheduler, int priority, double period, unsigned cpu_affinity,
                     const std::string & name,
                     OS::RunnableInterface* r = 0);
 
@@ -193,6 +194,18 @@ namespace RTT
 
             virtual int getPriority() const;
 
+            /**
+             * Set cpu affinity for this thread
+             * @cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
+             * @return true if the mask has been applied
+             */
+            virtual bool setCpuAffinity(unsigned cpu_affinity);
+
+            /**
+             * @return the cpu affinity (@see rtos_task_set_cpu_affinity)
+             */
+            virtual unsigned getCpuAffinity() const;
+
             virtual void yield();
 
             void setMaxOverrun(int m);
@@ -235,7 +248,7 @@ namespace RTT
         private:
             Thread(const Thread&);
 
-            void setup(int _priority, const std::string& name);
+            void setup(int _priority, unsigned cpu_affinity, const std::string& name);
 
             /**
              * Do configuration actions when the thread is stopped.

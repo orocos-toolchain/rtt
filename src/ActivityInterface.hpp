@@ -153,6 +153,19 @@ namespace RTT
         virtual bool isPeriodic() const = 0;
 
         /**
+         * Get the cpu affinity of this activity
+         *
+         * @return The cpu affinity of this activity.
+         */
+        virtual unsigned getCpuAffinity() const = 0;
+
+        /**
+         * Set the cpu affinity of this activity.
+         * @return true if it could be updated, false otherwise.
+         */
+        virtual bool setCpuAffinity(unsigned cpu)  = 0;
+
+        /**
          * Execute this activity such that it \a executes a step or loop of the RunnableInterface.
          * When you invoke execute() you intend to call the step() or loop() methods.
          * Some activity implementations allow a user controlled execute, others ignore it,
@@ -168,6 +181,7 @@ namespace RTT
          * @see trigger() for use in callbacks which want execute() to be executed.
          */
         virtual bool execute() = 0;
+
 
         /**
          * Trigger that work has to be done. When you invoke

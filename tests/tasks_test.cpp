@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
-  boost::scoped_ptr<RTT::OS::PeriodicThread> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
+  boost::scoped_ptr<RTT::OS::PeriodicThread> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1, ~0) );
   //BOOST_CHECK_EQUAL(25,t->getPriority() );
   BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
   t->setMaxOverrun(1);
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testThread )
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::Thread(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, "PThread") );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::Thread(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, ~0, "PThread") );
   t->run( run.get() );
 
   if ( t->getScheduler() == RTT::OS::HighestPriority) {
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE( testThreads )
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(RTT::OS::HighestPriority,"PThread", 0.1) );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(RTT::OS::HighestPriority,"PThread", 0.1, ~0) );
   t->run( run.get() );
 
   if ( t->getScheduler() == RTT::OS::HighestPriority) {

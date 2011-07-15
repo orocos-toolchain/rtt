@@ -70,6 +70,25 @@ namespace RTT
                  RunnableInterface* r = 0, const std::string& name ="Activity");
 
         /**
+         * @brief Create an Activity with a given scheduler type, priority, period and cpu affinity.
+         *
+         * @param scheduler
+         *        The scheduler in which the activity's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority
+         *        The priority of this activity.
+         * @param period
+         *        The periodicity of the Activity
+         * @param cpu_affinity
+         *        The prefered cpu to run on (a mask)
+         * @param r
+         *        The optional base::RunnableInterface to run exclusively within this Activity
+         * @param name The name of the underlying thread.
+         */
+        Activity(int scheduler, int priority, Seconds period, unsigned cpu_affinity,
+                 RunnableInterface* r = 0, const std::string& name ="Activity");
+
+        /**
          * Stops and terminates a Activity
          */
         virtual ~Activity();
@@ -91,6 +110,10 @@ namespace RTT
         virtual Seconds getPeriod() const;
 
         virtual bool setPeriod(Seconds period);
+
+        virtual unsigned getCpuAffinity() const;
+
+        virtual bool setCpuAffinity(unsigned cpu);
 
         virtual OS::ThreadInterface* thread();
 

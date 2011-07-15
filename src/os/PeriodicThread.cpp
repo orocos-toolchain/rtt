@@ -168,6 +168,7 @@ namespace RTT
     PeriodicThread::PeriodicThread(int _priority,
                                    const std::string & name,
                                    Seconds periods,
+                                   unsigned cpu_affinity,
                                    RunnableInterface* r) :
         msched_type(ORO_SCHED_RT), running(false), prepareForExit(false),
         wait_for_step(true), runComp(r),
@@ -177,12 +178,13 @@ namespace RTT
 							 ,d(NULL)
 #endif
     {
-        this->setup(_priority, name);
+        this->setup(_priority, cpu_affinity, name);
     }
 
     PeriodicThread::PeriodicThread(int scheduler, int _priority,
                                    const std::string & name,
                                    Seconds periods,
+                                   unsigned cpu_affinity,
                                    RunnableInterface* r) :
         msched_type(scheduler), running(false), prepareForExit(false),
         wait_for_step(true), runComp(r),
@@ -192,10 +194,10 @@ namespace RTT
 							 ,d(NULL)
 #endif
     {
-        this->setup(_priority, name);
+        this->setup(_priority, cpu_affinity, name);
     }
 
-    void PeriodicThread::setup(int _priority, const std::string& name)
+    void PeriodicThread::setup(int _priority, unsigned cpu_affinity, const std::string& name)
     {
         Logger::In in("PeriodicThread");
         int ret;
@@ -236,7 +238,7 @@ namespace RTT
             }
         }
 #endif
-        int rv = rtos_task_create(&rtos_task, _priority, name.c_str(), msched_type, 0, periodicThread, this );
+        int rv = rtos_task_create(&rtos_task, _priority, cpu_affinity, name.c_str(), msched_type, 0, periodicThread, this );
         if ( rv != 0 ) {
             Logger::log() << Logger::Critical << "Could not create thread "
                           << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
@@ -254,6 +256,7 @@ namespace RTT
         const char* modname = getName();
         Logger::In in2(modname);
         log(Info)<< "PeriodicThread created with scheduler type '"<< getScheduler() <<"', priority " << getPriority()
+                 << ", cpu affinity " << getCpuAffinity()
                  <<" and period "<< getPeriod() << "." << endlog();
 #ifdef OROPKG_OS_THREAD_SCOPE
         if (d){
@@ -506,6 +509,16 @@ namespace RTT
     nsecs PeriodicThread::getPeriodNS() const
     {
         return period;
+    }
+
+    bool PeriodicThread::setCpuAffinity(unsigned cpu_affinity)
+    {
+        return rtos_task_set_cpu_affinity(&rtos_task, cpu_affinity) == 0;
+    }
+
+    unsigned PeriodicThread::getCpuAffinity() const
+    {
+        return rtos_task_get_cpu_affinity(&rtos_task);
     }
 
     void PeriodicThread::yield() {
