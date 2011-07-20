@@ -116,12 +116,13 @@ namespace RTT
     void DataFlowInterface::cleanupHandles() {
         for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
     }
-#endif
+#else
     void DataFlowInterface::dataOnPort(base::PortInterface* port)
     {
         if ( mservice && mservice->getOwner() )
             mservice->getOwner()->dataOnPort(port);
     }
+#endif
 
     InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, SlotFunction callback) {
         this->addLocalPort(port);
