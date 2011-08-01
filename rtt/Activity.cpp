@@ -53,22 +53,22 @@ namespace RTT
     using namespace detail;
 
     Activity::Activity(RunnableInterface* _r, const std::string& name )
-        : ActivityInterface(_r), os::Thread(ORO_SCHED_OTHER, 0, 0.0, ~0, name )
+        : ActivityInterface(_r), os::Thread(ORO_SCHED_OTHER, 0, 0.0, 0, name )
     {
     }
 
     Activity::Activity(int priority, RunnableInterface* r, const std::string& name )
-        : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, 0.0, ~0, name )
+        : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, 0.0, 0, name )
     {
     }
 
     Activity::Activity(int priority, Seconds period, RunnableInterface* r, const std::string& name )
-        : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, period, ~0, name )
+        : ActivityInterface(r), os::Thread(ORO_SCHED_RT, priority, period, 0, name )
     {
     }
 
      Activity::Activity(int scheduler, int priority, Seconds period, RunnableInterface* r, const std::string& name )
-         : ActivityInterface(r), os::Thread(scheduler, priority, period, ~0, name )
+         : ActivityInterface(r), os::Thread(scheduler, priority, period, 0, name )
      {
      }
 
