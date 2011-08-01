@@ -344,7 +344,9 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
 	{
-        if( task && task->thread != 0 && cpu_affinity != 0) {
+        if ( cpu_affinity == 0 ) // clears the mask.
+            cpu_affinity = ~0;
+        if( task && task->thread != 0 ) {
             cpu_set_t cs;
             CPU_ZERO(&cs);
             for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
