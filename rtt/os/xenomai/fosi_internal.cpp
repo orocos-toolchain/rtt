@@ -48,7 +48,6 @@
 #include <signal.h>
 #include <execinfo.h>
 
-
 extern "C"
 void warn_upon_switch(int sig __attribute__((unused)))
 {
@@ -217,8 +216,9 @@ namespace RTT
             unsigned int aff = 0;
             for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++) {
                 if(cpu_affinity & (1 << i)) { 
-                    if ( i > RTHAL_NR_CPUS - 1 )
-                        log(Warning) << "rtos_task_create: ignoring cpu_affinity for "<< name << " on CPU " << i << " since it's larger than RTHAL_NR_CPUS - 1 (="<< RTHAL_NR_CPUS - 1 <<")"<<endlog();
+                    // RTHAL_NR_CPUS is defined in the kernel, not in user space. So we just limit up to 7, until Xenomai allows us to get the maximum.
+                    if ( i > 7 )
+                        log(Warning) << "rtos_task_create: ignoring cpu_affinity for "<< name << " on CPU " << i << " since it's larger than RTHAL_NR_CPUS - 1 (="<< 7 <<")"<<endlog();
                     else
                         aff |= T_CPU(i); 
                 }
