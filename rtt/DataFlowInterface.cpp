@@ -134,6 +134,8 @@ namespace RTT
 
         if (callback)
             mservice->getOwner()->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+
+        port.signalInterface(true);
         return port;
     }
 

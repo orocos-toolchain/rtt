@@ -577,6 +577,7 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     InputPort<double>  rp1("Read");
 
     tce->start();
+    tce->resetStats();
 
     tce->addEventPort(rp1,boost::bind(&PortsTestFixture::new_data_listener, this, _1) );
 
@@ -608,6 +609,27 @@ BOOST_AUTO_TEST_CASE(testEventPortSignalling)
     BOOST_CHECK(0 == signalled_port);
     BOOST_CHECK( !tce->had_event);
     tce->resetStats();
+}
+
+BOOST_AUTO_TEST_CASE(testPlainPortNotSignalling)
+{
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
+
+    tce->start();
+    tce->resetStats();
+
+    tce->addPort(rp1);
+
+    wp1.createConnection(rp1, ConnPolicy::data());
+    wp1.write(0.1);
+    BOOST_CHECK( !tce->had_event );
+    tce->resetStats();
+
+    wp1.disconnect();
+    wp1.createConnection(rp1, ConnPolicy::buffer(2));
+    wp1.write(0.1);
+    BOOST_CHECK( !tce->had_event );
 }
 
 BOOST_AUTO_TEST_CASE(testPortDataSource)

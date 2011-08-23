@@ -55,6 +55,8 @@ InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const
   , default_policy( default_policy )
 #ifdef ORO_SIGNALLING_PORTS
   , new_data_on_port_event(0)
+#else
+ , msignal_interface(false)
 #endif
 {}
 
@@ -126,8 +128,12 @@ bool InputPortInterface::removeConnection(ConnID* conn)
 #ifndef ORO_SIGNALLING_PORTS
 void InputPortInterface::signal()
 {
-    if (iface)
+    if (iface && msignal_interface)
         iface->dataOnPort(this);
+}
+void InputPortInterface::signalInterface(bool true_false)
+{
+    msignal_interface = true_false;
 }
 #endif
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)
