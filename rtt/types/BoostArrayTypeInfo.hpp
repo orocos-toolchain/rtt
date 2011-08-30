@@ -40,6 +40,8 @@
 #define ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 
 #include "TemplateTypeInfo.hpp"
+#include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
 #include "../internal/ArrayPartDataSource.hpp"
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
