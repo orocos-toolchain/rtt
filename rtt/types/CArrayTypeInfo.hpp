@@ -45,6 +45,7 @@
 #include "carray.hpp"
 #include "../internal/carray.hpp"
 #include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
 
 namespace RTT
 {
