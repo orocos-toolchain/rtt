@@ -3,9 +3,11 @@
 // instantiates it when it sees a line like DataSource<bool>::shared_ptr...
 // So we need to put it before the ports/Operations code which contains lots of these.
 #include "../internal/DataSource.hpp"
+#include "../internal/DataSources.hpp"
   namespace RTT { namespace internal { 
     template class RTT_EXPORT DataSource< bool >; 
     template class RTT_EXPORT AssignableDataSource< bool >; 
+    template class RTT_EXPORT ReferenceDataSource< bool >; 
     }}
 
 #include "../InputPort.hpp"
@@ -16,7 +18,6 @@
   namespace RTT { namespace internal { 
     template class RTT_EXPORT ValueDataSource< bool >; 
     template class RTT_EXPORT ConstantDataSource< bool >; 
-    template class RTT_EXPORT ReferenceDataSource< bool >; 
     } 
     template class RTT_EXPORT OutputPort< bool >; 
     template class RTT_EXPORT InputPort< bool >; 
