@@ -44,6 +44,8 @@
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/array.hpp>
+#include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
 
 namespace RTT
 {
