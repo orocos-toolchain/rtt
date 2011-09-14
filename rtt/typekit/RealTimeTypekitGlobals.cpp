@@ -44,6 +44,7 @@
 #include "../SendStatus.hpp"
 #include "../ConnPolicy.hpp"
 #include "../typekit/Types.hpp"
+#include "../os/fosi.h"
 
 namespace RTT
 {
@@ -64,6 +65,8 @@ namespace RTT
         globals->setValue( new Constant<int>("LOCKED",ConnPolicy::LOCKED) );
         globals->setValue( new Constant<int>("LOCK_FREE",ConnPolicy::LOCK_FREE) );
         globals->setValue( new Constant<int>("UNSYNC",ConnPolicy::UNSYNC) );
+        globals->setValue( new Constant<int>("ORO_SCHED_RT", ORO_SCHED_RT) );
+        globals->setValue( new Constant<int>("ORO_SCHED_OTHER", ORO_SCHED_OTHER) );
 #endif
         return true;
     }
