@@ -238,8 +238,8 @@ namespace RTT {
         DataSourceBase::shared_ptr h;
         try {
             h = ofp->produceHandle();
-        } catch( no_asynchronous_operation_exception const& /*nao*/) {
-            log(Error) <<"OperationCallerC::send(): Can not send a synchronous operation." << endlog();
+        } catch( no_asynchronous_operation_exception const& nao) {
+            log(Error) <<"OperationCallerC::send(): Can not send the '" << ofp->getName() << "' operation:" << nao.what()  << endlog();
             return SendHandleC();
         }
         if (s) {
