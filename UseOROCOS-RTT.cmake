@@ -350,11 +350,9 @@ macro( orocos_executable EXE_TARGET_NAME )
 
   TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
-  if (IS_ROS_PACKAGE)
-    message("Note: not installing ${EXE_TARGET_NAME} since we're in a ROS package.")
-  else(IS_ROS_PACKAGE)
-    INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-  endif(IS_ROS_PACKAGE)
+  # We install the exe, the user must make sure that the install dir is not
+  # beneath the ROS package (if any).
+  INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_executable )
