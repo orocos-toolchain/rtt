@@ -218,10 +218,13 @@ namespace RTT
                 for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++) {
                     if(cpu_affinity & (1 << i)) { 
                         // RTHAL_NR_CPUS is defined in the kernel, not in user space. So we just limit up to 7, until Xenomai allows us to get the maximum.
-                        if ( i > 7 )
+		        if ( i > 7 ) {
+			  const unsigned int all_cpus = ~0;
+			  if ( cpu_affinity != all_cpus ) // suppress this warning when ~0 is provided
                             log(Warning) << "rtos_task_create: ignoring cpu_affinity for "<< name << " on CPU " << i << " since it's larger than RTHAL_NR_CPUS - 1 (="<< 7 <<")"<<endlog();
-                        else
+                        } else {
                             aff |= T_CPU(i); 
+			}
                     }
                 }
             }
