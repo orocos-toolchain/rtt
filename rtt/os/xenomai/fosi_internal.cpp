@@ -98,7 +98,7 @@ namespace RTT
             int ret = -1;
             while( ret != 0) {
                 // name, priority, mode
-                if ( (ret = rt_task_shadow( &(main->xenotask),mt_name, 10, 0)) != 0 ) {
+                if ( (ret = rt_task_shadow( &(main->xenotask),mt_name, 0, 0)) != 0 ) {
                     if ( ret == -ENOMEM ) {
                         // fail: abort
                         printf( "Cannot rt_task_create() MainThread: Out of memory.\n");
