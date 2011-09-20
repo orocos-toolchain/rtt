@@ -229,6 +229,11 @@ namespace RTT
                 }
             }
 
+	    if (stack_size == 0) {
+	      log(Debug) << "Raizing default stack size to 128kb for Xenomai threads in Orocos." <<endlog();
+	      stack_size = 128000;
+	    }
+
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
             rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE | aff, rtos_xeno_thread_wrapper, xcookie);
