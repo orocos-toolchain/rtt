@@ -208,6 +208,9 @@ macro( orocos_component COMPONENT_NAME )
   endif(ADD_COMPONENT_VERSION)
   MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
 
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${COMPONENT_NAME}_LIB_DEPENDS )
+
   # Use rosbuild in ros environments:
   if (IS_ROS_PACKAGE)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
@@ -275,6 +278,10 @@ macro( orocos_library LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
   MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
   if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
@@ -331,6 +338,7 @@ macro( orocos_executable EXE_TARGET_NAME )
   else()
       set( EXE_NAME ${EXE_TARGET_NAME})
   endif()
+
   MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
   if (IS_ROS_PACKAGE)
     rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
@@ -418,6 +426,10 @@ macro( orocos_typekit LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
   MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
   if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
@@ -483,6 +495,10 @@ macro( orocos_plugin LIB_TARGET_NAME )
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
   if (IS_ROS_PACKAGE)
     MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
