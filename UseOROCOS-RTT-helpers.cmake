@@ -86,32 +86,32 @@ function( orocos_use_package PACKAGE )
 
   # Now we are ready to get the flags from the .pc files:
   #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
-  pkg_search_module(${PACKAGE}_COMP ${PACKAGE} ${PACKAGE}-${OROCOS_TARGET})
-  if (${PACKAGE}_COMP_FOUND)
-    include_directories(${${PACKAGE}_COMP_INCLUDE_DIRS})
+  pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${PACKAGE} ${PACKAGE}-${OROCOS_TARGET})
+  if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
+    include_directories(${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
 
     # Use find_libraries to find each library:
-    foreach(COMP_LIB ${${PACKAGE}_COMP_LIBRARIES})
-        find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_LIBRARY_DIRS})
+    foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
+        find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
         if(${PACKAGE}_${COMP_LIB}_LIBRARY)
         else(${PACKAGE}_${COMP_LIB}_LIBRARY)
-            message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
+            message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
         endif(${PACKAGE}_${COMP_LIB}_LIBRARY)
 	list(APPEND ${PACKAGE}_LIBRARIES ${${PACKAGE}_${COMP_LIB}_LIBRARY})
-    endforeach(COMP_LIB ${${PACKAGE}_COMP_LIBRARIES})
+    endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
     # Only link in case there is something *and* the user didn't opt-out:
-    if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_LIBRARIES)
+    if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
       link_libraries( ${${PACKAGE}_LIBRARIES} )
       message("[UseOrocos] Linking all targets with libraries from package '${PACKAGE}'.")
       #message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
-    endif (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_LIBRARIES)
+    endif (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
 
-  else (${PACKAGE}_COMP_FOUND)
+  else (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
     if (VERBOSE)
       message("[UseOrocos] ${PACKAGE} does not provide a .pc file for exporting its build/link flags (or one of it 'Requires' dependencies was not found).")
     endif (VERBOSE)
-  endif (${PACKAGE}_COMP_FOUND)
+  endif (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
     
 endfunction( orocos_use_package PACKAGE )
 
