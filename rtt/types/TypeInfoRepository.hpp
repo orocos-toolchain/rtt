@@ -111,16 +111,21 @@ namespace RTT
         std::string toDot( const std::string& type ) const;
 
         /**
+         * Return the type info structure of a given type by its type_id.
+         */
+        TypeInfo* getTypeById(TypeInfo::TypeId type_id) const;
+
+        /**
          * Return the type info structure of a given type name.
          */
-        TypeInfo* getTypeById(std::string type_id_name) const;
+        TypeInfo* getTypeById(const char * type_id_name) const;
 
         /**
          * Return the type info structure of a given type T.
          */
         template<class T>
         TypeInfo* getTypeInfo() const {
-            return getTypeById( typeid(T).name() );
+            return getTypeById( &typeid(T) );
         }
 
         /**

@@ -203,8 +203,8 @@ namespace RTT
             return false;
         }
 
-		std::string getTypeIdName() const { return typeid(T).name(); }
-
+        TypeInfo::TypeId getTypeId() const { return &typeid(T); }
+        const char * getTypeIdName() const { return typeid(T).name(); }
 
         base::InputPortInterface*  inputPort(std::string const& name) const { return 0; }
         base::OutputPortInterface* outputPort(std::string const& name) const { return 0; }

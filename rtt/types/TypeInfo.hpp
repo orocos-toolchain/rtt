@@ -293,7 +293,9 @@ namespace RTT
          */
         std::vector<int> getTransportNames() const;
 
-        virtual std::string getTypeIdName() const = 0;
+        typedef const std::type_info * TypeId;
+        virtual TypeId getTypeId() const = 0;
+        virtual const char * getTypeIdName() const = 0;
 
         /**
          * Returns a new InputPort<T> object where T is the type represented by

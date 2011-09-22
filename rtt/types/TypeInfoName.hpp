@@ -162,7 +162,8 @@ namespace RTT
             return false;
         }
 
-		virtual std::string getTypeIdName() const { return ""; }
+        virtual const char * getTypeIdName() const { return 0; }
+        virtual TypeInfo::TypeId getTypeId() const { return 0; }
 
         virtual base::InputPortInterface* inputPort(std::string const& name) const
         { return 0; }
