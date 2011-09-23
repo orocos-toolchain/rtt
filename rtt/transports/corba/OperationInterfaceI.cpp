@@ -191,9 +191,7 @@ void RTT_corba_CSendHandle_i::checkArguments (
 void RTT_corba_CSendHandle_i::dispose (
     void)
 {
-    PortableServer::POA_var mPOA = _default_POA();
-    PortableServer::ObjectId_var oid = mPOA->servant_to_id(this);
-    mPOA->deactivate_object( oid.in() );
+	this->_remove_ref();
     return;
 }
 
@@ -417,7 +415,6 @@ void RTT_corba_COperationInterface_i::checkOperation (
             resulthandle.setAutoCollect(true);
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
             CSendHandle_var ret = ret_i->_this();
-            ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
             return ret._retn();
         } else {
             orig.check(); // will throw

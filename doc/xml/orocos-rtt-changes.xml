@@ -3,8 +3,8 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "2.4">
-<!ENTITY version     "2.5">
+<!ENTITY oldversion  "2.3">
+<!ENTITY version     "2.4">
 ]
 >
 
@@ -35,7 +35,6 @@
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.1.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.1 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.2 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.3.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.3 Changes</ulink></para></listitem>
-			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.4.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.4 Changes</ulink></para></listitem>
 		 </itemizedlist>
 		</para>
 	</section>
@@ -48,21 +47,41 @@
 					whole toolchain and all your applications in order to use this release.
 				</para>
 				<note><para>
-					<emphasis>Take care that all previously built components and plugins in the &lt;install&gt;/lib/orocos directory and subdirectories
-					are removed, since the plugin loader may not find older versions. Especially on 'ROS' systems, which have
-					such files in their &lt;packagename&gt;/lib/ directory.</emphasis>
+					<emphasis>Take care that all previously built components and plugins in the lib/orocos directory and subdirectories
+					are removed, since the deployment/plugin logic may want to load it. Especially on 'ROS' systems, which have
+					such files in their lib/ directory.</emphasis>
 				</para></note>
       </listitem>
       <listitem>
 				<para>
-					You can only attach one callback to an EvenPort, during the addEventPort() function call.
-					If you need multiple call-backs, you need to call these yourself from the function you've
-					provided to addEventPort(). In this regard, the port->getNewDataOnPortEvent() call has
-					been removed.  You can enable it by defining ORO_SIGNALLING_PORTS in the cmake
-					configuration step, but this feature will be removed eventually.
+					There are issues with plugin loading on the Mac OS-X platform which might have been fixed
+					with this release. We invite Mac users to test the Orocos toolchain on their platform and
+					to submit bug reports if some functionality does not work.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					We have confirmed reports of compilation time regressions when using GCC. We are looking into reducing them.
+					You can speed-up compilation times of components by including the 'Types.hpp' files of the typekits you
+					are using in data ports, properties or operations. For example:
+					<programlisting>
+  #include &lt;rtt/typekit/Types.hpp> // Speeds up compiling components using regular C types
+  #include &lt;geometry_msgs/typekit/Types.hpp> // Speeds up compiling ROS geometry message types (depends on rtt_ros_integration_geometry_messages)
+</programlisting>
 				</para>
       </listitem>
 		</itemizedlist>
+		<section>
+				<title>
+					<emphasis>Changes in rtt/os/oro_atomic.h atomics headers</emphasis>
+				</title>
+				<para>
+					The atomic operations have been refactored in order to suit future maintainability.
+					The GCC-specific implementations have been rewritten in order to use the intrinsics.
+					For this, the oro_atomic.h and oro_system.h headers were removed and a new header,
+					oro_arch.h is in place for each target to implement the required atomics.
+				</para>
+		</section>
   </section>
   <section>
     <title>Improvements</title>
@@ -71,10 +90,10 @@
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis>Switching between OROCOS_TARGET configurations is now more robust.</emphasis>
-					In environments where multiple OROCOS_TARGET are possible (for example xenomai/gnulinux),
-					the OROCOS_TARGET environment variable can be set and will be picked up by the UseOrocos.cmake
-					macros.
+					<emphasis>Building of executables on ROS systems using the UseOrocos cmake macros
+					has been improved such that <command>rosrun</command> will no longer offer two options.
+					If you upgrade OCL in-tree, In order to delete the old executables, use <command>git clean -xdf</command>
+					and then rebuild.</emphasis>
 				</para>
 				<para>
 				</para>
@@ -86,6 +105,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						The data flow port implementation has been optimized in order to reduce the number of copies to a
+						minimum.
 					</para>
 				</listitem>
 				<listitem>
