@@ -178,6 +178,8 @@ void RTT_corba_CSendHandle_i::checkArguments (
             CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (ti->getProtocol(ORO_CORBA_PROTOCOL_ID));
             shc.arg(ctt->createDataSource(&args[i]));
         }
+        // otherwise, we would block !!!
+        shc.setAutoCollect(false);
         shc.check();
     } catch (name_not_found_exception& nnf) {
         throw ::RTT::corba::CNoSuchNameException(nnf.name.c_str());
@@ -415,6 +417,7 @@ void RTT_corba_COperationInterface_i::checkOperation (
             SendHandleC resulthandle = orig.send();
             // we may not destroy the SendHandle, before the operation completes:
             resulthandle.setAutoCollect(true);
+            // our resulthandle copy makes sure that the resulthandle can return.
             RTT_corba_CSendHandle_i* ret_i = new RTT_corba_CSendHandle_i( resulthandle, mfact->getPart(operation) );
             CSendHandle_var ret = ret_i->_this();
             ret_i->_remove_ref(); // if POA drops this, it gets cleaned up.
