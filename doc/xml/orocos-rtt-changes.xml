@@ -3,8 +3,8 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "2.3">
-<!ENTITY version     "2.4">
+<!ENTITY oldversion  "2.4">
+<!ENTITY version     "2.5">
 ]
 >
 
@@ -35,6 +35,7 @@
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.1.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.1 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.2 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.3.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.3 Changes</ulink></para></listitem>
+			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.4.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.4 Changes</ulink></para></listitem>
 		 </itemizedlist>
 		</para>
 	</section>
@@ -47,41 +48,21 @@
 					whole toolchain and all your applications in order to use this release.
 				</para>
 				<note><para>
-					<emphasis>Take care that all previously built components and plugins in the lib/orocos directory and subdirectories
-					are removed, since the deployment/plugin logic may want to load it. Especially on 'ROS' systems, which have
-					such files in their lib/ directory.</emphasis>
+					<emphasis>Take care that all previously built components and plugins in the &lt;install&gt;/lib/orocos directory and subdirectories
+					are removed, since the plugin loader may not find older versions. Especially on 'ROS' systems, which have
+					such files in their &lt;packagename&gt;/lib/ directory.</emphasis>
 				</para></note>
       </listitem>
       <listitem>
 				<para>
-					There are issues with plugin loading on the Mac OS-X platform which might have been fixed
-					with this release. We invite Mac users to test the Orocos toolchain on their platform and
-					to submit bug reports if some functionality does not work.
-				</para>
-      </listitem>
-      <listitem>
-				<para>
-					We have confirmed reports of compilation time regressions when using GCC. We are looking into reducing them.
-					You can speed-up compilation times of components by including the 'Types.hpp' files of the typekits you
-					are using in data ports, properties or operations. For example:
-					<programlisting>
-  #include &lt;rtt/typekit/Types.hpp> // Speeds up compiling components using regular C types
-  #include &lt;geometry_msgs/typekit/Types.hpp> // Speeds up compiling ROS geometry message types (depends on rtt_ros_integration_geometry_messages)
-</programlisting>
+					You can only attach one callback to an EvenPort, during the addEventPort() function call.
+					If you need multiple call-backs, you need to call these yourself from the function you've
+					provided to addEventPort(). In this regard, the port->getNewDataOnPortEvent() call has
+					been removed.  You can enable it by defining ORO_SIGNALLING_PORTS in the cmake
+					configuration step, but this feature will be removed eventually.
 				</para>
       </listitem>
 		</itemizedlist>
-		<section>
-				<title>
-					<emphasis>Changes in rtt/os/oro_atomic.h atomics headers</emphasis>
-				</title>
-				<para>
-					The atomic operations have been refactored in order to suit future maintainability.
-					The GCC-specific implementations have been rewritten in order to use the intrinsics.
-					For this, the oro_atomic.h and oro_system.h headers were removed and a new header,
-					oro_arch.h is in place for each target to implement the required atomics.
-				</para>
-		</section>
   </section>
   <section>
     <title>Improvements</title>
@@ -90,12 +71,41 @@
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis>Building of executables on ROS systems using the UseOrocos cmake macros
-					has been improved such that <command>rosrun</command> will no longer offer two options.
-					If you upgrade OCL in-tree, In order to delete the old executables, use <command>git clean -xdf</command>
-					and then rebuild.</emphasis>
+					<emphasis>Switching between OROCOS_TARGET configurations is now more robust.</emphasis>
+					In environments where multiple OROCOS_TARGET are possible (for example xenomai/gnulinux),
+					the OROCOS_TARGET environment variable can be set and will be picked up by the UseOrocos.cmake
+					macros.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>ROS_ROOT is no longer influencing your build, unless you're in a ROS_PACKAGE_PATH</emphasis>
+					In &oldversion;, the build system would switch to ROS-style if the user had defined the 
+					ROS_ROOT environment variable. In &newversion;, the build system will only switch if the
+					package being built is a ROS package, ie, it is underneath the ROS_PACKAGE_PATH.
 				</para>
 				<para>
+					This allows better integration with AutoProj.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>ROS package builds no longer install in a &lt;package&gt;/install subdirectory</emphasis>
+					All Orocos Toolchain ROS packages now install in the &lt;orocos-toolchain&gt;/install directory.
+					As such both ROS and non-ROS builds have the same directory layout. You can still use 'rosrun'
+					to run an OCL program, since these are still available in the package as well.
+				</para>
+				<para>
+					This allows better integration with AutoProj.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>RTT builds with clang++ 2.9</emphasis>
+					This allows you to speed up RTT builds significantly.
+				</para>
+				<para>
+					This allows better integration with AutoProj.
 				</para>
       </listitem>
       </itemizedlist>
@@ -105,19 +115,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						The data flow port implementation has been optimized in order to reduce the number of copies to a
-						minimum.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						There are fixes for the serialization of complex properties (structs and sequences) into the XML file format.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						A bug in the Signal implementation lead to a segfault when removing an event port from a TaskContext.
-						This has been fixed.
+						An important fix was applied when two or more output ports were connected to one
+						input port, which led to dropping data samples from time to time.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -126,18 +125,16 @@
       <title>Data Types, Toolkits and Typekits</title>
       <itemizedlist>
 				<listitem>
-					<para> The <classname>RTT::rt_string</classname> type has been added to the type system,
-					allowing real-time string manipulations in scripts. It has the same featureset as the std string
-					type, but uses the real-time memory allocators. You can create an rt_string as such:
-					<programlisting>  var rt_string test = rt_string("Testit!") </programlisting>
-					You can pass an rt_string where is a string is expected and the other way around. Creating
-					the rt_string will always be hard real-time.
+					<para> The Typekits now support fixed size arrays better. Especially, there is no need anymore for having
+					one typekit for each size of an array. The ROS fixed-size array implementation in Electric makes use of
+					this feature.</para>
+					<para>
+						For this, there was some class-reordering in the TypeInfo hierarchy, but it should remain transparant
+						for existing users.
 					</para>
 				</listitem>
 				<listitem>
-					<para> The Posix MQueue transport for flow ports is now supported through orogen/typegen
-					using a generic transport plugin. It relies on the type specific typelib transport, which is generated
-					automatically when you use orogen/typegen. The traditional MQueue transport remains in place as well.
+					<para>
 					</para>
 				</listitem>
       </itemizedlist>
@@ -147,16 +144,33 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						It's now possible to set CPU Affinity when creating an activity or a thread. If your
-						OS abstraction supports it, changing the affinity at run-time is possible too. Currently,
-						this is only implemented for gnulinux targets. On other targets, setCPUAffinity() will have
-						no effect, until their OS interface makes use of it.
+						There were the usual fixes for new compilers or header locations for
+						all Operating Systems: Linux, Mac OS-X and Win32.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						As of this version, Orocos will use the GCC intrinsics API in order to implement atomic
-						operations on data, when GCC 4.1.0 or newer is available.
+						The CPU affinity Thread function for Xenomai is implemented but not yet stable. We
+						are delving into this but already provide it to allow more testing.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Xenomai threads now run with a default stack size of 128kb, instead of 32kb. This may still 
+						be too little if you have scripts which load scripts or have heavy stack use. In that case,
+						use the <classname>RTT::os::Thread</classname>::setStackSize function before creating a new Thread/Activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The Xenomai main() thread now runs with priority 0 instead of 10. Since this is the
+						thread which is doing all the setup work, it shouldn't have defaulted
+						to a real-time priority.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						There have been a bunch of patches for Mac OS-X, but more testing is still necessary.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -166,8 +180,11 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						There were fixes in the parsing of the assignment operator. Especially the case a = b = c
-						has now been fixed.
+						RTT script functions can now be decorated with 'global', 'local' and 'export'. 'local' is the
+						default and keeps a function local to the scripting service. 'export' attaches the script
+						function to the interface of the component it belongs to. 'global' puts the function in 
+						the GlobalService, such that other scripts in other components can use it directly, without
+						the need to refer to a component.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -180,22 +197,22 @@
 			<itemizedlist>      
 				<listitem>
 					<para>
-						Release 2.4.0 now has Lua 1.0-beta3, providing an as-good-as-stable API for creating
-						and using components and applications. A <ulink
+						Consult the  <ulink
 						url="http://www.orocos.org/wiki/orocos/toolchain/orocostoolchainluacookbook">LuaCookbook</ulink>
-						has been put online which is updated regularly.
+						for the latest changes
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						You are now allowed to write:
-						<programlisting>  tc:provides():setPeriod( 0.01 ) -- calls operation immediately </programlisting>
-						instead of:
-						<programlisting>  op = tc:provides():getOperation("setPeriod") -- 'getOperation syntax'
-  op(0.01) -- calls 'setPeriod'</programlisting>
-						Both forms for calling operations is supported. The former is convenient, but may be slower,
-						the latter can be used in loops where the operation is first stored and then called with an
-						argument later on.
+						The TLSF branch of Lua has been merged, which will allow hard real-time script execution in the near
+						future. Further minor releases will pollish this feature more.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Your scripts have now access to the RTT globals using the <programlisting>rtt.globals</programlisting>
+						table. These are the scheduler types, data flow &amp; operations return codes and constants for initializing
+						ConnectionPolicy objects.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -205,39 +222,20 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						You can now kickOut any component, also if it was created using a script. A bug was fixed
-						which did not shut down components which were not loaded using XML.
+						There is a new operation called 'setActivityOnCPU' which takes an affinity parameter
+						as well.
 					</para>
 				</listitem>
 			</itemizedlist>
 		</section>
     <section>
-      <title>TaskBrowser</title>
+      <title>Reporting</title>
       <itemizedlist>
 				<listitem>
 					<para>
-						Allows to display all values in hex format using the .hex taskbrowser command.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Tab-completion on services has been fixed. Properties did not show up.
-					</para>
-				</listitem>
-			</itemizedlist>
-		</section>
-    <section>
-      <title>Logging Service</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-						A new logger for logging to Apache ChainSaw has been added, the
-						<classname>OCL::logging::Log4cxxAppender</classname> component. You need ChainSaw running before
-						your application starts in order to see the log events in the GUI. Any number of
-						applications in your network may log to ChainSaw. For more details about logging in
-						Orocos, see the <ulink
-						url="http://www.orocos.org/wiki/rtt/rtt-20/real-time-logging/using-real-time-logging">
-						LoggingService wiki page</ulink>.
+						The reporting component has been rewritten such that it behaves consistently.  When
+						being periodic, it will sample all input ports at the frequency it runs. When being
+						triggered, it will log the ports which have new data.
 					</para>
 				</listitem>
 			</itemizedlist>
