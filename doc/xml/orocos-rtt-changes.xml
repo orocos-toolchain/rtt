@@ -218,12 +218,31 @@
 			</itemizedlist>
 		</section>
     <section>
+      <title>TimerComponent</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						The TimerComponent was changed to have one port for each timer ID, instead of one port
+						for all timer ID's. This avoid spurious wake-ups of components waiting for timer events.
+					</para>
+					<para>
+						You will have to adapt your deployment to make use of the new timer ports.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+    <section>
       <title>Deployment</title>
       <itemizedlist>
 				<listitem>
 					<para>
+						The Deployment XML format now also accepts an 'Affinity' field which allows to specify a 
+						CPU mask on which the thread may run.
 						There is a new operation called 'setActivityOnCPU' which takes an affinity parameter
-						as well.
+						as well. 
+					</para>
+					<para>
+						NOTE: this function is still experimental and not yet stable on Xenomai.
 					</para>
 				</listitem>
 			</itemizedlist>
