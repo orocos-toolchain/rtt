@@ -20,7 +20,7 @@ namespace RTT
         {
         public:
             PrimitiveSequenceTypeInfo(std::string name)
-            : PrimitiveTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase(this)
+                : PrimitiveTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase<T>(this)
             {}
 
             using PrimitiveTypeInfo<T,has_ostream>::buildVariable;

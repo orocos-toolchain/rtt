@@ -36,6 +36,8 @@
  ***************************************************************************/
 
 
+#ifndef ORO_STD_TYPE_INFO_HPP
+#define ORO_STD_TYPE_INFO_HPP
 
 #include "../rtt-config.h"
 #include "../types/Types.hpp"
@@ -73,6 +75,8 @@ namespace RTT
             virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const {
                 return source;
             }
-};
+        };
     }
 }
+
+#endif
