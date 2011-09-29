@@ -134,6 +134,7 @@ namespace RTT
     {
         delete[] mdata;
         mdata = size ? new typename T::value_type[size] : 0;
+        for(std::size_t i=0; i!= size; ++i) mdata[i] = typename T::value_type();
         marray.init(mdata,size);
     }
 
