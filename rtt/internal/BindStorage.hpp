@@ -44,6 +44,7 @@
 #include <boost/bind.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/filter_if.hpp>
+#include "NA.hpp"
 
 #ifdef ORO_SIGNALLING_OPERATIONS
 #include "Signal.hpp"
