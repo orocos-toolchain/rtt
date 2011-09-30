@@ -81,7 +81,7 @@
 				<para>
 					<emphasis>ROS_ROOT is no longer influencing your build, unless you're in a ROS_PACKAGE_PATH</emphasis>
 					In &oldversion;, the build system would switch to ROS-style if the user had defined the 
-					ROS_ROOT environment variable. In &newversion;, the build system will only switch if the
+					ROS_ROOT environment variable. In &version;, the build system will only switch if the
 					package being built is a ROS package, ie, it is underneath the ROS_PACKAGE_PATH.
 				</para>
 				<para>
