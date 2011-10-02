@@ -34,6 +34,8 @@ else
     SERVER=www.orocos.org
     SPREFIX=www.orocos.org
   else
+    echo "MECH upload is broken"
+    exit 1
     USER=orocos
     SERVER=ftp.mech.kuleuven.be
     SPREFIX=pub_html/pub
@@ -163,6 +165,10 @@ cd ..
 # copy latest news to packages directory :
 scp NEWS $USER@$SERVER:$SPREFIX/$BRANCH/rtt/NEWS.txt
 scp README $USER@$SERVER:$SPREFIX/$BRANCH/rtt/README.txt
+
+##### MECH Upload is broken for now, so only upload to OROCOSORG
+exit 0
+
 
   if test x$DOOROCOSORG = xno -o x$DOLOCAL = xyes -o x$DEV = xyes; then
       echo "Completed succesfully."
