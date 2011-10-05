@@ -64,6 +64,24 @@
       </listitem>
 		</itemizedlist>
   </section>
+  <section id="ros">
+    <title>ROS Users</title>
+    <itemizedlist>
+      <listitem>
+				<para> The Orocos Toolchain 2.5.x will only be released in ROS Electric. This comes with a 
+				major overhaul of the Electric ROS integration packages of RTT. The ROS Wiki contains
+				the necessary upgrade steps you need to take to migrate existing code to the new ROS
+				package structure. <ulink url="http://www.ros.org/wiki/rtt_ros_integration">ROS Wiki on rtt_ros_integration</ulink>.</para>
+			</listitem>
+			<listitem>
+				<para>
+					The Orocos-ROS integration and the Orocos Toolchain are available as Ubuntu packages
+					from <programlisting>http://packages.ros.org/ros/ubuntu <emphasis>distroname</emphasis> main</programlisting>.
+					See <ulink url="http://www.ros.org/wiki/ROS/Installation">ROS Wiki on installing ROS</ulink>.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</section>
   <section>
     <title>Improvements</title>
     <section>
@@ -222,11 +240,12 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						The TimerComponent was changed to have one port for each timer ID, instead of one port
-						for all timer ID's. This avoid spurious wake-ups of components waiting for timer events.
+						The TimerComponent was changed to have one port for each timer ID as well in addition to one port
+						for all timer ID's. This avoid spurious wake-ups (triggers and calls of updateHook() )
+						of components waiting for timer events on event ports.
 					</para>
 					<para>
-						You will have to adapt your deployment to make use of the new timer ports.
+						You are advised to update your deployment to make use of the new timer ports.
 					</para>
 				</listitem>
 			</itemizedlist>
