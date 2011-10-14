@@ -27,8 +27,13 @@ namespace RTT
              * of the data. The shared pointer is not necessarily stored, so
              * keep track of the lifetime of \a dsb, that it lives longer
              * than this object.
+	     * @return false if setting failed. More precisely
+	     * this might fail if dynamic_cast'ing the argument to the
+	     * Reference DataSource fails.
+	     * @note This method will also call evaluate on the dsb to
+	     * assure the correct value is used.
              */
-            virtual void setReference(base::DataSourceBase::shared_ptr dsb) = 0;
+            virtual bool setReference(base::DataSourceBase::shared_ptr dsb) = 0;
         };
     }
 }

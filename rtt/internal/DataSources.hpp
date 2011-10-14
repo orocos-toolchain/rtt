@@ -226,10 +226,16 @@ namespace RTT
         {
             mptr = static_cast<T*>(ref);
         }
-        void setReference(base::DataSourceBase::shared_ptr dsb)
+        bool setReference(base::DataSourceBase::shared_ptr dsb)
         {
             typename AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast<AssignableDataSource<T> >(dsb);
-            if (ads) mptr = &ads->set();
+            if (ads) {
+		    ads->evaluate();
+		    mptr = &ads->set();
+		    return true;
+	    } else {
+		    return false;
+	    }
         }
 
         typename DataSource<T>::result_t get() const
