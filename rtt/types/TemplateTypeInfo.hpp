@@ -91,8 +91,24 @@ namespace RTT
             }
         };
 
+    /**
+     * This template class allows user types to be added to Orocos.
+     * It provides 'default' implementations for virtual functions of TypeInfo.
+     * For user defined types, this is very likely not satisfactory and
+     * the user needs to override the methods of this class in a subclass
+     * or provide specialised global functions.
+     *
+     * @param T The user class type.
+     * @param use_ostream When set to \a true, the class will use operator<<(std::ostream&, T)
+     * to write out the type to a stream. When set to \a false, the class will use this function
+     * and write '( \a type \a name )' to a stream instead. Defaults to \a false. Set to \a true
+     * if your class \a T has the above mentioned function.
+     * @see TypeInfoRepository.
+     * @see operator<<
+     * @see StructTypeInfo, SequenceTypeInfo
+     */
     template<typename T, bool use_ostream = false>
-    class TemplateTypeInfoBase
+    class TemplateTypeInfo
         : public TypeInfo
     {
         const std::string tname;
@@ -116,12 +132,12 @@ namespace RTT
          * @param name the 'Orocos' type name.
          *
          */
-        TemplateTypeInfoBase(std::string name)
+        TemplateTypeInfo(std::string name)
             : tname(name)
         {
         }
 
-        virtual ~TemplateTypeInfoBase()
+        virtual ~TemplateTypeInfo()
         {
             if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject == this)
                 internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = 0;
@@ -150,165 +166,6 @@ namespace RTT
             // finally install it:
             internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
             return true;
-        }
-
-        base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
-        {
-            return 0;
-        }
-
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            return 0;
-        }
-
-        base::AttributeBase* buildAttribute( std::string name, base::DataSourceBase::shared_ptr in) const
-        {
-            return 0;
-        }
-
-        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
-        {
-            return 0;
-        }
-
-        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
-        {
-            return 0;
-        }
-
-        virtual const std::string& getTypeName() const { return tname; }
-
-        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
-            return 0;
-        }
-
-        virtual base::DataSourceBase::shared_ptr buildValue() const {
-            return new internal::ValueDataSource<PropertyType>();
-        }
-        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
-            return 0;
-        }
-
-        virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
-            return os;
-        }
-
-        virtual std::istream& read( std::istream& os, base::DataSourceBase::shared_ptr out ) const {
-            return os;
-        }
-
-        virtual bool isStreamable() const {
-            return use_ostream;
-        }
-
-        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
-            return false;
-        }
-
-        /**
-         * This default implementation sets up a PropertyBag which is passed
-         * to decomposeTypeImpl(). It is advised to implement that function and
-         * to leave this function as-is, unless you don't want to return a
-         * PropertyBag, but another data type.
-         */
-        virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
-        {
-            return base::DataSourceBase::shared_ptr();
-        }
-
-        virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
-            return false;
-        }
-
-        /**
-         * User, implement this function in case you want to control reading the XML data format.
-         * TemplateTypeInfo provides a default, good for most types implementation in case getMember()
-         * is implemented.
-         */
-        virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
-            return false;
-        }
-
-        /**
-         * User, implement this function in case you want to control writing the XML data format.
-         * Add the structural elements of source to targetbag.
-         */
-        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
-            return false;
-        }
-
-        std::string getTypeIdName() const { return typeid(T).name(); }
-
-
-        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
-        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
-
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
-            return internal::ConnFactory::buildDataStorage<T>(policy);
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelOutput(
-                    static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelInput(
-                    static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
-        }
-    };
-
-    /**
-     * This template class allows user types to be added to Orocos.
-     * It provides 'default' implementations for virtual functions of TypeInfo.
-     * For user defined types, this is very likely not satisfactory and
-     * the user needs to override the methods of this class in a subclass
-     * or provide specialised global functions.
-     *
-     * @param T The user class type.
-     * @param use_ostream When set to \a true, the class will use operator<<(std::ostream&, T)
-     * to write out the type to a stream. When set to \a false, the class will use this function
-     * and write '( \a type \a name )' to a stream instead. Defaults to \a false. Set to \a true
-     * if your class \a T has the above mentioned function.
-     * @see TypeInfoRepository.
-     * @see operator<<
-     * @see StructTypeInfo, SequenceTypeInfo
-     */
-    template<typename T, bool use_ostream = false>
-    class TemplateTypeInfo
-        : public TemplateTypeInfoBase<T, use_ostream>
-    {
-        const std::string tname;
-    public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
-
-        /**
-         * The given \a T parameter is the type for reading DataSources.
-         */
-        typedef T UserType;
-        /**
-         * When Properties of \a T are constructed, they are non-const, non-reference.
-         */
-        typedef typename Property<T>::DataSourceType PropertyType;
-
-        /**
-         * Setup Type Information for type \a name.
-         * This causes a switch from 'unknown' type to basic
-         * type information for type T.
-         * @param name the 'Orocos' type name.
-         *
-         */
-        TemplateTypeInfo(std::string name)
-            : TemplateTypeInfoBase<T, use_ostream> (name)
-        {
-        }
-
-        virtual ~TemplateTypeInfo()
-        {
         }
 
         base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
@@ -365,6 +222,8 @@ namespace RTT
             return new internal::ActionAliasDataSource<T>(action, ds.get());
         }
 
+        virtual const std::string& getTypeName() const { return tname; }
+
         virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
             if (source) {
                typename internal::AssignableDataSource<PropertyType>::shared_ptr ad
@@ -378,6 +237,9 @@ namespace RTT
             return new Property<PropertyType>(name, desc, PropertyType());
         }
 
+        virtual base::DataSourceBase::shared_ptr buildValue() const {
+            return new internal::ValueDataSource<PropertyType>();
+        }
         virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
             return new internal::ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
         }
@@ -443,7 +305,7 @@ namespace RTT
         {
             // backwards-compatibility with convertType(): if it returns a bag, return that bag for decomposition.
             // otherwise, proceed with normal decomposition. To be removed after 2.3 release, see api doc of convertType()
-            base::DataSourceBase::shared_ptr bc_convert = this->convertType(source);
+            base::DataSourceBase::shared_ptr bc_convert = convertType(source);
             typename internal::DataSource<PropertyBag>::shared_ptr bc_ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyBag> >( bc_convert );
             if ( bc_ds )
                 return bc_ds;
@@ -487,6 +349,28 @@ namespace RTT
          */
         virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
             return false;
+        }
+
+		std::string getTypeIdName() const { return typeid(T).name(); }
+
+
+        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
+        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
+
+        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
+            return internal::ConnFactory::buildDataStorage<T>(policy);
+        }
+
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
+        {
+            return internal::ConnFactory::buildChannelOutput(
+                    static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
+        }
+
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
+        {
+            return internal::ConnFactory::buildChannelInput(
+                    static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
         }
     };
 }}
