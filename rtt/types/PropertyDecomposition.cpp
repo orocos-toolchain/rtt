@@ -87,7 +87,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
         } else {
             // it converted to something else than a bag.
             // In cases where decomposeType() returned dsb itself, we stop the decomposition here.
-            log(Debug) << "propertyDecomposition: decomposeType() of "<<  dsb->getTypeName() << " did not return a PropertyBag but a " << decomposed->getTypeName() << endlog();
+            //log(Debug) << "propertyDecomposition: decomposeType() of "<<  dsb->getTypeName() << " did not return a PropertyBag but a " << decomposed->getTypeName() << endlog();
             return false;
         }
     }
@@ -128,6 +128,7 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             // setType() is done by recursive of self.
             targetbag.ownProperty( recurse_bag.release() ); //recursed.
             recurse_bag.reset( new Property<PropertyBag>("recurse_bag","Part") );
+            delete newpb; // since we recursed, the recurse_bag now 'embodies' newpb.
         }
     }
 

@@ -39,32 +39,49 @@
 #ifndef ORO_TEMPLATE_CARRAY_INFO_HPP
 #define ORO_TEMPLATE_CARRAY_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
+#include "PrimitiveTypeInfo.hpp"
 #include "../internal/ArrayPartDataSource.hpp"
-#include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
 #include "carray.hpp"
 #include "../internal/carray.hpp"
+#include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
 
 namespace RTT
 {
     namespace types
     {
         /**
-         * Template for data types that are C-style arrays.
+         * Template for data types that are C-style arrays. You can not use
+         * this type as a port data type.
          *
          * C-style arrays are represented by the carray<T> wrapper
          * in the RTT type system.
          * @param T A carray<U> wrapper, where U is a C data type.
          */
         template<typename T, bool has_ostream = false>
-        class CArrayTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class CArrayTypeInfo: public PrimitiveTypeInfo<T, has_ostream>
         {
         public:
             CArrayTypeInfo(std::string name) :
-                TemplateTypeInfo<T, has_ostream> (name)
+                PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
+
+            virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const
+            {
+                // There were two choices: create an empty carray, ie pointer-like behavior; OR create one with storage in the DS.
+                // We need to redefine assignment in case of the latter, and make the storage dynamic, depending on sizehint.
+                // pointer-like is dangerous due to non-tracking of reference-counts, so this is left for the default buildVariable
+                // without a sizehint (using ValueDataSource), while the size hint version has storage.
+                typename internal::ArrayDataSource<T>::shared_ptr ads = new internal::UnboundDataSource<internal::ArrayDataSource<T> >();
+                ads->newArray( sizehint );
+                return new Attribute<T>( name, ads.get() );
+            }
+
+            /* buildConstant() with sizehint is left out since it is identical to buildConstant() without sizehint.
+               We make a shallow copy, so the size is automatically taken from the original expression the constant
+               refers to. */
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
@@ -107,7 +124,7 @@ namespace RTT
                 }
 
                 // discover if user gave us a part name or index:
-                typename DataSource<string>::shared_ptr id_name = DataSource<string>::narrow( id.get() );
+                typename DataSource<std::string>::shared_ptr id_name = DataSource<std::string>::narrow( id.get() );
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
@@ -131,6 +148,48 @@ namespace RTT
                 log(Error) << "CArrayTypeInfo: Invalid index) for type " << this->getTypeName() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+            /**
+             * Use getMember() for decomposition...
+             */
+            virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
+            {
+                return base::DataSourceBase::shared_ptr();
+            }
+
+            virtual bool composeType( base::DataSourceBase::shared_ptr dssource, base::DataSourceBase::shared_ptr dsresult) const {
+                const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (dssource.get() );
+                if ( !pb )
+                    return false;
+                typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( dsresult );
+                if ( !ads )
+                    return false;
+
+                PropertyBag const& source = pb->rvalue();
+                typename internal::AssignableDataSource<T>::reference_t result = ads->set();
+
+                //result.resize( source.size() );
+                if(result.count() != source.size()) {
+                    log(Error) << "Refusing to compose C Arrays from a property list of different size. Use the same number of properties as the C array size." << endlog();
+                    return false;
+                }
+                // recurse into items of this sequence:
+                PropertyBag target( source.getType() );
+                PropertyBag decomp;
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                // we compose each item in this sequence and then update result with target's result.
+                // 1. each child is composed into target (this is a recursive thing)
+                // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                    assert(result.count() == source.size());
+                    assert(source.size() == target.size());
+                    assert(source.size() == decomp.size());
+                    return true;
+                }
+                return false;
+            }
+
         };
     }
 }

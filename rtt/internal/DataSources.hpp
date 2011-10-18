@@ -42,6 +42,7 @@
 #include "mystd.hpp"
 #include "DataSource.hpp"
 #include "DataSourceTypeInfo.hpp"
+#include "Reference.hpp"
 #include <vector>
 
 namespace RTT
@@ -207,10 +208,10 @@ namespace RTT
      */
     template<typename T>
     class ReferenceDataSource
-        : public AssignableDataSource<T>
+	    : public AssignableDataSource<T>, public Reference
     {
-        // a reference to a value_t
-        typename AssignableDataSource<T>::reference_t mref;
+        // a pointer to a value_t
+        T* mptr;
     public:
         /**
          * Use shared_ptr.
@@ -221,26 +222,42 @@ namespace RTT
 
         ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref );
 
+        void setReference(void* ref)
+        {
+            mptr = static_cast<T*>(ref);
+        }
+        bool setReference(base::DataSourceBase::shared_ptr dsb)
+        {
+            typename AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast<AssignableDataSource<T> >(dsb);
+            if (ads) {
+		    ads->evaluate();
+		    mptr = &ads->set();
+		    return true;
+	    } else {
+		    return false;
+	    }
+        }
+
         typename DataSource<T>::result_t get() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         typename DataSource<T>::result_t value() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
         typename AssignableDataSource<T>::reference_t set()
 		{
-			return mref;
+			return *mptr;
 		}
 
         typename AssignableDataSource<T>::const_reference_t rvalue() const
 		{
-			return mref;
+			return *mptr;
 		}
 
         virtual ReferenceDataSource<T>* clone() const;
@@ -297,6 +314,76 @@ namespace RTT
             }
         };
 
+
+    /**
+     * A DataSource that holds a fixed size array,
+     * using the types::carray class.
+     * @param T A carray<U>
+     */
+    template<typename T>
+    class ArrayDataSource
+        : public AssignableDataSource<T>
+    {
+    protected:
+        typename T::value_type* mdata;
+        T marray;
+
+    public:
+        /**
+         * Use shared_ptr.
+         */
+        ~ArrayDataSource();
+
+        typedef boost::intrusive_ptr<ArrayDataSource<T> > shared_ptr;
+
+        /**
+         * Create and allocate an Array of a fixed size.
+         * In case you create an empty/default ArrayDataSource, you can
+         * assign it an array size later-on with newArray( size )
+         */
+        ArrayDataSource( std::size_t size = 0);
+
+        /**
+         * Creates an ArrayDataSource and initializes the array
+         * with the contents of another carray.
+         * A deep copy is made from odata.
+         */
+        ArrayDataSource( T const& odata );
+        /**
+         * Clears the array of this data source and creates a new one.
+         * Note that all references to this array will become invalid
+         * (types::carray may make shallow copies!) so only use this
+         * if you are sure no other object has a reference to the
+         * contained array.
+         */
+        void newArray( std::size_t size );
+
+        typename DataSource<T>::result_t get() const
+		{
+			return marray;
+		}
+
+        typename DataSource<T>::result_t value() const
+		{
+			return marray;
+		}
+
+        void set( typename AssignableDataSource<T>::param_t t );
+
+        typename AssignableDataSource<T>::reference_t set()
+		{
+			return marray;
+		}
+
+        typename AssignableDataSource<T>::const_reference_t rvalue() const
+		{
+			return marray;
+		}
+
+        virtual ArrayDataSource<T>* clone() const;
+
+        virtual ArrayDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace ) const;
+    };
 
         /**
          * A DataSource which is used to manipulate a reference to an

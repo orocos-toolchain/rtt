@@ -140,7 +140,9 @@ void FileDescriptorActivity::clearAllWatches()
 }
 void FileDescriptorActivity::triggerUpdateSets()
 {
-    write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    // i works around warn_unused_result
+    int i = write(m_interrupt_pipe[1], &CMD_UPDATE_SETS, 1);
+    i = i;
 }
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
@@ -227,7 +229,7 @@ void FileDescriptorActivity::loop()
             m_has_timeout = true;
         }
 
-        bool do_break = false, do_trigger = true, do_update_sets = false;
+        bool do_break = false, do_trigger = true;
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe
 
@@ -246,8 +248,7 @@ void FileDescriptorActivity::loop()
                     {
                         do_break = true;
                     }
-                    else if (code == CMD_UPDATE_SETS)
-                        do_update_sets = true;
+                    else if (code == CMD_UPDATE_SETS){}
                     else
                         do_trigger = true;
                 }

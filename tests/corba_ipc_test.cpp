@@ -108,7 +108,7 @@ CorbaTest::setUp()
     mo = new OutputPort<double>("mo");
 
     tc =  new TaskContext( "root" );
-    tc->ports()->addPort( *mi );
+    tc->ports()->addEventPort( *mi,boost::bind(&CorbaTest::new_data_listener, this, _1) );
     tc->ports()->addPort( *mo );
 
     t2 = 0;
@@ -412,11 +412,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mi->getNewDataOnPortEvent()->setup(
-                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
-    hl.connect();
-
     corba::CDataFlowInterface_var ports  = s->ports();
     corba::CDataFlowInterface_var ports2 = s2->ports();
 
@@ -428,6 +423,8 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mi", policy), CNoSuchPortException );
     BOOST_CHECK_THROW( ports->createConnection("mi", ports2, "mo", policy), CNoSuchPortException );
 
+    // must be running to catch event port signalling.
+    BOOST_CHECK( tc->start() );
     // WARNING: in the following, there is four configuration tested. There is
     // also three different ways to disconnect. We need to test those three
     // "disconnection methods", so beware when you change something ...
@@ -563,11 +560,6 @@ BOOST_AUTO_TEST_CASE( testDataHalfs )
     policy.size = 0;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
 
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mi->getNewDataOnPortEvent()->setup(
-                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
-    BOOST_CHECK( hl.connect() );
-
     corba::CDataFlowInterface_var ports  = s->ports();
     BOOST_REQUIRE( ports.in() );
 
@@ -632,11 +624,6 @@ BOOST_AUTO_TEST_CASE( testBufferHalfs )
     policy.lock_policy = RTT::corba::CLockFree;
     policy.size = 10;
     policy.transport = ORO_CORBA_PROTOCOL_ID; // force creation of non-local connections
-
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mi->getNewDataOnPortEvent()->setup(
-                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
-    BOOST_CHECK( hl.connect() );
 
     corba::CDataFlowInterface_var ports  = s->ports();
     BOOST_REQUIRE( ports.in() );

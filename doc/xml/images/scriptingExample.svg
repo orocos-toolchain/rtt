@@ -14,13 +14,13 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.48.0 r9654"
    version="1.0"
    sodipodi:docname="scriptingExample.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/sspr/src/documents/EURON/2009/presentation/rtt/scriptingExample.png"
-   inkscape:export-xdpi="200"
-   inkscape:export-ydpi="200">
+   inkscape:export-filename="scriptingExample.png"
+   inkscape:export-xdpi="100.01287"
+   inkscape:export-ydpi="100.01287">
   <defs
      id="defs4">
     <marker
@@ -54,15 +54,15 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3277884"
-     inkscape:cx="480.83689"
+     inkscape:zoom="1.6657763"
+     inkscape:cx="526.18109"
      inkscape:cy="368.96532"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="976"
-     inkscape:window-x="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1126"
+     inkscape:window-x="1680"
      inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -75,6 +75,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -197,12 +198,12 @@
     <image
        sodipodi:absref="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/red-car.png"
        xlink:href="red-car.png"
-       y="282.12704"
-       x="330.83295"
-       width="157.77124"
-       height="118.32841"
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;font-family:Bitstream Vera Sans"
        id="image12985"
-       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;font-family:Bitstream Vera Sans" />
+       height="118.32841"
+       width="157.77124"
+       x="330.83295"
+       y="282.12704" />
     <g
        id="g4088"
        transform="translate(86.684476,67.781888)">

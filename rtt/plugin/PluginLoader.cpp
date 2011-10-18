@@ -62,16 +62,26 @@ using namespace plugin;
 using namespace std;
 using namespace boost::filesystem;
 
-// chose the file extension applicable to the O/S
+// chose the file extension and debug postfix applicable to the O/S
 #ifdef  __APPLE__
 static const std::string SO_EXT(".dylib");
+static const std::string SO_POSTFIX("");
 #else
 # ifdef _WIN32
 static const std::string SO_EXT(".dll");
+#  ifdef _DEBUG
+static const std::string SO_POSTFIX("d");
+#  else
+static const std::string SO_POSTFIX("");
+#  endif // _DEBUG
 # else
 static const std::string SO_EXT(".so");
+static const std::string SO_POSTFIX("");
 # endif
 #endif
+
+// The full library suffix must be enforced by the UseOrocos macros
+static const std::string FULL_PLUGINS_SUFFIX(string("-") + string(OROCOS_TARGET_NAME) + SO_POSTFIX + SO_EXT);
 
 // choose how the PATH looks like
 # ifdef _WIN32
@@ -81,6 +91,91 @@ static const std::string default_delimiter(";");
 static const std::string delimiters(":;");
 static const std::string default_delimiter(":");
 # endif
+
+/** Determine whether a file extension is actually part of a library version
+
+    @return true if \a ext satisfies "^\.[:digit:]+$"
+
+    So for example
+    returns true  for ".1", ".12", ".123"
+    returns false for ".a", "1", "123", ".123 ", "a", "", ".1.a", ".1a2"
+*/
+RTT_API bool isExtensionVersion(const std::string& ext)
+{
+    bool isExtensionVersion = false;
+
+	if (!ext.empty() && ('.' == ext[0]))
+	{
+        std::istringstream	iss;
+        int					i;
+
+		iss.str(ext.substr((size_t)1));	    // take all after the '.'
+        iss >> std::dec >> std::noskipws >> i;
+        isExtensionVersion = !iss.fail() && iss.eof();
+    }
+
+    return isExtensionVersion;
+}
+
+/* Is this a dynamic library that we should load from within a directory scan?
+
+   Versioned libraries are not loaded, to prevent loading both libfoo.so and
+   libfoo.so.1 (which is typically a symlink to libfoo.so, and so loading
+   the same library twice).
+
+   Libraries are either (NB x.y.z is version, and could also be x or x.y)
+
+   Linux
+   libfoo.so          = load this
+   libfoo.so.x.y.z    = don't load this
+
+   Windows
+   libfoo.dll         = load this
+
+   Mac OS X
+   libfoo.dylib       = load this
+   libfoo.x.y.z.dylib = don't load this
+
+   All the above also apply without the "lib" prefix.
+*/
+RTT_API bool isLoadableLibrary(const path& filename)
+{
+    bool isLoadable = false;
+
+#if     defined(__APPLE__)
+	std::string	ext;
+#if BOOST_VERSION >= 104600
+	ext = filename.extension().string();
+#else
+	ext = filename.extension();
+#endif
+    // ends in SO_EXT?
+	if (0 == ext.compare(SO_EXT))
+	{
+		// Ends in SO_EXT and so must not be a link for us to load
+		// Links are of the form abc.x.dylib or abc.x.y.dylib or abc.x.y.z.dylib,
+		// where x,y,z are positive numbers
+		path	name	= filename.stem();	    // drop SO_EXT
+		path	ext 	= name.extension();
+		isLoadable =
+			// wasn't just SO_EXT
+			!name.empty() &&
+			// and if there is and extension then it is not a number
+			(ext.empty() || !isExtensionVersion(ext.string()));
+    }
+    // else is not loadable
+
+#else
+    // Linux or Windows
+
+    // must end in SO_EXT and have a non-extension part
+    isLoadable =
+        (filename.extension() == SO_EXT) &&
+        !filename.stem().empty();
+#endif
+
+    return isLoadable;
+}
 
 namespace RTT { namespace plugin {
     extern char const* default_plugin_path;
@@ -167,11 +262,20 @@ string makeShortFilename(string const& str) {
     string ret = str;
     if (str.substr(0,3) == "lib")
         ret = str.substr(3);
-    if (ret.rfind(SO_EXT) != string::npos)
-        ret = ret.substr(0, ret.rfind(SO_EXT) );
+    if (ret.rfind(FULL_PLUGINS_SUFFIX) != string::npos)
+        ret = ret.substr(0, ret.rfind(FULL_PLUGINS_SUFFIX) );
     return ret;
 }
 
+}
+
+bool hasEnding(string const &fullString, string const &ending)
+{
+    if (fullString.length() > ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
 }
 
 PluginLoader::PluginLoader() { log(Debug) <<"PluginLoader Created" <<endlog(); }
@@ -282,13 +386,23 @@ bool PluginLoader::loadPluginsInternal( std::string const& path_list, std::strin
             for (directory_iterator itr(p); itr != directory_iterator(); ++itr)
             {
                 log(Debug) << "Scanning file " << itr->path().string() << " ...";
-                if (is_regular_file(itr->status()) && itr->path().extension() == SO_EXT ) {
+                if (is_regular_file(itr->status()) && isLoadableLibrary(itr->path()) ) {
                     found = true;
+                    std::string libname;
 #if BOOST_VERSION >= 104600
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename().string() ), kind, true) && all_good;
+                    libname = itr->path().filename().string();
 #else
-                    all_good = loadInProcess( itr->path().string(), makeShortFilename(itr->path().filename() ), kind, true) && all_good;
+                    libname = itr->path().filename();
 #endif
+                    if(!isCompatiblePlugin(libname))
+                    {
+                        log(Debug) << "not a compatible plugin: ignored."<<endlog();
+                    }
+                    else
+                    {
+                        found = true;
+                        all_good = loadInProcess( itr->path().string(), makeShortFilename(libname), kind, true) && all_good;
+                    }
                 } else {
                     if (!is_regular_file(itr->status()))
                         log(Debug) << "not a regular file: ignored."<<endlog();
@@ -320,6 +434,17 @@ bool PluginLoader::loadLibrary( std::string const& name )
         if (subdir == "types") kind = "typekit";
         if (subdir == "plugins") kind = "plugin";
         if ( !kind.empty() ) {
+#if BOOST_VERSION >= 104600
+            string libname = arg.filename().string();
+#else
+            string libname = arg.filename();
+#endif
+            if(!isCompatiblePlugin(libname))
+            {
+                log(Error) << "The " << kind << " " << name << " was found but is incompatible." << endlog();
+                return false;
+            }
+
 #if BOOST_VERSION >= 104600
             if ( loadInProcess(arg.string(), makeShortFilename(arg.filename().string()), kind, true) == false)
 #else
@@ -354,19 +479,19 @@ bool PluginLoader::loadLibrary( std::string const& name )
     while (true) {
         for (vector<string>::iterator it = paths.begin(); it != paths.end(); ++it)
         {
-            path p = path(*it) / dir / subdir / (file + SO_EXT);
+            path p = path(*it) / dir / subdir / (file + FULL_PLUGINS_SUFFIX);
             tryouts.push_back( p.string() );
             if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
                 return true;
-            p = path(*it) / dir / subdir / ("lib" + file + SO_EXT);
+            p = path(*it) / dir / subdir / ("lib" + file + FULL_PLUGINS_SUFFIX);
             tryouts.push_back( p.string() );
             if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
                 return true;
-            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (file + SO_EXT);
+            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / (file + FULL_PLUGINS_SUFFIX);
             tryouts.push_back( p.string() );
             if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
                 return true;
-            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + file + SO_EXT);
+            p = path(*it) / OROCOS_TARGET_NAME / dir / subdir / ("lib" + file + FULL_PLUGINS_SUFFIX);
             tryouts.push_back( p.string() );
             if (is_regular_file( p ) && loadInProcess( p.string(), name, kind, true ) )
                 return true;
@@ -482,6 +607,14 @@ bool PluginLoader::loadInProcess(string file, string shortname, string kind, boo
     if ( isLoadedInternal(shortname) || isLoadedInternal(file) ) {
         log(Debug) <<"plugin '"<< file <<"' already loaded. Not reloading it." <<endlog() ;
         return true;
+    }
+
+    // Last chance to validate plugin compatibility
+    if(!isCompatiblePlugin(file))
+    {
+        if(log_error)
+            log(Error) << "could not load library '"<< p.string() <<"': incompatible." <<endlog();
+        return false;
     }
 
     handle = dlopen ( p.string().c_str(), RTLD_NOW | RTLD_GLOBAL );
@@ -608,4 +741,34 @@ std::string PluginLoader::getPluginPath() const {
 void PluginLoader::setPluginPath( std::string const& newpath ) {
     MutexLock lock( listlock );
     plugin_path = newpath;
+}
+
+bool PluginLoader::isCompatiblePlugin(std::string const& filepath)
+{
+    path p(filepath);
+
+#if BOOST_VERSION >= 104600
+    string libname = p.filename().string();
+#else
+    string libname = p.filename();
+#endif
+
+    //log(Debug) << "Validating compatility of plugin file '" + libname + "'" <<endlog();
+
+#ifdef OROCOS_TARGET_WIN32
+    // On WIN32 target:
+    // - look if the library name ends with "win32.dll" on release mode
+    // - look if the library name ends with "win32d.dll" on debug mode
+    if(!hasEnding(libname, FULL_PLUGINS_SUFFIX))
+    {
+        //log(Debug) << "Plugin file '" + libname + "' is incompatible because it doesn't have the suffix " << FULL_PLUGINS_SUFFIX << endlog();
+        return false;
+    }
+#endif // OROCOS_TARGET_WIN32
+
+    // There's no validation on other targets
+
+    //log(Debug) << "Plugin file '" + libname + "' is compatible." <<endlog();
+
+    return true;
 }

@@ -44,8 +44,11 @@
 #include <boost/bind.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/filter_if.hpp>
+#include "NA.hpp"
 
+#ifdef ORO_SIGNALLING_OPERATIONS
 #include "Signal.hpp"
+#endif
 
 namespace RTT
 {
@@ -255,8 +258,9 @@ namespace RTT
             boost::function<ToBind> mmeth;
 
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
-
+#endif
             // stores the original function pointer
 
             // the list of all our storage.
@@ -265,7 +269,9 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv) {}
 
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) msig->emit();
+#endif
                 if (mmeth)
                     retv.exec( mmeth );
                 else
@@ -288,7 +294,9 @@ namespace RTT
             // Store the argument.
             mutable AStore<arg1_type> a1;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>& > vStore;
@@ -296,7 +304,9 @@ namespace RTT
             BindStorageImpl(const BindStorageImpl& orig) : mmeth(orig.mmeth), vStore(retv,a1) {}
             void store(arg1_type t1) { a1(t1); }
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind(mmeth, boost::ref(a1.get()) ) );
                 else
@@ -319,7 +329,9 @@ namespace RTT
             mutable AStore<arg1_type> a1;
             mutable AStore<arg2_type> a2;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>& > vStore;
@@ -328,7 +340,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()) ) );
                 else
@@ -353,7 +367,9 @@ namespace RTT
             mutable AStore<arg2_type> a2;
             mutable AStore<arg3_type> a3;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>& > vStore;
@@ -362,7 +378,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind(mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()) ) );
                 else
@@ -388,7 +406,9 @@ namespace RTT
             mutable AStore<arg3_type> a3;
             mutable AStore<arg4_type> a4;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>& > vStore;
@@ -397,7 +417,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()) ) );
                 else
@@ -425,7 +447,9 @@ namespace RTT
             mutable AStore<arg4_type> a4;
             mutable AStore<arg5_type> a5;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>& > vStore;
@@ -434,7 +458,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5);}
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()) ) );
                 else
@@ -464,7 +490,9 @@ namespace RTT
             mutable AStore<arg5_type> a5;
             mutable AStore<arg6_type> a6;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>& > vStore;
@@ -473,7 +501,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6);}
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get(), a6.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()), boost::ref(a6.get()) ) );
                 else
@@ -505,7 +535,9 @@ namespace RTT
             mutable AStore<arg6_type> a6;
             mutable AStore<arg7_type> a7;
             mutable RStore<result_type> retv;
+#ifdef ORO_SIGNALLING_OPERATIONS
             typename Signal<ToBind>::shared_ptr msig;
+#endif
 
             // the list of all our storage.
             bf::vector< RStore<result_type>&, AStore<arg1_type>&, AStore<arg2_type>&, AStore<arg3_type>&, AStore<arg4_type>&, AStore<arg5_type>&, AStore<arg6_type>&, AStore<arg7_type>& > vStore;
@@ -514,7 +546,9 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5, arg6_type t6, arg7_type t7) { a1(t1); a2(t2); a3(t3); a4(t4); a5(t5); a6(t6); a7(t7);}
             void exec() {
+#ifdef ORO_SIGNALLING_OPERATIONS
                 if (msig) (*msig)(a1.get(), a2.get(), a3.get(), a4.get(), a5.get(), a6.get(), a7.get());
+#endif
                 if (mmeth)
                     retv.exec( boost::bind( mmeth, boost::ref(a1.get()), boost::ref(a2.get()), boost::ref(a3.get()), boost::ref(a4.get()), boost::ref(a5.get()), boost::ref(a6.get()), boost::ref(a7.get()) ) );
                 else

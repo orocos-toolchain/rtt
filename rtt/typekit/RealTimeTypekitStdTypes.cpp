@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  ConfigurationInterface.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeTypekit.cxx
 
-                        ConfigurationInterface.hpp -  description
+                        RealTimeTypekit.cxx -  description
                            -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Mon June 26 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,54 +35,35 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ORO_EXTRAS_CONFIGURATIONINTERFACE_HPP
-#define ORO_EXTRAS_CONFIGURATIONINTERFACE_HPP
 
-#include "../rtt-config.h"
+#include "rtt-typekit-config.h"
+
+#include "RealTimeTypekit.hpp"
+#ifndef RTT_NO_STD_TYPES
+#include "StdStringTypeInfo.hpp"
+#include "StdVectorTypeInfo.hpp"
+#endif
+#ifdef OS_RT_MALLOC
+#include "RTStringTypeInfo.hpp"
+#endif
 
 namespace RTT
-{ namespace extras {
+{
+    namespace types {
 
-    /**
-     * @brief Generic run-time class configuration interface.
-     *
-     * An Interface for configuring an object through
-     * an external object, iterating over the methods
-     * of this interface.
-     */
-    class RTT_API ConfigurationInterface
+    void loadStdTypes(TypeInfoRepository::shared_ptr ti)
     {
-        public:
-        virtual ~ConfigurationInterface() {}
-
-        /**
-         * Initialize and startup a configuration of
-         * an object.
-         */
-        virtual void configInit() = 0;
-
-        /**
-         * A stepwise configuration of the object.
-         * returns false if it fatally failed.
-         */
-        virtual bool configStep() = 0;
-
-        /**
-         * Returns if the configuration is finished.
-         * The configuration is only finished if it was successful.
-         */
-        virtual bool isFinished() const = 0;
-
-        /**
-         * Perform some cleanup activities of the
-         * configuration.
-         */
-        virtual void configCleanup() = 0;
-    };
-
-
-
-
-}}
-
+        // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
+        // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
+        // from a c-style string obviously disables a copy-on-write connection.
+#ifndef RTT_NO_STD_TYPES
+        ti->addType( new StdStringTypeInfo() );
+        ti->addType( new StdVectorTypeInfo("array") );
 #endif
+#ifdef OS_RT_MALLOC
+        ti->addType( new RTStringTypeInfo() );
+#endif
+    }
+    }
+}
+

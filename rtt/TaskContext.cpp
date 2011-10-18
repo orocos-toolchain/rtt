@@ -107,6 +107,8 @@ namespace RTT
         this->addOperation("isRunning", &TaskContext::isRunning, this, ClientThread).doc("Is this TaskContext started ?");
         this->addOperation("getPeriod", &TaskContext::getPeriod, this, ClientThread).doc("Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period.");
         this->addOperation("setPeriod", &TaskContext::setPeriod, this, ClientThread).doc("Set the execution period in seconds.").arg("s", "Period in seconds.");
+        this->addOperation("getCpuAffinity", &TaskContext::getCpuAffinity, this, ClientThread).doc("Get the configured cpu affinity.");
+        this->addOperation("setCpuAffinity", &TaskContext::setCpuAffinity, this, ClientThread).doc("Set the cpu affinity.").arg("cpu", "Cpu mask.");
         this->addOperation("isActive", &TaskContext::isActive, this, ClientThread).doc("Is the Execution Engine of this TaskContext active ?");
         this->addOperation("inFatalError", &TaskContext::inFatalError, this, ClientThread).doc("Check if this TaskContext is in the FatalError state.");
         this->addOperation("error", &TaskContext::error, this, ClientThread).doc("Enter the RunTimeError state (= errorHook() ).");
@@ -391,7 +393,9 @@ namespace RTT
     {
         if ( this->isRunning() )
             return false;
+#ifdef ORO_SIGNALLING_PORTS
         ports()->setupHandles();
+#endif
         return TaskCore::start(); // calls startHook()
     }
 
@@ -400,7 +404,9 @@ namespace RTT
         if ( !this->isRunning() )
             return false;
         if (TaskCore::stop()) { // calls stopHook()
+#ifdef ORO_SIGNALLING_PORTS
             ports()->cleanupHandles();
+#endif
             return true;
         }
         return false;
@@ -412,24 +418,17 @@ namespace RTT
         this->getActivity()->trigger();
     }
 
-    void TaskContext::dataOnPortCallback(InputPortInterface* port, InputPortInterface::SlotFunction callback) {
-        // creates a Signal that holds the connection for callback.
+    void TaskContext::dataOnPortCallback(InputPortInterface* port, TaskContext::SlotFunction callback) {
         // user_callbacks will only be emitted from updateHook().
-
         MutexLock lock(mportlock);
-        UserCallbacks::iterator it = user_callbacks.find(port);
-        if (it == user_callbacks.end() ) {
-            user_callbacks[port] = boost::make_shared<InputPortInterface::NewDataOnPortEvent>();
-        }
-        user_callbacks[port]->connect(callback);
+        user_callbacks[port] = callback;
     }
 
     void TaskContext::dataOnPortRemoved(PortInterface* port) {
         MutexLock lock(mportlock);
         UserCallbacks::iterator it = user_callbacks.find(port);
         if (it != user_callbacks.end() ) {
-            user_callbacks[port]->disconnect();
-            user_callbacks.erase(port);
+            user_callbacks.erase(it);
         }
     }
 
@@ -440,7 +439,7 @@ namespace RTT
         while ( portqueue->dequeue( port ) == true ) {
             UserCallbacks::iterator it = user_callbacks.find(port);
             if (it != user_callbacks.end() )
-                it->second->emit(port); // fire the user callbacks.
+                it->second(port); // fire the user callback
         }
     }
 }

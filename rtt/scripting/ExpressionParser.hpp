@@ -89,16 +89,45 @@ namespace RTT { namespace scripting
     rule_t& parser()
       {
         return datacall;
-      };
+      }
 
     base::DataSourceBase* getParseResult()
       {
         return ret.get();
-      };
+      }
     boost::shared_ptr<base::AttributeBase> getParseHandle()
       {
         return mhandle;
-      };
+      }
+  };
+
+  /**
+   * Parses type constructor syntax
+   */
+  class ConstructorParser
+  {
+    base::DataSourceBase::shared_ptr ret;
+    rule_t type_name, arguments;
+
+    CommonParser& commonparser;
+    ExpressionParser& expressionparser;
+    std::stack<ArgumentsParser*> argparsers;
+  public:
+    ConstructorParser( ExpressionParser& p, CommonParser& cp);
+    ~ConstructorParser();
+
+    void seen_type_name( iter_t begin, iter_t end );
+    void seen_constructor( void );
+
+    rule_t& parser()
+      {
+        return type_name;
+      }
+
+    base::DataSourceBase* getParseResult()
+      {
+        return ret.get();
+      }
   };
 
   /**
@@ -115,7 +144,7 @@ namespace RTT { namespace scripting
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
       time_expression, time_spec, indexexp, comma, close_brace,
-      value_expression, call_expression, assignexp;
+      value_expression, call_expression, assignexp, constructor_expression;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up
@@ -148,12 +177,14 @@ namespace RTT { namespace scripting
     void seen_dotmember( iter_t begin, iter_t end );
     void seenvalue();
     void seendatacall();
+    void seenconstructor();
     void seentimespec( int n );
     void seentimeunit( iter_t begin, iter_t end );
       void inverttime();
       void seentimeexpr();
 
       DataCallParser datacallparser;
+      ConstructorParser constrparser;
       /**
        * The governing common parser.
        */

@@ -246,7 +246,7 @@ namespace RTT {
       * Use for the conversion from a stl container to a sequence<string>
       */
       template<class dummy>
-      static bool toCorbaType(dummy& dest, const StdType& src) {
+      static bool toCorbaType(dummy dest, const StdType& src) {
         dest = src.c_str();
         return true;
       }

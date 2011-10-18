@@ -77,6 +77,7 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
 					   int priority,
+					   unsigned cpu_affinity,
 					   const char * name,
 					   int sched_type,
 					   size_t stack_size,
@@ -123,6 +124,13 @@ namespace RTT
 	    rv = pthread_create(&(task->thread), &(task->attr),
                               start_routine, obj);
         log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
+
+        log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+        if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
+        {
+            log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
+        }
+
         return rv;
 	}
 
@@ -333,6 +341,37 @@ namespace RTT
             return task->priority;
         return param.sched_priority;
 	}
+
+	INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
+	{
+        if ( cpu_affinity == 0 ) // clears the mask.
+            cpu_affinity = ~0;
+        if( task && task->thread != 0 ) {
+            cpu_set_t cs;
+            CPU_ZERO(&cs);
+            for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
+                {
+                    if(cpu_affinity & (1 << i)) { CPU_SET(i, &cs); }
+                }
+            return pthread_setaffinity_np(task->thread, sizeof(cs), &cs);
+        }
+        return -1;
+    }
+
+	INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
+	{
+        if( task && task->thread != 0) {
+        unsigned cpu_affinity = 0;
+        cpu_set_t cs;
+        pthread_getaffinity_np(task->thread, sizeof(cs), &cs);
+        for(unsigned i = 0; i < 8*sizeof(cpu_affinity); i++)
+        {
+          if(CPU_ISSET(i, &cs)) { cpu_affinity |= (1 << i); }
+        }
+        return cpu_affinity;
+	 }
+        return ~0;
+        }
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{

@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.4.0 )
+SET( RTT_VERSION 2.5.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -33,16 +33,21 @@ SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
 INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.cmake OPTIONAL)
 if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rtt.cmake)
   # Setup the default settings
-  INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
   MESSAGE(
     "No orocos-rtt.cmake file loaded, using default settings."
     "See orocos-rtt.default.cmake")
+  INCLUDE(${PROJ_SOURCE_DIR}/orocos-rtt.default.cmake)
 endif ()
 
+# On Windows, the default CMAKE_INSTALL_PREFIX is either:
+# C:\Program Files\orocos-rtt or C:\Program Files (x86)\orocos-rtt
+# However, we want it to be either:
+# C:\Program Files\orocos or C:\Program Files (x86)\orocos
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   IF (MSVC)
+    STRING(REPLACE "${PROJECT_NAME}" "orocos" OROCOS_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
     SET(CMAKE_INSTALL_PREFIX
-      "C:/Program Files/orocos" CACHE PATH "Orocos install prefix" FORCE
+      ${OROCOS_INSTALL_PREFIX} CACHE PATH "Orocos install prefix" FORCE
       )
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -51,13 +56,23 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # in this path, also during an autoproj/bootstrap build.
 IF(ROS_ROOT)
   SET(CMAKE_INSTALL_PREFIX
-    ${PROJECT_SOURCE_DIR}/install CACHE PATH "Orocos install prefix for ROS builds" FORCE
+    ${PROJECT_SOURCE_DIR}/../install CACHE PATH "Orocos install prefix for ROS builds" FORCE
     )
   # Necessary when building Debian packages:
   set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
   if (ROS_STACK_DIR_FINAL)
-    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain_ros/rtt/install/lib/orocos")
+    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
   endif(ROS_STACK_DIR_FINAL)
+  # Necessary for backwards compatibility such that packages find RTT's cmake macros:
+  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install)
+    # Note: we use WORKING_DIRECTORY
+    execute_process ( 
+      COMMAND ${CMAKE_COMMAND} -E remove_directory install
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_QUIET ERROR_QUIET
+      )
+  endif()
 ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.

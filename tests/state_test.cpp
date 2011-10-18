@@ -723,6 +723,7 @@ BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
      this->finishState( "x", tc);
 }
 
+#ifdef ORO_SIGNALLING_OPERATIONS
 BOOST_AUTO_TEST_CASE( testStateOperationSignalTransition )
 {
     // test event reception in sub states.
@@ -803,6 +804,7 @@ BOOST_AUTO_TEST_CASE( testStateOperationSignalGuard )
     this->checkState("x",tc);
     this->finishState("x", tc);
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testStateEvents)
 {
@@ -828,8 +830,10 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "   entry { do log(\"ISPOSITIVE\");}\n"
         + "   transition b_event(eb)\n"
         + "      if (eb == true) then { do log(\"Local ISPOSITIVE->INIT Transition for b_event\");} select INIT\n" // 20
+#ifdef ORO_SIGNALLING_OPERATIONS
         + "   transition o_event(et)\n"
         + "      if ( et == 3.0 ) then { do log(\"Local ISPOSITIVE->INIT Transition for o_event\");} select INIT\n"
+#endif
         + " }\n"
         + " state TESTSELF {\n"
         + "   entry {\n"
@@ -876,7 +880,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do b_event_source.write( true )\n" // go to INIT.
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-
+#ifdef ORO_SIGNALLING_OPERATIONS
         // test operation
         + "     do d_event_source.write(+1.0)\n"
         + "     do nothing\n"
@@ -889,7 +893,7 @@ BOOST_AUTO_TEST_CASE( testStateEvents)
         + "     do o_event( 3.0 )\n" // go to INIT.
         + "     do yield\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-
+#endif
         // test self transitions
         + "     set y1.eflag = true;\n"
         + "     do t_event_source.write(1)\n"

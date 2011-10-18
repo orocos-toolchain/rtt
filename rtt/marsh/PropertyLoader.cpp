@@ -148,7 +148,6 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
     }
     try {
         PropertyBag propbag;
-        vector<ActionInterface*> assignComs;
 
         if ( demarshaller->deserialize( propbag ) )
         {
@@ -174,6 +173,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
                 log(Error) << "Some error occured while parsing "<< filename.c_str() <<endlog();
                 failure = true;
             }
+        deletePropertyBag( propbag );
     } catch (...)
     {
         log(Error)
@@ -193,28 +193,26 @@ bool PropertyLoader::store(const std::string& filename, TaskContext* target) con
     log(Error) << "No Property Marshaller configured !" << endlog();
     return false;
 #else
-    // Write results
-    PropertyBag* compProps = target->properties();
-    PropertyBag allProps;
-
-    // decompose repos into primitive property types.
-    PropertyBagIntrospector pbi( allProps );
-    pbi.introspect( *compProps );
-
     std::ofstream file( filename.c_str() );
     if ( file )
     {
+        // Write results
+        PropertyBag* compProps = target->properties();
+        PropertyBag allProps;
+
+        // decompose repos into primitive property types.
+        PropertyBagIntrospector pbi( allProps );
+        pbi.introspect( *compProps );
+
         OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
         marshaller.serialize( allProps );
+        deletePropertyBag( allProps );
         log(Info) << "Wrote "<< filename <<endlog();
     }
     else {
         log(Error) << "Could not open file "<< filename <<" for writing."<<endlog();
-        deletePropertyBag( allProps );
         return false;
     }
-    // allProps contains copies (clone()), thus may be safely deleted :
-    deletePropertyBag( allProps );
     return true;
 #endif
 }
@@ -324,6 +322,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
             // compose propbag:
             PropertyBag composed_props;
             if ( composePropertyBag(propbag, composed_props) == false) {
+                deletePropertyBag( propbag );
                 delete demarshaller;
                 return false;
             }
@@ -334,6 +333,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
                 log(Error) << "Some error occured while parsing "<< filename.c_str() <<endlog();
                 failure = true;
             }
+        deletePropertyBag( propbag );
     } catch (...)
     {
         log(Error) << "Uncaught exception in deserialise !"<< endlog();

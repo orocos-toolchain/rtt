@@ -34,6 +34,8 @@ else
     SERVER=www.orocos.org
     SPREFIX=www.orocos.org
   else
+    echo "MECH upload is broken"
+    exit 1
     USER=orocos
     SERVER=ftp.mech.kuleuven.be
     SPREFIX=pub_html/pub
@@ -144,9 +146,10 @@ rm -rf doc api doc-xml &&
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 && 
 tar -xjf ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 &&
 rm -f ../../../rtt/$VVERSION/orocos-rtt-$VERSION-api.tar.bz2 ../../../rtt/$VVERSION/orocos-rtt-$VERSION-doc.tar.bz2 &&
-cd .. &&
-rm -f v2.x &&
-ln -s v$BRANCHVERSION.x v2.x
+cd .. && { linkv=\$(ls -l v2.x | sed -e\"s/l.*-> v//;s/\.//g;s/x//\"); branchv=\$(echo $BRANCHVERSION | sed -e\"s/\.//g\"); if test 0\$branchv -gt 0\$linkv; then
+rm -f v2.x && ln -s v$BRANCHVERSION.x v2.x ; echo Updated link for new version.
+fi;
+}
 "
 else
 ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/documentation/rtt/$VVERSION"
@@ -162,6 +165,10 @@ cd ..
 # copy latest news to packages directory :
 scp NEWS $USER@$SERVER:$SPREFIX/$BRANCH/rtt/NEWS.txt
 scp README $USER@$SERVER:$SPREFIX/$BRANCH/rtt/README.txt
+
+##### MECH Upload is broken for now, so only upload to OROCOSORG
+exit 0
+
 
   if test x$DOOROCOSORG = xno -o x$DOLOCAL = xyes -o x$DEV = xyes; then
       echo "Completed succesfully."

@@ -56,9 +56,10 @@
 // needed for sbrk() and MAP_ANON in 10.6 (at least)
 #ifdef	__APPLE__
 #define _DARWIN_C_SOURCE
+#else
+#include "../fosi.h"
 #endif
 
-#include "../fosi.h"
 #include <string.h>
 
 #define	TLSF_USE_LOCKS 	(1)

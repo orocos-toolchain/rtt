@@ -141,38 +141,34 @@ namespace RTT
              * @param pred
              */
             template<typename Pred>
-            void select_reader_channel(Pred pred) {
+            void select_reader_channel(Pred pred, bool copy_old_data) {
                 RTT::os::MutexLock lock(connection_lock);
                 std::pair<bool, ChannelDescriptor> new_channel =
-                    find_if(pred);
+                    find_if(pred, copy_old_data);
                 if (new_channel.first)
                 {
-                    // We clear the current channel, so that there is at most
-                    // one channel which returns OldData
-                    if (cur_channel.get<1>() != new_channel.second.get<1>())
-                        cur_channel.get<1>()->clear();
+                    // We don't clear the current channel (to get it to NoData state), because there is a race
+                    // between find_if and this line. We have to accept (in other parts of the code) that eventually,
+                    // all channels return 'OldData'.
                     cur_channel = new_channel.second;
                 }
             }
 
             template<typename Pred>
-            std::pair<bool, ChannelDescriptor> find_if(Pred pred) {
+            std::pair<bool, ChannelDescriptor> find_if(Pred pred, bool copy_old_data) {
+                // We only copy OldData in the initial read of the current channel.
+                // if it has no new data, the search over the other channels starts,
+                // but no old data is needed.
                 ChannelDescriptor channel = cur_channel;
                 if ( channel.get<1>() )
-                    if ( pred( channel ) )
+                    if ( pred( copy_old_data, channel ) )
                         return std::make_pair(true, channel);
 
-#ifdef MSVC
-                std::list<ChannelDescriptor>::iterator result =
-                    std::find_if(connections.begin(), connections.end(), pred);
-#else
-                std::list<ChannelDescriptor>::iterator result =
-                    std::find_if(connections.begin(), connections.end(), pred);
-#endif
-                if (result == connections.end())
-                    return std::make_pair(false, ChannelDescriptor());
-                else
-                    return std::make_pair(true, *result);
+                std::list<ChannelDescriptor>::iterator result;
+                for (result = connections.begin(); result != connections.end(); ++result)
+                    if ( pred(false, *result) == true)
+                        return std::make_pair(true, *result);
+                return std::make_pair(false, ChannelDescriptor());
             }
 
             /**

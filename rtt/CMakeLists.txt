@@ -1,6 +1,7 @@
 
 include (CMakeDependentOption)
 include (CreatePCFlags)
+include (SelectOneLibrary)
 
 ###
 ### List user options first before traversing sub-directories:
@@ -23,21 +24,8 @@ if (ORO_OS_USE_BOOST_THREAD)
     message(SEND_ERROR "ORO_OS_USE_BOOST_THREAD turned on, but Boost thread library is not installed or wrong version.")
   endif()
 
-  # As Boost_THREAD_LIBRARY may be a list of libraries, and we can't deal
-  # with that in pkgconfig, we take 1) the library for this build type, or
-  # 2) the library if only one is listed, or 3) we error out. 
-  STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-  if (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER}})
-  else (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
-	LIST(LENGTH Boost_THREAD_LIBRARY COUNT_Boost_THREAD_LIBRARY)
-	if (NOT WIN32)
-		if (1 LESS COUNT_Boost_THREAD_LIBRARY)
-			MESSAGE(FATAL_ERROR "Found multiple boost thread libraries, but not one specific to the current build type '${CMAKE_BUILD_TYPE_UPPER}'.")
-		endif (1 LESS COUNT_Boost_THREAD_LIBRARY)
-	endif()
-	list(APPEND OROCOS-RTT_LIBRARIES ${Boost_THREAD_LIBRARY} ${Boost_DATE_TIME_LIBRARY} )
-  endif (DEFINED Boost_THREAD_LIBRARY_${CMAKE_BUILD_TYPE_UPPER})
+  SELECT_ONE_LIBRARY("Boost_THREAD_LIBRARY" BOOST_THREAD_LIB)
+  list(APPEND OROCOS-RTT_LIBRARIES ${BOOST_THREAD_LIB} ${Boost_DATE_TIME_LIBRARY})
 
 endif()
 
@@ -136,6 +124,9 @@ IF ( OS_RT_MALLOC )
 
 ENDIF (OS_RT_MALLOC )
 
+### Use of Signal Class:
+OPTION(ORO_SIGNALLING_OPERATIONS "Enable the signal function of operations. scripting::StateMachine needs this for responding to operations." OFF)
+OPTION(ORO_SIGNALLING_PORTS "Enable the signal callback mechanism on ports. Enable if you want to attach multiple callbacks to flow ports." OFF)
 
 ###
 #   Collect Sources:
@@ -201,6 +192,7 @@ ENDIF ( BUILD_STATIC )
   COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
   LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
   COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
+  INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
   CLEAN_DIRECT_OUTPUT 1)
   IF (UNIX AND NOT APPLE)
 	SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
@@ -212,6 +204,10 @@ ENDIF ( BUILD_STATIC )
   IF (BUILD_ENABLE_COVERAGE)
 	target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic gcov)
   ENDIF (BUILD_ENABLE_COVERAGE)
+
+  if(ENABLE_MQ AND OROPKG_OS_XENOMAI AND XENOMAI_POSIX_FOUND)
+    target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${XENOMAI_POSIX_LIBRARIES})
+  endif()
 
 create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDE_DIRS}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
 create_pc_flags( "${RTT_DUMMY}" "${RTT_DUMMY}" "${OROCOS-RTT_USER_LINK_LIBS}" RTT_DUMMY RTT_DUMMY RTT_USER_LINK_LIBS)

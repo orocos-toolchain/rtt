@@ -24,6 +24,8 @@
 #include <extras/SequentialActivity.hpp>
 #include <plugin/PluginLoader.hpp>
 #include <scripting/Parser.hpp>
+#include <internal/GlobalService.hpp>
+
 
 using namespace std;
 using namespace boost;
@@ -141,5 +143,124 @@ BOOST_AUTO_TEST_CASE(TestScriptingParser)
     BOOST_CHECK_EQUAL( i, -2);
 }
 
+BOOST_AUTO_TEST_CASE(TestScriptingFunction)
+{
+    PluginLoader::Instance()->loadService("scripting",tc);
+
+    // We use a sequential activity in order to force execution on trigger().
+    tc->stop();
+    BOOST_CHECK( tc->setActivity( new SequentialActivity() ) );
+    tc->start();
+
+    boost::shared_ptr<Scripting> sc = tc->getProvider<Scripting>("scripting");
+    BOOST_REQUIRE( sc );
+    BOOST_CHECK ( sc->ready() );
+    bool r;
+
+    // set test counter to zero:
+    i = 0;
+
+    // define a function (added to scripting interface):
+    string statements="void func1(void) { test.increase(); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( tc->provides("scripting")->hasMember("func1"));
+
+    // export a function:
+    statements="export void efunc1(void) { test.increase(); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( tc->provides()->hasMember("efunc1"));
+
+    // local function:
+    statements="void lfunc1(void) { test.increase(); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( tc->provides("scripting")->hasMember("lfunc1"));
+
+    // global function:
+    statements="global void gfunc1(void) { test.increase(); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 0);
+    BOOST_CHECK( GlobalService::Instance()->provides()->hasMember("gfunc1"));
+
+    // invoke a function:
+    statements="func1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 1);
+
+    // invoke an exported function:
+    statements="efunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 2);
+
+    // invoke a global function:
+    statements="gfunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 3);
+
+    // invoke a local function:
+    statements="lfunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 4);
+
+    // call a function:
+    statements="call func1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( !r );
+    BOOST_CHECK_EQUAL( i, 4);
+
+    // call an exported function:
+    statements="call efunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( !r );
+    BOOST_CHECK_EQUAL( i, 4);
+
+    // RE-define a function (added to scripting interface):
+    statements="void func1(void) { test.increase(); test.increase(); }\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 4);
+    BOOST_CHECK( tc->provides("scripting")->hasMember("func1"));
+
+    statements="func1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 6);
+
+    // RE-export a function:
+    statements="export void efunc1(void) { test.increase(); test.increase();}\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 6);
+    BOOST_CHECK( tc->provides()->hasMember("efunc1"));
+
+    statements="efunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 8);
+
+    // RE-global a function:
+    statements="global void gfunc1(void) { test.increase(); test.increase();}\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 8);
+    BOOST_CHECK( GlobalService::Instance()->provides()->hasMember("gfunc1"));
+
+    statements="gfunc1()\n";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 10);
+
+
+}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -236,7 +236,7 @@ namespace RTT {
         }
 
         Thread::Thread(int scheduler, int _priority,
-                Seconds periods, const std::string & name) :
+                Seconds periods, unsigned cpu_affinity, const std::string & name) :
                     msched_type(scheduler), active(false), prepareForExit(false),
                     inloop(false),running(false),
                     maxOverRun(OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
@@ -245,10 +245,10 @@ namespace RTT {
         ,d(NULL)
 #endif
         {
-            this->setup(_priority, name);
+            this->setup(_priority, cpu_affinity, name);
         }
 
-        void Thread::setup(int _priority, const std::string& name)
+        void Thread::setup(int _priority, unsigned cpu_affinity, const std::string& name)
         {
             Logger::In in("Thread");
             int ret;
@@ -256,7 +256,11 @@ namespace RTT {
             // we do this under lock in order to force the thread to wait until we're done.
             MutexLock lock(breaker);
 
-            log(Info) << "Creating Thread for scheduler: " << msched_type << endlog();
+            log(Info) << "Creating Thread for scheduler=" << msched_type
+                      << ", priority=" << _priority
+                      << ", CPU affinity=" << cpu_affinity
+                      << ", with name='" << name << "'"
+                      << endlog();
             ret = rtos_sem_init(&sem, 0);
             if (ret != 0)
             {
@@ -286,7 +290,7 @@ namespace RTT {
                 }
             }
 #endif
-            int rv = rtos_task_create(&rtos_task, _priority, name.c_str(),
+            int rv = rtos_task_create(&rtos_task, _priority, cpu_affinity, name.c_str(),
                     msched_type, default_stack_size, thread_function, this);
             if (rv != 0)
             {
@@ -308,6 +312,7 @@ namespace RTT {
             Logger::In in2(modname);
             log(Info) << "Thread created with scheduler type '"
                     << getScheduler() << "', priority " << getPriority()
+                    << ", cpu affinity " << getCpuAffinity()
                     << " and period " << getPeriod() << "." << endlog();
 #ifdef OROPKG_OS_THREAD_SCOPE
             if (d)
@@ -578,6 +583,16 @@ namespace RTT {
         nsecs Thread::getPeriodNS() const
         {
             return period;
+        }
+
+        bool Thread::setCpuAffinity(unsigned cpu_affinity)
+        {
+            return rtos_task_set_cpu_affinity(&rtos_task, cpu_affinity) == 0;
+        }
+
+        unsigned Thread::getCpuAffinity() const
+        {
+            return rtos_task_get_cpu_affinity(&rtos_task);
         }
 
         void Thread::yield()

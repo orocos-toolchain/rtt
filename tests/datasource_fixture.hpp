@@ -40,9 +40,13 @@ using namespace std;
  */
 struct AType
 {
-    AType() :
-        a(3), b(9.9), c("hello")
-    {
+    AType(bool ini) { if (ini) init(); else clear(); }
+    AType() { clear(); }
+
+    void init() {
+        a = (3);
+        b = (9.9);
+        c =("hello");
         ai.assign(0);
         ai[3] = 99;
         vd.resize(10, 5.0);
@@ -80,12 +84,14 @@ RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const ATypes& as);
  */
 struct BType
 {
-    BType() :
-        a(3), b(9.9)
-    {
+    BType() { clear(); }
+    BType(bool ini) { if (ini) init(); else clear(); }
+    void init() {
+        a = (3);
+        b = (9.9);
         for(int i = 0; i<10; ++i) c[i] = 0;
         strcpy(c,"hello");
-        for(int i = 0; i<5; ++i) ai[i] = 0;
+        for(int i = 0; i<5; ++i) ai[i] = 3;
         ai[3] = 99;
         for(int i = 0; i<10; ++i) vd[i] = 5;
         vd[3] = 101;
@@ -119,9 +125,14 @@ RTT_UNIT_API std::ostream& operator<<(std::ostream& os, const BTypes& a);
  */
 struct CType
 {
-    CType() :
-        a(), b(), av(10), bv(10)
-    {
+    CType() { clear(); }
+    CType(bool ini) { if (ini) init(); else clear(); }
+
+    void init() {
+        a.init();
+        b.init();
+        av.resize(10, a);
+        bv.resize(10, b);
     }
     AType a;
     BType b;

@@ -136,6 +136,7 @@ void ErrorHandler(LPTSTR lpszFunction)
 
     INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
                        int priority,
+                       unsigned cpu_affinity,
                        const char * name,
                        int sched_type,
                        size_t stack_size,
@@ -323,6 +324,16 @@ void ErrorHandler(LPTSTR lpszFunction)
     INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
     {
         return GetThreadPriority(t->handle);
+    }
+
+    INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
+    {
+    return -1;
+    }
+
+    INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
+    {
+    return ~0;
     }
 
     INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)

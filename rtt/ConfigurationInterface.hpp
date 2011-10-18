@@ -99,6 +99,7 @@ namespace RTT
          */
         template<class T>
         bool addAttribute( const std::string& name, T& attr) {
+            if ( !chkPtr("addAttribute", name, &attr) ) return false;
             Alias a(name, new internal::ReferenceDataSource<T>(attr));
             return this->addAttribute( a );
         }
@@ -112,6 +113,7 @@ namespace RTT
          */
         template<class T>
         Attribute<T>& addAttribute( const std::string& name, Attribute<T>& attr) {
+            if ( !chkPtr("addAttribute", name, &attr) ) return attr;
             if ( !attr.ready() )
                 attr = Attribute<T>(name);
             else
@@ -131,6 +133,7 @@ namespace RTT
          */
         template<class T>
         bool addConstant( const std::string& name, const T& cnst) {
+            if ( !chkPtr("addConstant", name, &cnst) ) return false;
             Alias a(name, new internal::ConstReferenceDataSource<T>(cnst));
             return this->addAttribute( a );
         }
@@ -145,6 +148,7 @@ namespace RTT
          */
         template<class T>
         Constant<T>& addConstant( const std::string& name, Constant<T>& cnst) {
+            if ( !chkPtr("addConstant", name, &cnst) ) return cnst;
             if ( !cnst.ready() )
                 cnst = Constant<T>(name, T());
             else
@@ -165,6 +169,7 @@ namespace RTT
          */
         template<class T>
         Property<T>& addProperty( const std::string& name, T& prop) {
+            if ( !chkPtr("addProperty", name, &prop) ) return internal::NA<Property<T>& >::na();
             return this->properties()->addProperty( name, prop );
         }
 
@@ -177,6 +182,7 @@ namespace RTT
          */
         template<class T>
         Property<T>& addProperty( const std::string& name, Property<T>& prop) {
+            if ( !chkPtr("addProperty", name, &prop) ) return prop;
             if ( !prop.ready() )
                 prop = Property<T>(name);
             else
@@ -197,6 +203,7 @@ namespace RTT
          */
         bool addAttribute( base::AttributeBase& a )
         {
+            if ( !chkPtr("addAttribute", "AttributeBase", &a) ) return false;
             return a.getDataSource() ? setValue( a.clone() ) : false;
         }
 
@@ -325,6 +332,7 @@ namespace RTT
         PropertyBag* properties();
 
     protected:
+        bool chkPtr(const std::string &where, const std::string& name, const void* ptr);
         typedef std::vector<base::AttributeBase*> map_t;
         map_t values;
         PropertyBag bag;

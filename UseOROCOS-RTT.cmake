@@ -20,6 +20,21 @@ if(OROCOS-RTT_FOUND)
   add_definitions(${OROCOS-RTT_DEFINITIONS})
   set(ROS_ROOT $ENV{ROS_ROOT})
 
+  if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
+    set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
+    #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
+    string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
+    foreach( path IN LISTS ROS_PACKAGE_PATH )
+      if ( CMAKE_CURRENT_SOURCE_DIR MATCHES ${path} )
+	set(IS_ROS_PACKAGE TRUE)
+	message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
+      endif()
+    endforeach()
+    if(NOT IS_ROS_PACKAGE)
+      message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
+    endif()
+  endif()
+
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
     SET(USE_OROCOS_LINK_FLAGS "-Wl,-z,defs")
@@ -33,18 +48,39 @@ if(OROCOS-RTT_FOUND)
     set(USE_OROCOS_COMPILE_FLAGS " " )
   endif (MSVC)
 
-  # Detect user flag: install with orocos
-  if (INSTALL_PATH STREQUAL "orocos")
-    set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
-    mark_as_advanced(INSTALL_PATH)
-    set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
-  else (INSTALL_PATH STREQUAL "orocos")
-    if (WIN32)
-      set (INSTALL_PATH "orocos" CACHE PATH "Package installs at same location as Orocos RTT." FORCE)
-      mark_as_advanced(INSTALL_PATH)
-      set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Package install prefix forced by INSTALL_PATH" FORCE)
-    endif (WIN32)
-  endif (INSTALL_PATH STREQUAL "orocos")
+  # On windows, the CMAKE_INSTALL_PREFIX is forced to the Orocos-RTT path.
+  # There's two alternatives to disable this behavior:
+  #
+  # 1. Use the ORO_DEFAULT_INSTALL_PREFIX variable to modify the default
+  #    installation path:
+  #
+  #     set(ORO_DEFAULT_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+  #     include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+  #
+  # 2. Force a non-default CMAKE_INSTALL_PREFIX prior to executing cmake:
+  #
+  #     cmake -DCMAKE_INSTALL_PREFIX="<your install prefix>" [...]
+  #
+  # In all cases, the Orocos macros will always honor any change to the cached
+  # CMAKE_INSTALL_PREFIX variable.
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+    if(WIN32)
+        set(ORO_DEFAULT_INSTALL_PREFIX "orocos")
+    endif(WIN32)
+  endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+
+  # For backwards compatibility. Was only used on WIN32 targets:
+  if(DEFINED INSTALL_PATH)
+    set(ORO_DEFAULT_INSTALL_PREFIX ${INSTALL_PATH})
+  endif(DEFINED INSTALL_PATH)
+
+  if(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
+    if(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+        set (CMAKE_INSTALL_PREFIX ${OROCOS-RTT_PATH} CACHE PATH "Install prefix forced to orocos by ORO_DEFAULT_INSTALL_PREFIX" FORCE)
+    else(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+        set (CMAKE_INSTALL_PREFIX ${ORO_DEFAULT_INSTALL_PREFIX} CACHE PATH "Install prefix forced by ORO_DEFAULT_INSTALL_PREFIX" FORCE)
+    endif(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
+  endif(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
   
   # Infer package name from directory name.                                                                                                                                                                                                  
   get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
@@ -56,7 +92,12 @@ if(OROCOS-RTT_FOUND)
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
   
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
+    if ( NOT ROSBUILD_init_called )
+      include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+      rosbuild_init()
+    endif()
+
     # In ros builds, we need to set the pkg-config path such that RTT is found by
     # the typekit/typegen/pc files logic:
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
@@ -69,7 +110,7 @@ if(OROCOS-RTT_FOUND)
     foreach(ROSDEP ${pkg_DEPS2})
         orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
-  else (ROS_ROOT)
+  else (IS_ROS_PACKAGE)
     # Fall back to 'manually' processing the manifest.xml file.
     orocos_get_manifest_deps( DEPS )
     #message("Dependencies are: ${DEPS}")
@@ -77,11 +118,18 @@ if(OROCOS-RTT_FOUND)
         orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
     
-  endif (ROS_ROOT)
+  endif (IS_ROS_PACKAGE)
 
-  if (ROS_ROOT)
+  # Necessary to find rtt when we scan the manifest.xml file.
+  if (IS_ROS_PACKAGE)
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
-  endif(ROS_ROOT)
+  endif(IS_ROS_PACKAGE)
+
+  # Necessary for correctly building mixed libraries on win32.
+  if(OROCOS_TARGET STREQUAL "win32")
+    set(CMAKE_DEBUG_POSTFIX "d")
+  endif(OROCOS_TARGET STREQUAL "win32")
+
 
 #
 # Include and link against required stuff
@@ -145,7 +193,7 @@ macro( orocos_component COMPONENT_NAME )
   endif()
   
   # Set library name:
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
   else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
@@ -155,13 +203,16 @@ macro( orocos_component COMPONENT_NAME )
   if (COMPONENT_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
   endif(COMPONENT_VERSION)
-  if (ORO_COMPONENT_VERSION)
-    set( LIB_COMPONENT_VERSION VERSION ${ORO_COMPONENT_VERSION})
-  endif(ORO_COMPONENT_VERSION)
+  if (ADD_COMPONENT_VERSION)
+    set( LIB_COMPONENT_VERSION VERSION ${ADD_COMPONENT_VERSION})
+  endif(ADD_COMPONENT_VERSION)
   MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
 
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${COMPONENT_NAME}_LIB_DEPENDS )
+
   # Use rosbuild in ros environments:
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}
@@ -222,13 +273,17 @@ macro( orocos_library LIB_TARGET_NAME )
     set(AC_INSTALL_RT_DIR bin)
   endif()
   
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
   MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
   else()
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
@@ -278,13 +333,14 @@ macro( orocos_executable EXE_TARGET_NAME )
     set(AC_INSTALL_RT_DIR bin)
   endif()
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( EXE_NAME ${EXE_TARGET_NAME})
   endif()
+
   MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
   else()
     ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
@@ -294,16 +350,17 @@ macro( orocos_executable EXE_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+    if(CMAKE_DEBUG_POSTFIX)
+        set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+    endif(CMAKE_DEBUG_POSTFIX)
   orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
 
   TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
-  if (ROS_ROOT)
-    message("Note: not installing ${EXE_TARGET_NAME} since we're in a ROS package.")
-  else(ROS_ROOT)
-    INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
-  endif(ROS_ROOT)
+  # We install the exe, the user must make sure that the install dir is not
+  # beneath the ROS package (if any).
+  INSTALL(TARGETS ${EXE_TARGET_NAME} RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
   LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 endmacro( orocos_executable )
@@ -364,13 +421,17 @@ macro( orocos_typekit LIB_TARGET_NAME )
     set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
   endif(ORO_TYPEKIT_VERSION)
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
   MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types
@@ -429,12 +490,16 @@ macro( orocos_plugin LIB_TARGET_NAME )
     set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
   endif(ORO_PLUGIN_VERSION)
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
   endif()
-  if (ROS_ROOT)
+
+  # Clear the dependencies such that a target switch can be detected:
+  unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
+
+  if (IS_ROS_PACKAGE)
     MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
     rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -527,12 +592,21 @@ endmacro( orocos_uninstall_target )
 # If you didn't specify VERSION but COMPONENT_VERSION has been set,
 # that variable will be used to set the version number.
 #
-# orocos_generate_package( [name] [VERSION version] )
+# You may specify a dependency list of .pc files to depend on with DEPENDS. You will need this
+# to set the include paths correctly if a public header of
+# this package includes a header of another (non-Orocos) package. This dependency
+# will end up in the Requires: field of the .pc file.
+#
+# You may specify a dependency list of .pc files of Orocos packages with DEPENDS_TARGET
+# This is similar to DEPENDS, but the -<target> suffix is added for every package name.
+# This dependency will end up in the Requires: field of the .pc file.
+#
+# orocos_generate_package( [name] [VERSION version] [DEPENDS packagenames....])
 #
 macro( orocos_generate_package )
 
   oro_parse_arguments(ORO_CREATE_PC
-    "VERSION"
+    "VERSION;DEPENDS;DEPENDS_TARGETS"
     ""
     ${ARGN}
     )
@@ -554,15 +628,20 @@ macro( orocos_generate_package )
   if ( ORO_CREATE_PC_DEFAULT_ARGS )
     set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
   else ( ORO_CREATE_PC_DEFAULT_ARGS )
-    set(PC_NAME ${CMAKE_PROJECT_NAME} )
-    if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} )
+    set(PC_NAME ${PROJECT_NAME} )
+    if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
       # Append -subdir-subdir-... to pc name:
-      file(RELATIVE_PATH RELPATH ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
+      file(RELATIVE_PATH RELPATH ${${PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
       string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
       set(PC_NAME ${PC_NAME}-${PC_NAME_SUFFIX})
-    endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${CMAKE_PROJECT_NAME}_SOURCE_DIR} )
+    endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
     set(PC_NAME ${PC_NAME}-${OROCOS_TARGET})
   endif ( ORO_CREATE_PC_DEFAULT_ARGS )
+
+  # Create dependency list
+  foreach( DEP ${ORO_CREATE_PC_DEPENDS_TARGETS})
+     list(APPEND ${ORO_CREATE_PC_DEPENDS} ${DEP}-${OROCOS_TARGET})
+  endforeach()
 
   # Create lib-path list
   set(PC_LIBS "Libs: ")
@@ -588,7 +667,7 @@ orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
-Requires: orocos-rtt-${OROCOS_TARGET}
+Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
 Cflags: -I\${includedir}
@@ -600,7 +679,7 @@ Cflags: -I\${includedir}
   #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
   # For ros package trees, we install the .pc file also next to the manifest file:
-  if (ROS_ROOT)
+  if (IS_ROS_PACKAGE)
     set(PC_PREFIX ${PROJECT_SOURCE_DIR})
     set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
     # For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
@@ -618,14 +697,14 @@ orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
 Description: ${PC_NAME} package for Orocos
-Requires: orocos-rtt-${OROCOS_TARGET}
+Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
 Cflags: -I\${includedir} -I\${prefix}/..
 ")
     string(CONFIGURE "${PC_CONTENTS}" ROS_PC_CONTENTS @ONLY)
     file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROS_PC_CONTENTS})
-  endif (ROS_ROOT)
+  endif (IS_ROS_PACKAGE)
 
   # Also set the uninstall target:
   orocos_uninstall_target()

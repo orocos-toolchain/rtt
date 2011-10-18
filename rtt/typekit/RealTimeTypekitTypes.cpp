@@ -43,13 +43,6 @@
 
 #include "RealTimeTypekit.hpp"
 #include "StdTypeInfo.hpp"
-#ifndef RTT_NO_STD_TYPES
-#include "StdStringTypeInfo.hpp"
-#include "StdVectorTypeInfo.hpp"
-#endif
-#ifdef OS_RT_MALLOC
-#include "RTStringTypeInfo.hpp"
-#endif
 #include "BoolTypeInfo.hpp"
 #include "../types/TypeInfoName.hpp"
 
@@ -58,6 +51,7 @@ namespace RTT
 {
     namespace types {
         void loadOrocosTypes(TypeInfoRepository::shared_ptr ti);
+        void loadStdTypes(TypeInfoRepository::shared_ptr ti);
     }
 
     using namespace std;
@@ -75,19 +69,10 @@ namespace RTT
         ti->addType( new StdTypeInfo<char>("char") );
         ti->addType( new BoolTypeInfo() );
         ti->addType( new TypeInfoName<void>("void"));
-        // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
-        // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
-        // from a c-style string obviously disables a copy-on-write connection.
-#ifndef RTT_NO_STD_TYPES
-        ti->addType( new StdStringTypeInfo() );
-        ti->addType( new StdVectorTypeInfo("array") );
-#endif
-#ifdef OS_RT_MALLOC
-        ti->addType( new RTStringTypeInfo() );
-#endif
 
         // load the Orocos specific types:
         loadOrocosTypes( ti );
+        loadStdTypes( ti );
         return true;
     }
 }

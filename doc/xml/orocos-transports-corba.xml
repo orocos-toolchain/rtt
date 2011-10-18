@@ -68,6 +68,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Document new CORBA Transport API (RTT 2.0)</revremark>
       </revision>
+      <revision>
+	<revnumber>1.0</revnumber>
+	<date>24 June 2011</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Provide basic instructions for setting up corba deployments.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -101,6 +107,83 @@
 	The library acts as a run-time plugin.</para></listitem>
       </itemizedlist> 
     </para>
+	</section>
+    <section>
+      <title>Setup CORBA Naming (Required!)</title>
+      <important><para>Follow these instructions carefully or your setup will not work !</para></important>
+      <para>
+	In order to distribute Orocos components over a network, your
+	computers must be setup correctly for using Corba.
+	Start a Corba Naming Service once with
+	multicasting on. Using the TAO Naming Service, this would be:
+	<screen>
+  $ Naming_Service -m 1 &amp;</screen>
+	And your application as:
+	<screen>
+  $ deployer-corba-gnulinux</screen>
+	<emphasis>OR:</emphasis> if that fails, start the
+	Naming Service with the following options set:
+	<screen>
+  $ Naming_Service -m 0 -ORBListenEndpoints iiop://<emphasis>&lt;the-ns-ip-address&gt;</emphasis>:2809 -ORBDaemon</screen>
+	The <emphasis>&lt;the-ns-ip-address&gt;</emphasis> must
+	be replaced with the ip address of a network interface of the
+	computer where you start the Naming Service. And each computer
+	where your start the application:
+	<screen>
+  $ export NameServiceIOR=corbaloc:iiop:&lt;the-ns-ip-address&gt;:2809/NameService
+  $ deployer-corba-gnlinux</screen>
+	With <emphasis>&lt;the-ns-ip-address&gt;</emphasis> the same as above.
+			</para>
+			<para>
+				For more detailed information or if your deployer does not find the
+				Naming Service, take a look at this page: 
+				<ulink url="http://www.orocos.org/wiki/rtt/frequently-asked-questions-faq/using-corba">Using CORBA</ulink>
+			</para>
+    </section>
+  <section>
+    <title>Connecting CORBA components</title>
+    <para>
+			Normally, the Orocos deployer will create connections for you between
+			CORBA components. Be sure to read the <ulink url="http://www.orocos.org/stable/documentation/ocl/v2.x/doc-xml/orocos-deployment.html">OCL DeploymentComponent Manual</ulink>
+			for detailed instructions on how you can setup components such
+			that the can be used from another process.
+		</para>
+		<para>
+			This is an example deployment script '<filename>server-script.ops</filename>' for creating
+			your first process and making one component available in the network:
+			<programlisting>
+  import("ocl")                               // make sure ocl is loaded
+
+  loadComponent("MyComponent","TaskContext")  // Create a new default TaskContext
+  server("MyComponent",true)                  // make MyComponent a CORBA server, and
+                                              // register it with the Naming Service ('true')
+			</programlisting>
+			You can start this application with:
+			<screen>$ deployer-corba-gnulinux -s server-script.ops</screen>
+		</para>
+		<para>
+			In another console, start a client program '<filename>client-script.ops</filename>' that
+			wishes to use this component:
+			<programlisting>
+  import("ocl")                               // make sure ocl is loaded
+
+  loadComponent("MyComponent","CORBA")        // make 'MyComponent' available in this program
+	MyComponent.start()                         // Use the component as usual...connect ports etc.
+			</programlisting>
+			You can start this application with:
+			<screen>$ deployer-corba-gnulinux -s client-script.ops</screen>
+		</para>
+		<para>
+			More CORBA deployment options are described in the
+			<ulink url="http://www.orocos.org/stable/documentation/ocl/v2.x/doc-xml/orocos-deployment.html">OCL DeploymentComponent Manual</ulink>.
+    </para>
+  </section>
+	<section>
+		<title>In-depth information</title>
+		<para>
+			You don't need this information unless you want to talk to the
+			CORBA layer directly, for example, from a non-Orocos GUI application.
+		</para>
     <section>
       <title>Status</title>
       <para>
@@ -120,60 +203,16 @@
       </para>
     </section>
     <section>
-      <title>Requirements and Setup</title>
-      <important><para>Follow these instructions carefully or your setup will not work !</para></important>
-      <para>
-	In order to distribute Orocos components over a network, your
-	computers must be setup correctly for using Corba.
-      </para>
-      <para>The following must be done
-      <itemizedlist>
-	<listitem><para>Install the Ace and Tao libraries and header
-	files on your system. Tao version 1.3, 1.4 or
-	1.5, OR install OmniORB 4 or later.</para></listitem>
-	<listitem><para>Configure Orocos with Corba support. See the
-	Getting Started Manual.</para></listitem>
-	<listitem><para>Start a Corba Naming Service once with
-	multicasting on. Using the TAO Naming Service, this would be:
-	</para>
-	<screen>
-  $ Naming_Service -m 1 &amp;</screen>
-        <para>And your application as: </para>
-	<screen>
-  $ ./your-corba-app</screen></listitem>
-        <listitem>
-	<para> <emphasis>OR:</emphasis> if that fails, start the
-	Naming Service with the following options set:</para>
-	<screen>
-  $ Naming_Service -m 0 -ORBListenEndpoints iiop://<emphasis>&lt;the-ns-ip-address&gt;</emphasis>:2809 -ORBDaemon</screen>
-	<para>The <emphasis>&lt;the-ns-ip-address&gt;</emphasis> must
-	be replaced with the ip address of a network interface of the
-	computer where you start the Naming Service. And each computer
-	where your start the application:</para>
-	<screen>
-  $ export NameServiceIOR=corbaloc:iiop:&lt;the-ns-ip-address&gt;:2809/NameService
-  $ ./your-corba-app</screen>
-	<para>With <emphasis>&lt;the-ns-ip-address&gt;</emphasis> the same as above.</para>
-	</listitem>
-	<listitem><para>Compile your applications with the appropriate
-	include and linker flags. See the Getting Started/Installation
-	Manual.</para></listitem>
-      </itemizedlist> 
-      </para>
-    </section>
-    <section>
       <title>Limitations</title>
       <para>
 	The following limitations apply:
 	<itemizedlist>
-	  <listitem><para>Components can only communicate standard C++
-	  types (double, int, string, etc.) and std::vector&lt;double>.
-	  Adding user types is possible using the 'Toolkit Plugin' feature
-	  ( see also 'Orocos Type System' ).
+	  <listitem><para>You need the <command>typegen</command> command from the 'orogen'
+		package in order to communicate custom structs/data types between components.
 	  </para></listitem>
 	  <listitem><para>Interacting with a remote component using the CORBA transport
 	      will never be real-time. The only exception to this rule is when using the data flow
-	      transport. Reading and writing data ports is always real-time, the transport
+	      transport: reading and writing data ports is always real-time, the transport
 	      of the data itself is not a real-time process.
 	  </para></listitem>
 	</itemizedlist>
@@ -182,6 +221,7 @@
   </section>
   <section>
     <title>Code Examples</title>
+		<note><para>You only need this example code if you don't use the deployer application!</para></note>
     <para>
       This example assumes that you have taken a look at the 'Component Builder's
       Manual'. It creates a simple 'Hello World' component and makes it available
@@ -288,47 +328,6 @@
     </para>
   </section>
   <section>
-    <title>Usage</title>
-    <para>
-      When your Corba enabled component is running, the following usage
-      rules should be known:
-      <itemizedlist>
-	<listitem><para> 
-	  The Orocos Component Library provides two CORBA enabled programs:
-	  the <filename>cdeployer</filename> and the <filename>ctaskbrowser</filename>.
-	  The first is a CORBA enabled <classname>OCL::DeploymentComponent</classname>
-	  which allows you to load components and exports their interface using CORBA.
-	  The <filename>ctaskbrowser</filename> connects to the <filename>cdeployer</filename>
-	  and provides the <classname>OCL::TaskBrowser</classname> console which
-	  accesses this component. See also the KTaskbrowser for using a GUI
-	  to connect to the <filename>cdeployer</filename>.
-	</para></listitem>
-	<listitem><para>
-	  Components should not call remote components
-	  during real-time execution. However, real-time components may
-	  be called upon by any component, local or remote. A component
-	  may thus always receive a request from any component, but not
-	  every component should send a request to any component. If you
-	  violate this rule, it will not crash your program, but your
-	  execution timing will be worse.
-	</para></listitem>
-	<listitem><para>
-	  If you call '.shutdown()' upon a component, the
-	  whole CORBA part of that executable is shut down. It will cause
-	  the 'RunOrb()' function to return.
-	</para></listitem>
-	<listitem><para> 
-	  You need to export at least one component. If
-	  you try to access a peer component of that component over the
-	  network, this will be detected and the peer will be
-	  automatically exported as well. This means that if you visit
-	  each peer of a component, all these peer components will be
-	  known on the network.  
-	</para></listitem>
-      </itemizedlist> 
-    </para>
-  </section>
-  <section>
     <title>Orocos Corba Interfaces</title>
     <para>
       Orocos does not require IDL or CORBA knowledge of the user when two
@@ -352,10 +351,13 @@
     </para>
   </section>
   <section>
-    <title>Using the Naming Service</title>
+    <title>The Naming Service</title>
     <para>
       Orocos uses the CORBA Naming Service such that components can
       find each other on the same or different networked stations.
+			See also <ulink url="http://www.orocos.org/wiki/rtt/frequently-asked-questions-faq/using-corba">Using CORBA</ulink>
+			for a detailed overview on using this program in various network
+			environments or for troubleshooting.
     </para>
     <para>
       The components are registered under the naming context path

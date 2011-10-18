@@ -104,7 +104,9 @@ namespace RTT
 
         virtual base::DataSourceBase::shared_ptr produceCollect(const std::vector<base::DataSourceBase::shared_ptr>& args, internal::DataSource<bool>::shared_ptr blocking) const;
 
+#ifdef ORO_SIGNALLING_OPERATIONS
         Handle produceSignal(base::ActionInterface* func, const std::vector<base::DataSourceBase::shared_ptr>& args) const;
+#endif
     };
 
 }}

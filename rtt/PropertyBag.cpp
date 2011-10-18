@@ -438,6 +438,59 @@ namespace RTT
         return parent.value().removeProperty( parent.value().find( pname ) );
     }
 
+    bool updateOrRefreshProperty( PropertyBase* source, PropertyBase* target, bool update)
+    {
+#ifndef NDEBUG
+        if (update)
+            log(Debug) << "updateProperties: updating Property "
+            << source->getType() << " "<< source->getName()
+            << "." << endlog();
+        else
+            log(Debug) << "refreshProperties: refreshing Property "
+            << source->getType() << " "<< source->getName()
+            << "." << endlog();
+#endif
+        // no need to make new one, just update existing one
+        if ( (update && target->update( source ) == false ) || (!update && target->refresh( source ) == false ) ) {
+            // try conversion
+            DataSourceBase::shared_ptr converted = target->getTypeInfo()->convert( source->getDataSource() );
+            if ( !converted || converted == source->getDataSource() ) {
+                // no conversion, try composition:
+                converted = target->getDataSource();
+                if (target->getTypeInfo()->composeType( source->getDataSource(), converted ) ) {
+                    // case where there is a type composition -> target was updated by composeType
+                    log(Debug) << "Composed Property "
+                            << target->getType() << " "<< source->getName() << " to type " <<target->getType()
+                            << " from type "  << source->getType() << endlog();
+                    return true;
+                } else {
+                    //if ( !target->getTypeInfo()->composeType( source->getDataSource(), target->getDataSource() ) )
+                    log(Error) << (update ? "updateProperties: " : "refreshProperties: ") << " Could not update, nor convert Property "
+                            << target->getType() << " "<< target->getName()
+                            << ": type mismatch, can not update with "
+                            << source->getType() << " "<< source->getName() << endlog();
+                    return false;
+                }
+            } else {
+                // conversion: update with converted value:
+                // case where there is a type conversion -> do the update of the target
+                // since 'converted' might be a non-Assignable DataSource, we need a work-around:
+                PropertyBase* dummy = target->getTypeInfo()->buildProperty("","");
+                dummy->getDataSource()->update( converted.get() );
+                assert(dummy->getTypeInfo() == converted->getTypeInfo() );
+                // we need to use the PropertyBase API and not the DataSource API !
+                if (update)
+                    target->update(dummy);
+                else
+                    target->refresh(dummy);
+                log(Debug) << "Converted Property "
+                        << target->getType() << " "<< source->getName() << " to type " <<dummy->getType()
+                        << " from type "  << source->getType() << endlog();
+            }
+        }
+        return true;
+    }
+
     bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool allprops)
     {
         Logger::In in("refreshProperties");
@@ -461,36 +514,8 @@ namespace RTT
             PropertyBase* tgtprop = *it;
             if (srcprop != 0)
             {
-                //std::cout <<"*******************refresh"<<std::endl;
-#ifndef NDEBUG
-                log(Debug) << "refreshing Property "
-                        << tgtprop->getType() << " "<< tgtprop->getName()
-                        << " from "<< srcprop->getType() << " "<< srcprop->getName()<< Logger::endl;
-#endif
-                if ( tgtprop->refresh( srcprop ) == false) {
-                    // try conversion
-                    DataSourceBase::shared_ptr converted = tgtprop->getTypeInfo()->convert( srcprop->getDataSource() );
-                    if ( converted == srcprop->getDataSource() ) {
-                        converted = tgtprop->getTypeInfo()->buildValue();
-                        if ( tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), converted ) == false)
-                            converted = 0;
-                    }
-                    if ( converted && converted != srcprop->getDataSource()) {
-                        PropertyBase* dummy = tgtprop->getTypeInfo()->buildProperty("","");
-                        dummy->getDataSource()->update(converted.get());
-                        assert(dummy);
-                        tgtprop->refresh(dummy);
-                        log(Debug) << "Converted Property "
-                                << tgtprop->getType() << " "<< srcprop->getName() << " to type " <<dummy->getType()
-                                << " from type "  << srcprop->getType() << endlog();
-                    } else {
-                        log(Error) << "Could not refresh Property "
-                                << tgtprop->getType() << " "<< srcprop->getName()
-                                << ": type mismatch, can not refresh with type "
-                                << srcprop->getType() << endlog();
-                        failure = true;
-                    }
-                }
+                if (updateOrRefreshProperty( srcprop, tgtprop, false) == false)
+                    return false;
                 // ok.
             } else if (allprops) {
                 log(Error) << "Could not find Property "
@@ -532,6 +557,7 @@ namespace RTT
         return true;
     }
 
+
     bool updateProperties(PropertyBag& target, const PropertyBag& source)
     {
         // check type consistency...
@@ -560,39 +586,8 @@ namespace RTT
             for( PropertyBag::const_iterator sit = sources.begin(); sit != sources.end(); ++sit ) {
                 if ( mit != mines.end() ) {
                     assert( (*sit)->getName() == (*mit)->getName());
-#ifndef NDEBUG
-                    Logger::log() << Logger::Debug;
-                    Logger::log() << "updateProperties: updating Property "
-                                  << (*sit)->getType() << " "<< (*sit)->getName()
-                                  << "." << Logger::endl;
-#endif
-                    // no need to make new one, just update existing one
-                    if ( (*mit)->update( (*sit) ) == false ) {
-                        // try conversion
-                        DataSourceBase::shared_ptr converted = (*mit)->getTypeInfo()->convert( (*sit)->getDataSource() );
-                        if ( converted == (*sit)->getDataSource() ) {
-                            converted = (*mit)->getTypeInfo()->buildValue();
-                            if ((*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), converted ) == false)
-                                converted = 0;
-                        }
-                        if ( converted && converted != (*sit)->getDataSource()) {
-                            PropertyBase* dummy = (*mit)->getTypeInfo()->buildProperty("","");
-                            dummy->getDataSource()->update(converted.get());
-                            assert(dummy);
-                            (*mit)->update(dummy);
-                            log(Debug) << "Converted Property "
-                                    << (*mit)->getType() << " "<< (*sit)->getName()
-                                    << " from type "  << (*sit)->getType() << endlog();
-                        } else {
-                            //if ( !(*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) )
-                            Logger::log() << Logger::Error;
-                            Logger::log() << "updateProperties: Could not update, nor convert Property "
-                                    << (*mit)->getType() << " "<< (*mit)->getName()
-                                    << ": type mismatch, can not update with "
-                                    << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
-                            return false;
-                        }
-                    }
+                    if ( updateOrRefreshProperty( *sit, *mit, true) == false)
+                        return false;
                     // ok.
                     ++mit;
                 }
@@ -675,30 +670,8 @@ namespace RTT
             }
             else {
                 // found it, update !
-                if (target_walker->update(source_walker) == false ) {
-                    // try conversion
-                    DataSourceBase::shared_ptr converted = target_walker->getTypeInfo()->convert( source_walker->getDataSource() );
-                    if ( converted == source_walker->getDataSource() ) {
-                        converted = target_walker->getTypeInfo()->buildValue();
-                        if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), converted ) == false) {
-                            converted = 0;
-                        }
-                    }
-                    if ( converted && converted != source_walker->getDataSource()) {
-                        PropertyBase* dummy = target_walker->getTypeInfo()->buildProperty("","");
-                        dummy->getDataSource()->update(converted.get());
-                        assert(dummy);
-                        target_walker->update(dummy);
-                        log(Debug) << "Converted Property "
-                                << target_walker->getType() << " "<< source_walker->getName()
-                                << " from type "  << source_walker->getType() << endlog();
-                    } else {
-                        log(Error) << "Could not update Property "
-                                   << target_walker->getType() << " "<< target_walker->getName()
-                                   << ": type mismatch, can not update with type "
-                                   << source_walker->getType() << Logger::endl;
-                    }
-                }
+                if (updateOrRefreshProperty( source_walker, target_walker, true) == false)
+                    return false;
                 log(Debug) << "Found Property '"<<target_walker->getName() <<"': update done." << endlog();
                 return true;
             }
@@ -752,30 +725,8 @@ namespace RTT
                 return refreshProperty( target_walker_bag->value(), source_walker_bag->rvalue(), name.substr( start ), separator );// a bag so search recursively
             }
             else {
-                // found it, refresh !
-                if (target_walker->refresh(source_walker) == false ) {
-                    DataSourceBase::shared_ptr converted = target_walker->getTypeInfo()->convert( source_walker->getDataSource() );
-                    if ( converted == source_walker->getDataSource() ) {
-                        converted = target_walker->getTypeInfo()->buildValue();
-                        if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), converted ) == false) {
-                            converted = 0;
-                        }
-                    }
-                    if ( converted && converted != source_walker->getDataSource()) {
-                        PropertyBase* dummy = target_walker->getTypeInfo()->buildProperty("","");
-                        dummy->getDataSource()->update(converted.get());
-                        assert(dummy);
-                        target_walker->refresh(dummy);
-                        log(Debug) << "Converted Property "
-                                << target_walker->getType() << " "<< source_walker->getName()
-                                << " from type "  << source_walker->getType() << endlog();
-                    } else {
-                        log(Error) << "Could not refresh Property "
-                                   << target_walker->getType() << " "<< target_walker->getName()
-                                   << ": type mismatch, can not refresh with type "
-                                   << source_walker->getType() << Logger::endl;
-                    }
-                }
+                if (updateOrRefreshProperty( source_walker, target_walker, false) == false)
+                    return false;
                 log(Debug) << "Found Property '"<<target_walker->getName() <<"': refresh done." << endlog();
                 return true;
             }

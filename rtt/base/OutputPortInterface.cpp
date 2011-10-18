@@ -39,6 +39,8 @@
 #include "PortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "InputPortInterface.hpp"
+#include <exception>
+#include <stdexcept>
 
 using namespace RTT;
 using namespace detail;

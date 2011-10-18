@@ -73,6 +73,7 @@
 #include <boost/archive/archive_exception.hpp>
 #include <boost/config.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/array.hpp>
 
 #include <vector>
 #include <string>
@@ -274,13 +275,30 @@ namespace RTT
             }
 
             /**
+             * Specialisation that converts a boost::array into a RTT types carray.
+             * @param t
+             * @return *this
+             */
+            template<class T, std::size_t N>
+            type_discovery &load_a_type(boost::array<T,N> &t, boost::mpl::false_)
+            {
+                if (mparent) {
+                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
+                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent)  ));
+                }
+                // probably not necessary:
+                //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
+                return *this;
+            }
+
+            /**
              * We do not support pointer types.
              * @param t
              * @param
              * @return
              */
             template<class T>
-            type_discovery &load_a_type(T* &, boost::mpl::false_)
+            type_discovery &load_a_type(const T* &, boost::mpl::false_)
             {
                 //pointers can not be serialized.
                 //BOOST_STATIC_ASSERT( boost::mpl::false_ );

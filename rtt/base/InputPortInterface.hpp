@@ -44,7 +44,9 @@
 #include "ChannelElement.hpp"
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../internal/ConnectionManager.hpp"
+#ifdef ORO_SIGNALLING_PORTS
 #include "../internal/Signal.hpp"
+#endif
 #include "../base/DataSourceBase.hpp"
 
 namespace RTT
@@ -57,14 +59,24 @@ namespace RTT
      */
     class RTT_API InputPortInterface : public PortInterface
     {
+#ifdef ORO_SIGNALLING_PORTS
     public:
         typedef internal::Signal<void(PortInterface*)> NewDataOnPortEvent;
         typedef NewDataOnPortEvent::SlotFunction SlotFunction;
+#endif
 
     protected:
         internal::ConnectionManager cmanager;
         ConnPolicy        default_policy;
+#ifdef ORO_SIGNALLING_PORTS
         NewDataOnPortEvent* new_data_on_port_event;
+#else
+        bool msignal_interface;
+        /**
+         * The ConnOutputEndpoint signals that new data is available
+         */
+        void signal();
+#endif
 
         InputPortInterface(const InputPortInterface& orig);
     public:
@@ -129,10 +141,17 @@ namespace RTT
          */
         virtual bool channelReady(base::ChannelElementBase::shared_ptr channel);
 
+#ifdef ORO_SIGNALLING_PORTS
         /** Returns the event object that gets emitted when new data is
          * available for this port. It gets deleted when the port is deleted.
          */
         NewDataOnPortEvent* getNewDataOnPortEvent();
+#else
+        /** When called with \b true, will signal the DataFlowInterface when
+         * new data is available.
+         */
+        void signalInterface(bool true_false);
+#endif
 
         virtual bool connectTo(PortInterface* other, ConnPolicy const& policy);
 

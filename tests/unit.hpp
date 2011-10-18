@@ -25,8 +25,15 @@
 #include <extras/SimulationThread.hpp>
 #include <RTT.hpp>
 
-// Modified version that contains checkpointing:
+#ifdef ORO_UNIT_TEST_SUITE_HACK
+// Modified version that contains checkpointing
+// We use this in the build farm to get more precise
+// feedback for where the UT failed. To be removed
+// when upstream supports this too.
 #include "unit_test_suite.hpp"
+#else
+#include <boost/test/unit_test_suite.hpp>
+#endif
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 

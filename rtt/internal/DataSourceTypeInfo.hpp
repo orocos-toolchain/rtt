@@ -41,6 +41,7 @@
 
 #include <string>
 #include <typeinfo>
+#include "../types/carray.hpp"
 #include "../rtt-config.h"
 #include "../types/rtt-types-fwd.hpp"
 
@@ -133,6 +134,25 @@ namespace RTT
             static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::cptrqual; }
             static const types::TypeInfo* getTypeInfo() { return DataSourceTypeInfo< T >::getTypeInfo(); }
+        };
+
+        /**
+         * Specialisation for a types::carray<T> type info object.
+         * All RTT internal primitives should use carray references
+         * to (boost) arrays such that run-time size checks can be done.
+         * For example, Property<carray<double> > holds a
+         * ValueDataSource<carray<double> >( carray<double>( data.c_array(), 6 ) )
+         * where data is a boost::array<double,6> or equivalent
+         */
+        template< class T>
+        struct DataSourceTypeInfo<types::carray<T> > {
+            typedef types::carray<T> value_type;
+            typedef DataSourceTypeInfo<value_type> value_type_info;
+            static std::string getType()  { return getTypeName() + "[N]"; }
+            static const std::string& getTypeName()  { return getTypeInfo()->getTypeName(); }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
+            static const types::TypeInfo* getTypeInfo();
+            static types::TypeInfo* TypeInfoObject;
         };
 
         /**

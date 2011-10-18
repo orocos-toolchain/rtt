@@ -140,6 +140,7 @@ namespace RTT { namespace scripting
 
       void functiondef( iter_t begin, iter_t end );
       void exportdef(  );
+      void globaldef(  );
       void seenfunctionarg();
       void seenfunctionend();
 
@@ -200,7 +201,7 @@ namespace RTT { namespace scripting
       base::ActionInterface* for_init_command;
       std::stack<base::ActionInterface*> for_incr_command;
       std::string program_text;
-      bool exportf;
+      bool exportf,globalf;
       int ln_offset;
   public:
       ProgramGraphParser( iter_t& positer, TaskContext* context, ExecutionEngine* caller, CommonParser& cp);

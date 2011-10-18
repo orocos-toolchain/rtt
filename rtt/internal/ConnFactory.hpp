@@ -52,6 +52,7 @@
 #include "../base/DataObjectUnSync.hpp"
 #include "../base/Buffer.hpp"
 #include "../base/BufferUnSync.hpp"
+#include "../Logger.hpp"
 
 namespace RTT
 { namespace internal {

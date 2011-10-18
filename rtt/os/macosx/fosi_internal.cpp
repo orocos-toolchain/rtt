@@ -47,7 +47,7 @@ namespace RTT
 	{
         const char* name = "main";
 	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-        main_task->thread = 0;
+        main_task->thread = pthread_self();
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
 	    sp.sched_priority=0;
@@ -68,6 +68,7 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
 					   int priority,
+					   unsigned cpu_affinity,
 					   const char * name,
 					   int sched_type,
 					   size_t stack_size,
@@ -262,6 +263,16 @@ namespace RTT
                 return task->priority;
             return param.sched_priority;
 	}
+
+	INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
+	{
+        return -1;
+        }
+
+	INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
+	{
+        return ~0;
+        }
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{

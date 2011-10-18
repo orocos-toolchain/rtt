@@ -242,7 +242,6 @@ namespace RTT
     void TaskContextServer::CleanupServers() {
         if ( !CORBA::is_nil(orb) && !is_shutdown) {
             log(Info) << "Cleaning up TaskContextServers..."<<endlog();
-            ServerMap::iterator it = servers.begin();
             while ( !servers.empty() ){
                 delete servers.begin()->second;
                 // note: destructor will self-erase from map !

@@ -50,6 +50,9 @@
 #include "../typekit/Types.hpp"
 #include <ostream>
 #include <sstream>
+#ifdef OS_RT_MALLOC
+#include "../rt_string.hpp"
+#endif
 
 namespace RTT
 {
@@ -88,6 +91,16 @@ namespace RTT
             return oss.str();
         }
     };
+#ifdef OS_RT_MALLOC
+    template <class T>
+    struct rt_string_concatenation : public std::binary_function<const rt_string&, T, rt_string> {
+        rt_string operator()(const rt_string& s, T t) const {
+            rt_ostringstream oss(s, std::ios_base::ate);
+            oss << boolalpha << t;
+            return oss.str();
+        }
+    };
+#endif
     /** @endcond */
 #endif
 
@@ -175,6 +188,22 @@ namespace RTT
         oreg->add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
         oreg->add( newBinaryOperator( "<=", std::less_equal<std::string>() ) );
         oreg->add( newBinaryOperator( ">=", std::greater_equal<std::string>() ) );
+#endif
+
+#ifdef OS_RT_MALLOC
+        oreg->add( newBinaryOperator( "+", std::plus<rt_string>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<int>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<double>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<float>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<bool>() ) );
+        oreg->add( newBinaryOperator( "+", rt_string_concatenation<char>() ) );
+        oreg->add( newBinaryOperator( "==", std::equal_to<const rt_string&>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to< const rt_string&>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<const rt_string&>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<const rt_string&>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<rt_string>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<rt_string>() ) );
 #endif
 
 #ifndef ORO_EMBEDDED

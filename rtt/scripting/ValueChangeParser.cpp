@@ -164,7 +164,7 @@ namespace RTT
         if ( i.get() == 0 ) {
             this->cleanup();
             throw parse_exception_semantic_error
-                ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getTypeName()+", expected an integer expression." );
+                ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getTypeName()+", expected an integer expression. Use ' = "+expr->getTypeName()+"( arg )' instead to use the constructor." );
         }
         if ( i->get() < 0 ) {
             std::stringstream value;

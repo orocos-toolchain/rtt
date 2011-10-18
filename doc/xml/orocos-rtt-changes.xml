@@ -3,8 +3,8 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "2.3">
-<!ENTITY version     "2.4">
+<!ENTITY oldversion  "2.4">
+<!ENTITY version     "2.5">
 ]
 >
 
@@ -35,6 +35,7 @@
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.1.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.1 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.2 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.3.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.3 Changes</ulink></para></listitem>
+			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.4.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.4 Changes</ulink></para></listitem>
 		 </itemizedlist>
 		</para>
 	</section>
@@ -47,39 +48,82 @@
 					whole toolchain and all your applications in order to use this release.
 				</para>
 				<note><para>
-					<emphasis>Take care that all previously built components and plugins in the lib/orocos directory and subdirectories
-					are removed, since the deployment/plugin logic may want to load it. Especially on 'ROS' systems, which have
-					such files in their lib/ directory.</emphasis>
+					<emphasis>Take care that all previously built components and plugins in the &lt;install&gt;/lib/orocos directory and subdirectories
+					are removed, since the plugin loader may not find older versions. Especially on 'ROS' systems, which have
+					such files in their &lt;packagename&gt;/lib/ directory.</emphasis>
 				</para></note>
       </listitem>
-		</itemizedlist>
-		<section>
-				<title>
-					<emphasis></emphasis>
-				</title>
+      <listitem>
 				<para>
+					You can only attach one callback to an EvenPort, during the addEventPort() function call.
+					If you need multiple call-backs, you need to call these yourself from the function you've
+					provided to addEventPort(). In this regard, the port->getNewDataOnPortEvent() call has
+					been removed.  You can enable it by defining ORO_SIGNALLING_PORTS in the cmake
+					configuration step, but this feature will be removed eventually.
 				</para>
-		</section>
+      </listitem>
+		</itemizedlist>
   </section>
+  <section id="ros">
+    <title>ROS Users</title>
+    <itemizedlist>
+      <listitem>
+				<para> The Orocos Toolchain 2.5.x will only be released in ROS Electric. This comes with a 
+				major overhaul of the Electric ROS integration packages of RTT. The ROS Wiki contains
+				the necessary upgrade steps you need to take to migrate existing code to the new ROS
+				package structure. <ulink url="http://www.ros.org/wiki/rtt_ros_integration">ROS Wiki on rtt_ros_integration</ulink>.</para>
+			</listitem>
+			<listitem>
+				<para>
+					The Orocos-ROS integration and the Orocos Toolchain are available as Ubuntu packages
+					from <programlisting>http://packages.ros.org/ros/ubuntu <emphasis>distroname</emphasis> main</programlisting>.
+					See <ulink url="http://www.ros.org/wiki/ROS/Installation">ROS Wiki on installing ROS</ulink>.
+				</para>
+			</listitem>
+		</itemizedlist>
+	</section>
   <section>
     <title>Improvements</title>
-    <section>
-      <title>Documentation</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-					</para>
-				</listitem>
-      </itemizedlist>
-    </section>
     <section>
       <title>Building</title>
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis></emphasis>
+					<emphasis>Switching between OROCOS_TARGET configurations is now more robust.</emphasis>
+					In environments where multiple OROCOS_TARGET are possible (for example xenomai/gnulinux),
+					the OROCOS_TARGET environment variable can be set and will be picked up by the UseOrocos.cmake
+					macros.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>ROS_ROOT is no longer influencing your build, unless you're in a ROS_PACKAGE_PATH</emphasis>
+					In &oldversion;, the build system would switch to ROS-style if the user had defined the 
+					ROS_ROOT environment variable. In &version;, the build system will only switch if the
+					package being built is a ROS package, ie, it is underneath the ROS_PACKAGE_PATH.
 				</para>
 				<para>
+					This allows better integration with AutoProj.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>ROS package builds no longer install in a &lt;package&gt;/install subdirectory</emphasis>
+					All Orocos Toolchain ROS packages now install in the &lt;orocos-toolchain&gt;/install directory.
+					As such both ROS and non-ROS builds have the same directory layout. You can still use 'rosrun'
+					to run an OCL program, since these are still available in the package as well.
+				</para>
+				<para>
+					This allows better integration with AutoProj.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>RTT builds with clang++ 2.9</emphasis>
+					This allows you to speed up RTT builds significantly.
+				</para>
+				<para>
+					This allows better integration with AutoProj.
 				</para>
       </listitem>
       </itemizedlist>
@@ -89,6 +133,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						An important fix was applied when two or more output ports were connected to one
+						input port, which led to dropping data samples from time to time.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -96,6 +142,15 @@
     <section>
       <title>Data Types, Toolkits and Typekits</title>
       <itemizedlist>
+				<listitem>
+					<para> The Typekits now support fixed size arrays better. Especially, there is no need anymore for having
+					one typekit for each size of an array. The ROS fixed-size array implementation in Electric makes use of
+					this feature.</para>
+					<para>
+						For this, there was some class-reordering in the TypeInfo hierarchy, but it should remain transparant
+						for existing users.
+					</para>
+				</listitem>
 				<listitem>
 					<para>
 					</para>
@@ -107,6 +162,33 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						There were the usual fixes for new compilers or header locations for
+						all Operating Systems: Linux, Mac OS-X and Win32.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The CPU affinity Thread function for Xenomai is implemented but not yet stable. We
+						are delving into this but already provide it to allow more testing.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Xenomai threads now run with a default stack size of 128kb, instead of 32kb. This may still 
+						be too little if you have scripts which load scripts or have heavy stack use. In that case,
+						use the <classname>RTT::os::Thread</classname>::setStackSize function before creating a new Thread/Activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The Xenomai main() thread now runs with priority 0 instead of 10. Since this is the
+						thread which is doing all the setup work, it shouldn't have defaulted
+						to a real-time priority.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						There have been a bunch of patches for Mac OS-X, but more testing is still necessary.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -116,6 +198,11 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						RTT script functions can now be decorated with 'global', 'local' and 'export'. 'local' is the
+						default and keeps a function local to the scripting service. 'export' attaches the script
+						function to the interface of the component it belongs to. 'global' puts the function in 
+						the GlobalService, such that other scripts in other components can use it directly, without
+						the need to refer to a component.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -128,6 +215,37 @@
 			<itemizedlist>      
 				<listitem>
 					<para>
+						Consult the  <ulink
+						url="http://www.orocos.org/wiki/orocos/toolchain/orocostoolchainluacookbook">LuaCookbook</ulink>
+						for the latest changes
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The TLSF branch of Lua has been merged, which will allow hard real-time script execution in the near
+						future. Further minor releases will pollish this feature more.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Your scripts have now access to the RTT globals using the <programlisting>rtt.globals</programlisting>
+						table. These are the scheduler types, data flow &amp; operations return codes and constants for initializing
+						ConnectionPolicy objects.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+    <section>
+      <title>TimerComponent</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						The TimerComponent was changed to have one port for each timer ID as well in addition to one port
+						for all timer ID's. This avoid spurious wake-ups (triggers and calls of updateHook() )
+						of components waiting for timer events on event ports.
+					</para>
+					<para>
+						You are advised to update your deployment to make use of the new timer ports.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -137,15 +255,25 @@
       <itemizedlist>
 				<listitem>
 					<para>
+						The Deployment XML format now also accepts an 'Affinity' field which allows to specify a 
+						CPU mask on which the thread may run.
+						There is a new operation called 'setActivityOnCPU' which takes an affinity parameter
+						as well. 
+					</para>
+					<para>
+						NOTE: this function is still experimental and not yet stable on Xenomai.
 					</para>
 				</listitem>
 			</itemizedlist>
 		</section>
     <section>
-      <title>TaskBrowser</title>
+      <title>Reporting</title>
       <itemizedlist>
 				<listitem>
 					<para>
+						The reporting component has been rewritten such that it behaves consistently.  When
+						being periodic, it will sample all input ports at the frequency it runs. When being
+						triggered, it will log the ports which have new data.
 					</para>
 				</listitem>
 			</itemizedlist>

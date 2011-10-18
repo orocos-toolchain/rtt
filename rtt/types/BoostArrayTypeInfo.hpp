@@ -39,27 +39,35 @@
 #ifndef ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 #define ORO_TEMPLATE_BOOSTARRAY_INFO_HPP
 
-#include "TemplateTypeInfo.hpp"
+#include "PrimitiveTypeInfo.hpp"
 #include "../internal/ArrayPartDataSource.hpp"
 #include "type_discovery.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/array.hpp>
+#include "PropertyComposition.hpp"
+#include "PropertyDecomposition.hpp"
 
 namespace RTT
 {
     namespace types
     {
         /**
-         * Template for data types that are of type boost::array<U,int>
+         * Template for data types that are of type boost::array<U,int>. You can not use
+         * this type as a port data type. Normally, using this class is not required
+         * since RTT converts all boost::array instances to types::carray, which is
+         * represented by the CArrayTypeInfo class.
+         * Be aware that this type info object only represents the boost::array of
+         * one size, ie, this scales badly ! A CArrayTypeInfo can represent a fixed
+         * size array of any size.
          *
-         * @param T A boost::array<U> wrapper, where U is a data type.
+         * @param T A boost::array<U,N> wrapper, where U is a data type and N the array size.
          */
         template<typename T, bool has_ostream = false>
-        class BoostArrayTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class BoostArrayTypeInfo: public PrimitiveTypeInfo<T, has_ostream>
         {
         public:
             BoostArrayTypeInfo(std::string name) :
-                TemplateTypeInfo<T, has_ostream> (name)
+                PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
 
@@ -80,7 +88,7 @@ namespace RTT
 
                 // size and capacity can not change during program execution:
                 if (name == "size" || name == "capacity") {
-                    return new ConstantDataSource<unsigned int>( T::static_size );
+                    return new ConstantDataSource<int>( T::static_size );
                 }
 
                 // contents of indx can change during program execution:
@@ -103,11 +111,11 @@ namespace RTT
 
                 // discover if user gave us a part name or index:
                 typename DataSource<unsigned int>::shared_ptr id_indx = DataSource<unsigned int>::narrow( id.get() );
-                typename DataSource<string>::shared_ptr id_name = DataSource<string>::narrow( id.get() );
+                typename DataSource<std::string>::shared_ptr id_name = DataSource<std::string>::narrow( id.get() );
                 if ( id_name ) {
                     // size and capacity can not change during program execution:
                     if (id_name->get() == "size" || id_name->get() == "capacity") {
-                        return new ConstantDataSource<unsigned int>( T::static_size );
+                        return new ConstantDataSource<int>( T::static_size );
                     }
                 }
 
@@ -117,6 +125,48 @@ namespace RTT
                 log(Error) << "BoostArrayTypeInfo: No such part (or invalid index): " << id_name->get() << id_indx->get() << endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+            /**
+             * Use getMember() for decomposition...
+             */
+            virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
+            {
+                return base::DataSourceBase::shared_ptr();
+            }
+
+            virtual bool composeType( base::DataSourceBase::shared_ptr dssource, base::DataSourceBase::shared_ptr dsresult) const {
+                const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (dssource.get() );
+                if ( !pb )
+                    return false;
+                typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( dsresult );
+                if ( !ads )
+                    return false;
+
+                PropertyBag const& source = pb->rvalue();
+                typename internal::AssignableDataSource<T>::reference_t result = ads->set();
+
+                //result.resize( source.size() );
+                if(result.size() != source.size()) {
+                    log(Error) << "Refusing to compose Boost Arrays from a property list of different size. Use the same number of properties as the C++ boost array size." << endlog();
+                    return false;
+                }
+                // recurse into items of this sequence:
+                PropertyBag target( source.getType() );
+                PropertyBag decomp;
+                internal::ReferenceDataSource<T> rds(result);
+                rds.ref(); // prevent dealloc.
+                // we compose each item in this sequence and then update result with target's result.
+                // 1. each child is composed into target (this is a recursive thing)
+                // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                    assert(result.size() == source.size());
+                    assert(source.size() == target.size());
+                    assert(source.size() == decomp.size());
+                    return true;
+                }
+                return false;
+            }
+
         };
     }
 }

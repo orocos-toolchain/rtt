@@ -55,14 +55,8 @@ public:
     InputPort<double>*  mr1;
     OutputPort<double>* mw1;
 
-    void setupCorba();
-    void cleanupCorba();
-
     void setUp();
     void tearDown();
-
-    void testPortConnections();
-    void testPortProxying();
 
     // helper test functions
     void testPortDataConnection();
@@ -81,8 +75,9 @@ CorbaMQueueIPCTest::setUp()
     mw1 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
-    tc->ports()->addPort( *mr1 );
+    tc->ports()->addEventPort( *mr1, boost::bind(&CorbaMQueueIPCTest::new_data_listener, this, _1) );
     tc->ports()->addPort( *mw1 );
+    tc->start();
 
     ts2 = ts = 0;
     tp2 = tp = 0;
@@ -207,11 +202,6 @@ BOOST_AUTO_TEST_CASE( testPortConnections )
     policy.lock_policy = RTT::corba::CLockFree;
     policy.size = 0;
     policy.data_size = 0;
-
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mr1->getNewDataOnPortEvent()->setup(
-                boost::bind(&CorbaMQueueIPCTest::new_data_listener, this, _1) ) );
-    hl.connect();
 
     corba::CDataFlowInterface_var ports  = ts->server()->ports();
     corba::CDataFlowInterface_var ports2 = tp->server()->ports();

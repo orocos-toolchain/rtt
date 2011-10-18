@@ -36,6 +36,9 @@
 
 #cmakedefine CONFIG_FORCE_UP
 
+#cmakedefine ORO_SIGNALLING_OPERATIONS
+#cmakedefine ORO_SIGNALLING_PORTS
+
 #cmakedefine OS_EMBEDDED
 #ifdef OS_EMBEDDED
 #define ORO_EMBEDDED

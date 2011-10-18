@@ -3,8 +3,6 @@
 
 namespace RTT {
     namespace extras {
-        class ConfigurationInterface;
-        class Configurator;
         class FileDescriptorActivity;
         class IRQActivity;
         class PeriodicActivity;

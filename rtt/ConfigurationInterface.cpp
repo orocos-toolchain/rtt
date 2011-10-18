@@ -152,3 +152,14 @@ namespace RTT {
         return &bag;
     }
 }
+
+bool RTT::ConfigurationInterface::chkPtr(const std::string & where, const std::string & name, const void *ptr)
+{
+    if ( ptr == 0) {
+        log(Error) << "You tried to add a null pointer in '"<< where << "' for the object '" << name << "'. Fix your code !"<< endlog();
+        return false;
+    }
+    return true;
+}
+
+

@@ -75,8 +75,10 @@ IF (BUILD_TESTING)
     ENDIF(ENABLE_MQ)
 
     # Copy over CPF files. It *must* be done like this to work on MSVC:
-    add_custom_target(SetupTests ALL ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf ${CMAKE_CFG_INTDIR}
-                      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf ${CMAKE_CFG_INTDIR})
+    add_custom_target(SetupTests ALL
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CFG_INTDIR}
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/testPropMarshVectLegacy.cpf ${CMAKE_CFG_INTDIR}
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf ${CMAKE_CFG_INTDIR})
 
     ADD_EXECUTABLE( main-test test-main.cpp )
     TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic)
@@ -270,6 +272,9 @@ IF (BUILD_TESTING)
         ADD_UNIT_TEST(types_test ORO_EXTRA_TESTS "${TEST_LIBRARIES};${SCRIPTING_LIBRARIES}" )
         ADD_UNIT_TEST(program_test ORO_EXTRA_TESTS "${TEST_LIBRARIES};${SCRIPTING_LIBRARIES}" )
         ADD_UNIT_TEST(state_test ORO_EXTRA_TESTS "${TEST_LIBRARIES};${SCRIPTING_LIBRARIES}" )
+	if(OS_RT_MALLOC)
+          ADD_UNIT_TEST(rtstring_test ORO_EXTRA_TESTS "${TEST_LIBRARIES};${SCRIPTING_LIBRARIES}" )
+	endif(OS_RT_MALLOC)
         ADD_UNIT_TEST(function_test ORO_EXTRA_TESTS "${TEST_LIBRARIES};${SCRIPTING_LIBRARIES}" )
     endif()
     if(PLUGINS_ENABLE_MARSHALLING)

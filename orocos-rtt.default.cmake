@@ -54,12 +54,13 @@ endif()
 # Set the target operating system. One of [lxrt gnulinux xenomai macosx win32]
 # You may leave this as-is or force a certain target by removing the if... logic.
 #
-if(NOT DEFINED OROCOS_TARGET)
-  set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
-  if (ENV{OROCOS_TARGET})
-    set(OROCOS_TARGET $ENV{OROCOS_TARGET} CACHE STRING "${DOC_STRING}")
-    message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
-  else()
+set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 xenomai]")
+set(OROCOS_TARGET_ENV $ENV{OROCOS_TARGET}) # MUST use helper variable, otherwise not picked up !!!
+if( OROCOS_TARGET_ENV )
+  set(OROCOS_TARGET ${OROCOS_TARGET_ENV} CACHE STRING "${DOC_STRING}" FORCE)
+  message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
+else()
+  if(NOT DEFINED OROCOS_TARGET )
     if(MSVC)
       set(OROCOS_TARGET win32    CACHE STRING "${DOC_STRING}")
     elseif(APPLE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -68,6 +69,7 @@ if(NOT DEFINED OROCOS_TARGET)
       set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
     endif()
   endif()
+  message( "No OROCOS_TARGET environment variable detected. Using: ${OROCOS_TARGET}")
 endif()
 
 # Useful for Windows/MSVC builds, sets all libraries and executables in one place.

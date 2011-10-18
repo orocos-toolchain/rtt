@@ -57,6 +57,7 @@ namespace RTT
     }
 
     PortInterface& DataFlowInterface::addPort(PortInterface& port) {
+        if ( !chkPtr("addPort", "PortInterface", &port) ) return port;
         this->addLocalPort(port);
         if (mservice && mservice->hasService( port.getName()) != 0) {
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
@@ -89,8 +90,8 @@ namespace RTT
         return port;
     }
 
-
-    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addEventPort(InputPortInterface& port, SlotFunction callback) {
+        if ( !chkPtr("addEventPort", "PortInterface", &port) ) return port;
         this->addLocalEventPort(port, callback);
         if (mservice && mservice->hasService( port.getName()) != 0) {
             log(Warning) <<"'addPort' "<< port.getName() << ": name already in use as Service. Replacing previous service with new one." <<endlog();
@@ -107,6 +108,7 @@ namespace RTT
         return port;
     }
 
+#ifdef ORO_SIGNALLING_PORTS
     void DataFlowInterface::setupHandles() {
         for_each(handles.begin(), handles.end(), boost::bind(&Handle::connect, _1));
     }
@@ -114,8 +116,15 @@ namespace RTT
     void DataFlowInterface::cleanupHandles() {
         for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
     }
+#else
+    void DataFlowInterface::dataOnPort(base::PortInterface* port)
+    {
+        if ( mservice && mservice->getOwner() )
+            mservice->getOwner()->dataOnPort(port);
+    }
+#endif
 
-    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    InputPortInterface& DataFlowInterface::addLocalEventPort(InputPortInterface& port, SlotFunction callback) {
         this->addLocalPort(port);
 
         if (mservice == 0 || mservice->getOwner() == 0) {
@@ -123,18 +132,10 @@ namespace RTT
             return port;
         }
 
-        // setup synchronous callback, only purpose is to register that port fired and trigger the TC's engine.
-        Handle h = port.getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mservice->getOwner(), _1) );
-        if (h) {
-            log(Info) << mservice->getName() << " will be triggered when new data is available on InputPort " << port.getName() << endlog();
-            handles.push_back(h);
-        } else {
-            log(Error) << mservice->getName() << " can't connect to event of InputPort " << port.getName() << endlog();
-            return port;
-        }
-
         if (callback)
             mservice->getOwner()->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
+
+        port.signalInterface(true);
         return port;
     }
 
@@ -220,4 +221,14 @@ namespace RTT
         }
         mports.clear();
     }
+
+    bool DataFlowInterface::chkPtr(const std::string & where, const std::string & name, const void *ptr)
+    {
+        if ( ptr == 0) {
+            log(Error) << "You tried to add a null pointer in '"<< where << "' for the object '" << name << "'. Fix your code !"<< endlog();
+            return false;
+        }
+        return true;
+    }
+
 }

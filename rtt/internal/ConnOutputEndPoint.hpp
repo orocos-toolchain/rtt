@@ -91,6 +91,8 @@ namespace RTT
             return base::ChannelElement<T>::inputReady();
         }
 
+        using base::ChannelElement<T>::write;
+
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
@@ -110,13 +112,15 @@ namespace RTT
             }
         }
 
+#ifndef ORO_SIGNALLING_PORTS
         virtual bool signal()
         {
             InputPort<T>* port = this->port;
-            if (port && port->new_data_on_port_event)
-                (*port->new_data_on_port_event)(port);
+            if (port )
+                port->signal();
             return true;
         }
+#endif
 
         virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
         {

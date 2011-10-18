@@ -37,6 +37,7 @@
 
 
 #include "SignalBase.hpp"
+#include <boost/lambda/bind.hpp>
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
@@ -60,18 +61,17 @@ namespace RTT {
         {
         }
 
-        ConnectionBase::~ConnectionBase() {}
+        ConnectionBase::~ConnectionBase() {
+        }
 
         bool ConnectionBase::connect() {
             if( !m_sig ) return false;
             mconnected = true;
-            m_sig->conn_connect(this);
             return true;
         }
         bool ConnectionBase::disconnect() {
             if (!m_sig) return false;
             mconnected = false;
-            m_sig->conn_disconnect(this);
             return true;
         }
         void ConnectionBase::destroy() {
@@ -97,6 +97,7 @@ namespace RTT {
             mconnections.push_back( d );
 #endif
 #endif
+            this->conn_connect( conn );
         }
 
         void SignalBase::conn_connect( connection_t conn ) {
@@ -227,9 +228,28 @@ namespace RTT {
 
         SignalBase::~SignalBase(){
             // call destroy on all connections.
+            destroy();
         }
 
+#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
+        // required for GCC 4.0.2
+        ConnectionBase* getPointer( ConnectionBase::shared_ptr c ) {
+            return c.get();
+        }
+#endif
+
         void SignalBase::disconnect() {
+#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
+            mconnections.apply( boost::lambda::bind(&ConnectionBase::disconnect, boost::lambda::bind( &getPointer, boost::lambda::_1) ) ); // works for any compiler
+#else
+            // avoid invalidating iterator
+            os::MutexLock lock(m);
+            for( iterator tgt = mconnections.begin(); tgt != mconnections.end(); ++tgt)
+                (*tgt)->disconnect();
+#endif
+        }
+
+        void SignalBase::destroy() {
             while ( !mconnections.empty() ) {
                 if ( mconnections.front() )
                     mconnections.front()->destroy(); // this calls-back conn_disconnect.
