@@ -218,7 +218,8 @@ namespace RTT
     private:
         typename internal::LocalOperationCaller<Signature>::shared_ptr impl;
         virtual void ownerUpdated() {
-            impl->setExecutor( this->mowner );
+            if (impl)
+                impl->setExecutor( this->mowner );
         }
     };
 
