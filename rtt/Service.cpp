@@ -175,11 +175,17 @@ namespace RTT {
             log(Error) << "Failed to add Operation: '"<< op.getName() <<"' has no name." <<endlog();
             return false;
         }
+        // don't check ready() since the op may not have an owner yet:
+        if ( !op.getImplementation() ) {
+            log(Error) << "Failed to add Operation: '"<< op.getName() <<"' is not ready: not bound to a function." <<endlog();
+            return false;
+        }
         if ( simpleoperations.count( op.getName() ) ) {
             log(Warning) << "While adding Operation: '"<< op.getName() <<"': replacing previously added operation." <<endlog();
             this->removeOperation(op.getName());
         }
         simpleoperations[op.getName()] = &op;
+        // finally set the (new) owner:
         if (mowner)
             op.setOwner(mowner->engine());
         return true;
