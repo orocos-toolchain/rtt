@@ -100,7 +100,7 @@ namespace RTT
       // Ask each type for its type id name.
       map_t::const_iterator i = data.begin();
       for (; i != data.end(); ++i){
-        if (i->second->getTypeId() == type_id)
+        if (*(i->second->getTypeId()) == *type_id)
           return i->second;
       }
       return 0;
