@@ -162,8 +162,8 @@ namespace RTT
     // a function is very similar to a program, but it also has a name
     function = (
             // optional visibility qualifiers:
-       !( str_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)] | str_p( "global" )[boost::bind(&ProgramGraphParser::globaldef, this)] | str_p("local") )
-       >> (str_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
+       !( keyword_p( "export" )[boost::bind(&ProgramGraphParser::exportdef, this)] | keyword_p( "global" )[boost::bind(&ProgramGraphParser::globaldef, this)] | keyword_p("local") )
+       >> (keyword_p( "function" ) | commonparser.notassertingidentifier[boost::bind( &ProgramGraphParser::seenreturntype, this, _1, _2)])
        >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> !funcargs
        >> opencurly
@@ -172,14 +172,14 @@ namespace RTT
        );
 
     // the function's definition args :
-    funcargs = ch_p('(') >> ( (!str_p("void") >> ch_p(')')) | ((
+    funcargs = ch_p('(') >> ( !str_p("void") >> ch_p(')') | ((
          valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]
              >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[boost::bind(&ProgramGraphParser::seenfunctionarg, this)]) )
         >> closebrace ));
 
     // a program looks like "program { content }".
     program =
-        str_p( "program" )
+        keyword_p( "program" )
       >> expect_ident( commonparser.identifier[ boost::bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> opencurly
       >> content
@@ -200,15 +200,15 @@ namespace RTT
     valuechange = valuechangeparser.parser()[ boost::bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     // take into account deprecated 'do' and 'set'
-    dostatement = !lexeme_d[str_p("do ")] >> !lexeme_d[str_p("set ")] >> !lexeme_d[str_p("call ")]  >>
+    dostatement = !keyword_p("do") >> !keyword_p("set") >> !keyword_p("call") >>
             (
-              ( str_p("yield") | "nothing")[boost::bind(&ProgramGraphParser::seenyield,this)]
+             ( keyword_p("yield") | keyword_p("nothing"))[boost::bind(&ProgramGraphParser::seenyield,this)]
             | expressionparser.parser()[ boost::bind(&ProgramGraphParser::seenstatement,this) ]
             );
 
     // a try statement: "try xxx catch { stuff to do once on any error} "
     trystatement =
-        lexeme_d[str_p("try ")]
+        keyword_p("try")
          >> expect_command ( expressionparser.parser()[ boost::bind( &ProgramGraphParser::seentrystatement, this ) ] )
          >> !catchpart;
 
