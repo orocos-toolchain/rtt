@@ -97,6 +97,8 @@ namespace RTT
     }
 
     TypeInfo* TypeInfoRepository::getTypeById(TypeInfo::TypeId type_id) const {
+      if (!type_id)
+          return 0;
       // Ask each type for its type id name.
       map_t::const_iterator i = data.begin();
       for (; i != data.end(); ++i){
@@ -110,7 +112,7 @@ namespace RTT
       // Ask each type for its type id name.
       map_t::const_iterator i = data.begin();
       for (; i != data.end(); ++i){
-        if (i->second->getTypeId()->name() == type_id_name)
+        if (i->second->getTypeId() && i->second->getTypeId()->name() == type_id_name)
           return i->second;
       }
       return 0;
