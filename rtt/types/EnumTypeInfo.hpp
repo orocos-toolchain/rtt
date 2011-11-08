@@ -69,7 +69,7 @@ namespace RTT
             std::map<T,string> to_string;
             typedef std::map<T,string> MapType;
         public:
-            EnumTypeInfo(const char* type) :
+            EnumTypeInfo(std::string type) :
                 TemplateTypeInfo<T, false> (type)
             {
                 if (!Types()->type("int")) {
