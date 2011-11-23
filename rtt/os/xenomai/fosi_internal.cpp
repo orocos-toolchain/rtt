@@ -327,6 +327,7 @@ namespace RTT
             if ( rtos_task_check_scheduler( &sched_type ) == -1)
                 return -1;
 
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2600
             if (sched_type == SCHED_XENOMAI_HARD) {
                 if ( rt_task_set_mode( 0, T_PRIMARY, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_HARD;
@@ -347,6 +348,10 @@ namespace RTT
             }
             assert(false);
             return -1;
+#else
+	    t->sched_type = sched_type;
+	    return 0;
+#endif
         }
 
         INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
@@ -397,9 +402,11 @@ namespace RTT
             long unsigned int overrun = 0;
             rt_task_wait_period(&overrun);
 
+#if ((CONFIG_XENO_VERSION_MAJOR*1000)+(CONFIG_XENO_VERSION_MINOR*100)+CONFIG_XENO_REVISION_LEVEL) < 2600
             // When running soft, switch to secondary mode:
             if ( mytask->sched_type == SCHED_XENOMAI_SOFT )
                 rt_task_set_mode(T_PRIMARY, 0, 0 );
+#endif
 
             if ( overrun != 0)
                 return 1;
