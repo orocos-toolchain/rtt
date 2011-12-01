@@ -668,16 +668,26 @@ Hello [R]&gt;
       The constructor argument is the (unique) name of the component.
 			You should create the component template and the CMakeLists.txt
 			file using the <command>orocreate-pkg</command> program such
-			that this compiles right away as in the HelloWorld example above.
+			that this compiles right away as in the HelloWorld example above:
+			<programlisting>
+				$ orocreate-pkg mytask
+			</programlisting>
 		</para>
 		<para>
-			You can load this component in a deployer by using the <command>import</command>
-			command at the TaskBrowser prompt and verify that it has been 
-      found using <command>displayComponentTypes()</command> in the
-      TaskBrowser. Next type <command>loadComponent("the_task","MyTask")</command>
-      to load it into the process, or use an XML file such as in the
-      helloworld example above.
+			You can load this package in a deployer by using the <command>import</command>
+			command at the TaskBrowser prompt and verify that it contains components 
+      using <command>displayComponentTypes()</command> in the
+      TaskBrowser. After import, <command>loadComponent("the_task","MyTask")</command>
+      loads a new component instance into the process:
     </para>
+		<programlisting>
+			Deployer [S]> import("mytask")    // 'mytask' is a directory name to import      
+			Deployer [S]> displayComponentTypes() // lists 'MyTask' among others
+			...
+			MyTask
+			...
+			Deployer [S]> loadComponent("the_task", "MyTask") // Creates a new component of type 'MyTask'
+		</programlisting>
     <figure id="fig-a-task-context-intro">
       <title>
 	Schematic Overview of a TaskContext
