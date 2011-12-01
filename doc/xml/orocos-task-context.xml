@@ -207,7 +207,7 @@ $ make
  print.ln("Script created Hello Component with period: " + Hello.getPeriod() )
 </programlisting>
         and load it into the deployer using this command:
-	<command>deployer-gnulinux -s helloworld.ops -linfo</command>
+	<command>$ deployer-gnulinux -s helloworld.ops -linfo</command>
 	This command imports the HelloWorld package and any component library 
 	in there. Then it creates a component with name "Hello". We call this
 	a dynamic deployment, since the decision to create components is done
@@ -681,6 +681,8 @@ Hello [R]&gt;
       loads a new component instance into the process:
     </para>
 		<programlisting>
+      $ deployer-gnulinux
+      ...
 			Deployer [S]> import("mytask")    // 'mytask' is a directory name to import      
 			Deployer [S]> displayComponentTypes() // lists 'MyTask' among others
 			...
