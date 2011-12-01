@@ -64,7 +64,7 @@ IF(ROS_ROOT)
     set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
   endif(ROS_STACK_DIR_FINAL)
   # Necessary for backwards compatibility such that packages find RTT's cmake macros:
-  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install)
+  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/install)
     # Note: we use WORKING_DIRECTORY
     execute_process ( 
       COMMAND ${CMAKE_COMMAND} -E remove_directory install
