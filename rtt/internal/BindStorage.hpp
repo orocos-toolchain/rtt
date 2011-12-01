@@ -102,7 +102,16 @@ namespace RTT
         struct RStore {
             T arg;
             bool executed;
-            RStore() : arg(), executed(false) {}
+            bool error;
+            RStore() : arg(), executed(false), error(false) {}
+
+            void checkError() const {
+              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
+            }
+
+            bool isError() const {
+              return error;
+            }
 
             bool isExecuted() const {
                 return executed;
@@ -110,8 +119,8 @@ namespace RTT
 
             //bool operator()() { return executed; }
 
-            T& result() { return arg; }
-            operator T&() { return arg;}
+            T& result() { checkError(); return arg; }
+            operator T&() { checkError(); return arg;}
 
             /**
              * Stores the result of a function.
@@ -121,10 +130,14 @@ namespace RTT
              */
             template<class F>
             void exec(F f) {
-                arg = f();
+                error = false;
+                try{
+                    arg = f();
+                } catch (...) {
+                    error = true;
+                }
                 executed = true;
             }
-
         };
 
         template<class T>
@@ -132,29 +145,52 @@ namespace RTT
         {
             T* arg;
             bool executed;
-            RStore() : arg(0), executed(false) {}
+            bool error;
+            RStore() : arg(), executed(false), error(false) {}
 
-            template<class F>
-            void exec(F f) {
-              arg = &f();
-              executed = true;
+            void checkError() const {
+              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
+            }
+
+            bool isError() const {
+              return error;
             }
 
             bool isExecuted() const {
                 return executed;
             }
 
+            template<class F>
+            void exec(F f) {
+                error = false;
+                try{
+                    arg = &f();
+                } catch(...) {
+                    error = true;
+                }
+                executed = true;
+            }
+
             //bool operator()() { return executed; }
 
-            T& result() { return *arg; }
-            operator T&() { return *arg;}
+            T& result() { checkError(); return *arg; }
+            operator T&() { checkError(); return *arg;}
         };
 
         template<class T>
         struct RStore<const T> {
             T arg;
             bool executed;
-            RStore() : arg(), executed(false) {}
+            bool error;
+            RStore() : arg(), executed(false), error(false) {}
+
+            void checkError() const {
+              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
+            }
+
+            bool isError() const {
+              return error;
+            }
 
             bool isExecuted() const {
                 return executed;
@@ -162,7 +198,7 @@ namespace RTT
 
             //bool operator()() { return executed; }
 
-            T& result() { return arg; }
+            T& result() { checkError(); return arg; }
             operator T&() { return arg;}
 
             /**
@@ -173,7 +209,12 @@ namespace RTT
              */
             template<class F>
             void exec(F f) {
-                arg = f();
+                error = false;
+                try{
+                    arg = f();
+                } catch(...) {
+                    error = true;
+                }
                 executed = true;
             }
 
@@ -182,21 +223,35 @@ namespace RTT
         template<>
         struct RStore<void> {
             bool executed;
-            RStore() :executed(false) {}
+            bool error;
+            RStore() : executed(false), error(false) {}
 
-            template<class F>
-            void exec(F f) {
-                f();
-                executed = true;
+            void checkError() const {
+              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
+            }
+
+            bool isError() const {
+              return error;
             }
 
             bool isExecuted() const {
                 return executed;
             }
 
+            template<class F>
+            void exec(F f) {
+                error = false;
+                try{
+                    f();
+                } catch(...) {
+                    error = true;
+                }
+                executed = true;
+            }
+
             //bool operator()() { return executed; }
 
-            void result() { return; }
+            void result() { checkError(); return; }
         };
 
         template<class T>

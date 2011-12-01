@@ -92,11 +92,12 @@ namespace RTT
          * @param name The name of this instance.
          * @param func The function to execute, for example &foo.
          * @param et The thread that should execute the function when the operation is invoked.
+         * @param ownerEngine the execution engine of the owner of this operation if any.
          */
-        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et = ClientThread )
+        Operation(const std::string& name, boost::function<Signature> func, ExecutionThread et = ClientThread, ExecutionEngine* ee = NULL )
         :OperationBase(name)
         {
-            this->calls(func,et);
+            this->calls(func, et, ee);
         }
 
         /**
@@ -105,12 +106,13 @@ namespace RTT
          * @param func The function to execute, for example &Bar::foo
          * @param o The object that has this function, for example &bar
          * @param et The thread that should execute the function when the operation is invoked.
+         * @param ownerEngine the execution engine of the owner of this operation if any.
          */
         template<class Function, class Object>
-        Operation(const std::string& name, Function func, Object o, ExecutionThread et = ClientThread )
+        Operation(const std::string& name, Function func, Object o, ExecutionThread et = ClientThread, ExecutionEngine* ee = NULL )
         :OperationBase(name)
         {
-            this->calls(func, o, et);
+            this->calls(func, o, et, ee);
         }
 
         ~Operation()
@@ -138,12 +140,13 @@ namespace RTT
          * This will replace any previously registered function present in this operation.
          * @param func The function to call when the operation is invoked
          * @param et The thread that should execute the function when the operation is invoked.
+         * @param ownerEngine the execution engine of the owner of this operation if any.
          * @return A reference to this object.
          */
-        Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread ) {
+        Operation& calls(boost::function<Signature> func, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL ) {
             // creates a Local OperationCaller
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, this->mowner, null_e, et);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, this->mowner, null_e, et, ownerEngine);
 #ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);
@@ -157,13 +160,14 @@ namespace RTT
          * @param func The function to call when the operation is invoked, for example &Bar::foo
          * @param o The object that has this function, for example &bar
          * @param et The thread that should execute the function when the operation is invoked.
+         * @param ownerEngine the execution engine of the owner of this operation if any.
          * @return A reference to this object.
          */
         template<class Function, class Object>
-        Operation& calls(Function func, Object o, ExecutionThread et = ClientThread ) {
+        Operation& calls(Function func, Object o, ExecutionThread et = ClientThread, ExecutionEngine* ownerEngine = NULL ) {
             // creates a Local OperationCaller or sets function
             ExecutionEngine* null_e = 0;
-            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, this->mowner, null_e, et);
+            impl = boost::make_shared<internal::LocalOperationCaller<Signature> >(func, o, this->mowner, null_e, et, ownerEngine);
 #ifdef ORO_SIGNALLING_OPERATIONS
             if (signal)
                 impl->setSignal(signal);

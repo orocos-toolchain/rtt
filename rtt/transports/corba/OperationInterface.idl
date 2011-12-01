@@ -71,6 +71,11 @@ module RTT
     exception CCallInterrupted
     {
     };
+
+    exception CCallError
+    {
+      string what;
+    };
     
     /**
      * A handler object that allows us to collect the results
@@ -80,9 +85,9 @@ module RTT
      */
     interface CSendHandle {
     
-        CSendStatus collect(out CAnyArguments args);
+        CSendStatus collect(out CAnyArguments args) raises(CCallError);
 
-        CSendStatus collectIfDone(out CAnyArguments args);
+        CSendStatus collectIfDone(out CAnyArguments args) raises(CCallError);
         
         /**
          * Just checks what the status is.
@@ -92,7 +97,7 @@ module RTT
          * Returns only the return value, when checkStatus() returns CSendSuccess.
          * Convenient if the sent method only returns a value.
          */  
-        any ret();                       
+        any ret() raises(CCallError);                       
 
       /**
        * Checks if this handle returns these arguments in collect() and collectIfDone().
@@ -179,7 +184,8 @@ module RTT
       any callOperation(in string operation, inout CAnyArguments args) raises ( CNoSuchNameException,
 								 CWrongNumbArgException,
 								 CWrongTypeArgException,
-                                 CCallInterrupted);
+                                 CCallInterrupted,
+                                 CCallError);
 
       /**
        * Send an operation with a list of arguments.

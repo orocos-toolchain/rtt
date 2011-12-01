@@ -155,6 +155,7 @@ namespace RTT
             found = true; // always true in order to be able to quit waitForMessages.
         }
         virtual void dispose() {}
+        virtual bool isError() const { return false;}
 
     };
 
@@ -402,6 +403,11 @@ namespace RTT
             return true;
         }
         return false;
+    }
+
+    void ExecutionEngine::setExceptionTask() {
+        if(taskc)
+            taskc->exception();
     }
             
 

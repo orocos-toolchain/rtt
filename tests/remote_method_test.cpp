@@ -47,10 +47,17 @@ BOOST_AUTO_TEST_CASE(testRemoteOperationCaller)
     implementation.reset( new RemoteOperationCaller<double(int)>(tc->provides("methods")->getPart("m1"),"m1", caller->engine()) );
     m1 = implementation;
     BOOST_CHECK( m1.ready() );
+    
+    OperationCaller<void(void)> m0e;
+    implementation.reset( new RemoteOperationCaller<void(void)>(tc->provides("methods")->getPart("m0except"),"m0except", caller->engine()) );
+    m0e = implementation;
+    BOOST_CHECK( m0e.ready() );
 
     BOOST_CHECK_EQUAL(  2.0, m1(0) );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_THROW( m0e(), std::runtime_error);
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testOperationCallerC_Call)
@@ -84,6 +91,13 @@ BOOST_AUTO_TEST_CASE(testOperationCallerC_Call)
     mc = tc->provides("methods")->create("m7", caller->engine()).ret( r ).argC(1).argC(2.0).argC(true).argC(string("hello")).argC(5.0f).argC('a').argC((unsigned int)7);
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -8.0 );
+    
+    mc = tc->provides("methods")->create("m0except", caller->engine());
+    BOOST_CHECK_THROW( mc.call(), std::runtime_error);
+ 
+    mc = tc->provides("methods")->create("o0except", caller->engine());
+    BOOST_CHECK_THROW( mc.call(), std::runtime_error);
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testOperationCallerC_Send)
@@ -168,6 +182,15 @@ BOOST_AUTO_TEST_CASE(testOperationCallerC_Send)
     BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
     BOOST_CHECK_EQUAL( r, 0.0 );
     BOOST_CHECK_EQUAL( cr, -8.0 );
+
+    mc = tc->provides("methods")->create("m0except", caller->engine());
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    BOOST_CHECK( shc.ready() );
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_THROW( shc.collect(), std::runtime_error );
+    BOOST_REQUIRE(tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
@@ -192,6 +215,8 @@ BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
     OperationCallerC mc7 = sp->create("m7", caller->engine() );
     mc7.argC(1).argC(2.0).argC(true).argC(std::string("hello")).argC(5.0f).argC('a').argC((unsigned int)7).ret(ret);
 
+    OperationCallerC mc0e = sp->create("m0except", caller->engine() );
+
     BOOST_CHECK( mc0.call() );
     BOOST_CHECK_EQUAL(-1.0, ret);
     BOOST_CHECK( mc1.call() );
@@ -208,6 +233,9 @@ BOOST_AUTO_TEST_CASE(testOperationCallerFromDS)
     BOOST_CHECK_EQUAL(-7.0, ret);
     BOOST_CHECK( mc7.call() );
     BOOST_CHECK_EQUAL(-8.0, ret);
+
+    BOOST_CHECK_THROW( mc0e.call(), std::runtime_error );
+    BOOST_REQUIRE(tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
@@ -222,6 +250,8 @@ BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
     m1.calls(&OperationsFixture::m1, this);
     Operation<double(int,double)> m2("m2");
     m2.calls(&OperationsFixture::m2, this);
+    Operation<void(void)> m0e("m0e");
+    m0e.calls(&OperationsFixture::m0except, this);
 
     Service to("task");
 
@@ -231,11 +261,16 @@ BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
     BOOST_CHECK( to.addOperation(m0).ready() );
     BOOST_CHECK( to.addOperation(m1).ready() );
     BOOST_CHECK( to.addOperation(m2).ready() );
+    BOOST_CHECK( to.addOperation(m0e).ready() );
 
     // test constructor
     OperationCaller<double(void)> mm0 = to.getOperation("m0");
     BOOST_CHECK( mm0.getOperationCallerImpl() );
     BOOST_CHECK( mm0.ready() );
+
+    OperationCaller<void(void)> mm0e = to.getOperation("m0e");
+    BOOST_CHECK( mm0e.getOperationCallerImpl() );
+    BOOST_CHECK( mm0e.ready() );
 
     // test operator=()
     OperationCaller<double(int)> mm1;
@@ -252,6 +287,8 @@ BOOST_AUTO_TEST_CASE(testRemoteOperationCallerFactory)
 
     BOOST_CHECK_EQUAL( -2.0, mm1(1) );
     BOOST_CHECK_EQUAL( -3.0, mm2(1, 2.0) );
+
+    BOOST_CHECK_THROW( mm0e(), std::runtime_error );
 
     // Add uninitialised op:
     Operation<void(void)> ovoid("ovoid");

@@ -435,7 +435,7 @@ namespace RTT
          */
         virtual void exception();
 
-        // Required to set mTaskState to Running or Stopped.
+        // Required to set mTaskState to Running, Stopped or Exception.
         // As an alternative, one could query the EE.
         friend class ::RTT::ExecutionEngine;
 

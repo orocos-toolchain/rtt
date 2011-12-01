@@ -94,6 +94,10 @@ namespace RTT
                 return true;
             }
 
+            virtual bool isError() const {
+              return this->retv.isError();
+            }
+
             virtual void setExecutor(ExecutionEngine* ee) {
                 if (met == OwnThread)
                     myengine = ee;
@@ -119,6 +123,8 @@ namespace RTT
                 if (!this->retv.isExecuted()) {
                     this->exec(); // calls BindStorage.
                     //cout << "executed method"<<endl;
+                    if(this->retv.isError())
+                        this->reportError();
                     bool result = false;
                     if (caller){
                         result = caller->process(this);
@@ -144,6 +150,17 @@ namespace RTT
                 //this->~LocalOperationCallerImpl();
                 //oro_rt_free(this);
                 self.reset();
+            }
+
+            
+            // report an error if an exception was thrown while calling exec()
+            virtual void reportError() {
+                // This localOperation was added to a TaskContext or to a Service owned by a TaskContext
+                if (this->ownerEngine != NULL)
+                    this->ownerEngine->setExceptionTask();
+                // This operation is called through OperationCaller directly
+                else if (this->met == OwnThread)
+                    this->myengine->setExceptionTask();
             }
 
             ExecutionEngine* getMessageProcessor() const { return myengine; }
@@ -225,6 +242,7 @@ namespace RTT
 
             SendStatus collectIfDone_impl() {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     return SendSuccess;
                 } else
                     return SendNotReady;
@@ -235,6 +253,7 @@ namespace RTT
             template<class T1>
             SendStatus collectIfDone_impl( T1& a1 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -244,6 +263,7 @@ namespace RTT
             template<class T1, class T2>
             SendStatus collectIfDone_impl( T1& a1, T2& a2 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 }
@@ -253,6 +273,7 @@ namespace RTT
             template<class T1, class T2, class T3>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2,a3) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -262,6 +283,7 @@ namespace RTT
             template<class T1, class T2, class T3, class T4>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -271,6 +293,7 @@ namespace RTT
             template<class T1, class T2, class T3, class T4, class T5>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -280,6 +303,7 @@ namespace RTT
             template<class T1, class T2, class T3, class T4, class T5, class T6>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5,a6) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -289,6 +313,7 @@ namespace RTT
             template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
             SendStatus collectIfDone_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7 ) {
                 if ( this->retv.isExecuted()) {
+                    this->retv.checkError();
                     bf::vector_tie(a1,a2,a3,a4,a5,a6,a7) = bf::filter_if< is_arg_return<boost::remove_reference<mpl::_> > >(this->vStore);
                     return SendSuccess;
                 } else
@@ -502,6 +527,7 @@ namespace RTT
 
             result_type ret_impl()
             {
+                this->retv.checkError();
                 return this->retv.result(); // may return void.
             }
 
@@ -513,6 +539,7 @@ namespace RTT
             template<class T1>
             result_type ret_impl(T1 a1)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1> vArgs( boost::ref(a1) );
                 if ( this->retv.isExecuted())
@@ -523,6 +550,7 @@ namespace RTT
             template<class T1,class T2>
             result_type ret_impl(T1 a1, T2 a2)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2> vArgs( boost::ref(a1), boost::ref(a2) );
                 if ( this->retv.isExecuted())
@@ -533,6 +561,7 @@ namespace RTT
             template<class T1,class T2, class T3>
             result_type ret_impl(T1 a1, T2 a2, T3 a3)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3) );
                 if ( this->retv.isExecuted())
@@ -543,6 +572,7 @@ namespace RTT
             template<class T1,class T2, class T3, class T4>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4) );
                 if ( this->retv.isExecuted())
@@ -553,6 +583,7 @@ namespace RTT
             template<class T1,class T2, class T3, class T4, class T5>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4,T5> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5) );
                 if ( this->retv.isExecuted())
@@ -563,6 +594,7 @@ namespace RTT
             template<class T1,class T2, class T3, class T4, class T5, class T6>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4,T5,T6> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6) );
                 if ( this->retv.isExecuted())
@@ -573,6 +605,7 @@ namespace RTT
             template<class T1,class T2, class T3, class T4, class T5, class T6, class T7>
             result_type ret_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
             {
+                this->retv.checkError();
                 typedef mpl::and_<boost::is_reference<mpl::_>, mpl::not_<boost::is_const<boost::remove_reference<mpl::_> > > > pred;
                 bf::vector<T1,T2,T3,T4,T5,T6,T7> vArgs( boost::ref(a1), boost::ref(a2), boost::ref(a3), boost::ref(a4), boost::ref(a5), boost::ref(a6), boost::ref(a7) );
                 if ( this->retv.isExecuted())
@@ -581,10 +614,10 @@ namespace RTT
             }
 
             virtual shared_ptr cloneRT() const = 0;
-
         protected:
             ExecutionEngine* myengine;
             ExecutionEngine* caller;
+            ExecutionEngine* ownerEngine;
             typedef BindStorage<FunctionT> Store;
             ExecutionThread met;
             /**
@@ -631,13 +664,14 @@ namespace RTT
              * @param object An object of the class which has \a meth as member function.
              */
             template<class M, class ObjectType>
-            LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
+            LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();
                 this->mmeth = OperationCallerBinder<Signature>()(meth, object);
                 this->myengine = ee;
                 this->caller = caller;
+                this->ownerEngine = oe;
                 this->met = et;
             }
 
@@ -648,13 +682,14 @@ namespace RTT
              * @param meth an pointer to a function or function object.
              */
             template<class M>
-            LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread )
+            LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
             {
                 if (!ee)
                     ee = GlobalEngine::Instance();
                 this->mmeth = meth;
                 this->myengine = ee;
                 this->caller = caller;
+                this->ownerEngine = oe;
                 this->met = et;
             }
 

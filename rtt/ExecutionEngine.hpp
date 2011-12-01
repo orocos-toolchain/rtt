@@ -176,6 +176,12 @@ namespace RTT
          * @return true if it's updateHook() is no longer being executed, false otherwise.
          */
         bool stopTask(base::TaskCore* task);
+
+
+        /**
+         * Set the 'owner' task in the exception state.
+         */
+        void setExceptionTask();
     protected:
         /**
          * Call this if you wish to block on a message arriving in the Execution Engine.

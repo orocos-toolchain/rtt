@@ -77,6 +77,12 @@ namespace RTT {
     vector<string> Service::getProviderNames() const {
         return keys(services);
     }
+    
+    ExecutionEngine* Service::getOwnerExecutionEngine() const {
+        if(this->getOwner())
+            return this->getOwner()->engine();
+          return NULL;
+    }
 
     bool Service::addService( Service::shared_ptr obj ) {
         if ( services.find( obj->getName() ) != services.end() ) {

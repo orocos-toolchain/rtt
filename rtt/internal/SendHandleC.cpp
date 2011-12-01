@@ -87,7 +87,10 @@ namespace RTT {
 	~OperationKeeper() {
 		if (ms && autocollect) {
 			mb->set(true); // blocking
-			ms->evaluate();
+			try { // the evaluated function may throw
+				ms->evaluate();
+			} catch (std::exception&) {
+			}
 		}
 	}
     };
