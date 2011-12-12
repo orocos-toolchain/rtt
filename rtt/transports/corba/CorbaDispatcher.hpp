@@ -148,8 +148,16 @@ namespace RTT {
                 mlock = 0;
             }
 
+	    static void hasElement(base::ChannelElementBase::shared_ptr c0, base::ChannelElementBase::shared_ptr c1, bool& result)
+	    {
+		result = result || (c0 == c1);
+	    }
+
             void dispatchChannel( base::ChannelElementBase::shared_ptr chan ) {
-                RClist.append( chan );
+		bool has_element = false;
+		RClist.apply(boost::bind(&CorbaDispatcher::hasElement, _1, chan, boost::ref(has_element)));
+                if (!has_element)
+	            RClist.append( chan );
                 this->trigger();
             }
 
