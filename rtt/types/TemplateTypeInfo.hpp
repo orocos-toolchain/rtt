@@ -42,9 +42,7 @@
 #include "../Property.hpp"
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "PrimitiveTypeInfo.hpp"
+#include "DataFlowTypeInfo.hpp"
 
 #include "../rtt-config.h"
 
@@ -70,7 +68,7 @@ namespace RTT
      */
     template<typename T, bool use_ostream = false>
     class TemplateTypeInfo
-        : public PrimitiveTypeInfo<T, use_ostream>
+        : public DataFlowTypeInfo<T, use_ostream>
     {
     public:
         using TypeInfo::buildConstant;
@@ -93,7 +91,7 @@ namespace RTT
          *
          */
         TemplateTypeInfo(std::string name)
-            : PrimitiveTypeInfo<T,use_ostream>(name)
+            : DataFlowTypeInfo<T,use_ostream>(name)
         {
         }
 
@@ -151,25 +149,6 @@ namespace RTT
          */
         virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
             return false;
-        }
-
-        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
-        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
-
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
-            return internal::ConnFactory::buildDataStorage<T>(policy);
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelOutput(
-                    static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelInput(
-                    static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
         }
     };
 }}
