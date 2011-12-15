@@ -157,9 +157,6 @@ ORO_main( int argc, char** argv)
   <classname>RTT::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
   <classname>RTT::SimulationThread</classname>::Instance()->start();
 
-  // Optional, might hang your program :
-  <classname>RTT::SimulationThread</classname>::Instance()->makeHardRealtime();
-
   // fast_sim_activity will measure 0.001s elapses between each step(),
   // slow_sim_activity will measure 0.01s elapses in time between each step()
   <classname>RTT::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
