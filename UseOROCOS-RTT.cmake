@@ -88,7 +88,7 @@ if(OROCOS-RTT_FOUND)
 
   # By default, install libs in /target/ subdir in order to allow
   # multi-target installs.
-  if ( NOT OROCOS_SUFFIX )
+  if ( NOT DEFINED OROCOS_SUFFIX )
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
   
