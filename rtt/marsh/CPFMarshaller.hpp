@@ -94,9 +94,13 @@ namespace RTT
 
         virtual void introspect(Property<char> &v);
 
+        virtual void introspect(Property<unsigned char> &v);
+
         virtual void introspect(Property<int> &v);
 
         virtual void introspect(Property<unsigned int> &v);
+
+        virtual void introspect(Property<float> &v);
 
         virtual void introspect(Property<double> &v);
 

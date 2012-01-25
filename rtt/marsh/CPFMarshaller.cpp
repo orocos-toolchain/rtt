@@ -39,6 +39,8 @@
 #include "CPFMarshaller.hpp"
 #include "../rtt-config.h"
 
+#include <iostream>
+using namespace std;
 namespace RTT {
     using namespace detail;
     template<class T>
@@ -110,7 +112,10 @@ namespace RTT {
 
     void CPFMarshaller<std::ostream>::introspect(PropertyBase* pb)
     {
-        PropertyIntrospection::introspect( pb );
+        if (dynamic_cast<Property<unsigned char>* >(pb) )
+        	return introspect( *static_cast<Property<unsigned char>* >(pb) );
+        if (dynamic_cast<Property<float>* >(pb) )
+        	return introspect( *static_cast<Property<float>* >(pb) );
     }
 
 
@@ -125,6 +130,11 @@ namespace RTT {
         doWrite( v, "char");
     }
 
+    void CPFMarshaller<std::ostream>::introspect(Property<unsigned char> &v)
+    {
+        doWrite( v, "uchar");
+    }
+
 
     void CPFMarshaller<std::ostream>::introspect(Property<int> &v)
     {
@@ -137,6 +147,11 @@ namespace RTT {
         doWrite( v, "ulong");
     }
 
+    void CPFMarshaller<std::ostream>::introspect(Property<float> &v)
+    {
+        (this->s)->precision(15);
+        doWrite( v, "float");
+    }
 
     void CPFMarshaller<std::ostream>::introspect(Property<double> &v)
     {
