@@ -116,6 +116,17 @@ namespace RTT {
         	return introspect( *static_cast<Property<unsigned char>* >(pb) );
         if (dynamic_cast<Property<float>* >(pb) )
         	return introspect( *static_cast<Property<float>* >(pb) );
+        // Since the CPFDemarshaller maps 'short' and 'ushort' to int, we don't write out shorts as it would break
+        // lots of existing files, where users use 'short' and 'long' interchangingly.
+        // This could be finally resolved by using a conversion constructor, but the RTT typekit does not support
+        // shorts...
+        // if (dynamic_cast<Property<unsigned short>* >(pb) )
+        // 	return introspect( *static_cast<Property<unsigned short>* >(pb) );
+        // if (dynamic_cast<Property<short>* >(pb) )
+        // 	return introspect( *static_cast<Property<>* >(pb) );
+        log(Error) << "Couldn't write "<< pb->getName() << " to XML file because the " << pb->getType() << " type is not supported by the CPF format." <<endlog();
+        log(Error) << "If your type is a C++ struct or sequence, you can register it with a type info object." <<endlog();
+        log(Error) << "We only support these primitive types: boolean|char|double|float|long|octet|string|ulong." <<endlog();
     }
 
 
@@ -132,7 +143,7 @@ namespace RTT {
 
     void CPFMarshaller<std::ostream>::introspect(Property<unsigned char> &v)
     {
-        doWrite( v, "uchar");
+        doWrite( v, "octet");
     }
 
 
@@ -145,6 +156,17 @@ namespace RTT {
     void CPFMarshaller<std::ostream>::introspect(Property<unsigned int> &v)
     {
         doWrite( v, "ulong");
+    }
+
+    void CPFMarshaller<std::ostream>::introspect(Property<short> &v)
+    {
+        doWrite( v, "short");
+    }
+
+
+    void CPFMarshaller<std::ostream>::introspect(Property<unsigned short> &v)
+    {
+        doWrite( v, "ushort");
     }
 
     void CPFMarshaller<std::ostream>::introspect(Property<float> &v)

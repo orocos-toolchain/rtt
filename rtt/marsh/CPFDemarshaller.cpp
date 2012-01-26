@@ -162,7 +162,7 @@ namespace RTT
                                 else
                                     bag_stack.top().first->add( new Property<char>( name, description, value_string[0] ) );
                         }
-                        else if ( type == "uchar" ) {
+                        else if ( type == "uchar" || type == "octet" ) {
                             if ( value_string.length() != 1 )
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a single unsigned character, got '"+ value_string +"'.").c_str());

@@ -95,10 +95,10 @@ namespace RTT
                     case TAG_SIMPLE:
                         if ( type == "boolean" )
                         {
-                            if ( value_string == "1" )
+                            if ( value_string == "1" || value_string == "true")
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, true ) );
-                            else if ( value_string == "0" )
+                            else if ( value_string == "0" || value_string == "false")
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, false ) );
                             else {
@@ -117,7 +117,7 @@ namespace RTT
                                 bag_stack.top().first->add
                                     ( new Property<char>( name, description, value_string.empty() ? '\0' : value_string[0] ) );
                         }
-                        else if ( type == "uchar" ) {
+                        else if ( type == "uchar" || type == "octet" ) {
                             if ( value_string.length() > 1 ) {
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain a single unsigned character, got '"+ value_string +"'." << endlog();
@@ -129,6 +129,10 @@ namespace RTT
                         }
                         else if ( type == "long" || type == "short")
                         {
+                            if (type == "short") {
+                                log(Warning) << "Use type='long' instead of type='short' for Property '"<< name << "', since 16bit integers are not supported." <<endlog();
+                                log(Warning) << "Future versions of RTT will no longer map XML 'short' to C++ 'int' but to C++ 'short' Property objects." <<endlog();
+                            }
                             int v;
                             if ( sscanf(value_string.c_str(), "%d", &v) == 1)
                                 bag_stack.top().first->add( new Property<int>( name, description, v ) );
@@ -140,6 +144,10 @@ namespace RTT
                         }
                         else if ( type == "ulong" || type == "ushort")
                         {
+                            if (type == "ushort") {
+                                log(Warning) << "Use type='ulong' instead of type='ushort' for Property '"<< name << "', since 16bit integers are not supported." <<endlog();
+                                log(Warning) << "Future versions of RTT will no longer map XML 'ushort' to C++ 'unsigned int' but to C++ 'unsigned short' Property objects." <<endlog();
+                            }
                             unsigned int v;
                             if ( sscanf(value_string.c_str(), "%u", &v) == 1)
                                 bag_stack.top().first->add( new Property<unsigned int>( name, description, v ) );
