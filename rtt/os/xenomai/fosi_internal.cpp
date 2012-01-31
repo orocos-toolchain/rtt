@@ -422,14 +422,19 @@ namespace RTT
 
 	INTERNAL_QUAL unsigned rtos_task_get_cpu_affinity(const RTOS_TASK *task)
 	{
-        return ~0;
+		return ~0;
         }
 
         INTERNAL_QUAL const char* rtos_task_get_name(const RTOS_TASK* mytask) {
             return mytask->name;
         }
 
-        INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK* mytask) {
+    	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+    	{
+    		return 0;
+    	}
+
+    	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK* mytask) {
             RT_TASK_INFO info;
             // WORK AROUND constness: (need non-const mytask)
             RT_TASK* tt = mytask->xenoptr;

@@ -207,6 +207,10 @@ void ErrorHandler(LPTSTR lpszFunction)
     	return task->sched_type;
     }
 
+	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+	{
+		return 0;
+	}
 
     INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
     {

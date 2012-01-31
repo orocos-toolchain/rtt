@@ -216,6 +216,11 @@ namespace RTT
     return ~0;
     }
 
+	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+	{
+		return 0;
+	}
+
       INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type) {
           if (sched_type == SCHED_ECOS_FIFO )
               return 0;
