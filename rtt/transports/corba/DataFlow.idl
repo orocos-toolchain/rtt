@@ -74,6 +74,14 @@ module RTT
          * side is such that they can relay a signal or disconnect.
          */
         void setRemoteSide(in CRemoteChannelElement other);
+
+        /**
+         * Used by the 'remote' side to tell that it needs signaling
+         * when new data is available for reading.
+         * @param true_false true if the remote side is an "eventPort".
+         */
+        void remotePropagateNeedsSignaling(in boolean true_false);
+
         /**
          * Used by the 'remote' side to inform this channel element that new data
          * is available for reading.

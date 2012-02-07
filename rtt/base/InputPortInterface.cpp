@@ -134,6 +134,12 @@ void InputPortInterface::signal()
 void InputPortInterface::signalInterface(bool true_false)
 {
     msignal_interface = true_false;
+    // propagate the information to the output end
+    std::list<internal::ConnectionManager::ChannelDescriptor> channels = cmanager.getChannels();
+    std::list<internal::ConnectionManager::ChannelDescriptor>::iterator it;
+    for(it = channels.begin(); it != channels.end(); ++it) {
+        it->get<1>()->propagateNeedsSignaling(true_false);
+    }
 }
 #endif
 FlowStatus InputPortInterface::read(DataSourceBase::shared_ptr source, bool copy_old_data)

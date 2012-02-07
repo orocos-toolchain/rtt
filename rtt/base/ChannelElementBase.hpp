@@ -132,6 +132,14 @@ namespace RTT { namespace base {
          */
         void setOutput(shared_ptr output);
 
+        /** Tell if the output needs to be signaled when new data are
+         * available.
+         * By default, the channel element forwards the call to its input
+         *
+         * @param true_false true if need signaling.
+         */
+        virtual void propagateNeedsSignaling(bool);
+
         /** Signals that there is new data available on this channel
          * By default, the channel element forwards the call to its output
          *

@@ -71,6 +71,10 @@ namespace RTT {
 	     * In pull mode, we don't send data, just signal it and remote must read it back.
 	     */
 	    bool pull;
+	    /**
+	     * In pull mode, we don't send data neither signal if not needed.
+	     */
+	    bool need_signal;
 
             /** This is used on to read the channel */
             typename base::ChannelElement<T>::value_t sample;
@@ -95,7 +99,7 @@ namespace RTT {
 	      value_data_source(new internal::ValueDataSource<T>),
 	      ref_data_source(new internal::LateReferenceDataSource<T>),
 	      const_ref_data_source(new internal::LateConstReferenceDataSource<T>),
-              valid(true), pull(is_pull),
+          valid(true), pull(is_pull), need_signal(false,
 	      msender(sender),
               write_any(new CORBA::Any)
             {
@@ -125,6 +129,30 @@ namespace RTT {
 
             /**
              * CORBA IDL function.
+             * CRemoteChannelElement_i propagateNeedsSignaling implementation.
+             */
+            void remotePropagateNeedsSignaling(CORBA::Boolean true_false) ACE_THROW_SPEC ((
+          	      CORBA::SystemException
+          	    ))
+            { 
+                // forward too.
+                base::ChannelElementBase::propagateNeedsSignaling(true_false);
+                // update the cache
+                need_signal = true_false; 
+            }
+
+            /**
+             * base::ChannelElement<T> propagateNeedsSignaling implementation.
+             */
+            void propagateNeedsSignaling(bool true_false)
+            { 
+                if ( !CORBA::is_nil(remote_side.in()) )
+                    // FIXME should we care about the RT here, as in signal ?
+                    remote_side->remotePropagateNeedsSignaling(true_false);
+            }
+
+            /**
+             * CORBA IDL function.
              */
             CORBA::Boolean remoteSignal() ACE_THROW_SPEC ((
           	      CORBA::SystemException
@@ -137,6 +165,9 @@ namespace RTT {
                 base::ChannelElementBase::signal();
                 // intercept signal if no remote side set.
                 if ( CORBA::is_nil(remote_side.in()) )
+                    return true;
+                // intercept signal if no signal needed.
+                if ( !need_signal )
                     return true;
                 // Remember that signal() is called in the context of the one
                 // that wrote the data, so we must decouple here to keep hard-RT happy.
@@ -151,7 +182,7 @@ namespace RTT {
                     return;
                 //log(Debug) <<"transfering..." <<endlog();
                 // in push mode, transfer all data, in pull mode, only signal once for each sample.
-                if ( pull ) {
+                if ( pull && need_signal ) {
                     try
                     { valid = remote_side->remoteSignal(); }
 #ifdef CORBA_IS_OMNIORB
@@ -166,7 +197,7 @@ namespace RTT {
                         log(Error) << "caught CORBA exception while signalling our remote endpoint: " << e._name() << endlog();
                         valid = false;
                     }
-                } else {
+                } else if (!pull) {
                     //log(Debug) <<"...read..."<<endlog();
                     while ( this->read(sample, false) == NewData && valid) {
                         //log(Debug) <<"...write..."<<endlog();
