@@ -228,11 +228,13 @@ namespace RTT
     if ( acv.empty() && parser.lastDefinedValue() ) {
         return parser.lastDefinedValue()->getDataSource();
     }
-    if ( acv.size() == 1) {
-        ac = acv.front();
-        ac->readArguments();
-        ac->execute();
-        delete ac;
+    if ( acv.size() == 1 ) {
+        if (acv.front() ) { // front will be null if its an alias.
+            ac = acv.front();
+            ac->readArguments();
+            ac->execute();
+            delete ac;
+        }
         return parser.lastDefinedValue()->getDataSource();
     }
     else if (acv.size() > 1) {
