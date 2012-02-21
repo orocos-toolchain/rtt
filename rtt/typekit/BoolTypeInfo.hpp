@@ -61,7 +61,7 @@ namespace RTT
 #ifdef OS_HAVE_STREAMS
                 internal::DataSource<bool>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<bool> >(in);
                 if (d)
-                    return os << boolalpha << d->value();
+                    return os << std::boolalpha << d->value();
 #endif
                 return os;
             }
@@ -72,7 +72,7 @@ namespace RTT
                 internal::AssignableDataSource<bool>::shared_ptr d = boost::dynamic_pointer_cast< internal::AssignableDataSource<bool> >(out);
                 if (d)
                 {
-                    boolalpha(os);
+                    std::boolalpha(os);
                     os >> d->set();
                     d->updated(); // because use of set().
                 }

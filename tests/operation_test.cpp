@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testOperationCreate )
 // Test adding and calling an operation (internal API)
 BOOST_AUTO_TEST_CASE( testOperationCall )
 {
-    Service::shared_ptr s =  make_shared<Service>("Service");
+    Service::shared_ptr s =  boost::make_shared<Service>("Service");
 
     tc.provides()->addService( s );
 
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall )
 // Test calling an operation (user API)
 BOOST_AUTO_TEST_CASE( testOperationCall2 )
 {
-    Service::shared_ptr s =  make_shared<Service>("Service");
+    Service::shared_ptr s =  boost::make_shared<Service>("Service");
 
     tc.provides()->addService( s );
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testOperationCall2 )
 BOOST_AUTO_TEST_CASE( testOperationAddCpp )
 {
     // Add to custom service:
-    Service::shared_ptr s =  make_shared<Service>("Service");
+    Service::shared_ptr s =  boost::make_shared<Service>("Service");
     tc.provides()->addService( s );
     s->addOperation("top0", &OperationTest::func0, this);
     s->addOperation("top1", &OperationTest::func1, this);
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( testOperationAddCpp )
 BOOST_AUTO_TEST_CASE( testOperationAddC )
 {
     // Using custom Service
-    Service::shared_ptr s =  make_shared<Service>("Service");
+    Service::shared_ptr s =  boost::make_shared<Service>("Service");
     tc.provides()->addService( s );
     s->addOperation("top0", &OperationTest::freefunc0);
     s->addOperation("top1", &OperationTest::freefunc1);

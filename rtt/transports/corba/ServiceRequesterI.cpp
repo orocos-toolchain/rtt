@@ -117,7 +117,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CServiceRequester_i::getRequest (
     const char * service_name)
 {
-    string svc(service_name);
+    std::string svc(service_name);
     if ( svc == "this" )
         return _this();
 
@@ -130,7 +130,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
         RTT_corba_CServiceRequester_i* mserv;
         mserv = new RTT_corba_CServiceRequester_i( mservice->requires(service_name), mpoa );
         CServiceRequester_ptr request = mserv->activate_this();
-        mrequests[svc] = pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var>(request,mserv);
+        mrequests[svc] = std::pair<RTT::corba::CServiceRequester_var, PortableServer::ServantBase_var>(request,mserv);
     }
     // Now return it.
     return RTT::corba::CServiceRequester::_duplicate( mrequests[svc].first.in() );
@@ -157,7 +157,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
       const char * name,
       ::RTT::corba::CService_ptr svc)
 {
-    string oname(name);
+    std::string oname(name);
     if ( mservice->getOperationCaller(oname) == 0) {
         log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
         return false;
@@ -176,7 +176,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::disconnectCaller (
       const char * name )
 {
-    string oname(name);
+    std::string oname(name);
     if ( mservice->getOperationCaller(oname) == 0) {
         log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
         return false;
@@ -189,7 +189,7 @@ char * RTT_corba_CServiceRequester_i::getRequestName (
 ::CORBA::Boolean RTT_corba_CServiceRequester_i::callerReady (
       const char * name )
 {
-    string oname(name);
+    std::string oname(name);
     if ( mservice->getOperationCaller(oname) == 0) {
         log(Error) << "No such OperationCaller: " << oname << " in "<< mservice->getRequestName()<<endlog();
         return false;

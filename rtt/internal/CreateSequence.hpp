@@ -57,7 +57,6 @@
 #include "mystd.hpp"
 
 #include <iostream>
-using namespace std;
 
 namespace RTT
 {
