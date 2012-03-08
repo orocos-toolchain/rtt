@@ -237,11 +237,15 @@ namespace RTT {
 
             FlowStatus read(typename base::ChannelElement<T>::reference_t sample, bool copy_old_data)
             {
+                if (!valid)
+                    return NoData;
+
                 // try to read locally first
                 FlowStatus fs;
                 CFlowStatus cfs;
                 if ( (fs = base::ChannelElement<T>::read(sample, copy_old_data)) )
                     return fs;
+
                 // go through corba
                 CORBA::Any_var remote_value;
                 try
@@ -266,12 +270,14 @@ namespace RTT {
                 catch(CORBA::SystemException& e)
                 {
                     log(Error) << "caught CORBA exception while reading a remote channel: " << e._name() << " " << e.NP_minorString() << endlog();
+                    valid = false;
                     return NoData;
                 }
 #endif
                 catch(CORBA::Exception& e)
                 {
                     log(Error) << "caught CORBA exception while reading a remote channel: " << e._name() << endlog();
+                    valid = false;
                     return NoData;
                 }
             }
