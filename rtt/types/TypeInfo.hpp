@@ -53,7 +53,7 @@ namespace RTT
     class RTT_API TypeInfo
     {
     protected:
-        typedef std::vector<TypeBuilder*> Constructors;
+        typedef std::vector<TypeConstructor*> Constructors;
         typedef std::vector<TypeTransporter*> Transporters;
         Constructors constructors;
         Transporters transporters;
@@ -119,7 +119,7 @@ namespace RTT
         /**
          * Add a constructor/convertor object.
          */
-        virtual void addConstructor(TypeBuilder* tb);
+        virtual void addConstructor(TypeConstructor* tb);
 
         /**
          * build an alias with b as the value.  If b is of the wrong type,

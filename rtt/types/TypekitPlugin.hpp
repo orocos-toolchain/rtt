@@ -84,7 +84,7 @@ namespace RTT
          * Default constructors (which take no arguments)
          * need not to be added.
          * @see The TypeInfo class for adding a constructor to a type
-         * @see The TypeBuilder class for the interface of a constructor.
+         * @see The TypeConstructor class for the interface of a constructor.
          * @see The newConstructor utility function for creating a new
          * constructor object.
          * @see The RealTimeTypekit for an implementation example.

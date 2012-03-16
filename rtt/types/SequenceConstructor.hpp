@@ -1,7 +1,7 @@
 #ifndef SEQUENCECONSTRUCTOR_HPP_
 #define SEQUENCECONSTRUCTOR_HPP_
 
-#include "TypeBuilder.hpp"
+#include "TypeConstructor.hpp"
 #include "../internal/DataSources.hpp"
 #include <vector>
 
@@ -57,7 +57,7 @@ namespace RTT
          * construction time.
          */
         template<class T>
-        struct SequenceBuilder: public TypeBuilder
+        struct SequenceBuilder: public TypeConstructor
         {
             typedef typename T::value_type value_type;
             virtual base::DataSourceBase::shared_ptr build(const std::vector<

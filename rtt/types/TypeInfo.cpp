@@ -37,7 +37,7 @@
 
 
 #include "TypeInfo.hpp"
-#include "TypeBuilder.hpp"
+#include "TypeConstructor.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
 #include "TypeTransporter.hpp"
 
@@ -103,7 +103,7 @@ namespace RTT
         return ds;
     }
 
-    void TypeInfo::addConstructor(TypeBuilder* tb) {
+    void TypeInfo::addConstructor(TypeConstructor* tb) {
         constructors.push_back(tb);
     }
 
