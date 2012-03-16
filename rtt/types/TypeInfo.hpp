@@ -43,227 +43,86 @@
 #include "../base/DataSourceBase.hpp"
 #include "../base/ChannelElementBase.hpp"
 
+#ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
+#include "../internal/ConnFactory.hpp"
+#include "MemberFactory.hpp"
+#include "ValueFactory.hpp"
+#include "CompositionFactory.hpp"
+#ifndef NO_TYPE_INFO_STREAMS
+#include "StreamFactory.hpp"
+#endif
+#endif
+
+
 namespace RTT
 { namespace types {
+        using internal::ConnFactory;
+        using internal::ConnFactoryPtr;
 
     /**
      * A class for representing a user type, and which can build
-     * instances of that type.
+     * instances of that type. Once you get hold of a TypeInfo
+     * object pointer, this pointer will be valid during the whole
+     * lifetime of the process. 
      */
     class RTT_API TypeInfo
     {
-    protected:
-        typedef std::vector<TypeConstructor*> Constructors;
-        typedef std::vector<TypeTransporter*> Transporters;
-        Constructors constructors;
-        Transporters transporters;
     public:
-        virtual ~TypeInfo();
+        typedef const std::type_info * TypeId;
+
+        TypeInfo(const std::string& name) : mtypenames(1,name) {}
+
+        ~TypeInfo();
         /**
-         * Return unique the type name.
+         * Return the type name which was first registered.
+         * Do not rely on this function to return always the same string,
+         * as type loading order changes may return different names.
+         * Use getTypeNames() to get all aliases as well or getTypeIdName()
+         * to return the compiler generated C++ type name (non-portable
+         * accross compilers).
          */
-        virtual const std::string& getTypeName() const = 0;
+        const std::string& getTypeName() const { return mtypenames[0]; }
 
         /**
-         * Installs the type info object in the global data source type info handler.
-         * This will be called by the TypeInfoRepository, prior to registering this
-         * type. If installation fails the TypeInfoRepository will delete this object,
-         * and all its associated constructors.
-         *
-         * @retval true installation succeeded. This object should not be deleted
-         * during the execution of the current process.
-         * @retval false installation failed. This object is not used and may be deleted.
+         * Returns all registered names and aliases of this type.
          */
-        virtual bool installTypeInfoObject() = 0;
+        std::vector<std::string> getTypeNames() const;
 
         /**
-         * @name Type building/factory functions
-         * Used to create objects that hold data of a certain type.
-         * @{
+         * Adds an alias to the this type.
+         * @param alias an alternative name for this type which will
+         * be returned in getTypeNames()
          */
+        void addAlias(const std::string& alias);
+        
         /**
-         * Build a non modifyable instance of this type.
-         * @param sizehint For variable size instances, use it to hint
-         * the size of the instance.
+         * Returns the compiler generated type id pointer.
          */
-        virtual base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr, int sizehint) const;
-        virtual base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr) const = 0;
-        /**
-         * Build a modifyable instance of this type.
-         * @param sizehint For variable size instances, use it to hint
-         * the size of the instance.
-         */
-        virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const;
-        virtual base::AttributeBase* buildVariable(std::string name) const = 0;
+        TypeId getTypeId() const { return mtid; }
 
         /**
-         * Tries to resize a data source in case it's a resizable sequence.
-         * @return true if the resizing could be done, false otherwise.
+         * Returns the compiler generated type name (non portable accross compilers!).
          */
-        virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const;
+        const char * getTypeIdName() const { return mtid_name; }
 
         /**
          * Constructor syntax: construct a internal::DataSource which returns an instance of data
          * depending on the given arguments.  When \a args is empty, the default 'variable'
          * is returned.
          */
-        virtual base::DataSourceBase::shared_ptr construct(const std::vector<base::DataSourceBase::shared_ptr>& args) const;
+        base::DataSourceBase::shared_ptr construct(const std::vector<base::DataSourceBase::shared_ptr>& args) const;
 
         /**
          * Automatic conversion: convert a internal::DataSource to this type.
          * For example, for converting float -> double. If no valid conversion was found,
          * returns arg again, otherwise, a new data source.
          */
-        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
+        base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
 
         /**
          * Add a constructor/convertor object.
          */
-        virtual void addConstructor(TypeConstructor* tb);
-
-        /**
-         * build an alias with b as the value.  If b is of the wrong type,
-         * 0 will be returned..
-         */
-        virtual base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr b ) const = 0;
-
-        /**
-         * Build a Property of this type.
-         */
-        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const = 0;
-
-        /**
-         * Build an Attribute of this type.
-         */
-        virtual base::AttributeBase* buildAttribute(std::string name, base::DataSourceBase::shared_ptr source = 0 ) const = 0;
-
-        /**
-         * Build a internal::ValueDataSource of this type.
-         */
-        virtual base::DataSourceBase::shared_ptr buildValue() const = 0;
-
-        /** Build a internal::ReferenceDataSource of this type, pointing to the given
-         * pointer
-         */
-        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
-
-        /**
-         * Returns a DataSource that first executes an action and returns the result of another data source.
-         * If \a source is an AssignableDataSource, an AssignableDataSource is returned of the same type, otherwise,
-         * a plain DataSource is returned.
-         */
-        virtual base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr source) const = 0;
-        /** @} */
-
-        /**
-         * @name Conversion to/from text
-         * Used to convert data to human readable text and vice versa.
-         * @{
-         */
-        /**
-         * Output this datasource as a human readable string.
-         * The default just writes the type name in parentheses to \a os.
-         */
-        virtual std::ostream& write(std::ostream& os, base::DataSourceBase::shared_ptr in ) const = 0;
-
-        /**
-         * Read a new value for this datasource from a human readable string.
-         * The default does nothing.
-         */
-        virtual std::istream& read(std::istream& os, base::DataSourceBase::shared_ptr out ) const = 0;
-
-        /**
-         * Usability function which converts data to a string.
-         */
-        virtual std::string toString( base::DataSourceBase::shared_ptr in ) const;
-
-        /**
-         * Usability function which converts a string to data.
-         */
-        virtual bool fromString( const std::string& value, base::DataSourceBase::shared_ptr out ) const;
-
-        /**
-         * Returns true if this type is directly streamable
-         * using read()/write() or toString()/fromString().
-         */
-        virtual bool isStreamable() const = 0;
-        /** @} */
-
-        /**
-         * @name Inspecting data structures.
-         * Used to write a complex type to an external representation, like XML.
-         * @{
-         */
-
-        /**
-         * Returns the list of struct member names of this type.
-         * In case this type is not a struct, returns an empty list.
-         */
-        virtual std::vector<std::string> getMemberNames() const;
-
-        /**
-         * Returns a member of a given data source struct identified by its name.
-         * @param item The item of which to return a reference to a member
-         * @param name The name of a member within \a item. Is a name of a member in case of a struct
-         * or an index number in case of a sequence.
-         * @return null if no such member exists, an assignable datasource referencing that member otherwise.
-         */
-        virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const;
-
-        /**
-         * Returns a member of a given data source struct identified by a data source id.
-         * @param item The item of which to return a member
-         * @param id   Or a string data source containing the name of a member if item is a struct,
-         * Or an unsigned int data source containing the index of an element if item is a sequence
-         */
-        virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
-                                                           base::DataSourceBase::shared_ptr id) const;
-
-        /**
-         * Compose a type (target) from a DataSourceBase (source) containing its members.
-         * The default behavior tries to assign \a source to \a target. If that fails,
-         * it tries to decompose \a target into its members and update the members of \a target with the contents of source.
-         *
-         * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
-         * multiple versions/possibilities to make a \a target from a \a source. For example, in
-         * order to support legacy formats or in order to do the inverse of decomposeType().
-         *
-         * @param source A data source of the same type as \a target OR a PropertyBag that contains the parts of \a target
-         * to be refreshed.
-         * @param target A data source of the same type as this TypeInfo object which contains the data to be updated from \a source.
-         * @return true if source could be updated, false otherwise.
-         *
-         * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
-         * datasources and hierarchical properties.
-         * @see decomposeType to do the inverse operation.
-         */
-        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const = 0;
-
-        /**
-         * Specialize this function to return an alternate type which represents this one in a compatible way.
-         * For example, a short converts to an long or an enum to an int or a string.
-         * If your return a datasource containing a property bag, then this function should do the inverse of
-         * composeType: the returned property bag contains all parts of the current type (\a source) which can be modified and merged back
-         * into this type with composeType. Mathematically: composeType( decomposeType( A ), B); assert( A == B );
-         * @return null in order to indicate that decomposition through getMember() may be tried. You may return \a source itself in order
-         * to prevent any further decomposition of your type (using getMember(), which is used as fall-back by the rest
-         * of the software. For example, to avoid that a string is decomposed
-         * into a sequence of chars, or to avoid that a primitive type like 'int' is further queried.
-         */
-        virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const;
-
-        /**
-         * Specialize this function to return an alternate type which represents this one in a compatible way.
-         * For example, a short converts to an long or an enum to an int or a string.
-         * @return null if this type is not convertible to anything else.
-         * @deprecated by decomposeType. We want to rename convertType to decomposeType. This function is left
-         * here for transitional purposes.
-         */
-        virtual base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const;
-
-        /**
-         * @}
-         */
+        void addConstructor(TypeConstructor* tb);
 
         /**
          * @name Distribution of objects
@@ -293,21 +152,261 @@ namespace RTT
          */
         std::vector<int> getTransportNames() const;
 
-        typedef const std::type_info * TypeId;
-        virtual TypeId getTypeId() const = 0;
-        virtual const char * getTypeIdName() const = 0;
+#ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
+        /**
+         * @name Type building/factory functions
+         * Used to create objects that hold data of a certain type.
+         * @{
+         */
+        /**
+         * Build a non modifyable instance of this type.
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr source, int sizehint) const
+        {
+            return mdsf ? mdsf->buildConstant(name, source, sizehint) : 0;
+        }
+
+        base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr source) const
+        {
+            return mdsf ? mdsf->buildConstant(name, source) : 0;
+        }
+        /**
+         * Build a modifyable instance of this type.
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        base::AttributeBase* buildVariable(std::string name,int sizehint) const;
+        base::AttributeBase* buildVariable(std::string name) const
+        {
+            return mdsf ? mdsf->buildVariable(name) : 0;
+        }
+
+        /**
+         * Tries to resize a data source in case it's a resizable sequence.
+         * @return true if the resizing could be done, false otherwise.
+         */
+        bool resize(base::DataSourceBase::shared_ptr arg, int size) const
+        {
+            return mmembf ? mmembf->resize(arg, size) : false;
+        }
+
+        /**
+         * build an alias with b as the value.  If b is of the wrong type,
+         * 0 will be returned..
+         */
+        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr b ) const
+        {
+            return mdsf ? mdsf->buildAlias(name, b) : 0;
+        }
+
+        /**
+         * Build a Property of this type.
+         */
+        base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const
+        {
+            return mdsf ? mdsf->buildProperty(name, desc, source) : 0;
+        }
+
+        /**
+         * Build an Attribute of this type.
+         */
+        base::AttributeBase* buildAttribute(std::string name, base::DataSourceBase::shared_ptr source = 0 ) const
+        {
+            return mdsf ? mdsf->buildAttribute(name, source) : 0;
+        }
+
+        /**
+         * Build a internal::ValueDataSource of this type.
+         */
+        base::DataSourceBase::shared_ptr buildValue() const
+        {
+            return mdsf ? mdsf->buildValue() : base::DataSourceBase::shared_ptr();
+        }
+
+        /** Build a internal::ReferenceDataSource of this type, pointing to the given
+         * pointer
+         */
+        base::DataSourceBase::shared_ptr buildReference(void* ptr) const
+        {
+            return mdsf ? mdsf->buildReference(ptr) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * Returns a DataSource that first executes an action and returns the result of another data source.
+         * If \a source is an AssignableDataSource, an AssignableDataSource is returned of the same type, otherwise,
+         * a plain DataSource is returned.
+         */
+        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr source) const
+        {
+            return mdsf ? mdsf->buildActionAlias(action,source) : base::DataSourceBase::shared_ptr();
+        }
+
+        /** @} */
+
+#ifndef NO_TYPE_INFO_STREAMS
+        /**
+         * @name Conversion to/from text
+         * Used to convert data to human readable text and vice versa.
+         * @{
+         */
+        /**
+         * Output this datasource as a human readable string.
+         * The default just writes the type name in parentheses to \a os.
+         */
+        std::ostream& write(std::ostream& os, base::DataSourceBase::shared_ptr in ) const
+        {
+            return mstrf ? mstrf->write(os, in) : os;
+        }
+
+        /**
+         * Read a new value for this datasource from a human readable string.
+         * The default does nothing.
+         */
+        std::istream& read(std::istream& os, base::DataSourceBase::shared_ptr out ) const
+        {
+            return mstrf ? mstrf->read(os, out) : os;
+        }
+
+
+        /**
+         * Usability function which converts data to a string.
+         */
+        std::string toString( base::DataSourceBase::shared_ptr in ) const
+        {
+            return mstrf ? mstrf->toString(in) : std::string();
+        }
+
+        /**
+         * Usability function which converts a string to data.
+         */
+        bool fromString( const std::string& value, base::DataSourceBase::shared_ptr out ) const
+        {
+            return mstrf ? mstrf->fromString(value, out) : false;
+        }
+
+        /**
+         * Returns true if this type is directly streamable
+         * using read()/write() or toString()/fromString().
+         */
+        bool isStreamable() const
+        {
+            return mstrf ? mstrf->isStreamable() : false;
+        }
+        /** @} */
+#endif
+        /**
+         * @name Inspecting data structures.
+         * Used to write a complex type to an external representation, like XML.
+         * @{
+         */
+
+        /**
+         * Returns the list of struct member names of this type.
+         * In case this type is not a struct, returns an empty list.
+         */
+        std::vector<std::string> getMemberNames() const
+        {
+            return mmembf ? mmembf->getMemberNames() : std::vector<std::string>();
+        }
+
+        /**
+         * Returns a member of a given data source struct identified by its name.
+         * @param item The item of which to return a reference to a member
+         * @param name The name of a member within \a item. Is a name of a member in case of a struct
+         * or an index number in case of a sequence.
+         * @return null if no such member exists, an assignable datasource referencing that member otherwise.
+         */
+        base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const
+        {
+            return mmembf ? mmembf->getMember(item,name) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * Returns a member of a given data source struct identified by a data source id.
+         * @param item The item of which to return a member
+         * @param id   Or a string data source containing the name of a member if item is a struct,
+         * Or an unsigned int data source containing the index of an element if item is a sequence
+         */
+        base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
+                                                   base::DataSourceBase::shared_ptr id) const
+        {
+            return mmembf ? mmembf->getMember(item,id) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * Compose a type (target) from a DataSourceBase (source) containing its members.
+         * The default behavior tries to assign \a source to \a target. If that fails,
+         * it tries to decompose \a target into its members and update the members of \a target with the contents of source.
+         *
+         * The default implementation in TemplateTypeInfo works for most types, but can be overridden in case there are
+         * multiple versions/possibilities to make a \a target from a \a source. For example, in
+         * order to support legacy formats or in order to do the inverse of decomposeType().
+         *
+         * @param source A data source of the same type as \a target OR a PropertyBag that contains the parts of \a target
+         * to be refreshed.
+         * @param target A data source of the same type as this TypeInfo object which contains the data to be updated from \a source.
+         * @return true if source could be updated, false otherwise.
+         *
+         * @see types::propertyDecomposition and types::typeDecomposition for the inverse function, decomposing a type into
+         * datasources and hierarchical properties.
+         * @see decomposeType to do the inverse operation.
+         */
+        bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr target) const
+        {
+            return mcompf ? mcompf->composeType(source,target) : false;
+        }
+
+        /**
+         * Specialize this function to return an alternate type which represents this one in a compatible way.
+         * For example, a short converts to an long or an enum to an int or a string.
+         * If your return a datasource containing a property bag, then this function should do the inverse of
+         * composeType: the returned property bag contains all parts of the current type (\a source) which can be modified and merged back
+         * into this type with composeType. Mathematically: composeType( decomposeType( A ), B); assert( A == B );
+         * @return null in order to indicate that decomposition through getMember() may be tried. You may return \a source itself in order
+         * to prevent any further decomposition of your type (using getMember(), which is used as fall-back by the rest
+         * of the software. For example, to avoid that a string is decomposed
+         * into a sequence of chars, or to avoid that a primitive type like 'int' is further queried.
+         */
+        base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
+        {
+            return mcompf ? mcompf->decomposeType(source) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * Specialize this function to return an alternate type which represents this one in a compatible way.
+         * For example, a short converts to an long or an enum to an int or a string.
+         * @return null if this type is not convertible to anything else.
+         * @deprecated by decomposeType. We want to rename convertType to decomposeType. This function is left
+         * here for transitional purposes.
+         */
+        base::DataSourceBase::shared_ptr convertType(base::DataSourceBase::shared_ptr source) const
+        {
+            return mcompf ? mcompf->convertType(source) : base::DataSourceBase::shared_ptr();
+        }
+
+        /**
+         * @}
+         */
 
         /**
          * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual base::InputPortInterface* inputPort(std::string const& name) const = 0;
+        base::InputPortInterface* inputPort(std::string const& name) const
+        {
+            return mconnf ? mconnf->inputPort(name) : 0; 
+        }
 
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
+        base::OutputPortInterface* outputPort(std::string const& name) const
+        {
+            return mconnf ? mconnf->outputPort(name) : 0; 
+        }
 
         /**
          * Creates single data or buffered storage for this type.
@@ -315,19 +414,62 @@ namespace RTT
          * @param policy Describes the kind of storage requested by the user
          * @return a storage element.
          */
-        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
-        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
-        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
+        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const
+        {
+            return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
+        }
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
+        {
+            return mconnf ? mconnf->buildChannelOutput(port) : base::ChannelElementBase::shared_ptr();
+        }
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
+        {
+            return mconnf ? mconnf->buildChannelInput(port) : base::ChannelElementBase::shared_ptr();
+        }
 
-    protected:
+#endif // NO_TYPE_INFO_FACTORY_FUNCTIONS
+
+        void setTypeId(TypeId tid) {
+            mtid = tid;
+            mtid_name = tid->name();
+        }
+
         /**
-         * Migrates all protocols present in \a orig to this
-         * type info object. It is meant as a helper when a type
-         * info object is replaced by a new instance.
-         * @pre This type has no transports registered yet, ie,
-         * it is newly constructed.
+         * Installs a new port factory such that in-process data
+         * can be communicated between components.
          */
-        void migrateProtocols(TypeInfo* orig);
+        void setPortFactory( ConnFactoryPtr cf ) { if (cf) mconnf = cf; }
+
+        ConnFactoryPtr getPortFactory() const { return mconnf; }
+
+        void setMemberFactory( MemberFactoryPtr mf ) { if (mf) mmembf = mf; }
+
+        MemberFactoryPtr getMemberFactory() const { return mmembf; }
+
+        void setValueFactory( ValueFactoryPtr dsf) { if (dsf) mdsf = dsf; }
+
+        ValueFactoryPtr getValueFactory() const { return mdsf; }
+
+        void setCompositionFactory( CompositionFactoryPtr cf) { if(cf) mcompf = cf; }
+
+        CompositionFactoryPtr getCompositionFactory() const { return mcompf; }
+
+        void setStreamFactory( StreamFactoryPtr sf ) { if (sf) mstrf = sf; }
+
+        StreamFactoryPtr getStreamFactory() const { return mstrf; }
+    protected:
+        typedef std::vector<TypeConstructor*> Constructors;
+        typedef std::vector<TypeTransporter*> Transporters;
+        Constructors constructors;
+        Transporters transporters;
+        std::vector<std::string> mtypenames;
+        const char* mtid_name;
+        TypeId mtid;
+        boost::shared_ptr<ConnFactory> mconnf;
+        boost::shared_ptr<MemberFactory> mmembf;
+        boost::shared_ptr<ValueFactory> mdsf;
+        boost::shared_ptr<CompositionFactory> mcompf;
+        boost::shared_ptr<StreamFactory> mstrf;
     };
 
 }}

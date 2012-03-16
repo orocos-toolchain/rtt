@@ -120,33 +120,44 @@ namespace RTT
 
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
-        std::string tname = t->getTypeName();
-        // keep track of this type:
-        if ( !t->installTypeInfoObject() ) {
-            // log reason why in installTypeInfoObject().
-            delete t;
+        if (!t)
+            return false;
+        if (data.count(t->getTypeName() ) ) {
+            log(Error) << "Can't register a new TypeInfo object for '"<<t->getTypeName() << "': one already exists."<<endlog();
             return false;
         }
-        // keep track of this type:
-        data[ tname ] = t;
 
-        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
-        for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
-            if ( (*it)->registerTransport( tname, t) )
-                log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
+        data[t->getTypeName()] = t;
         return true;
     }
 
-    bool TypeInfoRepository::aliasType(const string& alias, TypeInfo* source)
+    bool TypeInfoRepository::addType(TypeInfoGenerator* t)
     {
-        if (source) {
-            if (data.count(alias) && data[alias] != source)
-                delete data[alias];
-            data[alias] = source;
-        } else {
-            log(Error) << "Could not alias type name "<< alias <<" with (null) type info object."<<endlog();
+        if (!t)
+            return false;
+        std::string tname = t->getTypeName();
+        TypeInfo* ti = t->getTypeInfoObject();
+
+        if (ti && data.count(tname) && data[tname] != ti ) {
+            log(Error) << "Refusing to add type information for '" << tname << "': the name is already in use by another type."<<endlog();
             return false;
         }
+        // Check for first registration, or alias:
+        if ( ti == 0 )
+            ti = new TypeInfo(tname);
+        else
+            ti->addAlias(tname);
+
+        if ( t->installTypeInfoObject( ti ) ) {
+            delete t;
+        }
+        // keep track of this type:
+        data[ tname ] = ti;
+
+        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
+        for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
+            if ( (*it)->registerTransport( tname, ti) )
+                log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
         return true;
     }
 

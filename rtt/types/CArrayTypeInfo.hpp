@@ -60,13 +60,28 @@ namespace RTT
          * @param T A carray<U> wrapper, where U is a C data type.
          */
         template<typename T, bool has_ostream = false>
-        class CArrayTypeInfo: public PrimitiveTypeInfo<T, has_ostream>
+        class CArrayTypeInfo: 
+            public PrimitiveTypeInfo<T, has_ostream>, 
+            public MemberFactory, public CompositionFactory
         {
         public:
             CArrayTypeInfo(std::string name) :
                 PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
+
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< CArrayTypeInfo<T> > mthis = boost::dynamic_pointer_cast<CArrayTypeInfo<T> >( this->getSharedPtr() );
+            // Allow base to install first
+            PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+            ti->setCompositionFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
 
             virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const
             {

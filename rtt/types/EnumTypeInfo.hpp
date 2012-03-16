@@ -72,13 +72,21 @@ namespace RTT
             EnumTypeInfo(std::string type) :
                 TemplateTypeInfo<T, false> (type)
             {
+            }
+
+            bool installTypeInfoObject(TypeInfo* ti) {
                 if (!Types()->type("int")) {
                     log(Error) << "Failed to register enum <-> int conversion because type int is not known in type system."<<endlog();
+                    return false;
                 } else {
+                    TemplateTypeInfo<T,false>::installTypeInfoObject(ti);
                     Types()->type("int")->addConstructor(newConstructor(
                             &EnumTypeInfo<T>::enum_to_int, true));
                 }
-                this->addConstructor( newConstructor( &EnumTypeInfo<T>::int_to_enum, true) );
+                ti->addConstructor( newConstructor( &EnumTypeInfo<T>::int_to_enum, true) );
+
+                // Don't delete us, we're memory-managed.
+                return false;
             }
 
             /**

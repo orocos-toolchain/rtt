@@ -46,24 +46,11 @@
 #include "../Logger.hpp"
 #include "../base/AttributeBase.hpp"
 
-#ifdef OS_HAVE_STREAMS
-#include <sstream>
-#endif
-
 namespace RTT
 {
     using namespace std;
     using namespace detail;
     using namespace internal;
-
-    AttributeBase* TypeInfo::buildVariable(std::string name, int ) const {
-        return this->buildVariable(name);
-    }
-
-    AttributeBase* TypeInfo::buildConstant(std::string name,DataSourceBase::shared_ptr dsb, int ) const {
-        return this->buildConstant(name, dsb );
-    }
-
 
     TypeInfo::~TypeInfo()
     {
@@ -74,6 +61,22 @@ namespace RTT
         // cleanup constructors
         for (Constructors::iterator i= constructors.begin(); i != constructors.end(); ++i)
             delete (*i);
+    }
+
+    std::vector<std::string> TypeInfo::getTypeNames() const
+    {
+        return mtypenames;
+    }
+
+    void TypeInfo::addAlias(const std::string& alias) {
+        // only alias new names:
+        if (find(mtypenames.begin(), mtypenames.end(), alias) == mtypenames.end() )
+            mtypenames.push_back(alias);
+    }
+
+    base::AttributeBase* TypeInfo::buildVariable(std::string name, int hint) const
+    {
+        return mdsf ? mdsf->buildVariable(name, hint) : 0;
     }
 
     DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const
@@ -125,38 +128,6 @@ namespace RTT
         return arg;
     }
 
-    base::DataSourceBase::shared_ptr TypeInfo::decomposeType(base::DataSourceBase::shared_ptr source) const
-    {
-        // return deprecated api in case user did not implement this.
-        return convertType(source);
-    }
-
-    base::DataSourceBase::shared_ptr TypeInfo::convertType(base::DataSourceBase::shared_ptr source) const
-    {
-        return base::DataSourceBase::shared_ptr();
-    }
-
-    bool TypeInfo::resize(base::DataSourceBase::shared_ptr arg, int size) const {
-        return false;
-    }
-
-    string TypeInfo::toString( DataSourceBase::shared_ptr in ) const
-    {
-#ifdef OS_HAVE_STREAMS
-        stringstream result;
-        this->write( result, in );
-        return result.str();
-#else
-        return string("(") + in->getTypeInfo()->getTypeName() + ")";
-#endif
-    }
-
-    bool TypeInfo::fromString( const std::string& value, DataSourceBase::shared_ptr out ) const
-    {
-        stringstream result(value);
-        return this->read( result, out ).good();
-    }
-
     bool TypeInfo::addProtocol(int protocol_id, TypeTransporter* tt)
     {
         if (transporters.size() < static_cast<size_t>(protocol_id + 1))
@@ -187,13 +158,6 @@ namespace RTT
         return transporters[protocol_id];
     }
 
-    void TypeInfo::migrateProtocols(TypeInfo* orig)
-    {
-        assert( transporters.empty() );
-        transporters.insert(transporters.begin(), orig->transporters.begin(), orig->transporters.end());
-        orig->transporters.clear(); // prevents deletion.
-    }
-
     bool TypeInfo::hasProtocol(int protocol_id) const
     {
         // if the protocol is unknown to this type, return the protocol of the 'unknown type'
@@ -222,49 +186,4 @@ namespace RTT
         return ret;
     }
 
-    vector<string> TypeInfo::getMemberNames() const
-    {
-        return vector<string>();
-    }
-
-    DataSourceBase::shared_ptr TypeInfo::getMember(DataSourceBase::shared_ptr item, const std::string& part_name) const
-    {
-        /** ** Strong typed data **
-         *
-         * for( set i = 0; i <=10; set i = i + 1) {
-         *      value[i] = i; // sequence index, runtime structure
-         *      value.i  = i; // part name, browse static structure
-         * }
-         * set frame.pos = vector(a,b,c);     // getMember("pos")
-         * set frame.pos[3] = vector(a,b,c);  // getMember("pos")->getMember(3)
-         * set frame[3].pos = vector(a,b,c);  // getMember(3)->getMember("pos")
-         * set frame[i].pos = vector(a,b,c);  // getMember( $i )->getMember("pos")
-         * set frame["tool"].pos = vector(a,b,c); // getMember("tool") xx
-         * set frame[arg].pos = vector(a,b,c);// getMember( arg )->getMember("pos")
-         */
-        log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
-        if ( part_name.empty() )
-            return item;
-        else
-            return DataSourceBase::shared_ptr();
-    }
-
-    DataSourceBase::shared_ptr TypeInfo::getMember(DataSourceBase::shared_ptr item, DataSourceBase::shared_ptr id) const
-    {
-        /** ** Strong typed data **
-         *
-         * for( set i = 0; i <=10; set i = i + 1) {
-         *      value[i] = i; // sequence index, runtime structure
-         *      value.i  = i; // part name, browse static structure
-         * }
-         * set frame.pos = vector(a,b,c);     // getMember("pos")
-         * set frame.pos[3] = vector(a,b,c);  // getMember("pos")->getMember(3)
-         * set frame[3].pos = vector(a,b,c);  // getMember(3)->getMember("pos")
-         * set frame[i].pos = vector(a,b,c);  // getMember( $i )->getMember("pos")
-         * set frame["tool"].pos = vector(a,b,c); // getMember("tool") xx
-         * set frame[arg].pos = vector(a,b,c);// getMember( arg )->getMember("pos")
-         */
-        log(Debug) <<"No parts registered for "<< getTypeName() <<endlog();
-        return DataSourceBase::shared_ptr();
-    }
 }

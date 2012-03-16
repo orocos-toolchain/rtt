@@ -6,7 +6,9 @@
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
 #include "TypeStreamSelector.hpp"
-
+#include "TypeInfoGenerator.hpp"
+#include "StreamFactory.hpp"
+#include "TemplateValueFactory.hpp"
 #include "../rtt-config.h"
 
 namespace RTT
@@ -27,15 +29,15 @@ namespace RTT
      * @see StructTypeInfo, SequenceTypeInfo, CArrayTypeInfo, BoostArrayTypeInfo
      */
     template<typename T, bool use_ostream = false>
-    class PrimitiveTypeInfo
-        : public TypeInfo
+    class PrimitiveTypeInfo :
+            public TypeInfoGenerator,
+            public TemplateValueFactory<T>,
+            public StreamFactory
     {
     protected:
         const std::string tname;
+        boost::shared_ptr<PrimitiveTypeInfo<T, use_ostream> > mshared;
     public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
-
         /**
          * The given \a T parameter is the type of the DataSources.
          */
@@ -55,110 +57,35 @@ namespace RTT
 
         virtual ~PrimitiveTypeInfo()
         {
-            if ( internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject == this)
-                internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = 0;
         }
 
-        bool installTypeInfoObject() {
-            // Install the type info object for T.
-            TypeInfo* orig = internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
-            if ( orig != 0) {
-                std::string oname = orig->getTypeName();
-                if ( oname != tname ) {
-                    log(Info) << "TypeInfo for type '" << tname << "' already exists as '"
-                              << oname
-                              << "': I'll alias the original and install the new instance." << endlog();
-                    this->migrateProtocols( orig );
-                    Types()->aliasType( oname, this); // deletes orig !
-                }
-            } else {
-                // check for type name conflict (ie "string" for "std::string" and "Foo::Bar"
-                if ( Types()->type(tname) ) {
-                    log(Error) << "You attemted to register type name "<< tname << " which is already "
-                               << "in use for a different C++ type." <<endlog();
-                    return false;
-                }
-            }
-            // finally install it:
-            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
-            return true;
+        boost::shared_ptr<PrimitiveTypeInfo<T, use_ostream> > getSharedPtr() {
+            if (!mshared)
+                mshared.reset(this);
+            return mshared;
         }
 
-        base::AttributeBase* buildConstant(std::string name, base::DataSourceBase::shared_ptr dsb) const
-        {
-            typename internal::DataSource<DataType>::shared_ptr res =
-                boost::dynamic_pointer_cast< internal::DataSource<DataType> >( internal::DataSourceTypeInfo<DataType>::getTypeInfo()->convert(dsb));
-            if ( res ) {
-                res->get();
-                Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
-                return new Constant<DataType>( name, res->rvalue() );
-            }
-            else
-                return 0;
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // Install the factories for primitive types
+            ti->setValueFactory( this->getSharedPtr() );
+            if (use_ostream)
+                ti->setStreamFactory( this->getSharedPtr() );
+
+            // Install the type info object for T
+            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = ti;
+            ti->setTypeId( &typeid(T) );
+
+            // Clean up reference to ourselves.
+            mshared.reset();
+            // Don't delete us, we're memory-managed.
+            return false;
         }
 
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            // A variable starts its life as unbounded.
-            Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
-            return new Attribute<T>( name, new internal::UnboundDataSource<internal::ValueDataSource<T> >() );
-        }
-
-        base::AttributeBase* buildAttribute( std::string name, base::DataSourceBase::shared_ptr in) const
-        {
-            typename internal::AssignableDataSource<DataType>::shared_ptr ds;
-            if ( !in )
-                ds = new internal::ValueDataSource<DataType>();
-            else
-                ds = internal::AssignableDataSource<DataType>::narrow( in.get() );
-            if (!ds)
-                return 0;
-            // An attribute is always bounded.
-            Logger::log() << Logger::Debug << "Building Attribute '"<< name <<"' of type " << tname <<Logger::endl;
-            return new Attribute<DataType>( name, ds.get() );
-        }
-
-        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
-        {
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( internal::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
-            if ( ! ds )
-                return 0;
-            return new Alias( name, ds );
-        }
-
-        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* action, base::DataSourceBase::shared_ptr in) const
-        {
-            typename internal::AssignableDataSource<T>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( in ); // no type conversion is done.
-            if ( ads )
-                return new internal::ActionAliasAssignableDataSource<T>(action, ads.get());
-
-            typename internal::DataSource<T>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<T> >( in ); // no type conversion is done.
-            if ( ! ds )
-                return 0;
-            return new internal::ActionAliasDataSource<T>(action, ds.get());
+        TypeInfo* getTypeInfoObject() const {
+            return TypeInfoRepository::Instance()->getTypeInfo<T>();
         }
 
         virtual const std::string& getTypeName() const { return tname; }
-
-        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
-            if (source) {
-               typename internal::AssignableDataSource<DataType>::shared_ptr ad
-                    = boost::dynamic_pointer_cast< internal::AssignableDataSource<DataType> >( source );
-                if (ad)
-                    return new Property<DataType>(name, desc, ad );
-                else {
-                    log(Error) <<"Failed to build 'Property<"<< this->tname <<"> "<<name<<"' from given DataSourceBase. Returning default."<<endlog();
-                }
-            }
-            return new Property<DataType>(name, desc, DataType());
-        }
-
-        virtual base::DataSourceBase::shared_ptr buildValue() const {
-            return new internal::ValueDataSource<DataType>();
-        }
-        virtual base::DataSourceBase::shared_ptr buildReference(void* ptr) const {
-            return new internal::ReferenceDataSource<DataType>(*static_cast<DataType*>(ptr));
-        }
 
         virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
             typename internal::DataSource<T>::shared_ptr d = boost::dynamic_pointer_cast< internal::DataSource<T> >( in );
@@ -201,26 +128,6 @@ namespace RTT
 
         virtual bool decomposeType( base::DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             return false;
-        }
-
-        TypeInfo::TypeId getTypeId() const { return &typeid(T); }
-        const char * getTypeIdName() const { return typeid(T).name(); }
-
-        base::InputPortInterface*  inputPort(std::string const& name) const { return 0; }
-        base::OutputPortInterface* outputPort(std::string const& name) const { return 0; }
-
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
-            return base::ChannelElementBase::shared_ptr();
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return base::ChannelElementBase::shared_ptr();
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return base::ChannelElementBase::shared_ptr();
         }
     };
 }}

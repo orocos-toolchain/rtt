@@ -40,6 +40,7 @@
 #define ORO_MATRIX_TYPE_INFO_HPP
 
 #include "types/TemplateTypeInfo.hpp"
+#include "types/MemberFactory.hpp"
 #include "types/type_discovery.hpp"
 #include "internal/DataSourceGenerator.hpp"
 #include <boost/lexical_cast.hpp>
@@ -96,12 +97,24 @@ namespace RTT
          * The matrix is always square !
          */
         template<typename T, bool has_ostream = false>
-        class MatrixTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class MatrixTypeInfo: public TemplateTypeInfo<T, has_ostream>, public MemberFactory
         {
         public:
             MatrixTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
+            }
+
+            bool installTypeInfoObject(TypeInfo* ti) {
+                // aquire a shared reference to the this object
+                boost::shared_ptr< StructTypeInfo<T> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T> >( this->getSharedPtr() );
+                // Allow base to install first
+                TemplateTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+                // Install the factories for primitive types
+                ti->setMemberFactory( mthis );
+                
+                // Don't delete us, we're memory-managed.
+                return false;
             }
 
             base::AttributeBase* buildVariable(std::string name,int size) const
