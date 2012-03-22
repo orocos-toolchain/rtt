@@ -149,7 +149,7 @@ namespace RTT
             typedef types::carray<T> value_type;
             typedef DataSourceTypeInfo<value_type> value_type_info;
             static std::string getType()  { return getTypeName() + "[N]"; }
-            static const std::string& getTypeName()  { return getTypeInfo()->getTypeName(); }
+            static const std::string& getTypeName()  { return DataSourceTypeInfo< T >::getTypeInfo()->getTypeName(); }
             static const std::string& getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
             static const types::TypeInfo* getTypeInfo();
             static types::TypeInfo* TypeInfoObject;
