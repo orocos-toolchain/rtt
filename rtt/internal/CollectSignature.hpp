@@ -280,14 +280,14 @@ namespace RTT
             /**
              * Collect this operator if the method has four arguments.
              */
-            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg4_type t5)
+            SendStatus collect(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5);
                 return SendFailure;
             }
 
-            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg4_type t5)
+            SendStatus collectIfDone(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4, arg5_type t5)
             {
                 if (cimpl)
                     return cimpl->collect(t1, t2, t3, t4, t5);
