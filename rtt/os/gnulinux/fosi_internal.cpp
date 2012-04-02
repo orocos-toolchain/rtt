@@ -43,6 +43,7 @@
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <cap-ng.h>
 #include <iostream>
 #include <cstdlib>
 using namespace std;
@@ -245,11 +246,18 @@ namespace RTT
 
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
     {
-        if (*scheduler != SCHED_OTHER && geteuid() != 0 ) {
+        if(capng_get_caps_process()) {
+            log(Error) << "Failed to retrieve capabilities (lowering to SCHED_OTHER)." <<endlog();
+            *scheduler = SCHED_OTHER;
+            return -1;
+        }
+
+        if (*scheduler != SCHED_OTHER && geteuid() != 0 &&
+            capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)==0) {
             // they're not root and they want a real-time priority, which _might_
             // be acceptable if they're using pam_limits and have set the rtprio ulimit
             // (see "/etc/security/limits.conf" and "ulimit -a")
-            struct rlimit	r;
+            struct rlimit r;
             if ((0 != getrlimit(RLIMIT_RTPRIO, &r)) || (0 == r.rlim_cur))
             {
                 log(Warning) << "Lowering scheduler type to SCHED_OTHER for non-privileged users.." <<endlog();
@@ -257,6 +265,7 @@ namespace RTT
                 return -1;
             }
         }
+
         if (*scheduler != SCHED_OTHER && *scheduler != SCHED_FIFO && *scheduler != SCHED_RR ) {
             log(Error) << "Unknown scheduler type." <<endlog();
             *scheduler = SCHED_OTHER;
@@ -292,7 +301,7 @@ namespace RTT
                 ret = -1;
             }
             // and limit them according to pam_Limits (only if not root)
-            if ( geteuid() != 0 )
+            if ( geteuid() != 0 && !capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE))
             {
                 struct rlimit	r;
                 if (0 == getrlimit(RLIMIT_RTPRIO, &r))
