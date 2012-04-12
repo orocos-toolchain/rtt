@@ -125,11 +125,13 @@ namespace RTT
                               start_routine, obj);
         log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
 
-        log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
-        if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
-        {
-            log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
-        }
+	if ( cpu_affinity != ~0 ) {
+	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
+	    {
+	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
+	    }
+	}
 
         return rv;
 	}
