@@ -69,7 +69,7 @@ namespace RTT
 
         bool installTypeInfoObject(TypeInfo* ti) {
             // aquire a shared reference to the this object
-            boost::shared_ptr< StructTypeInfo<T> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T> >( this->getSharedPtr() );
+            boost::shared_ptr< StructTypeInfo<T,has_ostream> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T,has_ostream> >( this->getSharedPtr() );
             assert(mthis);
             // Allow base to install first
             TemplateTypeInfo<T,has_ostream>::installTypeInfoObject(ti);

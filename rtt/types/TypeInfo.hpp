@@ -94,6 +94,14 @@ namespace RTT
          * be returned in getTypeNames()
          */
         void addAlias(const std::string& alias);
+
+        /**
+         * Returns true if this type is known by the type system under
+         * the given name.
+         * @param type_name the name to query for
+         * @return true if this alias exists for this type.
+         */
+        bool isType(const std::string& name);
         
         /**
          * Returns the compiler generated type id pointer.

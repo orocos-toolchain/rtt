@@ -70,8 +70,12 @@ namespace RTT
 
     void TypeInfo::addAlias(const std::string& alias) {
         // only alias new names:
-        if (find(mtypenames.begin(), mtypenames.end(), alias) == mtypenames.end() )
+        if ( !alias.empty() && find(mtypenames.begin(), mtypenames.end(), alias) == mtypenames.end() )
             mtypenames.push_back(alias);
+    }
+
+    bool TypeInfo::isType(const std::string& name) {
+        return (find(mtypenames.begin(), mtypenames.end(), name) != mtypenames.end() );
     }
 
     base::AttributeBase* TypeInfo::buildVariable(std::string name, int hint) const

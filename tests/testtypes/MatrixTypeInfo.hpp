@@ -107,7 +107,7 @@ namespace RTT
 
             bool installTypeInfoObject(TypeInfo* ti) {
                 // aquire a shared reference to the this object
-                boost::shared_ptr< StructTypeInfo<T> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T> >( this->getSharedPtr() );
+                boost::shared_ptr< MatrixTypeInfo<T> > mthis = boost::dynamic_pointer_cast<MatrixTypeInfo<T> >( this->getSharedPtr() );
                 // Allow base to install first
                 TemplateTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
                 // Install the factories for primitive types
