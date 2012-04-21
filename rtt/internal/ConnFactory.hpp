@@ -128,16 +128,6 @@ namespace RTT
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
 
-        /** This method is analoguous to the static ConnFactory::buildChannelOutput.
-         * It is provided for remote connection building: for these connections,
-         * no template can be used and therefore the connection setup should be
-         * done based on the types::TypeInfo object
-         */
-        virtual base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
-                base::OutputPortInterface& output_port,
-                types::TypeInfo const* type_info,
-                base::InputPortInterface& input, const ConnPolicy& policy) = 0;
-
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
          * @todo: shouldn't this belong in the template type info ? This allows the type lib to

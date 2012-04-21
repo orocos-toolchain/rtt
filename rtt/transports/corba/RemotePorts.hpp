@@ -121,8 +121,7 @@ namespace RTT {
          * You can not access its datasource.
          */
         class RemoteInputPort
-            : public RemotePort<base::InputPortInterface>,
-              public internal::ConnFactory
+            : public RemotePort<base::InputPortInterface>
         {
             typedef std::map<base::ChannelElementBase*,RTT::corba::CChannelElement_var> ChannelMap;
             ChannelMap channel_map;
@@ -140,8 +139,6 @@ namespace RTT {
                     CDataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
-
-            internal::ConnFactory* getConnFactory();
 
             /**
              * This method will do more than just building the output half, it

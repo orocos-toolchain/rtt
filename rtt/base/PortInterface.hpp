@@ -113,12 +113,6 @@ namespace RTT
          */
         virtual bool disconnect(PortInterface* port) = 0;
 
-
-        /** The ChannelFactory object that allows to build the ChannelElement chain
-         * needed to build connections to or from this port
-         */
-        virtual internal::ConnFactory* getConnFactory();
-
         /** Returns true if this port is located on this process, and false
          * otherwise
          */
