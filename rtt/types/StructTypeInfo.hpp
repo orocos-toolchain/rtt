@@ -80,6 +80,34 @@ namespace RTT
             return false;
         }
 
+            virtual std::vector<std::string> getMemberNames() const {
+                // only discover the parts of this struct:
+                type_discovery in;
+                T t; // boost can't work without a value.
+                in.discover( t );
+                return in.mnames;
+            }
+
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
+                typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
+                if ( adata ) {
+                    type_discovery in( item );
+                    in.discover( adata->set() );
+                    //log(Debug) << "Returning part: " << name << endlog();
+                    return in.getMember(name);
+                }
+                typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
+                if ( data ) {
+                    adata = new internal::ValueDataSource<T>( data->get() );
+                    type_discovery in( adata );
+                    in.discover( adata->set() );
+                    //log(Debug) << "Returning copy of part: " << name << endlog();
+                    return in.getConstMember(name);
+                }
+                log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
+                return base::DataSourceBase::shared_ptr();
+            }
+
         virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const
             {
                 return false;
