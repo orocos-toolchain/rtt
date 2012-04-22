@@ -59,7 +59,9 @@ namespace RTT {
 	    : public CRemoteChannelElement_i
 	    , public base::ChannelElement<T>
 	{
-	    typename internal::ValueDataSource<T>::shared_ptr data_source;
+	    typename internal::ValueDataSource<T>::shared_ptr value_data_source;
+	    typename internal::LateReferenceDataSource<T>::shared_ptr ref_data_source;
+	    typename internal::LateConstReferenceDataSource<T>::shared_ptr const_ref_data_source;
 
 	    /**
 	     * Becomes false if we couldn't transfer data to remote
@@ -90,7 +92,10 @@ namespace RTT {
 	     */
 	    RemoteChannelElement(CorbaTypeTransporter const& transport, DataFlowInterface* sender, PortableServer::POA_ptr poa, bool is_pull)
 	    : CRemoteChannelElement_i(transport, poa),
-	      data_source(new internal::ValueDataSource<T>), valid(true), pull(is_pull),
+	      value_data_source(new internal::ValueDataSource<T>),
+	      ref_data_source(new internal::LateReferenceDataSource<T>),
+	      const_ref_data_source(new internal::LateConstReferenceDataSource<T>),
+              valid(true), pull(is_pull),
 	      msender(sender),
               write_any(new CORBA::Any)
             {
@@ -252,15 +257,8 @@ namespace RTT {
                 {
                     if ( remote_side && (cfs = remote_side->read(remote_value, copy_old_data) ) )
                     {
-                        RTT::internal::ReferenceDataSource<T> data_source(sample);
-
-                        // This is a workaround since updateFromAny requires a
-                        // shared_ptr, but we want to allocate the
-                        // ReferenceDataSource on the stack
-                        data_source.ref();
-                        RTT::base::DataSourceBase::shared_ptr ptr(&data_source);
-
-                        transport.updateFromAny(&remote_value.in(), ptr);
+                        ref_data_source->setPointer(&sample);
+                        transport.updateFromAny(&remote_value.in(), ref_data_source);
                         return (FlowStatus)cfs;
                     }
                     else
@@ -291,14 +289,14 @@ namespace RTT {
             {
 
                 FlowStatus fs;
-                if ( (fs = base::ChannelElement<T>::read(data_source->set(), copy_old_data)) )
+                if ( (fs = base::ChannelElement<T>::read(value_data_source->set(), copy_old_data)) )
                 {
-                    sample = transport.createAny(data_source);
+                    sample = transport.createAny(value_data_source);
                     if ( sample != 0) {
                         return (CFlowStatus)fs;
                     }
                     // this is a programmatic error and should never happen during run-time.
-                    log(Error) << "CORBA Transport failed to create Any for " << data_source->getTypeName() << " while it should have!" <<endlog();
+                    log(Error) << "CORBA Transport failed to create Any for " << value_data_source->getTypeName() << " while it should have!" <<endlog();
                 }
                 // we *must* return something in sample.
                 sample = new CORBA::Any();
@@ -307,7 +305,6 @@ namespace RTT {
 
             bool write(typename base::ChannelElement<T>::param_t sample)
             {
-                data_source->set(sample);
                 // try to write locally first
                 if (base::ChannelElement<T>::write(sample))
                     return true;
@@ -315,7 +312,11 @@ namespace RTT {
                 assert( remote_side.in() != 0 && "Got write() without remote side. Need buffer OR remote side but neither was present.");
                 try
                 {
-                    transport.updateAny(data_source, *write_any);
+                    // There is a trick. We allocate on the stack, but need to
+                    // provide shared pointers. Manually increment refence count
+                    // (the stack "owns" the object)
+                    const_ref_data_source->setPointer(&sample);
+                    transport.updateAny(const_ref_data_source, *write_any);
                     remote_side->write(*write_any); 
                     return true;
                 }
@@ -340,8 +341,8 @@ namespace RTT {
           	      CORBA::SystemException
           	    ))
             {
-                transport.updateFromAny(&sample, data_source);
-                return base::ChannelElement<T>::write(data_source->rvalue());
+                transport.updateFromAny(&sample, value_data_source);
+                return base::ChannelElement<T>::write(value_data_source->rvalue());
             }
 
             virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
