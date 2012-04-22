@@ -106,7 +106,7 @@ namespace RTT
             : internal(new Internal(ptr)) {}
 
         typename traits::const_reference operator *() const { return *(internal->value); }
-        T* operator ->() const { return internal->value; }
+        T const* operator ->() const { return internal->value; }
 
         /** True if this refers to a non-NULL pointer */
         bool valid() const
