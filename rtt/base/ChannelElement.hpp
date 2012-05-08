@@ -81,7 +81,7 @@ namespace RTT { namespace base {
          */
         virtual bool data_sample(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
+            shared_ptr output = getOutput();
             if (output)
                 return output->data_sample(sample);
             return false;
@@ -94,7 +94,7 @@ namespace RTT { namespace base {
          */
         virtual bool write(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(getOutput());
+            shared_ptr output = getOutput();
             if (output)
                 return output->write(sample);
             return false;
@@ -107,7 +107,7 @@ namespace RTT { namespace base {
          */
         virtual FlowStatus read(reference_t sample, bool copy_old_data)
         {
-            typename ChannelElement<T>::shared_ptr input = this->getInput();
+            shared_ptr input = this->getInput();
             if (input)
                 return input->read(sample, copy_old_data);
             else

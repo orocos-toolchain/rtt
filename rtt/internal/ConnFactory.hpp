@@ -235,7 +235,7 @@ namespace RTT
          * @see buildChannelInput
          */
         template<typename T>
-        static base::ChannelElementBase::shared_ptr buildChannelOutput(InputPort<T>& port, ConnID* conn_id)
+            static base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnID* conn_id)
         {
             assert(conn_id);
             base::ChannelElementBase::shared_ptr endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
@@ -252,7 +252,7 @@ namespace RTT
          * @param initial_value The value to use to initialize the connection's storage buffer.
          */
         template<typename T>
-        static base::ChannelElementBase::shared_ptr buildBufferedChannelOutput(InputPort<T>& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
+            static base::ChannelElementBase::shared_ptr buildBufferedChannelOutput(base::InputPortInterface& port, ConnID* conn_id, ConnPolicy const& policy, T const& initial_value = T() )
         {
             assert(conn_id);
             base::ChannelElementBase::shared_ptr endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
@@ -278,20 +278,13 @@ namespace RTT
                 return false;
             }
 
-            InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
-
             // This is the input channel element of the output half
             base::ChannelElementBase::shared_ptr output_half = 0;
             if (input_port.isLocal() && policy.transport == 0)
             {
                 // Local connection
-                if (!input_p)
-                {
-                    log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
-                    return false;
-                }
                 // local ports, create buffer here.
-                output_half = buildBufferedChannelOutput<T>(*input_p, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+                output_half = buildBufferedChannelOutput<T>(input_port, output_port.getPortID(), policy, output_port.getLastWrittenValue());
             }
             else
             {
@@ -306,7 +299,10 @@ namespace RTT
             }
 
             if (!output_half)
-                return false;
+                {
+                    log(Error) << "Port " << input_port.getName() << " is not compatible with " << output_port.getName() << endlog();
+                    return false;
+                }
 
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection

@@ -223,6 +223,13 @@ namespace RTT
             return object;
         }
 #endif
+
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+                                                                             types::TypeInfo const* type_info,
+                                                                             ConnID* id) const {
+            if (type_info == this->getTypeInfo() )
+                return internal::ConnFactory::buildChannelOutput(*this, id);
+            
     };
 }
 
