@@ -514,4 +514,7 @@ namespace RTT
     }
 }
 
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(RTT::mqueue::binary_data_oarchive)
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(RTT::mqueue::binary_data_iarchive)
+
 #endif /* BINARY_DATA_ARCHIVE_HPP_ */
