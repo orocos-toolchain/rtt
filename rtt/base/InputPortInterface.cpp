@@ -167,6 +167,5 @@ base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutpu
 
 base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
                 types::TypeInfo const* type_info) const {
-	// TODO
 	return base::ChannelElementBase::shared_ptr();
 }
