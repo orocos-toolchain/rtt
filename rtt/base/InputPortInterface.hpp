@@ -169,6 +169,17 @@ namespace RTT
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy);
 
+        /**
+         * Builds a channel output element, accepting input from the type described
+         * in \a type_info. In case this type is different than the port's type,
+         * the port tries to find a conversion for it to its own type in the type system.
+         * The returned element will already be attached to the port and be ready
+         * for a 'channelReady()' call.
+         * @param type_info The data type the returned channel element must accept.
+         * @return a ChannelElementBase of type type_info.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+                types::TypeInfo const* type_info) const = 0;
     };
 
 }}

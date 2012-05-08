@@ -221,6 +221,13 @@ namespace RTT
             object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;
         }
+
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+                                                                             types::TypeInfo const* type_info,
+                                                                             ConnID* id) const {
+            if (type_info == this->getTypeInfo() )
+                return internal::ConnFactory::buildChannelOutput(*this, id);
+            
     };
 }
 
