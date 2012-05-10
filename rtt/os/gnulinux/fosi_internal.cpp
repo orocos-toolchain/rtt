@@ -43,7 +43,9 @@
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
+#ifdef ORO_OS_LINUX_CAP_NG
 #include <cap-ng.h>
+#endif
 #include <iostream>
 #include <cstdlib>
 using namespace std;
@@ -246,14 +248,19 @@ namespace RTT
 
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
     {
+#ifdef ORO_OS_LINUX_CAP_NG
         if(capng_get_caps_process()) {
             log(Error) << "Failed to retrieve capabilities (lowering to SCHED_OTHER)." <<endlog();
             *scheduler = SCHED_OTHER;
             return -1;
         }
+#endif
 
-        if (*scheduler != SCHED_OTHER && geteuid() != 0 &&
-            capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)==0) {
+        if (*scheduler != SCHED_OTHER && geteuid() != 0
+#ifdef ORO_OS_LINUX_CAP_NG
+            && capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)==0
+#endif
+            ) {
             // they're not root and they want a real-time priority, which _might_
             // be acceptable if they're using pam_limits and have set the rtprio ulimit
             // (see "/etc/security/limits.conf" and "ulimit -a")
@@ -301,7 +308,11 @@ namespace RTT
                 ret = -1;
             }
             // and limit them according to pam_Limits (only if not root)
-            if ( geteuid() != 0 && !capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE))
+            if ( geteuid() != 0 
+#ifdef ORO_OS_LINUX_CAP_NG
+                 && !capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)
+#endif
+                 )
             {
                 struct rlimit	r;
                 if (0 == getrlimit(RLIMIT_RTPRIO, &r))

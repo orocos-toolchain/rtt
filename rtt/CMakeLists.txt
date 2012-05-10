@@ -197,8 +197,10 @@ ENDIF ( BUILD_STATIC )
   IF (UNIX AND NOT APPLE)
 	SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
 	  LINK_FLAGS "-Wl,-zdefs")
-	SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
-	  LINK_FLAGS "-lcap-ng")
+	if ( LINUX_CAP_NG_LIBRARY )
+	  target_link_libraries( orocos-rtt-${OROCOS_TARGET}_dynamic ${LINUX_CAP_NG_LIBRARY} )
+	  set( ORO_OS_LINUX_CAP_NG 1 )
+	endif()
   ENDIF ()
 
 
