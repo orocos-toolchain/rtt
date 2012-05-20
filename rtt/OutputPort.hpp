@@ -100,6 +100,8 @@ namespace RTT
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) {
             // Initialize the new channel with last written data if requested
             // (and available)
+            assert( static_cast< base::ChannelElement<T>* >(channel_input.get())
+                    == dynamic_cast< base::ChannelElement<T>* >(channel_input.get()));
 
             // This this the input channel element of the whole connection
             typename base::ChannelElement<T>::shared_ptr channel_el_input =
