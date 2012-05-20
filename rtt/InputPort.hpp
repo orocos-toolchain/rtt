@@ -69,6 +69,8 @@ namespace RTT
 
         bool do_read(typename base::ChannelElement<T>::reference_t sample, FlowStatus& result, bool copy_old_data, const internal::ConnectionManager::ChannelDescriptor& descriptor)
         {
+            assert( static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() )
+                    == dynamic_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() ) );
             typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( descriptor.get<1>().get() );
             assert( result != NewData );
             if ( input ) {
