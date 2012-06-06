@@ -111,9 +111,9 @@ namespace RTT { namespace extras {
         bool m_has_error;
         bool m_has_timeout;
 
-        static const int CMD_BREAK_LOOP  = 0;
-        static const int CMD_TRIGGER     = 1;
-        static const int CMD_UPDATE_SETS = 2;
+        static const char CMD_BREAK_LOOP  = 0;
+        static const char CMD_TRIGGER     = 1;
+        static const char CMD_UPDATE_SETS = 2;
 
         /** Internal method that makes sure loop() takes into account
          * modifications in the set of watched FDs
