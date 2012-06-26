@@ -62,7 +62,7 @@
 	  <imagedata fileref="images/TaskPeers2" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/TaskPeers2" />
+	  <imagedata fileref="images/hires/TaskPeers2" width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>

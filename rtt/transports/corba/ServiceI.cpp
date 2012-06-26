@@ -133,7 +133,7 @@ char * RTT_corba_CService_i::getServiceDescription (
     RTT::corba::CService_var serv;
     serv_i = new RTT_corba_CService_i( provider, mpoa );
     serv = serv_i->activate_this();
-    mservs.push_back( pair<RTT::corba::CService_var,PortableServer::ServantBase_var>( RTT::corba::CService::_duplicate(serv.in()), serv_i ) );
+    mservs.push_back( std::pair<RTT::corba::CService_var,PortableServer::ServantBase_var>( RTT::corba::CService::_duplicate(serv.in()), serv_i ) );
     //CService_i::registerServant(serv, mtask->provides(service_name));
     return RTT::corba::CService::_duplicate( serv.in() );
 }

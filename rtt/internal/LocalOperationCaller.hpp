@@ -58,7 +58,6 @@
 #include <iostream>
 // For doing I/O
 #include <boost/fusion/sequence/io.hpp>
-using namespace std;
 
 namespace RTT
 {
@@ -119,7 +118,6 @@ namespace RTT
             }
 
             void executeAndDispose() {
-                using namespace std;
                 if (!this->retv.isExecuted()) {
                     this->exec(); // calls BindStorage.
                     //cout << "executed method"<<endl;

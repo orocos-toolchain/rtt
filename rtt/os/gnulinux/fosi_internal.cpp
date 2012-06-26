@@ -42,6 +42,9 @@
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
+#ifdef ORO_OS_LINUX_CAP_NG
+#include <cap-ng.h>
+#endif
 #include <iostream>
 #include <cstdlib>
 #include <sys/types.h>
@@ -152,11 +155,13 @@ namespace RTT
 	    rv = pthread_create(&(task->thread), &(task->attr),
 	    		rtos_posix_thread_wrapper, xcookie);
 
-        log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
-        if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
-        {
-            log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
-        }
+	if ( cpu_affinity != ~0 ) {
+	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
+	    {
+	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
+	    }
+	}
 
         return rv;
 	}
@@ -277,11 +282,23 @@ namespace RTT
 
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
     {
-        if (*scheduler != SCHED_OTHER && geteuid() != 0 ) {
+#ifdef ORO_OS_LINUX_CAP_NG
+        if(capng_get_caps_process()) {
+            log(Error) << "Failed to retrieve capabilities (lowering to SCHED_OTHER)." <<endlog();
+            *scheduler = SCHED_OTHER;
+            return -1;
+        }
+#endif
+
+        if (*scheduler != SCHED_OTHER && geteuid() != 0
+#ifdef ORO_OS_LINUX_CAP_NG
+            && capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)==0
+#endif
+            ) {
             // they're not root and they want a real-time priority, which _might_
             // be acceptable if they're using pam_limits and have set the rtprio ulimit
             // (see "/etc/security/limits.conf" and "ulimit -a")
-            struct rlimit	r;
+            struct rlimit r;
             if ((0 != getrlimit(RLIMIT_RTPRIO, &r)) || (0 == r.rlim_cur))
             {
                 log(Warning) << "Lowering scheduler type to SCHED_OTHER for non-privileged users.." <<endlog();
@@ -289,6 +306,7 @@ namespace RTT
                 return -1;
             }
         }
+
         if (*scheduler != SCHED_OTHER && *scheduler != SCHED_FIFO && *scheduler != SCHED_RR ) {
             log(Error) << "Unknown scheduler type." <<endlog();
             *scheduler = SCHED_OTHER;
@@ -324,7 +342,11 @@ namespace RTT
                 ret = -1;
             }
             // and limit them according to pam_Limits (only if not root)
-            if ( geteuid() != 0 )
+            if ( geteuid() != 0 
+#ifdef ORO_OS_LINUX_CAP_NG
+                 && !capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)
+#endif
+                 )
             {
                 struct rlimit	r;
                 if (0 == getrlimit(RLIMIT_RTPRIO, &r))

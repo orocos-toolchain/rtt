@@ -75,6 +75,9 @@ else(Boost_INCLUDE_DIR)
   message(FATAL_ERROR "Boost_INCLUDE_DIR not found ! Add it to your CMAKE_PREFIX_PATH !")
 endif(Boost_INCLUDE_DIR)
 
+# Look for linux capabilities (7)
+find_library(LINUX_CAP_NG_LIBRARY cap-ng)
+
 # Look for Xerces 
 
 # If a nonstandard path is used when crosscompiling, uncomment the following lines

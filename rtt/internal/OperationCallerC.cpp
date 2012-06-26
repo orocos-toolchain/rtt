@@ -272,7 +272,7 @@ namespace RTT {
         return ofp;
     }
 
-    string const& OperationCallerC::getName() const {
+    std::string const& OperationCallerC::getName() const {
         return mname;
     }
 

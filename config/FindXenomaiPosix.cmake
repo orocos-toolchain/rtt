@@ -16,9 +16,9 @@
 include(LibFindMacros)
 
 # Get hint from environment variable (if any)
-if(NOT $ENV{XENOMAI_ROOT_DIR} STREQUAL "")
-  set(XENOMAI_ROOT_DIR $ENV{XENOMAI_ROOT_DIR} CACHE PATH "Xenomai base directory location (optional, used for nonstandard installation paths)" FORCE)
-  mark_as_advanced(XENOMAI_ROOT_DIR)
+if(NOT $ENV{XENOMAI_POSIX_ROOT_DIR} STREQUAL "")
+  set(XENOMAI_POSIX_ROOT_DIR $ENV{XENOMAI_POSIX_ROOT_DIR} CACHE PATH "Xenomai Posix base directory location (optional, used for nonstandard installation paths)" FORCE)
+  mark_as_advanced(XENOMAI_POSIX_ROOT_DIR)
 endif()
 
 # Header files to find
