@@ -24,14 +24,21 @@ if(OROCOS-RTT_FOUND)
     set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
     #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
     string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
-    foreach( path IN LISTS ROS_PACKAGE_PATH )
-      if ( CMAKE_CURRENT_SOURCE_DIR MATCHES ${path} )
+    foreach( rpath IN LISTS ROS_PACKAGE_PATH )
+      # This is a bit tricky since overlapping directory names may give false positives:
+      file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
+      #message(" ${rpath} -> ${path}")
+      if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
 	set(IS_ROS_PACKAGE TRUE)
 	message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
+	
       endif()
     endforeach()
     if(NOT IS_ROS_PACKAGE)
       message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
+      # These were set by roscpp cmake macros:
+      unset( EXECUTABLE_OUTPUT_PATH )
+      unset( LIBRARY_OUTPUT_PATH )
     endif()
   endif()
 
@@ -94,7 +101,9 @@ if(OROCOS-RTT_FOUND)
   
   if (IS_ROS_PACKAGE)
     if ( NOT ROSBUILD_init_called )
-      include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+      if (NOT DEFINED ROSBUILD_init_called )
+	include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake) # Prevent double inclusion ! This file is not robust against that !
+      endif()
       rosbuild_init()
     endif()
 
@@ -288,12 +297,14 @@ macro( orocos_library LIB_TARGET_NAME )
   else()
     ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   endif()
+
   if (COMPONENT_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
   endif(COMPONENT_VERSION)
   if (ORO_LIBRARY_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${ORO_LIBRARY_VERSION})
   endif(ORO_LIBRARY_VERSION)
+
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
     ${LIB_COMPONENT_VERSION}
