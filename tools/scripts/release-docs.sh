@@ -174,6 +174,7 @@ scp README $USER@$SERVER:$SPREFIX/$BRANCH/rtt/README.txt
   USER=psoetens
   SERVER=ftp.mech.kuleuven.be
   SPREFIX=/www/orocos/pub
+  APREFIX=/www/orocos
   DOOROCOSORG=no
 
 done; # while [ 1 ]
