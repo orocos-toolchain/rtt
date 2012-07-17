@@ -62,6 +62,7 @@ namespace RTT
 #ifndef ORO_EMBEDDED
         globals->setValue( new Constant<int>("DATA",ConnPolicy::DATA) );
         globals->setValue( new Constant<int>("BUFFER",ConnPolicy::BUFFER) );
+        globals->setValue( new Constant<int>("CIRCULAR_BUFFER",ConnPolicy::CIRCULAR_BUFFER) );
         globals->setValue( new Constant<int>("LOCKED",ConnPolicy::LOCKED) );
         globals->setValue( new Constant<int>("LOCK_FREE",ConnPolicy::LOCK_FREE) );
         globals->setValue( new Constant<int>("UNSYNC",ConnPolicy::UNSYNC) );
