@@ -1125,7 +1125,7 @@ Hello [R]&gt;
     <classname>RTT::InputPort</classname>&lt;double&gt; inPort;
 
     // Output ports are allways 'send and forget'
-    <classname>RTT::OuputPort</classname>&lt;double&gt; outPort;
+    <classname>RTT::OutputPort</classname>&lt;double&gt; outPort;
   public:
     // ...
     MyTask(std::string name)
