@@ -162,7 +162,7 @@ namespace RTT
         if (transporters.size() < static_cast<size_t>(protocol_id + 1))
             transporters.resize(protocol_id + 1);
         if ( transporters[protocol_id] ) {
-            log(Error) << "A protocol with id "<<protocol_id<<" was already added for type "<< getTypeName()<<endlog();
+            log(Warning) << "A protocol with id "<<protocol_id<<" was already added for type "<< getTypeName()<<endlog();
             return false;
         }
         transporters[protocol_id] = tt;
