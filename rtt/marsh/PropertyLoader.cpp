@@ -53,7 +53,15 @@ using namespace std;
 using namespace RTT;
 using namespace RTT::detail;
 
-bool PropertyLoader::load(const std::string& filename, TaskContext* target) const
+PropertyLoader::PropertyLoader(TaskContext *task)
+  : target(task->provides().get())
+{}
+
+PropertyLoader::PropertyLoader(Service *service)
+  : target(service)
+{}
+
+bool PropertyLoader::load(const std::string& filename) const
 {
     Logger::In in("PropertyLoader:load");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -61,12 +69,12 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
         return false;
 
 #else
-    if ( target->provides()->properties() == 0) {
-        log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
+    if ( target->properties() == 0) {
+        log(Error) << "Service " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
 
-    log(Info) << "Loading properties into TaskContext '" <<target->getName()
+    log(Info) << "Loading properties into Service '" <<target->getName()
                   <<"' with '"<<filename<<"'."<< endlog();
     bool failure = false;
     OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
@@ -91,15 +99,15 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
             }
             // take restore-copy;
             PropertyBag backup;
-            copyProperties( backup, *target->provides()->properties() );
+            copyProperties( backup, *target->properties() );
             // First test if the updateProperties will succeed:
-            if ( refreshProperties(  *target->provides()->properties(), composed_props, false) ) { // not strict
+            if ( refreshProperties(  *target->properties(), composed_props, false) ) { // not strict
                 // this just adds the new properties, *should* never fail, but
                 // let's record failure to be sure.
-                failure = !updateProperties( *target->provides()->properties(), composed_props );
+                failure = !updateProperties( *target->properties(), composed_props );
             } else {
                 // restore backup in case of failure:
-                refreshProperties( *target->provides()->properties(), backup, false ); // not strict
+                refreshProperties( *target->properties(), backup, false ); // not strict
                 failure = true;
             }
             // cleanup
@@ -122,7 +130,7 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
 
 }
 
-bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool all ) const
+bool PropertyLoader::configure(const std::string& filename, bool all ) const
 {
     Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -130,12 +138,12 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
 
 #else
-    if ( target->provides()->properties() == 0) {
-        log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
+    if ( target->properties() == 0) {
+        log(Error) << "Service " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
 
-    log(Info) << "Configuring TaskContext '" <<target->getName()
+    log(Info) << "Configuring Service '" <<target->getName()
                   <<"' with '"<<filename<<"'."<< endlog();
     bool failure = false;
     OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
@@ -159,10 +167,10 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
             }
             // take restore-copy;
             PropertyBag backup;
-            copyProperties( backup, *target->provides()->properties() );
-            if ( refreshProperties( *target->provides()->properties(), composed_props, all ) == false ) {
+            copyProperties( backup, *target->properties() );
+            if ( refreshProperties( *target->properties(), composed_props, all ) == false ) {
                 // restore backup:
-                refreshProperties( *target->provides()->properties(), backup );
+                refreshProperties( *target->properties(), backup );
                 failure = true;
                 }
             // cleanup
@@ -186,7 +194,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
 }
 
-bool PropertyLoader::store(const std::string& filename, TaskContext* target) const
+bool PropertyLoader::store(const std::string& filename) const
 {
     Logger::In in("PropertyLoader::store");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -217,7 +225,7 @@ bool PropertyLoader::store(const std::string& filename, TaskContext* target) con
 #endif
 }
 
-bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool all) const
+bool PropertyLoader::save(const std::string& filename, bool all) const
 {
     Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -225,8 +233,8 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
         return false;
 
 #else
-    if ( target->provides()->properties() == 0 ) {
-        log(Error) << "TaskContext "<< target->getName()
+    if ( target->properties() == 0 ) {
+        log(Error) << "Service "<< target->getName()
                       << " does not have Properties to save." << endlog();
         return false;
     }
@@ -249,7 +257,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
 	}
 	else {
 	    log(Info) << "Creating "<< filename << endlog();
-	    return store(filename, target);
+	    return store(filename);
 	}
 
 	// Write results
@@ -296,7 +304,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
 #endif
 }
 
-bool PropertyLoader::configure(const std::string& filename, TaskContext* task, const std::string& name ) const
+bool PropertyLoader::configure(const std::string& filename, const std::string& name ) const
 {
     Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -326,7 +334,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
                 delete demarshaller;
                 return false;
             }
-            failure = !refreshProperty( *(task->provides()->properties()), composed_props, name );
+            failure = !refreshProperty( *(target->properties()), composed_props, name );
         }
         else
             {
@@ -344,7 +352,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
 #endif // OROPKG_CORELIB_PROPERTIES_MARSHALLING
 }
 
-bool PropertyLoader::save(const std::string& filename, TaskContext* task, const std::string& name) const
+bool PropertyLoader::save(const std::string& filename, const std::string& name) const
 {
     Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
@@ -360,7 +368,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
         // if target file does not exist, skip this step.
         if ( ifile ) {
             ifile.close();
-            log(Info) << "Updating file "<< filename << " with properties of "<<task->getName()<<endlog();
+            log(Info) << "Updating file "<< filename << " with properties of "<<target->getName()<<endlog();
             // The demarshaller itself will open the file.
             OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
             if ( demarshaller.deserialize( fileProps ) == false ) {
@@ -373,15 +381,15 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
             log(Info) << "Creating "<< filename << endlog();
     }
 
-    // decompose task properties into primitive property types.
-    PropertyBag  taskProps;
-    PropertyBagIntrospector pbi( taskProps );
-    pbi.introspect( *(task->provides()->properties()) );
+    // decompose service properties into primitive property types.
+    PropertyBag  serviceProps;
+    PropertyBagIntrospector pbi( serviceProps );
+    pbi.introspect( *(target->properties()) );
 
     bool failure;
-    failure = ! updateProperty( fileProps, taskProps, name );
+    failure = ! updateProperty( fileProps, serviceProps, name );
 
-    deletePropertyBag( taskProps );
+    deletePropertyBag( serviceProps );
 
     if ( failure ) {
         log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
