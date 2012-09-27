@@ -39,7 +39,6 @@
 #include "PortInterface.hpp"
 #include "../Service.hpp"
 #include "../OperationCaller.hpp"
-#include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -64,7 +63,6 @@ PortInterface& PortInterface::doc(const std::string& desc) {
     return *this;
 }
 
-ConnFactory* PortInterface::getConnFactory() { return 0; }
 bool PortInterface::isLocal() const
 { return serverProtocol() == 0; }
 int PortInterface::serverProtocol() const

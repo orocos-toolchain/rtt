@@ -39,7 +39,7 @@
 #define ORO_CORELIB_TYPES_HPP
 
 #include "TypeInfo.hpp"
-#include "TypeBuilder.hpp"
+#include "TypeConstructor.hpp"
 #include "TypeInfoRepository.hpp"
 
 /**

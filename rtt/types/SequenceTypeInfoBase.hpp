@@ -39,7 +39,6 @@
 #ifndef ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 #define ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 
-#include "PrimitiveTypeInfo.hpp"
 #include "SequenceConstructor.hpp"
 #include "TemplateConstructor.hpp"
 #include "PropertyComposition.hpp"
@@ -126,11 +125,16 @@ namespace RTT
         class SequenceTypeInfoBase
         {
         public:
-            SequenceTypeInfoBase(TypeInfo* tbase)
+            SequenceTypeInfoBase()
             {
-                tbase->addConstructor( new SequenceBuilder<T>() );
-                tbase->addConstructor( newConstructor( sequence_ctor<T>() ) );
-                tbase->addConstructor( newConstructor( sequence_ctor2<T>() ) );
+            }
+
+            bool installTypeInfoObject(TypeInfo* ti) {
+                ti->addConstructor( new SequenceBuilder<T>() );
+                ti->addConstructor( newConstructor( sequence_ctor<T>() ) );
+                ti->addConstructor( newConstructor( sequence_ctor2<T>() ) );
+                // Don't delete us, we're memory-managed.
+                return false;
             }
 
             ~SequenceTypeInfoBase() {}

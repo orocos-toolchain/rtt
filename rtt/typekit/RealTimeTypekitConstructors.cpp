@@ -98,7 +98,7 @@ namespace RTT
          * construction time.
          */
         struct ArrayBuilder
-            : public TypeBuilder
+            : public TypeConstructor
         {
             virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
                 if (args.size() == 0 )

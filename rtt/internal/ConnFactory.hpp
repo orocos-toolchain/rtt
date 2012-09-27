@@ -91,16 +91,42 @@ namespace RTT
     class RTT_API ConnFactory
     {
     public:
+        virtual ~ConnFactory() {}
 
-        /** This method is analoguous to the static ConnFactory::buildChannelOutput.
-         * It is provided for remote connection building: for these connections,
-         * no template can be used and therefore the connection setup should be
-         * done based on the types::TypeInfo object
+        /**
+         * Returns a new InputPort<T> object where T is the type represented by
+         * this TypeInfo object.
          */
-        virtual base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
-                base::OutputPortInterface& output_port,
-                types::TypeInfo const* type_info,
-                base::InputPortInterface& input, const ConnPolicy& policy) = 0;
+        virtual base::InputPortInterface* inputPort(std::string const& name) const = 0;
+
+        /**
+         * Returns a new OutputPort<T> object where T is the type represented by
+         * this TypeInfo object.
+         */
+        virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
+
+        /**
+         * Creates single data or buffered storage for this type.
+         *
+         * @param policy Describes the kind of storage requested by the user
+         * @return a storage element.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
+
+        /**
+         * Creates the output endpoint of a communication channel and adds it to an InputPort.
+         *
+         * @param port The input port to connect the channel's output end to.
+         * @return The created endpoint.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
+        /**
+         * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
+         *
+         * @param port The output port to connect the channel's input end to.
+         * @return The created endpoint.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -354,7 +380,11 @@ namespace RTT
                                                                                        StreamConnID* conn_id);
     };
 
-}}
+        typedef boost::shared_ptr<ConnFactory> ConnFactoryPtr;
+
+
+    }
+}
 
 #endif
 

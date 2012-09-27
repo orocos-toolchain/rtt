@@ -157,3 +157,11 @@ bool InputPortInterface::disconnect(PortInterface* port)
     return cmanager.disconnect(port);
 }
 
+base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutput(
+                base::OutputPortInterface& output_port,
+                types::TypeInfo const* type_info,
+                base::InputPortInterface& input, const ConnPolicy& policy)
+{
+    return base::ChannelElementBase::shared_ptr();
+}
+

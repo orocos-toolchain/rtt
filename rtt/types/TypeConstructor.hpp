@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  TypeBuilder.cpp
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TypeConstructor.hpp
 
-                        TypeBuilder.cpp -  description
+                        TypeConstructor.hpp -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Mon January 19 2004
+    copyright            : (C) 2004 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,19 +35,32 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_CORELIB_TYPE_BUILDER_HPP
+#define ORO_CORELIB_TYPE_BUILDER_HPP
 
-
-#include "TypeBuilder.hpp"
+#include <vector>
+#include "../base/DataSourceBase.hpp"
 
 namespace RTT
-{
-    using namespace std;
-    using namespace detail;
+{ namespace types {
 
-    TypeBuilder::~TypeBuilder() {}
-
-    base::DataSourceBase::shared_ptr TypeBuilder::convert(base::DataSourceBase::shared_ptr arg) const
+    /**
+     * This interface describes how constructors work.
+     */
+    struct RTT_API TypeConstructor
     {
-        return base::DataSourceBase::shared_ptr();
-    }
-}
+        virtual ~TypeConstructor();
+        /**
+         * Inspect args and return a type constructed with these args
+         * if such a constructor exists.
+         */
+        virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
+
+        /**
+         * Automatic type conversion (float->double,... ). Fails by default.
+         */
+        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
+    };
+}}
+
+#endif
