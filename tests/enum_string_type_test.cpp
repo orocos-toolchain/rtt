@@ -119,21 +119,21 @@ BOOST_AUTO_TEST_CASE( testEnumStringConversion )
 // Tests enum to file and back
 BOOST_AUTO_TEST_CASE( testEnumSaveStringProperties )
 {
-    PropertyLoader pl;
     TaskContext tc("TC");
+    PropertyLoader pl(&tc);
     enum1 = A;
     enum2 = B;
     tc.addProperty("enum1", enum1 );
     tc.addProperty("enum2", enum2 );
 
     // saves A and B
-    BOOST_CHECK( pl.save("enum_type_test_string_save.cpf", &tc, true) );
+    BOOST_CHECK( pl.save("enum_type_test_string_save.cpf", true) );
 
     enum1 = B;
     enum2 = A;
 
     // restores A and B
-    BOOST_CHECK( pl.load("enum_type_test_string_save.cpf", &tc) );
+    BOOST_CHECK( pl.load("enum_type_test_string_save.cpf") );
 
     BOOST_CHECK_EQUAL( enum1, A);
     BOOST_CHECK_EQUAL( enum2, B);

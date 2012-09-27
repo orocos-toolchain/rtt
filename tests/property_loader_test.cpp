@@ -22,7 +22,7 @@
 #include "TaskContext.hpp"
 
 struct LoaderTest {
-    LoaderTest() : tc("tc"),
+    LoaderTest() : tc("tc"), pl(&tc),
             pstring("pstring","pstringd","Hello World"),
             pchar("pchar","pchard",'H'),
             pdouble("pdouble", "pdoubled", 1.23456),
@@ -32,8 +32,8 @@ struct LoaderTest {
     {
 
     }
-    PropertyLoader pl;
     TaskContext tc;
+    PropertyLoader pl;
     Property<string> pstring;
     Property<char> pchar;
     Property<double> pdouble;
@@ -64,28 +64,28 @@ BOOST_AUTO_TEST_CASE( testPropSaveLoad )
     pbag.value().addProperty( pchar );
 
     // save all to fresh file
-    BOOST_CHECK( pl.save(filename, &tc, true) );
+    BOOST_CHECK( pl.save(filename, true) );
     // configure all from file.
-    BOOST_CHECK( pl.configure(filename, &tc, true) );
+    BOOST_CHECK( pl.configure(filename, true) );
 
     // configure all fails with one missing element.
     bag.addProperty( pstring );
 
     // TEST FAILS : TO BE FIXED in updateProperties()
-    //BOOST_REQUIRE( !pl.configure(filename, &tc, true) );
+    //BOOST_REQUIRE( !pl.configure(filename, true) );
 
     // configure some does not fail with one missing element.
-    BOOST_CHECK( pl.configure(filename, &tc, false) );
+    BOOST_CHECK( pl.configure(filename, false) );
 
     // save some (does not add new props to file:
-    BOOST_CHECK( pl.save(filename, &tc, false) );
+    BOOST_CHECK( pl.save(filename, false) );
 
     // TEST FAILS : TO BE FIXED in updateProperties()
-    //BOOST_REQUIRE( !pl.configure(filename, &tc, true) ); // must still fail, not all were saved.
+    //BOOST_REQUIRE( !pl.configure(filename, true) ); // must still fail, not all were saved.
 
     // save all:
-    BOOST_CHECK( pl.save(filename, &tc, true) );
-    BOOST_CHECK( pl.configure(filename, &tc, true) ); // all were saved.
+    BOOST_CHECK( pl.save(filename, true) );
+    BOOST_CHECK( pl.configure(filename, true) ); // all were saved.
 }
 
 /**
@@ -96,27 +96,27 @@ BOOST_AUTO_TEST_CASE( testPropUnknown )
     std::string filename = "property_unknown.tst";
     tc.addProperty(pints);
 
-    BOOST_CHECK( pl.save(filename, &tc, true) ); // produces empty file.
-    BOOST_CHECK( !pl.configure(filename, &tc, true) ); // must fail, was not serialized !
-    BOOST_CHECK( pl.configure(filename, &tc, false) );
+    BOOST_CHECK( pl.save(filename, true) ); // produces empty file.
+    BOOST_CHECK( !pl.configure(filename, true) ); // must fail, was not serialized !
+    BOOST_CHECK( pl.configure(filename, false) );
 
     // test unknown in bag:
     tc.properties()->removeProperty( &pints );
     tc.addProperty( "bag", bag ).doc( "bag doc" );
     bag.addProperty(pints);
 
-    BOOST_CHECK( pl.save(filename, &tc, true) ); // produces file with bag.
+    BOOST_CHECK( pl.save(filename, true) ); // produces file with bag.
 
     // TEST FAILS : TO BE FIXED in updateProperties()
-    //BOOST_CHECK( !pl.configure(filename, &tc, true) ); // must fail, was not serialized !
+    //BOOST_CHECK( !pl.configure(filename, true) ); // must fail, was not serialized !
 
-    BOOST_CHECK( pl.configure(filename, &tc, false) );
+    BOOST_CHECK( pl.configure(filename, false) );
 }
 
 BOOST_AUTO_TEST_CASE( testPropLoading )
 {
     std::string filename = "property_loading.cpf";
-    BOOST_REQUIRE( pl.load(filename, &tc) );
+    BOOST_REQUIRE( pl.load(filename) );
 
     BOOST_CHECK( tc.provides()->hasProperty("load1") );
     BOOST_CHECK( tc.provides()->hasProperty("load2") );
@@ -149,12 +149,12 @@ BOOST_AUTO_TEST_CASE( testPropStoring )
     pbag.value().addProperty( pchar );
 
     std::string filename = "property_storing.tst";
-    BOOST_REQUIRE( pl.store(filename, &tc) );
+    BOOST_REQUIRE( pl.store(filename) );
 
     tc.properties()->clear();
 
     // check by using load:
-    BOOST_REQUIRE( pl.load(filename, &tc) );
+    BOOST_REQUIRE( pl.load(filename) );
 
     BOOST_CHECK( tc.provides()->hasProperty("pstring") );
     BOOST_CHECK( tc.provides()->hasProperty("pchar") );
