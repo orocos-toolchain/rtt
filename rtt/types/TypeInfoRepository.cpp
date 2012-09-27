@@ -196,7 +196,7 @@ namespace RTT
                 log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
         // give chance to register fallback protocol:
         if ( tr->registerTransport("unknown_t", DataSourceTypeInfo<UnknownType>::getTypeInfo() ) == false )
-		log(Debug) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
+            log(Debug) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
     }
 
     void TypeInfoRepository::logTypeInfo() const
