@@ -132,10 +132,23 @@ namespace RTT
             return port;
         }
 
+#ifdef ORO_SIGNALLING_PORTS
+        // setup synchronous callback, only purpose is to register that port fired and trigger the TC's engine.
+        Handle h = port.getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, mservice->getOwner(), _1) );
+        if (h) {
+            log(Info) << mservice->getName() << " will be triggered when new data is available on InputPort " << port.getName() << endlog();
+            handles.push_back(h);
+        } else {
+            log(Error) << mservice->getName() << " can't connect to event of InputPort " << port.getName() << endlog();
+            return port;
+        }
+#endif
         if (callback)
             mservice->getOwner()->dataOnPortCallback(&port,callback); // the handle will be deleted when the port is removed.
 
+#ifndef ORO_SIGNALLING_PORTS
         port.signalInterface(true);
+#endif
         return port;
     }
 
