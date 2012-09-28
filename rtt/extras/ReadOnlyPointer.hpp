@@ -112,6 +112,11 @@ namespace RTT
         bool valid() const
         { return internal->value != 0; }
 
+        T const* get() const
+        {
+            return internal->value;
+        }
+
         /** Modifies the value referenced by this smart pointer
          *
          * After this call, \c ptr is owned by the smart pointer, and the caller
