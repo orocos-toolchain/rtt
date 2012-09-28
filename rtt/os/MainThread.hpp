@@ -126,6 +126,8 @@ namespace RTT
 
         virtual int getPriority() const;
 
+        virtual unsigned int getPid() const;
+
         virtual void setMaxOverrun(int m);
 
         virtual int getMaxOverrun() const;

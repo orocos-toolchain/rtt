@@ -96,13 +96,14 @@ namespace RTT
          * this transtion.
          *
          */
-        enum TaskState { Init,           //! The state during component construction.
-                         PreOperational, //! The state indicating additional configuration is required.
-                         FatalError,     //! The state indicating the component encountered a fatal error and is unable to execute.
-                         Exception,      //! The state indicating the component encountered a C++ exception.
-                         Stopped,        //! The state indicating the component is ready to run.
-                         Running,        //! The state indicating the component is running [green].
-                         RunTimeError    //! The state indicating that a run-time error has occured [red] and needs attention.
+        enum TaskState {
+                         Init            //! The state during component construction.
+                         ,PreOperational //! The state indicating additional configuration is required.
+                         ,FatalError     //! The state indicating the component encountered a fatal error and is unable to execute.
+                         ,Exception      //! The state indicating the component encountered a C++ exception.
+                         ,Stopped        //! The state indicating the component is ready to run.
+                         ,Running        //! The state indicating the component is running [green].
+                         ,RunTimeError   //! The state indicating that a run-time error has occured [red] and needs attention.
         };
 
         /**
@@ -434,7 +435,7 @@ namespace RTT
          */
         virtual void exception();
 
-        // Required to set mTaskState to Running or Stopped.
+        // Required to set mTaskState to Running, Stopped or Exception.
         // As an alternative, one could query the EE.
         friend class ::RTT::ExecutionEngine;
 

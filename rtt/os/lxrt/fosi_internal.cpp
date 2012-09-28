@@ -252,6 +252,11 @@ namespace RTT
             return 0;
         }
 
+    	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+    	{
+    		return 0;
+    	}
+
         INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
         {
             if (*scheduler != SCHED_LXRT_HARD && *scheduler != SCHED_LXRT_SOFT ) {

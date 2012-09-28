@@ -205,7 +205,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
         CDataFlowInterface_i::registerServant(CDataFlowInterface::_narrow(mService), mtask->provides().get());
     }
     // Now the this service is available, check for the service name:
-    string svc(service_name);
+    std::string svc(service_name);
     if ( svc == "this" )
         return ::RTT::corba::CService::_duplicate( mService.in() );
     return mService->getService( service_name );
@@ -214,7 +214,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
 ::RTT::corba::CServiceRequester_ptr RTT_corba_CTaskContext_i::getRequester (
     const char * service_name)
 {
-    string svc(service_name);
+    std::string svc(service_name);
     if ( mtask->requires()->requiresService(service_name) == false && svc != "this")
         return CServiceRequester::_nil();
     // Creates service requester for "this"

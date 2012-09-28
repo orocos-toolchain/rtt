@@ -15,7 +15,7 @@ namespace RTT {
         class TypekitPlugin;
         class TypekitRepository;
         class UnaryOp;
-        struct TypeBuilder;
+        struct TypeConstructor;
         template <typename T, bool has_ostream>
         struct StdVectorTemplateTypeInfo;
         template<class S>

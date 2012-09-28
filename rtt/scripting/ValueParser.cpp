@@ -94,7 +94,7 @@ namespace RTT
         boost::bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
 
     const_bool =
-      ( str_p( "true" ) | "false" )[
+      ( keyword_p( "true" ) | keyword_p("false") )[
         boost::bind( &ValueParser::seenboolconstant, this, _1, _2 ) ];
 
     const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[boost::bind( &ValueParser::seennull,this)] |
@@ -104,7 +104,7 @@ namespace RTT
       ch_p( '"' ), *c_escape_ch_p[ boost::bind( &ValueParser::push_str_char, this, _1 ) ], '"' )[ boost::bind( &ValueParser::seenstring, this ) ]];
 
     named_constant =
-        ( str_p("done")[boost::bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
+        ( keyword_p("done")[boost::bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
           ( peerparser.locator()[boost::bind( &ValueParser::seenpeer, this) ]
             >> propparser.locator()

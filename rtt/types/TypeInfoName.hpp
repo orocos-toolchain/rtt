@@ -40,6 +40,7 @@
 #define ORO_TYPEINFO_NAME_HPP
 
 #include "Types.hpp"
+#include "TypeInfoGenerator.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
 #include "../Logger.hpp"
 #include "../rtt-config.h"
@@ -51,7 +52,7 @@ namespace RTT
      * Empty implementation of TypeInfo interface.
      */
     class RTT_API EmptyTypeInfo
-        : public TypeInfo
+        : public TypeInfoGenerator
     {
     protected:
         const std::string tname;
@@ -61,121 +62,11 @@ namespace RTT
         {
         }
 
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
-
-        bool installTypeInfoObject() {
+        bool installTypeInfoObject(TypeInfo* ti) {
             return true;
         }
 
-        base::AttributeBase* buildConstant(std::string name,base::DataSourceBase::shared_ptr dsb) const
-        {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Constant of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        base::AttributeBase* buildVariable(std::string name) const
-        {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Variable of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        base::AttributeBase* buildAttribute(std::string name, base::DataSourceBase::shared_ptr in) const
-        {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Attribute of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        base::AttributeBase* buildAlias(std::string name, base::DataSourceBase::shared_ptr in ) const
-        {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Alias of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        base::DataSourceBase::shared_ptr buildActionAlias(base::ActionInterface* act, base::DataSourceBase::shared_ptr in ) const
-        {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build ActionAlias of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
         virtual const std::string& getTypeName() const { return tname; }
-
-        virtual base::PropertyBase* buildProperty(const std::string& name, const std::string& desc, base::DataSourceBase::shared_ptr source = 0) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Property of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        virtual base::DataSourceBase::shared_ptr buildValue() const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build internal::ValueDataSource of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        virtual base::DataSourceBase::shared_ptr buildReference(void*) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build internal::ReferenceDataSource of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-
-        base::DataSourceBase::shared_ptr construct(const std::vector<base::DataSourceBase::shared_ptr>& ) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not construct value of "<<tname<<"."<<Logger::endl;
-            return base::DataSourceBase::shared_ptr();
-        }
-
-        virtual base::DataSourceBase::shared_ptr getAssignable(base::DataSourceBase::shared_ptr arg) const {
-            return base::DataSourceBase::shared_ptr();
-        }
-
-        virtual std::ostream& write( std::ostream& os, base::DataSourceBase::shared_ptr in ) const {
-            Logger::In loc("TypeInfoName");
-#ifdef OS_HAVE_STREAMS
-                std::string output = std::string("(")+ in->getTypeName() +")";
-                os << output;
-#endif
-            return os;
-        }
-
-        virtual std::istream& read( std::istream& is, base::DataSourceBase::shared_ptr out ) const {
-            Logger::In loc("TypeInfoName");
-            return is;
-        }
-
-        virtual bool isStreamable() const { return false; }
-
-        virtual base::DataSourceBase::shared_ptr decomposeType( base::DataSourceBase::shared_ptr source ) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Debug << "Can not decompose "<<tname<<"."<<Logger::endl;
-            return source;
-        }
-
-        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not compose "<<tname<<"."<<Logger::endl;
-            return false;
-        }
-
-        virtual const char * getTypeIdName() const { return 0; }
-        virtual TypeInfo::TypeId getTypeId() const { return 0; }
-
-        virtual base::InputPortInterface* inputPort(std::string const& name) const
-        { return 0; }
-        virtual base::OutputPortInterface* outputPort(std::string const& name) const
-        { return 0; }
-        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const
-        { return base::ChannelElementBase::shared_ptr(); }
-        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        { return base::ChannelElementBase::shared_ptr(); }
-        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        { return base::ChannelElementBase::shared_ptr(); }
-
     };
 
     /**
@@ -200,29 +91,13 @@ namespace RTT
         {
         }
 
-        bool installTypeInfoObject() {
-            Logger::In in("TypeInfoName");
-            TypeInfo* orig = internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
-            if ( orig != 0) {
-                std::string oname = orig->getTypeName();
-                if ( oname != tname ) {
-                    log(Info) << "TypeInfo for type '" << tname << "' already exists as '"
-                              << oname
-                              << "': I'll alias the original and install the new instance." << endlog();
-                    this->migrateProtocols( orig );
-                    Types()->aliasType( oname, this); // deletes orig !
-                }
-            } else {
-                // check for type name conflict (ie "string" for "std::string" and "Foo::Bar"
-                if ( Types()->type(tname) ) {
-                    log(Error) << "You attemted to register type name "<< tname << " which is already "
-                               << "in use for a different C++ type." <<endlog();
-                    return false;
-                }
-            }
-            // finally install it:
-            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+        bool installTypeInfoObject(TypeInfo* ti ) {
+            internal::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = ti;
+            ti->setTypeId( &typeid(T) );
             return true;
+        }
+        TypeInfo* getTypeInfoObject() const {
+            return TypeInfoRepository::Instance()->getTypeInfo<T>();
         }
     };
 

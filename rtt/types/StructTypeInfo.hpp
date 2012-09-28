@@ -42,6 +42,7 @@
 #include "TemplateTypeInfo.hpp"
 #include "PropertyDecomposition.hpp"
 #include "type_discovery.hpp"
+#include "MemberFactory.hpp"
 
 namespace RTT
 {
@@ -58,13 +59,26 @@ namespace RTT
          * fall back to StdTypeInfo or even TemplateTypeInfo.
          */
         template<typename T, bool has_ostream = false>
-        class StructTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class StructTypeInfo: public TemplateTypeInfo<T, has_ostream>, public MemberFactory
         {
         public:
             StructTypeInfo(std::string name) :
                 TemplateTypeInfo<T, has_ostream> (name)
             {
             }
+
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< StructTypeInfo<T,has_ostream> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T,has_ostream> >( this->getSharedPtr() );
+            assert(mthis);
+            // Allow base to install first
+            TemplateTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
@@ -79,7 +93,7 @@ namespace RTT
                 if ( adata ) {
                     type_discovery in( item );
                     in.discover( adata->set() );
-                    log(Debug) << "Returning part: " << name << endlog();
+                    //log(Debug) << "Returning part: " << name << endlog();
                     return in.getMember(name);
                 }
                 typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
@@ -87,12 +101,18 @@ namespace RTT
                     adata = new internal::ValueDataSource<T>( data->get() );
                     type_discovery in( adata );
                     in.discover( adata->set() );
-                    log(Debug) << "Returning copy of part: " << name << endlog();
+                    //log(Debug) << "Returning copy of part: " << name << endlog();
                     return in.getConstMember(name);
                 }
                 log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+        virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const
+            {
+                return false;
+            }
+
 
             /**
              * Implementation that updates result with the matching parts in source

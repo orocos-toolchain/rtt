@@ -318,6 +318,13 @@ namespace RTT
             return st;
         }
 
+        /**
+         * Use this method to load a service known to RTT into this component.
+         * @param service_name The name with which the service is registered by in the PluginLoader.
+         * @return true if the service was present already or could be loaded.
+         */
+        bool loadService(const std::string& service_name);
+
         /** @} */
 
         /**

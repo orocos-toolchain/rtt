@@ -288,6 +288,9 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Call )
     BOOST_CHECK( mc.call() );
     BOOST_CHECK( r == -4.0 );
 
+    mc = tp->provides("methods")->create("m0except", tc->engine() );
+    BOOST_CHECK_THROW( mc.call(), std::runtime_error );
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
@@ -345,6 +348,16 @@ BOOST_AUTO_TEST_CASE( testOperationCallerC_Send )
     BOOST_CHECK_EQUAL( shc.collect(), SendSuccess);
     BOOST_CHECK_EQUAL( r, 0.0 );
     BOOST_CHECK_EQUAL( cr, -5.0 );
+
+    
+    mc = tp->provides("methods")->create("m0except", caller->engine());
+    BOOST_CHECK_NO_THROW( mc.check() );
+    shc = mc.send();
+    BOOST_CHECK( shc.ready() ); // 1 argument to collect.
+    BOOST_CHECK_NO_THROW( shc.check() );
+    // now collect:
+    BOOST_CHECK_THROW( shc.collect(), std::runtime_error);
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCall )
@@ -360,12 +373,15 @@ BOOST_AUTO_TEST_CASE( testRemoteOperationCallerCall )
     RTT::OperationCaller<double(int,double)> m2 = tp->provides("methods")->getOperation("m2");
     RTT::OperationCaller<double(int,double,bool)> m3 = tp->provides("methods")->getOperation("m3");
     RTT::OperationCaller<double(int,double,bool,std::string)> m4 = tp->provides("methods")->getOperation("m4");
+    RTT::OperationCaller<void(void)> m0e = tp->provides("methods")->getOperation("m0except");
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
     BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
     BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, true) );
     BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, true,"hello") );
+    BOOST_CHECK_THROW( m0e(), std::runtime_error );
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
@@ -395,7 +411,6 @@ BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
     BOOST_CHECK_NO_THROW( m1 = co->callOperation("m1", any_args.inout()));
     BOOST_CHECK( m1 >>= d );
     BOOST_CHECK_EQUAL(d, -2.0 );
-
 
     any_args = new corba::CAnyArguments(2);
     any_args->length(2);
@@ -436,6 +451,9 @@ BOOST_AUTO_TEST_CASE( testAnyOperationCaller )
     BOOST_CHECK( m4 >>= d );
     BOOST_CHECK_EQUAL(d, -5.0 );
 
+    any_args = new corba::CAnyArguments(0);
+    BOOST_CHECK_THROW(co->callOperation("m0except", any_args.inout() ), ::RTT::corba::CCallError);
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)

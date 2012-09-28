@@ -87,7 +87,7 @@ namespace RTT
     struct string_concatenation : public std::binary_function<const std::string&, T, std::string> {
         std::string operator()(const std::string& s, T t) const {
             std::ostringstream oss(s, std::ios_base::ate);
-            oss << boolalpha << t;
+            oss << std::boolalpha << t;
             return oss.str();
         }
     };
@@ -96,7 +96,7 @@ namespace RTT
     struct rt_string_concatenation : public std::binary_function<const rt_string&, T, rt_string> {
         rt_string operator()(const rt_string& s, T t) const {
             rt_ostringstream oss(s, std::ios_base::ate);
-            oss << boolalpha << t;
+            oss << std::boolalpha << t;
             return oss.str();
         }
     };

@@ -61,7 +61,7 @@ namespace RTT
          */
         template<class S>
         struct TemplateConstructor
-            : public TypeBuilder
+            : public TypeConstructor
         {
             typedef typename boost::function_traits<S>::result_type result_type;
             typedef typename boost::function_traits<S>::arg1_type arg1_type;
@@ -119,7 +119,7 @@ namespace RTT
      * @return a Constructor object suitable for the type system.
      */
     template<class Function>
-    TypeBuilder* newConstructor( Function* foo, bool automatic = false ) {
+    TypeConstructor* newConstructor( Function* foo, bool automatic = false ) {
         return new detail::TemplateConstructor<Function>(foo, automatic);
     }
 
@@ -132,7 +132,7 @@ namespace RTT
      * @return a Constructor object suitable for the type system.
      */
     template<class Object>
-    TypeBuilder* newConstructor( Object obj, bool automatic = false) {
+    TypeConstructor* newConstructor( Object obj, bool automatic = false) {
         return new detail::TemplateConstructor<typename Object::Signature>(obj, automatic);
     }
 }}

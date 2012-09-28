@@ -194,8 +194,6 @@ RTT::base::ChannelElementBase::shared_ptr RemoteInputPort::buildRemoteChannelOut
     return corba_ceb;
 }
 
-RTT::internal::ConnFactory* RemoteInputPort::getConnFactory() { return this; }
-
 RTT::base::PortInterface* RemoteInputPort::clone() const
 { return type_info->inputPort(getName()); }
 

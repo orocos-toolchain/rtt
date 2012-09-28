@@ -108,8 +108,20 @@ BOOST_AUTO_TEST_CASE(TestScriptingParser)
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 3);
 
+    // test while name clash:
+    statements="var int whilex, whiley\n whilex = 1; whiley=2\n while whilex != whiley  { test.i = 3; whilex = whiley; }";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 3);
+
     // test for statement:
     statements="var int x=10,y=20; for(  x = 0; x != y; x = x + 1) { test.i = x; }";
+    r = sc->eval(statements);
+    BOOST_CHECK( r );
+    BOOST_CHECK_EQUAL( i, 19);
+
+    // test for name clash:
+    statements="var int forx,fory\n forx=10; fory=20; for(  forx = 0; forx != fory; forx = forx + 1) { test.i = forx; }";
     r = sc->eval(statements);
     BOOST_CHECK( r );
     BOOST_CHECK_EQUAL( i, 19);

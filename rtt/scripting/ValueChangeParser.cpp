@@ -108,7 +108,7 @@ namespace RTT
             | aliasdefinition;
 
         constantdefinition =
-            lexeme_d[str_p("const ")]
+            keyword_p("const")
             // the type
                 >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> constdecl[boost::bind( &ValueChangeParser::seenconstantdefinition, this )]
@@ -116,7 +116,7 @@ namespace RTT
 
 
         aliasdefinition =
-            lexeme_d[str_p("alias ")]
+            keyword_p("alias")
             // the type
                 >> expect_type(type_name [ boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
             // next the name for the alias
@@ -126,13 +126,13 @@ namespace RTT
                 >> expect_init( expressionparser.parser() )[ boost::bind( &ValueChangeParser::seenaliasdefinition, this ) ];
 
         variabledefinition =
-            lexeme_d[str_p("var ")]
+            keyword_p("var")
                 >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> vardecl[boost::bind( &ValueChangeParser::seenvariabledefinition, this ) ]
                 >> *(ch_p(',') >> vardecl[boost::bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
 
         paramdefinition =
-            "param"
+            keyword_p("param")
                 >> expect_type( type_name[boost::bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> baredecl[boost::bind( &ValueChangeParser::seenbaredefinition, this ) ]
                 >> *(ch_p(',') >> baredecl[boost::bind( &ValueChangeParser::seenbaredefinition, this ) ] );

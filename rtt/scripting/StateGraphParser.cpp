@@ -168,11 +168,11 @@ namespace RTT
 
 
         rootmachineinstantiation =
-            str_p("RootMachine")[boost::bind (&StateGraphParser::startrootmachineinstantiation, this) ]
+            keyword_p("RootMachine")[boost::bind (&StateGraphParser::startrootmachineinstantiation, this) ]
             >> machineinstantiation[ boost::bind( &StateGraphParser::seenrootmachineinstantiation, this ) ];
 
         statemachine =
-            str_p("StateMachine") //[boost::bind( &StateGraphParser::storeOffset, this)]
+            keyword_p("StateMachine") //[boost::bind( &StateGraphParser::storeOffset, this)]
             >> expect_ident( commonparser->identifier[ boost::bind( &StateGraphParser::seenstatemachinename, this, _1, _2 )] )
             >> expect_open( ch_p( '{' ) )
             >> statemachinecontent
@@ -192,7 +192,7 @@ namespace RTT
 
         machineparam = valuechangeparser->paramDefinitionParser()[boost::bind( &StateGraphParser::seenmachineparam, this )];
 
-        subMachinedecl = str_p("SubMachine")
+        subMachinedecl = keyword_p("SubMachine")
                          >> machineinstantiation[boost::bind( &StateGraphParser::seensubMachineinstantiation, this )];
 
         machineinstantiation =
@@ -211,9 +211,9 @@ namespace RTT
             >> expressionparser->parser()[ boost::bind( &StateGraphParser::seenmachineinstargumentvalue, this )];
 
         state =
-          !( str_p( "initial" )[boost::bind( &StateGraphParser::seeninitialstate,this )]
-             | str_p( "final" )[boost::bind( &StateGraphParser::seenfinalstate,this )] )
-          >> str_p( "state" )
+          !( keyword_p( "initial" )[boost::bind( &StateGraphParser::seeninitialstate,this )]
+             | keyword_p( "final" )[boost::bind( &StateGraphParser::seenfinalstate,this )] )
+          >> keyword_p( "state" )
           >> expect_ident(commonparser->identifier[ boost::bind( &StateGraphParser::statedef, this, _1, _2 ) ])
           >> expect_open(ch_p( '{' ))
           >> statecontent
@@ -234,28 +234,28 @@ namespace RTT
             | exit
             | (machinememvar[lambda::var(commonparser->skipeol) = false] >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
 
-        precondition = str_p( "precondition")
+        precondition = keyword_p( "precondition")
             >> conditionparser->parser()[ boost::bind( &StateGraphParser::seenprecondition, this)] ;
 
-        preconditions = (str_p( "preconditions" )[ boost::bind( &StateGraphParser::inpreconditions, this )]
+        preconditions = (keyword_p( "preconditions" )[ boost::bind( &StateGraphParser::inpreconditions, this )]
                         >> expect_open( ch_p( '{' ))
                         >> *transline[boost::bind(&StateGraphParser::seenendcondition,this)]
                         >> expect_end( ch_p( '}' ) )[
                             boost::bind( &StateGraphParser::seenpreconditions, this )]) | precondition;
 
-        entry = str_p( "entry" )[ boost::bind( &StateGraphParser::inprogram, this, "entry" )]
+        entry = keyword_p( "entry" )[ boost::bind( &StateGraphParser::inprogram, this, "entry" )]
                 >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                     boost::bind( &StateGraphParser::seenentry, this )];
 
-        run = str_p( "run" )[ boost::bind( &StateGraphParser::inprogram, this, "run" )]
+        run = keyword_p( "run" )[ boost::bind( &StateGraphParser::inprogram, this, "run" )]
                  >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                      boost::bind( &StateGraphParser::seenrun, this )];
 
-        exit = str_p( "exit" )[ boost::bind( &StateGraphParser::inprogram, this, "exit" )]
+        exit = keyword_p( "exit" )[ boost::bind( &StateGraphParser::inprogram, this, "exit" )]
                >> expect_open(ch_p('{')) >> programBody >> expect_end(ch_p('}'))[
                    boost::bind( &StateGraphParser::seenexit, this )];
 
-        handle = str_p( "handle" )[ boost::bind( &StateGraphParser::inprogram, this, "handle" )]
+        handle = keyword_p( "handle" )[ boost::bind( &StateGraphParser::inprogram, this, "handle" )]
                  >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                      boost::bind( &StateGraphParser::seenhandle, this )];
 
@@ -278,13 +278,13 @@ namespace RTT
 
         // old transition statements
         // the order of rule "transition" vs "transitions" is important
-        transitions = ( str_p( "transitions" )
+        transitions = ( keyword_p( "transitions" )
                         >> expect_open(ch_p('{'))
                         >> *((transline|eventline)[boost::bind(&StateGraphParser::seenendcondition,this)])
                         >> expect_end(ch_p('}')) );
 
         // new transition statements
-        transition = str_p("transition") >> expect_event_or_if( transline | eventline )[boost::bind(&StateGraphParser::seenendcondition,this)];
+        transition = keyword_p("transition") >> expect_event_or_if( transline | eventline )[boost::bind(&StateGraphParser::seenendcondition,this)];
         transline  = progselect | (ifbranch >> !elsebranch);
 
         // @todo: capturing events are only on local ports ?!.
@@ -296,10 +296,10 @@ namespace RTT
         progselect = selector | (program >> (selector | eps_p[boost::bind( &StateGraphParser::noselect, this )] ));
         // | eps_p[boost::bind( &StateGraphParser::noselect, this )] ); // if eos fails skipeol stays false !, see clear() !
 
-        ifbranch = str_p( "if") >> conditionparser->parser()[ boost::bind( &StateGraphParser::seencondition, this)]
-                                >> !str_p( "then" )
+        ifbranch = keyword_p( "if") >> conditionparser->parser()[ boost::bind( &StateGraphParser::seencondition, this)]
+                                >> !keyword_p( "then" )
                                 >> progselect;
-        elsebranch = str_p("else")[boost::bind( &StateGraphParser::seenelse, this )]
+        elsebranch = keyword_p("else")[boost::bind( &StateGraphParser::seenelse, this )]
             >> progselect;
 
         program =
@@ -307,8 +307,8 @@ namespace RTT
                 >> programBody
                 >> expect_end(ch_p('}'))[boost::bind( &StateGraphParser::seentransprog, this )];
 
-        selector =  str_p( "select" ) >> expect_select_ident(( commonparser->identifier[ boost::bind( &StateGraphParser::seenselect, this, _1, _2) ]
-                                           >> *("or" >> commonparser->identifier[ boost::bind( &StateGraphParser::seenselect, this, _1, _2) ])
+        selector =  keyword_p( "select" ) >> expect_select_ident(( commonparser->identifier[ boost::bind( &StateGraphParser::seenselect, this, _1, _2) ]
+                                          >> *(keyword_p("or") >> commonparser->identifier[ boost::bind( &StateGraphParser::seenselect, this, _1, _2) ])
                                           )[lambda::var(commonparser->skipeol) = false]
                                                        >> commonparser->eos[lambda::var(commonparser->skipeol) = true]);
 

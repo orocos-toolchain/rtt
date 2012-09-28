@@ -69,10 +69,13 @@ namespace RTT
         typedef T value_t;
 
         /**
-         * Create a buffer of size \a size.
+         * Create a buffer of size \a size, with preallocated data storage.
+         * @param size The number of elements this buffer can hold.
+         * @param initial_value A data sample with which each preallocated data element is initialized.
+         * @param circular Set flag to true to make this buffer circular. If not circular, new values are discarded on full.
          */
-        BufferLocked( size_type size, const T& initial_value = T() )
-            : cap(size), buf()
+        BufferLocked( size_type size, const T& initial_value = T(), bool circular = false )
+            : cap(size), buf(), mcircular(circular)
         {
             data_sample(initial_value);
         }
@@ -91,8 +94,11 @@ namespace RTT
         bool Push( param_t item )
         {
             os::MutexLock locker(lock);
-            if (cap == (size_type)buf.size() ) {
-                return false;
+            if ( cap == (size_type)buf.size() ) {
+                if (!mcircular)
+                    return false;
+                else
+                    buf.pop_front();
             }
             buf.push_back( item );
             return true;
@@ -102,10 +108,24 @@ namespace RTT
         {
             os::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
+            if (mcircular && (size_type)items.size() >= cap ) {
+                // clear out current data and reset iterator to first element we're going to take.
+                buf.clear();
+                itl = items.begin() + ( items.size() - cap );
+            } else if ( mcircular && (size_type)(buf.size() + items.size()) > cap) {
+                // drop excess elements from front
+                assert( (size_type)items.size() < cap );
+                while ( (size_type)(buf.size() + items.size()) > cap )
+                    buf.pop_front();
+                // itl still points at first element of items.
+            }
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
                 buf.push_back( *itl );
                 ++itl;
             }
+            // this is in any case the number of elements taken from items.
+            if (mcircular)
+                assert( (size_type)(itl - items.begin() ) == (size_type)items.size() );
             return (itl - items.begin());
 
         }
@@ -124,6 +144,7 @@ namespace RTT
         {
             os::MutexLock locker(lock);
             int quant = 0;
+            items.clear();
             while ( !buf.empty() ) {
                 items.push_back( buf.front() );
                 buf.pop_front();
@@ -180,8 +201,9 @@ namespace RTT
     private:
         size_type cap;
         std::deque<T> buf;
-	value_t lastSample;
+        value_t lastSample;
         mutable os::Mutex lock;
+        const bool mcircular;
     };
 }}
 

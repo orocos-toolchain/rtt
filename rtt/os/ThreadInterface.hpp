@@ -178,6 +178,18 @@ namespace RTT
              */
             virtual int getPriority() const = 0;
 
+            /**
+             * Returns the Process or Thread ID of this thread, as assigned by the
+             * Operating System.
+             * This function tries to return the Thread ID, if the OS supports it,
+             * otherwise it returns the process ID. If that is not available either,
+             * zero is returned.
+             * On Linux systems for example, the Thread ID of the main thread is
+             * equal to the Process ID. The Thread ID of every newly created thread
+             * is different from the Process ID (and unique).
+             */
+            virtual unsigned int getPid() const = 0;
+
             virtual void setMaxOverrun(int m) = 0;
 
             virtual int getMaxOverrun() const = 0;

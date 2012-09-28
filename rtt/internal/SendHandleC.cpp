@@ -87,7 +87,10 @@ namespace RTT {
 	~OperationKeeper() {
 		if (ms && autocollect) {
 			mb->set(true); // blocking
-			ms->evaluate();
+			try { // the evaluated function may throw
+				ms->evaluate();
+			} catch (std::exception&) {
+			}
 		}
 	}
     };
@@ -136,7 +139,7 @@ namespace RTT {
             this->checkAndCreate();
         }
 
-        D( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name)
+        D( base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const std::string& name)
             : mofp(ofp), mname(name), s(), msh(sh), blocking( new ValueDataSource<bool>(false) )
         {
             this->checkAndCreate();
@@ -159,7 +162,7 @@ namespace RTT {
     {
     }
 
-    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr op, base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const string& name )
+    SendHandleC::SendHandleC( base::DataSourceBase::shared_ptr op, base::DataSourceBase::shared_ptr sh, OperationInterfacePart* ofp, const std::string& name )
         : d( ofp ? new D( sh, ofp, name ) : 0 ), e( new E(op) )
     {
         if ( d->s ) {

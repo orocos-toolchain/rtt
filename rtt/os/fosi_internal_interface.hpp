@@ -105,6 +105,14 @@ namespace RTT {
             void rtos_task_yield(RTOS_TASK* task);
 
             /**
+             * Returns the process ID the OS gave to the task \a task.
+             * @param task The task handle of the thread to query
+             * @return 0 typically denotes the PID could not be obtained,
+             * but any interpretation is left to the user of the Operating System.
+             */
+            unsigned int rtos_task_get_pid(const RTOS_TASK* task);
+
+            /**
              * Set the scheduler of a given task \a t to a the type \a sched_type.
              * In some RTOS's the scheduler can't be changed or the change can
              * only be done for the calling thread.

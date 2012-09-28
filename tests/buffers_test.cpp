@@ -118,24 +118,355 @@ public:
 class BuffersDataFlowTest
 {
 public:
+    BufferInterface<Dummy>* buffer;
+    BufferInterface<Dummy>* circular;
+    DataObjectInterface<Dummy>* dataobj;
+
     BufferLockFree<Dummy>* lockfree;
-    DataObjectLockFree<Dummy>* dataobj;
+    BufferLocked<Dummy>* locked;
+    BufferUnSync<Dummy>* unsync;
+
+    BufferLockFree<Dummy>* clockfree;
+    BufferLocked<Dummy>* clocked;
+    BufferUnSync<Dummy>* cunsync;
+
+    DataObjectLocked<Dummy>* dlocked;
+    DataObjectLockFree<Dummy>* dlockfree;
+    DataObjectUnSync<Dummy>* dunsync;
 
     ThreadInterface* athread;
     ThreadInterface* bthread;
 
+    void testBuf();
+    void testCirc();
+    void testDObj();
+
     BuffersDataFlowTest()
     {
+        // clasical variants
         lockfree = new BufferLockFree<Dummy>(QS);
+        locked = new BufferLocked<Dummy>(QS);
+        unsync = new BufferUnSync<Dummy>(QS);
 
-        dataobj  = new DataObjectLockFree<Dummy>();
+        // circular variants.
+        clockfree = new BufferLockFree<Dummy>(QS,Dummy(), true);
+        clocked = new BufferLocked<Dummy>(QS,Dummy(), true);
+        cunsync = new BufferUnSync<Dummy>(QS,Dummy(), true);
+
+        dlockfree = new DataObjectLockFree<Dummy>();
+        dlocked   = new DataObjectLocked<Dummy>();
+        dunsync   = new DataObjectUnSync<Dummy>();
+
+        // defaults
+        buffer = lockfree;
+        dataobj = dlockfree;
     }
 
     ~BuffersDataFlowTest(){
         delete lockfree;
-        delete dataobj;
+        delete locked;
+        delete unsync;
+        delete clockfree;
+        delete clocked;
+        delete cunsync;
+        delete dlockfree;
+        delete dlocked;
+        delete dunsync;
     }
 };
+
+void BuffersDataFlowTest::testBuf()
+{
+    /**
+     * Single Threaded test for BufferLockFree.
+     * This is a mixed white/black box test.
+     */
+
+    Dummy* d = new Dummy;
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy r;
+
+    BOOST_CHECK( buffer->Pop(r) == false );
+
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Push( *c ) == false );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+
+    // start writing again half-way
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( buffer->Pop(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+    BOOST_CHECK( buffer->Pop(r) == false );
+
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( *c ) );
+
+    std::vector<Dummy> v;
+    BOOST_CHECK( 5 == buffer->Pop(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+
+    BufferBase::size_type sz = 10;
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( v ) == (int)v.size() );
+    BOOST_CHECK( buffer->Push( *c ) );
+    BOOST_CHECK( buffer->Push( *d ) );
+    BOOST_CHECK( buffer->Push( v ) == 1 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_CHECK( buffer->Push( v ) == 0 );
+    BOOST_REQUIRE_EQUAL( sz, buffer->Pop(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+    BOOST_CHECK( v[5] == *d );
+    BOOST_CHECK( v[6] == *c );
+    BOOST_CHECK( v[7] == *c );
+    BOOST_CHECK( v[8] == *d );
+    //BOOST_CHECK( v[9] == *c );
+    BOOST_CHECK( 0 == buffer->Pop(v) );
+    delete d;
+    delete c;
+}
+
+void BuffersDataFlowTest::testCirc()
+{
+    /**
+     * Single Threaded test for a circular BufferLockFree.
+     * This is a mixed white/black box test.
+     */
+
+    Dummy* d = new Dummy;
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy r;
+
+    BOOST_CHECK( circular->Pop(r) == false );
+
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) ); // oldest item at end of Push series.
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+
+    // start writing again half-way
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( circular->Pop(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+    BOOST_CHECK( circular->Pop(r) == false );
+
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( *c ) );
+
+    std::vector<Dummy> v;
+    BOOST_CHECK( 5 == circular->Pop(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+
+    BufferBase::size_type sz = 10;
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_CHECK( circular->Push( *c ) );
+    BOOST_CHECK( circular->Push( *d ) );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_CHECK( circular->Push( v ) == (int)v.size() );
+    BOOST_REQUIRE_EQUAL( sz, circular->Pop(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+    BOOST_CHECK( v[5] == *c );
+    BOOST_CHECK( v[6] == *d );
+    BOOST_CHECK( v[7] == *c );
+    BOOST_CHECK( v[8] == *d );
+    BOOST_CHECK( v[9] == *c );
+    BOOST_CHECK( 0 == circular->Pop(v) );
+    delete d;
+    delete c;
+}
+
+void BuffersDataFlowTest::testDObj()
+{
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy  d;
+    dataobj->Set( *c );
+    BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
+    int i = 0;
+    while ( i != 3.5*dlockfree->MAX_THREADS ) {
+        dataobj->Set( *c );
+        dataobj->Set( d );
+        ++i;
+    }
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+
+    delete c;
+}
 
 class BuffersMPoolTest
 {
@@ -458,163 +789,44 @@ BOOST_FIXTURE_TEST_SUITE( BuffersDataFlowTestSuite, BuffersDataFlowTest )
 
 BOOST_AUTO_TEST_CASE( testBufLockFree )
 {
-    /**
-     * Single Threaded test for BufferLockFree.
-     * This is a mixed white/black box test.
-     */
+    buffer = lockfree;
+    circular = clockfree;
+    testBuf();
+    testCirc();
+}
 
-    Dummy* d = new Dummy;
-    Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy r;
+BOOST_AUTO_TEST_CASE( testBufLocked )
+{
+    buffer = locked;
+    circular = clocked;
+    testBuf();
+    testCirc();
+}
 
-    BOOST_CHECK( lockfree->Pop(r) == false );
-
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Push( *c ) == false );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-
-    // start writing again half-way
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *c );
-    BOOST_CHECK( lockfree->Pop(r) );
-    BOOST_CHECK( r == *d );
-
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-    BOOST_CHECK( lockfree->Pop(r) == false );
-
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( *c ) );
-
-    std::vector<Dummy> v;
-    BOOST_CHECK( 5 == lockfree->Pop(v) );
-    BOOST_CHECK( v[0] == *c );
-    BOOST_CHECK( v[1] == *d );
-    BOOST_CHECK( v[2] == *c );
-    BOOST_CHECK( v[3] == *d );
-    BOOST_CHECK( v[4] == *c );
-
-    BufferBase::size_type sz = 10;
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( v ) == (int)v.size() );
-    BOOST_CHECK( lockfree->Push( *c ) );
-    BOOST_CHECK( lockfree->Push( *d ) );
-    BOOST_CHECK( lockfree->Push( v ) == 1 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_CHECK( lockfree->Push( v ) == 0 );
-    BOOST_REQUIRE_EQUAL( sz, lockfree->Pop(v) );
-    BOOST_CHECK( v[0] == *c );
-    BOOST_CHECK( v[1] == *d );
-    BOOST_CHECK( v[2] == *c );
-    BOOST_CHECK( v[3] == *d );
-    BOOST_CHECK( v[4] == *c );
-    BOOST_CHECK( v[5] == *d );
-    BOOST_CHECK( v[6] == *c );
-    BOOST_CHECK( v[7] == *c );
-    BOOST_CHECK( v[8] == *d );
-    BOOST_CHECK( v[9] == *c );
-    BOOST_CHECK( 0 == lockfree->Pop(v) );
-    delete d;
-    delete c;
+BOOST_AUTO_TEST_CASE( testBufUnsync )
+{
+    buffer = unsync;
+    circular = cunsync;
+    testBuf();
+    testCirc();
 }
 
 BOOST_AUTO_TEST_CASE( testDObjLockFree )
 {
-    Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy  d;
-    dataobj->Set( *c );
-    BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
-    int i = 0;
-    while ( i != 3.5*dataobj->MAX_THREADS ) {
-        dataobj->Set( *c );
-        dataobj->Set( d );
-        ++i;
-    }
-    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
-    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+    dataobj = dlockfree;
+    testDObj();
+}
 
-    delete c;
+BOOST_AUTO_TEST_CASE( testDObjLocked )
+{
+    dataobj = dlocked;
+    testDObj();
+}
+
+BOOST_AUTO_TEST_CASE( testDObjUnSync )
+{
+    dataobj = dunsync;
+    testDObj();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

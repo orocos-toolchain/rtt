@@ -66,19 +66,27 @@ namespace RTT
                 return (T) i;
             }
 
-            std::map<T,string> to_string;
-            typedef std::map<T,string> MapType;
+            std::map<T,std::string> to_string;
+            typedef std::map<T,std::string> MapType;
         public:
-            EnumTypeInfo(const char* type) :
+            EnumTypeInfo(std::string type) :
                 TemplateTypeInfo<T, false> (type)
             {
+            }
+
+            bool installTypeInfoObject(TypeInfo* ti) {
                 if (!Types()->type("int")) {
                     log(Error) << "Failed to register enum <-> int conversion because type int is not known in type system."<<endlog();
+                    return false;
                 } else {
+                    TemplateTypeInfo<T,false>::installTypeInfoObject(ti);
                     Types()->type("int")->addConstructor(newConstructor(
                             &EnumTypeInfo<T>::enum_to_int, true));
                 }
-                this->addConstructor( newConstructor( &EnumTypeInfo<T>::int_to_enum, true) );
+                ti->addConstructor( newConstructor( &EnumTypeInfo<T>::int_to_enum, true) );
+
+                // Don't delete us, we're memory-managed.
+                return false;
             }
 
             /**
@@ -105,8 +113,8 @@ namespace RTT
                     return true;
                 }
                 // try conversion from string to enum:
-                internal::DataSource<string>::shared_ptr dss =
-                        internal::DataSource<string>::narrow( source.get() );
+                internal::DataSource<std::string>::shared_ptr dss =
+                        internal::DataSource<std::string>::narrow( source.get() );
                 if (dss)
                 {
                     typename internal::AssignableDataSource<T>::shared_ptr menum =
@@ -140,7 +148,7 @@ namespace RTT
                         log(Warning) << "No enum-to-string mapping defined for enum " << this->getTypeName() <<". Converting to int."<<endlog();
                         return new internal::ValueDataSource<int>( ds->get() );
                     }
-                    internal::ValueDataSource<string>::shared_ptr vds =  new internal::ValueDataSource<string>( to_string.find(ds->get())->second );
+                    internal::ValueDataSource<std::string>::shared_ptr vds =  new internal::ValueDataSource<std::string>( to_string.find(ds->get())->second );
                     return vds;
                 }
                 // convert string to enum

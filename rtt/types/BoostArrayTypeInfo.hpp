@@ -46,6 +46,8 @@
 #include <boost/array.hpp>
 #include "PropertyComposition.hpp"
 #include "PropertyDecomposition.hpp"
+#include "CompositionFactory.hpp"
+#include "MemberFactory.hpp"
 
 namespace RTT
 {
@@ -63,13 +65,28 @@ namespace RTT
          * @param T A boost::array<U,N> wrapper, where U is a data type and N the array size.
          */
         template<typename T, bool has_ostream = false>
-        class BoostArrayTypeInfo: public PrimitiveTypeInfo<T, has_ostream>
+        class BoostArrayTypeInfo :
+            public PrimitiveTypeInfo<T, has_ostream>,
+            public MemberFactory, public CompositionFactory
         {
         public:
             BoostArrayTypeInfo(std::string name) :
                 PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
+
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< BoostArrayTypeInfo<T> > mthis = boost::dynamic_pointer_cast<BoostArrayTypeInfo<T> >( this->getSharedPtr() );
+            // Allow base to install first
+            PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+            ti->setCompositionFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:

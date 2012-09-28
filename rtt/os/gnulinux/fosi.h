@@ -79,6 +79,7 @@ extern "C"
 
     int priority;
     int wait_policy;
+    pid_t pid;
   } RTOS_TASK;
 
 
