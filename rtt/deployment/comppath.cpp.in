@@ -1,0 +1,10 @@
+
+// WARNING: This is an auto-generated file by the build system. Do not modify it. //
+
+namespace RTT
+{ 
+    /** @cond */
+    char const* default_comp_path_build = "@DEFAULT_COMPONENT_PATH@";
+    /** @endcond */
+}
+

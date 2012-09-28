@@ -33,11 +33,8 @@
  * of the macros if you wish to make a run-time loadable component.
  */
 
-// note: we use the same header protection as ocl/Component.hpp because we 
-// only want to include one of both. This is to be changed once ocl/Component.hpp
-// includes this file.
-#ifndef OCL_COMPONENT_HPP
-#define OCL_COMPONENT_HPP
+#ifndef RTT_COMPONENT_HPP
+#define RTT_COMPONENT_HPP
 
 #include <string>
 #include <map>
@@ -169,7 +166,7 @@ extern "C" { \
 
 #else
 
-#if !defined(OCL_STATIC) && !defined(RTT_STATIC)
+#if !defined(OCL_STATIC) && !defined(RTT_STATIC) && !defined(RTT_DLL_EXPORT)
 #warning "You're compiling with static library settings. The resulting component library \
  will not be loadable at runtime with the deployer.\
  Compile with -DRTT_COMPONENT to enable dynamic loadable components, \

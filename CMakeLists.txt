@@ -82,6 +82,10 @@ IF(ROS_ROOT)
       OUTPUT_QUIET ERROR_QUIET
       )
   endif()
+  
+  # Tell deployer to use ROSlib support.
+  set(ROSLIB_SUPPORT TRUE)
+  include(config/FindRoslib.cmake)
 ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.
