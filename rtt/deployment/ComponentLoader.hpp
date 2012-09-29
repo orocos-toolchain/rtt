@@ -218,6 +218,11 @@ namespace RTT {
              * for the ComponentLoader.
              */
             const FactoryMap& getFactories() const;
+
+            /**
+             * Adds a factory to the component factory map.
+             */
+            void addFactory( std::string const& name, ComponentLoaderSignature factory );
         };
 }
 

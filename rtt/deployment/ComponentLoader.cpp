@@ -849,3 +849,8 @@ const FactoryMap& ComponentLoader::getFactories() const
 {
   return ComponentFactories::Instance();
 }
+
+void ComponentLoader::addFactory(std::string const& name, ComponentLoaderSignature factory)
+{
+  ComponentFactories::Instance()[name] = factory;
+}
