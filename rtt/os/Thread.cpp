@@ -47,9 +47,16 @@
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include "../extras/dev/DigitalOutInterface.hpp"
+#define SCOPE_INIT(name) 
 #define SCOPE_ON   if ( task->d ) task->d->switchOn( bit );
 #define SCOPE_OFF  if ( task->d ) task->d->switchOff( bit );
+#elif defined(HAVE_LTTNG_UST) && defined(OROPKG_OS_GNULINUX)
+#include "gnulinux/traces/lttng_ust.h"
+#define SCOPE_INIT(name) tracepoint(orocos_rtt, thread_init , name);
+#define SCOPE_ON         tracepoint(orocos_rtt, thread_scope, 1);
+#define SCOPE_OFF        tracepoint(orocos_rtt, thread_scope, 0);
 #else
+#define SCOPE_INIT(name) 
 #define SCOPE_ON
 #define SCOPE_OFF
 #endif
@@ -78,6 +85,8 @@ namespace RTT {
              */
             Thread* task = static_cast<os::Thread*> (t);
             Logger::In in(task->getName());
+
+            SCOPE_INIT(task->getName())
 
             task->configure();
 
