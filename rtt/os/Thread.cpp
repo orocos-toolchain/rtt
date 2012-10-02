@@ -266,7 +266,7 @@ namespace RTT {
             {
                 log(Critical)
                         << "Could not allocate configuration semaphore 'sem' for "
-                        << rtos_task_get_name(&rtos_task)
+                        << name
                         << ". Throwing std::bad_alloc." << endlog();
                 rtos_sem_destroy(&sem);
 #ifndef ORO_EMBEDDED
@@ -295,7 +295,7 @@ namespace RTT {
             if (rv != 0)
             {
                 log(Critical) << "Could not create thread "
-                        << rtos_task_get_name(&rtos_task) << "."
+                        << name << "."
                         << endlog();
                 rtos_sem_destroy(&sem);
 #ifndef ORO_EMBEDDED
