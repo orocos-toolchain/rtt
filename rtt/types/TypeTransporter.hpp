@@ -79,6 +79,24 @@ namespace RTT
              *
              */
             virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const = 0;
+
+            /**
+             * Creates a streaming channel element for reading or writing over this transport.
+             * It returns a ChannelElementBase that provides the implementation of sending or receiving
+             * data through the transport. Both sender and receiver find each other using the channel_id
+             * argument. Transports that do not support streaming may return null
+             *
+             * @param port The port for which this channel is setup.
+             * @param channel_id If the transport receives a non-empty channel_id, it will create a channel that connects to this id.
+             * If channel id is empty, it will be filled in with a unique identifier that identifies this channel.
+             * This allows the local caller to connect to the
+             * remote channel in a second invocation of createRemoteChannel.
+             * @param is_sender Set to true in case you will write() to this channel element, set it to false
+             * in case you will read() from this channel element.
+             * @return null in case streaming is not supported by this transport or a valid channel element otherwise.
+             *
+             */
+            virtual base::ChannelElementBase::shared_ptr createAnyStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const;
         };
     }
 }
