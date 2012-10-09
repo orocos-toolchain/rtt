@@ -100,7 +100,7 @@ static const std::string default_delimiter(":");
     returns true  for ".1", ".12", ".123"
     returns false for ".a", "1", "123", ".123 ", "a", "", ".1.a", ".1a2"
 */
-static bool isExtensionVersion(const std::string& ext)
+bool isExtensionVersion(const std::string& ext)
 {
     bool isExtensionVersion = false;
 
@@ -138,7 +138,7 @@ static bool isExtensionVersion(const std::string& ext)
 
    All the above also apply without the "lib" prefix.
 */
-static bool isLoadableLibrary(const path& filename)
+bool isLoadableLibrary(const path& filename)
 {
     bool isLoadable = false;
 
