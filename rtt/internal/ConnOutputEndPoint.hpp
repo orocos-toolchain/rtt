@@ -41,6 +41,7 @@
 
 #include "Channels.hpp"
 #include "ConnID.hpp"
+#include "../base/InputPortInterface.hpp"
 
 namespace RTT
 { namespace internal {
@@ -56,7 +57,7 @@ namespace RTT
     template<typename T>
     class ConnOutputEndpoint : public base::ChannelElement<T>
     {
-        InputPortInterface* port;
+        base::InputPortInterface* port;
         ConnID* cid;
     public:
         /**
@@ -67,7 +68,7 @@ namespace RTT
          * represents the other end. This id is passed to the input port \a port.
          * @return
          */
-        ConnOutputEndpoint(InputPortInterface* port, ConnID* output_id )
+        ConnOutputEndpoint(base::InputPortInterface* port, ConnID* output_id )
             : port(port), cid(output_id)
         {
             // cid is deleted/owned by the port's ConnectionManager.
@@ -104,7 +105,7 @@ namespace RTT
             // Call the base class: it does the common cleanup
             base::ChannelElement<T>::disconnect(forward);
 
-            InputPortInterface* port = this->port;
+            base::InputPortInterface* port = this->port;
             if (port && forward)
             {
                 this->port = 0;
@@ -114,7 +115,7 @@ namespace RTT
 
         virtual bool signal()
         {
-            InputPortInterface* port = this->port;
+        	base::InputPortInterface* port = this->port;
 #ifdef ORO_SIGNALLING_PORTS
             if (port && port->new_data_on_port_event)
                 (*port->new_data_on_port_event)(port);

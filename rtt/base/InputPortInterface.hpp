@@ -71,11 +71,13 @@ namespace RTT
 #ifdef ORO_SIGNALLING_PORTS
         NewDataOnPortEvent* new_data_on_port_event;
 #else
-        bool msignal_interface;
+    public:
         /**
          * The ConnOutputEndpoint signals that new data is available
          */
         void signal();
+    protected:
+        bool msignal_interface;
 #endif
 
         InputPortInterface(const InputPortInterface& orig);
@@ -179,7 +181,7 @@ namespace RTT
          * @return a ChannelElementBase of type type_info.
          */
         virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-                types::TypeInfo const* type_info) const = 0;
+                types::TypeInfo const* type_info) const;
     };
 
 }}
