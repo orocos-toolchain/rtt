@@ -191,4 +191,10 @@ namespace RTT
         return ret;
     }
 
+    TypeTransporter* TypeInfo::getAnyProtocol(int protocol_id) const {
+    	// TODO
+    	return 0;
+    }
+
+
 }

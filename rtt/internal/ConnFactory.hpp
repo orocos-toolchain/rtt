@@ -113,14 +113,14 @@ namespace RTT
          */
         virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
 
-        /**
+        /* *
          * Creates the output endpoint of a communication channel and adds it to an InputPort.
          *
          * @param port The input port to connect the channel's output end to.
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
-        /**
+        /* *
          * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
          *
          * @param port The output port to connect the channel's input end to.
@@ -136,7 +136,7 @@ namespace RTT
          * @todo: since setDataSample, initial_value is no longer needed.
          */
         template<typename T>
-        static base::ChannelElementBase* buildDataStorage(ConnPolicy const& policy, const T& initial_value = T())
+        static base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy, const T& initial_value = T())
         {
             if (policy.type == ConnPolicy::DATA)
             {
@@ -196,7 +196,8 @@ namespace RTT
          * @see buildChannelOutput
          */
         template<typename T>
-        static base::ChannelElementBase::shared_ptr buildChannelInput(OutputPort<T>& port, ConnID* conn_id, base::ChannelElementBase::shared_ptr output_channel)
+        static base::ChannelElementBase::shared_ptr buildChannelInput(
+        		OutputPort<T>& port, ConnID* conn_id, base::ChannelElementBase::shared_ptr output_channel)
         {
             assert(conn_id);
             base::ChannelElementBase::shared_ptr endpoint = new ConnInputEndpoint<T>(&port, conn_id);
@@ -235,7 +236,8 @@ namespace RTT
          * @see buildChannelInput
          */
         template<typename T>
-            static base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port, ConnID* conn_id)
+            static base::ChannelElementBase::shared_ptr buildChannelOutput(
+            		base::InputPortInterface& port, ConnID* conn_id)
         {
             assert(conn_id);
             base::ChannelElementBase::shared_ptr endpoint = new ConnOutputEndpoint<T>(&port, conn_id);
@@ -295,7 +297,7 @@ namespace RTT
                 if ( !input_port.isLocal() ) {
                     output_half = createRemoteConnection( output_port, input_port, policy);
                 } else
-                    output_half = createOutOfBandConnection<T>( output_port, *input_p, policy);
+                    output_half = createOutOfBandConnection<T>( output_port, input_port, policy);
             }
 
             if (!output_half)
@@ -323,7 +325,7 @@ namespace RTT
         static bool createStream(OutputPort<T>& output_port, ConnPolicy const& policy)
         {
             StreamConnID *sid = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput( output_port, sid, base::ChannelElementBase::shared_ptr() );
+            RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput<T>( output_port, sid, base::ChannelElementBase::shared_ptr() );
             return createAndCheckStream(output_port, policy, chan, sid);
         }
 
@@ -341,7 +343,7 @@ namespace RTT
         static bool createStream(InputPort<T>& input_port, ConnPolicy const& policy)
         {
             StreamConnID *sid = new StreamConnID(policy.name_id);
-            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput( input_port, sid );
+            RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput<T>( input_port, sid );
             if ( createAndCheckStream(input_port, policy, outhalf, sid) )
                 return true;
             input_port.removeConnection(sid);
@@ -363,7 +365,9 @@ namespace RTT
          * @return a channel element chain with a channel output endpoint, but no channel input endpoint.
          */
         template<class T>
-        static base::ChannelElementBase::shared_ptr createOutOfBandConnection(OutputPort<T>& output_port, InputPort<T>& input_port, ConnPolicy const& policy) {
+        static base::ChannelElementBase::shared_ptr createOutOfBandConnection(OutputPort<T>& output_port,
+        		base::InputPortInterface& input_port, ConnPolicy const& policy)
+        {
             StreamConnID* conn_id = new StreamConnID(policy.name_id);
             RTT::base::ChannelElementBase::shared_ptr output_half = ConnFactory::buildChannelOutput<T>(input_port, conn_id);
             return createAndCheckOutOfBandConnection( output_port, input_port, policy, output_half, conn_id);
