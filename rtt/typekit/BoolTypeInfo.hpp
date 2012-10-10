@@ -79,6 +79,11 @@ namespace RTT
 #endif
                 return os;
             }
+
+            virtual bool isStreamable() const {
+                return true;
+            }
+
         };
 
     }
