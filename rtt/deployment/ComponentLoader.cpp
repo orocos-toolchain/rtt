@@ -307,7 +307,6 @@ bool ComponentLoader::import( std::string const& path_list )
         else {
             // If the path is not complete (not absolute), look it up in the search directories:
             log(Debug) << "No such directory: " << p<< endlog();
-            all_good = false;
         }
 #if 0
         // Repeat for path/OROCOS_TARGET: (already done in other import function)
