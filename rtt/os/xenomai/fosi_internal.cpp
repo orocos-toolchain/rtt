@@ -172,6 +172,7 @@ namespace RTT
         {
             //rt_task_delete( &(main_task->xenotask) );
             free (main_task->name);
+            main_task->name = 0;
             munlockall();
             return 0;
         }
@@ -450,6 +451,8 @@ namespace RTT
                 log(Error) << "Failed to join with thread " << mytask->name << endlog();
             }
             rt_task_delete(&(mytask->xenotask));
+            free (mytask->name);
+            mytask->name = 0;
         }
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
