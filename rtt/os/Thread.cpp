@@ -642,6 +642,11 @@ namespace RTT {
             return rtos_task_get_name(&rtos_task);
         }
 
+        void Thread::setName(const char* name)
+        {
+            return rtos_task_set_name(&rtos_task, name);
+        }
+
         void Thread::setMaxOverrun( int m )
         {
             maxOverRun = m;

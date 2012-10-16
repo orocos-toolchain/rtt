@@ -284,6 +284,12 @@ namespace RTT
 	    return task->name;
 	}
 
+        INTERNAL_QUAL void rtos_task_set_name(RTOS_TASK* task, const char * name)
+	{
+            if(main_task->name) free(main_task->name);
+	    main_task->name = strndup(name, 255);
+	}
+
     }
 }
 

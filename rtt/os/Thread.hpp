@@ -201,6 +201,8 @@ namespace RTT
 
             virtual const char* getName() const;
 
+            virtual void setName(const char* name);
+
             virtual RTOS_TASK * getTask()
             {
                 return &rtos_task;

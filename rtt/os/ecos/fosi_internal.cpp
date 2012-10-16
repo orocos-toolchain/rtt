@@ -198,6 +198,11 @@ namespace RTT
       return info.name;
     }
 
+    INTERNAL_QUAL void rtos_task_set_name(RTOS_TASK* t, const char * name)
+    {
+      return;
+    }
+
     INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK *t, int priority)
     {
       cyg_thread_set_priority(t->handle,(cyg_priority_t) priority);

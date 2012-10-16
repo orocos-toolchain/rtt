@@ -120,6 +120,11 @@ namespace RTT
             virtual const char* getName() const = 0;
 
             /**
+             * Set the name of this task
+             */
+            virtual void setName(const char* name) = 0;
+
+            /**
              * Get the RTOS_TASK pointer.
              * @note Using this function leads to non-portable code.
              * It is here for users which wish to tweak OS specific

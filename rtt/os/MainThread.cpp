@@ -81,6 +81,8 @@ namespace RTT
 
     const char* MainThread::getName() const { return "main"; }
 
+    void MainThread::setName(const char* name) { }
+
     RTOS_TASK * MainThread::getTask() { return &main_task; }
 
     const RTOS_TASK * MainThread::getTask() const { return &main_task; }

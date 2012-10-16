@@ -431,6 +431,11 @@ namespace RTT
             return mytask->name;
         }
 
+        INTERNAL_QUAL void rtos_task_set_name(RTOS_TASK* task, const char * name)
+	{
+            return;
+	}
+
     	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
     	{
     		return 0;

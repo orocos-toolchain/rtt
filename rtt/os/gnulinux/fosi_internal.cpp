@@ -60,10 +60,10 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
-        const char* name = "main";
         main_task->wait_policy = ORO_WAIT_ABS;
-	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
         main_task->thread = pthread_self();
+        main_task->name = 0;
+        rtos_task_set_name(main_task, "main");
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
 	    sp.sched_priority=0;
@@ -123,10 +123,8 @@ namespace RTT
         xcookie->data = obj;
         xcookie->wrapper = start_routine;
 
-	    // Set name
-	    if ( strlen(name) == 0 )
-            name = "Thread";
-	    task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
+           // Init name
+           task->name = strdup("Thread");
 
 	    if ( (rv = pthread_attr_init(&(task->attr))) != 0 ){
             return rv;
@@ -163,6 +161,9 @@ namespace RTT
 	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
 	    }
 	}
+
+	// Set name
+	if(strlen(name)) rtos_task_set_name(task, name);
 
         return rv;
 	}
@@ -433,7 +434,22 @@ namespace RTT
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{
-	    return task->name;
+          return (task->name == 0)?"?":task->name;
+	}
+
+        INTERNAL_QUAL void rtos_task_set_name(RTOS_TASK* task, const char * name)
+	{
+            if(task->name) free(task->name);
+	    task->name = strndup(name, 255);
+            /* http://stackoverflow.com/questions/2369738/can-i-set-the-name-of-a-thread-in-pthreads-linux
+               drawback of prctl is that only works on the current process
+               char pr_name[16];
+               strncpy(pr_name, sizeof(pr_name), name);
+               pr_name[15] = 0;
+               prctl(PR_SET_NAME, pr_name);
+               only works with glibc > 2.12
+            */
+            if(task->name) pthread_setname_np(task->thread, task->name);
 	}
 
     }

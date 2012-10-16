@@ -354,6 +354,12 @@ void ErrorHandler(LPTSTR lpszFunction)
     	return t->name;
     }
 
+    INTERNAL_QUAL void rtos_task_set_name(RTOS_TASK* task, const char * name)
+    {
+        if(main_task->name) free(main_task->name);
+        main_task->name = strndup(name, 255);
+    }
+
     }
 }
 #undef INTERNAL_QUAL

@@ -249,6 +249,13 @@ namespace RTT {
             const char * rtos_task_get_name(const RTOS_TASK* task);
 
             /**
+             * Set the name by which a task is known in the RTOS.
+             * @param task The task to query.
+             * @return It's name.
+             */
+            void rtos_task_set_name(RTOS_TASK* task, const char * name);
+
+            /**
              * Returns 1 when \a task is the task struct of the thread
              * calling this function, 0 otherwise.
              * @param task the task struct to compare against.
