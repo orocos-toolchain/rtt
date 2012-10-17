@@ -25,8 +25,7 @@ namespace RTT
 
             base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
             {
-                return ConnFactory::buildChannelOutput<T>(
-                		static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
+                return ConnFactory::buildChannelOutput<T>(port, new internal::SimpleConnID());
             }
 
             base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const

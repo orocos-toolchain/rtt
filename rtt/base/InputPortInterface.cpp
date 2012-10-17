@@ -40,6 +40,7 @@
 #include "InputPortInterface.hpp"
 #include "OutputPortInterface.hpp"
 #include "DataFlowInterface.hpp"
+#include "../types/TypeInfo.hpp"
 #include "../Logger.hpp"
 #include <exception>
 #include <stdexcept>
@@ -162,10 +163,24 @@ base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutpu
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy)
 {
+	/** @todo InputPortInterface::buildRemoteChannelOutput */
     return base::ChannelElementBase::shared_ptr();
 }
 
 base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
-                types::TypeInfo const* type_info) const {
-	return base::ChannelElementBase::shared_ptr();
+                types::TypeInfo const* type_info) {
+	// check is type_info is equal to this type
+	if (this->getTypeInfo()->getTypeId() == type_info->getTypeId()) {
+		return this->getTypeInfo()->buildChannelOutput(*this);
+	}
+	// otherwise
+	else {
+		// create a variable of the incoming type
+		base::DataSourceBase::shared_ptr v = type_info->buildValue();
+		// check if a conversion from type_info to this exists, and return the associated ChannelOutput
+		if (this->getTypeInfo()->convert(v))
+			return type_info->buildChannelOutput(*this);
+		else
+			return base::ChannelElementBase::shared_ptr();
+	}
 }

@@ -191,9 +191,11 @@ namespace RTT
         return ret;
     }
 
+    /** @todo TypeInfo::getAnyProtocol */
     TypeTransporter* TypeInfo::getAnyProtocol(int protocol_id) const {
-    	// TODO
-    	return 0;
+    	// if the type is transportable, just return the protocol
+    	if (this->hasProtocol(protocol_id)) return getProtocol(protocol_id);
+
     }
 
 
