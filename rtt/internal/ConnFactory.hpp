@@ -113,14 +113,15 @@ namespace RTT
          */
         virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
 
-        /* *
+        /**
          * Creates the output endpoint of a communication channel and adds it to an InputPort.
          *
          * @param port The input port to connect the channel's output end to.
          * @return The created endpoint.
          */
         virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
-        /* *
+
+        /**
          * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
          *
          * @param port The output port to connect the channel's input end to.

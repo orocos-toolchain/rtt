@@ -153,8 +153,6 @@ namespace RTT
         /**
          * Returns a type's transport for a given protocol,
          * trying to convert this type if no native transporter exists.
-         * Will print a warning when returning null. Use
-         * hasProtocol() to query without warning.
          */
         TypeTransporter* getAnyProtocol(int protocol_id) const;
 

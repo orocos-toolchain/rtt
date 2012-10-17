@@ -181,7 +181,7 @@ namespace RTT
          * @return a ChannelElementBase of type type_info.
          */
         virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-                types::TypeInfo const* type_info) const;
+                types::TypeInfo const* type_info);
     };
 
 }}
