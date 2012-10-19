@@ -68,6 +68,7 @@ namespace RTT
     protected:
         internal::ConnectionManager cmanager;
         ConnPolicy        default_policy;
+
 #ifdef ORO_SIGNALLING_PORTS
         NewDataOnPortEvent* new_data_on_port_event;
 #else
@@ -171,17 +172,25 @@ namespace RTT
                 types::TypeInfo const* type_info,
                 base::InputPortInterface& input, const ConnPolicy& policy);
 
-        /**
-         * Builds a channel output element, accepting input from the type described
-         * in \a type_info. In case this type is different than the port's type,
-         * the port tries to find a conversion for it to its own type in the type system.
-         * The returned element will already be attached to the port and be ready
-         * for a 'channelReady()' call.
-         * @param type_info The data type the returned channel element must accept.
-         * @return a ChannelElementBase of type type_info.
-         */
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-                types::TypeInfo const* type_info);
+    protected:
+        /** An embedded class for virtualizing template functions */
+        struct ChannelCreatorInterface {
+        	/**
+        	 * Builds a channel output element, accepting input from the type described
+        	 * in \a type_info. In case this type is different than the port's type,
+        	 * the port tries to find a conversion for it to its own type in the type system.
+        	 * The returned element will already be attached to the port and be ready
+         	 * for a 'channelReady()' call.
+         	 * @param type_info The data type the returned channel element must accept.
+         	 * @return a ChannelElementBase of type type_info.
+         	 */
+        	static base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+        			base::OutputPortInterface& output_port,
+        			base::InputPortInterface& input_port, const ConnPolicy& policy);
+        };
+        ChannelCreatorInterface ccreator;
+        ChannelCreatorInterface* getChannelCreator() { return ccreator; };
+
     };
 
 }}
