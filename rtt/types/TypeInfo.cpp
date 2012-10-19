@@ -39,6 +39,7 @@
 #include "TypeInfo.hpp"
 #include "TypeConstructor.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
+#include "../internal/ConnFactory.hpp"
 #include "TypeTransporter.hpp"
 
 #include "rtt-config.h"
@@ -195,8 +196,40 @@ namespace RTT
     TypeTransporter* TypeInfo::getAnyProtocol(int protocol_id) const {
     	// if the type is transportable, just return the protocol
     	if (this->hasProtocol(protocol_id)) return getProtocol(protocol_id);
-
+    	else return 0;
     }
 
+#ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
+
+    base::InputPortInterface* TypeInfo::inputPort(std::string const& name) const
+    {
+    	return mconnf ? mconnf->inputPort(name) : 0;
+    }
+
+    base::OutputPortInterface* TypeInfo::outputPort(std::string const& name) const
+    {
+    	return mconnf ? mconnf->outputPort(name) : 0;
+    }
+
+    base::ChannelElementBase::shared_ptr TypeInfo::buildDataStorage(ConnPolicy const& policy) const
+    {
+    	return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
+    }
+
+    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelOutput(base::InputPortInterface& port) const
+    {
+    	return mconnf ? mconnf->buildChannelOutput(port) : base::ChannelElementBase::shared_ptr();
+    }
+
+    base::ChannelElementBase::shared_ptr TypeInfo::buildChannelInput(base::OutputPortInterface& port) const
+    {
+    	return mconnf ? mconnf->buildChannelInput(port) : base::ChannelElementBase::shared_ptr();
+    }
+
+#endif
+
+    void TypeInfo::setPortFactory( ConnFactoryPtr cf ) { if (cf) mconnf = cf; }
+
+    ConnFactoryPtr TypeInfo::getPortFactory() const { return mconnf; }
 
 }

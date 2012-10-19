@@ -39,6 +39,7 @@
 #include "PortInterface.hpp"
 #include "../Service.hpp"
 #include "../OperationCaller.hpp"
+#include "../internal/ConnFactory.hpp"
 
 using namespace RTT;
 using namespace RTT::detail;

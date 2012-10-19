@@ -41,6 +41,7 @@
 
 #include "ChannelDataElement.hpp"
 #include "ChannelBufferElement.hpp"
+#include "ChannelConversionElement.hpp"
 
 #endif
 

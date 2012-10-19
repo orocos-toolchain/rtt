@@ -42,7 +42,6 @@
 #include <string>
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../ConnPolicy.hpp"
-#include "../internal/ConnID.hpp"
 #include "ChannelElementBase.hpp"
 #include "../types/rtt-types-fwd.hpp"
 #include "../rtt-fwd.hpp"

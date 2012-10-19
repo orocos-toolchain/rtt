@@ -226,13 +226,16 @@ namespace RTT
         }
 #endif
 
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-                                                                             types::TypeInfo const* type_info,
-                                                                             internal::ConnID* id) {
-            if (type_info == this->getTypeInfo() )
-                return internal::ConnFactory::buildChannelOutput<T>(*this, id);
-            return 0;
-        }
+    protected:
+        template <typename S>
+        struct ChannelCreator : public InputPortInterface::ChannelCreatorInterface {
+        	virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+        			base::OutputPortInterface& output_port,
+        			base::InputPortInterface& input_port, const ConnPolicy& policy) {
+        		return internal::ConnFactory::createLocalConnection<S,T>(output_port, input_port, policy);
+        	}
+        };
+
     };
 }
 

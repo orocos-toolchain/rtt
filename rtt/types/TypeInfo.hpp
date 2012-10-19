@@ -44,7 +44,8 @@
 #include "../base/ChannelElementBase.hpp"
 
 #ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS
-#include "../internal/ConnFactory.hpp"
+//#include "../internal/ConnFactory.hpp"
+#include "../internal/rtt-internal-fwd.hpp"
 #include "MemberFactory.hpp"
 #include "ValueFactory.hpp"
 #include "CompositionFactory.hpp"
@@ -57,7 +58,6 @@
 namespace RTT
 { namespace types {
         using internal::ConnFactory;
-        using internal::ConnFactoryPtr;
 
     /**
      * A class for representing a user type, and which can build
@@ -408,19 +408,13 @@ namespace RTT
          * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        base::InputPortInterface* inputPort(std::string const& name) const
-        {
-            return mconnf ? mconnf->inputPort(name) : 0; 
-        }
+        base::InputPortInterface* inputPort(std::string const& name) const;
 
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        base::OutputPortInterface* outputPort(std::string const& name) const
-        {
-            return mconnf ? mconnf->outputPort(name) : 0; 
-        }
+        base::OutputPortInterface* outputPort(std::string const& name) const;
 
         /**
          * Creates single data or buffered storage for this type.
@@ -428,18 +422,9 @@ namespace RTT
          * @param policy Describes the kind of storage requested by the user
          * @return a storage element.
          */
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const
-        {
-            return mconnf ? mconnf->buildDataStorage(policy) : base::ChannelElementBase::shared_ptr();
-        }
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return mconnf ? mconnf->buildChannelOutput(port) : base::ChannelElementBase::shared_ptr();
-        }
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return mconnf ? mconnf->buildChannelInput(port) : base::ChannelElementBase::shared_ptr();
-        }
+        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const;
+        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const;
+        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const;
 
 #endif // NO_TYPE_INFO_FACTORY_FUNCTIONS
 
@@ -452,9 +437,9 @@ namespace RTT
          * Installs a new port factory such that in-process data
          * can be communicated between components.
          */
-        void setPortFactory( ConnFactoryPtr cf ) { if (cf) mconnf = cf; }
+        void setPortFactory( boost::shared_ptr<internal::ConnFactory> cf );
 
-        ConnFactoryPtr getPortFactory() const { return mconnf; }
+        boost::shared_ptr<internal::ConnFactory> getPortFactory() const;
 
         void setMemberFactory( MemberFactoryPtr mf ) { if (mf) mmembf = mf; }
 
