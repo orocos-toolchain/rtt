@@ -273,8 +273,8 @@ namespace RTT
          * use a different transport number in the policy parameter than the transport of the input port.
          *
          */
-        template <class A>
-        static bool createConnection(OutputPort<A>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
+        template <class T_In>
+        static bool createConnection(OutputPort<T_In>& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy)
         {
             if ( !output_port.isLocal() ) {
                 log(Error) << "Need a local OutputPort to create connections." <<endlog();
@@ -288,8 +288,7 @@ namespace RTT
                 // Local connection
                 // local ports, create buffer here.
             	// output_half = buildBufferedChannelOutput<T>(input_port, output_port.getPortID(), policy, output_port.getLastWrittenValue());
-            	output_half = input_port.ChannelCreatorInterface::buildLocalChannelOutput(output_port, input_port, policy);
-            			//ConnFactory::createLocalConnection<A>(output_port, input_port, policy);
+            	output_half = createLocalConnection<T_In>(output_port, input_port, policy);
             }
             else
             {
@@ -300,7 +299,7 @@ namespace RTT
                 if ( !input_port.isLocal() ) {
                     output_half = createRemoteConnection( output_port, input_port, policy);
                 } else
-                    output_half = createOutOfBandConnection<A>( output_port, input_port, policy);
+                    output_half = createOutOfBandConnection<T_In>( output_port, input_port, policy);
             }
 
             if (!output_half)
@@ -312,7 +311,7 @@ namespace RTT
             // Since output is local, buildChannelInput is local as well.
             // This this the input channel element of the whole connection
             base::ChannelElementBase::shared_ptr channel_input =
-                buildChannelInput<A>(output_port, input_port.getPortID(), output_half);
+                buildChannelInput<T_In>(output_port, input_port.getPortID(), output_half);
 
             return createAndCheckConnection(output_port, input_port, channel_input, policy );
         }
@@ -361,10 +360,11 @@ namespace RTT
         /** Create a Local Connection.
          *
          * Creates the chain:
-         * Channel[Data,Buffer]Element<A> -- ChannelConversionElement<A,B> -- ConnOutputEndPoit<B>
-         * and connects the last one with the InputPort<B>.
+         * Channel[Data,Buffer]Element<T_In> -- 
+	 * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) -- 		 * ConnOutputEndPoit<T_Out>
+         * and connects the last one with the InputPort<T_Out>.
          */
-        template <typename A, typename B>
+        template <typename T_In>
         static base::ChannelElementBase::shared_ptr createLocalConnection(base::OutputPortInterface& output_port,
         		base::InputPortInterface& input_port, const ConnPolicy& policy)
         {
@@ -374,10 +374,10 @@ namespace RTT
         	// If input and output types are different
         	if (output_port.getTypeInfo() != input_port.getTypeInfo()) {
         		// check that a conversion is possible from A to B
-        		base::DataSourceBase::shared_ptr a = output_port.getTypeInfo()->buildValue();
-        		if (input_port.getTypeInfo()->convert(a)->getTypeInfo() == output_port.getTypeInfo()) {
-        			// Insert a conversion before the endpoint
-        			conv = internal::ChannelConversionElement<A, B>(input_port.getTypeInfo()->buildValue());
+        		if (input_port.getTypeInfo().isConvertible(output_port.getTypeInfo())) 
+			{     			
+				// Insert a conversion before the endpoint
+        			conv = internal::ChannelConversionElementIn<T_In>();
         			conv->setOutput(endpoint);
         		}
         		else
@@ -386,7 +386,7 @@ namespace RTT
         	}
         	else conv = endpoint;
         	// The Channel[Data,Buffer]Element connected to the ChannelConversionElement
-        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<A>(policy);
+        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T_In>(policy);
         	data_object->setOutput(conv);
         	return data_object;
         }
