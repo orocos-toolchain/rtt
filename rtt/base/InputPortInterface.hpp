@@ -183,7 +183,6 @@ namespace RTT
        	 */
         virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
         			base::OutputPortInterface& output_port, const ConnPolicy& policy);
-        };
     };
 
 }}
