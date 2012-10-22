@@ -361,34 +361,33 @@ namespace RTT
          *
          * Creates the chain:
          * Channel[Data,Buffer]Element<T_In> -- 
-	 * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) -- 		 * ConnOutputEndPoit<T_Out>
+	 * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) --
+	 * ConnOutputEndPoit<T_Out>
          * and connects the last one with the InputPort<T_Out>.
          */
         template <typename T_In>
         static base::ChannelElementBase::shared_ptr createLocalConnection(base::OutputPortInterface& output_port,
         		base::InputPortInterface& input_port, const ConnPolicy& policy)
         {
-        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildChannelOutput(output_port.getPortID());
-        	if (! endpoint) return endpoint;
-        	base::ChannelElementBase::shared_ptr conv = endpoint;
         	// If input and output types are different
         	if (output_port.getTypeInfo() != input_port.getTypeInfo()) {
         		// check that a conversion is possible from A to B
-        		if (input_port.getTypeInfo().isConvertible(output_port.getTypeInfo())) 
-			{     			
-				// Insert a conversion before the endpoint
-        			conv = internal::ChannelConversionElementIn<T_In>();
-        			conv->setOutput(endpoint);
+        		if (input_port.getTypeInfo()->isConvertible(output_port.getTypeInfo())) 
+			{
+				// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
+		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannelOutput(output_port, policy);
+				// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
+        			conv = internal::ChannelConversionElementIn<T_In>(endpoint);
+		        	// Channel[Data,Buffer]Element<T_In> -- ChannelConversionElementIn<T_In>
+		        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T_In>(policy);
+		        	data_object->setOutput(conv);
+				return data_object;
         		}
         		else
         			// No possible conversion! Connection cannot be created
         			return base::ChannelElementBase::shared_ptr();
         	}
-        	else conv = endpoint;
-        	// The Channel[Data,Buffer]Element connected to the ChannelConversionElement
-        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T_In>(policy);
-        	data_object->setOutput(conv);
-        	return data_object;
+        	else return buildBufferedChannelOutput<T_In>(input_port, output_port.getPortID(), policy);
         }
 
         static base::ChannelElementBase::shared_ptr createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy);
