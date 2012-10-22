@@ -133,12 +133,12 @@ namespace RTT
         return arg;
     }
 
-	bool TypeInfo::isConvertible(const TypeInfo& type_info) const {
-		if (type_info == *this)
+	bool TypeInfo::isConvertible(const TypeInfo* type_info) const {
+		if (type_info == this)
 			return true;
 		// check that a conversion is possible from type_info to this
 		base::DataSourceBase::shared_ptr d = type_info->buildValue();
-        	return (this->convert(a)->getTypeInfo() == *this);
+        	return (this->convert(a)->getTypeInfo() == this);
 	}
 
     bool TypeInfo::addProtocol(int protocol_id, TypeTransporter* tt)
