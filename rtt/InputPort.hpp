@@ -224,15 +224,20 @@ namespace RTT
             return object;
         }
 
-    protected:
-        template <typename S>
-        struct ChannelCreator : public InputPortInterface::ChannelCreatorInterface {
-        	virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-        			base::OutputPortInterface& output_port,
-        			base::InputPortInterface& input_port, const ConnPolicy& policy) {
-        		return internal::ConnFactory::createLocalConnection<S,T>(output_port, input_port, policy);
-        	}
-        };
+	virtual base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
+		base::OutputPortInterface& output_port, const ConnPolicy& policy) 
+	{
+		// ConnOutputEndPoint
+		base::ChannelElementBase::shared_ptr endpoint = input_port.getTypeInfo()->buildChannelOutput(*this);
+		// check if type_info is equal to this type
+		if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
+		// DataSource for conversion
+		AssignableDataSource<T> ds;
+		// ChannelConversionElementOut<T_Out>
+		internal::ChannelConversionElementOut<T> cconv(ds);
+		cconv.setOutput(endpoint);
+		return cconv;
+	}
 
     };
 }

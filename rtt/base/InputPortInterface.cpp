@@ -167,11 +167,12 @@ base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutpu
     return base::ChannelElementBase::shared_ptr();
 }
 
-base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput<T>(
+base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
 		base::OutputPortInterface& output_port, const ConnPolicy& policy) {
-	// check is type_info is equal to this type
-	if (this->getTypeInfo() == output_port.getTypeInfo())
-		return input_port.getTypeInfo()->buildChannelOutput(*this);
-	// otherwise
-	else return base::ChannelElementBase::shared_ptr();
+	// ConnOutputEndPoint
+	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
+	// check if type_info is equal to this type
+	if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
+	// can't do anything here... specialization in InputPort<T_Out>
+	return base::ChannelElementBase::shared_ptr();
 }
