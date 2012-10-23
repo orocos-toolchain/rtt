@@ -44,6 +44,7 @@
 #include "internal/InputPortSource.hpp"
 #include "Service.hpp"
 #include "OperationCaller.hpp"
+#include "internal/DataSource.hpp"
 
 #include "OutputPort.hpp"
 
@@ -226,20 +227,21 @@ namespace RTT
         }
 #endif
 
-	virtual base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
-		base::OutputPortInterface& output_port, const ConnPolicy& policy) 
-	{
-		// ConnOutputEndPoint
-		base::ChannelElementBase::shared_ptr endpoint = input_port.getTypeInfo()->buildChannelOutput(*this);
-		// check if type_info is equal to this type
-		if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
-		// DataSource for conversion
-		AssignableDataSource<T> ds;
-		// ChannelConversionElementOut<T_Out>
-		internal::ChannelConversionElementOut<T> cconv(ds);
-		cconv.setOutput(endpoint);
-		return cconv;
-	}
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
+        		base::OutputPortInterface& output_port, const ConnPolicy& policy)
+        {
+        	// ConnOutputEndPoint
+        	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
+        	// check if type_info is equal to this type
+        	if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
+        	// ChannelConversionElementOut<T_Out>
+        	T* d = new T();
+        	typename internal::ReferenceDataSource<T>::shared_ptr ads =
+        			boost::dynamic_pointer_cast<internal::ReferenceDataSource<T> >(this->getTypeInfo()->buildReference(d));
+        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementOut<T>(ads);
+        	cconv->setOutput(endpoint);
+        	return cconv;
+        }
 
     };
 }

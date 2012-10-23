@@ -361,8 +361,8 @@ namespace RTT
          *
          * Creates the chain:
          * Channel[Data,Buffer]Element<T_In> -- 
-	 * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) --
-	 * ConnOutputEndPoit<T_Out>
+         * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) --
+         * ConnOutputEndPoit<T_Out>
          * and connects the last one with the InputPort<T_Out>.
          */
         template <typename T_In>
@@ -373,19 +373,35 @@ namespace RTT
         	if (output_port.getTypeInfo() != input_port.getTypeInfo()) {
         		// check that a conversion is possible from A to B
         		if (input_port.getTypeInfo()->isConvertible(output_port.getTypeInfo())) 
-			{
-				// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
+        		{
+        			// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
 		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannelOutput(output_port, policy);
-				// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
-        			conv = internal::ChannelConversionElementIn<T_In>(endpoint);
+		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) local channel output built" << endlog();
+		        	// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
+		        	ChannelConversionElementInterface* cce = dynamic_cast<ChannelConversionElementInterface*>(&(*endpoint));
+		        	if (!cce) {
+	        			Logger::log(Logger::Error) << "Conversion failed when casting the ChannelConversionElementOut" << endlog();
+	        			return base::ChannelElementBase::shared_ptr();
+
+		        	}
+		        	base::ChannelElementBase::shared_ptr conv = new ChannelConversionElementIn<T_In>(cce);
+		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) channel conversion element built" << endlog();
 		        	// Channel[Data,Buffer]Element<T_In> -- ChannelConversionElementIn<T_In>
 		        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T_In>(policy);
 		        	data_object->setOutput(conv);
-				return data_object;
+		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) channel data storage built" << endlog();
+		        	if (cce->getDataSource() == dynamic_cast<ChannelConversionElementInterface*>(&(*conv))->getDataSource()) {
+			        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) Conversion channel elements share the same data source" << endlog();
+		        	}
+		        	return data_object;
         		}
-        		else
+        		else {
         			// No possible conversion! Connection cannot be created
+        			Logger::log(Logger::Error) << "No possible conversion from "
+        					<< output_port.getTypeInfo() << " to " << input_port.getTypeInfo()
+        					<< ". Port connection not possible!" << endlog();
         			return base::ChannelElementBase::shared_ptr();
+        		}
         	}
         	else return buildBufferedChannelOutput<T_In>(input_port, output_port.getPortID(), policy);
         }
