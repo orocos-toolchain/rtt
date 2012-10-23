@@ -90,9 +90,9 @@ namespace RTT
                 if ( boost::function_traits<S>::arity != 1) {
                     return base::DataSourceBase::shared_ptr();
                 } else {
-                    // The compiler should optimise this out...
+                    // The compiler should optimize this out...
                     // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
-                    // detect same type converion.
+                    // detect same type conversion.
                     if ( arg->getTypeInfo() == internal::DataSourceTypeInfo<result_type>::getTypeInfo() ) {
                         return arg;
                     }

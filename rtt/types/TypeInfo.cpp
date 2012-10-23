@@ -121,8 +121,9 @@ namespace RTT
         Constructors::const_iterator i= constructors.begin();
         if ( arg->getTypeInfo() == this )
             return arg;
-        //log(Info) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
+        log(Debug) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
         while (i != constructors.end() ) {
+
             ds = (*i)->convert( arg );
             if ( ds ) {
                 return ds;
@@ -130,6 +131,7 @@ namespace RTT
             ++i;
         }
         // if no conversion happend, return arg again.
+        log(Warning) << getTypeName() << ": no conversion found! returning " << arg->getTypeName() << endlog();
         return arg;
     }
 
@@ -138,7 +140,7 @@ namespace RTT
 			return true;
 		// check that a conversion is possible from type_info to this
 		base::DataSourceBase::shared_ptr d = type_info->buildValue();
-        	return (this->convert(a)->getTypeInfo() == this);
+        	return (this->convert(d)->getTypeInfo() == this);
 	}
 
     bool TypeInfo::addProtocol(int protocol_id, TypeTransporter* tt)
