@@ -102,6 +102,9 @@ namespace RTT
                     rootNC->unbind(name);
                     log(Info) << "Successfully removed CTaskContext '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
                 }
+                catch( CosNaming::NamingContext::NotFound ) {
+                    log(Info) << "CTaskContext '"<< mtaskcontext->getName() << "' task was already unbound."<<endlog();
+                }
                 catch( ... ) {
                     log(Warning) << "CTaskContext '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
                 }

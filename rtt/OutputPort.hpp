@@ -308,6 +308,7 @@ namespace RTT
             return internal::ConnFactory::createStream(*this, policy);
         }
 
+#ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
@@ -324,6 +325,7 @@ namespace RTT
             object->addSynchronousOperation("last", last_m, this).doc("Returns last written value to this port.");
             return object;
         }
+#endif
     };
 
 }

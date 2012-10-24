@@ -35,7 +35,7 @@ if(PTHREAD_ROOT_DIR)
 else()
   # Use default CMake search process
   find_path(PTHREAD_INCLUDE_DIR       NAMES ${header_NAME} PATH_SUFFIXES pthread )
-  find_library(PTHREAD_LIBRARY        NAMES ${pthread_NAME})
+  find_library(PTHREAD_LIBRARY        NAMES ${pthread_NAME} PATHS /usr/lib/x86_64-linux-gnu/)
 endif()
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.

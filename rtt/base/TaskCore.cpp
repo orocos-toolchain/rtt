@@ -163,7 +163,7 @@ namespace RTT {
             if ( copy >= Running ) {
                 stopHook();
             }
-            if ( copy >= Stopped ) {
+            if ( copy >= Stopped && mInitialState == PreOperational ) {
                 cleanupHook();
             }
             exceptionHook();

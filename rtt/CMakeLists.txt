@@ -157,6 +157,7 @@ ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( plugin )
+ADD_SUBDIRECTORY( deployment )
 ADD_SUBDIRECTORY( extras )
 
 ####
@@ -208,6 +209,9 @@ ENDIF ( BUILD_STATIC )
   IF (BUILD_ENABLE_COVERAGE)
 	target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic gcov)
   ENDIF (BUILD_ENABLE_COVERAGE)
+  IF (ROSLIB_SUPPORT)
+        target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${ROS_LIBRARIES})
+  ENDIF (ROSLIB_SUPPORT)
 
   if(ENABLE_MQ AND OROPKG_OS_XENOMAI AND XENOMAI_POSIX_FOUND)
     target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${XENOMAI_POSIX_LIBRARIES})

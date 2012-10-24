@@ -6,6 +6,8 @@
 #define RTT_VERSION_MINOR @RTT_VERSION_MINOR@
 #define RTT_VERSION_PATCH @RTT_VERSION_PATCH@
 
+#cmakedefine ORO_DISABLE_PORT_DATA_SCRIPTING
+
 // if not defined, show an error
 #ifndef OROCOS_TARGET
 // OROCOS_TARGET is only used to include the file targets/OROCOS_TARGET

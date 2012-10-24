@@ -45,11 +45,19 @@ endfunction( orocos_get_manifest_deps RESULT)
 #
 # sets these variables:
 # ${PACKAGE}_LIBRARIES            The fully resolved link libraries for this package.
-# ${PACKAGE}_<LIB>_LIBRARIES      Each fully resolved link library <LIB> in the above list.
+# ${PACKAGE}_INCLUDE_DIRS         The include directories for this package.
+# ${PACKAGE}_LIBRARY_DIRS         The library directories for this package.
+# ${PACKAGE}_CFLAGS_OTHER         The compile flags other than -I for this package.
+# ${PACKAGE}_LDFLAGS_OTHER        The linker flags other than -L and -l for thfully resolved link libraries for this package.
+# ${PACKAGE}_<LIB>_LIBRARY        Each fully resolved link library <LIB> in the above list.
+#
+# USE_OROCOS_COMPILE_FLAGS        All exported compile flags from packages within the current scope.
+# USE_OROCOS_LINK_FLAGS           All exported link flags from packages within the current scope.
+#
 #
 # Usage: orocos_use_package( myrobot )
 #
-function( orocos_use_package PACKAGE )
+macro( orocos_use_package PACKAGE )
   if (PACKAGE STREQUAL "rtt")
     return()
   endif (PACKAGE STREQUAL "rtt")
@@ -91,14 +99,28 @@ function( orocos_use_package PACKAGE )
     include_directories(${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
 
     # Use find_libraries to find each library:
+    unset(${PACKAGE}_LIBRARIES CACHE)
     foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
         if(${PACKAGE}_${COMP_LIB}_LIBRARY)
         else(${PACKAGE}_${COMP_LIB}_LIBRARY)
             message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
         endif(${PACKAGE}_${COMP_LIB}_LIBRARY)
-	list(APPEND ${PACKAGE}_LIBRARIES ${${PACKAGE}_${COMP_LIB}_LIBRARY})
+        list(APPEND ${PACKAGE}_LIBRARIES ${${PACKAGE}_${COMP_LIB}_LIBRARY})
     endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
+
+    # Add some output variables to the cache to make them accessible from outside this scope
+    set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS} CACHE INTERNAL "")
+    set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS} CACHE INTERNAL "")
+    set(${PACKAGE}_LIBRARIES ${${PACKAGE}_LIBRARIES} CACHE INTERNAL "")
+    set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER} CACHE INTERNAL "")
+    set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER} CACHE INTERNAL "")
+
+    # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
+    set(USE_OROCOS_COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS} ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
+    set(USE_OROCOS_LINK_FLAGS ${USE_OROCOS_LINK_FLAGS} ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
+    list(REMOVE_DUPLICATES USE_OROCOS_COMPILE_FLAGS)
+    list(REMOVE_DUPLICATES USE_OROCOS_LINK_FLAGS)
 
     # Only link in case there is something *and* the user didn't opt-out:
     if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
@@ -113,7 +135,7 @@ function( orocos_use_package PACKAGE )
     endif (VERBOSE)
   endif (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
     
-endfunction( orocos_use_package PACKAGE )
+endmacro( orocos_use_package PACKAGE )
 
 macro(_orocos_list_to_string _string _list)
     set(${_string})

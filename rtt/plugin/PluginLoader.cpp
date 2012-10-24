@@ -100,7 +100,7 @@ static const std::string default_delimiter(":");
     returns true  for ".1", ".12", ".123"
     returns false for ".a", "1", "123", ".123 ", "a", "", ".1.a", ".1a2"
 */
-RTT_API bool isExtensionVersion(const std::string& ext)
+bool isExtensionVersion(const std::string& ext)
 {
     bool isExtensionVersion = false;
 
@@ -138,7 +138,7 @@ RTT_API bool isExtensionVersion(const std::string& ext)
 
    All the above also apply without the "lib" prefix.
 */
-RTT_API bool isLoadableLibrary(const path& filename)
+bool isLoadableLibrary(const path& filename)
 {
     bool isLoadable = false;
 
@@ -228,7 +228,7 @@ static boost::shared_ptr<PluginLoader> instance2;
 
 namespace {
 
-vector<string> splitPaths(string const& str)
+static vector<string> splitPaths(string const& str)
 {
     vector<string> paths;
 
@@ -258,7 +258,7 @@ vector<string> splitPaths(string const& str)
  * @param str filename.
  * @return stripped filename.
  */
-string makeShortFilename(string const& str) {
+static string makeShortFilename(string const& str) {
     string ret = str;
     if (str.substr(0,3) == "lib")
         ret = str.substr(3);
@@ -269,7 +269,7 @@ string makeShortFilename(string const& str) {
 
 }
 
-bool hasEnding(string const &fullString, string const &ending)
+static bool hasEnding(string const &fullString, string const &ending)
 {
     if (fullString.length() > ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));

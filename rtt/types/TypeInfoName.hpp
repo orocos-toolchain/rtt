@@ -67,6 +67,8 @@ namespace RTT
         }
 
         virtual const std::string& getTypeName() const { return tname; }
+
+        TypeInfo* getTypeInfoObject() const { return 0; }
     };
 
     /**

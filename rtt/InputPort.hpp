@@ -211,6 +211,7 @@ namespace RTT
             return internal::ConnFactory::createStream(*this, policy);
         }
 
+#ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
@@ -224,6 +225,7 @@ namespace RTT
             object->addSynchronousOperation("read", read_m, this).doc("Reads a sample from the port.").arg("sample", "");
             return object;
         }
+#endif
 
         virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
         		base::OutputPortInterface& output_port, const ConnPolicy& policy)
