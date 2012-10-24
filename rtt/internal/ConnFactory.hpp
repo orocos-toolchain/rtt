@@ -376,7 +376,6 @@ namespace RTT
         		{
         			// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
 		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannelOutput(output_port, policy);
-		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) local channel output built" << endlog();
 		        	// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
 		        	ChannelConversionElementInterface* cce = dynamic_cast<ChannelConversionElementInterface*>(&(*endpoint));
 		        	if (!cce) {
@@ -385,14 +384,9 @@ namespace RTT
 
 		        	}
 		        	base::ChannelElementBase::shared_ptr conv = new ChannelConversionElementIn<T_In>(cce);
-		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) channel conversion element built" << endlog();
 		        	// Channel[Data,Buffer]Element<T_In> -- ChannelConversionElementIn<T_In>
 		        	base::ChannelElementBase::shared_ptr data_object = buildDataStorage<T_In>(policy);
 		        	data_object->setOutput(conv);
-		        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) channel data storage built" << endlog();
-		        	if (cce->getDataSource() == dynamic_cast<ChannelConversionElementInterface*>(&(*conv))->getDataSource()) {
-			        	Logger::log(Logger::Debug) << "(ConnFactory::createLocalConnection) Conversion channel elements share the same data source" << endlog();
-		        	}
 		        	return data_object;
         		}
         		else {
