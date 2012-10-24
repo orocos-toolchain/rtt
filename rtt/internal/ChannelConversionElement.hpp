@@ -41,10 +41,7 @@ namespace RTT { namespace internal {
 				FlowStatus fs = input->read(in_storage, copy_old_data);
 				// conversion
 				if (ref_data_source) {
-					Logger::log(Logger::Debug) << "(ChannelConversionElementIn::read) reference data source exists" << endlog();
 					if (data_source) {
-						Logger::log(Logger::Debug) << "(ChannelConversionElementIn::read) data source type info:"
-								<< data_source->getTypeInfo() << endlog();
 						data_source->update(&(*(data_source->getTypeInfo()->convert(ref_data_source))));
 						return fs;
 					}
@@ -75,7 +72,6 @@ namespace RTT { namespace internal {
 			if (fs == NewData) {
 				this->data_source->evaluate();
 				sample = this->data_source->value();
-				log(Debug) << "(ChannelConversionElementOut::read) new data";
 				if (data_source->getTypeInfo()->isStreamable()) data_source->getTypeInfo()->write(std::cout, data_source);
 				log() << endlog();
 			}
