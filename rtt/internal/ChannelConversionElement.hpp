@@ -72,8 +72,6 @@ namespace RTT { namespace internal {
 			if (fs == NewData) {
 				this->data_source->evaluate();
 				sample = this->data_source->value();
-				if (data_source->getTypeInfo()->isStreamable()) data_source->getTypeInfo()->write(std::cout, data_source);
-				log() << endlog();
 			}
 			return fs; 
 		};
