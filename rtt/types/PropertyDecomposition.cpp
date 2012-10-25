@@ -77,6 +77,9 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
 
     // try user's custom type decomposition first:
     DataSourceBase::shared_ptr decomposed = dsb->getTypeInfo()->decomposeType(dsb);
+    // In cases where decomposeType() returned dsb itself, we stop the decomposition here.
+    if (decomposed == dsb)
+        return false;
     if (decomposed) {
         // decomposed is or another type, or a PropertyBag
         internal::AssignableDataSource<PropertyBag>::shared_ptr bag = internal::AssignableDataSource<PropertyBag>::narrow( decomposed.get() );
@@ -86,7 +89,6 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             return true;
         } else {
             // it converted to something else than a bag.
-            // In cases where decomposeType() returned dsb itself, we stop the decomposition here.
             //log(Debug) << "propertyDecomposition: decomposeType() of "<<  dsb->getTypeName() << " did not return a PropertyBag but a " << decomposed->getTypeName() << endlog();
             return false;
         }
@@ -120,10 +122,22 @@ bool typeDecomposition( base::DataSourceBase::shared_ptr dsb, PropertyBag& targe
             log(Error)<< "Decomposition failed because Part '"<<*it<<"' is not known to type system."<<endlog();
             continue;
         }
-        if ( !recurse || !propertyDecomposition( newpb, recurse_bag->value(), true) ) {
-            assert( recurse_bag->value().empty() );
+        if ( !recurse )
             targetbag.ownProperty( newpb ); // leaf
+        else if ( !propertyDecomposition( newpb, recurse_bag->value(), true) ) {
+            //recurse_bag is empty
+            assert( recurse_bag->rvalue().empty() );
+            base::DataSourceBase::shared_ptr clone = newpb->getDataSource();
+            base::DataSourceBase::shared_ptr converted = clone->getTypeInfo()->decomposeType(clone);
+            if ( converted && converted != clone ) {
+                // converted contains another type
+                targetbag.add( converted->getTypeInfo()->buildProperty(*it, "", converted) );
+            } else {
+                // use the original
+                targetbag.add( newpb );
+            }
         } else {
+            assert( recurse_bag->rvalue().size() >= 1 ); 
             recurse_bag->setName(*it);
             // setType() is done by recursive of self.
             targetbag.ownProperty( recurse_bag.release() ); //recursed.
