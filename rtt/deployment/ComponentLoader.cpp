@@ -660,7 +660,7 @@ bool ComponentLoader::loadInProcess(string file, string libname, bool log_error)
         return false;
     }
 
-    handle = dlopen ( p.string().c_str(), RTLD_NOW | RTLD_GLOBAL );
+    handle = dlopen ( p.string().c_str(), RTLD_NOW);
 
     if (!handle) {
         if ( log_error ) {
