@@ -106,15 +106,14 @@ namespace RTT
             Parts mparts;
 
             /**
-             * Aliases to the parts of the parent struct
-             * to emulate read-only access
-             */
-            Parts mcparts;
-
-            /**
              * The names of the parts of the parent struct
              */
             PartNames mnames;
+
+            /**
+             * If non-empty, only discover the member with this name.
+             */
+            std::string membername;
 
             typedef char Elem;
             /**
@@ -151,13 +150,12 @@ namespace RTT
                 return base::DataSourceBase::shared_ptr();
             }
 
-            base::DataSourceBase::shared_ptr getConstMember(const std::string name) {
-                PartNames::iterator it = find( mnames.begin(), mnames.end(), name);
-                if ( it != mnames.end() && mcparts.size() == mnames.size() )
-                    return mcparts.at( it - mnames.begin() );
-                return base::DataSourceBase::shared_ptr();
-            }
-
+            /**
+             * This function discovers all parts of a serializable struct and
+             * creates a DataSource object for each member of that struct.
+             * Use getMember() afterwards to retrieve the DataSource of each
+             * member.
+             */
             template<class T>
             void discover( T& t) {
 #if BOOST_VERSION >= 104100
@@ -165,6 +163,20 @@ namespace RTT
 #else
                 boost::archive::detail::load_non_pointer_type<type_discovery,T>::load_only::invoke(*this,t);
 #endif
+            }
+
+            /**
+             * This function discovers a single part of a serializable struct
+             * and returns an assignable datasource to that member of that struct, or a null
+             * ptr if no such member exists or if the member is not assignable.
+             */
+            template<class T>
+            base::DataSourceBase::shared_ptr discoverMember( T& t, const std::string name) {
+                membername = name;
+                discover( t );
+                if ( ! mparts.empty() )
+                    return mparts[0];
+                return base::DataSourceBase::shared_ptr();
             }
 
             /**
@@ -237,7 +249,6 @@ namespace RTT
                 // stores the part
                 if (mparent) {
                     mparts.push_back(new internal::PartDataSource<T> (t, mparent));
-                    mcparts.push_back(new internal::AliasDataSource<T>( new internal::PartDataSource<T> (t, mparent) ));
                 }
                 return *this;
             }
@@ -252,7 +263,6 @@ namespace RTT
             {
                 if (mparent) {
                     mparts.push_back(new internal::PartDataSource<T> (t, mparent));
-                    mcparts.push_back(new internal::AliasDataSource<T>( new internal::PartDataSource<T> (t, mparent) ));
                 }
                 return *this;
             }
@@ -267,10 +277,7 @@ namespace RTT
             {
                 if (mparent) {
                     mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
-                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent)  ));
                 }
-                // probably not necessary:
-                //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
                 return *this;
             }
 
@@ -284,10 +291,7 @@ namespace RTT
             {
                 if (mparent) {
                     mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
-                    mcparts.push_back(new internal::AliasDataSource< carray<T> >( new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent)  ));
                 }
-                // probably not necessary:
-                //mparts.push_back( DataSourceTypeInfo< carray<T> >::getTypeInfo()->buildPart( carray<T>(t), mparent ) );
                 return *this;
             }
 
@@ -309,11 +313,19 @@ namespace RTT
             template<class T>
             type_discovery &load_a_type(const boost::serialization::nvp<T> & t, boost::mpl::false_)
             {
-                // store name of member
-                mnames.push_back( t.name() );
+                // check for single-member extraction first:
+                if ( !membername.empty() ) {
+                    // Only serialize if the name matches:
+                    if ( t.name() == membername )
+                        *this & t.value();
+                } else {
+                    // Full extraction of all parts:
+                    // store name of member
+                    mnames.push_back( t.name() );
 
-                // serialize the data as usual
-                *this & t.value();
+                    // serialize the data as usual
+                    *this & t.value();
+                }
 
                 return *this;
             }

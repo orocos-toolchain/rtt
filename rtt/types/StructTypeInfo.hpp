@@ -81,7 +81,7 @@ namespace RTT
         }
 
             virtual std::vector<std::string> getMemberNames() const {
-                // only discover the parts of this struct:
+                // only discover the part names of this struct:
                 type_discovery in;
                 T t; // boost can't work without a value.
                 in.discover( t );
@@ -90,19 +90,18 @@ namespace RTT
 
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
-                if ( adata ) {
-                    type_discovery in( item );
-                    in.discover( adata->set() );
-                    //log(Debug) << "Returning part: " << name << endlog();
-                    return in.getMember(name);
+                // Use a copy in case our parent is not assignable:
+                if ( !adata ) {
+                    // is it non-assignable ?
+                    typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
+                    if ( data ) {
+                        // create a copy
+                        adata = new internal::ValueDataSource<T>( data->get() );
+                    }
                 }
-                typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
-                if ( data ) {
-                    adata = new internal::ValueDataSource<T>( data->get() );
+                if (adata) {
                     type_discovery in( adata );
-                    in.discover( adata->set() );
-                    //log(Debug) << "Returning copy of part: " << name << endlog();
-                    return in.getConstMember(name);
+                    return in.discoverMember( adata->set(), name );
                 }
                 log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
                 return base::DataSourceBase::shared_ptr();
