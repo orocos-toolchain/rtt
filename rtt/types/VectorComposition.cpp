@@ -42,6 +42,7 @@
 #include "../Logger.hpp"
 #include <ostream>
 #include <sstream>
+#include "Types.hpp"
 
 namespace RTT {
     namespace types {
@@ -49,7 +50,8 @@ namespace RTT {
 
     bool composeProperty(const PropertyBag& bag, std::vector<double>& result)
     {
-        if ( bag.getType() == "std::vector<double>" || bag.getType() == "array" ) {
+        TypeInfoRepository::shared_ptr tir = Types();
+        if ( tir->type( bag.getType()) == tir->getTypeInfo<std::vector<double> >() ) {
             Property<double>* comp;
             int dimension = bag.size();
             result.resize( dimension );

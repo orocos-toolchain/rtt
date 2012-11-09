@@ -149,6 +149,7 @@ namespace RTT
              */
             virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
                 // The default implementation decomposes result and refreshes it with source.
+                TypeInfoRepository::shared_ptr tir = Types();
                 internal::ReferenceDataSource<T> rds(result);
                 rds.ref(); // prevent dealloc.
                 PropertyBag decomp;
@@ -156,7 +157,7 @@ namespace RTT
                 // update vs refresh: since it is intentional that the decomposition leads to references to parts of result,
                 // only refreshProperties() is meaningful (ie we have a one-to-one mapping). In case of sequences, this would
                 // of course not match, so this is struct specific.
-                return typeDecomposition( &rds, decomp, false) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
+                return typeDecomposition( &rds, decomp, false) && ( tir->type(decomp.getType()) == tir->type(source.getType()) ) && refreshProperties(decomp, source);
             }
 
 

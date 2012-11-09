@@ -112,7 +112,8 @@ namespace RTT
 
         Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
 
-        if (v_bag != 0 && v_bag->get().getType() == "MultiVector")
+        TypeInfoRepository* tir = Types();
+        if (v_bag != 0 && tir->type(v_bag->get().getType()) == tir->getTypeInfo<MultiVector<S,T> >() )
             {
                 Property<T>* comp;
 

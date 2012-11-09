@@ -496,7 +496,7 @@ namespace RTT
         Logger::In in("refreshProperties");
 
         // if the target is of different type than source, it is replaced by source.
-        if ( target.getType() != "PropertyBag" && target.getType() != source.getType() ) {
+        if ( Types()->type(target.getType()) != Types()->getTypeInfo<PropertyBag>() && Types()->type( target.getType() ) != Types()->type( source.getType() ) ) {
             log(Error) << "Can not populate typed PropertyBag '"<< target.getType() <<"' from '"<<source.getType()<<"' (source and target type differed)."<<endlog();
             return false;
         }
@@ -565,7 +565,7 @@ namespace RTT
             target.setType("PropertyBag"); // RTT 1.2.0
 
         // if the target is of different type than source, it is replaced by source.
-        if ( target.getType() != "PropertyBag" && target.getType() != source.getType() ) {
+        if ( Types()->type( target.getType() ) != Types()->getTypeInfo<PropertyBag>() && Types()->type(target.getType()) != Types()->type(source.getType()) ) {
             log(Error) << "Can not populate typed PropertyBag '"<< target.getType() <<"' from '"<<source.getType()<<"' (source and target type differed)."<<endlog();
             return false;
         }
@@ -603,7 +603,7 @@ namespace RTT
                         PropertyBase* temp = 0;
 #if 0
                         Property<PropertyBag>* tester = dynamic_cast<Property<PropertyBag>* >(*sit);
-                        if (tester && tester->value().getType() != "PropertyBag") {
+                        if (tester && Types()->type( tester->value().getType() ) != Types()->getTypeInfo<PropertyBag>()) {
                             if (TypeInfo* ti = types::Types()->type(tester->value().getType())) {
                                 temp = ti->buildProperty( tester->getName(), tester->getDescription() );
                                 assert(temp);

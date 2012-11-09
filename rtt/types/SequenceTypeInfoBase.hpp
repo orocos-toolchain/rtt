@@ -188,6 +188,7 @@ namespace RTT
                     result.resize( source.size() );
                 }
                 // recurse into items of this sequence:
+                TypeInfoRepository::shared_ptr tir = Types();
                 PropertyBag target( source.getType() );
                 PropertyBag decomp;
                 internal::ReferenceDataSource<T> rds(result);
@@ -195,14 +196,16 @@ namespace RTT
                 // we compose each item in this sequence and then update result with target's result.
                 // 1. each child is composed into target (this is a recursive thing)
                 // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
-                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( tir->type( decomp.getType() ) == tir->type( target.getType() ) ) && refreshProperties(decomp, target, true) ) {
                     assert(result.size() == source.size());
                     assert(source.size() == target.size());
                     assert(source.size() == decomp.size());
                     ads->updated();
                     Logger::log() <<Logger::Debug<<"Successfuly composed type from "<< source.getType() <<Logger::endl;
                     return true;
-                }
+                } else 
+                    Logger::log() <<Logger::Debug<<"Failed to composed type from "<< source.getType() <<Logger::endl;
+
                 return false;
             }
 
