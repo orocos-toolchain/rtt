@@ -3,6 +3,7 @@
 
 #include "../base/DataSourceBase.hpp"
 #include "../rtt-config.h"
+#include "../internal/Reference.hpp"
 #include <vector>
 #include <string>
 
@@ -42,7 +43,12 @@ namespace RTT
         virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const;
 
         /**
-         * Returns a member of a given data source struct identified by a data source id.
+         * Returns a member of a given data source identified by a data source \a id. This will be an
+         * int (for indexing) or a string (for the member name).
+         * @warning Currently this only works for a SequenceTypeInfo-like object. We don't
+         * implement this for StructTypeInfo-like objects, since that would be a very expensive
+         * implementation (memory wise).
+         *
          * @param item The item of which to return a member
          * @param id   Or a string data source containing the name of a member if item is a struct,
          * Or an unsigned int data source containing the index of an element if item is a sequence
@@ -50,6 +56,17 @@ namespace RTT
         virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                            base::DataSourceBase::shared_ptr id) const;
 
+
+        /**
+         * Stores a reference to a member of a struct identified by its name.
+         * This method does not allocate memory when \a item is assignable..
+         * @param ref The reference object in which to store the reference.
+         * @param item The item of which to return a reference to a member. It must be assignable, otherwise,
+         * a reference to a copy of item will be returned. This copy \b will allocate memory.
+         * @param name The name of a member within \a item.
+         * @return false if no such member exists, true if ref got filled in otherwise.
+         */
+        virtual bool getMember(internal::Reference* ref, base::DataSourceBase::shared_ptr item, const std::string& name) const;
         /** @} */
         };
 

@@ -80,6 +80,7 @@
 #include "../base/DataSourceBase.hpp"
 #include "../internal/PartDataSource.hpp"
 #include "../internal/DataSources.hpp"
+#include "../internal/Reference.hpp"
 #include "carray.hpp"
 
 namespace RTT
@@ -115,6 +116,12 @@ namespace RTT
              */
             std::string membername;
 
+            /**
+             * If non-empty, use this reference to the member with name
+             * membername.
+             */
+            internal::Reference* mref;
+
             typedef char Elem;
             /**
              * Saving Archive Concept::is_loading
@@ -130,7 +137,7 @@ namespace RTT
              * part data sources.
              */
             type_discovery(base::DataSourceBase::shared_ptr parent) :
-                mparent(parent)
+                mparent(parent), mref(0)
             {
             }
 
@@ -139,7 +146,7 @@ namespace RTT
              * No parts will be created.
              */
             type_discovery() :
-                mparent()
+                mparent(), mref(0)
             {
             }
 
@@ -177,6 +184,21 @@ namespace RTT
                 if ( ! mparts.empty() )
                     return mparts[0];
                 return base::DataSourceBase::shared_ptr();
+            }
+
+            /**
+             * This function discovers a single part of a serializable struct
+             * and sets a reference to that member of that struct.
+             */
+            template<class T>
+            bool referenceMember(internal::Reference* ref, T& t, const std::string name) {
+                assert(ref);
+                membername = name;
+                mref = ref;
+                discover( t );
+                if (mref == 0) // we found it
+                    return true;
+                return false;
             }
 
             /**
@@ -261,9 +283,7 @@ namespace RTT
             template<class T>
             type_discovery &load_a_type(T &t, boost::mpl::false_)
             {
-                if (mparent) {
-                    mparts.push_back(new internal::PartDataSource<T> (t, mparent));
-                }
+                mparts.push_back(new internal::PartDataSource<T> (t, mparent));
                 return *this;
             }
 
@@ -275,9 +295,7 @@ namespace RTT
             template<class T>
             type_discovery &load_a_type(const boost::serialization::array<T> &t, boost::mpl::false_)
             {
-                if (mparent) {
-                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
-                }
+                mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
                 return *this;
             }
 
@@ -289,9 +307,7 @@ namespace RTT
             template<class T, std::size_t N>
             type_discovery &load_a_type(boost::array<T,N> &t, boost::mpl::false_)
             {
-                if (mparent) {
-                    mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
-                }
+                mparts.push_back(new internal::PartDataSource< carray<T> > ( carray<T>(t), mparent) );
                 return *this;
             }
 
@@ -310,21 +326,29 @@ namespace RTT
             }
 
             //! special treatment for name-value pairs.
+            //! Since all types pass here, we take some decisions early
             template<class T>
             type_discovery &load_a_type(const boost::serialization::nvp<T> & t, boost::mpl::false_)
             {
                 // check for single-member extraction first:
                 if ( !membername.empty() ) {
                     // Only serialize if the name matches:
-                    if ( t.name() == membername )
-                        *this & t.value();
+                    if ( t.name() == membername ) {
+                        if ( !mref ) {
+                            *this & t.value();
+                        } else {
+                            mref->setReference( (void*) & t.value() );
+                            mref = 0; // signals' we're done.
+                        }
+                    }
                 } else {
                     // Full extraction of all parts:
                     // store name of member
                     mnames.push_back( t.name() );
 
                     // serialize the data as usual
-                    *this & t.value();
+                    if (mparent)
+                        *this & t.value();
                 }
 
                 return *this;

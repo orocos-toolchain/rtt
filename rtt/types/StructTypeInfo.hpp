@@ -88,6 +88,16 @@ namespace RTT
                 return in.mnames;
             }
 
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
+                                                             base::DataSourceBase::shared_ptr id) const {
+                // user tried to pass the member name by data source, but we can't read out this datasource after getMember() returns.
+                // ie, we could only read out id as a string and then call the getMember below.
+                // type_discovery requires the name right now and does not allow to delay the name, unless we discover the whole type,
+                // keep all datasources and then use getMember using some functor data source.... Not going to do that !
+                assert(false && "You're doing something new and exotic. Contact the Orocos-dev mailing list.");
+                return base::DataSourceBase::shared_ptr();
+            }
+
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
                 // Use a copy in case our parent is not assignable:
@@ -105,6 +115,25 @@ namespace RTT
                 }
                 log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
                 return base::DataSourceBase::shared_ptr();
+            }
+
+            virtual bool getMember(internal::Reference* ref, base::DataSourceBase::shared_ptr item, const std::string& name) const {
+                typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
+                // Use a copy in case our parent is not assignable:
+                if ( !adata ) {
+                    // is it non-assignable ?
+                    typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
+                    if ( data ) {
+                        // create a copy -> this is the only place & case where we allocate -> how to fix ?
+                        adata = new internal::ValueDataSource<T>( data->get() );
+                    }
+                }
+                if (adata) {
+                    type_discovery in( adata );
+                    return in.referenceMember( ref, adata->set(), name );
+                }
+                log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
+                return false;
             }
 
         virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const

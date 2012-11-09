@@ -14,6 +14,11 @@ bool MemberFactory::resize(base::DataSourceBase::shared_ptr arg, int size) const
         return vector<string>();
     }
 
+bool MemberFactory::getMember(internal::Reference* ref, DataSourceBase::shared_ptr item, const std::string& part_name) const
+{
+    return false;
+}        
+
     DataSourceBase::shared_ptr MemberFactory::getMember(DataSourceBase::shared_ptr item, const std::string& part_name) const
     {
         /** ** Strong typed data **

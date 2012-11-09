@@ -332,10 +332,25 @@ namespace RTT
         }
 
         /**
-         * Returns a member of a given data source struct identified by a data source id.
-         * @param item The item of which to return a member
-         * @param id   Or a string data source containing the name of a member if item is a struct,
-         * Or an unsigned int data source containing the index of an element if item is a sequence
+         * Stores a reference to a member of a struct identified by its name.
+         * This method does not allocate memory when \a item is assignable..
+         * @param ref The reference object in which to store the reference.
+         * @param item The item of which to return a reference to a member. It must be assignable, otherwise,
+         * a reference to a copy of item will be returned. This copy \b will allocate memory.
+         * @param name The name of a member within \a item.
+         * @return false if no such member exists, true if ref got filled in otherwise.
+         */
+        bool getMember(internal::Reference* ref, base::DataSourceBase::shared_ptr item, const std::string& name) const
+        {
+            return mmembf ? mmembf->getMember(ref, item,name) : false;
+        }
+
+        /**
+         * Returns a reference to a member of a given data source struct identified by its name.
+         * @param item The item of which to return a reference to a member
+         * @param name The name of a member within \a item. Is a name of a member in case of a struct
+         * or an index number in case of a sequence.
+         * @return false if no such member exists, true if ref got filled in otherwise.
          */
         base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
                                                    base::DataSourceBase::shared_ptr id) const
