@@ -105,8 +105,7 @@ namespace RTT
         virtual bool removeConnection(internal::ConnID* cid);
 
         /** Returns a DataSourceBase interface to read this port. The returned
-         * data source is always the same object and will be destroyed when the
-         * port is destroyed.
+         * data source is always a new object.
          */
         virtual DataSourceBase* getDataSource() = 0;
 

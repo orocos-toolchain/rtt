@@ -77,16 +77,6 @@ namespace RTT
             port.getDataSample( mvalue );
         }
 
-        /**
-         * Called by owner port to notify that it is being
-         * destructed. Since this InputPortSource is refcounted,
-         * we need a way to tell it that the port no longer
-         * exists.
-         */
-        void dropPort() {
-             port = 0;
-        }
-
         void reset() { port->clear(); }
         bool evaluate() const
         {
