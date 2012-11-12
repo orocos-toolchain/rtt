@@ -73,7 +73,9 @@ namespace RTT
         typedef typename boost::intrusive_ptr<InputPortSource<T> > shared_ptr;
 
         InputPortSource(InputPort<T>& port)
-            : port(&port), mvalue() { }
+            : port(&port), mvalue() { 
+            port.getDataSample( mvalue );
+        }
 
         /**
          * Called by owner port to notify that it is being

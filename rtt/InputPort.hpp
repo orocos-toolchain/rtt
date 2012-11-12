@@ -174,6 +174,22 @@ namespace RTT
             return RTT::NewData;
         }
 
+        /**
+         * Get a sample of the data on this port, without actually reading the port's data.
+         * It's the complement of OutputPort::setDataSample() and serves to retrieve the size
+         * of a variable sized data type T. Returns default T if !connected() or if the 
+         * OutputPort did not use setDataSample(). Returns an example T otherwise.
+         * In case multiple inputs are connected to this port a sample from the currently read
+         * connection will be returned.
+         */
+        void getDataSample(T& sample)
+        {
+            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( cmanager.getCurrentChannel() );
+            if ( input ) {
+                sample = input->data_sample();
+            }
+        }
+
         /** Returns the types::TypeInfo object for the port's type */
         virtual const types::TypeInfo* getTypeInfo() const
         { return internal::DataSourceTypeInfo<T>::getTypeInfo(); }

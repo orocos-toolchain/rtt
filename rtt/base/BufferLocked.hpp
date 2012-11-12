@@ -84,6 +84,12 @@ namespace RTT
         {
             buf.resize(cap, sample);
             buf.resize(0);
+            lastSample = sample;
+        }
+
+        virtual T data_sample() const
+        {
+            return lastSample;
         }
 
         /**
