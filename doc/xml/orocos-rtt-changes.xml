@@ -3,8 +3,8 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "2.4">
-<!ENTITY version     "2.5">
+<!ENTITY oldversion  "2.5">
+<!ENTITY version     "2.6">
 ]
 >
 
@@ -36,30 +36,48 @@
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.2.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.2 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.3.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.3 Changes</ulink></para></listitem>
 			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.4.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.4 Changes</ulink></para></listitem>
+			 <listitem><para><ulink url="http://www.orocos.org/stable/documentation/rtt/v2.5.x/doc-xml/orocos-rtt-changes.html">Toolchain 2.5 Changes</ulink></para></listitem>
 		 </itemizedlist>
 		</para>
 	</section>
   <section id="caveats">
-    <title>Caveats</title>
+    <title>Important Caveats</title>
     <itemizedlist>
       <listitem>
 				<para>
 					This release is binary incompatible with RTT &oldversion;.x. You need to recompile the
 					whole toolchain and all your applications in order to use this release.
 				</para>
-				<note><para>
-					<emphasis>Take care that all previously built components and plugins in the &lt;install&gt;/lib/orocos directory and subdirectories
-					are removed, since the plugin loader may not find older versions. Especially on 'ROS' systems, which have
-					such files in their &lt;packagename&gt;/lib/ directory.</emphasis>
+				<note><para> <emphasis>Take care that all previously built components and plugins in the
+				&lt;install&gt;/lib/orocos directory and subdirectories are removed, since the component
+				and plugin loaders may get confused if older versions are found.</emphasis>
 				</para></note>
       </listitem>
       <listitem>
 				<para>
-					You can only attach one callback to an EvenPort, during the addEventPort() function call.
-					If you need multiple call-backs, you need to call these yourself from the function you've
-					provided to addEventPort(). In this regard, the port->getNewDataOnPortEvent() call has
-					been removed.  You can enable it by defining ORO_SIGNALLING_PORTS in the cmake
-					configuration step, but this feature will be removed eventually.
+					There was an API change in the (RTT internal) <classname>RTT::types::TypeInfo</classname>
+					class. If you inherited directly or indirectly from this class, you'll probably need to
+					inherit from <classname>RTT::types::TypeInfoGenerator</classname> instead and fabricate a
+					<function>installTypeInfoObject()</function> function. There is generally no change needed on your
+					side if you inherited from <classname>RTT::types::TemplateTypeInfo</classname>,
+					<classname>RTT::types::StructTypeInfo</classname> or similar classes, since these classes
+					have implemented <function>installTypeInfoObject()</function> function for you and inherit
+					from <classname>RTT::types::TypeInfoGenerator</classname>.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					There was an API change in the (RTT internal)
+					<classname>RTT::marsh::PropertyLoader</classname> class. It requires now a TaskContext or
+					Service in the constructor and no longer as argument to the rest of the API.
+				</para>
+      </listitem>
+      <listitem>
+				<para>
+					<emphasis>We no longer load component libraries with the RTLD_GLOBAL flag.</emphasis>
+					This means you must link
+					with all required libraries at link time, and not rely on symbol resolution during the
+					loading by the deployer.
 				</para>
       </listitem>
 		</itemizedlist>
@@ -68,16 +86,14 @@
     <title>ROS Users</title>
     <itemizedlist>
       <listitem>
-				<para> The Orocos Toolchain 2.5.x will only be released in ROS Electric. This comes with a 
-				major overhaul of the Electric ROS integration packages of RTT. The ROS Wiki contains
-				the necessary upgrade steps you need to take to migrate existing code to the new ROS
-				package structure. <ulink url="http://www.ros.org/wiki/rtt_ros_integration">ROS Wiki on rtt_ros_integration</ulink>.</para>
+				<para> The Orocos Toolchain 2.6.x will only be released in ROS Fuerte and later.
+				</para>
 			</listitem>
 			<listitem>
 				<para>
-					The Orocos-ROS integration and the Orocos Toolchain are available as Ubuntu packages
-					from <programlisting>http://packages.ros.org/ros/ubuntu <emphasis>distroname</emphasis> main</programlisting>.
-					See <ulink url="http://www.ros.org/wiki/ROS/Installation">ROS Wiki on installing ROS</ulink>.
+					We fixed issues of conflicting typekits (see more on that below). This means that its
+					allowed now to load typekits from ROS and non-ROS packages, describing the same
+					structs.
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -89,41 +105,31 @@
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis>Switching between OROCOS_TARGET configurations is now more robust.</emphasis>
-					In environments where multiple OROCOS_TARGET are possible (for example xenomai/gnulinux),
-					the OROCOS_TARGET environment variable can be set and will be picked up by the UseOrocos.cmake
-					macros.
+					<emphasis>Autoproj updates</emphasis>
+					This release includes the latest Autoproj version and consequently features in
+					order to manage your build process and code repository versions.
 				</para>
       </listitem>
       <listitem>
 				<para>
 					<emphasis>ROS_ROOT is no longer influencing your build, unless you're in a ROS_PACKAGE_PATH</emphasis>
-					In &oldversion;, the build system would switch to ROS-style if the user had defined the 
-					ROS_ROOT environment variable. In &version;, the build system will only switch if the
-					package being built is a ROS package, ie, it is underneath the ROS_PACKAGE_PATH.
+					The last cornercases of ROS_ROOT influencing our build behavior have been ironed out in this release
 				</para>
 				<para>
-					This allows better integration with AutoProj.
+					This fixes integration with AutoProj.
 				</para>
       </listitem>
       <listitem>
 				<para>
-					<emphasis>ROS package builds no longer install in a &lt;package&gt;/install subdirectory</emphasis>
-					All Orocos Toolchain ROS packages now install in the &lt;orocos-toolchain&gt;/install directory.
-					As such both ROS and non-ROS builds have the same directory layout. You can still use 'rosrun'
-					to run an OCL program, since these are still available in the package as well.
-				</para>
-				<para>
-					This allows better integration with AutoProj.
-				</para>
-      </listitem>
-      <listitem>
-				<para>
-					<emphasis>RTT builds with clang++ 2.9</emphasis>
+					<emphasis>RTT and OCL builds with clang++ 3.0</emphasis>
 					This allows you to speed up RTT builds significantly.
 				</para>
+      </listitem>
+      <listitem>
 				<para>
-					This allows better integration with AutoProj.
+					<emphasis>It's now possible to create applications that setup a CORBA proxy, without
+					linking to TAO/OMNIORB directly, but only to the RTT corba transport.</emphasis> See the
+					<classname>RTT::corba::TaskContextFactory</classname> class.
 				</para>
       </listitem>
       </itemizedlist>
@@ -133,8 +139,25 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						An important fix was applied when two or more output ports were connected to one
-						input port, which led to dropping data samples from time to time.
+						<emphasis> A new connection type has been introduced, BUFFER_CIRCULAR.</emphasis>
+						This new type can be used in the ConnPolicy.type field in order to have circular
+						buffers instead of the classical non-circular buffer.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<emphasis>Exceptions thrown in operations are now detected and handled.</emphasis> When
+						an operation threw an exception, this resulted in undefined behavior. The exception is
+						now caught by RTT and the caller side receives an std::runtime_exception exception.
+						Passing exceptions is not supported, so this is a last-resort solution to cope with
+						misbehaving operations.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<emphasis>The ComponentLoader is from now on part of RTT instead of OCL.</emphasis>
+						This means you no longer need a DeploymentComponent to import typekits or component
+						packages.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -143,16 +166,24 @@
       <title>Data Types, Toolkits and Typekits</title>
       <itemizedlist>
 				<listitem>
-					<para> The Typekits now support fixed size arrays better. Especially, there is no need anymore for having
-					one typekit for each size of an array. The ROS fixed-size array implementation in Electric makes use of
-					this feature.</para>
+					<para><emphasis>We restructured typekits such that it is now allowed to load multiple typekits for the same type.</emphasis></para>
 					<para>
-						For this, there was some class-reordering in the TypeInfo hierarchy, but it should remain transparant
-						for existing users.
+						If these typekits name the type differently, the names will function as an alias. Also,
+						TypeInfo object pointers are now constant and can no longer become invalid in a running
+						application.  The restructuring allows one to install a TypeInfo object and later-on
+						add features such as type decomposition or transports. The classical TypeInfo subclasses
+						all have been adapted, but if you created your own TypeInfo variant, you will need to
+						update your code minimally.
+					</para>
+					<para>
+						See the Caveats section above in case you wrote a custom typekit.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
+						<emphasis>The internal function getMember is now much more efficient and faster.</emphasis> There's now also
+						a real-time version of getMember, if you provide it a ReferenceDataSource such that a
+						reference to the member can be given without allocating a DataSource for it.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -162,47 +193,8 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						There were the usual fixes for new compilers or header locations for
-						all Operating Systems: Linux, Mac OS-X and Win32.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						The CPU affinity Thread function for Xenomai is implemented but not yet stable. We
-						are delving into this but already provide it to allow more testing.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Xenomai threads now run with a default stack size of 128kb, instead of 32kb. This may still 
-						be too little if you have scripts which load scripts or have heavy stack use. In that case,
-						use the <classname>RTT::os::Thread</classname>::setStackSize function before creating a new Thread/Activity.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						The Xenomai main() thread now runs with priority 0 instead of 10. Since this is the
-						thread which is doing all the setup work, it shouldn't have defaulted
-						to a real-time priority.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						There have been a bunch of patches for Mac OS-X, but more testing is still necessary.
-					</para>
-				</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Orocos scripting</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-						RTT script functions can now be decorated with 'global', 'local' and 'export'. 'local' is the
-						default and keeps a function local to the scripting service. 'export' attaches the script
-						function to the interface of the component it belongs to. 'global' puts the function in 
-						the GlobalService, such that other scripts in other components can use it directly, without
-						the need to refer to a component.
+						Creating a Linux thread now prints the TID or PID instead of the POSIX id, such that
+						RTT threads can be correlated to normal Unix tools such as top or ps.
 					</para>
 				</listitem>
       </itemizedlist>
@@ -220,50 +212,6 @@
 						for the latest changes
 					</para>
 				</listitem>
-				<listitem>
-					<para>
-						The TLSF branch of Lua has been merged, which will allow hard real-time script execution in the near
-						future. Further minor releases will pollish this feature more.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Your scripts have now access to the RTT globals using the <programlisting>rtt.globals</programlisting>
-						table. These are the scheduler types, data flow &amp; operations return codes and constants for initializing
-						ConnectionPolicy objects.
-					</para>
-				</listitem>
-			</itemizedlist>
-		</section>
-    <section>
-      <title>TimerComponent</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-						The TimerComponent was changed to have one port for each timer ID as well in addition to one port
-						for all timer ID's. This avoid spurious wake-ups (triggers and calls of updateHook() )
-						of components waiting for timer events on event ports.
-					</para>
-					<para>
-						You are advised to update your deployment to make use of the new timer ports.
-					</para>
-				</listitem>
-			</itemizedlist>
-		</section>
-    <section>
-      <title>Deployment</title>
-      <itemizedlist>
-				<listitem>
-					<para>
-						The Deployment XML format now also accepts an 'Affinity' field which allows to specify a 
-						CPU mask on which the thread may run.
-						There is a new operation called 'setActivityOnCPU' which takes an affinity parameter
-						as well. 
-					</para>
-					<para>
-						NOTE: this function is still experimental and not yet stable on Xenomai.
-					</para>
-				</listitem>
 			</itemizedlist>
 		</section>
     <section>
@@ -271,9 +219,9 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						The reporting component has been rewritten such that it behaves consistently.  When
-						being periodic, it will sample all input ports at the frequency it runs. When being
-						triggered, it will log the ports which have new data.
+						The reporting component has been rewritten (again) boosting its performance sometimes a
+						1000-fold (but at least a 100-fold), especially when using the NetCDF reporting component. We can now reliably log
+						a dozen ports at 1kHz, using only 10% cpu on an Intel i7 system.
 					</para>
 				</listitem>
 			</itemizedlist>
