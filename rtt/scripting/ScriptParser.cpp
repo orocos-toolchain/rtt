@@ -17,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include "../internal/mystd.hpp"
+#include "../internal/GlobalEngine.hpp"
 #include "ParsedStateMachine.hpp"
 
 namespace RTT
