@@ -20,15 +20,24 @@ namespace RTT
              */
             typedef boost::shared_ptr<OperationCallerInterface> shared_ptr;
 
-            virtual ~OperationCallerInterface()
-            {
-            }
+            OperationCallerInterface();
+
+            OperationCallerInterface(OperationCallerInterface const& orig);
+
+            virtual ~OperationCallerInterface();
 
             /**
              * Available such that implementations have a way to
              * expose their ready-ness, ie being able to do the call.
              */
             virtual bool ready() const = 0;
+
+            /**
+             * Set the ExecutionEngine of the task which owns this method.
+             * @param ee The ExecutionEngine of the component that
+             * owns this operation.
+             */
+            void setOwner(ExecutionEngine* ee);
 
             /**
              * Set an executor which will execute this method
@@ -38,7 +47,7 @@ namespace RTT
              * @param ee The ExecutionEngine of the component that
              * is executing this operation.
              */
-            virtual void setExecutor(ExecutionEngine* ee) = 0;
+            void setExecutor(ExecutionEngine* ee);
 
             /**
              * Sets the caller's engine of this operation.
@@ -47,7 +56,7 @@ namespace RTT
              * @param ee The ExecutionEngine of the component that
              * is calling this operation.
              */
-            virtual void setCaller(ExecutionEngine* ee) = 0;
+            void setCaller(ExecutionEngine* ee);
 
             /**
              * Sets the Thread execution policy of this object.
@@ -57,8 +66,25 @@ namespace RTT
              * executor may be null.
              * @return false if it may not be modified.
              */
-            virtual bool setThread(ExecutionThread et,
-                    ExecutionEngine* executor) = 0;
+            bool setThread(ExecutionThread et,
+                           ExecutionEngine* executor);
+
+            /**
+             * Executed when the operation execution resulted in a
+             * C++ exception. Must report the error to the ExecutionEngine
+             * of the owner of this operation.
+             */
+            void reportError();
+
+            /**
+             * Helpful function to tell us if this operations is to be sent or not.
+             */
+            bool isSend() { return met == OwnThread && myengine != caller; }
+        protected:
+            ExecutionEngine* myengine;
+            ExecutionEngine* caller;
+            ExecutionEngine* ownerEngine;
+            ExecutionThread met;
         };
     }
 }

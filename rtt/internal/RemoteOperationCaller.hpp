@@ -99,14 +99,6 @@ namespace RTT
             virtual bool isError() const { return false; }
             virtual void dispose() { assert(false); }
 
-            virtual void setExecutor(ExecutionEngine* ee) {
-            }
-
-            virtual void setCaller(ExecutionEngine* ee) {
-            }
-
-            virtual void reportError() {}
-
             /**
              * Call this operator if the RemoteOperationCaller takes no arguments.
              *
@@ -437,18 +429,8 @@ namespace RTT
                 this->mhandle.setAutoCollect(false);
             }
 
-            virtual void readArguments() {}
-
             virtual bool ready() const {
                 return this->mmeth.ready();
-            }
-
-            virtual bool execute() {
-                return this->mmeth.call();
-            }
-
-            virtual bool setThread(ExecutionThread, ExecutionEngine* ) {
-                return false;
             }
 
             virtual base::OperationCallerBase<OperationCallerT>* cloneI(ExecutionEngine* caller) const {

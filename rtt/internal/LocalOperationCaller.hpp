@@ -51,7 +51,6 @@
 #include "../SendHandle.hpp"
 #include "../ExecutionEngine.hpp"
 #include "OperationCallerBinder.hpp"
-#include "GlobalEngine.hpp"
 #include <boost/fusion/include/vector_tie.hpp>
 #include "../os/oro_allocator.hpp"
 
@@ -81,7 +80,7 @@ namespace RTT
               protected BindStorage<FunctionT>
         {
         public:
-            LocalOperationCallerImpl() : myengine(GlobalEngine::Instance()), caller(GlobalEngine::Instance()) {}
+            LocalOperationCallerImpl() {}
             typedef FunctionT Signature;
             typedef typename boost::function_traits<Signature>::result_type result_type;
             typedef typename boost::function_traits<Signature>::result_type result_reference;
@@ -97,26 +96,6 @@ namespace RTT
               return this->retv.isError();
             }
 
-            virtual void setExecutor(ExecutionEngine* ee) {
-                if (met == OwnThread)
-                    myengine = ee;
-                else
-                    myengine = GlobalEngine::Instance();
-            }
-
-            virtual void setCaller(ExecutionEngine* ee) {
-                if (ee)
-                    caller = ee;
-                else
-                    caller = GlobalEngine::Instance();
-            }
-
-            virtual bool setThread(ExecutionThread et, ExecutionEngine* executor) {
-                met = et;
-                setExecutor(executor);
-                return true;
-            }
-
             void executeAndDispose() {
                 if (!this->retv.isExecuted()) {
                     this->exec(); // calls BindStorage.
@@ -124,8 +103,8 @@ namespace RTT
                     if(this->retv.isError())
                         this->reportError();
                     bool result = false;
-                    if (caller){
-                        result = caller->process(this);
+                    if ( this->caller){
+                        result = this->caller->process(this);
                     }
                     if (!result)
                         dispose();
@@ -151,22 +130,12 @@ namespace RTT
             }
 
             
-            // report an error if an exception was thrown while calling exec()
-            virtual void reportError() {
-                // This localOperation was added to a TaskContext or to a Service owned by a TaskContext
-                if (this->ownerEngine != NULL)
-                    this->ownerEngine->setExceptionTask();
-                // This operation is called through OperationCaller directly
-                else if (this->met == OwnThread)
-                    this->myengine->setExceptionTask();
-            }
-
-            ExecutionEngine* getMessageProcessor() const { return myengine; }
+            ExecutionEngine* getMessageProcessor() const { return this->myengine; }
 
             SendHandle<Signature> do_send(shared_ptr cl) {
-                assert(myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
+                assert(this->myengine); // myengine must be either the caller's engine or GlobalEngine::Instance().
                 //std::cout << "Sending clone..."<<std::endl;
-                if ( myengine->process( cl.get() ) ) {
+                if ( this->myengine->process( cl.get() ) ) {
                     cl->self = cl;
                     return SendHandle<Signature>( cl );
                 } else {
@@ -319,24 +288,24 @@ namespace RTT
             }
 
             SendStatus collect_impl() {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl();
             }
             template<class T1>
             SendStatus collect_impl( T1& a1 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1);
             }
 
             template<class T1, class T2>
             SendStatus collect_impl( T1& a1, T2& a2 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2);
             }
 
             template<class T1, class T2, class T3>
             SendStatus collect_impl( T1& a1, T2& a2, T3& a3 ) {
-                caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
                 return this->collectIfDone_impl(a1,a2,a3);
             }
 
@@ -346,7 +315,7 @@ namespace RTT
             result_type call_impl()
             {
 
-                if (met == OwnThread && myengine != caller) {
+                if ( this->isSend() ) {
                     SendHandle<Signature> h = send_impl();
                     if ( h.collect() == SendSuccess )
                         return h.ret();
@@ -371,7 +340,7 @@ namespace RTT
             result_type call_impl(T1 a1)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if ( this->isSend() ) {
                     h = send_impl<T1>(a1);
                     // collect_impl may take diff number of arguments than
                     // call_impl/ret_impl(), so we use generic collect() + ret_impl()
@@ -395,7 +364,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if ( this->isSend() ) {
                     h = send_impl<T1,T2>(a1,a2);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2);
@@ -417,7 +386,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if ( this->isSend() ) {
                     h = send_impl<T1,T2,T3>(a1,a2,a3);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3);
@@ -439,7 +408,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if ( this->isSend() ) {
                     h = send_impl<T1,T2,T3,T4>(a1,a2,a3,a4);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4);
@@ -461,7 +430,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if (this->isSend()) {
                     h = send_impl<T1,T2,T3,T4,T5>(a1,a2,a3,a4,a5);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4,a5);
@@ -483,7 +452,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if (this->isSend()) {
                     h = send_impl<T1,T2,T3,T4,T5,T6>(a1,a2,a3,a4,a5,a6);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4,a5,a6);
@@ -505,7 +474,7 @@ namespace RTT
             result_type call_impl(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
             {
                 SendHandle<Signature> h;
-                if (met == OwnThread && myengine != caller) {
+                if (this->isSend()) {
                     h = send_impl<T1,T2,T3,T4,T5,T6,T7>(a1,a2,a3,a4,a5,a6,a7);
                     if ( h.collect() == SendSuccess )
                         return h.ret(a1,a2,a3,a4,a5,a6,a7);
@@ -613,11 +582,7 @@ namespace RTT
 
             virtual shared_ptr cloneRT() const = 0;
         protected:
-            ExecutionEngine* myengine;
-            ExecutionEngine* caller;
-            ExecutionEngine* ownerEngine;
             typedef BindStorage<FunctionT> Store;
-            ExecutionThread met;
             /**
              * Used to refcount self as long as dispose() is not called.
              * This refcount is real-time since both shared_ptr and object
@@ -657,38 +622,35 @@ namespace RTT
              * Construct a LocalOperationCaller from a class member pointer and an
              * object of that class.
              *
-             * @param name The name of this method
              * @param meth A pointer to a class member function
              * @param object An object of the class which has \a meth as member function.
+             * @param ee The executing engine. This is the owner engine or the GlobalEngine. If null, will be the GlobalEngine.
+             * @param caller The caller engine. From which component we call this Operation.
+             * @param oe The owner engine. In which component this Operation lives
              */
             template<class M, class ObjectType>
             LocalOperationCaller(M meth, ObjectType object, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
             {
-                if (!ee)
-                    ee = GlobalEngine::Instance();
+                this->setExecutor( ee );
+                this->setCaller( caller );
+                this->setOwner(oe);
+                this->setThread( et, ee );
                 this->mmeth = OperationCallerBinder<Signature>()(meth, object);
-                this->myengine = ee;
-                this->caller = caller;
-                this->ownerEngine = oe;
-                this->met = et;
             }
 
             /**
              * Construct a LocalOperationCaller from a function pointer or function object.
              *
-             * @param name the name of this method
              * @param meth an pointer to a function or function object.
              */
             template<class M>
             LocalOperationCaller(M meth, ExecutionEngine* ee, ExecutionEngine* caller, ExecutionThread et = ClientThread, ExecutionEngine* oe = NULL )
             {
-                if (!ee)
-                    ee = GlobalEngine::Instance();
+                this->setExecutor( ee );
+                this->setCaller( caller );
+                this->setOwner(oe);
+                this->setThread( et, ee );
                 this->mmeth = meth;
-                this->myengine = ee;
-                this->caller = caller;
-                this->ownerEngine = oe;
-                this->met = et;
             }
 
             boost::function<Signature> getOperationCallerFunction() const

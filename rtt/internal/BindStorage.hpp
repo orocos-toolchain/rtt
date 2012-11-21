@@ -113,11 +113,10 @@ namespace RTT
                 try{
                     f();
                 } catch (std::exception& e) {
-                    log(Error) << "Exception raised while executing an operation : "  << e.what() << Logger::nl;
-                    exception_what = e.what();
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
                     error = true;
                 } catch (...) {
-                    exception_what = "Unknown exception raised while executing an operation.";
+                    log(Error) << "Unknown exception raised while executing an operation." << endlog();
                     error = true;
                 }
                 executed = true;
@@ -125,6 +124,7 @@ namespace RTT
 
             void result() { checkError(); return; }
         };
+
 
         /**
          * Store a return value which may be a void, reference, const reference or
@@ -153,9 +153,10 @@ namespace RTT
                 try{
                     arg = f();
                 } catch (std::exception& e) {
-                    log(Error) << "Exception raised while executing an operation : "  << e.what() << Logger::nl;
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
                     error = true;
                 } catch (...) {
+                    log(Error) << "Unknown exception raised while executing an operation." << endlog();
                     error = true;
                 }
                 executed = true;
@@ -177,6 +178,7 @@ namespace RTT
                     log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
                     error = true;
                 } catch (...) {
+                    log(Error) << "Unknown exception raised while executing an operation." << endlog();
                     error = true;
                 }
                 executed = true;
@@ -211,40 +213,7 @@ namespace RTT
                     log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
                     error = true;
                 } catch(...) {
-                    error = true;
-                }
-                executed = true;
-            }
-
-        };
-
-        template<>
-        struct RStore<void> {
-            bool executed;
-            bool error;
-            RStore() : executed(false), error(false) {}
-
-            void checkError() const {
-              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
-            }
-
-            bool isError() const {
-              return error;
-            }
-
-            bool isExecuted() const {
-                return executed;
-            }
-
-            template<class F>
-            void exec(F f) {
-                error = false;
-                try{
-                    f();
-                } catch (std::exception& e) {
-                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
-                    error = true;
-                } catch (...) {
+                    log(Error) << "Unknown exception raised while executing an operation." << endlog();
                     error = true;
                 }
                 executed = true;

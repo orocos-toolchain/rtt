@@ -306,7 +306,7 @@ namespace RTT
 
               value_t get() const
               {
-                  FusedMCallDataSource<Signature>::evaluate();
+                  evaluate();
                   return ret.result();
               }
 

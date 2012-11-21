@@ -43,6 +43,7 @@
 #include "rtt-fwd.hpp"
 #include "os/MutexLock.hpp"
 #include "internal/MWSRQueue.hpp"
+#include "TaskContext.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>

@@ -69,12 +69,6 @@ namespace RTT
              */
             virtual OperationCallerBase<F>* cloneI(ExecutionEngine* caller) const = 0;
 
-            /**
-             * Executed when the operation execution resulted in a
-             * C++ exception. Must report the error to the ExecutionEngine
-             * of the owner of this operation.
-             */
-            virtual void reportError() = 0;
         };
     }
 }
