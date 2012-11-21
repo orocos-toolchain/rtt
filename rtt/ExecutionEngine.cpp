@@ -406,6 +406,15 @@ namespace RTT
     }
 
     void ExecutionEngine::setExceptionTask() {
+        std::string name;
+        TaskContext* tc = dynamic_cast<TaskContext*>(taskc);
+        if (tc)
+            name = tc->getName();
+        else if (taskc)
+            name = "TaskCore";
+        else
+            name = "GlobalEngine";
+        log(Error) << "in "<<name<<": unhandled exception in sent operation." << endlog();
         if(taskc)
             taskc->exception();
     }

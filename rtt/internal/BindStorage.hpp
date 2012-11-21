@@ -70,7 +70,6 @@ namespace RTT
 
             T& get() { return arg; }
             void operator()(T a) { arg = a; }
-
             operator T() { return arg;}
         };
 
@@ -84,12 +83,48 @@ namespace RTT
 
             T& get() { return *arg; }
             void operator()(T& a) { arg = &a; }
-
             operator T&() { return *arg;}
         };
 
         template<class T>
         std::ostream& operator<<(std::ostream& o, AStore<T>& a) { o << "aarg:"<<a.get(); return o;}
+
+        template<>
+        struct RStore<void> {
+            bool executed;
+            bool error;
+            RStore() : executed(false), error(false) {}
+
+            void checkError() const {
+              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
+            }
+
+            bool isError() const {
+              return error;
+            }
+
+            bool isExecuted() const {
+                return executed;
+            }
+
+            template<class F>
+            void exec(F f) {
+                error = false;
+                try{
+                    f();
+                } catch (std::exception& e) {
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << Logger::nl;
+                    exception_what = e.what();
+                    error = true;
+                } catch (...) {
+                    exception_what = "Unknown exception raised while executing an operation.";
+                    error = true;
+                }
+                executed = true;
+            }
+
+            void result() { checkError(); return; }
+        };
 
         /**
          * Store a return value which may be a void, reference, const reference or
@@ -99,104 +134,9 @@ namespace RTT
          * instance that knows if a return value was stored or not.
          */
         template<class T>
-        struct RStore {
+        struct RStore : public RStore<void> {
             T arg;
-            bool executed;
-            bool error;
-            RStore() : arg(), executed(false), error(false) {}
-
-            void checkError() const {
-              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
-            }
-
-            bool isError() const {
-              return error;
-            }
-
-            bool isExecuted() const {
-                return executed;
-            }
-
-            //bool operator()() { return executed; }
-
-            T& result() { checkError(); return arg; }
-            operator T&() { checkError(); return arg;}
-
-            /**
-             * Stores the result of a function.
-             * The RStore<void> specialisation will not store anything, and
-             * just call f().
-             * @param f The function object to execute and store the results from
-             */
-            template<class F>
-            void exec(F f) {
-                error = false;
-                try{
-                    arg = f();
-                } catch (...) {
-                    error = true;
-                }
-                executed = true;
-            }
-        };
-
-        template<class T>
-        struct RStore<T&>
-        {
-            T* arg;
-            bool executed;
-            bool error;
-            RStore() : arg(), executed(false), error(false) {}
-
-            void checkError() const {
-              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
-            }
-
-            bool isError() const {
-              return error;
-            }
-
-            bool isExecuted() const {
-                return executed;
-            }
-
-            template<class F>
-            void exec(F f) {
-                error = false;
-                try{
-                    arg = &f();
-                } catch(...) {
-                    error = true;
-                }
-                executed = true;
-            }
-
-            //bool operator()() { return executed; }
-
-            T& result() { checkError(); return *arg; }
-            operator T&() { checkError(); return *arg;}
-        };
-
-        template<class T>
-        struct RStore<const T> {
-            T arg;
-            bool executed;
-            bool error;
-            RStore() : arg(), executed(false), error(false) {}
-
-            void checkError() const {
-              if(error) throw std::runtime_error("Unable to complete the operation call. The called operation has thrown an exception");
-            }
-
-            bool isError() const {
-              return error;
-            }
-
-            bool isExecuted() const {
-                return executed;
-            }
-
-            //bool operator()() { return executed; }
+            RStore() : arg() {}
 
             T& result() { checkError(); return arg; }
             operator T&() { return arg;}
@@ -212,6 +152,64 @@ namespace RTT
                 error = false;
                 try{
                     arg = f();
+                } catch (std::exception& e) {
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << Logger::nl;
+                    error = true;
+                } catch (...) {
+                    error = true;
+                }
+                executed = true;
+            }
+        };
+
+        template<class T>
+        struct RStore<T&> : public RStore<void>
+        {
+            T* arg;
+            RStore() : arg() {}
+
+            template<class F>
+            void exec(F f) {
+                error = false;
+                try{
+                    arg = &f();
+                } catch (std::exception& e) {
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
+                    error = true;
+                } catch (...) {
+                    error = true;
+                }
+                executed = true;
+            }
+
+            //bool operator()() { return executed; }
+
+            T& result() { checkError(); return *arg; }
+            operator T&() { checkError(); return *arg;}
+        };
+
+        template<class T>
+        struct RStore<const T> : public RStore<void> {
+            T arg;
+            RStore() : arg() {}
+
+            T& result() { checkError(); return arg; }
+            operator T&() { checkError(); return arg;}
+
+            /**
+             * Stores the result of a function.
+             * The RStore<void> specialisation will not store anything, and
+             * just call f().
+             * @param f The function object to execute and store the results from
+             */
+            template<class F>
+            void exec(F f) {
+                error = false;
+                try{
+                    arg = f();
+                } catch (std::exception& e) {
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
+                    error = true;
                 } catch(...) {
                     error = true;
                 }
@@ -243,15 +241,15 @@ namespace RTT
                 error = false;
                 try{
                     f();
-                } catch(...) {
+                } catch (std::exception& e) {
+                    log(Error) << "Exception raised while executing an operation : "  << e.what() << endlog();
+                    error = true;
+                } catch (...) {
                     error = true;
                 }
                 executed = true;
             }
 
-            //bool operator()() { return executed; }
-
-            void result() { checkError(); return; }
         };
 
         template<class T>
