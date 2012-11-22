@@ -43,12 +43,9 @@ bool OperationCallerInterface::setThread(ExecutionThread et, ExecutionEngine* ex
     return true;
 }
 
-#include "../Logger.hpp"
-
 // report an error if an exception was thrown while calling exec()
 void OperationCallerInterface::reportError() {
     // This localOperation was added to a TaskContext or to a Service owned by a TaskContext
-    log(Error) <<"reportError: owner is" << ownerEngine <<endlog();
     if (this->ownerEngine != 0)
         this->ownerEngine->setExceptionTask();
     // This operation is called through OperationCaller directly
