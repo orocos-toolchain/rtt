@@ -75,6 +75,9 @@
       <listitem>
 				<para>
 					<emphasis>We no longer load component libraries with the RTLD_GLOBAL flag.</emphasis>
+				</para>
+				<para>
+				
 					This means you must link
 					with all required libraries at link time, and not rely on symbol resolution during the
 					loading by the deployer.
@@ -105,24 +108,20 @@
       <itemizedlist>
       <listitem>
 				<para>
-					<emphasis>Autoproj updates</emphasis>
-					This release includes the latest Autoproj version and consequently features in
-					order to manage your build process and code repository versions.
-				</para>
-      </listitem>
-      <listitem>
-				<para>
 					<emphasis>ROS_ROOT is no longer influencing your build, unless you're in a ROS_PACKAGE_PATH</emphasis>
-					The last cornercases of ROS_ROOT influencing our build behavior have been ironed out in this release
+					The last cornercases of ROS_ROOT influencing our build behavior have been ironed out in this release.
 				</para>
 				<para>
-					This fixes integration with AutoProj.
+					This fixes integration issues with AutoProj.
 				</para>
       </listitem>
       <listitem>
 				<para>
 					<emphasis>RTT and OCL builds with clang++ 3.0</emphasis>
-					This allows you to speed up RTT builds significantly.
+				</para>
+				<para>
+					This allows you to speed up RTT builds significantly. When you enabled CORBA, only the OMNIORB transport compiles fine
+					in clang.
 				</para>
       </listitem>
       <listitem>
@@ -139,15 +138,18 @@
       <itemizedlist>
 				<listitem>
 					<para>
-						<emphasis> A new connection type has been introduced, BUFFER_CIRCULAR.</emphasis>
+						<emphasis> A new connection type has been introduced, CIRCULAR_BUFFER</emphasis>
+					</para>
+					<para>
 						This new type can be used in the ConnPolicy.type field in order to have circular
 						buffers instead of the classical non-circular buffer.
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						<emphasis>Exceptions thrown in operations are now detected and handled.</emphasis> When
-						an operation threw an exception, this resulted in undefined behavior. The exception is
+						<emphasis>Exceptions thrown in operations are now detected and handled.</emphasis> 
+					</para>
+					<para>When an operation threw an exception, this resulted in undefined behavior. The exception is
 						now caught by RTT and the caller side receives an std::runtime_exception exception.
 						Passing exceptions is not supported, so this is a last-resort solution to cope with
 						misbehaving operations.
@@ -156,6 +158,8 @@
 				<listitem>
 					<para>
 						<emphasis>The ComponentLoader is from now on part of RTT instead of OCL.</emphasis>
+					</para>
+					<para>
 						This means you no longer need a DeploymentComponent to import typekits or component
 						packages.
 					</para>
@@ -181,7 +185,10 @@
 				</listitem>
 				<listitem>
 					<para>
-						<emphasis>The internal function getMember is now much more efficient and faster.</emphasis> There's now also
+						<emphasis>The internal function getMember is now much more efficient and faster.</emphasis> 
+					</para>
+					<para>
+					There's now also
 						a real-time version of getMember, if you provide it a ReferenceDataSource such that a
 						reference to the member can be given without allocating a DataSource for it.
 					</para>
