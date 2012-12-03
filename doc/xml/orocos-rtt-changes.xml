@@ -214,6 +214,17 @@
 			<itemizedlist>      
 				<listitem>
 					<para>
+						rttlua and tlsf-rttlua now support CORBA and Log4cpp logging as well.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						tlsf-rttlua is now capable of executing RTT operations in hard real-time, as long
+						as they are assigned to an operation variable in a non-critical-time section.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
 						Consult the  <ulink
 						url="http://www.orocos.org/wiki/orocos/toolchain/orocostoolchainluacookbook">LuaCookbook</ulink>
 						for the latest changes
@@ -229,6 +240,23 @@
 						The reporting component has been rewritten (again) boosting its performance sometimes a
 						1000-fold (but at least a 100-fold), especially when using the NetCDF reporting component. We can now reliably log
 						a dozen ports at 1kHz, using only 10% cpu on an Intel i7 system.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+    <section>
+      <title>Deployment</title>
+      <itemizedlist>
+				<listitem>
+					<para>
+						A <emphasis>-d or --daemon</emphasis> flag has been added to the deployer to let it
+						run in the background. You can use the new signal catching functions in the deployer
+						API to catch shutdown/restart signals.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Two new operations were added: setFileDescriptorActivity and connectOperations.
 					</para>
 				</listitem>
 			</itemizedlist>
