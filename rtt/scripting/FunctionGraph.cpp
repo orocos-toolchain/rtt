@@ -205,8 +205,7 @@ namespace RTT {
         }
         switch (pStatus) {
         case Status::running:
-            this->executeUntil();
-            return true;
+            return this->executeUntil();
             break;
         case Status::paused:
             if (mstep) {
@@ -281,8 +280,10 @@ namespace RTT {
         } while ( previous != current && pStatus == Status::running && !pausing); // keep going if we found a new node
 
         // check finished state
-        if (current == exitv)
+        if (current == exitv) {
             this->stop();
+            return !munload_on_stop;
+        }
         return true; // we need to wait.
     }
 
