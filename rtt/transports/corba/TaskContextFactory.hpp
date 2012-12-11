@@ -51,6 +51,7 @@ namespace RTT
      */
     class TaskContextFactory
     {
+    public:
         /**
          * Invoke this method once to initialise the Orb which will
          * run the task servers.
