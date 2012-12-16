@@ -55,6 +55,18 @@
       </listitem>
       <listitem>
 				<para>
+					The rttlua DeploymentComponent's name has been changed from "deployer" to "Deployer" in
+					order to be compatible with the existing deployer application. This change only influences
+					Lua users and requires each occurence of getPeer("deployer") to be changed by getPeer("Deployer").
+				</para>
+				<para>
+					You can do the renaming in your existing source trees with this Shell command:
+					<command> find . ! -path  "*.git*" -name "*.lua" -print0 | xargs -0 sed -i "s/\"deployer\"/\"Deployer\"/g;s/\'deployer\'/\'Deployer\'/g"
+					</command>
+				</para>
+      </listitem>
+      <listitem>
+				<para>
 					There was an API change in the (RTT internal) <classname>RTT::types::TypeInfo</classname>
 					class. If you inherited directly or indirectly from this class, you'll probably need to
 					inherit from <classname>RTT::types::TypeInfoGenerator</classname> instead and fabricate a
