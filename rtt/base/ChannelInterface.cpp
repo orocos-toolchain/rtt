@@ -120,14 +120,6 @@ void ChannelElementBase::clear()
         input->clear();
 }
 
-void ChannelElementBase::propagateNeedsSignaling(bool true_false)
-{
-    // we go against the data stream
-    shared_ptr input = getInput();
-    if (input)
-        input->propagateNeedsSignaling(true_false);
-}
-
 bool ChannelElementBase::signal()
 {
     shared_ptr output = getOutput();
