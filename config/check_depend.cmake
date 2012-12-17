@@ -111,6 +111,10 @@ endif(XERCES_FOUND)
 message("Orocos target is ${OROCOS_TARGET}")
 string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
+if ( NOT ";lxrt;gnulinux;xenomai;macosx;win32;" MATCHES ".*;${OROCOS_TARGET};.*")
+  message( FATAL_ERROR "OROCOS_TARGET=${OROCOS_TARGET} is an unkown target. Please use one of lxrt;gnulinux;xenomai;macosx;win32.")
+endif()
+
 # Setup flags for RTAI/LXRT
 if(OROCOS_TARGET STREQUAL "lxrt")
   set(OROPKG_OS_LXRT TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
@@ -144,10 +148,13 @@ if(OROCOS_TARGET STREQUAL "xenomai")
   add_definitions( -Wall )
 
   if(XENOMAI_FOUND)
-    list(APPEND OROCOS-RTT_USER_LINK_LIBS ${XENOMAI_LIBRARIES} ) # For libraries used in inline (fosi/template) code.
+    # Input for .pc and .cmake generated files:
     list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} ${PTHREAD_INCLUDE_DIRS})
     list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} ${PTHREAD_LIBRARIES} dl) 
     list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+    # Direct input only for .pc file:
+    list(APPEND RTT_USER_LDFLAGS ${XENOMAI_LDFLAGS} )
+    list(APPEND RTT_USER_CFLAGS ${XENOMAI_CFLAGS} )
     if (XENOMAI_POSIX_FOUND)
       set(MQ_LDFLAGS ${XENOMAI_POSIX_LDFLAGS} )
       set(MQ_CFLAGS ${XENOMAI_POSIX_CFLAGS} )
@@ -261,7 +268,7 @@ else(OROCOS_TARGET STREQUAL "win32")
 endif(OROCOS_TARGET STREQUAL "win32")
 
 if( NOT OROCOS-RTT_DEFINITIONS )
-  message(FATAL_ERROR "No suitable OROCOS_TARGET selected. Use one of 'lxrt,xenomai,gnulinux,macosx,win32'")
+  message(FATAL_ERROR "No suitable OROCOS_TARGET found. Please check your setup or provide additional search paths to cmake.")
 endif()
 
 # The machine type is tested using compiler macros in rtt-config.h.in
