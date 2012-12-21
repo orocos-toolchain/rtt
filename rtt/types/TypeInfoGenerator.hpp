@@ -16,7 +16,7 @@ namespace RTT
          * class to the type system which has no function
          * once the type registration is done.
          */
-        class TypeInfoGenerator
+        class RTT_API TypeInfoGenerator
         {
         public:
             virtual ~TypeInfoGenerator() {}

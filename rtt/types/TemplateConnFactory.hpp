@@ -13,7 +13,7 @@ namespace RTT
         using internal::ConnFactory;
 
         template<class T>
-        class RTT_API TemplateConnFactory : public ConnFactory
+        class TemplateConnFactory : public ConnFactory
         {
         public:
             base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }

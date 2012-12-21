@@ -12,7 +12,7 @@ namespace RTT
         /**
          * The interface class for operation callers.
          */
-        struct OperationCallerInterface: public DisposableInterface
+        struct RTT_API OperationCallerInterface: public DisposableInterface
         {
             /**
              * Use this type for shared pointer storage of an
