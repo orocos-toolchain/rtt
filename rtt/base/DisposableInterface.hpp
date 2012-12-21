@@ -49,7 +49,7 @@ namespace RTT
          * @brief An object that is executable and
          * is freed after execution.
          */
-        class DisposableInterface
+        class RTT_API DisposableInterface
         {
         public:
             /**
