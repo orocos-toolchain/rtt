@@ -757,8 +757,8 @@ bool PluginLoader::isCompatiblePlugin(std::string const& filepath)
 
 #ifdef OROCOS_TARGET_WIN32
     // On WIN32 target:
-    // - look if the library name ends with "win32.dll" on release mode
-    // - look if the library name ends with "win32d.dll" on debug mode
+    // - look if the library name ends with "-win32.dll" on release mode
+    // - look if the library name ends with "-win32d.dll" on debug mode
     if(!hasEnding(libname, FULL_PLUGINS_SUFFIX))
     {
         //log(Debug) << "Plugin file '" + libname + "' is incompatible because it doesn't have the suffix " << FULL_PLUGINS_SUFFIX << endlog();
