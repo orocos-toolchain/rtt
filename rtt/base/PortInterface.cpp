@@ -97,3 +97,16 @@ DataFlowInterface* PortInterface::getInterface() const
     return iface;
 }
 
+base::ChannelElementBase::shared_ptr PortInterface::buildLocalChannel(base::PortInterface& port,
+		const ConnPolicy& policy) {
+	// can't do anything here... specialization in {Output,Input}Port<T>
+	return base::ChannelElementBase::shared_ptr();
+}
+
+base::ChannelElementBase::shared_ptr PortInterface::buildRemoteChannel(base::PortInterface& port,
+		internal::ChannelConversionElementInterface* chan)
+{
+	// can't do anything here... specialization in {Output,Input}Port<T>
+	return base::ChannelElementBase::shared_ptr();
+}
+

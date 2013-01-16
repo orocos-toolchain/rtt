@@ -226,19 +226,24 @@ namespace RTT
             return object;
         }
 #endif
+        virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& output_port,
+        		internal::ChannelConversionElementInterface* chan)
+        {
+        	if (this->getTypeInfo() == output_port.getTypeInfo())
+        		return base::ChannelElementBase::shared_ptr();
+        	// ChannelConversionElementOut<T_Out>
+        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementOut<T>(this->getTypeInfo());
+        	return cconv;
+        }
 
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannelOutput(
-        		base::OutputPortInterface& output_port, const ConnPolicy& policy)
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& output_port, const ConnPolicy& policy)
         {
         	// ConnOutputEndPoint
         	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
         	// check if type_info is equal to this type
         	if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
         	// ChannelConversionElementOut<T_Out>
-        	T* d = new T();
-        	typename internal::ReferenceDataSource<T>::shared_ptr ads =
-        			boost::dynamic_pointer_cast<internal::ReferenceDataSource<T> >(this->getTypeInfo()->buildReference(d));
-        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementOut<T>(ads);
+        	base::ChannelElementBase::shared_ptr cconv = this->buildRemoteChannel(output_port, NULL);
         	cconv->setOutput(endpoint);
         	return cconv;
         }

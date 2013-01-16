@@ -158,15 +158,21 @@ namespace RTT
         TypeTransporter* getProtocol(int protocol_id) const;
 
         /**
-         * Returns a type's transport for a given protocol,
-         * trying to convert this type if no native transporter exists.
+         * Check if this type is transporable over a given protocol.
+         */
+        bool hasProtocol(int protocol_id) const;
+
+        /**
+         * Returns this type's transport for a given protocol.
+         * Tries to convert the type if no transport exists for this protocol.
          */
         TypeTransporter* getAnyProtocol(int protocol_id) const;
 
         /**
-         * Check if this type is transporable over a given protocol.
+         * Check if this type is transportable over a given protocol,
+         * otherwise tries to find a conversion for the transport.
          */
-        bool hasProtocol(int protocol_id) const;
+        bool hasAnyProtocol(int protocol_id) const;
 
         /**
          * Return a list of protocols that have transporters

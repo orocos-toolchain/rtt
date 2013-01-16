@@ -35,12 +35,12 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #include "TypeInfo.hpp"
 #include "TypeConstructor.hpp"
 #include "../internal/DataSourceTypeInfo.hpp"
 #include "../internal/ConnFactory.hpp"
 #include "TypeTransporter.hpp"
+#include "Types.hpp"
 
 #include "rtt-config.h"
 
@@ -130,7 +130,7 @@ namespace RTT
             }
             ++i;
         }
-        // if no conversion happend, return arg again.
+        // if no conversion happen, return arg again.
         log(Warning) << getTypeName() << ": no conversion found! returning " << arg->getTypeName() << endlog();
         return arg;
     }
@@ -202,11 +202,44 @@ namespace RTT
         return ret;
     }
 
-    /** @todo TypeInfo::getAnyProtocol */
-    TypeTransporter* TypeInfo::getAnyProtocol(int protocol_id) const {
-    	// if the type is transportable, just return the protocol
-    	if (this->hasProtocol(protocol_id)) return getProtocol(protocol_id);
-    	else return 0;
+    bool TypeInfo::hasAnyProtocol(int protocol_id) const {
+    	// if the type is directly transportable, just return true
+    	if (this->hasProtocol(protocol_id)) return true;
+    	// look for a conversion
+    	else {
+    		std::vector<std::string> type_vector = RTT::Types()->getTypes();
+    		for (std::vector<std::string>::iterator i = type_vector.begin(); i != type_vector.end(); i++) {
+    			TypeInfo* ti = RTT::Types()->type(*i);
+    			if (ti && ti->isConvertible(this) && ti->hasProtocol(protocol_id)) {
+    				log(Debug) << "Found a conversion from type " << this->getTypeName() << " to type " << *i
+    						<< " that supports transport " << protocol_id << endlog();
+    				return true;
+    			}
+    		}
+    	}
+    	// not transportable
+    	return false;
+    }
+
+    TypeTransporter* TypeInfo::getAnyProtocol(int protocol_id) const
+    {
+    	// if the type is directly transportable, just return the transport
+    	if (this->hasProtocol(protocol_id)) return this->getProtocol(protocol_id);
+    	// look for a conversion
+    	else {
+    		for (std::vector<std::string>::iterator i = RTT::Types()->getTypes().begin();
+    				i != RTT::Types()->getTypes().end(); i++) {
+    			TypeInfo* ti = RTT::Types()->type(*i);
+    			if (ti->isConvertible(this) && ti->hasProtocol(protocol_id)) {
+    				log(Debug) << "Found a conversion from type " << this->getTypeName()
+    						<< " to type " << ti->getTypeName() << " that supports transport "
+    						<< protocol_id << endlog();
+    				return ti->getProtocol(protocol_id);
+    			}
+    		}
+    	}
+    	// not transportable
+    	return 0;
     }
 
 #ifndef NO_TYPE_INFO_FACTORY_FUNCTIONS

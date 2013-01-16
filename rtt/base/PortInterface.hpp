@@ -43,6 +43,7 @@
 #include "../internal/rtt-internal-fwd.hpp"
 #include "../ConnPolicy.hpp"
 #include "ChannelElementBase.hpp"
+#include "../internal/ChannelConversionElement.hpp"
 #include "../types/rtt-types-fwd.hpp"
 #include "../rtt-fwd.hpp"
 
@@ -207,6 +208,25 @@ namespace RTT
          * connections of this port.
          */
         virtual const internal::ConnectionManager* getManager() const = 0;
+
+        /** This method is analoguous to the static ConnFactory::buildChannelOutput.
+         * It is provided for remote connection building: for these connections,
+         * no template can be used and therefore the connection setup should be
+         * done based on the types::TypeInfo object
+         */
+        virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& port,
+        		internal::ChannelConversionElementInterface* chan);
+
+        /**
+       	 * Builds a channel output element, accepting input from the type described
+       	 * in \a type_info. In case this type is different than the port's type,
+       	 * the port tries to find a conversion for it to its own type in the type system.
+       	 * The returned element will already be attached to the port and be ready
+         * for a 'channelReady()' call.
+       	 * @param type_info The data type the returned channel element must accept.
+       	 * @return a ChannelElementBase of type type_info.
+       	 */
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& port, const ConnPolicy& policy);
 };
 
 }}

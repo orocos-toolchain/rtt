@@ -308,6 +308,15 @@ namespace RTT
             return internal::ConnFactory::createStream(*this, policy);
         }
 
+        virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& input_port,
+        		internal::ChannelConversionElementInterface* chan) {
+        	if (this->getTypeInfo() == input_port.getTypeInfo())
+        		return base::ChannelElementBase::shared_ptr();
+        	// ChannelConversionElementIn<T_In>
+        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementIn<T>(chan);
+        	return cconv;
+        }
+
 #ifndef ORO_DISABLE_PORT_DATA_SCRIPTING
         /**
          * Create accessor Object for this Port, for addition to a

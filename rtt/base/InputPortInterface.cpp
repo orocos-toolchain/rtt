@@ -158,17 +158,8 @@ bool InputPortInterface::disconnect(PortInterface* port)
     return cmanager.disconnect(port);
 }
 
-base::ChannelElementBase::shared_ptr InputPortInterface::buildRemoteChannelOutput(
-                base::OutputPortInterface& output_port,
-                types::TypeInfo const* type_info,
-                base::InputPortInterface& input, const ConnPolicy& policy)
-{
-	/** @todo InputPortInterface::buildRemoteChannelOutput */
-    return base::ChannelElementBase::shared_ptr();
-}
-
-base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannelOutput(
-		base::OutputPortInterface& output_port, const ConnPolicy& policy) {
+base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannel(
+		base::PortInterface& output_port, const ConnPolicy& policy) {
 	// ConnOutputEndPoint
 	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
 	// check if type_info is equal to this type

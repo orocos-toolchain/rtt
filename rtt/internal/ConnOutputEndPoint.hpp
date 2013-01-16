@@ -74,7 +74,7 @@ namespace RTT
             // cid is deleted/owned by the port's ConnectionManager.
         }
 
-        ~ConnOutputEndpoint()
+        virtual ~ConnOutputEndpoint()
         {
         }
 

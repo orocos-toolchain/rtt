@@ -76,7 +76,11 @@ void MQSendRecv::setupStream(base::DataSourceBase::shared_ptr ds, base::PortInte
     mis_sender = is_sender;
 
     std::stringstream namestr;
-    namestr << '/' << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
+    if (port->getInterface())
+    	namestr << '/' << port->getInterface()->getOwner()->getName() << '.' << port->getName() << '.' << this << '@' << getpid();
+    else // in case the port is not attached to any TaskContext
+    	namestr << '/' << port->getName() << '.' << this << '@' << getpid();
+    log(Debug) << " Message queue name: " << namestr.str() << endlog();
 
     if (policy.name_id.empty())
         policy.name_id = namestr.str();

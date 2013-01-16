@@ -375,7 +375,7 @@ namespace RTT
         		if (input_port.getTypeInfo()->isConvertible(output_port.getTypeInfo())) 
         		{
         			// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
-		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannelOutput(output_port, policy);
+		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannel(output_port, policy);
 		        	// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
 		        	ChannelConversionElementInterface* cce = dynamic_cast<ChannelConversionElementInterface*>(&(*endpoint));
 		        	if (!cce) {
