@@ -101,31 +101,35 @@ macro( orocos_use_package PACKAGE )
     # Use find_libraries to find each library:
     unset(${PACKAGE}_LIBRARIES CACHE)
     foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
-        # Two options: COMP_LIB is an absolute path-to-lib or just a libname:
-        if ( EXISTS ${COMP_LIB} )
-          # absolute path:
-          set( ${PACKAGE}_${COMP_LIB}_LIBRARY ${COMP_LIB} )
+        # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
+        if ( ${COMP_LIB} MATCHES "^:(.+)")
+	  if (EXISTS "${CMAKE_MATCH_1}" )
+            # absolute path:
+            set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${CMAKE_MATCH_1}" )
+	  endif()
         else()
-          # libname:
+           # libname:
           find_library(${PACKAGE}_${COMP_LIB}_LIBRARY NAMES ${COMP_LIB} HINTS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS})
         endif()
         if(${PACKAGE}_${COMP_LIB}_LIBRARY)
         else(${PACKAGE}_${COMP_LIB}_LIBRARY)
             message(SEND_ERROR "In package >>>${PACKAGE}<<< : could not find library ${COMP_LIB} in directory ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}, although its .pc file says it should be there.\n\n Try to do 'make clean; rm -rf lib' and then 'make' in the package >>>${PACKAGE}<<<.\n\n")
         endif(${PACKAGE}_${COMP_LIB}_LIBRARY)
-        list(APPEND ${PACKAGE}_LIBRARIES ${${PACKAGE}_${COMP_LIB}_LIBRARY})
+        list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
     endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
     # Add some output variables to the cache to make them accessible from outside this scope
-    set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS} CACHE INTERNAL "")
-    set(${PACKAGE}_LIBRARY_DIRS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS} CACHE INTERNAL "")
-    set(${PACKAGE}_LIBRARIES ${${PACKAGE}_LIBRARIES} CACHE INTERNAL "")
+    set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}" CACHE INTERNAL "")
+    set(${PACKAGE}_LIBRARY_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}" CACHE INTERNAL "")
+    set(${PACKAGE}_LIBRARIES "${${PACKAGE}_LIBRARIES}" CACHE INTERNAL "")
+    # The flags are space separated, so no need to quote here:
     set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER} CACHE INTERNAL "")
     set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER} CACHE INTERNAL "")
 
     # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
     set(USE_OROCOS_COMPILE_FLAGS ${USE_OROCOS_COMPILE_FLAGS} ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
     set(USE_OROCOS_LINK_FLAGS ${USE_OROCOS_LINK_FLAGS} ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
+    # This probably does not work since lists are ';' separated and not ' ' separated:
     list(REMOVE_DUPLICATES USE_OROCOS_COMPILE_FLAGS)
     list(REMOVE_DUPLICATES USE_OROCOS_LINK_FLAGS)
 
