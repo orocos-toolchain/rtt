@@ -102,10 +102,14 @@ macro( orocos_use_package PACKAGE )
     unset(${PACKAGE}_LIBRARIES CACHE)
     foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
-        if ( ${COMP_LIB} MATCHES "^:(.+)")
+        if ( ${COMP_LIB} MATCHES "^:(.+)" OR EXISTS ${COMP_LIB})
 	  if (EXISTS "${CMAKE_MATCH_1}" )
-            # absolute path:
+            # absolute path (shared lib):
             set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${CMAKE_MATCH_1}" )
+	  endif()
+	  if (EXISTS "${COMP_LIB}" )
+            # absolute path (static lib):
+            set( ${PACKAGE}_${COMP_LIB}_LIBRARY "${COMP_LIB}" )
 	  endif()
         else()
            # libname:
