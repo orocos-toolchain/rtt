@@ -97,16 +97,17 @@ base::ChannelElementBase::shared_ptr ConnFactory::createRemoteConnection(base::O
     // if the policy's transport is set to zero, use the input ports server protocol,
     // otherwise, use the policy's protocol
     int transport = policy.transport == 0 ? input_port.serverProtocol() : policy.transport;
-    types::TypeInfo const* type_info = output_port.getTypeInfo();
-    if (!type_info || input_port.getTypeInfo() != type_info)
+    types::TypeInfo const* type_in = output_port.getTypeInfo();
+    types::TypeInfo const* type_out = input_port.getTypeInfo();
+    if (!type_in || type_out != type_in)
     {
         log(Error) << "Type of port " << output_port.getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
         // There is no type info registered for this type
         return base::ChannelElementBase::shared_ptr();
     }
-    else if ( !type_info->getProtocol( transport ) )
+    else if ( !type_in->getProtocol( transport ) )
     {
-        log(Error) << "Type " << type_info->getTypeName() << " cannot be marshalled into the requested transporter (id:"<< transport<<")." << endlog();
+        log(Error) << "Type " << type_in->getTypeName() << " cannot be marshalled into the requested transporter (id:"<< transport<<")." << endlog();
         // This type cannot be marshalled into the right transporter
         return base::ChannelElementBase::shared_ptr();
     }
@@ -141,6 +142,71 @@ bool ConnFactory::createAndCheckConnection(base::OutputPortInterface& output_por
 }
 
 bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id) {
+	const types::TypeInfo* type = output_port.getTypeInfo();
+	if ( ! type->hasAnyProtocol(policy.transport) ) {
+		log(Error) << "Could not create transport stream for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
+		log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+		return false;
+	}
+
+	RTT::base::ChannelElementBase::shared_ptr out_half;
+	if (type->hasProtocol(policy.transport)) {
+    	types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type->getProtocol(policy.transport) );
+    	if (ttt) {
+    		int size_hint = ttt->getSampleSize( output_port.getDataSource() );
+    		policy.data_size = size_hint;
+    	} else {
+    		log(Debug) << "Could not determine sample size for type " << type->getTypeName() << endlog();
+    	}
+		out_half = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
+	}
+
+	// if conversion needed, add a pair of ChannelConversionElements
+	else if (type->hasAnyProtocol(policy.transport)) {
+		// 1. get the type and transporter to convert into
+		types::TypeInfo* type_out = 0;
+		types::TypeTransporter* tt_out = 0;
+		std::vector<std::string> type_vector = types::Types()->getTypes();
+		for (std::vector<std::string>::iterator i = type_vector.begin(); i != type_vector.end(); i++) {
+			type_out = types::Types()->type(*i);
+			if (type_out && type_out->isConvertible(type) && type_out->hasProtocol(policy.transport)) {
+				log(Debug) << "Found a conversion from type " << type->getTypeName() << " to type " << *i
+						<< " that supports transport " << policy.transport << endlog();
+				tt_out = type_out->getProtocol(policy.transport);
+				break;
+			}
+		}
+		if (type_out == 0) {
+			log(Error) << "Unable to find a conversion for type " << type->getTypeName()
+        		<< " that provides a transporter for protocol " << policy.transport << endlog();
+			return false;
+		}
+		// 1'/ determine sample size
+    	types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type_out->getProtocol(policy.transport) );
+    	if (ttt) {
+    		int size_hint = ttt->getSampleSize( type_out->outputPort("temp")->getDataSource() );
+    		policy.data_size = size_hint;
+    	} else {
+    		log(Debug) << "Could not determine sample size for type " << type_out->getTypeName() << endlog();
+    	}
+
+		// 2. from the end point, constructs the channel stream
+		RTT::base::ChannelElementBase::shared_ptr chan_stream = tt_out->createStream(&output_port, policy, true);
+		// 3. now constructs the ChannelConversionElementOut<T_Out>
+		base::PortInterface* input_port = type_out->inputPort("temp");
+		base::ChannelElementBase::shared_ptr cceo = input_port->buildRemoteChannel(output_port, NULL);
+		cceo->setOutput(chan_stream);
+		// 4. now constructs the ChannelConversionElementIn<T_In>
+    	out_half = output_port.buildRemoteChannel(*input_port, cceo);
+		delete input_port;
+	}
+
+	if ( !out_half ) {
+		log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
+		return false;
+	}
+
+    chan->setOutput( out_half );
     if ( output_port.addConnection( new StreamConnID(policy.name_id), chan, policy) ) {
         log(Info) << "Created output stream for output port "<< output_port.getName() <<endlog();
         return true;
@@ -151,7 +217,62 @@ bool ConnFactory::createAndCheckStream(base::OutputPortInterface& output_port, C
     return false;
 }
 
-bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr outhalf, ConnID* sid) {
+bool ConnFactory::createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const & policy, base::ChannelElementBase::shared_ptr outhalf, StreamConnID* sid) {
+	const types::TypeInfo* type = input_port.getTypeInfo();
+	RTT::base::ChannelElementBase::shared_ptr out_half, chan_stream;
+	if (type->hasProtocol(policy.transport))
+		chan_stream = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
+
+	// if conversion needed, add a pair of ChannelConversionElements
+	else {
+		// 1. get the type and transporter to convert into
+		types::TypeInfo* type_in = 0;
+		types::TypeTransporter* tt_in;
+		std::vector<std::string> type_vector = types::Types()->getTypes();
+		for (std::vector<std::string>::iterator i = type_vector.begin(); i != type_vector.end(); i++) {
+			type_in = types::Types()->type(*i);
+			if (type_in && type->isConvertible(type_in) && type_in->hasProtocol(policy.transport)) {
+				log(Debug) << "Found a conversion from type " << type_in->getTypeName() << " to type " << type->getTypeName()
+	        		<< " that supports transport " << policy.transport << endlog();
+				tt_in = type_in->getProtocol(policy.transport);
+				break;
+			}
+		}
+		if (type_in == 0) {
+			log(Error) << "Unable to find a conversion for type " << type->getTypeName()
+				<< " that provides a transporter for protocol " << policy.transport << endlog();
+			return false;
+		}
+
+		base::OutputPortInterface* output_port = type_in->outputPort("temp");
+		// 2. constructs the channel stream
+		chan_stream = tt_in->createStream(&input_port, policy, false);
+		// 3. now constructs the ChannelConversionElementOut<T_Out>
+		base::ChannelElementBase::shared_ptr cceo = input_port.buildLocalChannel(*output_port, base::ChannelElementBase::shared_ptr(), policy);
+		// 4. now constructs the ChannelConversionElementIn<T_In>
+		//base::ChannelElementBase::shared_ptr data_storage = output_port->buildRemoteChannel(input_port, cceo);
+		base::ChannelElementBase::shared_ptr data_storage = output_port->buildLocalChannel(input_port, cceo, policy);
+		chan_stream->setOutput(data_storage);
+		delete output_port;
+	}
+
+	if ( !chan_stream ) {
+		log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
+		log(Error) << "Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
+		return false;
+	}
+
+	// In stream mode, a buffer is always installed at input side.
+	/* unused?
+	ConnPolicy policy2 = policy;
+	policy2.pull = false;
+	// pass new name upwards.
+	policy.name_id = policy2.name_id;
+	sid->name_id = policy2.name_id;
+	*/
+	sid->name_id = policy.name_id;
+
+	chan_stream->getOutputEndPoint()->setOutput( outhalf );
 	if ( input_port.channelReady( outhalf ) == true ) {
 		log(Info) << "Created input stream for input port "<< input_port.getName() <<endlog();
 		return true;

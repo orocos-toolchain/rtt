@@ -285,24 +285,18 @@ namespace RTT
 
             // This is the input channel element of the output half
             base::ChannelElementBase::shared_ptr output_half = 0;
+
             if (input_port.isLocal() && policy.transport == 0)
-            {
-                // Local connection
-                // local ports, create buffer here.
-            	// output_half = buildBufferedChannelOutput<T>(input_port, output_port.getPortID(), policy, output_port.getLastWrittenValue());
+            	// Local connection
             	output_half = createLocalConnection(output_port, input_port, policy);
-            }
-            else
-            {
+            else if ( !input_port.isLocal() )
                 // if the input is not local, this is a pure remote connection,
-                // if the input *is* local, the user requested to use a different transport
+                output_half = createRemoteConnection( output_port, input_port, policy);
+            else
+            	// if the input *is* local, the user requested to use a different transport
                 // than plain memory, rare case, but we accept it. The unit tests use this for example
                 // to test the OOB transports.
-                if ( !input_port.isLocal() ) {
-                    output_half = createRemoteConnection( output_port, input_port, policy);
-                } else
-                    output_half = createOutOfBandConnection<T_In>( output_port, input_port, policy);
-            }
+                output_half = createOutOfBandConnection<T_In>( output_port, input_port, policy);
 
             if (!output_half)
                 {
@@ -332,76 +326,8 @@ namespace RTT
         		log(Error) << "Need a transport for creating streams." <<endlog();
         		return false;
         	}
-
         	StreamConnID *sid = new StreamConnID(policy.name_id);
             RTT::base::ChannelElementBase::shared_ptr chan = buildChannelInput<T>( output_port, sid, base::ChannelElementBase::shared_ptr() );
-
-        	const types::TypeInfo* type = output_port.getTypeInfo();
-        	if ( ! type->hasAnyProtocol(policy.transport) ) {
-        		log(Error) << "Could not create transport stream for port "<< output_port.getName() << " with transport id " << policy.transport <<endlog();
-        		log(Error) << "No such transport registered. Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
-        		return false;
-        	}
-
-        	RTT::base::ChannelElementBase::shared_ptr out_half;
-        	if (type->hasProtocol(policy.transport)) {
-            	types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type->getProtocol(policy.transport) );
-            	if (ttt) {
-            		int size_hint = ttt->getSampleSize( output_port.getDataSource() );
-            		policy.data_size = size_hint;
-            	} else {
-            		log(Debug) << "Could not determine sample size for type " << type->getTypeName() << endlog();
-            	}
-        		out_half = type->getProtocol(policy.transport)->createStream(&output_port, policy, true);
-        	}
-
-        	// if conversion needed, add a pair of ChannelConversionElements
-        	else if (type->hasAnyProtocol(policy.transport)) {
-        		// 1. get the type and transporter to convert into
-        		types::TypeInfo* type_out = 0;
-        		types::TypeTransporter* tt_out = 0;
-        		std::vector<std::string> type_vector = types::Types()->getTypes();
-        		for (std::vector<std::string>::iterator i = type_vector.begin(); i != type_vector.end(); i++) {
-        			type_out = types::Types()->type(*i);
-        			if (type_out && type_out->isConvertible(type) && type_out->hasProtocol(policy.transport)) {
-        				log(Debug) << "Found a conversion from type " << type->getTypeName() << " to type " << *i
-        						<< " that supports transport " << policy.transport << endlog();
-        				tt_out = type_out->getProtocol(policy.transport);
-        				break;
-        			}
-        		}
-        		if (type_out == 0) {
-        			log(Error) << "Unable to find a conversion for type " << type->getTypeName()
-                		<< " that provides a transporter for protocol " << policy.transport << endlog();
-        			return false;
-        		}
-        		// 1'/ determine sample size
-            	types::TypeMarshaller* ttt = dynamic_cast<types::TypeMarshaller*> ( type_out->getProtocol(policy.transport) );
-            	if (ttt) {
-            		int size_hint = ttt->getSampleSize( type_out->outputPort("temp")->getDataSource() );
-            		policy.data_size = size_hint;
-            	} else {
-            		log(Debug) << "Could not determine sample size for type " << type_out->getTypeName() << endlog();
-            	}
-
-        		// 2. from the end point, constructs the channel stream
-        		RTT::base::ChannelElementBase::shared_ptr chan_stream = tt_out->createStream(&output_port, policy, true);
-        		// 3. now constructs the ChannelConversionElementOut<T_Out>
-        		base::PortInterface* input_port = type_out->inputPort("temp");
-        		base::ChannelElementBase::shared_ptr cceo = input_port->buildRemoteChannel(output_port, NULL);
-        		cceo->setOutput(chan_stream);
-        		// 4. now constructs the ChannelConversionElementIn<T_In>
-	        	out_half = output_port.buildRemoteChannel(*input_port, cceo);
-        		delete input_port;
-        	}
-
-        	if ( !out_half ) {
-        		log(Error) << "Transport failed to create remote channel for output stream of port "<<output_port.getName() << endlog();
-        		return false;
-        	}
-
-            chan->setOutput( out_half );
-
             return createAndCheckStream(output_port, policy, chan, sid);
         }
 
@@ -419,65 +345,9 @@ namespace RTT
             	log(Error) << "Need a transport for creating streams." <<endlog();
             	return false;
             }
-
         	StreamConnID *sid = new StreamConnID(policy.name_id);
         	RTT::base::ChannelElementBase::shared_ptr outhalf = buildChannelOutput<T>( input_port, sid );
-
-        	const types::TypeInfo* type = input_port.getTypeInfo();
-        	RTT::base::ChannelElementBase::shared_ptr out_half, chan_stream;
-
-        	if (type->hasProtocol(policy.transport))
-        		chan_stream = type->getProtocol(policy.transport)->createStream(&input_port, policy, false);
-
-        	// if conversion needed, add a pair of ChannelConversionElements
-        	else {
-        		// 1. get the type and transporter to convert into
-        		types::TypeInfo* type_in = 0;
-        		types::TypeTransporter* tt_in;
-        		std::vector<std::string> type_vector = types::Types()->getTypes();
-        		for (std::vector<std::string>::iterator i = type_vector.begin(); i != type_vector.end(); i++) {
-        			type_in = types::Types()->type(*i);
-        			if (type_in && type->isConvertible(type_in) && type_in->hasProtocol(policy.transport)) {
-        				log(Debug) << "Found a conversion from type " << type_in->getTypeName() << " to type " << type->getTypeName()
-        	        		<< " that supports transport " << policy.transport << endlog();
-        				tt_in = type_in->getProtocol(policy.transport);
-        				break;
-        			}
-        		}
-        		if (type_in == 0) {
-        			log(Error) << "Unable to find a conversion for type " << type->getTypeName()
-						<< " that provides a transporter for protocol " << policy.transport << endlog();
-        			return false;
-        		}
-
-        		base::OutputPortInterface* output_port = type_in->outputPort("temp");
-        		// 2. constructs the channel stream
-        		chan_stream = tt_in->createStream(&input_port, policy, false);
-        		// 3. now constructs the ChannelConversionElementOut<T_Out>
-        		base::ChannelElementBase::shared_ptr cceo = input_port.buildLocalChannel(*output_port, base::ChannelElementBase::shared_ptr(), policy);
-        		// 4. now constructs the ChannelConversionElementIn<T_In>
-        		//base::ChannelElementBase::shared_ptr data_storage = output_port->buildRemoteChannel(input_port, cceo);
-        		base::ChannelElementBase::shared_ptr data_storage = output_port->buildLocalChannel(input_port, cceo, policy);
-        		chan_stream->setOutput(data_storage);
-        		delete output_port;
-        	}
-
-        	if ( !chan_stream ) {
-        		log(Error) << "Transport failed to create remote channel for input stream of port "<<input_port.getName() << endlog();
-        		log(Error) << "Check your policy.transport settings or add the transport for type "<< type->getTypeName() <<endlog();
-        		return false;
-        	}
-
-        	// In stream mode, a buffer is always installed at input side.
-        	// unused?
-        	ConnPolicy policy2 = policy;
-        	policy2.pull = false;
-        	// pass new name upwards.
-        	policy.name_id = policy2.name_id;
-        	sid->name_id = policy2.name_id;
-
-        	chan_stream->getOutputEndPoint()->setOutput( outhalf );
-        	return createAndCheckStream(input_port, outhalf, sid);
+        	return createAndCheckStream(input_port, policy, outhalf, sid);
         }
 
     protected:
@@ -485,7 +355,7 @@ namespace RTT
 
         /** @warning This helper function will be moved to the protected: scope in the next major release */
         static bool createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id);
-        static bool createAndCheckStream(base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr outhalf, ConnID* conn_id);
+        static bool createAndCheckStream(base::InputPortInterface& input_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr outhalf, StreamConnID* conn_id);
 
         /** Create a Local Connection.
          *
