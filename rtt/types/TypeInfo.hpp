@@ -127,12 +127,12 @@ namespace RTT
          */
         base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
 
-	/**
-	 * Test whether a conversion from another \a type_info is possible or not.
-	 * @param type_info the type info to convert from.
-	 * @return true if a constructor accepting an argument of type \a type_info exists.
-	 */
-	bool isConvertible(const TypeInfo* type_info) const;
+        /**
+         * Test whether a conversion from another \a type_info is possible or not.
+         * @param type_info the type info to convert from.
+         * @return true if a constructor accepting an argument of type \a type_info exists.
+         */
+        bool isConvertible(const TypeInfo* type_info) const;
 
         /**
          * Add a constructor/convertor object.

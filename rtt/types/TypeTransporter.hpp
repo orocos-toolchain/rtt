@@ -94,7 +94,7 @@ namespace RTT
              * @param is_sender Set to true in case you will write() to this channel element, set it to false
              * in case you will read() from this channel element.
              * @return null in case streaming is not supported by this transport or a valid channel element otherwise.
-             *
+             * @todo deprecated?
              */
             virtual base::ChannelElementBase::shared_ptr createAnyStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const;
         };

@@ -121,7 +121,7 @@ namespace RTT
         Constructors::const_iterator i= constructors.begin();
         if ( arg->getTypeInfo() == this )
             return arg;
-        log(Debug) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
+        //log(Debug) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
         while (i != constructors.end() ) {
 
             ds = (*i)->convert( arg );

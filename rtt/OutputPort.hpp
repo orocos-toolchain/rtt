@@ -308,13 +308,38 @@ namespace RTT
             return internal::ConnFactory::createStream(*this, policy);
         }
 
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& input_port, base::ChannelElementBase::shared_ptr out_half, const ConnPolicy& policy) {
+
+        	base::ChannelElementBase::shared_ptr chan = out_half;
+
+        	if (this->getTypeInfo() != input_port.getTypeInfo()) {
+        		internal::ChannelConversionElementInterface* cce = dynamic_cast<internal::ChannelConversionElementInterface*>(&(*out_half));
+        		if (!cce) {
+        			Logger::log(Logger::Error) << "Conversion failed when casting the ChannelConversionElementOut" << endlog();
+        			return base::ChannelElementBase::shared_ptr();
+        		}
+        		chan = new internal::ChannelConversionElementIn<T>(cce);
+        	}
+
+        	// Channel[Data,Buffer]Element<T_In> -- ChannelConversionElementIn<T_In>
+        	base::ChannelElementBase::shared_ptr data_object = internal::ConnFactory::buildDataStorage<T>(policy);
+        	data_object->setOutput(chan);
+    		return data_object;
+        }
+
         virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& input_port,
-        		internal::ChannelConversionElementInterface* chan) {
+        		base::ChannelElementBase::shared_ptr out_half) {
+
         	if (this->getTypeInfo() == input_port.getTypeInfo())
         		return base::ChannelElementBase::shared_ptr();
-        	// ChannelConversionElementIn<T_In>
-        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementIn<T>(chan);
-        	return cconv;
+
+        	internal::ChannelConversionElementInterface* cce =
+        			dynamic_cast<internal::ChannelConversionElementInterface*>(&(*out_half));
+        	if (!cce) {
+        		Logger::log(Logger::Error) << "Conversion failed when casting the ChannelConversionElementOut" << endlog();
+        		return base::ChannelElementBase::shared_ptr();
+        	}
+        	return new internal::ChannelConversionElementIn<T>(cce);
         }
 
 #ifndef ORO_DISABLE_PORT_DATA_SCRIPTING

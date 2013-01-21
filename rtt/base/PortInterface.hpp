@@ -215,7 +215,7 @@ namespace RTT
          * done based on the types::TypeInfo object
          */
         virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& port,
-        		internal::ChannelConversionElementInterface* chan);
+        		base::ChannelElementBase::shared_ptr chan);
 
         /**
        	 * Builds a channel output element, accepting input from the type described
@@ -226,7 +226,9 @@ namespace RTT
        	 * @param type_info The data type the returned channel element must accept.
        	 * @return a ChannelElementBase of type type_info.
        	 */
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& port, const ConnPolicy& policy);
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& port,
+        		base::ChannelElementBase::shared_ptr out_half,
+        		const ConnPolicy& policy);
 };
 
 }}

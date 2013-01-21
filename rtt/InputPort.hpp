@@ -227,23 +227,24 @@ namespace RTT
         }
 #endif
         virtual base::ChannelElementBase::shared_ptr buildRemoteChannel(base::PortInterface& output_port,
-        		internal::ChannelConversionElementInterface* chan)
+        		base::ChannelElementBase::shared_ptr chan)
         {
+        	// check if type_info is equal to this type
         	if (this->getTypeInfo() == output_port.getTypeInfo())
         		return base::ChannelElementBase::shared_ptr();
-        	// ChannelConversionElementOut<T_Out>
-        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementOut<T>(this->getTypeInfo());
-        	return cconv;
+        	// else ChannelConversionElementOut<T_Out>
+        	return new internal::ChannelConversionElementOut<T>(this->getTypeInfo());
         }
 
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& output_port, const ConnPolicy& policy)
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& output_port,
+        		base::ChannelElementBase::shared_ptr out_half, const ConnPolicy& policy)
         {
         	// ConnOutputEndPoint
         	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
         	// check if type_info is equal to this type
         	if (this->getTypeInfo() == output_port.getTypeInfo()) return endpoint;
         	// ChannelConversionElementOut<T_Out>
-        	base::ChannelElementBase::shared_ptr cconv = this->buildRemoteChannel(output_port, NULL);
+        	base::ChannelElementBase::shared_ptr cconv = new internal::ChannelConversionElementOut<T>(this->getTypeInfo());
         	cconv->setOutput(endpoint);
         	return cconv;
         }

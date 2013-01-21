@@ -39,8 +39,9 @@ namespace RTT { namespace internal {
 			if (input) {
 				// copy to in_storage
 				FlowStatus fs = input->read(in_storage, copy_old_data);
+				//log(Debug) << "ChannelConversionElementIn::read" << endlog();
 				// conversion
-				if (ref_data_source) {
+				if (fs == NewData && ref_data_source) {
 					if (data_source) {
 						data_source->update(&(*(data_source->getTypeInfo()->convert(ref_data_source))));
 						return fs;
@@ -59,6 +60,7 @@ namespace RTT { namespace internal {
 				if (ref_data_source && data_source) {
 					data_source->update(&(*(data_source->getTypeInfo()->convert(ref_data_source))));
 					base::ChannelElement<T_In>::write(sample);
+					//log(Debug) << "ChannelConversionElementIn::write" << endlog();
 					return true;
 				}
 			}
@@ -82,12 +84,15 @@ namespace RTT { namespace internal {
 			T_Out* d = new T_Out();
 			data_source = boost::dynamic_pointer_cast<internal::ReferenceDataSource<T_Out> >(ti->buildReference(d));
 		}
+
 		virtual base::DataSourceBase::shared_ptr getDataSource() { return data_source; };
+
 		virtual FlowStatus read(typename base::ChannelElement<T_Out>::reference_t sample, bool copy_old_data) {
 			FlowStatus fs = base::ChannelElement<T_Out>::read(sample, copy_old_data);
 			if (fs == NewData) {
 				this->data_source->evaluate();
 				sample = this->data_source->value();
+				//log(Debug) << "ChannelConversionElementOut::read" << endlog();
 			}
 			return fs; 
 		};
@@ -99,6 +104,7 @@ namespace RTT { namespace internal {
 			if (this->getInput()) {
 				// get the converted data from the ChannelConversionElementIn
 				this->data_source->evaluate();
+				//log(Debug) << "ChannelConversionElementOut::write" << endlog();
 				// then write the result to the output channel
 				if (this->getOutput())
 					return this->getOutput()->write(this->data_source->value());

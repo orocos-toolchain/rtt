@@ -159,7 +159,7 @@ bool InputPortInterface::disconnect(PortInterface* port)
 }
 
 base::ChannelElementBase::shared_ptr InputPortInterface::buildLocalChannel(
-		base::PortInterface& output_port, const ConnPolicy& policy) {
+		base::PortInterface& output_port, base::ChannelElementBase::shared_ptr out_half, const ConnPolicy& policy) {
 	// ConnOutputEndPoint
 	base::ChannelElementBase::shared_ptr endpoint = this->getTypeInfo()->buildChannelOutput(*this);
 	// check if type_info is equal to this type

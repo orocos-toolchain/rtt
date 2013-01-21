@@ -162,8 +162,8 @@ namespace RTT
 
         virtual const internal::ConnectionManager* getManager() const { return &cmanager; }
 
-        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(
-        		base::PortInterface& port, const ConnPolicy& policy);
+        virtual base::ChannelElementBase::shared_ptr buildLocalChannel(base::PortInterface& port,
+        		base::ChannelElementBase::shared_ptr out_half, const ConnPolicy& policy);
     };
 
 }}
