@@ -69,6 +69,28 @@ ConnID* StreamConnID::clone() const {
     return new StreamConnID(this->name_id);
 }
 
+base::ChannelElementBase::shared_ptr ConnFactory::createLocalConnection(base::OutputPortInterface& output_port,
+		base::InputPortInterface& input_port, const ConnPolicy& policy)
+{
+	// If input and output types are different
+	if (output_port.getTypeInfo() != input_port.getTypeInfo()) {
+		// check that a conversion is possible from A to B
+		if (! input_port.getTypeInfo()->isConvertible(output_port.getTypeInfo())) {
+			// No possible conversion! Connection cannot be created
+			Logger::log(Logger::Error) << "No possible conversion from "
+					<< output_port.getTypeInfo() << " to " << input_port.getTypeInfo()
+					<< ". Port connection not possible!" << endlog();
+			return base::ChannelElementBase::shared_ptr();
+		}
+	}
+
+	// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> --> InputPort<T_Out>
+    base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannel(output_port, base::ChannelElementBase::shared_ptr(), policy);
+    // ChannelDataElement<T_In> -- ChannelConversionElementIn<T_In> --> ChannelConversionElementOut
+    return output_port.buildLocalChannel(input_port, endpoint, policy);
+	//return buildBufferedChannelOutput<T_In>(input_port, output_port.getPortID(), policy);
+}
+
 base::ChannelElementBase::shared_ptr ConnFactory::createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, const ConnPolicy& policy)
 {
     // Remote connection

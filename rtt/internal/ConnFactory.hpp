@@ -290,7 +290,7 @@ namespace RTT
                 // Local connection
                 // local ports, create buffer here.
             	// output_half = buildBufferedChannelOutput<T>(input_port, output_port.getPortID(), policy, output_port.getLastWrittenValue());
-            	output_half = createLocalConnection<T_In>(output_port, input_port, policy);
+            	output_half = createLocalConnection(output_port, input_port, policy);
             }
             else
             {
@@ -405,9 +405,6 @@ namespace RTT
             return createAndCheckStream(output_port, policy, chan, sid);
         }
 
-        /** @warning This helper function will be moved to the protected: scope in the next major release */
-        static bool createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id);
-
         /**
          * Creates, attaches and checks an inbound stream to an Input port.
          *
@@ -486,40 +483,19 @@ namespace RTT
     protected:
         static bool createAndCheckConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr channel_input, ConnPolicy policy);
 
+        /** @warning This helper function will be moved to the protected: scope in the next major release */
+        static bool createAndCheckStream(base::OutputPortInterface& output_port, ConnPolicy const& policy, base::ChannelElementBase::shared_ptr chan, StreamConnID* conn_id);
         static bool createAndCheckStream(base::InputPortInterface& input_port, base::ChannelElementBase::shared_ptr outhalf, ConnID* conn_id);
 
         /** Create a Local Connection.
          *
          * Creates the chain:
-         * Channel[Data,Buffer]Element<T_In> -- 
-         * (ChannelConversionElementIn<T_In>, ChannelConversionElementOut<T_Out>) --
-         * ConnOutputEndPoit<T_Out>
+         * Channel[Data,Buffer]Element<T_In> -- ChannelConversionElementIn<T_In>
+         *   -- ChannelConversionElementOut<T_Out> -- ConnOutputEndPoit<T_Out>
          * and connects the last one with the InputPort<T_Out>.
          */
-        template <typename T_In>
         static base::ChannelElementBase::shared_ptr createLocalConnection(base::OutputPortInterface& output_port,
-        		base::InputPortInterface& input_port, const ConnPolicy& policy)
-        {
-        	// If input and output types are different
-        	if (output_port.getTypeInfo() != input_port.getTypeInfo()) {
-        		// check that a conversion is possible from A to B
-        		if (input_port.getTypeInfo()->isConvertible(output_port.getTypeInfo())) 
-        		{
-        			// ChannelConversionElementOut<T_Out> -- ConnOutputEndPoint<T_Out> -- InputPort<T_Out>
-		        	base::ChannelElementBase::shared_ptr endpoint = input_port.buildLocalChannel(output_port, base::ChannelElementBase::shared_ptr(), policy);
-		        	// ChannelConversionElementIn<T_In> -- ChannelConversionElementOut
-		        	return output_port.buildLocalChannel(input_port, endpoint, policy);
-        		}
-        		else {
-        			// No possible conversion! Connection cannot be created
-        			Logger::log(Logger::Error) << "No possible conversion from "
-        					<< output_port.getTypeInfo() << " to " << input_port.getTypeInfo()
-        					<< ". Port connection not possible!" << endlog();
-        			return base::ChannelElementBase::shared_ptr();
-        		}
-        	}
-        	else return buildBufferedChannelOutput<T_In>(input_port, output_port.getPortID(), policy);
-        }
+        		base::InputPortInterface& input_port, const ConnPolicy& policy);
 
         static base::ChannelElementBase::shared_ptr createRemoteConnection(base::OutputPortInterface& output_port, base::InputPortInterface& input_port, ConnPolicy const& policy);
 
