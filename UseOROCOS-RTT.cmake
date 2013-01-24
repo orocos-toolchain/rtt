@@ -386,9 +386,12 @@ endmacro( orocos_executable )
 
 # Type headers should add themselves by calling 'orocos_typegen_headers()'
 # They will be processed by typegen to generate a typekit from it, with the
-# name of the current project. 
+# name of the current project. You may also pass additional options to typegen
+# before listing your header files. For example -i <packagename> where
+# <packagename> is the name of a pkg-config package on which your headers
+# depend
 #
-# Usage: orocos_typegen_headers( robotdata.hpp sensordata.hpp )
+# Usage: orocos_typegen_headers( -i orocos_kdl robotdata.hpp sensordata.hpp )
 #
 macro( orocos_typegen_headers )
 
