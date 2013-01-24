@@ -21,32 +21,39 @@ if(OROCOS-RTT_FOUND)
   set(ROS_ROOT $ENV{ROS_ROOT})
 
   if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
-    set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
-    #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
-    string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
-    foreach( rpath IN LISTS ROS_PACKAGE_PATH )
-      # This is a bit tricky since overlapping directory names may give false positives:
-      file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
-      #message(" ${rpath} -> ${path}")
-      if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
-	set(IS_ROS_PACKAGE TRUE)
-	message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
+    # If pre-fuerte, we're using rosbuild
+    # Otherwise, we skip this whole rosbuild mess.
+    find_package(ROS QUIET)
+    if(NOT ROS_FOUND) # pre-Fuerte, use rosbuild
+      set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
+      #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
+      string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
+      foreach( rpath IN LISTS ROS_PACKAGE_PATH )
+	# This is a bit tricky since overlapping directory names may give false positives:
+	file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
+	#message(" ${rpath} -> ${path}")
+	if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
+	  set(IS_ROS_PACKAGE TRUE)
+	  message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
 
-	if (CMAKE_GENERATOR STREQUAL "Eclipse CDT4 - Unix Makefiles")
-	  message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
-	  #set the default path for built executables to the "bin" directory
-	  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-	  #set the default path for built libraries to the "lib" directory
-	  set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-	endif()
+	  if (CMAKE_GENERATOR STREQUAL "Eclipse CDT4 - Unix Makefiles")
+	    message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+	    #set the default path for built executables to the "bin" directory
+	    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+	    #set the default path for built libraries to the "lib" directory
+	    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+	  endif()
 	
+	endif()
+      endforeach()
+      if(NOT IS_ROS_PACKAGE)
+	message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
+	# These were set by roscpp cmake macros:
+	unset( EXECUTABLE_OUTPUT_PATH )
+	unset( LIBRARY_OUTPUT_PATH )
       endif()
-    endforeach()
-    if(NOT IS_ROS_PACKAGE)
-      message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
-      # These were set by roscpp cmake macros:
-      unset( EXECUTABLE_OUTPUT_PATH )
-      unset( LIBRARY_OUTPUT_PATH )
+    else()
+      message("ROS_ROOT was detected, and ROS was found as a package, assuming catkin-style building.")
     endif()
   endif()
 
@@ -130,7 +137,7 @@ if(OROCOS-RTT_FOUND)
   else (IS_ROS_PACKAGE)
     # Fall back to 'manually' processing the manifest.xml file.
     orocos_get_manifest_deps( DEPS )
-    #message("Dependencies are: ${DEPS}")
+    #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
         orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
