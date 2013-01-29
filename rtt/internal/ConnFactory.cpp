@@ -97,15 +97,23 @@ base::ChannelElementBase::shared_ptr ConnFactory::createRemoteConnection(base::O
     // if the policy's transport is set to zero, use the input ports server protocol,
     // otherwise, use the policy's protocol
     int transport = policy.transport == 0 ? input_port.serverProtocol() : policy.transport;
+    // input type of the connection
     types::TypeInfo const* type_in = output_port.getTypeInfo();
-    types::TypeInfo const* type_out = input_port.getTypeInfo();
-    if (!type_in || type_out != type_in)
-    {
-        log(Error) << "Type of port " << output_port.getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
+    if (!type_in) {
         // There is no type info registered for this type
+        log(Error) << "Type of port " << output_port.getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
         return base::ChannelElementBase::shared_ptr();
     }
-    else if ( !type_in->getProtocol( transport ) )
+    // output type of the connection
+    types::TypeInfo const* type_out = input_port.getTypeInfo();
+    if (!type_out) {
+        // There is no type info registered for this type
+    	log(Error) << "Type of port " << input_port.getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
+    	return base::ChannelElementBase::shared_ptr();
+    }
+
+
+    if ( !type_in->getProtocol( transport ) )
     {
         log(Error) << "Type " << type_in->getTypeName() << " cannot be marshalled into the requested transporter (id:"<< transport<<")." << endlog();
         // This type cannot be marshalled into the right transporter
