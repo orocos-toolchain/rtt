@@ -107,6 +107,8 @@ if(OROCOS-RTT_FOUND)
   # Infer package name from directory name.                                                                                                                                                                                                  
   get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
   message("[UseOrocos] Building package ${orocos_package}")
+  # Set to true to indicate that these macros are available.
+  set(USE_OROCOS_RTT 1)
 
   # By default, install libs in /target/ subdir in order to allow
   # multi-target installs.
