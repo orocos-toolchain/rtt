@@ -8,7 +8,7 @@
 #include <rtt/types/TypekitRepository.hpp>
 
 #ifdef HAS_ROSLIB
-#include <ros/package.h>
+#include <rospack/rospack.h>
 #endif
 
 #ifndef _WIN32
@@ -395,22 +395,37 @@ bool ComponentLoader::importRosPackage(std::string const& package)
 {
     // check for rospack
 #ifdef HAS_ROSLIB
-    using namespace ros::package;
+    using namespace rospack;
     try {
         bool found = false;
-        string ppath = getPath( package );
+        Rospack rpack;
+        rpack.setQuiet(true);
+        char* rpp = getenv("ROS_PACKAGE_PATH");
+        vector<string> paths;
+        if (rpp)
+            paths = splitPaths(rpp);
+        string ppath;
+        rpack.crawl(paths,false);
+        rpack.find(package, ppath);
         if ( !ppath.empty() ) {
             path rospath = path(ppath) / "lib" / "orocos";
             path rospath_target = rospath / OROCOS_TARGET_NAME;
             // + add all dependencies to paths:
-            V_string rospackresult;
-            command("depends " + package, rospackresult);
-            for(V_string::iterator it = rospackresult.begin(); it != rospackresult.end(); ++it) {
+            vector<string> rospackresult;
+            rpack.setQuiet(false);
+            bool valid = rpack.deps(package, false, rospackresult); // false: also indirect deps.
+            if (!valid) {
+                log(Error) <<"The ROS package '"<< package <<"' in '"<< ppath << "' caused trouble. Bailing out."<<endlog();
+                return false;
+            }
+                
+            for(vector<string>::iterator it = rospackresult.begin(); it != rospackresult.end(); ++it) {
                 if ( isImported(*it) ) {
                     log(Debug) <<"Package dependency '"<< *it <<"' already imported." <<endlog();
                     continue;
                 }
-                ppath = getPath( *it );
+                if ( rpack.find( *it, ppath ) == false )
+                    throw *it;
                 path deppath = path(ppath) / "lib" / "orocos";
                 path deppath_target = path(deppath) / OROCOS_TARGET_NAME;
                 // if orocos directory exists and we could import it, mark it as loaded.
@@ -443,13 +458,13 @@ bool ComponentLoader::importRosPackage(std::string const& package)
             }
             // since it was a ROS package, we exit here.
             if (!found) {
-                log(Debug) <<"The ROS package '"<< package <<"' in '"<< getPath( package ) << "' nor its dependencies contained a lib/orocos directory. I'll look in the RTT_COMPONENT_PATH next."<<endlog();
+                log(Debug) <<"The ROS package '"<< package <<"' in '"<< ppath << "' nor its dependencies contained a lib/orocos directory. I'll look in the RTT_COMPONENT_PATH next."<<endlog();
             }
             return found;
         } else
             log(Info) << "Not a ros package: " << package << endlog();
-    } catch(...) {
-        log(Info) << "Not a ros package: " << package << endlog();
+    } catch(std::string arg) {
+        log(Info) << "While processing the dependencies of " << package << ": not a ros package: " << arg << endlog();
     }
 #endif
     return false;

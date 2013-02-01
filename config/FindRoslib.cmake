@@ -2,7 +2,7 @@
 
     IF ( ROSLIB_SUPPORT )
       # Catkin style of fetching ROS deps
-      FIND_PACKAGE( ROS QUIET COMPONENTS roslib )
+      FIND_PACKAGE( ROS QUIET COMPONENTS rospack)
 
       IF(NOT ROS_FOUND) # pre-Fuerte
         # TODO: This block to get roslib is deprecated as of ROS Fuerte, but is left in for pre-Fuerte compatibility
@@ -10,7 +10,7 @@
 	message("Falling back to roslib in: ${roslib_PACKAGE_PATH}")
         find_library(ROS_LIBRARIES roslib ${roslib_PACKAGE_PATH}/lib )
         if ( NOT ROS_LIBRARIES )
-	  find_package( ROS COMPONENTS roslib ) # Yells at user (non-QUIET !)
+	  find_package( ROS COMPONENTS rospack ) # Yells at user (non-QUIET !)
 	else()
 	  set(ROS_FOUND TRUE)
 	  set(ROS_INCLUDE_DIRS ${roslib_PACKAGE_PATH}/include)
