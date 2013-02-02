@@ -157,41 +157,6 @@ if(OROCOS-RTT_FOUND)
   endif(OROCOS_TARGET STREQUAL "win32")
 
 
-#
-# Include and link against required stuff
-#
-#From: http://www.cmake.org/Wiki/CMakeMacroParseArguments
-MACRO(ORO_PARSE_ARGUMENTS prefix arg_names option_names)
-  SET(DEFAULT_ARGS)
-  FOREACH(arg_name ${arg_names})  
-    SET(${prefix}_${arg_name})
-  ENDFOREACH(arg_name)
-  FOREACH(option ${option_names})
-    SET(${prefix}_${option} FALSE)
-  ENDFOREACH(option)
-
-  SET(current_arg_name DEFAULT_ARGS)
-  SET(current_arg_list)
-  FOREACH(arg ${ARGN})
-    SET(larg_names ${arg_names})
-    LIST(FIND larg_names "${arg}" is_arg_name)     
-    IF (is_arg_name GREATER -1)
-      SET(${prefix}_${current_arg_name} ${current_arg_list})
-      SET(current_arg_name ${arg})
-      SET(current_arg_list)
-    ELSE (is_arg_name GREATER -1)
-      SET(loption_names ${option_names})
-      LIST(FIND loption_names "${arg}" is_option)            
-      IF (is_option GREATER -1)
-         SET(${prefix}_${arg} TRUE)
-      ELSE (is_option GREATER -1)
-         SET(current_arg_list ${current_arg_list} ${arg})
-      ENDIF (is_option GREATER -1)
-    ENDIF (is_arg_name GREATER -1)
-  ENDFOREACH(arg)
-  SET(${prefix}_${current_arg_name} ${current_arg_list})
-ENDMACRO(ORO_PARSE_ARGUMENTS)
-
 # Components should add themselves by calling 'OROCOS_COMPONENT' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
 # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
@@ -396,15 +361,30 @@ endmacro( orocos_executable )
 # Type headers should add themselves by calling 'orocos_typegen_headers()'
 # They will be processed by typegen to generate a typekit from it, with the
 # name of the current project. You may also pass additional options to typegen
-# before listing your header files. For example -i <packagename> where
-# <packagename> is the name of a pkg-config package on which your headers
-# depend
+# before listing your header files. 
+# 
+# Use 'DEPENDS <packagename> ...' to add dependencies on other (typegen) packages.
+# This macro passes the -x OROCOS_TARGET flag to typegen automatically, so there
+# is no need to include the -OROCOS_TARGET suffix in the <packagename>
 #
-# Usage: orocos_typegen_headers( -i orocos_kdl robotdata.hpp sensordata.hpp )
+# NOTE: if you use a subdir for your headers, e.g. include/robotdata.hpp, it
+# will install this header into pkgname/include/robotdata.hpp ! Most likely
+# not what you want. So call this macro from the include dir itself.
+#
+# Usage: orocos_typegen_headers( robotdata.hpp sensordata.hpp DEPENDS orocos_kdl )
 #
 macro( orocos_typegen_headers )
 
-  MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME}..." )
+  ORO_PARSE_ARGUMENTS(ORO_TYPEGEN_HEADERS
+    "DEPENDS"
+    ""
+    ${ARGN}
+    )
+
+  if ( ORO_TYPEGEN_HEADERS_DEPENDS )
+    set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}")
+  endif()
+  MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
   
   # Works in top level source dir:
   find_program(TYPEGEN_EXE typegen)
@@ -412,12 +392,18 @@ macro( orocos_typegen_headers )
     message(FATAL_ERROR "'typegen' not found in path. Can't build typekit. Did you 'source env.sh' ?")
   else (NOT TYPEGEN_EXE)
 
-    execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+    foreach( IMP ${ORO_TYPEGEN_HEADERS_DEPENDS} )
+      set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
+    endforeach()
+    # Working directory is necessary to be able to find the source files.
+    execute_process( COMMAND ${TYPEGEN_EXE} --output ${CMAKE_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
       )
+
     # work around generated manifest.xml file:
-    execute_process( COMMAND ${CMAKE} remove -f typekit/manifest.xml )
-    add_subdirectory( typekit )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
+    add_subdirectory( ${CMAKE_SOURCE_DIR}/typekit ${CMAKE_BINARY_DIR}/typekit)
+
     list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )
