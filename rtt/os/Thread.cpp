@@ -70,7 +70,15 @@ namespace RTT {
 
         unsigned int Thread::default_stack_size = 0;
 
+        double Thread::lock_timeout_no_period_in_s = 1.0;
+
+        double Thread::lock_timeout_period_factor = 10.0;
+
         void Thread::setStackSize(unsigned int ssize) { default_stack_size = ssize; }
+
+        void Thread::setLockTimeoutNoPeriod(double timeout_in_s) { lock_timeout_no_period_in_s = timeout_in_s; }
+       
+        void Thread::setLockTimeoutPeriodFactor(double factor) { lock_timeout_period_factor = factor; }
 
         void *thread_function(void* t)
         {
@@ -256,7 +264,7 @@ namespace RTT {
             // we do this under lock in order to force the thread to wait until we're done.
             MutexLock lock(breaker);
 
-            log(Info) << "Creating Thread for scheduler=" << msched_type
+            log(Info) << "Creating Thread for scheduler=" << (msched_type == ORO_SCHED_OTHER ? "ORO_SCHED_OTHER" : "ORO_SCHED_RT")
                       << ", priority=" << _priority
                       << ", CPU affinity=" << cpu_affinity
                       << ", with name='" << name << "'"
@@ -266,7 +274,7 @@ namespace RTT {
             {
                 log(Critical)
                         << "Could not allocate configuration semaphore 'sem' for "
-                        << rtos_task_get_name(&rtos_task)
+                        << name
                         << ". Throwing std::bad_alloc." << endlog();
                 rtos_sem_destroy(&sem);
 #ifndef ORO_EMBEDDED
@@ -295,7 +303,7 @@ namespace RTT {
             if (rv != 0)
             {
                 log(Critical) << "Could not create thread "
-                        << rtos_task_get_name(&rtos_task) << "."
+                        << name << "."
                         << endlog();
                 rtos_sem_destroy(&sem);
 #ifndef ORO_EMBEDDED
@@ -311,9 +319,9 @@ namespace RTT {
             const char* modname = getName();
             Logger::In in2(modname);
             log(Info) << "Thread created with scheduler type '"
-                    << getScheduler() << "', priority " << getPriority()
+                    << (getScheduler() == ORO_SCHED_OTHER ? "ORO_SCHED_OTHER" : "ORO_SCHED_RT") << "', priority " << getPriority()
                     << ", cpu affinity " << getCpuAffinity()
-                    << " and period " << getPeriod() << "." << endlog();
+                    << " and period " << getPeriod() << " (PID= " << getPid() << " )." << endlog();
 #ifdef OROPKG_OS_THREAD_SCOPE
             if (d)
             {
@@ -419,7 +427,7 @@ namespace RTT {
                     // breakLoop was ok, wait for loop() to return.
                 }
                 // always take this lock, but after breakLoop was called !
-                MutexTimedLock lock(breaker, 1.0); // hard-coded: wait 1 second.
+                MutexTimedLock lock(breaker, lock_timeout_no_period_in_s); 
                 if ( !lock.isSuccessful() ) {
                     log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after 1 second."<<endlog();
                     running = true;
@@ -427,7 +435,7 @@ namespace RTT {
                 }
             } else {
                 //
-                MutexTimedLock lock(breaker, 10*getPeriod() ); // hard-coded: wait 5 times the period
+                MutexTimedLock lock(breaker, lock_timeout_period_factor*getPeriod() ); 
                 if ( lock.isSuccessful() ) {
                     // drop out of periodic mode.
                     rtos_task_make_periodic(&rtos_task, 0);
@@ -595,6 +603,11 @@ namespace RTT {
             return rtos_task_get_cpu_affinity(&rtos_task);
         }
 
+        unsigned int Thread::getPid() const
+        {
+        	return rtos_task_get_pid(&rtos_task);
+        }
+
         void Thread::yield()
         {
             rtos_task_yield( &rtos_task );
@@ -630,6 +643,7 @@ namespace RTT {
         {
             rtos_task_set_wait_period_policy(&rtos_task, p);  
         }
+
     }
 }
 

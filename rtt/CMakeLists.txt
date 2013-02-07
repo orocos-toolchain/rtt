@@ -157,6 +157,7 @@ ADD_SUBDIRECTORY( transports/mqueue )
 ADD_SUBDIRECTORY( scripting )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( plugin )
+ADD_SUBDIRECTORY( deployment )
 ADD_SUBDIRECTORY( extras )
 
 ####
@@ -197,6 +198,10 @@ ENDIF ( BUILD_STATIC )
   IF (UNIX AND NOT APPLE)
 	SET_TARGET_PROPERTIES( orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
 	  LINK_FLAGS "-Wl,-zdefs")
+	if ( LINUX_CAP_NG_LIBRARY )
+	  target_link_libraries( orocos-rtt-${OROCOS_TARGET}_dynamic ${LINUX_CAP_NG_LIBRARY} )
+	  set( ORO_OS_LINUX_CAP_NG 1 )
+	endif()
   ENDIF ()
 
 
@@ -204,6 +209,12 @@ ENDIF ( BUILD_STATIC )
   IF (BUILD_ENABLE_COVERAGE)
 	target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic gcov)
   ENDIF (BUILD_ENABLE_COVERAGE)
+  IF (ROSLIB_SUPPORT)
+        target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${ROS_LIBRARIES})
+	get_filename_component(ROS_LIBRARY_PATH "${ROS_LIBRARIES}" PATH)
+	set_target_properties(orocos-rtt-${OROCOS_TARGET}_dynamic PROPERTIES
+	  INSTALL_RPATH "${ROS_LIBRARY_PATH}")
+  ENDIF (ROSLIB_SUPPORT)
 
   if(ENABLE_MQ AND OROPKG_OS_XENOMAI AND XENOMAI_POSIX_FOUND)
     target_link_libraries(orocos-rtt-${OROCOS_TARGET}_dynamic ${XENOMAI_POSIX_LIBRARIES})

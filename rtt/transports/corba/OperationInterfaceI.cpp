@@ -126,23 +126,31 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::collect (
     ::RTT::corba::CAnyArguments_out args)
 {
-    SendStatus ss = mhandle.collect();
-    args = new CAnyArguments();
-    if (ss == SendSuccess) {
-        sourcevector_to_anysequence( cargs, *args.ptr() );
+    try {
+        SendStatus ss = mhandle.collect();
+        args = new CAnyArguments();
+        if (ss == SendSuccess) {
+           sourcevector_to_anysequence( cargs, *args.ptr() );
+        }
+        return CSendStatus(static_cast<int>(ss) + 1);
+    } catch(std::runtime_error& e) {
+        throw ::RTT::corba::CCallError(e.what());
     }
-    return CSendStatus(static_cast<int>(ss) + 1);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::collectIfDone (
     ::RTT::corba::CAnyArguments_out args)
 {
-    SendStatus ss = mhandle.collectIfDone();
-    args = new CAnyArguments();
-    if (ss == SendSuccess) {
-        sourcevector_to_anysequence( cargs, *args.ptr() );
+    try {
+        SendStatus ss = mhandle.collectIfDone();
+        args = new CAnyArguments();
+        if (ss == SendSuccess) {
+            sourcevector_to_anysequence( cargs, *args.ptr() );
+        }
+        return CSendStatus(static_cast<int>(ss) + 1);
+    } catch(std::runtime_error& e) {
+        throw ::RTT::corba::CCallError(e.what());
     }
-    return CSendStatus(static_cast<int>(ss) + 1);
 }
 
 ::RTT::corba::CSendStatus RTT_corba_CSendHandle_i::checkStatus (
@@ -154,17 +162,21 @@ bool sourcevector_to_anysequence( vector<DataSourceBase::shared_ptr> const& sour
 ::CORBA::Any * RTT_corba_CSendHandle_i::ret (
     void)
 {
-    SendStatus ss = mhandle.collectIfDone();
-    // We just copy over the first collectable argument. In
-    // case of a void operation, we will thus return the first
-    // reference argument.
-    if (ss == SendSuccess) {
-        if ( cargs.size() > 0) {
-            CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (cargs[0]->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID));
-            return ctt->createAny( cargs[0] );
+    try {
+        SendStatus ss = mhandle.collectIfDone();
+        // We just copy over the first collectable argument. In
+        // case of a void operation, we will thus return the first
+        // reference argument.
+        if (ss == SendSuccess) {
+            if ( cargs.size() > 0) {
+                CorbaTypeTransporter* ctt = dynamic_cast<CorbaTypeTransporter*> (cargs[0]->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID));
+                return ctt->createAny( cargs[0] );
+            }
         }
+        return new CORBA::Any();
+    } catch(std::runtime_error& e) {
+        throw ::RTT::corba::CCallError(e.what());
     }
-    return new CORBA::Any();
 }
 
 void RTT_corba_CSendHandle_i::checkArguments (
@@ -394,6 +406,8 @@ void RTT_corba_COperationInterface_i::checkOperation (
         throw ::RTT::corba::CWrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
         throw ::RTT::corba::CWrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    } catch (std::runtime_error& e){
+        throw ::RTT::corba::CCallError(e.what());
     }
     return new ::CORBA::Any();
 }

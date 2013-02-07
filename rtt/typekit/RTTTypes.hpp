@@ -37,10 +37,10 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::FlowStatus >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::FlowStatus >;
 #endif
-#ifdef ORO_INPUT_PORT_HPP
+#ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::FlowStatus >;
 #endif
-#ifdef ORO_OUTPUT_PORT_HPP
+#ifdef ORO_INPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::FlowStatus >;
 #endif
 #ifdef ORO_PROPERTY_HPP
@@ -55,10 +55,10 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::SendStatus >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::SendStatus >;
 #endif
-#ifdef ORO_INPUT_PORT_HPP
+#ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::SendStatus >;
 #endif
-#ifdef ORO_OUTPUT_PORT_HPP
+#ifdef ORO_INPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::SendStatus >;
 #endif
 #ifdef ORO_PROPERTY_HPP
@@ -78,10 +78,10 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::PropertyBag >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::PropertyBag >;
 #endif
-#ifdef ORO_INPUT_PORT_HPP
+#ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::PropertyBag >;
 #endif
-#ifdef ORO_OUTPUT_PORT_HPP
+#ifdef ORO_INPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::PropertyBag >;
 #endif
 #ifdef ORO_PROPERTY_HPP
@@ -101,10 +101,10 @@
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ConstantDataSource< RTT::ConnPolicy >;
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::internal::ReferenceDataSource< RTT::ConnPolicy >;
 #endif
-#ifdef ORO_INPUT_PORT_HPP
+#ifdef ORO_OUTPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::OutputPort< RTT::ConnPolicy >;
 #endif
-#ifdef ORO_OUTPUT_PORT_HPP
+#ifdef ORO_INPUT_PORT_HPP
     RTT_TYPEKIT_EXT_TMPL template class RTT_TYPEKIT_API RTT::InputPort< RTT::ConnPolicy >;
 #endif
 #ifdef ORO_PROPERTY_HPP

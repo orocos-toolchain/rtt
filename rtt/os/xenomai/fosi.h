@@ -49,9 +49,6 @@
 extern "C" {
 #endif
 
-	// Orocos Implementation (CPU specific)
-#include "../oro_arch.h"
-
 #include "../../rtt-config.h"
 
 	//Xenomai headers

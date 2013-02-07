@@ -152,7 +152,7 @@ set(OROCOS-RTT_USE_FILE ${SELF_DIR}/UseOROCOS-RTT.cmake)
 
 # Confirm found, not cached !
 message("Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
-set(OROCOS-RTT_FOUND true)
+set(OROCOS-RTT_FOUND TRUE)
 
 endif()
 

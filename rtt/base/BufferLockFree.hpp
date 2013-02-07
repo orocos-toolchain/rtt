@@ -78,13 +78,14 @@ namespace RTT
         internal::AtomicMWSRQueue<Item*> bufs;
         // is mutable because of reference counting.
         mutable internal::TsPool<Item> mpool;
+        const bool mcircular;
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
 '         */
-        BufferLockFree( unsigned int bufsize, const T& initial_value = T())
-            : bufs( bufsize ), mpool(bufsize + 1)
+        BufferLockFree( unsigned int bufsize, const T& initial_value = T(), bool circular = false)
+            : bufs( bufsize ), mpool(bufsize + 1), mcircular(circular)
         {
             mpool.data_sample( initial_value );
         }
@@ -129,28 +130,52 @@ namespace RTT
 
         bool Push( param_t item)
         {
+            if ( capacity() == (size_type)bufs.size() ) {
+                if (!mcircular)
+                    return false;
+                // we will recover below in case of circular
+            }
             Item* mitem = mpool.allocate();
-            if ( mitem == 0 ) // queue full.
-                return false;
+            if ( mitem == 0 ) { // queue full ( rare but possible in race with PopWithoutRelease )
+                if (!mcircular)
+                    return false;
+                else {
+                    if (bufs.dequeue( mitem ) == false )
+                        return false; // assert(false) ???
+                    // we keep mitem to write item to next
+                }
+            }
+
             // copy over.
             *mitem = item;
             if (bufs.enqueue( mitem ) == false ) {
-		//got memory, but buffer is full
-		//this can happen, as the memory pool is
-		//bigger than the buffer
-                mpool.deallocate( mitem );
-                return false;
+                //got memory, but buffer is full
+                //this can happen, as the memory pool is
+                //bigger than the buffer
+                if (!mcircular) {
+                    mpool.deallocate( mitem );
+                    return false;
+                } else {
+                    // pop & deallocate until we have free space.
+                    Item* itmp = 0;
+                    do {
+                        bufs.dequeue( itmp );
+                        mpool.deallocate( itmp );
+                    } while ( bufs.enqueue( mitem ) == false );
+                }
             }
             return true;
         }
 
         size_type Push(const std::vector<T>& items)
         {
+            // @todo Make this function more efficient as in BufferLocked.
             int towrite  = items.size();
             typename std::vector<T>::const_iterator it;
             for(  it = items.begin(); it != items.end(); ++it)
-                if ( this->Push( *it ) == false )
-                    break;
+                if ( this->Push( *it ) == false ) {
+                    break; // will only happen in non-circular case !
+                }
             return towrite - (items.end() - it);
         }
 

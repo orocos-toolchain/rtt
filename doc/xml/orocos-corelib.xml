@@ -424,7 +424,7 @@
 
     </section>
     <section id="corelib-threads">
-      <title>Accessing the Threads from Activities</title>
+      <title>Configuring the Threads from Activities</title>
       <para>
 	Each Orocos Activity (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
@@ -458,12 +458,11 @@ ORO_main( int argc, char** argv)
   act->thread()->stop();
   // change the period:
   act->thread()->setPeriod( 0.01 );
-  act->thread()->start();
-  // Optional :
-  act->thread()->makeHardRealtime();
 
-  // Now the activity can be started as well:
-  act->start();
+  // ORO_SCHED_RT: real-time  ORO_SCHED_OTHER: not real-time.
+  act->thread()->setScheduler(ORO_SCHED_RT);
+
+  act->thread()->start();
 
   // act is running...
 

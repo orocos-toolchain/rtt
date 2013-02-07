@@ -90,6 +90,13 @@ namespace RTT { namespace scripting
       ~CommonParser();
 
       void seenillegalidentifier();
+
+      /** 
+       * Returns a rule which parses a keyword followed by a
+       * non-identifier character, newline or semicolon.
+       */
+#     define keyword_p(word) (lexeme_d[ str_p(word) >> eps_p(~chset_p("a-zA-Z_0-9")) ])
+
   };
 }}
 

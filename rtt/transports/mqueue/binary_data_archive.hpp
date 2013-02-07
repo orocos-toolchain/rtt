@@ -78,8 +78,11 @@
 #include <boost/config.hpp>
 #include <boost/mpl/bool.hpp>
 
-// binary_data_archive API changed at 1.42
+// binary_data_archive API changed at 1.42, 1.46
 #include <boost/version.hpp>
+#if BOOST_VERSION >= 104600
+#include <boost/serialization/item_version_type.hpp>
+#endif
 
 namespace RTT
 {
@@ -465,6 +468,17 @@ namespace RTT
                   return *this;
             }
 
+#if BOOST_VERSION >= 104600
+            binary_data_oarchive &save_a_type(const boost::serialization::version_type & t,boost::mpl::true_){
+                // ignored, the load function is never called, so we don't store it.
+                return *this;
+            }
+            binary_data_oarchive &save_a_type(const boost::serialization::item_version_type & t,boost::mpl::true_){
+                // ignored, the load function is never called, so we don't store it.
+                return *this;
+            }
+#endif
+
             /**
              * Specialisation for writing out composite types (objects).
              * @param t a serializable class or struct.
@@ -513,5 +527,8 @@ namespace RTT
         };
     }
 }
+
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(RTT::mqueue::binary_data_oarchive)
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(RTT::mqueue::binary_data_iarchive)
 
 #endif /* BINARY_DATA_ARCHIVE_HPP_ */

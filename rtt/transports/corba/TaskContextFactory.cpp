@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  Types.hpp
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  TaskContextFactory.cpp
 
-                        Types.hpp -  description
+                        TaskContextFactory.cpp -  description
                            -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,59 +35,26 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ORO_TEMPLATE_DATAFLOW_TYPEINFO_HPP
-#define ORO_TEMPLATE_DATAFLOW_TYPEINFO_HPP
 
-#include "Types.hpp"
-#include "../Logger.hpp"
-#include "../InputPort.hpp"
-#include "../OutputPort.hpp"
-#include "PrimitiveTypeInfo.hpp"
+#include "TaskContextFactory.hpp"
+#include "TaskContextProxy.hpp"
 
-#include "../rtt-config.h"
-
-namespace RTT
+bool RTT::corba::TaskContextFactory::InitOrb(int argc, char* argv[], Seconds orb_timeout)
 {
-    namespace types {
+  return RTT::corba::TaskContextProxy::InitOrb(argc, argv, orb_timeout);
+}
 
-    /**
-     */
-    template<typename T, bool use_ostream = false>
-    class DataFlowTypeInfo
-        : public PrimitiveTypeInfo<T, use_ostream>
-    {
-    public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
+void RTT::corba::TaskContextFactory::DestroyOrb()
+{
+  RTT::corba::TaskContextProxy::DestroyOrb();
+}
 
-        DataFlowTypeInfo(std::string name)
-            : PrimitiveTypeInfo<T,use_ostream>(name)
-        {
-        }
+RTT::TaskContext* RTT::corba::TaskContextFactory::Create(std::string name, bool is_ior)
+{
+  return RTT::corba::TaskContextProxy::Create(name, is_ior);
+}
 
-        virtual ~DataFlowTypeInfo()
-        {
-        }
-
-        base::InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }
-        base::OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }
-
-        base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const {
-            return internal::ConnFactory::buildDataStorage<T>(policy);
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelOutput(
-                    static_cast<RTT::InputPort<T>&>(port), new internal::SimpleConnID());
-        }
-
-        base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const
-        {
-            return internal::ConnFactory::buildChannelInput(
-                    static_cast<RTT::OutputPort<T>&>(port), new internal::SimpleConnID(), 0 );
-        }
-    };
-}}
-
-#endif
+RTT::TaskContext* RTT::corba::TaskContextFactory::CreateFromFile(std::string filename)
+{
+  return RTT::corba::TaskContextProxy::CreateFromFile(filename);
+}

@@ -63,9 +63,9 @@
 using namespace RTT;
 using namespace extras;
 using namespace base;
-const int FileDescriptorActivity::CMD_BREAK_LOOP;
-const int FileDescriptorActivity::CMD_TRIGGER;
-const int FileDescriptorActivity::CMD_UPDATE_SETS;
+const char FileDescriptorActivity::CMD_BREAK_LOOP;
+const char FileDescriptorActivity::CMD_TRIGGER;
+const char FileDescriptorActivity::CMD_UPDATE_SETS;
 
 
 /**

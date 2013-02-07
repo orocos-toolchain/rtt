@@ -136,6 +136,22 @@ namespace RTT
              */
             static void setStackSize(unsigned int ssize);
 
+            /**
+             * Sets the lock timeout for a thread which does not have a period
+             * The default is 1 second 
+             * @param timeout_in_s the timeout is seconds
+             */
+            static void setLockTimeoutNoPeriod(double timeout_in_s);
+
+            /**
+             * Set the lock timeout for a thread which has a period
+             * by a factor of the period
+             * The default is factor 10
+             * @param factor Factor of the period 
+             */
+            static void setLockTimeoutPeriodFactor(double factor);
+
+
             virtual bool start();
 
             virtual bool stop();
@@ -189,6 +205,7 @@ namespace RTT
 
             virtual int getPriority() const;
 
+            virtual unsigned int getPid() const;
             /**
              * Set cpu affinity for this thread
              * @cpu_affinity The cpu affinity of the thread (@see rtos_task_set_cpu_affinity).
@@ -254,6 +271,16 @@ namespace RTT
             void configure();
 
             static unsigned int default_stack_size;
+
+            /**
+             *  configuration of the lock timeout in seconds
+             */
+            static double lock_timeout_no_period_in_s;
+
+            /**
+             * configuration of the lock timeout for periodic tasks in seconds
+             */
+            static double lock_timeout_period_factor;
 
             /**
              * Desired scheduler type.

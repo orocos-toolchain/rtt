@@ -171,6 +171,12 @@ namespace RTT
         TaskContext* getOwner() const { return mowner; }
 
         /**
+         * Return the execution engine of this service owner.
+         * \see getOwner
+         */        
+        ExecutionEngine* getOwnerExecutionEngine() const;
+
+        /**
          * Add a new Service to this TaskContext.
          *
          * @param obj This object becomes owned by this TaskContext.
@@ -337,7 +343,7 @@ namespace RTT
         addOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
+            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addOperation( *op );
         }
@@ -359,7 +365,7 @@ namespace RTT
         {
             typedef Func Signature;
             boost::function<Signature> bfunc = func;
-            Operation<Signature>* op = new Operation<Signature>(name, bfunc, et);
+            Operation<Signature>* op = new Operation<Signature>(name, bfunc, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addOperation( *op );
         }
@@ -381,7 +387,7 @@ namespace RTT
         addSynchronousOperation( const std::string name, Func func, Service* serv, ExecutionThread et = ClientThread )
         {
             typedef typename internal::GetSignature<Func>::Signature Signature;
-            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et);
+            Operation<Signature>* op = new Operation<Signature>(name, func, serv, et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addSynchronousOperation( *op );
         }
@@ -396,7 +402,7 @@ namespace RTT
                 ExecutionThread et = ClientThread)
         {
             typedef typename internal::GetSignatureDS<Func>::Signature SignatureDS;    // function signature with normal object pointer
-            Operation<SignatureDS>* op = new Operation<SignatureDS>(name, boost::function<SignatureDS>(func), et);
+            Operation<SignatureDS>* op = new Operation<SignatureDS>(name, boost::function<SignatureDS>(func), et, this->getOwnerExecutionEngine() );
             ownedoperations.push_back(op);
             return addOperationDS( sp, *op );
         }

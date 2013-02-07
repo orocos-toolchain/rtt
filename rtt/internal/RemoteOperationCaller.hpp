@@ -96,6 +96,7 @@ namespace RTT
             {}
 
             virtual void executeAndDispose() { assert(false); }
+            virtual bool isError() const { return false; }
             virtual void dispose() { assert(false); }
 
             virtual void setExecutor(ExecutionEngine* ee) {
@@ -104,6 +105,7 @@ namespace RTT
             virtual void setCaller(ExecutionEngine* ee) {
             }
 
+            virtual void reportError() {}
 
             /**
              * Call this operator if the RemoteOperationCaller takes no arguments.

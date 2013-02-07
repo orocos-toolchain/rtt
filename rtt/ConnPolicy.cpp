@@ -60,6 +60,15 @@ namespace RTT
         return result;
     }
 
+    ConnPolicy ConnPolicy::circularBuffer(int size, int lock_policy /*= LOCK_FREE*/, bool init_connection /*= false*/, bool pull /*= false*/)
+    {
+        ConnPolicy result(CIRCULAR_BUFFER, lock_policy);
+        result.init = init_connection;
+        result.pull = pull;
+        result.size = size;
+        return result;
+    }
+
     ConnPolicy ConnPolicy::data(int lock_policy /*= LOCK_FREE*/, bool init_connection /*= true*/, bool pull /*= false*/)
     {
         ConnPolicy result(DATA, lock_policy);

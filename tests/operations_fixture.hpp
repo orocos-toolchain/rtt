@@ -59,6 +59,9 @@ public:
     double m6(int i, double d, bool c, std::string s, float f, char h) { if ( i == 1 && d == 2.0 && c == true && s == "hello" && f == 5.0f && h == 'a') return -7.0; else return 7.0;  }
     double m7(int i, double d, bool c, std::string s, float f, char h, unsigned int st) { if ( i == 1 && d == 2.0 && c == true && s == "hello" && f == 5.0f && h == 'a', st == 7) return -8.0; else return 8.0;  }
 
+    //exception tests:
+    void m0except(void) { throw std::runtime_error("exception"); }
+
     void print(const std::string& what) { cout << "print: " << what <<endl; }
     void printNumber(const std::string& what, int n) { cout << "print: " << what << n << endl; }
 

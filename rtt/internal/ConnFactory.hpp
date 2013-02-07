@@ -91,16 +91,42 @@ namespace RTT
     class RTT_API ConnFactory
     {
     public:
+        virtual ~ConnFactory() {}
 
-        /** This method is analoguous to the static ConnFactory::buildChannelOutput.
-         * It is provided for remote connection building: for these connections,
-         * no template can be used and therefore the connection setup should be
-         * done based on the types::TypeInfo object
+        /**
+         * Returns a new InputPort<T> object where T is the type represented by
+         * this TypeInfo object.
          */
-        virtual base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
-                base::OutputPortInterface& output_port,
-                types::TypeInfo const* type_info,
-                base::InputPortInterface& input, const ConnPolicy& policy) = 0;
+        virtual base::InputPortInterface* inputPort(std::string const& name) const = 0;
+
+        /**
+         * Returns a new OutputPort<T> object where T is the type represented by
+         * this TypeInfo object.
+         */
+        virtual base::OutputPortInterface* outputPort(std::string const& name) const = 0;
+
+        /**
+         * Creates single data or buffered storage for this type.
+         *
+         * @param policy Describes the kind of storage requested by the user
+         * @return a storage element.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildDataStorage(ConnPolicy const& policy) const = 0;
+
+        /**
+         * Creates the output endpoint of a communication channel and adds it to an InputPort.
+         *
+         * @param port The input port to connect the channel's output end to.
+         * @return The created endpoint.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildChannelOutput(base::InputPortInterface& port) const = 0;
+        /**
+         * Creates the input endpoint (starting point) of a communication channel and adds it to an OutputPort.
+         *
+         * @param port The output port to connect the channel's input end to.
+         * @return The created endpoint.
+         */
+        virtual base::ChannelElementBase::shared_ptr buildChannelInput(base::OutputPortInterface& port) const = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -136,24 +162,24 @@ namespace RTT
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 return result;
             }
-            else if (policy.type == ConnPolicy::BUFFER)
+            else if (policy.type == ConnPolicy::BUFFER || policy.type == ConnPolicy::CIRCULAR_BUFFER)
             {
                 base::BufferInterface<T>* buffer_object = 0;
                 switch (policy.lock_policy)
                 {
 #ifndef OROBLD_OS_NO_ASM
                 case ConnPolicy::LOCK_FREE:
-                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value);
+                    buffer_object = new base::BufferLockFree<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
                     break;
 #else
 		case ConnPolicy::LOCK_FREE:
 		    RTT::log(Warning) << "lock free connection policy is unavailable on this system, defaulting to LOCKED" << RTT::endlog();
 #endif
                 case ConnPolicy::LOCKED:
-                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value);
+                    buffer_object = new base::BufferLocked<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
                     break;
                 case ConnPolicy::UNSYNC:
-                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value);
+                    buffer_object = new base::BufferUnSync<T>(policy.size, initial_value, policy.type == ConnPolicy::CIRCULAR_BUFFER);
                     break;
                 }
                 return new ChannelBufferElement<T>(typename base::BufferInterface<T>::shared_ptr(buffer_object));
@@ -354,7 +380,11 @@ namespace RTT
                                                                                        StreamConnID* conn_id);
     };
 
-}}
+        typedef boost::shared_ptr<ConnFactory> ConnFactoryPtr;
+
+
+    }
+}
 
 #endif
 

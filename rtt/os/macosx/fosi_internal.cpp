@@ -264,6 +264,11 @@ namespace RTT
             return param.sched_priority;
 	}
 
+	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+	{
+		return 0;
+	}
+
 	INTERNAL_QUAL int rtos_task_set_cpu_affinity(RTOS_TASK * task, unsigned cpu_affinity)
 	{
         return -1;

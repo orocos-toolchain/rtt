@@ -3,6 +3,7 @@
 
 #include "PrimitiveTypeInfo.hpp"
 #include "SequenceTypeInfoBase.hpp"
+#include "MemberFactory.hpp"
 
 namespace RTT
 {
@@ -16,12 +17,31 @@ namespace RTT
          */
         template<class T, bool has_ostream=false>
         class PrimitiveSequenceTypeInfo
-        : public PrimitiveTypeInfo<T,has_ostream>, public SequenceTypeInfoBase<T>
+            : public PrimitiveTypeInfo<T,has_ostream>,
+              public SequenceTypeInfoBase<T>,
+              public MemberFactory,
+              public CompositionFactory
         {
         public:
             PrimitiveSequenceTypeInfo(std::string name)
-                : PrimitiveTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase<T>(this)
+                : PrimitiveTypeInfo<T,has_ostream>(name), SequenceTypeInfoBase<T>()
             {}
+
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< PrimitiveSequenceTypeInfo<T,has_ostream> > mthis = boost::dynamic_pointer_cast<PrimitiveSequenceTypeInfo<T,has_ostream> >( this->getSharedPtr() );
+            assert(mthis);
+            // Allow base to install first
+            PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            SequenceTypeInfoBase<T>::installTypeInfoObject(ti);
+            
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+            ti->setCompositionFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
 
             using PrimitiveTypeInfo<T,has_ostream>::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const

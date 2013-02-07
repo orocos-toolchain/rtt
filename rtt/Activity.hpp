@@ -66,9 +66,10 @@ namespace RTT
     public:
         /**
          * @brief Create a not real-time Activity.
-         * This creates a not real-time, non-periodic thread.
+         * This creates a not real-time, non-periodic thread, with priority equal to
+         * RTT::os::LowestPriority.
          *
-         * @param _r The optional runner, if none, this->loop() is called.
+         * @param _r The optional runner, if null, this->loop() is called.
          * @param name The name of the underlying thread.
          */
         Activity(base::RunnableInterface* r = 0, const std::string& name ="Activity" );

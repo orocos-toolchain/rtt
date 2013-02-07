@@ -39,7 +39,6 @@
 #ifndef ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 #define ORO_SEQUENCE_TYPE_INFO_BASE_HPP
 
-#include "PrimitiveTypeInfo.hpp"
 #include "SequenceConstructor.hpp"
 #include "TemplateConstructor.hpp"
 #include "PropertyComposition.hpp"
@@ -126,11 +125,16 @@ namespace RTT
         class SequenceTypeInfoBase
         {
         public:
-            SequenceTypeInfoBase(TypeInfo* tbase)
+            SequenceTypeInfoBase()
             {
-                tbase->addConstructor( new SequenceBuilder<T>() );
-                tbase->addConstructor( newConstructor( sequence_ctor<T>() ) );
-                tbase->addConstructor( newConstructor( sequence_ctor2<T>() ) );
+            }
+
+            bool installTypeInfoObject(TypeInfo* ti) {
+                ti->addConstructor( new SequenceBuilder<T>() );
+                ti->addConstructor( newConstructor( sequence_ctor<T>() ) );
+                ti->addConstructor( newConstructor( sequence_ctor2<T>() ) );
+                // Don't delete us, we're memory-managed.
+                return false;
             }
 
             ~SequenceTypeInfoBase() {}
@@ -184,6 +188,7 @@ namespace RTT
                     result.resize( source.size() );
                 }
                 // recurse into items of this sequence:
+                TypeInfoRepository::shared_ptr tir = Types();
                 PropertyBag target( source.getType() );
                 PropertyBag decomp;
                 internal::ReferenceDataSource<T> rds(result);
@@ -191,14 +196,16 @@ namespace RTT
                 // we compose each item in this sequence and then update result with target's result.
                 // 1. each child is composed into target (this is a recursive thing)
                 // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
-                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( tir->type( decomp.getType() ) == tir->type( target.getType() ) ) && refreshProperties(decomp, target, true) ) {
                     assert(result.size() == source.size());
                     assert(source.size() == target.size());
                     assert(source.size() == decomp.size());
                     ads->updated();
                     Logger::log() <<Logger::Debug<<"Successfuly composed type from "<< source.getType() <<Logger::endl;
                     return true;
-                }
+                } else 
+                    Logger::log() <<Logger::Debug<<"Failed to composed type from "<< source.getType() <<Logger::endl;
+
                 return false;
             }
 
@@ -234,7 +241,7 @@ namespace RTT
                                                              base::DataSourceBase::shared_ptr id) const {
                 // discover if user gave us a part name or index:
                 typename internal::DataSource<int>::shared_ptr id_indx = internal::DataSource<int>::narrow( internal::DataSourceTypeInfo<int>::getTypeInfo()->convert(id).get() );
-                typename internal::DataSource<string>::shared_ptr id_name = internal::DataSource<string>::narrow( id.get() );
+                typename internal::DataSource<std::string>::shared_ptr id_name = internal::DataSource<std::string>::narrow( id.get() );
                 if ( id_name ) {
                     if ( id_name->get() == "size" ) {
                         try {

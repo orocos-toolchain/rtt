@@ -112,15 +112,18 @@ namespace RTT
             }
         }
 
-#ifndef ORO_SIGNALLING_PORTS
         virtual bool signal()
         {
             InputPort<T>* port = this->port;
+#ifdef ORO_SIGNALLING_PORTS
+            if (port && port->new_data_on_port_event)
+                (*port->new_data_on_port_event)(port);
+#else
             if (port )
                 port->signal();
+#endif
             return true;
         }
-#endif
 
         virtual bool data_sample(typename base::ChannelElement<T>::param_t sample)
         {

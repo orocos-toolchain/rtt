@@ -33,7 +33,9 @@ bool RTT::types::composePropertyBag( PropertyBag const& sourcebag, PropertyBag& 
                 target.ownProperty(tgtprop);
             } else {
                 log(Error) <<"The type '" << isbag.value().getType() <<"' did not provide a type composition function, but I need one to compose it from a PropertyBag." <<endlog();
+                delete tgtprop;
                 has_error = true;
+                continue;
             }
         } else {
             if ( isbag.ready() ) {
@@ -42,6 +44,7 @@ bool RTT::types::composePropertyBag( PropertyBag const& sourcebag, PropertyBag& 
                 if ( composePropertyBag(isbag.value(), newbag->value()) == false) {
                     delete newbag;
                     has_error = true;
+                    continue;
                 }
                 target.ownProperty( newbag );
             } else {

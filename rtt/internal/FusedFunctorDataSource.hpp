@@ -296,6 +296,10 @@ namespace RTT
                   IType foo = &bf::invoke<call_type,arg_type>;
                   // we need to store the ret value ourselves.
                   ret.exec( boost::bind(foo, &base::OperationCallerBase<Signature>::call, arg_type(ff.get(), SequenceFactory::data(args))) );
+                  if(ret.isError()) {
+                    ff->reportError();
+                    ret.checkError();
+                  }
                   SequenceFactory::update(args);
                   return true;
               }
@@ -303,6 +307,7 @@ namespace RTT
               value_t get() const
               {
                   FusedMCallDataSource<Signature>::evaluate();
+                  ret.checkError();
                   return ret.result();
               }
 

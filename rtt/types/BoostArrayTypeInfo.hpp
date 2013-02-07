@@ -46,6 +46,8 @@
 #include <boost/array.hpp>
 #include "PropertyComposition.hpp"
 #include "PropertyDecomposition.hpp"
+#include "CompositionFactory.hpp"
+#include "MemberFactory.hpp"
 
 namespace RTT
 {
@@ -63,13 +65,28 @@ namespace RTT
          * @param T A boost::array<U,N> wrapper, where U is a data type and N the array size.
          */
         template<typename T, bool has_ostream = false>
-        class BoostArrayTypeInfo: public PrimitiveTypeInfo<T, has_ostream>
+        class BoostArrayTypeInfo :
+            public PrimitiveTypeInfo<T, has_ostream>,
+            public MemberFactory, public CompositionFactory
         {
         public:
             BoostArrayTypeInfo(std::string name) :
                 PrimitiveTypeInfo<T, has_ostream> (name)
             {
             }
+
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< BoostArrayTypeInfo<T> > mthis = boost::dynamic_pointer_cast<BoostArrayTypeInfo<T> >( this->getSharedPtr() );
+            // Allow base to install first
+            PrimitiveTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+            ti->setCompositionFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
 
             virtual std::vector<std::string> getMemberNames() const {
                 // only discover the parts of this struct:
@@ -151,6 +168,7 @@ namespace RTT
                     return false;
                 }
                 // recurse into items of this sequence:
+                TypeInfoRepository::shared_ptr tir = Types();
                 PropertyBag target( source.getType() );
                 PropertyBag decomp;
                 internal::ReferenceDataSource<T> rds(result);
@@ -158,7 +176,7 @@ namespace RTT
                 // we compose each item in this sequence and then update result with target's result.
                 // 1. each child is composed into target (this is a recursive thing)
                 // 2. we decompose result one-level deep and 'refresh' it with the composed children of step 1.
-                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( decomp.getType() == target.getType() ) && refreshProperties(decomp, target, true) ) {
+                if ( composePropertyBag(source, target) && typeDecomposition( &rds, decomp, false) && ( tir->type(decomp.getType()) == tir->type(target.getType()) ) && refreshProperties(decomp, target, true) ) {
                     assert(result.size() == source.size());
                     assert(source.size() == target.size());
                     assert(source.size() == decomp.size());

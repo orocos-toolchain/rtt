@@ -67,8 +67,8 @@ namespace RTT
         /**
          * Create a buffer of size \a size.
          */
-        BufferUnSync( size_type size, const T& initial_value = T() )
-            : cap(size), buf()
+        BufferUnSync( size_type size, const T& initial_value = T(), bool circular = false )
+            : cap(size), buf(), mcircular(circular)
         {
             data_sample(initial_value);
         }
@@ -87,7 +87,10 @@ namespace RTT
         bool Push( param_t item )
         {
             if (cap == (size_type)buf.size() ) {
-                return false;
+                if (!mcircular)
+                    return false;
+                else
+                    buf.pop_front();
             }
             buf.push_back( item );
             return true;
@@ -96,12 +99,24 @@ namespace RTT
         size_type Push(const std::vector<T>& items)
         {
             typename std::vector<T>::const_iterator itl( items.begin() );
+            if (mcircular && (size_type)items.size() >= cap ) {
+                // clear out current data and reset iterator to first element we're going to take.
+                buf.clear();
+                itl = items.begin() + ( items.size() - cap );
+            } else if ( mcircular && (size_type)(buf.size() + items.size()) > cap) {
+                // drop excess elements from front
+                assert( (size_type)items.size() < cap );
+                while ( (size_type)(buf.size() + items.size()) > cap )
+                    buf.pop_front();
+                // itl still points at first element of items.
+            }
             while ( ((size_type)buf.size() != cap) && (itl != items.end()) ) {
                 buf.push_back( *itl );
                 ++itl;
             }
             return (itl - items.begin());
         }
+
         bool Pop( reference_t item )
         {
             if ( buf.empty() ) {
@@ -115,6 +130,7 @@ namespace RTT
         size_type Pop(std::vector<T>& items )
         {
             int quant = 0;
+            items.clear();
             while ( !buf.empty() ) {
                 items.push_back( buf.front() );
                 buf.pop_front();
@@ -167,7 +183,8 @@ namespace RTT
     private:
         size_type cap;
         std::deque<T> buf;
-	value_t lastSample;
+        value_t lastSample;
+        const bool mcircular;
     };
 }}
 

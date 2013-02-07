@@ -111,7 +111,7 @@ namespace RTT
      */
      template<typename T>
      struct StdVectorBuilder
-         : public TypeBuilder
+         : public TypeConstructor
      {
          virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const {
              if (args.size() == 0 )

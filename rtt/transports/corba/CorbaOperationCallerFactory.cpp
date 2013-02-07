@@ -205,8 +205,9 @@ public:
             return false;
         } catch ( corba::CWrongTypeArgException& ) {
             return false;
+        } catch ( corba::CCallError& e) {
+            throw std::runtime_error(std::string(e.what.in()));
         }
-
     }
 
     ActionInterface* clone() const { return new CorbaOperationCallerCall(CService::_duplicate( mfact.in() ), mop, margs, mcaller, mctt, mresult, mdocall); }
@@ -357,6 +358,8 @@ public:
             return mss;
         } catch ( corba::CWrongTypeArgException& ) {
             return mss;
+        } catch ( corba::CCallError& e) {
+            throw std::runtime_error(std::string(e.what.in()));
         }
     }
 

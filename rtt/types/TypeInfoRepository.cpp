@@ -71,6 +71,7 @@ namespace RTT
 
     TypeInfo* TypeInfoRepository::type( const std::string& name ) const
     {
+        MutexLock lock(type_lock);
         map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) {
             // try alternate name replace / with dots:
@@ -97,10 +98,13 @@ namespace RTT
     }
 
     TypeInfo* TypeInfoRepository::getTypeById(TypeInfo::TypeId type_id) const {
+      if (!type_id)
+          return 0;
+      MutexLock lock(type_lock);
       // Ask each type for its type id name.
       map_t::const_iterator i = data.begin();
       for (; i != data.end(); ++i){
-        if (i->second->getTypeId() == type_id)
+        if (i->second->getTypeId() && *(i->second->getTypeId()) == *type_id)
           return i->second;
       }
       return 0;
@@ -108,9 +112,10 @@ namespace RTT
 
     TypeInfo* TypeInfoRepository::getTypeById(const char * type_id_name) const {
       // Ask each type for its type id name.
+      MutexLock lock(type_lock);
       map_t::const_iterator i = data.begin();
       for (; i != data.end(); ++i){
-        if (i->second->getTypeId()->name() == type_id_name)
+        if (i->second->getTypeId() && i->second->getTypeId()->name() == type_id_name)
           return i->second;
       }
       return 0;
@@ -118,38 +123,55 @@ namespace RTT
 
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
-        std::string tname = t->getTypeName();
-        // keep track of this type:
-        if ( !t->installTypeInfoObject() ) {
-            // log reason why in installTypeInfoObject().
-            delete t;
+        if (!t)
+            return false;
+        MutexLock lock(type_lock);
+        if (data.count(t->getTypeName() ) ) {
+            log(Error) << "Can't register a new TypeInfo object for '"<<t->getTypeName() << "': one already exists."<<endlog();
             return false;
         }
-        // keep track of this type:
-        data[ tname ] = t;
 
-        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
-        for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
-            if ( (*it)->registerTransport( tname, t) )
-                log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
+        data[t->getTypeName()] = t;
         return true;
     }
 
-    bool TypeInfoRepository::aliasType(const string& alias, TypeInfo* source)
+    bool TypeInfoRepository::addType(TypeInfoGenerator* t)
     {
-        if (source) {
-            if (data.count(alias) && data[alias] != source)
-                delete data[alias];
-            data[alias] = source;
-        } else {
-            log(Error) << "Could not alias type name "<< alias <<" with (null) type info object."<<endlog();
+        if (!t)
             return false;
+        std::string tname = t->getTypeName();
+        TypeInfo* ti = t->getTypeInfoObject();
+
+        {
+            MutexLock lock(type_lock);
+            if (ti && data.count(tname) && data[tname] != ti ) {
+                log(Error) << "Refusing to add type information for '" << tname << "': the name is already in use by another type."<<endlog();
+                return false;
+            }
         }
+        // Check for first registration, or alias:
+        if ( ti == 0 )
+            ti = new TypeInfo(tname);
+        else
+            ti->addAlias(tname);
+
+        if ( t->installTypeInfoObject( ti ) ) {
+            delete t;
+        }
+        MutexLock lock(type_lock);
+        // keep track of this type:
+        data[ tname ] = ti;
+
+        log(Debug) << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
+        for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
+            if ( (*it)->registerTransport( tname, ti) )
+                log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
         return true;
     }
 
     std::vector<std::string> TypeInfoRepository::getTypes() const
     {
+        MutexLock lock(type_lock);
         return keys( data );
     }
 
@@ -166,6 +188,7 @@ namespace RTT
 
     std::vector<std::string> TypeInfoRepository::getDottedTypes() const
     {
+        MutexLock lock(type_lock);
         vector<string> result = keys( data );
         for( vector<string>::iterator it = result.begin(); it != result.end(); ++it)
             *it = toDot(*it);
@@ -174,6 +197,7 @@ namespace RTT
 
     void TypeInfoRepository::registerTransport( TransportPlugin* tr )
     {
+        MutexLock lock(type_lock);
         transports.reserve( transports.size() + 1 );
         transports.push_back( tr );
         // inform transport of existing types.
@@ -183,13 +207,14 @@ namespace RTT
                 log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
         // give chance to register fallback protocol:
         if ( tr->registerTransport("unknown_t", DataSourceTypeInfo<UnknownType>::getTypeInfo() ) == false )
-		log(Debug) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
+            log(Debug) << "Transport " << tr->getTransportName() << " did not install a fallback handler for 'unknown_t'." <<endlog();
     }
 
     void TypeInfoRepository::logTypeInfo() const
     {
         // dump the names of all known types
         log(Debug) << "Types known to the Orocos Type System."<<Logger::endl;
+        MutexLock lock(type_lock);
         for(map_t::const_iterator it = data.begin(); it != data.end(); ++it)
         {
             std::vector<int>    transports;

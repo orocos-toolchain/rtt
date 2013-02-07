@@ -42,6 +42,7 @@
 #include "TemplateTypeInfo.hpp"
 #include "PropertyDecomposition.hpp"
 #include "type_discovery.hpp"
+#include "MemberFactory.hpp"
 
 namespace RTT
 {
@@ -58,7 +59,7 @@ namespace RTT
          * fall back to StdTypeInfo or even TemplateTypeInfo.
          */
         template<typename T, bool has_ostream = false>
-        class StructTypeInfo: public TemplateTypeInfo<T, has_ostream>
+        class StructTypeInfo: public TemplateTypeInfo<T, has_ostream>, public MemberFactory
         {
         public:
             StructTypeInfo(std::string name) :
@@ -66,33 +67,80 @@ namespace RTT
             {
             }
 
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< StructTypeInfo<T,has_ostream> > mthis = boost::dynamic_pointer_cast<StructTypeInfo<T,has_ostream> >( this->getSharedPtr() );
+            assert(mthis);
+            // Allow base to install first
+            TemplateTypeInfo<T,has_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setMemberFactory( mthis );
+
+            // Don't delete us, we're memory-managed.
+            return false;
+        }
+
             virtual std::vector<std::string> getMemberNames() const {
-                // only discover the parts of this struct:
+                // only discover the part names of this struct:
                 type_discovery in;
                 T t; // boost can't work without a value.
                 in.discover( t );
                 return in.mnames;
             }
 
+            virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item,
+                                                             base::DataSourceBase::shared_ptr id) const {
+                // user tried to pass the member name by data source, but we can't read out this datasource after getMember() returns.
+                // ie, we could only read out id as a string and then call the getMember below.
+                // type_discovery requires the name right now and does not allow to delay the name, unless we discover the whole type,
+                // keep all datasources and then use getMember using some functor data source.... Not going to do that !
+                assert(false && "You're doing something new and exotic. Contact the Orocos-dev mailing list.");
+                return base::DataSourceBase::shared_ptr();
+            }
+
             virtual base::DataSourceBase::shared_ptr getMember(base::DataSourceBase::shared_ptr item, const std::string& name) const {
                 typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
-                if ( adata ) {
-                    type_discovery in( item );
-                    in.discover( adata->set() );
-                    log(Debug) << "Returning part: " << name << endlog();
-                    return in.getMember(name);
+                // Use a copy in case our parent is not assignable:
+                if ( !adata ) {
+                    // is it non-assignable ?
+                    typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
+                    if ( data ) {
+                        // create a copy
+                        adata = new internal::ValueDataSource<T>( data->get() );
+                    }
                 }
-                typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
-                if ( data ) {
-                    adata = new internal::ValueDataSource<T>( data->get() );
+                if (adata) {
                     type_discovery in( adata );
-                    in.discover( adata->set() );
-                    log(Debug) << "Returning copy of part: " << name << endlog();
-                    return in.getConstMember(name);
+                    return in.discoverMember( adata->set(), name );
                 }
                 log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
                 return base::DataSourceBase::shared_ptr();
             }
+
+            virtual bool getMember(internal::Reference* ref, base::DataSourceBase::shared_ptr item, const std::string& name) const {
+                typename internal::AssignableDataSource<T>::shared_ptr adata = boost::dynamic_pointer_cast< internal::AssignableDataSource<T> >( item );
+                // Use a copy in case our parent is not assignable:
+                if ( !adata ) {
+                    // is it non-assignable ?
+                    typename internal::DataSource<T>::shared_ptr data = boost::dynamic_pointer_cast< internal::DataSource<T> >( item );
+                    if ( data ) {
+                        // create a copy -> this is the only place & case where we allocate -> how to fix ?
+                        adata = new internal::ValueDataSource<T>( data->get() );
+                    }
+                }
+                if (adata) {
+                    type_discovery in( adata );
+                    return in.referenceMember( ref, adata->set(), name );
+                }
+                log(Error) << "Wrong call to type info function " + this->getTypeName() << "'s getMember() can not process "<< item->getTypeName() <<endlog();
+                return false;
+            }
+
+        virtual bool resize(base::DataSourceBase::shared_ptr arg, int size) const
+            {
+                return false;
+            }
+
 
             /**
              * Implementation that updates result with the matching parts in source
@@ -101,6 +149,7 @@ namespace RTT
              */
             virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
                 // The default implementation decomposes result and refreshes it with source.
+                TypeInfoRepository::shared_ptr tir = Types();
                 internal::ReferenceDataSource<T> rds(result);
                 rds.ref(); // prevent dealloc.
                 PropertyBag decomp;
@@ -108,7 +157,7 @@ namespace RTT
                 // update vs refresh: since it is intentional that the decomposition leads to references to parts of result,
                 // only refreshProperties() is meaningful (ie we have a one-to-one mapping). In case of sequences, this would
                 // of course not match, so this is struct specific.
-                return typeDecomposition( &rds, decomp, false) && ( decomp.getType() == source.getType() ) && refreshProperties(decomp, source);
+                return typeDecomposition( &rds, decomp, false) && ( tir->type(decomp.getType()) == tir->type(source.getType()) ) && refreshProperties(decomp, source);
             }
 
 

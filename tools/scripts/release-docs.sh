@@ -34,11 +34,10 @@ else
     SERVER=www.orocos.org
     SPREFIX=www.orocos.org
   else
-    echo "MECH upload is broken"
-    exit 1
-    USER=orocos
+    USER=psoetens
     SERVER=ftp.mech.kuleuven.be
-    SPREFIX=pub_html/pub
+    SPREFIX=/www/orocos/pub
+    APREFIX=/www/orocos
   fi
 fi
 
@@ -132,7 +131,8 @@ echo -e "\n**** COPYING TO $SERVER: ****\n"
 # Save in version subdir as tar, save master in doc dir. (saves space).
 cd build
 # Copy over tar.bz2 files
-ssh $USER@$SERVER "mkdir -p $SPREFIX/$BRANCH/rtt/$VVERSION"
+# APREFIX is for triggering the automounter
+ssh $USER@$SERVER "ls $APREFIX; mkdir -p $SPREFIX/$BRANCH/rtt/$VVERSION"
 scp orocos-rtt-$VERSION-doc.tar.bz2 $USER@$SERVER:$SPREFIX/$BRANCH/rtt/$VVERSION
 scp orocos-rtt-$VERSION-api.tar.bz2 $USER@$SERVER:$SPREFIX/$BRANCH/rtt/$VVERSION
 # Install them in the 'documentation' dir:
@@ -166,18 +166,15 @@ cd ..
 scp NEWS $USER@$SERVER:$SPREFIX/$BRANCH/rtt/NEWS.txt
 scp README $USER@$SERVER:$SPREFIX/$BRANCH/rtt/README.txt
 
-##### MECH Upload is broken for now, so only upload to OROCOSORG
-exit 0
-
-
   if test x$DOOROCOSORG = xno -o x$DOLOCAL = xyes -o x$DEV = xyes; then
       echo "Completed succesfully."
       exit 0;
   fi
   # redo for making a copy on the mech server as well:
-  USER=orocos
+  USER=psoetens
   SERVER=ftp.mech.kuleuven.be
-  SPREFIX=pub_html/pub
+  SPREFIX=/www/orocos/pub
+  APREFIX=/www/orocos
   DOOROCOSORG=no
 
 done; # while [ 1 ]

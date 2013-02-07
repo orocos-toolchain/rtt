@@ -42,7 +42,11 @@
 #include "../Property.hpp"
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
-#include "DataFlowTypeInfo.hpp"
+#include "../InputPort.hpp"
+#include "../OutputPort.hpp"
+#include "PrimitiveTypeInfo.hpp"
+#include "TemplateConnFactory.hpp"
+#include "TemplateCompositionFactory.hpp"
 
 #include "../rtt-config.h"
 
@@ -68,20 +72,15 @@ namespace RTT
      */
     template<typename T, bool use_ostream = false>
     class TemplateTypeInfo
-        : public DataFlowTypeInfo<T, use_ostream>
+        : public PrimitiveTypeInfo<T, use_ostream>,
+          public TemplateConnFactory<T>,
+          public TemplateCompositionFactory<T>
     {
     public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
-
         /**
          * The given \a T parameter is the type for reading DataSources.
          */
         typedef T UserType;
-        /**
-         * When Properties of \a T are constructed, they are non-const, non-reference.
-         */
-        typedef typename Property<T>::DataSourceType PropertyType;
 
         /**
          * Setup Type Information for type \a name.
@@ -91,7 +90,7 @@ namespace RTT
          *
          */
         TemplateTypeInfo(std::string name)
-            : DataFlowTypeInfo<T,use_ostream>(name)
+            : PrimitiveTypeInfo<T,use_ostream>(name)
         {
         }
 
@@ -99,55 +98,25 @@ namespace RTT
         {
         }
 
-        virtual bool composeType( base::DataSourceBase::shared_ptr source, base::DataSourceBase::shared_ptr result) const {
-            const internal::DataSource<PropertyBag>* pb = dynamic_cast< const internal::DataSource<PropertyBag>* > (source.get() );
-            if ( !pb )
-                return false;
-            typename internal::AssignableDataSource<PropertyType>::shared_ptr ads = boost::dynamic_pointer_cast< internal::AssignableDataSource<PropertyType> >( result );
-            if ( !ads )
-                return false;
 
-            // last fall-back: use user supplied function:
-            if ( composeTypeImpl( pb->rvalue(), ads->set() ) )
-                ads->updated();
-            else {
-                Logger::log() <<Logger::Debug<<"Failed to compose from "<< source->getTypeName() <<Logger::endl;
-                return false;
-            }
-            Logger::log() <<Logger::Debug<<"Successfuly composed type from "<< source->getTypeName() <<Logger::endl;
-            return true;
+        virtual base::ChannelElementBase::shared_ptr buildRemoteChannelOutput(
+                base::OutputPortInterface& output_port,
+                types::TypeInfo const* type_info,
+                base::InputPortInterface& input, const ConnPolicy& policy) {
+            return base::ChannelElementBase::shared_ptr();
         }
 
-        /**
-         * This default implementation sets up a PropertyBag which is passed
-         * to decomposeTypeImpl(). It is advised to implement that function and
-         * to leave this function as-is, unless you don't want to return a
-         * PropertyBag, but another data type.
-         */
-        virtual base::DataSourceBase::shared_ptr decomposeType(base::DataSourceBase::shared_ptr source) const
-        {
-            // Extract typed values
-            typename internal::DataSource<PropertyType>::shared_ptr ds = boost::dynamic_pointer_cast< internal::DataSource<PropertyType> >( source );
-            if ( !ds )
-                return base::DataSourceBase::shared_ptr(); // happens in the case of 'unknown type'
-            Property<PropertyBag> targetbag_p("targetbag");
-            if (decomposeTypeImpl( ds->rvalue(), targetbag_p.value() ))
-                return targetbag_p.getDataSource();
-            return base::DataSourceBase::shared_ptr();
-        }
+        bool installTypeInfoObject(TypeInfo* ti) {
+            // aquire a shared reference to the this object
+            boost::shared_ptr< TemplateTypeInfo<T,use_ostream> > mthis = boost::dynamic_pointer_cast<TemplateTypeInfo<T,use_ostream> >( this->getSharedPtr() );
+            assert(mthis);
+            // Allow base to install first
+            PrimitiveTypeInfo<T,use_ostream>::installTypeInfoObject(ti);
+            // Install the factories for primitive types
+            ti->setPortFactory( mthis );
+            ti->setCompositionFactory( mthis );
 
-        /**
-         * User, implement this function in case you want to control reading the XML data format.
-         */
-        virtual bool composeTypeImpl(const PropertyBag& source,  typename internal::AssignableDataSource<T>::reference_t result) const {
-            return false;
-        }
-
-        /**
-         * User, implement this function in case you want to control writing the XML data format.
-         * Add the structural elements of source to targetbag.
-         */
-        virtual bool decomposeTypeImpl( typename internal::AssignableDataSource<T>::const_reference_t source, PropertyBag& targetbag ) const {
+            // Don't delete us, we're memory-managed.
             return false;
         }
     };

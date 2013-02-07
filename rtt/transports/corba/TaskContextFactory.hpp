@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TypeBuilder.hpp
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  TaskContextProxy.hpp
 
-                        TypeBuilder.hpp -  description
+                        TaskContextProxy.hpp -  description
                            -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,32 +35,48 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef ORO_CORELIB_TYPE_BUILDER_HPP
-#define ORO_CORELIB_TYPE_BUILDER_HPP
+#ifndef ORO_CORBA_CONTROLTASK_FACTORY_HPP
+#define ORO_CORBA_CONTROLTASK_FACTORY_HPP
 
-#include <vector>
-#include "../base/DataSourceBase.hpp"
+
+#include "../../TaskContext.hpp"
 
 namespace RTT
-{ namespace types {
-
-    /**
-     * This interface describes how constructors work.
-     */
-    struct RTT_API TypeBuilder
+{namespace corba
+{
+    class TaskContextFactory
     {
-        virtual ~TypeBuilder();
         /**
-         * Inspect args and return a type constructed with these args
-         * if such a constructor exists.
+         * Invoke this method once to initialise the Orb which will
+         * run the task servers.
+	 * @param orb_timeout timeout value for each remote call, expressed in seconds.
+	 * The resolution is up to 100 nano seconds. Anything smaller will be interpreted
+	 * as a zero.
          */
-        virtual base::DataSourceBase::shared_ptr build(const std::vector<base::DataSourceBase::shared_ptr>& args) const = 0;
+        static bool InitOrb(int argc, char* argv[], Seconds orb_timeout=0 );
 
         /**
-         * Automatic type conversion (float->double,... ). Fails by default.
+         * Invoke this method once to cleanup the orb.
          */
-        virtual base::DataSourceBase::shared_ptr convert(base::DataSourceBase::shared_ptr arg) const;
-    };
+        static void DestroyOrb();
+
+        /**
+         * Factory method: create a CORBA Proxy for an existing TaskContextServer.
+         * @param name The name of the TaskContextServer to connect to or the Object Reference of the object to connect to
+         * @param is_ior set to \a true if \a name is an IOR. Defaults to false.
+         * @retval 0 if the ORB is not initialised
+         * @return A new or previously created CORBA proxy for \a name.
+         */
+        static TaskContext* Create(std::string name, bool is_ior = false);
+
+        /**
+         * Factory method: create a CORBA Proxy for an existing TaskContextServer.
+         * @param filename A file containing an IOR which refers to the existing TaskContextServer.
+         * @retval 0 if the ORB is not initialised
+         * @return A new or previously created CORBA proxy for \a filename.
+         */
+        static TaskContext* CreateFromFile(std::string filename);
+
+     };
 }}
-
 #endif

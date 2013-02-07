@@ -61,8 +61,22 @@ namespace RTT
         : public PropertyBagVisitor
     {
     protected:
+        /**
+         * Fall-back function of the last resort when
+         * the type is not decomposable and not known
+         * to the introspection interface. Called
+         * by introspect_T and does nothing by default.
+         * You can put code inhere to handle unknown types.
+         */
         virtual void introspect(PropertyBase* p );
 
+        /**
+         * This function is called for any Property unknown
+         * to the introspection interface. It will basically
+         * call the generic decomposition function, and if
+         * that fails, pass \a p to introspect() where the
+         * subclass has a last chance to handle it.
+         */
         void introspect_T(PropertyBase* p);
     public:
         virtual ~PropertyIntrospection()

@@ -43,6 +43,7 @@
 
 #if BOOST_VERSION >= 103800
 #include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_dynamic.hpp>
 namespace boost_spirit = boost::spirit::classic;
 #else
 #include <boost/spirit.hpp>
@@ -170,6 +171,7 @@ namespace RTT
   typedef scanner_policies<iter_pol_t> scanner_pol_t;
   typedef scanner<iter_t, scanner_pol_t> scanner_t;
   typedef rule<scanner_t> rule_t;
+  typedef stored_rule<scanner_t> stored_rule_t;
   typedef rule<lexeme_scanner<scanner_t>::type > lexeme_rule_t;
 
 }}

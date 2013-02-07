@@ -92,13 +92,14 @@ namespace RTT {
     public:
         static const int DATA   = 0;
         static const int BUFFER = 1;
+        static const int CIRCULAR_BUFFER = 2;
 
         static const int UNSYNC    = 0;
         static const int LOCKED    = 1;
         static const int LOCK_FREE = 2;
 
         /**
-         * Create a policy for a (lock-free) buffer connection of a given size.
+         * Create a policy for a (lock-free) fifo buffer connection of a given size.
          * @param size The size of the buffer in this connection
          * @param lock_policy The locking policy
          * @param init_connection If an initial sample should be pushed into the buffer upon creation.
@@ -106,6 +107,16 @@ namespace RTT {
          * @return the specified policy.
          */
         static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false);
+
+        /**
+         * Create a policy for a (lock-free) \b circular fifo buffer connection of a given size.
+         * @param size The size of the buffer in this connection
+         * @param lock_policy The locking policy
+         * @param init_connection If an initial sample should be pushed into the buffer upon creation.
+         * @param pull In inter-process cases, should the consumer pull itself ?
+         * @return the specified policy.
+         */
+        static ConnPolicy circularBuffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false);
 
         /**
          * Create a policy for a (lock-free) shared data connection of a given size.

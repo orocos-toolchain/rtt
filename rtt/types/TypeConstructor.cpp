@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  TypeBuilder.cpp
+  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  TypeConstructor.cpp
 
-                        TypeBuilder.cpp -  description
+                        TypeConstructor.cpp -  description
                            -------------------
     begin                : Tue September 07 2010
     copyright            : (C) 2010 The SourceWorks
@@ -37,16 +37,16 @@
 
 
 
-#include "TypeBuilder.hpp"
+#include "TypeConstructor.hpp"
 
 namespace RTT
 {
     using namespace std;
     using namespace detail;
 
-    TypeBuilder::~TypeBuilder() {}
+    TypeConstructor::~TypeConstructor() {}
 
-    base::DataSourceBase::shared_ptr TypeBuilder::convert(base::DataSourceBase::shared_ptr arg) const
+    base::DataSourceBase::shared_ptr TypeConstructor::convert(base::DataSourceBase::shared_ptr arg) const
     {
         return base::DataSourceBase::shared_ptr();
     }

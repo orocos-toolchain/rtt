@@ -44,6 +44,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCaller)
     OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this);
     OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this);
     OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this);
+    
+    OperationCaller<void(void)> m0e("m0except", &OperationsFixture::m0except, this);
 
     BOOST_CHECK_EQUAL( -1.0, m0() );
     BOOST_CHECK_EQUAL( -2.0, m1(1) );
@@ -53,6 +55,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCaller)
     BOOST_CHECK_EQUAL( -6.0, m5(1, 2.0, true,"hello",5.0) );
     BOOST_CHECK_EQUAL( -7.0, m6(1, 2.0, true,"hello",5.0,'a') );
     BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
+
+    BOOST_CHECK_THROW(m0e(), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerCall)
@@ -67,6 +71,8 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerCall)
     OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
     OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
 
+    OperationCaller<void(void)> m0e("m0except", &OperationsFixture::m0except, this, tc->engine(), caller->engine(), OwnThread);
+
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
     BOOST_CHECK_EQUAL( -1.0, m0() );
@@ -77,6 +83,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerCall)
     BOOST_CHECK_EQUAL( -6.0, m5(1, 2.0, true,"hello",5.0) );
     BOOST_CHECK_EQUAL( -7.0, m6(1, 2.0, true,"hello",5.0,'a') );
     BOOST_CHECK_EQUAL( -8.0, m7(1, 2.0, true,"hello",5.0,'a',7) );
+
+    BOOST_CHECK_THROW( m0e(), std::runtime_error);
+    BOOST_REQUIRE( tc->inException() );
 }
 
 BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
@@ -91,6 +100,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
     OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, 0, caller->engine());
     OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, 0, caller->engine());
 
+    OperationCaller<void(void)> m0e("m0except", &OperationsFixture::m0except, this, 0, caller->engine());
+
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -102,6 +113,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
     SendHandle<double(int,double,bool,std::string,float)> h5 = m5.send(1, 2.0, true,"hello",5.0);
     SendHandle<double(int,double,bool,std::string,float,char)> h6 = m6.send(1, 2.0, true,"hello",5.0,'a');
     SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> h7 = m7.send(1, 2.0, true,"hello",5.0,'a',7);
+    
+    SendHandle<void(void)> h0e = m0e.send();
 
     double retn=0;
     BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
@@ -121,6 +134,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( SendSuccess, h7.collect(retn) );
     BOOST_CHECK_EQUAL( retn, -8.0 );
 
+    BOOST_CHECK_THROW( h0e.collect(), std::runtime_error);
+
     // collectIfDone will certainly succeed after collect
     BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -1.0 );
@@ -139,6 +154,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( SendSuccess, h7.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -8.0 );
 
+    BOOST_CHECK_THROW( h0e.collectIfDone(), std::runtime_error);
+
     // the return value api.
     BOOST_CHECK_EQUAL( -1.0, h0.ret() );
     BOOST_CHECK_EQUAL( -2.0, h1.ret(1) );
@@ -148,6 +165,8 @@ BOOST_AUTO_TEST_CASE(testClientThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( -6.0, h5.ret(1, 2.0, true,"hello",5.0) );
     BOOST_CHECK_EQUAL( -7.0, h6.ret(1, 2.0, true,"hello",5.0,'a') );
     BOOST_CHECK_EQUAL( -8.0, h7.ret(1, 2.0, true,"hello",5.0,'a',7) );
+
+    BOOST_CHECK_THROW( h0e.ret(), std::runtime_error);
 
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );
@@ -168,6 +187,8 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
     OperationCaller<double(int,double,bool,std::string,float)> m5("m5", &OperationsFixture::m5, this, tc->engine(), caller->engine(), OwnThread);
     OperationCaller<double(int,double,bool,std::string,float,char)> m6("m6", &OperationsFixture::m6, this, tc->engine(), caller->engine(), OwnThread);
     OperationCaller<double(int,double,bool,std::string,float,char,unsigned int)> m7("m7", &OperationsFixture::m7, this, tc->engine(), caller->engine(), OwnThread);
+    
+    OperationCaller<void(void)> m0e("m0except", &OperationsFixture::m0except, this, tc->engine(), caller->engine(), OwnThread);
 
     BOOST_REQUIRE( tc->isRunning() );
     BOOST_REQUIRE( caller->isRunning() );
@@ -180,6 +201,7 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
     SendHandle<double(int,double,bool,std::string,float,char)> h6 = m6.send(1, 2.0, true,"hello",5.0,'a');
     SendHandle<double(int,double,bool,std::string,float,char,unsigned int)> h7 = m7.send(1, 2.0, true,"hello",5.0,'a',7);
 
+    SendHandle<void(void)> h0e = m0e.send();
 
     double retn=0;
     BOOST_CHECK_EQUAL( SendSuccess, h0.collect(retn) );
@@ -199,6 +221,11 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( SendSuccess, h7.collect(retn) );
     BOOST_CHECK_EQUAL( retn, -8.0 );
 
+    BOOST_CHECK_THROW( h0e.collect(), std::runtime_error);
+    BOOST_REQUIRE( tc->inException() );
+    BOOST_REQUIRE( tc->recover() && tc->start() );
+    BOOST_REQUIRE( tc->isRunning() );
+
     // collectIfDone will certainly succeed after collect
     BOOST_CHECK_EQUAL( SendSuccess, h0.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -1.0 );
@@ -217,6 +244,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( SendSuccess, h7.collectIfDone(retn) );
     BOOST_CHECK_EQUAL( retn, -8.0 );
 
+    BOOST_CHECK_THROW( h0e.collectIfDone(), std::runtime_error);
+    // since tc has recover, it must be running
+    BOOST_REQUIRE( tc->isRunning() );
 
     // the return value api.
     BOOST_CHECK_EQUAL( -1.0, h0.ret() );
@@ -227,6 +257,9 @@ BOOST_AUTO_TEST_CASE(testOwnThreadOperationCallerSend)
     BOOST_CHECK_EQUAL( -6.0, h5.ret(1, 2.0, true,"hello",5.0) );
     BOOST_CHECK_EQUAL( -7.0, h6.ret(1, 2.0, true,"hello",5.0,'a') );
     BOOST_CHECK_EQUAL( -8.0, h7.ret(1, 2.0, true,"hello",5.0,'a',7) );
+
+    BOOST_CHECK_THROW( h0e.ret(), std::runtime_error);
+    BOOST_REQUIRE( tc->isRunning() );
 
     BOOST_CHECK_EQUAL( -2.0, h1.ret() );
     BOOST_CHECK_EQUAL( -3.0, h2.ret() );

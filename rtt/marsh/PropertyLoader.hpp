@@ -47,79 +47,87 @@ namespace RTT
 { namespace marsh {
 
     /**
-     * Load and save property files to a TaskContext's PropertyBag.
+     * Load and save property files to a Service's PropertyBag.
      * The default file format is 'cpf' from the CPFMarshaller class.
      */
     class RTT_MARSH_API PropertyLoader
     {
+    private:
+        Service* target;
+
     public:
+        /**
+         * Constructor.
+         * @param task   The TaskContext to load the new properties into.
+         */
+        PropertyLoader(TaskContext *task);
 
         /**
-         * Read the XML cpf file and create (or refresh the matching properties) of the given TaskContext.
+         * Constructor.
+         * @param service   The Service to load the new properties into.
+         */
+        PropertyLoader(Service *service);
+
+        /**
+         * Read the XML cpf file and create (or refresh the matching properties) of the given Service.
          * Any property in the file which is not in the target, is created in the target.
          * @param filename The file to read from.
-         * @param target   The TaskContext to load the new properties into.
          * @return true on success, false on error, consult Logger output for messages.
          * @see store() for dumping properties in a file.
          */
-        bool load(const std::string& filename, TaskContext* target) const;
+        bool load(const std::string& filename) const;
 
         /**
-         * Stores all properties of a TaskContext in a new file or overwrite an existing one.
+         * Stores all properties of a Service in a new file or overwrite an existing one.
          * The file given in filename will always be overwritten and any existing content
          * will be lost.
          * @param filename The file to store to.
-         * @param target   The TaskContext to read the properties from.
          * @return true on success, false on error, consult Logger output for messages.
-         * @see load() for loading properties in a TaskContext.
+         * @see load() for loading properties in a Service.
          */
-        bool store(const std::string& filename, TaskContext* target) const;
+        bool store(const std::string& filename) const;
 
         /**
-         * Read the XML cpf file and 'refresh' the matching properties of the given TaskContext.
+         * Read the XML cpf file and 'refresh' the matching properties of the given Service.
          * There may be more properties in the file than properties in the target.
          * @param filename The file to read from.
-         * @param target   The TaskContext to configure.
          * @param all   Configure all properties of \a target. Return an error
          * if not all properties were found in \a filename.
          * @return true on success, false on error, consult Logger output for messages.
          * @see save() to create this file.
          */
-        bool configure(const std::string& filename, TaskContext* target, bool all = true) const;
+        bool configure(const std::string& filename, bool all = true) const;
 
         /**
-         * Write the XML cpf file with the properties of the given TaskContext.
+         * Write the XML cpf file with the properties of the given Service.
          * The file is first read into memory, the resulting tree is updated with the task's
          * properties and then written to disk again. This allows to share files
          * between tasks.
          * @param filename The file to read from and write to (updating).
-         * @param target   The TaskContext to configure.
          * @param all   Write out all properties of \a target to \a filename,
          * add missing ones if necessary.
          * @return true on success, false on error, consult Logger output for messages.
          * @see configure() to re-read this file and update matching properties.
          */
-        bool save(const std::string& filename, TaskContext* target, bool all = true) const;
+        bool save(const std::string& filename, bool all = true) const;
 
         /**
          * Read a single property from a file.
          * @param filename The file to read from.
-         * @param target   The TaskContext to configure.
          * @param name The path to or name of a property in \a target.
          * Separate path components with dots. For example, to safe property x: bag_1.bag_2.x
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool configure(const std::string& filename, TaskContext* target, const std::string& name) const;
+        bool configure(const std::string& filename, const std::string& name) const;
 
         /**
          * Write a single property to a file, or update an existing file.
          * @param filename The file to update or write to.
-         * @param target   The TaskContext to configure.
          * @param name The path to or name of a property in \a target.
          * Separate path components with dots. For example, to safe property x: bag_1.bag_2.x
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool save(const std::string& filename, TaskContext* target, const std::string& name) const;
+        bool save(const std::string& filename, const std::string& name) const;
     };
 }}
 

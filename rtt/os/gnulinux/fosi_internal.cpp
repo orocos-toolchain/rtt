@@ -35,7 +35,6 @@
     *                                                                         *
     ***************************************************************************/
 
-
 #include "../ThreadInterface.hpp"
 #include "fosi.h"
 #include "../fosi_internal_interface.hpp"
@@ -43,8 +42,15 @@
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
+#ifdef ORO_OS_LINUX_CAP_NG
+#include <cap-ng.h>
+#endif
 #include <iostream>
 #include <cstdlib>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
 using namespace std;
 
 #define INTERNAL_QUAL
@@ -65,6 +71,7 @@ namespace RTT
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
         main_task->priority = sp.sched_priority;
+        main_task->pid = getpid();
 	    return 0;
 	}
 
@@ -74,6 +81,26 @@ namespace RTT
         free(main_task->name);
 	    return 0;
 	}
+
+    struct PosixCookie {
+        void* data;
+        void* (*wrapper)(void*);
+    };
+
+    INTERNAL_QUAL void* rtos_posix_thread_wrapper( void* cookie )
+    {
+        // store 'self'
+        RTOS_TASK* task = ((ThreadInterface*)((PosixCookie*)cookie)->data)->getTask();
+        task->pid = syscall(SYS_gettid);
+        assert( task->pid );
+
+        // call user function
+        ((PosixCookie*)cookie)->wrapper( ((PosixCookie*)cookie)->data );
+        free(cookie);
+        return 0;
+    }
+
+
 
 	INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
 					   int priority,
@@ -90,6 +117,10 @@ namespace RTT
         // Save priority internally, since the pthread_attr* calls are broken !
         // we will pick it up later in rtos_task_set_scheduler().
         task->priority = priority;
+
+        PosixCookie* xcookie = (PosixCookie*)malloc( sizeof(PosixCookie) );
+        xcookie->data = obj;
+        xcookie->wrapper = start_routine;
 
 	    // Set name
 	    if ( strlen(name) == 0 )
@@ -122,14 +153,15 @@ namespace RTT
             }
 	    }
 	    rv = pthread_create(&(task->thread), &(task->attr),
-                              start_routine, obj);
-        log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
+	    		rtos_posix_thread_wrapper, xcookie);
 
-        log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
-        if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
-        {
-            log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
-        }
+	if ( cpu_affinity != ~0 ) {
+	  log(Debug) << "Setting CPU affinity to " << cpu_affinity << endlog();
+	  if (0 != rtos_task_set_cpu_affinity(task, cpu_affinity))
+	    {
+	      log(Error) << "Failed to set CPU affinity to " << cpu_affinity << endlog();
+	    }
+	}
 
         return rv;
 	}
@@ -146,6 +178,13 @@ namespace RTT
         if ( ret != 0)
             perror("rtos_task_yield");
 #endif
+	}
+
+	INTERNAL_QUAL unsigned int rtos_task_get_pid(const RTOS_TASK* task)
+	{
+		if (task)
+			return task->pid;
+		return 0;
 	}
 
 	INTERNAL_QUAL int rtos_task_is_self(const RTOS_TASK* task) {
@@ -243,11 +282,23 @@ namespace RTT
 
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
     {
-        if (*scheduler != SCHED_OTHER && geteuid() != 0 ) {
+#ifdef ORO_OS_LINUX_CAP_NG
+        if(capng_get_caps_process()) {
+            log(Error) << "Failed to retrieve capabilities (lowering to SCHED_OTHER)." <<endlog();
+            *scheduler = SCHED_OTHER;
+            return -1;
+        }
+#endif
+
+        if (*scheduler != SCHED_OTHER && geteuid() != 0
+#ifdef ORO_OS_LINUX_CAP_NG
+            && capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)==0
+#endif
+            ) {
             // they're not root and they want a real-time priority, which _might_
             // be acceptable if they're using pam_limits and have set the rtprio ulimit
             // (see "/etc/security/limits.conf" and "ulimit -a")
-            struct rlimit	r;
+            struct rlimit r;
             if ((0 != getrlimit(RLIMIT_RTPRIO, &r)) || (0 == r.rlim_cur))
             {
                 log(Warning) << "Lowering scheduler type to SCHED_OTHER for non-privileged users.." <<endlog();
@@ -255,6 +306,7 @@ namespace RTT
                 return -1;
             }
         }
+
         if (*scheduler != SCHED_OTHER && *scheduler != SCHED_FIFO && *scheduler != SCHED_RR ) {
             log(Error) << "Unknown scheduler type." <<endlog();
             *scheduler = SCHED_OTHER;
@@ -290,7 +342,11 @@ namespace RTT
                 ret = -1;
             }
             // and limit them according to pam_Limits (only if not root)
-            if ( geteuid() != 0 )
+            if ( geteuid() != 0 
+#ifdef ORO_OS_LINUX_CAP_NG
+                 && !capng_have_capability(CAPNG_EFFECTIVE, CAP_SYS_NICE)
+#endif
+                 )
             {
                 struct rlimit	r;
                 if (0 == getrlimit(RLIMIT_RTPRIO, &r))

@@ -106,6 +106,11 @@ namespace RTT
         return rtos_task_get_priority(&main_task);
     }
 
+    unsigned int MainThread::getPid() const
+    {
+    	return rtos_task_get_pid(&main_task);
+    }
+
     bool MainThread::setPeriod(Seconds period)
     {
         return false;

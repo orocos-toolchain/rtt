@@ -436,6 +436,19 @@ BOOST_AUTO_TEST_CASE( testScheduler )
     }
 }
 
+/**
+ * Checks if the rtos_task_get_pid function works properly.
+ */
+BOOST_AUTO_TEST_CASE( testThreadPID )
+{
+	unsigned int tid = t_task_a->getPid();
+	BOOST_CHECK( tid );
+	unsigned int mpid = MainThread::Instance()->getPid();
+	BOOST_CHECK( mpid );
+	BOOST_CHECK_NE( mpid, tid );
+//	cout << "PID:" << mpid <<endl;
+//	cout << "TID:" << tid << endl;
+}
 
 #if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testThreadConfig )

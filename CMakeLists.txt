@@ -16,7 +16,7 @@ ENDIF(COMMAND cmake_policy AND ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 2.5.0 )
+SET( RTT_VERSION 2.6.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -64,7 +64,7 @@ IF(ROS_ROOT)
     set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
   endif(ROS_STACK_DIR_FINAL)
   # Necessary for backwards compatibility such that packages find RTT's cmake macros:
-  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install)
+  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install )
     # Note: we use WORKING_DIRECTORY
     execute_process ( 
       COMMAND ${CMAKE_COMMAND} -E remove_directory install
@@ -73,6 +73,19 @@ IF(ROS_ROOT)
       OUTPUT_QUIET ERROR_QUIET
       )
   endif()
+  # We had to split the if statement above in two parts because cmake 2.8.0 would choke on a single-liner:
+  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/install )
+    # Note: we use WORKING_DIRECTORY
+    execute_process ( 
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_QUIET ERROR_QUIET
+      )
+  endif()
+  
+  # Tell deployer to use ROSlib support.
+  set(ROSLIB_SUPPORT TRUE)
+  include(config/FindRoslib.cmake)
 ENDIF(ROS_ROOT)
 
 #Use these variables to store build-local flags.

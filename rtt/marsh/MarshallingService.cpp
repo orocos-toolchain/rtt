@@ -89,45 +89,45 @@ namespace RTT {
 
     bool MarshallingService::loadProperties(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.load( filename, mowner );
+        PropertyLoader pl(mowner);
+        return pl.load( filename );
     }
 
     bool MarshallingService::storeProperties(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.store( filename, mowner );
+        PropertyLoader pl(mowner);
+        return pl.store( filename );
     }
 
     bool MarshallingService::readProperties(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.configure( filename, mowner, true); // all
+        PropertyLoader pl(mowner);
+        return pl.configure( filename, true); // all
     }
     bool MarshallingService::updateProperties(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.configure( filename, mowner, false); // not all
+        PropertyLoader pl(mowner);
+        return pl.configure( filename, false); // not all
     }
     bool MarshallingService::writeProperties(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.save( filename, mowner, true);
+        PropertyLoader pl(mowner);
+        return pl.save( filename, true);
     }
     bool MarshallingService::updateFile(const std::string& filename) const
     {
-        PropertyLoader pl;
-        return pl.save( filename, mowner, false);
+        PropertyLoader pl(mowner);
+        return pl.save( filename, false);
     }
 
     bool MarshallingService::readProperty(const std::string& name, const std::string& filename) {
-        PropertyLoader p;
-        return p.configure(filename, mowner, name);
+        PropertyLoader pl(mowner);
+        return pl.configure(filename, name);
     }
 
     bool MarshallingService::writeProperty(const std::string& name, const std::string& filename) {
-        PropertyLoader p;
-        return p.save(filename, mowner, name);
+        PropertyLoader pl(mowner);
+        return pl.save(filename, name);
     }
 
 

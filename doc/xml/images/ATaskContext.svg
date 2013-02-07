@@ -14,7 +14,7 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.0 r9654"
+   inkscape:version="0.48.2 r9819"
    version="1.0"
    sodipodi:docname="ATaskContext.svg"
    inkscape:export-filename="ATaskContext-services.png"
@@ -1424,10 +1424,10 @@
      inkscape:cx="302.8048"
      inkscape:cy="384.10833"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer7"
      inkscape:window-width="1920"
-     inkscape:window-height="1126"
-     inkscape:window-x="1680"
+     inkscape:window-height="1152"
+     inkscape:window-x="1677"
      inkscape:window-y="25"
      showgrid="false"
      showguides="true"
@@ -2188,7 +2188,7 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Extras"
-     style="display:none">
+     style="display:inline">
     <g
        style="display:inline"
        id="g2033"
@@ -2270,7 +2270,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Config"
-     style="display:none">
+     style="display:inline">
     <rect
        style="fill:#ffff40;fill-opacity:1;fill-rule:nonzero;stroke:#181992;stroke-width:3.30000043;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible"
        id="rect1930"
@@ -2367,7 +2367,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="ExecFlow"
-     style="display:none">
+     style="display:inline">
     <g
        id="g13319"
        inkscape:export-filename="/home/kaltan/src/git/orocos-toolchain/rtt/doc/xml/images/ATaskContext-services.png"
@@ -2387,7 +2387,7 @@
            sodipodi:end="8.0008861"
            sodipodi:start="4.7761732"
            transform="translate(354.0066,-173.8676)"
-           d="m 148.94207,253.48509 c 13.8059,0.8818 24.28296,12.78852 23.40116,26.59442 -0.88179,13.8059 -12.78852,24.28295 -26.59442,23.40116 -0.6927,-0.0442 -1.38327,-0.11726 -2.06991,-0.21887"
+           d="M 148.94207,253.48509 A 25.048725,25.048725 0 1 1 143.6789,303.2618"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2406,7 +2406,7 @@
            inkscape:connector-curvature="0" />
         <path
            transform="translate(354.0066,-173.8676)"
-           d="m 172.39417,278.48288 c 0,13.83403 -11.2147,25.04872 -25.04873,25.04872 -13.83403,0 -25.04872,-11.21469 -25.04872,-25.04872 0,-13.83403 11.21469,-25.04873 25.04872,-25.04873 13.83403,0 25.04873,11.2147 25.04873,25.04873 z"
+           d="m 172.39417,278.48288 a 25.048725,25.048725 0 1 1 -50.09745,0 25.048725,25.048725 0 1 1 50.09745,0 z"
            sodipodi:ry="25.048725"
            sodipodi:rx="25.048725"
            sodipodi:cy="278.48288"
@@ -2623,7 +2623,7 @@
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="Basics"
-     style="display:inline">
+     style="display:none">
     <path
        style="fill:url(#linearGradient9243);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00379932;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
        sodipodi:nodetypes="ccccccc"

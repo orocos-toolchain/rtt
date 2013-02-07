@@ -57,7 +57,7 @@ namespace RTT
 
             base::AttributeBase* buildVariable(std::string name, int size) const
             {
-                string t_init(size, ' '); // we can't use the default char(), which is null !
+                std::string t_init(size, ' '); // we can't use the default char(), which is null !
 
                 // returned type is identical to parent, but we set spaces.
                 base::AttributeBase* ret = SequenceTypeInfo<std::string, true>::buildVariable(name, size);
