@@ -36,13 +36,12 @@
  ***************************************************************************/
 
 
-#ifndef ORO_MQ_TEMPATE_PROTOCOL_HPP
-#define ORO_MQ_TEMPATE_PROTOCOL_HPP
+#ifndef ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
+#define ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
 
 #include "MQLib.hpp"
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
-#include "MQTemplateProtocolBase.hpp"
 
 #include <boost/type_traits/has_virtual_destructor.hpp>
 #include <boost/static_assert.hpp>
@@ -58,44 +57,30 @@ namespace RTT
        *
        */
       template<class T>
-      class MQTemplateProtocol
-          : public MQTemplateProtocolBase<T>
+      class MQTemplateProtocolBase
+          : public RTT::types::TypeMarshaller
       {
       public:
-          /**
-           * We don't support types with virtual functions !
-           * TODO: use this type trait to make the necessary adjustments
-           * in the memcopy (adding the vptr table offset).
-           */
-          BOOST_STATIC_ASSERT( !boost::has_virtual_destructor<T>::value );
           /**
            * The given \a T parameter is the type for reading DataSources.
            */
           typedef T UserType;
 
-          virtual std::pair<void const*,int> fillBlob( base::DataSourceBase::shared_ptr source, void* blob, int size, void* cookie) const
-          {
-              if ( sizeof(T) <= (unsigned int)size)
-                  return std::make_pair(source->getRawConstPointer(), int(sizeof(T)));
-              return std::make_pair((void const*)0,int(0));
+          virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
+              try {
+                  base::ChannelElementBase::shared_ptr mq = new MQChannelElement<T>(port, *this, policy, is_sender);
+                  if ( !is_sender ) {
+                      // the receiver needs a buffer to store his messages in.
+                      base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
+                      mq->setOutput(buf);
+                  }
+                  return mq;
+              } catch(std::exception& e) {
+                  log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
+              }
+              return base::ChannelElementBase::shared_ptr();
           }
 
-          virtual bool updateFromBlob(const void* blob, int size, base::DataSourceBase::shared_ptr target, void* cookie) const
-          {
-            typename internal::AssignableDataSource<T>::shared_ptr ad = internal::AssignableDataSource<T>::narrow( target.get() );
-            assert( size == sizeof(T) );
-            if ( ad ) {
-                ad->set( *(T*)(blob) );
-                return true;
-            }
-            return false;
-          }
-
-          virtual unsigned int getSampleSize(base::DataSourceBase::shared_ptr ignored, void* cookie) const
-          {
-              // re-implement this in case of complex types, like std::vector<T>.
-              return sizeof(T);
-          }
       };
 }
 }

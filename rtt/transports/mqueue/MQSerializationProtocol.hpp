@@ -46,7 +46,7 @@
 #ifndef MQSERIALIZATIONPROTOCOL_HPP_
 #define MQSERIALIZATIONPROTOCOL_HPP_
 
-#include "MQTemplateProtocol.hpp"
+#include "MQTemplateProtocolBase.hpp"
 #include "binary_data_archive.hpp"
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -59,7 +59,7 @@ namespace RTT
 
         template<class T>
         class MQSerializationProtocol
-        : public RTT::mqueue::MQTemplateProtocol<T>
+        : public RTT::mqueue::MQTemplateProtocolBase<T>
         {
         public:
             MQSerializationProtocol() {
