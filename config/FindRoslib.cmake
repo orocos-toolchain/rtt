@@ -4,19 +4,6 @@
       # Catkin style of fetching ROS deps
       FIND_PACKAGE( ROS QUIET COMPONENTS rospack)
 
-      IF(NOT ROS_FOUND) # pre-Fuerte or Groovy
-        # TODO: This block to get rospack is deprecated as of ROS Fuerte, but is left in for pre-Fuerte compatibility
-        set(rospack_PACKAGE_PATH ${ROS_ROOT}/core/rospack) ### XXX hardcoded
-	message("Falling back to rospack in: ${rospack_PACKAGE_PATH}")
-        find_library(ROS_LIBRARIES rospack ${rospack_PACKAGE_PATH}/lib )
-        if ( NOT ROS_LIBRARIES )
-	  find_package( ROS COMPONENTS rospack ) # Yells at user (non-QUIET !)
-	else()
-	  set(ROS_FOUND TRUE)
-	  set(ROS_INCLUDE_DIRS ${rospack_PACKAGE_PATH}/include)
-	endif()
-      ENDIF(NOT ROS_FOUND)
-      
       IF(ROS_FOUND)
         include_directories( ${ROS_INCLUDE_DIRS} )
 	add_definitions( -DHAS_ROSLIB )
