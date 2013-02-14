@@ -353,7 +353,7 @@ bool ComponentLoader::import( std::string const& package, std::string const& pat
 {
     // check first for exact match to *file*:
     path arg( package );
-    if (is_regular_file(arg)) {
+    if (is_regular_file(arg) && isLoadableLibrary(arg)) {
 #if BOOST_VERSION >= 104600
 	    return loadInProcess(arg.string(), makeShortFilename( arg.filename().string() ), true);
 #else
