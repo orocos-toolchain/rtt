@@ -75,21 +75,26 @@ CDataFlowInterface_i::~CDataFlowInterface_i ()
 	channel_list.clear();
 }
 
-void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, RTT::DataFlowInterface* obj)
+RTT::DataFlowInterface* CDataFlowInterface_i::getDataFlowInterface() const
 {
-    s_servant_map.push_back(
-            std::make_pair(
-                CDataFlowInterface_var(objref),
-                obj)
-            );
+    return mdf;
+}
+
+void CDataFlowInterface_i::registerServant(CDataFlowInterface_ptr objref, CDataFlowInterface_i* servant)
+{
+    s_servant_map.push_back(ServantInfo(objref, servant));
 }
 void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
 {
     for (ServantMap::iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {
-        if (it->second == obj)
+        if (it->getDataFlowInterface() == obj)
         {
+            log(Debug) << "deregistered servant for data flow interface" << endlog();
+            CDataFlowInterface_i* servant = it->servant;
+            PortableServer::ObjectId_var oid = servant->mpoa->servant_to_id(it->servant);
+            servant->mpoa->deactivate_object(oid);
             s_servant_map.erase(it);
             return;
         }
@@ -98,7 +103,11 @@ void CDataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
 
 void CDataFlowInterface_i::clearServants()
 {
-		s_servant_map.clear();
+    while (!s_servant_map.empty())
+    {
+        ServantMap::iterator it = s_servant_map.begin();
+        deregisterServant(it->getDataFlowInterface());
+    }
 }
 
 RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterface_ptr objref)
@@ -106,8 +115,8 @@ RTT::DataFlowInterface* CDataFlowInterface_i::getLocalInterface(CDataFlowInterfa
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {
-        if (it->first->_is_equivalent(objref))
-            return it->second;
+        if (it->objref->_is_equivalent(objref))
+            return it->getDataFlowInterface();
     }
     return NULL;
 }
@@ -117,13 +126,13 @@ CDataFlowInterface_ptr CDataFlowInterface_i::getRemoteInterface(RTT::DataFlowInt
     for (ServantMap::const_iterator it = s_servant_map.begin();
             it != s_servant_map.end(); ++it)
     {
-        if (it->second == dfi)
-            return it->first;
+        if (it->getDataFlowInterface() == dfi)
+            return it->objref;
     }
     CDataFlowInterface_i* servant = new CDataFlowInterface_i(dfi, poa );
     CDataFlowInterface_ptr server = servant->_this();
     servant->_remove_ref();
-    registerServant( server, dfi);
+    registerServant( server, servant);
     return server;
 }
 

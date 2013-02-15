@@ -202,7 +202,7 @@ char * RTT_corba_CTaskContext_i::getDescription (
         RTT_corba_CService_i* mserv;
         mService_i = mserv = new RTT_corba_CService_i( mtask->provides(), mpoa );
         mService = mserv->activate_this();
-        CDataFlowInterface_i::registerServant(CDataFlowInterface::_narrow(mService), mtask->provides().get());
+        CDataFlowInterface_i::registerServant(CDataFlowInterface::_narrow(mService), mserv);
     }
     // Now the this service is available, check for the service name:
     std::string svc(service_name);
