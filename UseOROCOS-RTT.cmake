@@ -21,10 +21,10 @@ if(OROCOS-RTT_FOUND)
   set(ROS_ROOT $ENV{ROS_ROOT})
 
   if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
-    # If pre-fuerte, we're using rosbuild
+    # If pre-groovy, we're using rosbuild
     # Otherwise, we skip this whole rosbuild mess.
     find_package(ROS QUIET)
-    if(NOT ROS_FOUND) # pre-Fuerte, use rosbuild
+    if(NOT ROS_FOUND OR NOT catkin_FOUND) # pre-Groovy, use rosbuild
       set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
       #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
       string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
@@ -53,7 +53,7 @@ if(OROCOS-RTT_FOUND)
 	unset( LIBRARY_OUTPUT_PATH )
       endif()
     else()
-      message("ROS_ROOT was detected, and ROS was found as a package, assuming catkin-style building.")
+      message("ROS_ROOT was detected, and catkin_FOUND was set, assuming catkin-style building.")
     endif()
   endif()
 
