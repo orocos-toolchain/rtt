@@ -35,14 +35,6 @@ if(OROCOS-RTT_FOUND)
 	if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
 	  set(IS_ROS_PACKAGE TRUE)
 	  message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
-	  if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
-	    message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
-	    #set the default path for built executables to the "bin" directory
-	    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-	    #set the default path for built libraries to the "lib" directory
-	    set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-	  endif()
-	
 	endif()
       endforeach()
       if(NOT IS_ROS_PACKAGE)
@@ -122,6 +114,14 @@ if(OROCOS-RTT_FOUND)
       endif()
       rosbuild_init()
     endif()
+
+    if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
+      message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      #set the default path for built executables to the "bin" directory
+      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+      #set the default path for built libraries to the "lib" directory
+      set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+    endif()	
 
     # In ros builds, we need to set the pkg-config path such that RTT is found by
     # the typekit/typegen/pc files logic:
