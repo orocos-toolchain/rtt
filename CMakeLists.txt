@@ -22,8 +22,6 @@ LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
 LIST( GET RTT_VERSIONS 2 RTT_VERSION_PATCH)
 
-SET(ROS_ROOT $ENV{ROS_ROOT})
-
 MESSAGE( "Orocos RTT version ${VERSION} (${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}.${RTT_VERSION_PATCH})" )
 
 SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
@@ -52,12 +50,12 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-# We force it in case of ROS builds because the UseOrocos.cmake scripts will always look
-# in this path, also during an autoproj/bootstrap build.
+# This section checks:
+# - if we're in the ROS .deb building step 
+# - if a symlink is present to the install dir
+# - if roslib can be found
+SET(ROS_ROOT $ENV{ROS_ROOT})
 IF(ROS_ROOT)
-  SET(CMAKE_INSTALL_PREFIX
-    ${PROJECT_SOURCE_DIR}/../install CACHE PATH "Orocos install prefix for ROS builds" FORCE
-    )
   # Necessary when building Debian packages:
   set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
   if (ROS_STACK_DIR_FINAL)
