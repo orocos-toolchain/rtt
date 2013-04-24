@@ -179,7 +179,7 @@ namespace RTT {
              * Load any typekit found in the 'types/' subdirectory of each path in path_list in the process.
              * This is not a 'smart' function. It will only look into that directory and will not try
              * to guess a target specific subdir or any other means for locating typekits.
-             * @return false if some typekit caused an error, or some path was not found.
+             * @return false if some typekit caused an error, or some path was not found or if path_list was empty.
              * @param path_list A colon or semi-colon seperated list of paths
              * to look for typekits. No other paths will be searched.
              * @throw std::runtime_exception if one of the found typekits refused to load.
@@ -187,9 +187,11 @@ namespace RTT {
             bool loadTypekits(std::string const& path_list);
 
             /**
-             * Load a typekit found in the 'types/' subdirectory of each path in path_list in the process.
+             * Load a typekit found in the 'types/' subdirectory of a package present in path_list.
+             * @param name The name of the package (a directory name) which contains the typekit you wish to load.
              * @param path_list A colon or semi-colon seperated list of paths
-             * to look for typekits. May be empty the empty string.
+             * to look for the \a name subdirectory. If this list is empty, the current plugin path is searched and
+             * the current working directory.
              * @throw std::runtime_exception if the found typekit refused to load.
              */
             bool loadTypekit(std::string const& name, std::string const& path_list);
