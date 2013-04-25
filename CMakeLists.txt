@@ -50,41 +50,9 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-# This section checks:
-# - if we're in the ROS .deb building step 
-# - if a symlink is present to the install dir
-# - if roslib can be found
-SET(ROS_ROOT $ENV{ROS_ROOT})
-IF(ROS_ROOT)
-  # Necessary when building Debian packages:
-  set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
-  if (ROS_STACK_DIR_FINAL)
-    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
-  endif(ROS_STACK_DIR_FINAL)
-  # Necessary for backwards compatibility such that packages find RTT's cmake macros:
-  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install )
-    # Note: we use WORKING_DIRECTORY
-    execute_process ( 
-      COMMAND ${CMAKE_COMMAND} -E remove_directory install
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      OUTPUT_QUIET ERROR_QUIET
-      )
-  endif()
-  # We had to split the if statement above in two parts because cmake 2.8.0 would choke on a single-liner:
-  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/install )
-    # Note: we use WORKING_DIRECTORY
-    execute_process ( 
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      OUTPUT_QUIET ERROR_QUIET
-      )
-  endif()
-  
-  # Tell deployer to use ROSlib support.
-  set(ROSLIB_SUPPORT TRUE)
-  include(config/FindRoslib.cmake)
-ENDIF(ROS_ROOT)
+# Tell deployer to use ROSlib support.
+set(ROSLIB_SUPPORT TRUE)
+include(config/FindRoslib.cmake)
 
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
