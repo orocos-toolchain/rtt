@@ -69,6 +69,7 @@ if(Boost_INCLUDE_DIR)
   if(OROCOS_TARGET STREQUAL "win32")
     add_definitions(-DBOOST_ALL_NO_LIB)
   endif()
+    
   # We don't link with boost here. It depends on the options set by the user.
   #list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} )
 else(Boost_INCLUDE_DIR)
@@ -194,10 +195,13 @@ if(OROCOS_TARGET STREQUAL "macosx")
 	message(SEND_ERROR "Boost thread library not found but required on macosx.")
   endif ()
 
-  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} )
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_THREAD_INCLUDE_DIRS} ${Boost_SYSTEM_INCLUDE_DIRS} )
 
   SELECT_ONE_LIBRARY("Boost_THREAD_LIBRARY" BOOST_THREAD_LIB)
   LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${BOOST_THREAD_LIB})
+
+  SELECT_ONE_LIBRARY("Boost_SYSTEM_LIBRARY" BOOST_SYSTEM_LIB)
+  LIST(APPEND OROCOS-RTT_USER_LINK_LIBS ${BOOST_SYSTEM_LIB})
 
   message( "Forcing ORO_OS_USE_BOOST_THREAD to ON")
   set( ORO_OS_USE_BOOST_THREAD ON CACHE BOOL "Forced enable use of Boost.thread on macosx." FORCE)
@@ -209,6 +213,7 @@ if(OROCOS_TARGET STREQUAL "macosx")
   # see also src/CMakeLists.txt as it adds the boost_thread library to OROCOS_RTT_LIBRARIES
   list(APPEND OROCOS-RTT_LIBRARIES ${PTHREAD_LIBRARIES} dl) 
   list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+
 else()
   set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
 endif()
