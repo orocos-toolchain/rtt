@@ -25,7 +25,6 @@
 #include <extras/SimulationThread.hpp>
 #include <RTT.hpp>
 
-#define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #ifdef ORO_UNIT_TEST_SUITE_HACK
 // Modified version that contains checkpointing
