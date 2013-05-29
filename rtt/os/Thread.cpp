@@ -252,6 +252,7 @@ namespace RTT {
 #ifdef OROPKG_OS_THREAD_SCOPE
         ,d(NULL)
 #endif
+                    , stopTimeout(0)
         {
             this->setup(_priority, cpu_affinity, name);
         }
@@ -409,6 +410,15 @@ namespace RTT {
             }
         }
 
+        double Thread::getStopTimeout() const
+        {
+            if (stopTimeout != 0)
+                return stopTimeout;
+            else if (period == 0)
+                return Thread::lock_timeout_no_period_in_s;
+            else return Thread::lock_timeout_period_factor * getPeriod();
+        }
+
         bool Thread::stop()
         {
             if (!active)
@@ -427,7 +437,7 @@ namespace RTT {
                     // breakLoop was ok, wait for loop() to return.
                 }
                 // always take this lock, but after breakLoop was called !
-                MutexTimedLock lock(breaker, lock_timeout_no_period_in_s); 
+                MutexTimedLock lock(breaker, getStopTimeout()); 
                 if ( !lock.isSuccessful() ) {
                     log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after 1 second."<<endlog();
                     running = true;
@@ -435,7 +445,7 @@ namespace RTT {
                 }
             } else {
                 //
-                MutexTimedLock lock(breaker, lock_timeout_period_factor*getPeriod() ); 
+                MutexTimedLock lock(breaker, getStopTimeout() ); 
                 if ( lock.isSuccessful() ) {
                     // drop out of periodic mode.
                     rtos_task_make_periodic(&rtos_task, 0);

@@ -156,6 +156,13 @@ namespace RTT
 
             virtual bool stop();
 
+            /** Sets the timeout for stop(), in seconds
+             *
+             * If not set, the timeout is deduced from the global values
+             * lock_timeout_period_factor and lock_timeout_no_period_in_s
+             */
+            double getStopTimeout() const;
+
             bool setPeriod(Seconds s);
 
             /**
@@ -333,6 +340,11 @@ namespace RTT
              * The period as it is passed to the operating system.
              */
             NANO_TIME period;
+
+            /**
+             * The timeout, in seconds, for stop()
+             */
+            double stopTimeout;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
             // Pointer to Threadscope device
