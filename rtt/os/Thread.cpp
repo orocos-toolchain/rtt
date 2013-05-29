@@ -410,7 +410,12 @@ namespace RTT {
             }
         }
 
-        double Thread::getStopTimeout() const
+        void Thread::setStopTimeout(Seconds value)
+        {
+            stopTimeout = value;
+        }
+
+        Seconds Thread::getStopTimeout() const
         {
             if (stopTimeout != 0)
                 return stopTimeout;

@@ -158,10 +158,17 @@ namespace RTT
 
             /** Sets the timeout for stop(), in seconds
              *
-             * If not set, the timeout is deduced from the global values
-             * lock_timeout_period_factor and lock_timeout_no_period_in_s
+             * @see getStopTimeout
              */
-            double getStopTimeout() const;
+            void setStopTimeout(Seconds s);
+
+            /** Returns the desired timeout for stop(), in seconds
+             *
+             * If not set with setStopTimeout, the timeout is deduced from the
+             * global values lock_timeout_period_factor and
+             * lock_timeout_no_period_in_s
+             */
+            Seconds getStopTimeout() const;
 
             bool setPeriod(Seconds s);
 
