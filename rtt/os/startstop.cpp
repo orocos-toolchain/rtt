@@ -68,7 +68,6 @@ using namespace std;
 
 using namespace RTT;
 using namespace RTT::os;
-static os::StartStopManager* initM;
 
 static int os_argc_arg;
 static char** os_argv_arg;
@@ -86,8 +85,7 @@ int __os_init(int argc, char** argv )
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
-    initM = os::StartStopManager::Instance();
-    int ret = initM->start() ? 0 : 1;
+    int ret = os::StartStopManager::Instance()->start() ? 0 : 1;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
         unsigned int bit = 0;
@@ -175,7 +173,7 @@ void __os_exit(void)
     types::TypekitRepository::Release();
 
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
-    initM->stop();
+    os::StartStopManager::Instance()->stop();
     os::StartStopManager::Release();
 
     // This should be the (one but) last message to be logged :

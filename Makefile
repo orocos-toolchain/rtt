@@ -1,5 +1,5 @@
 ifdef ROS_ROOT
-EXTRA_CMAKE_FLAGS=-DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
+EXTRA_CMAKE_FLAGS=-DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB -DCMAKE_INSTALL_PREFIX=$(shell rospack find rtt)/../install
 default: install_rtt
 include $(shell rospack find mk)/cmake.mk
 install_rtt: all

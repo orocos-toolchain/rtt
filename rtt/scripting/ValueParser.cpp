@@ -114,9 +114,9 @@ namespace RTT
 
     void ValueParser::seenpeer() {
         // inform propparser of new peer :
-        //std::cerr << "ValueParser: seenpeer : "<< peerparser.peer()->getName()
-        //          <<" has props :" << (peerparser.peer()->properties() != 0) << std::endl;
-        propparser.setPropertyBag( peerparser.peer()->provides()->properties() );
+        //std::cerr << "ValueParser: seenpeer : "<< peerparser.taskObject()->getName()
+        //          <<" has props :" << (peerparser.taskObject()->properties() != 0) << std::endl;
+        propparser.setPropertyBag( peerparser.taskObject()->properties() );
     }
 
   void ValueParser::seenboolconstant( iter_t begin, iter_t end )

@@ -63,7 +63,6 @@ namespace RTT
     class InputPort : public base::InputPortInterface
     {
         friend class internal::ConnOutputEndpoint<T>;
-        typename internal::InputPortSource<T>::shared_ptr data_source;
 
         virtual bool connectionAdded( base::ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy ) { return true; }
 
@@ -96,9 +95,9 @@ namespace RTT
     public:
         InputPort(std::string const& name = "unnamed", ConnPolicy const& default_policy = ConnPolicy())
             : base::InputPortInterface(name, default_policy)
-            , data_source(0) {}
+        {}
 
-        virtual ~InputPort() { disconnect(); if (data_source) data_source->dropPort(); }
+        virtual ~InputPort() { disconnect(); }
 
         /** \overload */
         FlowStatus read(base::DataSourceBase::shared_ptr source)
@@ -174,6 +173,22 @@ namespace RTT
             return RTT::NewData;
         }
 
+        /**
+         * Get a sample of the data on this port, without actually reading the port's data.
+         * It's the complement of OutputPort::setDataSample() and serves to retrieve the size
+         * of a variable sized data type T. Returns default T if !connected() or if the 
+         * OutputPort did not use setDataSample(). Returns an example T otherwise.
+         * In case multiple inputs are connected to this port a sample from the currently read
+         * connection will be returned.
+         */
+        void getDataSample(T& sample)
+        {
+            typename base::ChannelElement<T>::shared_ptr input = static_cast< base::ChannelElement<T>* >( cmanager.getCurrentChannel() );
+            if ( input ) {
+                sample = input->data_sample();
+            }
+        }
+
         /** Returns the types::TypeInfo object for the port's type */
         virtual const types::TypeInfo* getTypeInfo() const
         { return internal::DataSourceTypeInfo<T>::getTypeInfo(); }
@@ -193,14 +208,11 @@ namespace RTT
         { return new OutputPort<T>(this->getName()); }
 
         /** Returns a base::DataSourceBase interface to read this port. The returned
-         * data source is always the same object and will be destroyed when the
-         * port is destroyed.
+         * data source is always a new object.
          */
         base::DataSourceBase* getDataSource()
         {
-            if (data_source) return data_source.get();
-            data_source = new internal::InputPortSource<T>(*this);
-            return data_source.get();
+            return new internal::InputPortSource<T>(*this);
         }
 
         virtual bool createStream(ConnPolicy const& policy)

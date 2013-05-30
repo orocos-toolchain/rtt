@@ -239,6 +239,7 @@ namespace RTT { namespace os {
     template<>
     class local_allocator<void>
     {
+    public:
         typedef void    value_type;
         typedef void*       pointer;
         typedef const void* const_pointer;
@@ -320,6 +321,7 @@ namespace RTT { namespace os {
 
     template<> class rt_allocator<void>
     {
+    public:
         typedef void        value_type;
         typedef void*       pointer;
         typedef const void* const_pointer;

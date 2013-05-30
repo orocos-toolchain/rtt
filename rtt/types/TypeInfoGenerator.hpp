@@ -2,6 +2,7 @@
 #define RTT_TYPEINFO_GENERATOR_HPP
 
 #include <string>
+#include "../rtt-config.h"
 #include "rtt-types-fwd.hpp"
 
 namespace RTT
@@ -16,7 +17,7 @@ namespace RTT
          * class to the type system which has no function
          * once the type registration is done.
          */
-        class TypeInfoGenerator
+        class RTT_API TypeInfoGenerator
         {
         public:
             virtual ~TypeInfoGenerator() {}

@@ -21,24 +21,30 @@ if(OROCOS-RTT_FOUND)
   set(ROS_ROOT $ENV{ROS_ROOT})
 
   if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
-    set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
-    #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
-    string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
-    foreach( rpath IN LISTS ROS_PACKAGE_PATH )
-      # This is a bit tricky since overlapping directory names may give false positives:
-      file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
-      #message(" ${rpath} -> ${path}")
-      if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
-	set(IS_ROS_PACKAGE TRUE)
-	message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
-	
+    # If pre-groovy, we're using rosbuild
+    # Otherwise, we skip this whole rosbuild mess.
+    find_package(ROS QUIET)
+    if(NOT ROS_FOUND OR NOT catkin_FOUND) # pre-Groovy, use rosbuild
+      set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
+      #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
+      string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
+      foreach( rpath IN LISTS ROS_PACKAGE_PATH )
+	# This is a bit tricky since overlapping directory names may give false positives:
+	file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
+	#message(" ${rpath} -> ${path}")
+	if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
+	  set(IS_ROS_PACKAGE TRUE)
+	  message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
+	endif()
+      endforeach()
+      if(NOT IS_ROS_PACKAGE)
+	message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
+	# These were set by roscpp cmake macros:
+	unset( EXECUTABLE_OUTPUT_PATH )
+	unset( LIBRARY_OUTPUT_PATH )
       endif()
-    endforeach()
-    if(NOT IS_ROS_PACKAGE)
-      message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
-      # These were set by roscpp cmake macros:
-      unset( EXECUTABLE_OUTPUT_PATH )
-      unset( LIBRARY_OUTPUT_PATH )
+    else()
+      message("ROS_ROOT was detected, and catkin_FOUND was set, assuming catkin-style building.")
     endif()
   endif()
 
@@ -92,6 +98,8 @@ if(OROCOS-RTT_FOUND)
   # Infer package name from directory name.                                                                                                                                                                                                  
   get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
   message("[UseOrocos] Building package ${orocos_package}")
+  # Set to true to indicate that these macros are available.
+  set(USE_OROCOS_RTT 1)
 
   # By default, install libs in /target/ subdir in order to allow
   # multi-target installs.
@@ -106,6 +114,14 @@ if(OROCOS-RTT_FOUND)
       endif()
       rosbuild_init()
     endif()
+
+    if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
+      message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      #set the default path for built executables to the "bin" directory
+      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+      #set the default path for built libraries to the "lib" directory
+      set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+    endif()	
 
     # In ros builds, we need to set the pkg-config path such that RTT is found by
     # the typekit/typegen/pc files logic:
@@ -122,7 +138,7 @@ if(OROCOS-RTT_FOUND)
   else (IS_ROS_PACKAGE)
     # Fall back to 'manually' processing the manifest.xml file.
     orocos_get_manifest_deps( DEPS )
-    #message("Dependencies are: ${DEPS}")
+    #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
         orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
@@ -139,41 +155,6 @@ if(OROCOS-RTT_FOUND)
     set(CMAKE_DEBUG_POSTFIX "d")
   endif(OROCOS_TARGET STREQUAL "win32")
 
-
-#
-# Include and link against required stuff
-#
-#From: http://www.cmake.org/Wiki/CMakeMacroParseArguments
-MACRO(ORO_PARSE_ARGUMENTS prefix arg_names option_names)
-  SET(DEFAULT_ARGS)
-  FOREACH(arg_name ${arg_names})  
-    SET(${prefix}_${arg_name})
-  ENDFOREACH(arg_name)
-  FOREACH(option ${option_names})
-    SET(${prefix}_${option} FALSE)
-  ENDFOREACH(option)
-
-  SET(current_arg_name DEFAULT_ARGS)
-  SET(current_arg_list)
-  FOREACH(arg ${ARGN})
-    SET(larg_names ${arg_names})
-    LIST(FIND larg_names "${arg}" is_arg_name)     
-    IF (is_arg_name GREATER -1)
-      SET(${prefix}_${current_arg_name} ${current_arg_list})
-      SET(current_arg_name ${arg})
-      SET(current_arg_list)
-    ELSE (is_arg_name GREATER -1)
-      SET(loption_names ${option_names})
-      LIST(FIND loption_names "${arg}" is_option)            
-      IF (is_option GREATER -1)
-         SET(${prefix}_${arg} TRUE)
-      ELSE (is_option GREATER -1)
-         SET(current_arg_list ${current_arg_list} ${arg})
-      ENDIF (is_option GREATER -1)
-    ENDIF (is_arg_name GREATER -1)
-  ENDFOREACH(arg)
-  SET(${prefix}_${current_arg_name} ${current_arg_list})
-ENDMACRO(ORO_PARSE_ARGUMENTS)
 
 # Components should add themselves by calling 'OROCOS_COMPONENT' 
 # instead of 'ADD_LIBRARY' in CMakeLists.txt.
@@ -202,7 +183,7 @@ macro( orocos_component COMPONENT_NAME )
   endif()
   
   # Set library name:
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
   else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
@@ -238,6 +219,12 @@ macro( orocos_component COMPONENT_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX};${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+  if(APPLE)
+    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+      INSTALL_NAME_DIR "@rpath"
+      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX} -rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+  endif()
   orocos_add_compile_flags(${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${COMPONENT_NAME} ${USE_OROCOS_LINK_FLAGS})
   TARGET_LINK_LIBRARIES( ${COMPONENT_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )
@@ -282,7 +269,7 @@ macro( orocos_library LIB_TARGET_NAME )
     set(AC_INSTALL_RT_DIR bin)
   endif()
   
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -311,6 +298,12 @@ macro( orocos_library LIB_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+  if(APPLE)
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      INSTALL_NAME_DIR "@rpath"
+      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+  endif()
   orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )
@@ -344,7 +337,7 @@ macro( orocos_executable EXE_TARGET_NAME )
     set(AC_INSTALL_RT_DIR bin)
   endif()
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( EXE_NAME ${EXE_TARGET_NAME})
@@ -361,9 +354,16 @@ macro( orocos_executable EXE_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
-    if(CMAKE_DEBUG_POSTFIX)
-        set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    endif(CMAKE_DEBUG_POSTFIX)
+  if(APPLE)
+    SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+      INSTALL_NAME_DIR "@rpath"
+      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/bin -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+  endif()
+
+  if(CMAKE_DEBUG_POSTFIX)
+    set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+  endif(CMAKE_DEBUG_POSTFIX)
   orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
 
@@ -378,13 +378,31 @@ endmacro( orocos_executable )
 
 # Type headers should add themselves by calling 'orocos_typegen_headers()'
 # They will be processed by typegen to generate a typekit from it, with the
-# name of the current project. 
+# name of the current project. You may also pass additional options to typegen
+# before listing your header files. 
+# 
+# Use 'DEPENDS <packagename> ...' to add dependencies on other (typegen) packages.
+# This macro passes the -x OROCOS_TARGET flag to typegen automatically, so there
+# is no need to include the -OROCOS_TARGET suffix in the <packagename>
 #
-# Usage: orocos_typegen_headers( robotdata.hpp sensordata.hpp )
+# NOTE: if you use a subdir for your headers, e.g. include/robotdata.hpp, it
+# will install this header into pkgname/include/robotdata.hpp ! Most likely
+# not what you want. So call this macro from the include dir itself.
+#
+# Usage: orocos_typegen_headers( robotdata.hpp sensordata.hpp DEPENDS orocos_kdl )
 #
 macro( orocos_typegen_headers )
 
-  MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME}..." )
+  ORO_PARSE_ARGUMENTS(ORO_TYPEGEN_HEADERS
+    "DEPENDS"
+    ""
+    ${ARGN}
+    )
+
+  if ( ORO_TYPEGEN_HEADERS_DEPENDS )
+    set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}")
+  endif()
+  MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
   
   # Works in top level source dir:
   find_program(TYPEGEN_EXE typegen)
@@ -392,12 +410,18 @@ macro( orocos_typegen_headers )
     message(FATAL_ERROR "'typegen' not found in path. Can't build typekit. Did you 'source env.sh' ?")
   else (NOT TYPEGEN_EXE)
 
-    execute_process( COMMAND ${TYPEGEN_EXE} --output typekit ${PROJECT_NAME} ${ARGN} 
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+    foreach( IMP ${ORO_TYPEGEN_HEADERS_DEPENDS} )
+      set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
+    endforeach()
+    # Working directory is necessary to be able to find the source files.
+    execute_process( COMMAND ${TYPEGEN_EXE} --output ${CMAKE_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
       )
+
     # work around generated manifest.xml file:
-    execute_process( COMMAND ${CMAKE} remove -f typekit/manifest.xml )
-    add_subdirectory( typekit )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
+    add_subdirectory( ${CMAKE_SOURCE_DIR}/typekit ${CMAKE_BINARY_DIR}/typekit)
+
     list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
   endif (NOT TYPEGEN_EXE)
 endmacro( orocos_typegen_headers )
@@ -432,7 +456,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
     set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
   endif(ORO_TYPEKIT_VERSION)
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -456,6 +480,13 @@ macro( orocos_typekit LIB_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+  if(APPLE)
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      INSTALL_NAME_DIR "@rpath"
+      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+  endif()
+    
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
 
   # On win32, typekit runtime (.dll) should go in orocos/types folder
@@ -501,7 +532,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
     set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
   endif(ORO_PLUGIN_VERSION)
 
-  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
   else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -526,6 +557,12 @@ macro( orocos_plugin LIB_TARGET_NAME )
     INSTALL_RPATH_USE_LINK_PATH 1
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
     )
+  if(APPLE)
+    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+      INSTALL_NAME_DIR "@rpath"
+      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      )
+  endif()
   orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
   orocos_add_link_flags(${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
   TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )

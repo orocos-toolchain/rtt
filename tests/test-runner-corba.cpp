@@ -30,38 +30,15 @@
 #include <transports/corba/CorbaDispatcher.hpp>
 
 #include "test-runner.hpp"
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/test/included/unit_test.hpp>
 
 using boost::unit_test::test_suite;
 
 using namespace RTT;
 using namespace RTT::corba;
 using namespace std;
-
-struct InitOrocos {
-public:
-	InitOrocos(){  }
-	~InitOrocos(){
-	    corba::CorbaDispatcher::ReleaseAll();
-	    corba::TaskContextServer::ShutdownOrb(true);
-	    corba::TaskContextServer::DestroyOrb();
-
-	    // If we call __os_exit() in Xenomai, we get an ABORT
-	    // because the main task is cleaned up too early.
-	    // The work around for now is to stop all threads but
-	    // the main thread. To be fixed if boost::test allows it.
-#ifndef OROCOS_TARGET_XENOMAI
-        __os_exit();
-#else
-        os::StartStopManager::Instance()->stop();
-        os::StartStopManager::Release();
-#endif
-}
-
-};
-
-BOOST_GLOBAL_FIXTURE( InitOrocos )
 
 boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 {
@@ -117,3 +94,29 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
     return 0;
 }
 
+using namespace boost::unit_test;
+struct InitOrocos {
+public:
+	InitOrocos(){  
+            init_unit_test_suite(framework::master_test_suite().argc,framework::master_test_suite().argv);
+	}
+	~InitOrocos(){
+	    corba::CorbaDispatcher::ReleaseAll();
+	    corba::TaskContextServer::ShutdownOrb(true);
+	    corba::TaskContextServer::DestroyOrb();
+
+	    // If we call __os_exit() in Xenomai, we get an ABORT
+	    // because the main task is cleaned up too early.
+	    // The work around for now is to stop all threads but
+	    // the main thread. To be fixed if boost::test allows it.
+#ifndef OROCOS_TARGET_XENOMAI
+        __os_exit();
+#else
+        os::StartStopManager::Instance()->stop();
+        os::StartStopManager::Release();
+#endif
+}
+
+};
+
+BOOST_GLOBAL_FIXTURE( InitOrocos )

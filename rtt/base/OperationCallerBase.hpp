@@ -69,7 +69,6 @@ namespace RTT
              */
             virtual OperationCallerBase<F>* cloneI(ExecutionEngine* caller) const = 0;
 
-            virtual void reportError() = 0;
         };
     }
 }

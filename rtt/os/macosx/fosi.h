@@ -19,6 +19,8 @@
 #define _XOPEN_SOURCE 600   // use all Posix features.
 #endif
 
+#define _DARWIN_C_SOURCE
+
 #define HAVE_FOSI_API
 
 #ifdef __cplusplus

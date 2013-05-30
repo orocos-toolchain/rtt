@@ -100,6 +100,17 @@ namespace RTT
             mpool.data_sample(sample);
         }
 
+        virtual T data_sample() const
+        {
+            T result = T();
+            Item* mitem = mpool.allocate();
+            if (mitem != 0) {
+                result = *mitem;
+                mpool.deallocate( mitem );
+            }
+            return result;
+        }
+
 
         size_type capacity() const
         {

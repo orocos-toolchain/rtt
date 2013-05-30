@@ -106,6 +106,7 @@ namespace RTT {
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
         BOOST_SPIRIT_DEBUG_RULE( type_name );
+        BOOST_SPIRIT_DEBUG_RULE( skipper );
 
         // an identifier is a word which can be used to identify a
         // label, or be the name of an object or method.  it is required
