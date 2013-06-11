@@ -96,7 +96,7 @@ if(OROCOS-RTT_FOUND)
   endif(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
   
   # Infer package name from directory name.                                                                                                                                                                                                  
-  get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
+  get_filename_component(orocos_package ${PROJECT_SOURCE_DIR} NAME)
   message("[UseOrocos] Building package ${orocos_package}")
   # Set to true to indicate that these macros are available.
   set(USE_OROCOS_RTT 1)
@@ -414,13 +414,13 @@ macro( orocos_typegen_headers )
       set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
     endforeach()
     # Working directory is necessary to be able to find the source files.
-    execute_process( COMMAND ${TYPEGEN_EXE} --output ${CMAKE_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+    execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
       )
 
     # work around generated manifest.xml file:
-    execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
-    add_subdirectory( ${CMAKE_SOURCE_DIR}/typekit ${CMAKE_BINARY_DIR}/typekit)
+    execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${PROJECT_SOURCE_DIR}/typekit/manifest.xml )
+    add_subdirectory( ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
 
     list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
   endif (NOT TYPEGEN_EXE)
