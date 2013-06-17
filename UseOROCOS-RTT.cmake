@@ -18,35 +18,6 @@ if(OROCOS-RTT_FOUND)
 
   # Preprocessor definitions
   add_definitions(${OROCOS-RTT_DEFINITIONS})
-  set(ROS_ROOT $ENV{ROS_ROOT})
-
-  if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
-    # If pre-groovy, we're using rosbuild
-    # Otherwise, we skip this whole rosbuild mess.
-    find_package(ROS QUIET)
-    if(NOT ROS_FOUND OR NOT catkin_FOUND) # pre-Groovy, use rosbuild
-      set(ROS_PACKAGE_PATH $ENV{ROS_PACKAGE_PATH})
-      #In bash: for i in $(echo "$ROS_PACKAGE_PATH" | sed -e's/:/ /g'); do if expr match "`pwd`" "$i"; then is_ros_package=1; fi; done > /dev/null
-      string(REPLACE ":" ";" ROS_PACKAGE_PATH ${ROS_PACKAGE_PATH})
-      foreach( rpath IN LISTS ROS_PACKAGE_PATH )
-	# This is a bit tricky since overlapping directory names may give false positives:
-	file(TO_CMAKE_PATH ${rpath} path) # removes trailing '/'
-	#message(" ${rpath} -> ${path}")
-	if ( "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${path}" OR "${CMAKE_CURRENT_SOURCE_DIR}" MATCHES "${path}/" )
-	  set(IS_ROS_PACKAGE TRUE)
-	  message("This package is in your ROS_PACKAGE_PATH, so I'm using rosbuild-style package building.")
-	endif()
-      endforeach()
-      if(NOT IS_ROS_PACKAGE)
-	message("ROS_ROOT was detected but this package is NOT in your ROS_PACKAGE_PATH. I'm not using any rosbuild-style building.")
-	# These were set by roscpp cmake macros:
-	unset( EXECUTABLE_OUTPUT_PATH )
-	unset( LIBRARY_OUTPUT_PATH )
-      endif()
-    else()
-      message("ROS_ROOT was detected, and catkin_FOUND was set, assuming catkin-style building.")
-    endif()
-  endif()
 
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
@@ -107,49 +78,13 @@ if(OROCOS-RTT_FOUND)
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
   
-  if (IS_ROS_PACKAGE)
-    if ( NOT ROSBUILD_init_called )
-      if (NOT DEFINED ROSBUILD_init_called )
-	include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake) # Prevent double inclusion ! This file is not robust against that !
-      endif()
-      rosbuild_init()
-    endif()
-
-    if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
-      message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
-      #set the default path for built executables to the "bin" directory
-      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-      #set the default path for built libraries to the "lib" directory
-      set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-    endif()	
-
-    # In ros builds, we need to set the pkg-config path such that RTT is found by
-    # the typekit/typegen/pc files logic:
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
-    #message("Setting PKG_CONFIG_PATH to $ENV{PKG_CONFIG_PATH}")
-
-    # We only need the direct dependencies, the rest is resolved
-    # by the .pc files.
-    rosbuild_invoke_rospack(${orocos_package} pkg DEPS depends1)
-    string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
-    foreach(ROSDEP ${pkg_DEPS2})
-        orocos_use_package( ${ROSDEP} ) 
-    endforeach(ROSDEP ${pkg_DEPS2}) 
-  else (IS_ROS_PACKAGE)
-    # Fall back to 'manually' processing the manifest.xml file.
-    orocos_get_manifest_deps( DEPS )
-    #message("orocos_get_manifest_deps are: ${DEPS}")
-    foreach(DEP ${DEPS})
-        orocos_use_package( ${DEP} ) 
-    endforeach(DEP ${DEPS}) 
+  # Fall back to 'manually' processing the manifest.xml file.
+  orocos_get_manifest_deps( DEPS )
+  #message("orocos_get_manifest_deps are: ${DEPS}")
+  foreach(DEP ${DEPS})
+    orocos_use_package( ${DEP} ) 
+  endforeach(DEP ${DEPS}) 
     
-  endif (IS_ROS_PACKAGE)
-
-  # Necessary to find rtt when we scan the manifest.xml file.
-  if (IS_ROS_PACKAGE)
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
-  endif(IS_ROS_PACKAGE)
-
   # Necessary for correctly building mixed libraries on win32.
   if(OROCOS_TARGET STREQUAL "win32")
     set(CMAKE_DEBUG_POSTFIX "d")
@@ -201,15 +136,7 @@ macro( orocos_component COMPONENT_NAME )
   # Clear the dependencies such that a target switch can be detected:
   unset( ${COMPONENT_NAME}_LIB_DEPENDS )
 
-  # Use rosbuild in ros environments:
-  if (IS_ROS_PACKAGE)
-    rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
-    SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}
-    )
-  else()
-    ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
-  endif()
+  ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
 
   # Prepare component lib for out-of-the-ordinary lib directories
   SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
@@ -273,11 +200,7 @@ macro( orocos_library LIB_TARGET_NAME )
   unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
   MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-  if (IS_ROS_PACKAGE)
-    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-  else()
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-  endif()
+  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
 
   if (COMPONENT_VERSION)
     set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
@@ -332,11 +255,7 @@ macro( orocos_executable EXE_TARGET_NAME )
   endif()
 
   MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
-  if (IS_ROS_PACKAGE)
-    rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
-  else()
-    ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
-  endif()
+  ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
   SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${EXE_NAME}
     INSTALL_RPATH_USE_LINK_PATH 1
@@ -447,14 +366,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
   unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
   MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-  if (IS_ROS_PACKAGE)
-    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types
-    )
-  else()
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-  endif()
+  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
     ${LIB_COMPONENT_VERSION}
@@ -515,16 +427,9 @@ macro( orocos_plugin LIB_TARGET_NAME )
   # Clear the dependencies such that a target switch can be detected:
   unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-  if (IS_ROS_PACKAGE)
-    MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
-    rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
-    SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/plugins
-    )
-  else()
-    MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
-  endif()
+  MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
+  ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+
   SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
     OUTPUT_NAME ${LIB_NAME}
     ${LIB_COMPONENT_VERSION}

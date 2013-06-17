@@ -112,36 +112,6 @@ endfunction( orocos_get_manifest_deps RESULT)
 macro( orocos_use_package PACKAGE )
   if ( "${PACKAGE}" STREQUAL "rtt")
   else()
-  if (IS_ROS_PACKAGE)
-    if (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
-      # use rospack to find package directories of *all* dependencies.
-      # We need these because a .pc file may depend on another .pc file in another package.
-      # This package + the packages this package depends on:
-      rosbuild_find_ros_package(${PACKAGE})
-      if (${PACKAGE}_PACKAGE_PATH)
-        rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE}_prefix DEPS depends)
-        string(REGEX REPLACE "\n" ";" ${PACKAGE}_prefix_DEPS2 "${${PACKAGE}_prefix_DEPS}" )
-        foreach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
-          # Skip previously found packages
-          if (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
-            rosbuild_find_ros_package( ${ROSDEP} )
-	    # We prefer looking in the install directory above the package's own directory:
-            set( ENV{PKG_CONFIG_PATH} "${${ROSDEP}_PACKAGE_PATH}/install/lib/pkgconfig:${${ROSDEP}_PACKAGE_PATH}:$ENV{PKG_CONFIG_PATH}" )
-            set( USE_FOUND_${ROSDEP}_PACKAGE_PATH 1 ) # mark we don't need to find it again.
-          endif (NOT USE_FOUND_${ROSDEP}_PACKAGE_PATH)
-        endforeach(ROSDEP ${${PACKAGE}_prefix_DEPS2} ${PACKAGE})
-      endif (${PACKAGE}_PACKAGE_PATH)
-
-      #message("Searching for ${PACKAGE} in ${${ROSDEP}_PACKAGE_PATH}.")
-    else (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
-      if (VERBOSE)
-	message("[UseOrocos] Note: '${PACKAGE}' is not a ROS package. Trying .pc file...")
-      endif (VERBOSE)
-    endif (NOT USE_FOUND_${PACKAGE}_PACKAGE_PATH)
-  else(IS_ROS_PACKAGE)
-    #Use default pkg-config path
-    #message("Searching for ${PACKAGE} in env PKG_CONFIG_PATH.")
-  endif(IS_ROS_PACKAGE)
 
   # Now we are ready to get the flags from the .pc files:
   #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
