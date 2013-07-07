@@ -51,35 +51,38 @@ MACRO(ORO_PARSE_ARGUMENTS prefix arg_names option_names)
 ENDMACRO(ORO_PARSE_ARGUMENTS)
 
 #
-# Parses the manifest.xml file and stores the dependencies in RESULT.
+# Parses a package.xml file and stores the dependencies in RESULT.
 # Relies on xpath. If no manifest is found, returns an empty RESULT.
 #
 # Usage: orocos_get_manifest_deps DEPS)
 #
 function( orocos_get_manifest_deps RESULT)
-  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
-     message("Note: this package has no manifest.xml file. No dependencies can be auto-configured.")
+
+  set(_PACKAGE_XML_PATH "${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
+
+  if ( NOT EXISTS ${_PACKAGE_XML_PATH} )
+     message("Note: this package has no package.xml file. No dependencies can be auto-configured.")
      return()
-  endif ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
+  endif ( NOT EXISTS ${_PACKAGE_XML_PATH} )
 
   find_program(XPATH_EXE xpath )
   if (NOT XPATH_EXE)
     message("Warning: xpath not found. Can't read dependencies in manifest.xml file.")
   else(NOT XPATH_EXE)
     IF (APPLE)
-      execute_process(COMMAND ${XPATH_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml "package/depend/@package" RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
-      SET(REGEX_STR " package=\"([^\"]+)\"")
+      execute_process(COMMAND ${XPATH_EXE} ${_PACKAGE_XML_PATH} "package/run_depend/text()" RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
+      #SET(REGEX_STR " package=\"([^\"]+)\"")
     ELSE (APPLE)
-      execute_process(COMMAND ${XPATH_EXE} -q -e "package/depend/@package" ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
-      SET(REGEX_STR " package=\"([^\"]+)\"\n")
+      execute_process(COMMAND ${XPATH_EXE} -q -e "package/run_depend/text()" ${_PACKAGE_XML_PATH} RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
+      #SET(REGEX_STR " package=\"([^\"]+)\"\n")
     ENDIF (APPLE)
     if (NOT RES EQUAL 0)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
 
-    string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
+    #string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
 
-    #message("Deps are: '${DEPS}'")
+    message("Deps from ${_PACKAGE_XML_PATH} are: '${DEPS}'")
     set(${RESULT} ${RR_RESULT} PARENT_SCOPE)
     #message("Dependencies are: '${${RESULT}}'")
   endif (NOT XPATH_EXE)
