@@ -107,6 +107,11 @@ namespace RTT { namespace internal {
             return base::ChannelElement<T>::data_sample(sample);
         }
 
+        virtual T data_sample()
+        {
+            return data->Get();
+        }
+
     };
 }}
 

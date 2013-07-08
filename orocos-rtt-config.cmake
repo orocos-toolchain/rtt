@@ -107,10 +107,8 @@ if(NOT OROCOS-RTT_FOUND)
 
 # Import targets
 set(OROCOS-RTT_IMPORT_FILE "${SELF_DIR}/orocos-rtt-${OROCOS_TARGET}-libraries.cmake")
-if (NOT EXISTS "${OROCOS-RTT_IMPORT_FILE}")
-  message(FATAL_ERROR "Could not find an OROCOS-RTT installation for the ${OROCOS_TARGET} target. Missing file: ${OROCOS-RTT_IMPORT_FILE}")
-endif()
-include("${OROCOS-RTT_IMPORT_FILE}")
+if (EXISTS "${OROCOS-RTT_IMPORT_FILE}")
+  include("${OROCOS-RTT_IMPORT_FILE}")
 
 # Core RTT libraries
 set(OROCOS-RTT_TARGET "${PREFIX}orocos-rtt-${OROCOS_TARGET}_dynamic")
@@ -142,6 +140,8 @@ if(TARGET ${OROCOS-RTT-MQUEUE_TARGET})
   set(FOUND_TRANSPORTS "${FOUND_TRANSPORTS} mqueue")
   set(OROCOS-RTT_MQUEUE_LIBRARIES ${OROCOS-RTT-MQUEUE_TARGET})
 endif()
+endif()
+
 
 # Definitions
 set(OROCOS-RTT_DEFINITIONS "-DOROCOS_TARGET=${OROCOS_TARGET}")

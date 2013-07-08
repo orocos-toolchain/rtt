@@ -87,6 +87,14 @@ namespace RTT { namespace base {
             return false;
         }
 
+        virtual value_t data_sample()
+        {
+            typename ChannelElement<T>::shared_ptr input = boost::static_pointer_cast< ChannelElement<T> >(getInput());
+            if (input)
+                return input->data_sample();
+            return value_t();
+        }
+
         /** Writes a new sample on this connection. \a sample is the sample to
          * write. 
          *

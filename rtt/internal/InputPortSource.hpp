@@ -57,9 +57,14 @@ namespace RTT
      * call base::InputPortInterface::getDataSource() to get the corresponding data
      * source.  This is your duty to destroy the port when it is not needed
      * anymore.
+     *
+     * @note Although this DataSource is assignable, writing to it is not causing
+     * any change in the port. You should not use the set() functions of this object.
+     * We provide this interface in order to allow other
+     * code to take a non-const reference to the read data.
      */
     template<typename T>
-    class InputPortSource : public DataSource<T>
+    class InputPortSource : public AssignableDataSource<T>
     {
         InputPort<T>* port;
         mutable T mvalue;
@@ -68,22 +73,14 @@ namespace RTT
         typedef typename boost::intrusive_ptr<InputPortSource<T> > shared_ptr;
 
         InputPortSource(InputPort<T>& port)
-            : port(&port), mvalue() { }
-
-        /**
-         * Called by owner port to notify that it is being
-         * destructed. Since this InputPortSource is refcounted,
-         * we need a way to tell it that the port no longer
-         * exists.
-         */
-        void dropPort() {
-             port = 0;
+            : port(&port), mvalue() { 
+            port.getDataSample( mvalue );
         }
 
         void reset() { port->clear(); }
         bool evaluate() const
         {
-            return port->read(mvalue) == NewData;
+            return port->read(mvalue, false) == NewData;
         }
 
         typename DataSource<T>::result_t value() const
@@ -97,9 +94,17 @@ namespace RTT
             else
                 return T();
         }
-        DataSource<T>* clone() const
+        virtual void set( typename AssignableDataSource<T>::param_t t ) {
+            mvalue = t;
+        }
+
+        virtual typename AssignableDataSource<T>::reference_t set() {
+            return mvalue;
+        }
+
+        AssignableDataSource<T>* clone() const
         { return new InputPortSource<T>(*port); }
-        DataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
+        AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
         { return const_cast<InputPortSource<T>*>(this); }
     };
 }}

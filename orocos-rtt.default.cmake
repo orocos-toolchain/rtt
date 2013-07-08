@@ -69,7 +69,7 @@ else()
       set(OROCOS_TARGET gnulinux CACHE STRING "${DOC_STRING}")
     endif()
   endif()
-  message( "No OROCOS_TARGET environment variable detected. Using: ${OROCOS_TARGET}")
+  message( "No OROCOS_TARGET environment variable set. Using: ${OROCOS_TARGET}")
 endif()
 
 # Useful for Windows/MSVC builds, sets all libraries and executables in one place.

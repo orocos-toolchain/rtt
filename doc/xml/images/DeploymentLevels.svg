@@ -13,7 +13,7 @@
    height="210mm"
    id="svg3778"
    sodipodi:version="0.32"
-   inkscape:version="0.47pre4 r22446"
+   inkscape:version="0.48.2 r9819"
    sodipodi:docname="DeploymentLevels.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/vdw-distributie/CoreVsContext.png"
    inkscape:export-xdpi="200"
@@ -116,17 +116,22 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.70529234"
      inkscape:cx="546.53442"
-     inkscape:cy="317.52938"
+     inkscape:cy="414.65223"
      inkscape:current-layer="layer1"
      id="namedview3782"
-     inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-4"
-     inkscape:window-y="-3"
+     inkscape:window-width="1024"
+     inkscape:window-height="576"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="false"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="0,1"
+       position="224.02058,714.5973"
+       id="guide3146" />
+  </sodipodi:namedview>
   <metadata
      id="metadata3784">
     <rdf:RDF>
@@ -379,7 +384,9 @@
            y="619.89178"
            x="70.517464"
            id="tspan3320"
-           sodipodi:role="line">TaskCores are non-distributable,</tspan><tspan
+           sodipodi:role="line"><tspan
+   style="font-weight:bold"
+   id="tspan3114">TaskCores</tspan> are non-distributable,</tspan><tspan
            id="tspan3322"
            y="642.39178"
            x="70.517464"
@@ -391,7 +398,9 @@
            id="tspan3326"
            y="687.39178"
            x="70.517464"
-           sodipodi:role="line">A TaskContext is a distributable</tspan><tspan
+           sodipodi:role="line">A <tspan
+   style="font-weight:bold"
+   id="tspan3116">TaskContext</tspan> is a distributable</tspan><tspan
            id="tspan3328"
            y="709.89178"
            x="70.517464"
@@ -415,7 +424,9 @@
          sodipodi:role="line"
          id="tspan3370"
          x="382.05597"
-         y="30.512833">addLocalOperation(op)</tspan></text>
+         y="30.512833"><tspan
+   style="font-weight:bold"
+   id="tspan3118">addLocalOperation</tspan>(op)</tspan></text>
     <g
        id="g3372"
        transform="translate(410.4973,-387.2776)">
@@ -606,7 +617,9 @@
          sodipodi:role="line"
          id="tspan4370"
          x="697.54706"
-         y="30.512833">addOperation(op)</tspan></text>
+         y="30.512833"><tspan
+   style="font-weight:bold"
+   id="tspan3120">addOperation</tspan>(op)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
@@ -681,12 +694,12 @@
          id="text4446"
          y="324.75867"
          x="873.76703"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
          xml:space="preserve"><tspan
            y="324.75867"
            x="873.76703"
            id="tspan4448"
-           sodipodi:role="line">Orocos Remoting Library:</tspan><tspan
+           sodipodi:role="line">Orocos Transport:</tspan><tspan
            id="tspan4450"
            y="354.75867"
            x="873.76703"
@@ -750,7 +763,7 @@
          y="588.64056" />
       <text
          xml:space="preserve"
-         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
          x="716.63159"
          y="619.09863"
          id="text4472"
@@ -758,27 +771,45 @@
            sodipodi:role="line"
            x="716.63159"
            y="619.09863"
-           id="tspan4486">- Automatic proxy generation</tspan><tspan
+           id="tspan4486">- User writes Orocos <tspan
+   style="font-weight:bold"
+   id="tspan3154">Transport</tspan></tspan><tspan
+           sodipodi:role="line"
+           x="716.63159"
+           y="641.59863"
+           id="tspan3152">- Automatic proxy generation</tspan><tspan
            id="tspan4515"
            sodipodi:role="line"
            x="716.63159"
-           y="641.59863">- Remote interface browsing</tspan><tspan
+           y="664.09863">- Remote interface browsing</tspan><tspan
            id="tspan4517"
            sodipodi:role="line"
            x="716.63159"
-           y="664.09863">- Scripting support</tspan><tspan
+           y="686.59863">- Scripting support</tspan><tspan
            id="tspan4519"
            sodipodi:role="line"
            x="716.63159"
-           y="686.59863">- User defined types</tspan><tspan
+           y="709.09863">- User defined types</tspan><tspan
            id="tspan4521"
            sodipodi:role="line"
            x="716.63159"
-           y="709.09863">- One library for all components</tspan><tspan
+           y="731.59863">- One library for all components</tspan><tspan
            sodipodi:role="line"
            x="716.63159"
-           y="731.59863"
+           y="754.09863"
            id="tspan5498">   and all data types</tspan></text>
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Charter"
+       x="35.523964"
+       y="30.065777"
+       id="text3368-5"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="35.523964"
+         y="30.065777"
+         style="font-weight:bold"
+         id="tspan3148">Operation&lt;R(Arg)&gt; op</tspan></text>
   </g>
 </svg>

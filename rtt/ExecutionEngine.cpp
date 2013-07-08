@@ -43,6 +43,7 @@
 #include "rtt-fwd.hpp"
 #include "os/MutexLock.hpp"
 #include "internal/MWSRQueue.hpp"
+#include "TaskContext.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -406,6 +407,15 @@ namespace RTT
     }
 
     void ExecutionEngine::setExceptionTask() {
+        std::string name;
+        TaskContext* tc = dynamic_cast<TaskContext*>(taskc);
+        if (tc)
+            name = tc->getName();
+        else if (taskc)
+            name = "TaskCore";
+        else
+            name = "GlobalEngine";
+        log(Error) << "in "<<name<<": unhandled exception in sent operation." << endlog();
         if(taskc)
             taskc->exception();
     }

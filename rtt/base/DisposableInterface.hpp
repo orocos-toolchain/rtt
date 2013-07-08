@@ -40,6 +40,7 @@
 #define ORO_DISPOSABLEINTERFACE_HPP
 
 #include <boost/shared_ptr.hpp>
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -49,7 +50,7 @@ namespace RTT
          * @brief An object that is executable and
          * is freed after execution.
          */
-        class DisposableInterface
+        class RTT_API DisposableInterface
         {
         public:
             /**

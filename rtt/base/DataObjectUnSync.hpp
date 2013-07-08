@@ -82,6 +82,12 @@ namespace RTT
         virtual void data_sample( const DataType& sample ) {
             Set(sample);
         }
+
+        virtual T data_sample() const
+        {
+            return data;
+        }
+
     };
 }}
 

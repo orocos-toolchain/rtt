@@ -131,6 +131,11 @@ namespace RTT
          * @nrt
          */
         virtual void data_sample( const T& sample ) = 0;
+
+        /**
+         * Reads back a data sample.
+         */
+        virtual T data_sample() const = 0;
     };
 }}
 

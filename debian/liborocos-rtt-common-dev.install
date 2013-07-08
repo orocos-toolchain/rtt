@@ -51,6 +51,7 @@ usr/include/rtt/transports/mqueue/MQSendRecv.hpp
 usr/include/rtt/transports/mqueue/MQLib.hpp
 usr/include/rtt/transports/mqueue/binary_data_archive.hpp
 usr/include/rtt/transports/mqueue/Dispatcher.hpp
+usr/include/rtt/deployment/ComponentLoader.hpp
 usr/include/rtt/marsh
 usr/include/rtt/types
 usr/include/rtt/typekit
@@ -58,6 +59,7 @@ usr/include/rtt/extras
 usr/include/rtt/plugin
 usr/include/rtt/scripting
 usr/include/rtt/internal
+usr/include/rtt/deployment
 usr/include/rtt/Activity.hpp
 usr/include/rtt/ArgumentDescription.hpp
 usr/include/rtt/Attribute.hpp
