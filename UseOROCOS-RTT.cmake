@@ -20,7 +20,7 @@ if(OROCOS-RTT_FOUND)
   add_definitions(${OROCOS-RTT_DEFINITIONS})
   set(ROS_ROOT $ENV{ROS_ROOT})
 
-  if (ROS_ROOT AND NOT NO_ROS_PACKAGE )
+  if (ROS_ROOT AND NOT NO_ROS_PACKAGE AND NOT NO_ROS_BUILD)
     # If pre-groovy, we're using rosbuild
     # Otherwise, we skip this whole rosbuild mess.
     find_package(ROS QUIET)
@@ -44,7 +44,14 @@ if(OROCOS-RTT_FOUND)
 	unset( LIBRARY_OUTPUT_PATH )
       endif()
     else()
-      message("ROS_ROOT was detected, and catkin_FOUND was set, assuming catkin-style building.")
+      set (ROS_DISTRO $ENV{ROS_DISTRO})
+      if ( ROS_DISTRO STREQUAL groovy )
+	message("ROS_ROOT was detected, and Groovy was detected, assuming rosbuild-style (dry) building (no make install required). Set NO_ROS_BUILD to TRUE to use plain cmake or catkin 'wet' style building.")
+	  set(IS_ROS_PACKAGE TRUE)
+      else()
+	#Hydro and later...
+	message("ROS_ROOT was detected, and catkin_FOUND was set, assuming catkin-style building (you'll need to make install).")
+      endif()
     endif()
   endif()
 
