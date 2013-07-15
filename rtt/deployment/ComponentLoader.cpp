@@ -395,66 +395,53 @@ bool ComponentLoader::importRosPackage(std::string const& package)
 {
     // check for rospack
 #ifdef HAS_ROSLIB
+    // Get the dependencies for a given ROS package --> deps
     using namespace rospack;
     try {
+        log(Debug) << "Loading orocos components from ROS package '"<<package<<"'" << endlog();
         bool found = false;
         Rospack rpack;
         rpack.setQuiet(true);
         char* rpp = getenv("ROS_PACKAGE_PATH");
         vector<string> paths;
-        if (rpp)
+        if (rpp) {
             paths = splitPaths(rpp);
-        string ppath;
+        }
+        // Get the package path
         rpack.crawl(paths,false);
-        rpack.find(package, ppath);
+
+        //string ppath;
+        //rpack.find(package, ppath);
         if ( !ppath.empty() ) {
-            path rospath = path(ppath) / "lib" / "orocos";
-            path rospath_target = rospath / OROCOS_TARGET_NAME;
+            //path rospath = path(ppath) / "lib" / "orocos";
+            //path rospath_target = rospath / OROCOS_TARGET_NAME;
             // + add all dependencies to paths:
-            vector<string> rospackresult;
+            vector<string> ros_pkg_deps;
             rpack.setQuiet(false);
-            bool valid = rpack.deps(package, false, rospackresult); // false: also indirect deps.
+
+            bool valid = rpack.deps(package, false, ros_pkg_deps); // false: also indirect deps.
+
             if (!valid) {
                 log(Error) <<"The ROS package '"<< package <<"' in '"<< ppath << "' caused trouble. Bailing out."<<endlog();
                 return false;
             }
                 
-            for(vector<string>::iterator it = rospackresult.begin(); it != rospackresult.end(); ++it) {
+            for(vector<string>::iterator it = ros_pkg_deps.begin(); it != ros_pkg_deps.end(); ++it) {
                 if ( isImported(*it) ) {
                     log(Debug) <<"Package dependency '"<< *it <<"' already imported." <<endlog();
                     continue;
                 }
-                if ( rpack.find( *it, ppath ) == false )
-                    throw *it;
-                path deppath = path(ppath) / "lib" / "orocos";
-                path deppath_target = path(deppath) / OROCOS_TARGET_NAME;
-                // if orocos directory exists and we could import it, mark it as loaded.
-                if ( is_directory( deppath_target ) ) {
-                    log(Debug) << "Ignoring files under " << deppath.string() << " since " << deppath_target.string() << " was found."<<endlog();
-                    found = true;
-                    if ( import( deppath_target.string() ) ) {
-                        loadedPackages.push_back( *it );
-                    }
-                }
-                else if ( is_directory( deppath ) ) {
-                    found = true;
-                    if ( import( deppath.string() ) ) {
-                        loadedPackages.push_back( *it );
-                    }
+
+                log(Debug) << "Ignoring files under " << deppath.string() << " since " << deppath_target.string() << " was found."<<endlog();
+                found = true;
+
+                if ( import( *it ) ) {
+                  loadedPackages.push_back( *it );
                 }
             }
             // now that all deps are done, import the package itself:
-            if ( is_directory( rospath_target ) ) {
-                log(Debug) << "Ignoring files under " << rospath.string() << " since " << rospath_target.string() << " was found."<<endlog();
-                found = true;
-                if ( import( rospath_target.string() ) ) {
-                    loadedPackages.push_back( package );
-                }
-            } else if ( is_directory( rospath ) ) {
-                found = true;
-                if ( import( rospath.string() ) ) {
-                    loadedPackages.push_back( package );
-                }
+            if ( import( package ) ) {
+                loadedPackages.push_back( package );
             }
             // since it was a ROS package, we exit here.
             if (!found) {

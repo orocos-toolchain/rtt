@@ -319,7 +319,7 @@ macro( orocos_typegen_headers )
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
       )
     # work around generated manifest.xml file:
-    execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
+    #execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
     add_subdirectory( ${CMAKE_SOURCE_DIR}/typekit ${CMAKE_BINARY_DIR}/typekit)
 
     list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
