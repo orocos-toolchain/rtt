@@ -310,7 +310,7 @@ namespace RTT
                     storeProperty(*parent->properties(), prefix, new Property<PropertyBag>( pname, props[i].description.in()) );
                     log(Debug) << "Looked up PropertyBag " << tn.in() << " "<< pname <<": created."<<endlog();
                 } else
-                    log(Error) << "Looked up Property " << tn.in() << " "<< pname <<": type not known. Check your RTT_COMPONENT_PATH."<<endlog();
+                    log(Error) << "Looked up Property " << tn.in() << " "<< pname <<": type not known. Check your RTT_COMPONENT_PATH ( \""<<getenv("RTT_COMPONENT_PATH")<<" \")."<<endlog();
             }
         }
 
@@ -338,7 +338,7 @@ namespace RTT
                     parent->setValue( ti->buildConstant( attrs[i].in(), ds));
             } else {
                 log(Error) << "Looking up Attribute " << tn.in();
-                Logger::log() <<": type not known. Check your RTT_COMPONENT_PATH."<<endlog();
+                Logger::log() <<": type not known. Check your RTT_COMPONENT_PATH ( \""<<getenv("RTT_COMPONENT_PATH")<<" \")."<<endlog();
             }
         }
 
