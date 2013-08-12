@@ -118,6 +118,7 @@ namespace RTT
         static PortableServer::POA_var proxy_poa;
 
         void fetchRequesters(ServiceRequester* parent, CServiceRequester_ptr csrq);
+        void fetchPorts(Service::shared_ptr parent, CDataFlowInterface_ptr serv);
         void fetchServices(Service::shared_ptr parent, CService_ptr mtask);
     public:
         ~TaskContextProxy();
