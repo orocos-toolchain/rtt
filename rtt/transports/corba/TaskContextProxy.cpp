@@ -182,39 +182,6 @@ namespace RTT
         this->synchronize();
     }
 
-    void TaskContextProxy::fetchPorts(RTT::Service::shared_ptr parent, CDataFlowInterface_ptr dfact)
-    {
-        log(Debug) << "Fetching Ports for service "<<parent->getName()<<"."<<endlog();
-        TypeInfoRepository::shared_ptr type_repo = TypeInfoRepository::Instance();
-        if (dfact) {
-            CDataFlowInterface::CPortDescriptions_var objs = dfact->getPortDescriptions();
-            for ( size_t i=0; i < objs->length(); ++i) {
-                CPortDescription port = objs[i];
-                if (parent->getPort( port.name.in() ))
-                    continue; // already added.
-
-                TypeInfo const* type_info = type_repo->type(port.type_name.in());
-                if (!type_info)
-                {
-                    log(Warning) << "remote port " << port.name
-                        << " has a type that cannot be marshalled over CORBA: " << port.type_name << ". "
-                        << "It is ignored by TaskContextProxy" << endlog();
-                }
-                else
-                {
-                    PortInterface* new_port;
-                    if (port.type == RTT::corba::CInput)
-                        new_port = new RemoteInputPort( type_info, dfact, port.name.in(), ProxyPOA() );
-                    else
-                        new_port = new RemoteOutputPort( type_info, dfact, port.name.in(), ProxyPOA() );
-
-                    parent->addPort(*new_port);
-                    port_proxies.push_back(new_port); // see comment in definition of port_proxies
-                }
-            }
-        }
-    }
-
     void TaskContextProxy::synchronize()
     {
         // Add here the interfaces that need to be synchronised every time a lookup is done.
@@ -222,8 +189,6 @@ namespace RTT
         if (CORBA::is_nil(mtask))
             return;
         
-        //this->fetchPorts(mtask->provides());
-
         CService_var serv = mtask->getProvider("this");
         this->fetchServices(this->provides(), serv.in() );
 
@@ -363,6 +328,40 @@ namespace RTT
 
             // Recurse:
             this->fetchServices( tobj, cobj.in() );
+        }
+    }
+
+    // Fetch remote ports and create local proxies
+    void TaskContextProxy::fetchPorts(RTT::Service::shared_ptr parent, CDataFlowInterface_ptr dfact)
+    {
+        log(Debug) << "Fetching Ports for service "<<parent->getName()<<"."<<endlog();
+        TypeInfoRepository::shared_ptr type_repo = TypeInfoRepository::Instance();
+        if (dfact) {
+            CDataFlowInterface::CPortDescriptions_var objs = dfact->getPortDescriptions();
+            for ( size_t i=0; i < objs->length(); ++i) {
+                CPortDescription port = objs[i];
+                if (parent->getPort( port.name.in() ))
+                    continue; // already added.
+
+                TypeInfo const* type_info = type_repo->type(port.type_name.in());
+                if (!type_info)
+                {
+                    log(Warning) << "remote port " << port.name
+                        << " has a type that cannot be marshalled over CORBA: " << port.type_name << ". "
+                        << "It is ignored by TaskContextProxy" << endlog();
+                }
+                else
+                {
+                    PortInterface* new_port;
+                    if (port.type == RTT::corba::CInput)
+                        new_port = new RemoteInputPort( type_info, dfact, port.name.in(), ProxyPOA() );
+                    else
+                        new_port = new RemoteOutputPort( type_info, dfact, port.name.in(), ProxyPOA() );
+
+                    parent->addPort(*new_port);
+                    port_proxies.push_back(new_port); // see comment in definition of port_proxies
+                }
+            }
         }
     }
 
