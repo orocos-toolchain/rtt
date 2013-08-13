@@ -309,6 +309,30 @@ namespace RTT
                 return this->collectIfDone_impl(a1,a2,a3);
             }
 
+	    template<class T1, class T2, class T3, class T4>
+            SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4) {
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                return this->collectIfDone_impl(a1,a2,a3,a4);
+            }
+
+	    template<class T1, class T2, class T3, class T4, class T5>
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5) {
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                return this->collectIfDone_impl(a1,a2,a3,a4, a5);
+            }
+
+	    template<class T1, class T2, class T3, class T4, class T5, class T6>
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6) {
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6);
+            }
+
+	    template<class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+	    SendStatus collect_impl( T1& a1, T2& a2, T3& a3, T4& a4, T5& a5, T6& a6, T7& a7) {
+                this->caller->waitForMessages( boost::bind(&Store::RStoreType::isExecuted,boost::ref(this->retv)) );
+                return this->collectIfDone_impl(a1,a2,a3,a4,a5,a6,a7);
+            }
+
             /**
              * Invoke this operator if the method has no arguments.
              */
