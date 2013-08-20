@@ -175,3 +175,6 @@ INSTALL(EXPORT ${LIBRARY_EXPORT_FILE} DESTINATION "${CONFIG_FILE_PATH}"
 
 # Package use file + helper files
 INSTALL(FILES UseOROCOS-RTT.cmake UseOROCOS-RTT-helpers.cmake config/cmake_uninstall.cmake.in DESTINATION "${CONFIG_FILE_PATH}")
+
+# Install package.xml
+INSTALL(FILES package.xml DESTINATION share/rtt)
