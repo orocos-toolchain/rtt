@@ -118,7 +118,7 @@ macro( orocos_use_package PACKAGE )
 
   # Now we are ready to get the flags from the .pc files:
   #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
-  pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${PACKAGE} ${PACKAGE}-${OROCOS_TARGET})
+  pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${PACKAGE}-${OROCOS_TARGET} ${PACKAGE})
   if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
     include_directories(${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
 
