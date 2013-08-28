@@ -92,7 +92,11 @@ if(OROCOS-RTT_FOUND)
 
   # Allow people to set the standard cmake library output directory (this is useful for uninstalled develeopment)
   if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    if(LIBRARY_OUTPUT_PATH)
+      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
+    else()
+      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
   endif()
 
   # Components should add themselves by calling 'OROCOS_COMPONENT' 
