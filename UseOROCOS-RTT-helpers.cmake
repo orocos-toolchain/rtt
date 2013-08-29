@@ -116,9 +116,30 @@ macro( orocos_use_package PACKAGE )
   if ( "${PACKAGE}" STREQUAL "rtt")
   else()
 
+  # try to use rosbuild to find PACKAGE
+  if(ROSBUILD_init_called)
+    rosbuild_find_ros_package(${PACKAGE})
+
+    if(DEFINED ${PACKAGE}_PACKAGE_PATH AND EXISTS "${${PACKAGE}_PACKAGE_PATH}/manifest.xml")
+      # call orocos_use_package recursively for dependees
+      rosbuild_invoke_rospack(${PACKAGE} ${PACKAGE} DEPENDS1 depends1)
+      if(${PACKAGE}_DEPENDS1)
+        string(REPLACE "\n" ";" ${PACKAGE}_DEPENDS1 ${${PACKAGE}_DEPENDS1})
+        foreach(dependee ${${PACKAGE}_DEPENDS1})
+          if(NOT DEFINED ${dependee}_COMP_${OROCOS_TARGET}_FOUND)
+            orocos_use_package(${dependee})
+          endif()
+        endforeach()
+      endif()
+
+      # add PACKAGE_PATH/lib/pkgconfig to the PKG_CONFIG_PATH
+      set(ENV{PKG_CONFIG_PATH} "${${PACKAGE}_PACKAGE_PATH}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+    endif()
+  endif()
+
   # Now we are ready to get the flags from the .pc files:
   #pkg_check_modules(${PACKAGE}_COMP ${PACKAGE}-${OROCOS_TARGET})
-  pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${PACKAGE} ${PACKAGE}-${OROCOS_TARGET})
+  pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${PACKAGE}-${OROCOS_TARGET} ${PACKAGE})
   if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
     include_directories(${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS})
 

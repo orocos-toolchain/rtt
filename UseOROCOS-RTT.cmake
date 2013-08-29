@@ -143,7 +143,12 @@ if(OROCOS-RTT_FOUND)
     # Clear the dependencies such that a target switch can be detected:
     unset( ${COMPONENT_NAME}_LIB_DEPENDS )
 
-    ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+    # Use rosbuild in ros environments:
+    if (ROSBUILD_init_called)
+      rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+    else()
+      ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
+    endif()
 
     # Prepare component lib for out-of-the-ordinary lib directories
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
@@ -208,7 +213,11 @@ if(OROCOS-RTT_FOUND)
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
     MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    if (ROSBUILD_init_called)
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
 
     if (COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${COMPONENT_VERSION})
@@ -263,7 +272,11 @@ if(OROCOS-RTT_FOUND)
     endif()
 
     MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
-    ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
+    if (ROSBUILD_init_called)
+      rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
+    else()
+      ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
+    endif()
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${EXE_NAME}
       INSTALL_RPATH_USE_LINK_PATH 1
@@ -373,7 +386,11 @@ if(OROCOS-RTT_FOUND)
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
     MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    if (ROSBUILD_init_called)
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types
@@ -435,8 +452,13 @@ if(OROCOS-RTT_FOUND)
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-    MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
-    ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    if (ROSBUILD_init_called)
+      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
+      rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+    else()
+      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
+      ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
+    endif()
 
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${LIB_NAME}
@@ -607,6 +629,25 @@ Cflags: -I\${includedir}
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
+
+    # Generate another pkg-config file for rosbuild-style packages
+    if(ROSBUILD_init_called)
+      set(PC_CONTENTS "prefix=@PROJECT_SOURCE_DIR@
+libdir=\${prefix}/lib
+includedir=\${prefix}/include/orocos
+orocos_libdir=${PC_LIB_DIR}
+
+Name: ${PC_NAME}
+Description: ${PC_NAME} package for Orocos
+Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
+Version: ${ORO_CREATE_PC_VERSION}
+${PC_LIBS}
+Cflags: -I\${includedir}
+")
+
+      string(CONFIGURE "${PC_CONTENTS}" ROSBUILD_PC_CONTENTS @ONLY)
+      file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
+    endif()
 
     # Also set the uninstall target:
     orocos_uninstall_target()
