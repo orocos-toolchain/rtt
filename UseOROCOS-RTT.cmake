@@ -36,7 +36,7 @@ if(OROCOS-RTT_FOUND)
   #
   if(COMMAND rosbuild_init AND ROSBUILD_init_called)
     message("[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
-    set(ORO_USE_ROSBUILD CACHE BOOL true)
+    set(ORO_USE_ROSBUILD True CACHE BOOL "Build packages with rosbuild in-source support.")
     # TODO: Uncomment the following if we want to force people to call rosbuild_init
     # if the function is available
     #if ( NOT ROSBUILD_init_called )
@@ -46,8 +46,8 @@ if(OROCOS-RTT_FOUND)
     #  rosbuild_init()
     #endif()
   elseif(catkin_FOUND)
-    message("[UseOrocos] Building package ${PROJECT_NAME} with catkin devel space support.")
-    set(ORO_USE_CATKIN CACHE BOOL true)
+    message("[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
+    set(ORO_USE_CATKIN True CACHE BOOL "Build packages with Catkin develspace support.")
   endif()
 
   # This is for not allowing undefined symbols when using gcc
@@ -121,13 +121,14 @@ if(OROCOS-RTT_FOUND)
       set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
     endif()	
 
-    # We only need the direct dependencies, the rest is resolved
-    # by the .pc files.
+    # We only need the direct dependencies, the rest is resolved by the .pc
+    # files.
     rosbuild_invoke_rospack(${ORO_ROSBUILD_PACKAGE_NAME} pkg DEPS depends1)
     string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
     foreach(ROSDEP ${pkg_DEPS2})
       orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
+  elseif(ORO_USE_CATKIN)
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
     orocos_get_manifest_deps( DEPS )
@@ -696,6 +697,7 @@ Cflags: -I\${includedir}
     # Generate .pc files for other build toolchains
     if (ORO_USE_ROSBUILD)
       message("[orocos_generate_package] Generating pkg-config file for rosbuild package.")
+
       # For ros package trees, we install the .pc file also next to the manifest file:
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
       set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
@@ -723,12 +725,15 @@ Cflags: -I\${includedir} -I\${prefix}/..
 ")
       string(CONFIGURE "${PC_CONTENTS}" ROSBUILD_PC_CONTENTS @ONLY)
       file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
+
     elseif (ORO_USE_CATKIN)
+
       # For catkin workspaces we also install a pkg-config file in the develspace
       message("[orocos_generate_package] Generating pkg-config file for package in Catkin devel space.")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
       file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
+
     endif()
 
     # Also set the uninstall target:
