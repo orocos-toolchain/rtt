@@ -133,7 +133,7 @@ if(OROCOS-RTT_FOUND)
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
-      orocos_use_package( ${DEP} ) 
+      orocos_find_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
