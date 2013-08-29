@@ -97,9 +97,8 @@ if(OROCOS-RTT_FOUND)
     endif(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
   endif(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
 
-  # Infer package name from directory name.                                                                                                                                                                                                  
-  get_filename_component(orocos_package ${CMAKE_SOURCE_DIR} NAME)
-  message("[UseOrocos] Building package ${orocos_package}")
+  message("[UseOrocos] Using Orocos RTT in ${PROJECT_NAME}")
+
   # Set to true to indicate that these macros are available.
   set(USE_OROCOS_RTT 1)
 
@@ -110,6 +109,9 @@ if(OROCOS-RTT_FOUND)
   endif()
 
   if (ORO_USE_ROSBUILD)
+    # Infer package name from directory name.                                                                                                                                                                                                  
+    get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${CMAKE_SOURCE_DIR} NAME)
+
     # Modify default rosbuild output paths if using Eclipse
     if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
       message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
@@ -121,7 +123,7 @@ if(OROCOS-RTT_FOUND)
 
     # We only need the direct dependencies, the rest is resolved
     # by the .pc files.
-    rosbuild_invoke_rospack(${orocos_package} pkg DEPS depends1)
+    rosbuild_invoke_rospack(${ORO_ROSBUILD_PACKAGE_NAME} pkg DEPS depends1)
     string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
     foreach(ROSDEP ${pkg_DEPS2})
       orocos_use_package( ${ROSDEP} ) 
