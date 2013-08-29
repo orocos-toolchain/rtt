@@ -119,11 +119,6 @@ if(OROCOS-RTT_FOUND)
       set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
     endif()	
 
-    # In ros builds, we need to set the pkg-config path such that RTT is found by
-    # the typekit/typegen/pc files logic:
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
-    #message("Setting PKG_CONFIG_PATH to $ENV{PKG_CONFIG_PATH}")
-
     # We only need the direct dependencies, the rest is resolved
     # by the .pc files.
     rosbuild_invoke_rospack(${orocos_package} pkg DEPS depends1)
@@ -138,11 +133,6 @@ if(OROCOS-RTT_FOUND)
     foreach(DEP ${DEPS})
       orocos_use_package( ${DEP} ) 
     endforeach(DEP ${DEPS}) 
-  endif()
-
-  # Necessary to find rtt when we scan the manifest.xml file.
-  if (ORO_USE_ROSBUILD)
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
   endif()
 
   # Necessary for correctly building mixed libraries on win32.
