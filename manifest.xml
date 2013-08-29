@@ -1,0 +1,19 @@
+<package>
+    <description brief="Orocos/RTT component framework">
+    </description>
+    <license>GPL v2 with linking exception</license>
+		<author>RTT Developers</author>
+
+		<url>http://www.orocos.org/rtt</url>
+		<logo>http://www.orocos.org/files/logo-t.png</logo>
+  
+		<rosdep name="boost" />
+		<rosdep name="omniorb" />
+  
+		<export>
+			<!-- The default target is gnulinux when using rospack. This is definately a crippled solution -->
+			<rosbuild cmake_directory="${prefix}/install/lib/cmake/orocos-rtt"/>
+		</export>
+    <tags>stable</tags>
+</package>
+
