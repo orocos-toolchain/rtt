@@ -51,43 +51,41 @@ MACRO(ORO_PARSE_ARGUMENTS prefix arg_names option_names)
 ENDMACRO(ORO_PARSE_ARGUMENTS)
 
 #
-# Parses a package.xml file and stores the dependencies in RESULT.
+# Parses an Autoproj or rosbuild manifest.xml file and stores the dependencies in RESULT.
 # Relies on xpath. If no manifest is found, returns an empty RESULT.
 #
 # Usage: orocos_get_manifest_deps DEPS)
 #
 function( orocos_get_manifest_deps RESULT)
-
-  set(_PACKAGE_XML_PATH "${CMAKE_CURRENT_SOURCE_DIR}/package.xml")
-
-  if ( NOT EXISTS ${_PACKAGE_XML_PATH} )
-     message("Note: this package has no package.xml file. No dependencies can be auto-configured.")
+  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
+     message("[orocos_get_manifest_deps] Note: this package has no manifest.xml file. No dependencies can be auto-configured.")
      return()
-  endif ( NOT EXISTS ${_PACKAGE_XML_PATH} )
+  endif ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml )
 
   find_program(XPATH_EXE xpath )
   if (NOT XPATH_EXE)
-    message("Warning: xpath not found. Can't read dependencies in manifest.xml file.")
+    message("[orocos_get_manifest_deps] Warning: xpath not found. Can't read dependencies in manifest.xml file.")
   else(NOT XPATH_EXE)
     IF (APPLE)
-      execute_process(COMMAND ${XPATH_EXE} ${_PACKAGE_XML_PATH} "package/build_depend/text()" RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
-      #SET(REGEX_STR " package=\"([^\"]+)\"")
+      execute_process(COMMAND ${XPATH_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml "package/depend/@package" RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
+      SET(REGEX_STR " package=\"([^\"]+)\"")
     ELSE (APPLE)
-      execute_process(COMMAND ${XPATH_EXE} -q -e "package/build_depend/text()" ${_PACKAGE_XML_PATH} RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
-      #SET(REGEX_STR " package=\"([^\"]+)\"\n")
+      execute_process(COMMAND ${XPATH_EXE} -q -e "package/depend/@package" ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml RESULT_VARIABLE RES OUTPUT_VARIABLE DEPS)
+      SET(REGEX_STR " package=\"([^\"]+)\"\n")
     ENDIF (APPLE)
     if (NOT RES EQUAL 0)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
 
-    #string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
+    string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
 
-    message("Deps from ${_PACKAGE_XML_PATH} are: '${DEPS}'")
+    #message("Deps are: '${DEPS}'")
     set(${RESULT} ${RR_RESULT} PARENT_SCOPE)
     #message("Dependencies are: '${${RESULT}}'")
   endif (NOT XPATH_EXE)
 
 endfunction( orocos_get_manifest_deps RESULT)
+
 
 #
 # Find a package, pick up its include dirs and link with its libraries.
@@ -116,8 +114,11 @@ macro( orocos_use_package PACKAGE )
   if ( "${PACKAGE}" STREQUAL "rtt")
   else()
 
-  # try to use rosbuild to find PACKAGE
-  if(ROSBUILD_init_called)
+  # Try to use rosbuild to find PACKAGE
+  if(ORO_USE_ROSBUILD)
+    # use rospack to find package directories of *all* dependencies.
+    # We need these because a .pc file may depend on another .pc file in another package.
+    # This package + the packages this package depends on:
     rosbuild_find_ros_package(${PACKAGE})
 
     if(DEFINED ${PACKAGE}_PACKAGE_PATH AND EXISTS "${${PACKAGE}_PACKAGE_PATH}/manifest.xml")
@@ -126,6 +127,7 @@ macro( orocos_use_package PACKAGE )
       if(${PACKAGE}_DEPENDS1)
         string(REPLACE "\n" ";" ${PACKAGE}_DEPENDS1 ${${PACKAGE}_DEPENDS1})
         foreach(dependee ${${PACKAGE}_DEPENDS1})
+          # Avoid using a package that has already been found
           if(NOT DEFINED ${dependee}_COMP_${OROCOS_TARGET}_FOUND)
             orocos_use_package(${dependee})
           endif()

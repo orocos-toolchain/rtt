@@ -10,6 +10,8 @@
 #
 ########################################################################################################################
 
+cmake_minimum_required(VERSION 2.8.3)
+
 if(OROCOS-RTT_FOUND)
   include(FindPkgConfig)
   include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT-helpers.cmake)
@@ -18,6 +20,35 @@ if(OROCOS-RTT_FOUND)
 
   # Preprocessor definitions
   add_definitions(${OROCOS-RTT_DEFINITIONS})
+
+  # Check for client meta-buildsystem tools
+  # 
+  # Tool support for:
+  #   - Catkin
+  #   - rosbuild
+  #
+  # If the client is using rosbuild, and has called rosbuild_init(), then we
+  # will assume that he or she wants to build targets with rosbuild libraries.
+  # 
+  # If the client has not called rosbuild_init() then we check if they have
+  # called `find_package(catkin ...)` if they have, and catkin has been found,
+  # then we can assume this is a catkin build.
+  #
+  if(COMMAND rosbuild_init AND ROSBUILD_init_called)
+    message("[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
+    set(ORO_USE_ROSBUILD CACHE BOOL true)
+    # TODO: Uncomment the following if we want to force people to call rosbuild_init
+    # if the function is available
+    #if ( NOT ROSBUILD_init_called )
+    #  if (NOT DEFINED ROSBUILD_init_called )
+    #    include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake) # Prevent double inclusion ! This file is not robust against that !
+    #  endif()
+    #  rosbuild_init()
+    #endif()
+  elseif(catkin_FOUND)
+    message("[UseOrocos] Building package ${PROJECT_NAME} with catkin devel space support.")
+    set(ORO_USE_CATKIN CACHE BOOL true)
+  endif()
 
   # This is for not allowing undefined symbols when using gcc
   if (CMAKE_COMPILER_IS_GNUCXX AND NOT APPLE)
@@ -78,19 +109,48 @@ if(OROCOS-RTT_FOUND)
     set (OROCOS_SUFFIX "/${OROCOS_TARGET}")
   endif()
 
-  # Fall back to 'manually' processing the manifest.xml file.
-  orocos_get_manifest_deps( DEPS )
-  #message("orocos_get_manifest_deps are: ${DEPS}")
-  foreach(DEP ${DEPS})
-    orocos_use_package( ${DEP} ) 
-  endforeach(DEP ${DEPS}) 
+  if (ORO_USE_ROSBUILD)
+    # Modify default rosbuild output paths if using Eclipse
+    if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
+      message("Eclipse Generator detected. I'm setting EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH")
+      #set the default path for built executables to the "bin" directory
+      set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+      #set the default path for built libraries to the "lib" directory
+      set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+    endif()	
+
+    # In ros builds, we need to set the pkg-config path such that RTT is found by
+    # the typekit/typegen/pc files logic:
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
+    #message("Setting PKG_CONFIG_PATH to $ENV{PKG_CONFIG_PATH}")
+
+    # We only need the direct dependencies, the rest is resolved
+    # by the .pc files.
+    rosbuild_invoke_rospack(${orocos_package} pkg DEPS depends1)
+    string(REGEX REPLACE "\n" ";" pkg_DEPS2 "${pkg_DEPS}" )
+    foreach(ROSDEP ${pkg_DEPS2})
+      orocos_use_package( ${ROSDEP} ) 
+    endforeach(ROSDEP ${pkg_DEPS2}) 
+  else()
+    # Fall back to manually processing the Autoproj manifest.xml file.
+    orocos_get_manifest_deps( DEPS )
+    #message("orocos_get_manifest_deps are: ${DEPS}")
+    foreach(DEP ${DEPS})
+      orocos_use_package( ${DEP} ) 
+    endforeach(DEP ${DEPS}) 
+  endif()
+
+  # Necessary to find rtt when we scan the manifest.xml file.
+  if (ORO_USE_ROSBUILD)
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${rtt_PACKAGE_PATH}/install/lib/pkgconfig")
+  endif()
 
   # Necessary for correctly building mixed libraries on win32.
   if(OROCOS_TARGET STREQUAL "win32")
     set(CMAKE_DEBUG_POSTFIX "d")
   endif(OROCOS_TARGET STREQUAL "win32")
 
-  # Allow people to set the standard cmake library output directory (this is useful for uninstalled develeopment)
+  # Allow clients to set the standard cmake library output directory (this is useful for uninstalled develeopment)
   if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     if(LIBRARY_OUTPUT_PATH)
       set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
@@ -138,15 +198,18 @@ if(OROCOS-RTT_FOUND)
     if (ADD_COMPONENT_VERSION)
       set( LIB_COMPONENT_VERSION VERSION ${ADD_COMPONENT_VERSION})
     endif(ADD_COMPONENT_VERSION)
-    MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
 
     # Clear the dependencies such that a target switch can be detected:
     unset( ${COMPONENT_NAME}_LIB_DEPENDS )
 
     # Use rosbuild in ros environments:
-    if (ROSBUILD_init_called)
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
       rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
+      SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX})
     else()
+      MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
       ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
     endif()
 
@@ -212,10 +275,11 @@ if(OROCOS-RTT_FOUND)
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-    MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
-    if (ROSBUILD_init_called)
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     else()
+      MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
 
@@ -271,12 +335,14 @@ if(OROCOS-RTT_FOUND)
       set( EXE_NAME ${EXE_TARGET_NAME})
     endif()
 
-    MESSAGE( "Building executable ${EXE_TARGET_NAME}" )
-    if (ROSBUILD_init_called)
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( "[UseOrocos] Building executable ${EXE_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
     else()
+      MESSAGE( "[UseOrocos] Building executable ${EXE_TARGET_NAME}" )
       ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
     endif()
+
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
       OUTPUT_NAME ${EXE_NAME}
       INSTALL_RPATH_USE_LINK_PATH 1
@@ -386,8 +452,10 @@ if(OROCOS-RTT_FOUND)
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
     MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
-    if (ROSBUILD_init_called)
+    if (ORO_USE_ROSBUILD)
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types)
     else()
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
@@ -452,9 +520,11 @@ if(OROCOS-RTT_FOUND)
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-    if (ROSBUILD_init_called)
-      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in ROS tree." )
+    if (ORO_USE_ROSBUILD)
+      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/plugins)
     else()
       MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
@@ -612,7 +682,8 @@ if(OROCOS-RTT_FOUND)
 
     set(PC_PREFIX ${CMAKE_INSTALL_PREFIX})
     set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
-    set(PC_CONTENTS "prefix=@PC_PREFIX@
+    set(PC_CONTENTS "# Orocos pkg-config file generated by orocos_generate_package() 
+prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
 includedir=\${prefix}/include/orocos
 orocos_libdir=${PC_LIB_DIR}
@@ -630,11 +701,25 @@ Cflags: -I\${includedir}
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-    # Generate another pkg-config file for rosbuild-style packages
-    if(ROSBUILD_init_called)
-      set(PC_CONTENTS "prefix=@PROJECT_SOURCE_DIR@
+    # Generate .pc files for other build toolchains
+    if (ORO_USE_ROSBUILD)
+      message("[orocos_generate_package] Generating pkg-config file for rosbuild package.")
+      # For ros package trees, we install the .pc file also next to the manifest file:
+      set(PC_PREFIX ${PROJECT_SOURCE_DIR})
+      set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
+      # TODO: For some reason, @PC_PREFIX@ is being filled in in PC_CONTENTS above,
+      # so we need to reset it. CMake bug ???
+      set(PC_CONTENTS "# Orocos pkg-config file generated by orocos_generate_package()
+# This pkg-config file is for use in a rosbuild source tree
+# Rationale:
+# - The prefix is equal to the package directory.
+# - The libdir is where the libraries were built, ie, package/lib
+# - The include dir in cflags allows top-level headers and in package/include/package/header.h
+# - If this doesn't fit your package layout, don't use orocos_generate_package() and write the .pc file yourself
+
+prefix=@PC_PREFIX@
 libdir=\${prefix}/lib
-includedir=\${prefix}/include/orocos
+includedir=\${prefix}/include
 orocos_libdir=${PC_LIB_DIR}
 
 Name: ${PC_NAME}
@@ -642,11 +727,16 @@ Description: ${PC_NAME} package for Orocos
 Requires: orocos-rtt-${OROCOS_TARGET} ${ORO_CREATE_PC_DEPENDS}
 Version: ${ORO_CREATE_PC_VERSION}
 ${PC_LIBS}
-Cflags: -I\${includedir}
+Cflags: -I\${includedir} -I\${prefix}/..
 ")
-
       string(CONFIGURE "${PC_CONTENTS}" ROSBUILD_PC_CONTENTS @ONLY)
-      file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
+      file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
+    elseif (ORO_USE_CATKIN)
+      # For catkin workspaces we also install a pkg-config file in the develspace
+      message("[orocos_generate_package] Generating pkg-config file for package in Catkin devel space.")
+      set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
+      string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
+      file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
     endif()
 
     # Also set the uninstall target:
