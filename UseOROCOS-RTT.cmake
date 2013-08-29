@@ -129,6 +129,12 @@ if(OROCOS-RTT_FOUND)
       orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
   elseif(ORO_USE_CATKIN)
+    # Get catkin build_depend dependencies
+    orocos_get_catkin_deps( DEPS )
+    #message("orocos_get_manifest_deps are: ${DEPS}")
+    foreach(DEP ${DEPS})
+      orocos_use_package( ${DEP} ) 
+    endforeach(DEP ${DEPS}) 
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
     orocos_get_manifest_deps( DEPS )
