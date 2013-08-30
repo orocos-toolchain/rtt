@@ -262,7 +262,7 @@ macro( orocos_use_package PACKAGE )
     orocos_find_package(${PACKAGE})
 
     # Include the aggregated include directories
-    include_directories(${PACKAGE}_INCLUDE_DIRS})
+    include_directories(${${PACKAGE}_INCLUDE_DIRS})
 
     # Only link in case there is something *and* the user didn't opt-out:
     if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
