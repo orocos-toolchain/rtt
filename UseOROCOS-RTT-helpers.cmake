@@ -116,10 +116,10 @@ function( orocos_get_catkin_deps RESULT)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
 
-    #string(REGEX REPLACE "${REGEX_STR}" "\\1;" RR_RESULT ${DEPS})
+    string(REPLACE "\n" ";" DEPS ${DEPS})
 
     message("[orocos_get_catkin_deps] Deps from ${_PACKAGE_XML_PATH} are: '${DEPS}'")
-    set(${RESULT} ${RR_RESULT} PARENT_SCOPE)
+    set(${RESULT} ${DEPS} PARENT_SCOPE)
     #message("Dependencies are: '${${RESULT}}'")
   endif (NOT XPATH_EXE)
 
