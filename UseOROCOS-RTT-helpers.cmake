@@ -210,6 +210,7 @@ macro( orocos_find_package PACKAGE )
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
       # Add some output variables to the cache to make them accessible from outside this scope
+      set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}" CACHE INTERNAL "")
       set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}" CACHE INTERNAL "")
       set(${PACKAGE}_LIBRARY_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}" CACHE INTERNAL "")
       set(${PACKAGE}_LIBRARIES "${${PACKAGE}_LIBRARIES}" CACHE INTERNAL "")
@@ -261,15 +262,17 @@ macro( orocos_use_package PACKAGE )
     # Get the package and dependency build flags
     orocos_find_package(${PACKAGE})
 
-    # Include the aggregated include directories
-    include_directories(${${PACKAGE}_INCLUDE_DIRS})
+    if(${PACKAGE}_FOUND)
+      # Include the aggregated include directories
+      include_directories(${${PACKAGE}_INCLUDE_DIRS})
 
-    # Only link in case there is something *and* the user didn't opt-out:
-    if (NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
-      link_libraries( ${${PACKAGE}_LIBRARIES} )
-      message("[orocos_use_package] Linking all targets with libraries from package '${PACKAGE}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
-      #message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
-    endif ()
+      # Only link in case there is something *and* the user didn't opt-out:
+      if(NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
+        link_libraries( ${${PACKAGE}_LIBRARIES} )
+        message("[orocos_use_package] Linking all targets with libraries from package '${PACKAGE}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
+        #message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
+      endif()
+    endif()
 
     # Set a flag so we don't over-link
     set(${PACKAGE}_${OROCOS_TARGET}_USED true)
