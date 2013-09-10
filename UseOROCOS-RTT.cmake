@@ -229,7 +229,7 @@ macro( orocos_component COMPONENT_NAME )
   if(APPLE)
     SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
       INSTALL_NAME_DIR "@rpath"
-      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX} -rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX},-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
   endif()
   orocos_add_compile_flags(${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
@@ -308,7 +308,7 @@ macro( orocos_library LIB_TARGET_NAME )
   if(APPLE)
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       INSTALL_NAME_DIR "@rpath"
-      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
   endif()
   orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
@@ -364,7 +364,7 @@ macro( orocos_executable EXE_TARGET_NAME )
   if(APPLE)
     SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
       INSTALL_NAME_DIR "@rpath"
-      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/bin -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/bin,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
   endif()
 
@@ -490,7 +490,7 @@ macro( orocos_typekit LIB_TARGET_NAME )
   if(APPLE)
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       INSTALL_NAME_DIR "@rpath"
-      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
   endif()
     
@@ -567,7 +567,7 @@ macro( orocos_plugin LIB_TARGET_NAME )
   if(APPLE)
     SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
       INSTALL_NAME_DIR "@rpath"
-      LINK_FLAGS "-Wl,-rpath ${CMAKE_INSTALL_PREFIX}/lib -rpath ${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins -rpath ${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+      LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
   endif()
   orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
