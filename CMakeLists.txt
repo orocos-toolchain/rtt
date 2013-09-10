@@ -22,8 +22,6 @@ LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
 LIST( GET RTT_VERSIONS 2 RTT_VERSION_PATCH)
 
-SET(ROS_ROOT $ENV{ROS_ROOT})
-
 MESSAGE( "Orocos RTT version ${VERSION} (${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}.${RTT_VERSION_PATCH})" )
 
 SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
@@ -52,41 +50,9 @@ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   ENDIF(MSVC)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-# We force it in case of ROS builds because the UseOrocos.cmake scripts will always look
-# in this path, also during an autoproj/bootstrap build.
-IF(ROS_ROOT)
-  SET(CMAKE_INSTALL_PREFIX
-    ${PROJECT_SOURCE_DIR}/../install CACHE PATH "Orocos install prefix for ROS builds" FORCE
-    )
-  # Necessary when building Debian packages:
-  set(ROS_STACK_DIR_FINAL $ENV{ROS_STACK_DIR_FINAL})
-  if (ROS_STACK_DIR_FINAL)
-    set(DEFAULT_PLUGIN_PATH "${ROS_STACK_DIR_FINAL}/orocos_toolchain/install/lib/orocos")
-  endif(ROS_STACK_DIR_FINAL)
-  # Necessary for backwards compatibility such that packages find RTT's cmake macros:
-  if (NOT IS_SYMLINK ${CMAKE_CURRENT_SOURCE_DIR}/install )
-    # Note: we use WORKING_DIRECTORY
-    execute_process ( 
-      COMMAND ${CMAKE_COMMAND} -E remove_directory install
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      OUTPUT_QUIET ERROR_QUIET
-      )
-  endif()
-  # We had to split the if statement above in two parts because cmake 2.8.0 would choke on a single-liner:
-  if ( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/install )
-    # Note: we use WORKING_DIRECTORY
-    execute_process ( 
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ../install install
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      OUTPUT_QUIET ERROR_QUIET
-      )
-  endif()
-  
-  # Tell deployer to use ROSlib support.
-  set(ROSLIB_SUPPORT TRUE)
-  include(config/FindRoslib.cmake)
-ENDIF(ROS_ROOT)
+# Tell deployer to use ROSlib support.
+set(ROSLIB_SUPPORT TRUE)
+include(config/FindRoslib.cmake)
 
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.

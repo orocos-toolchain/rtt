@@ -46,6 +46,7 @@ IF (BUILD_TESTING)
       DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
       SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
       VERSION "${RTT_VERSION}"
+      LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"
       # Set accumulated compilation flags: (.so and .a)
       COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
       )
@@ -128,7 +129,7 @@ IF (BUILD_TESTING)
     IF(UNIX AND NOT OROCOS_TARGET STREQUAL "xenomai" )
       ADD_EXECUTABLE( specactivities-test test-runner.cpp
 	specialized_activities.cpp)
-      TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET}_dynamic )
+      TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET}_dynamic ${TEST_LIBRARIES})
       SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
 	LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"

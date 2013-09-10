@@ -1,7 +1,7 @@
 #include "TemplateCompositionFactory.hpp"
 
 using namespace RTT;
-using namespace detail;
+using namespace RTT::types;
 
 base::DataSourceBase::shared_ptr CompositionFactory::convertType(base::DataSourceBase::shared_ptr source) const
 {

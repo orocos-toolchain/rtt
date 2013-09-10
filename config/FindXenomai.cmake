@@ -1,6 +1,6 @@
 ################################################################################
 #
-# CMake script for finding XENOMAI.
+# CMake script for finding the XENOMAI native skin.
 # If the optional XENOMAI_ROOT_DIR environment variable exists, header files and
 # libraries will be searched in the XENOMAI_ROOT_DIR/include and XENOMAI_ROOT_DIR/lib
 # directories, respectively. Otherwise the default CMake search process will be
@@ -21,6 +21,14 @@ if(NOT $ENV{XENOMAI_ROOT_DIR} STREQUAL "")
   mark_as_advanced(XENOMAI_ROOT_DIR)
 endif()
 
+if ( Xenomai_FIND_QUIETLY )
+  set( XENOMAI_FIND_QUIETLY "QUIET")
+endif()
+
+if ( Xenomai_FIND_REQUIRED )
+  set( XENOMAI_FIND_REQUIRED "REQUIRED")
+endif()
+
 # Header files to find
 set(header_NAME    native/task.h)
 
@@ -31,15 +39,25 @@ set(XENOMAI_NATIVE_NAME   native)
 # Find headers and libraries
 if(XENOMAI_ROOT_DIR)
   # Use location specified by environment variable
+  find_program(XENOMAI_XENO_CONFIG NAMES xeno-config  PATHS ${XENOMAI_ROOT_DIR}/bin NO_DEFAULT_PATH)
   find_path(XENOMAI_INCLUDE_DIR        NAMES ${header_NAME}        PATHS ${XENOMAI_ROOT_DIR}/include PATH_SUFFIXES xenomai NO_DEFAULT_PATH)
   find_library(XENOMAI_LIBRARY         NAMES ${XENOMAI_NAME}       PATHS ${XENOMAI_ROOT_DIR}/lib     NO_DEFAULT_PATH)
   find_library(XENOMAI_NATIVE_LIBRARY         NAMES ${XENOMAI_NATIVE_NAME}       PATHS ${XENOMAI_ROOT_DIR}/lib     NO_DEFAULT_PATH)
 else()
   # Use default CMake search process
+  find_program(XENOMAI_XENO_CONFIG NAMES xeno-config )
   find_path(XENOMAI_INCLUDE_DIR       NAMES ${header_NAME} PATH_SUFFIXES xenomai )
   find_library(XENOMAI_LIBRARY        NAMES ${XENOMAI_NAME})
   find_library(XENOMAI_NATIVE_LIBRARY        NAMES ${XENOMAI_NATIVE_NAME})
 endif()
+
+if( XENOMAI_LIBRARY AND XENOMAI_INCLUDE_DIR AND NOT XENOMAI_XENO_CONFIG )
+  message(SEND_ERROR "Your Xenomai installation is broken: I can not determine Xenomai Native cflags/ldflags without xeno-config.")
+else()
+  execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=native --ldflags OUTPUT_VARIABLE XENOMAI_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${XENOMAI_XENO_CONFIG} --skin=native --cflags OUTPUT_VARIABLE XENOMAI_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.

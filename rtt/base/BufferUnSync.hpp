@@ -79,6 +79,11 @@ namespace RTT
             buf.resize(0);
         }
 
+        virtual T data_sample() const
+        {
+            return lastSample;
+        }
+
         /**
          * Destructor
          */

@@ -7,6 +7,6 @@ Name: Orocos-RTT-MQUEUE                                     # human-readable nam
 Description: Open Robot Control Software: Real-Time Tookit # human-readable description
 Requires: orocos-rtt-@OROCOS_TARGET@
 Version: @RTT_VERSION@
-Libs: -L${libdir} -lorocos-rtt-mqueue-@OROCOS_TARGET@
-Libs.private: @RTT_MQUEUE_LINKFLAGS@
-Cflags: -I${includedir}/rtt/mqueue @RTT_MQUEUE_DEFINES@ @RTT_MQUEUE_CFLAGS@
+Libs: -L${libdir} -lorocos-rtt-mqueue-@OROCOS_TARGET@ @MQ_LDFLAGS@
+Libs.private:
+Cflags: -I${includedir}/rtt/mqueue @MQ_CFLAGS@

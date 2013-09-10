@@ -152,6 +152,78 @@ namespace RTT
             virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
             virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
         };
+
+        template<class Ft>
+        struct CollectBaseImpl<4,Ft>
+        {
+            typedef typename boost::function<Ft>::arg1_type arg1_type;
+            typedef typename boost::function<Ft>::arg2_type arg2_type;
+            typedef typename boost::function<Ft>::arg3_type arg3_type;
+            typedef typename boost::function<Ft>::arg4_type arg4_type;
+            virtual ~CollectBaseImpl() {}
+
+            /**
+             * Collect F without returning the results.
+             * @return
+             */
+            virtual SendStatus collect() = 0;
+            /**
+             * Collect a void(arg1_type) F or
+             * arg1_type(void) F
+             * @return
+             */
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
+        };
+
+        template<class Ft>
+        struct CollectBaseImpl<5,Ft>
+        {
+            typedef typename boost::function<Ft>::arg1_type arg1_type;
+            typedef typename boost::function<Ft>::arg2_type arg2_type;
+            typedef typename boost::function<Ft>::arg3_type arg3_type;
+            typedef typename boost::function<Ft>::arg4_type arg4_type;
+            typedef typename boost::function<Ft>::arg5_type arg5_type;
+            virtual ~CollectBaseImpl() {}
+
+            /**
+             * Collect F without returning the results.
+             * @return
+             */
+            virtual SendStatus collect() = 0;
+            /**
+             * Collect a void(arg1_type) F or
+             * arg1_type(void) F
+             * @return
+             */
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5) = 0;
+        };
+
+        template<class Ft>
+        struct CollectBaseImpl<6,Ft>
+        {
+            typedef typename boost::function<Ft>::arg1_type arg1_type;
+            typedef typename boost::function<Ft>::arg2_type arg2_type;
+            typedef typename boost::function<Ft>::arg3_type arg3_type;
+            typedef typename boost::function<Ft>::arg4_type arg4_type;
+            typedef typename boost::function<Ft>::arg5_type arg5_type;
+            typedef typename boost::function<Ft>::arg6_type arg6_type;
+            virtual ~CollectBaseImpl() {}
+
+            /**
+             * Collect F without returning the results.
+             * @return
+             */
+            virtual SendStatus collect() = 0;
+            /**
+             * Collect a void(arg1_type) F or
+             * arg1_type(void) F
+             * @return
+             */
+            virtual SendStatus collect(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) = 0;
+            virtual SendStatus collectIfDone(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4, arg5_type a5, arg6_type a6) = 0;
+        };
     }
 }
 #endif

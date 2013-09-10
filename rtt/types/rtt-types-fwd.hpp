@@ -9,6 +9,7 @@ namespace RTT {
         class OperatorRepository;
         class TransportPlugin;
         class TypeInfo;
+        class TypeInfoGenerator;
         class TypeInfoRepository;
         class TypeMarshaller;
         class TypeTransporter;

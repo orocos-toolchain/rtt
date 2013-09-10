@@ -44,14 +44,20 @@
 namespace RTT
 {namespace corba
 {
+    /**
+     * Use this class to create Corba TaskContext proxies, without including any
+     * CORBA header. This allows you to build applications that don't link with
+     * a CORBA library.
+     */
     class TaskContextFactory
     {
+    public:
         /**
          * Invoke this method once to initialise the Orb which will
          * run the task servers.
-	 * @param orb_timeout timeout value for each remote call, expressed in seconds.
-	 * The resolution is up to 100 nano seconds. Anything smaller will be interpreted
-	 * as a zero.
+         * @param orb_timeout timeout value for each remote call, expressed in seconds.
+         * The resolution is up to 100 nano seconds. Anything smaller will be interpreted
+         * as a zero.
          */
         static bool InitOrb(int argc, char* argv[], Seconds orb_timeout=0 );
 

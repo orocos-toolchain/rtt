@@ -9,7 +9,7 @@ namespace RTT {
         /**
          * A factory for composing/decomposing and converting types to a form suitable for persistent storage, such as an XML file.
          */
-        class CompositionFactory
+        class RTT_API CompositionFactory
         {
         public:
 

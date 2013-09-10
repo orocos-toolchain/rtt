@@ -17,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include "../internal/mystd.hpp"
+#include "../internal/GlobalEngine.hpp"
 #include "ParsedStateMachine.hpp"
 
 namespace RTT
@@ -161,8 +162,12 @@ namespace RTT
         //skip_parser_t skip_parser = SKIP_PARSER;
         //iter_pol_t iter_policy( skip_parser );
         //#define SKIP_PARSER
-        iter_pol_t iter_policy((comment_p("#") | comment_p("//") | comment_p(
-                "/*", "*/") | (space_p - eol_p) | commonparser->skipper));
+        skip_parser_t skippers = (comment_p("#") | comment_p("//") 
+                          | comment_p("/*", "*/") 
+                          | (space_p - eol_p) 
+			 | (commonparser->skipper));
+
+        iter_pol_t iter_policy(skippers);
         scanner_pol_t policies(iter_policy);
         scanner_t scanner(begin, end, policies);
 

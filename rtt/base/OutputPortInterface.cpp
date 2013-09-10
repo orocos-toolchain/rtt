@@ -43,7 +43,7 @@
 #include <stdexcept>
 
 using namespace RTT;
-using namespace detail;
+using namespace RTT::detail;
 using namespace std;
 
 

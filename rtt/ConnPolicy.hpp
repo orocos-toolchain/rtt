@@ -49,10 +49,10 @@ namespace RTT {
      * behave. Various parameters are available:
      *
      * <ul>
-     *  <li> the connection type: DATA or BUFFER. On a data connection, the reader will have
+     *  <li> the connection type: DATA, BUFFER or CIRCULAR_BUFFER. On a data connection, the reader will have
      *       only access to the last written value. On a buffered connection, a
      *       \a size number of elements can be stored until the reader reads
-     *       them.
+     *       them. BUFFER drops newer samples on full, CIRCULAR_BUFFER drops older samples on full.
      *  <li> the locking policy: LOCKED, LOCK_FREE or UNSYNC. This defines how locking is done in the
      *       connection. For now, only three policies are available. LOCKED uses
      *       mutexes, LOCK_FREE uses a lock free method and UNSYNC means there's no
@@ -137,7 +137,7 @@ namespace RTT {
          */
         explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE);
 
-        /** This is the type for the data holding element in the connection */
+        /** DATA, BUFFER or CIRCULAR_BUFFER */
         int    type;
         /** If true, one should initialize the connection's value with the last
          * value written on the writer port. This is only possible if the writer
