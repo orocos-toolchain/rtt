@@ -354,7 +354,9 @@ if(OROCOS-RTT_FOUND)
     orocos_add_compile_flags(${EXE_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
     orocos_add_link_flags(${EXE_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
 
-    TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
+      ${OROCOS-RTT_LIBRARIES} 
+      ${USE_OROCOS_LIBRARIES})
 
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
@@ -733,9 +735,10 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       # For catkin workspaces we also install a pkg-config file in the develspace
       set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
+      #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
 
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
-      file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
+      file(WRITE ${CATKIN_GLOBAL_LIB_DESTINATION}/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
 
     endif()
 

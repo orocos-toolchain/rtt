@@ -1,4 +1,4 @@
-
+cmake_minimum_required(VERSION 2.8.3)
 #
 # Parses arguments or options
 #
@@ -116,7 +116,9 @@ function( orocos_get_catkin_deps RESULT)
       message(SEND_ERROR "Error: xpath found but returned non-zero:${DEPS}")
     endif (NOT RES EQUAL 0)
 
-    string(REPLACE "\n" ";" DEPS ${DEPS})
+    if(DEPS)
+      string(REPLACE "\n" ";" DEPS ${DEPS})
+    endif()
 
     message("[orocos_get_catkin_deps] Deps from ${_PACKAGE_XML_PATH} are: '${DEPS}'")
     set(${RESULT} ${DEPS} PARENT_SCOPE)
@@ -226,11 +228,15 @@ macro( orocos_find_package PACKAGE )
       list(REMOVE_DUPLICATES USE_OROCOS_LINK_FLAGS)
 
       # Store aggregated variables
-      list(APPEND USE_OROCOS_INCLUDE_DIRS ${${PACKAGE}_INCLUDE_DIRS})
-      list(APPEND USE_OROCOS_LIBRARIES ${${PACKAGE}_LIBRARIES})
-      list(APPEND USE_OROCOS_LIBRARY_DIRS ${${PACKAGE}_LIBRARY_DIRS})
-      list(APPEND USE_OROCOS_CFLAGS_OTHER ${${PACKAGE}_CFLAGS_OTHER})
-      list(APPEND USE_OROCOS_LDFLAGS_OTHER ${${PACKAGE}_LDFLAGS_OTHER})
+      list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
+      list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
+      list(APPEND USE_OROCOS_LIBRARY_DIRS "${${PACKAGE}_LIBRARY_DIRS}")
+      list(APPEND USE_OROCOS_CFLAGS_OTHER "${${PACKAGE}_CFLAGS_OTHER}")
+      list(APPEND USE_OROCOS_LDFLAGS_OTHER "${${PACKAGE}_LDFLAGS_OTHER}")
+
+      list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
+      list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
+      list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
 
     else (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
       message("[UseOrocos] ${PACKAGE} does not provide a .pc file for exporting its build/link flags (or one of it 'Requires' dependencies was not found).")
@@ -267,7 +273,7 @@ macro( orocos_use_package PACKAGE )
       include_directories(${${PACKAGE}_INCLUDE_DIRS})
 
       # Only link in case there is something *and* the user didn't opt-out:
-      if(NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES)
+      if(NOT OROCOS_NO_AUTO_LINKING AND ${PACKAGE}_LIBRARIES)
         link_libraries( ${${PACKAGE}_LIBRARIES} )
         message("[orocos_use_package] Linking all targets with libraries from package '${PACKAGE}'. To disable this, set OROCOS_NO_AUTO_LINKING to true.")
         #message("Linking with ${PACKAGE}: ${${PACKAGE}_LIBRARIES}")
@@ -275,7 +281,7 @@ macro( orocos_use_package PACKAGE )
     endif()
 
     # Set a flag so we don't over-link
-    set(${PACKAGE}_${OROCOS_TARGET}_USED true)
+    set(${PACKAGE}_${OROCOS_TARGET}_USED true CACHE INTERNAL "")
   endif()
 endmacro( orocos_use_package PACKAGE )
 
