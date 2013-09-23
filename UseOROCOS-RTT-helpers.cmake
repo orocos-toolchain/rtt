@@ -223,14 +223,15 @@ macro( orocos_find_package PACKAGE )
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
-      # Add some output variables to the cache to make them accessible from outside this scope
-      set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}" CACHE INTERNAL "")
-      set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}" CACHE INTERNAL "")
-      set(${PACKAGE}_LIBRARY_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}" CACHE INTERNAL "")
-      set(${PACKAGE}_LIBRARIES "${${PACKAGE}_LIBRARIES}" CACHE INTERNAL "")
+      # Add some output variables (note this are accessible outside of this scope since this is a macro)
+      # We don't want to cache these
+      set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
+      set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}")
+      set(${PACKAGE}_LIBRARY_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARY_DIRS}")
+      set(${PACKAGE}_LIBRARIES "${${PACKAGE}_LIBRARIES}")
       # The flags are space separated, so no need to quote here:
-      set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER} CACHE INTERNAL "")
-      set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER} CACHE INTERNAL "")
+      set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
+      set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
 
       # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
       list(APPEND USE_OROCOS_COMPILE_FLAGS ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
@@ -306,8 +307,8 @@ macro( orocos_use_package PACKAGE )
         endif()
       endif()
 
-      # Set a flag so we don't over-link
-      set(${PACKAGE}_${OROCOS_TARGET}_USED true CACHE INTERNAL "")
+      # Set a flag so we don't over-link (Don't cache this, it should remain per project)
+      set(${PACKAGE}_${OROCOS_TARGET}_USED true)
     endif()
   else()
     if(ENV{VERBOSE})

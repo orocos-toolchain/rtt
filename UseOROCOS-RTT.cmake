@@ -725,7 +725,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
-      message("[orocos_generate_package] Generating pkg-config file for rosbuild package.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
 
       # For ros package trees, we install the .pc file also next to the manifest file:
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
@@ -742,7 +742,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
-      message("[orocos_generate_package] Generating pkg-config file for package in Catkin devel space.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for package in Catkin devel space.")
 
       # For catkin workspaces we also install a pkg-config file in the develspace
       set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
