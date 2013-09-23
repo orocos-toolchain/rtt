@@ -164,8 +164,6 @@ macro( orocos_find_package PACKAGE )
     ${ARGN}
     )
 
-  message("${PACKAGE} REQUIRED: ${ORO_FIND_REQUIRED}")
-
   if ( "${PACKAGE}" STREQUAL "rtt")
   else()
     # Try to use rosbuild to find PACKAGE
@@ -288,10 +286,6 @@ macro( orocos_use_package PACKAGE )
     "OROCOS_ONLY;REQUIRED;VERBOSE"
     ${ARGN}
     )
-
-  message(STATUS "[UseOrocos] Use package: ${PACKAGE}")
-  message(STATUS "[UseOrocos] ${PACKAGE} required: ${ORO_USE_REQUIRED}")
-  message(STATUS "[UseOrocos] ${PACKAGE} used: ${${PACKAGE}_${OROCOS_TARGET}_USED}")
 
   # Check a flag so we don't over-link
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
