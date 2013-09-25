@@ -48,6 +48,8 @@ if(OROCOS-RTT_FOUND)
   elseif(catkin_FOUND)
     message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
     set(ORO_USE_CATKIN True CACHE BOOL "Build packages with Catkin develspace support.")
+  else()
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or Catkin")
   endif()
 
   # This is for not allowing undefined symbols when using gcc
