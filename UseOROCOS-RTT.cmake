@@ -666,14 +666,14 @@ if(OROCOS-RTT_FOUND)
     if ( ORO_CREATE_PC_DEFAULT_ARGS )
       set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
     else ( ORO_CREATE_PC_DEFAULT_ARGS )
-      set(PC_NAME ${PROJECT_NAME} )
+      set(PACKAGE_NAME ${PROJECT_NAME} )
       if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
         # Append -subdir-subdir-... to pc name:
         file(RELATIVE_PATH RELPATH ${${PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
         string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
-        set(PC_NAME ${PC_NAME}-${PC_NAME_SUFFIX})
+        set(PACKAGE_NAME ${PACKAGE_NAME}-${PC_NAME_SUFFIX})
       endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
-      set(PC_NAME ${PC_NAME}-${OROCOS_TARGET})
+      set(PC_NAME ${PACKAGE_NAME}-${OROCOS_TARGET})
     endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
     # Create dependency list
@@ -722,6 +722,13 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
+
+    # Install package.xml file if it exists
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml)
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml DESTINATION share/${PACKAGE_NAME}/package.xml)
+    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in)
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in DESTINATION share/${PACKAGE_NAME}/package.xml)
+    endif()
 
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
