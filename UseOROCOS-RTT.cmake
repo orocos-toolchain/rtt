@@ -727,9 +727,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Install package.xml file if it exists
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml)
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml DESTINATION share/${PACKAGE_NAME}/package.xml)
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml DESTINATION share/${PACKAGE_NAME} RENAME package.xml)
     elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in)
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in DESTINATION share/${PACKAGE_NAME}/package.xml)
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in DESTINATION share/${PACKAGE_NAME} RENAME package.xml)
     endif()
 
     # Generate additional pkg-config files for other build toolchains
