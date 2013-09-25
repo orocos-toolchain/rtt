@@ -21,6 +21,7 @@
 
 #include "tasks_test.hpp"
 
+#include <cstdlib>
 #include <iostream>
 
 #include <extras/PeriodicActivity.hpp>
@@ -360,8 +361,13 @@ void testAffinity2(boost::scoped_ptr<TestPeriodic>& run,
     t->run(0);
 }
 
+
 BOOST_AUTO_TEST_CASE( testAffinity )
 {
+    // skip this test on continuous integration servers
+    if(std::getenv("CI") != NULL) {
+      return;
+    }
     // this test is kind of irrelevant with only 1 CPU
     int numCPU = sysconf( _SC_NPROCESSORS_ONLN );
     if (1 < numCPU)
