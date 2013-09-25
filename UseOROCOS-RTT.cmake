@@ -725,10 +725,9 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-    # Install package.xml file if it exists
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml)
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml DESTINATION share/${PACKAGE_NAME} RENAME package.xml)
-    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in)
+    # Install package.xml.in file if it exists
+    # This is for packages meant to be used in isolated catkin builds which are pure cmake
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in)
       install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in DESTINATION share/${PACKAGE_NAME} RENAME package.xml)
     endif()
 
