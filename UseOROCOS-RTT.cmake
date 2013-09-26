@@ -725,12 +725,6 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PC_NAME}.pc DESTINATION lib/pkgconfig )
     #install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml DESTINATION  lib/orocos${OROCOS_SUFFIX}/level0 )
 
-    # Install package.xml.in file if it exists
-    # This is for packages meant to be used in isolated catkin builds which are pure cmake
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in)
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml.in DESTINATION share/${PACKAGE_NAME} RENAME package.xml)
-    endif()
-
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
       message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
