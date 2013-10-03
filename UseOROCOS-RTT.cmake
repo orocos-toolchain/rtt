@@ -35,7 +35,7 @@ if(OROCOS-RTT_FOUND)
   # then we can assume this is a catkin build.
   #
   if(COMMAND rosbuild_init AND ROSBUILD_init_called)
-    message("[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with rosbuild macros because rosbuild_init() has been called.")
     set(ORO_USE_ROSBUILD True CACHE BOOL "Build packages with rosbuild in-source support.")
     # TODO: Uncomment the following if we want to force people to call rosbuild_init
     # if the function is available
@@ -46,8 +46,10 @@ if(OROCOS-RTT_FOUND)
     #  rosbuild_init()
     #endif()
   elseif(catkin_FOUND)
-    message("[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} with catkin develspace support.")
     set(ORO_USE_CATKIN True CACHE BOOL "Build packages with Catkin develspace support.")
+  else()
+    message(STATUS "[UseOrocos] Building package ${PROJECT_NAME} without an external buildtool like rosbuild or Catkin")
   endif()
 
   # This is for not allowing undefined symbols when using gcc
@@ -97,7 +99,7 @@ if(OROCOS-RTT_FOUND)
     endif(ORO_DEFAULT_INSTALL_PREFIX STREQUAL "orocos")
   endif(DEFINED ORO_DEFAULT_INSTALL_PREFIX)
 
-  message("[UseOrocos] Using Orocos RTT in ${PROJECT_NAME}")
+  message(STATUS "[UseOrocos] Using Orocos RTT in ${PROJECT_NAME}")
 
   # Set to true to indicate that these macros are available.
   set(USE_OROCOS_RTT 1)
@@ -133,7 +135,8 @@ if(OROCOS-RTT_FOUND)
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
-      orocos_find_package( ${DEP} ) 
+      # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
+      orocos_find_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
@@ -203,12 +206,12 @@ if(OROCOS-RTT_FOUND)
 
     # Use rosbuild in ros environments:
     if (ORO_USE_ROSBUILD)
-      MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
+      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
       rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX})
     else()
-      MESSAGE( "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
+      MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
       ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
       SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
@@ -222,9 +225,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    orocos_add_compile_flags(${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags(${COMPONENT_NAME} ${USE_OROCOS_LINK_FLAGS})
-    TARGET_LINK_LIBRARIES( ${COMPONENT_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )
+    orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
+    orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LINK_FLAGS})
+    TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
+      ${OROCOS-RTT_LIBRARIES} 
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
+      )
 
     # Install
     # On win32, component runtime (.dll) should go in orocos folder
@@ -276,10 +282,10 @@ if(OROCOS-RTT_FOUND)
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
     if (ORO_USE_ROSBUILD)
-      MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
     else()
-      MESSAGE( "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
+      MESSAGE( STATUS "[UseOrocos] Building library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
     endif()
 
@@ -296,9 +302,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags(${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS} )
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS} )
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
+      ${OROCOS-RTT_LIBRARIES} 
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
+      )
 
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
@@ -336,10 +345,10 @@ if(OROCOS-RTT_FOUND)
     endif()
 
     if (ORO_USE_ROSBUILD)
-      MESSAGE( "[UseOrocos] Building executable ${EXE_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_executable(${EXE_TARGET_NAME} ${SOURCES} )
     else()
-      MESSAGE( "[UseOrocos] Building executable ${EXE_TARGET_NAME}" )
+      MESSAGE( STATUS "[UseOrocos] Building executable ${EXE_TARGET_NAME}" )
       ADD_EXECUTABLE( ${EXE_TARGET_NAME} ${SOURCES} )
     endif()
 
@@ -356,7 +365,7 @@ if(OROCOS-RTT_FOUND)
 
     TARGET_LINK_LIBRARIES( ${EXE_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
-      ${USE_OROCOS_LIBRARIES})
+      )
 
     # We install the exe, the user must make sure that the install dir is not
     # beneath the ROS package (if any).
@@ -390,7 +399,7 @@ if(OROCOS-RTT_FOUND)
     if ( ORO_TYPEGEN_HEADERS_DEPENDS )
       set (ORO_TYPEGEN_HEADERS_DEP_INFO_MSG "using: ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}")
     endif()
-    MESSAGE( "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
+    MESSAGE( STATUS "[UseOrocos] Generating typekit for ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_DEP_INFO_MSG}..." )
 
     # Works in top level source dir:
     set(TYPEGEN_EXE typegen-NOTFOUND) #re-check for typegen each time !
@@ -453,7 +462,7 @@ if(OROCOS-RTT_FOUND)
     # Clear the dependencies such that a target switch can be detected:
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
-    MESSAGE( "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
+    MESSAGE( STATUS "[UseOrocos] Building typekit library ${LIB_TARGET_NAME}" )
     if (ORO_USE_ROSBUILD)
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -469,7 +478,9 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
+      ${OROCOS-RTT_LIBRARIES} 
+      )
 
     # On win32, typekit runtime (.dll) should go in orocos/types folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -524,12 +535,12 @@ if(OROCOS-RTT_FOUND)
     unset( ${LIB_TARGET_NAME}_LIB_DEPENDS )
 
     if (ORO_USE_ROSBUILD)
-      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
+      MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/plugins)
     else()
-      MESSAGE( "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
+      MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
@@ -541,9 +552,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
-    orocos_add_compile_flags(${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
-    orocos_add_link_flags(${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
-    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} ${OROCOS-RTT_LIBRARIES} ) #${OROCOS-RTT_TYPEKIT_LIBRARIES} )
+    orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
+    orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
+    TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
+      ${OROCOS-RTT_LIBRARIES}
+      #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
+      )
 
     # On win32, plugins runtime (.dll) should go in orocos/plugins folder
     if( ${OROCOS_TARGET} STREQUAL "win32" )
@@ -641,27 +655,27 @@ if(OROCOS-RTT_FOUND)
     if (NOT ORO_CREATE_PC_VERSION)
       if (COMPONENT_VERSION)
         set( ORO_CREATE_PC_VERSION ${COMPONENT_VERSION})
-        message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
+        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} from COMPONENT_VERSION.")
       else (COMPONENT_VERSION)
         set( ORO_CREATE_PC_VERSION "1.0")
-        message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
+        message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION} (default version).")
       endif (COMPONENT_VERSION)
     else (NOT ORO_CREATE_PC_VERSION)
-      message("[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION}.")
+      message(STATUS "[UseOrocos] Generating package version ${ORO_CREATE_PC_VERSION}.")
     endif (NOT ORO_CREATE_PC_VERSION)
 
     # Create filename
     if ( ORO_CREATE_PC_DEFAULT_ARGS )
       set(PC_NAME ${ORO_CREATE_PC_DEFAULT_ARGS})
     else ( ORO_CREATE_PC_DEFAULT_ARGS )
-      set(PC_NAME ${PROJECT_NAME} )
+      set(PACKAGE_NAME ${PROJECT_NAME} )
       if ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
         # Append -subdir-subdir-... to pc name:
         file(RELATIVE_PATH RELPATH ${${PROJECT_NAME}_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
         string(REPLACE "/" "-" PC_NAME_SUFFIX ${RELPATH} )
-        set(PC_NAME ${PC_NAME}-${PC_NAME_SUFFIX})
+        set(PACKAGE_NAME ${PACKAGE_NAME}-${PC_NAME_SUFFIX})
       endif ( NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${${PROJECT_NAME}_SOURCE_DIR} )
-      set(PC_NAME ${PC_NAME}-${OROCOS_TARGET})
+      set(PC_NAME ${PACKAGE_NAME}-${OROCOS_TARGET})
     endif ( ORO_CREATE_PC_DEFAULT_ARGS )
 
     # Create dependency list
@@ -713,7 +727,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
     # Generate additional pkg-config files for other build toolchains
     if (ORO_USE_ROSBUILD)
-      message("[orocos_generate_package] Generating pkg-config file for rosbuild package.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for rosbuild package.")
 
       # For ros package trees, we install the .pc file also next to the manifest file:
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
@@ -730,7 +744,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
-      message("[orocos_generate_package] Generating pkg-config file for package in Catkin devel space.")
+      message(STATUS "[UseOrocos] Generating pkg-config file for package in Catkin devel space.")
 
       # For catkin workspaces we also install a pkg-config file in the develspace
       set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
@@ -738,7 +752,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
 
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
-      file(WRITE ${CATKIN_GLOBAL_LIB_DESTINATION}/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
+      file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
 
     endif()
 
