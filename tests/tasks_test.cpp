@@ -364,8 +364,8 @@ void testAffinity2(boost::scoped_ptr<TestPeriodic>& run,
 
 BOOST_AUTO_TEST_CASE( testAffinity )
 {
-    // skip this test on continuous integration servers
     if(std::getenv("CI") != NULL) {
+      BOOST_TEST_MESSAGE("Skipping testAffinity because it can fail on integration servers.");
       return;
     }
     // this test is kind of irrelevant with only 1 CPU
