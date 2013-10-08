@@ -69,7 +69,7 @@ set(DOC_STRING "The Operating System target. One of [gnulinux lxrt macosx win32 
 set(OROCOS_TARGET_ENV $ENV{OROCOS_TARGET}) # MUST use helper variable, otherwise not picked up !!!
 if(OROCOS_TARGET_ENV)
   set(OROCOS_TARGET ${OROCOS_TARGET_ENV} CACHE STRING "${DOC_STRING}" FORCE)
-  message( "Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
+  message(STATUS "- Detected OROCOS_TARGET environment variable. Using: ${OROCOS_TARGET}")
 else()
   if(NOT DEFINED OROCOS_TARGET)
     if(MSVC)
@@ -151,7 +151,7 @@ set(OROCOS-RTT_USE_FILE_PATH ${SELF_DIR})
 set(OROCOS-RTT_USE_FILE ${SELF_DIR}/UseOROCOS-RTT.cmake)
 
 # Confirm found, not cached !
-message("Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
+message(STATUS "Orocos-RTT found in ${OROCOS-RTT_IMPORT_FILE}")
 set(OROCOS-RTT_FOUND TRUE)
 
 endif()

@@ -9,6 +9,7 @@
   
 		<rosdep name="boost" />
 		<rosdep name="omniorb" />
+		<rosdep name="xpath-perl" />
   
 		<export>
 			<!-- The default target is gnulinux when using rospack. This is definately a crippled solution -->
