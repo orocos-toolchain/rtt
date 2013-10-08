@@ -131,12 +131,14 @@ if(OROCOS-RTT_FOUND)
       orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
   elseif(ORO_USE_CATKIN)
+    # Disable auto-linking
+    set(OROCOS_NO_AUTO_LINKING True)
     # Get catkin build_depend dependencies
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
       # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
-      orocos_find_package( ${DEP} OROCOS_ONLY) 
+      orocos_use_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
