@@ -131,12 +131,14 @@ if(OROCOS-RTT_FOUND)
       orocos_use_package( ${ROSDEP} ) 
     endforeach(ROSDEP ${pkg_DEPS2}) 
   elseif(ORO_USE_CATKIN)
+    # Disable auto-linking
+    set(OROCOS_NO_AUTO_LINKING True)
     # Get catkin build_depend dependencies
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
     foreach(DEP ${DEPS})
       # We use OROCOS_ONLY so that we only find .pc files with the orocos target on them
-      orocos_find_package( ${DEP} OROCOS_ONLY) 
+      orocos_use_package( ${DEP} OROCOS_ONLY) 
     endforeach(DEP ${DEPS}) 
   else()
     # Fall back to manually processing the Autoproj manifest.xml file.
@@ -209,7 +211,7 @@ if(OROCOS-RTT_FOUND)
       MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME} in rosbuild source tree." )
       rosbuild_add_library(${COMPONENT_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX})
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME})
     else()
       MESSAGE( STATUS "[UseOrocos] Building component ${COMPONENT_NAME} in library ${COMPONENT_LIB_NAME}" )
       ADD_LIBRARY( ${COMPONENT_NAME} SHARED ${SOURCES} )
@@ -466,7 +468,7 @@ if(OROCOS-RTT_FOUND)
     if (ORO_USE_ROSBUILD)
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types)
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types)
     else()
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
@@ -538,7 +540,7 @@ if(OROCOS-RTT_FOUND)
       MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME} in rosbuild source tree." )
       rosbuild_add_library(${LIB_TARGET_NAME} ${SOURCES} )
       SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/plugins)
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins)
     else()
       MESSAGE( STATUS "[UseOrocos] Building plugin library ${LIB_TARGET_NAME}" )
       ADD_LIBRARY( ${LIB_TARGET_NAME} SHARED ${SOURCES} )
@@ -731,7 +733,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
 
       # For ros package trees, we install the .pc file also next to the manifest file:
       set(PC_PREFIX ${PROJECT_SOURCE_DIR})
-      set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
+      #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}") # Without package name suffix !
       set(PC_EXTRA_INCLUDE_DIRS "-I\${prefix}/..")
       set(PC_COMMENT "# This pkg-config file is for use in a rosbuild source tree\n"
         "# Rationale:\n"
@@ -741,7 +743,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
         "# - If this doesn't fit your package layout, don't use orocos_generate_package() and write the .pc file yourself")
 
       string(CONFIGURE "${PC_CONTENTS}" ROSBUILD_PC_CONTENTS @ONLY)
-      file(WRITE ${PROJECT_SOURCE_DIR}/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
+      file(WRITE ${PROJECT_SOURCE_DIR}/lib/pkgconfig/${PC_NAME}.pc ${ROSBUILD_PC_CONTENTS})
 
     elseif (ORO_USE_CATKIN)
       message(STATUS "[UseOrocos] Generating pkg-config file for package in Catkin devel space.")

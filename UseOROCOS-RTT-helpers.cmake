@@ -142,19 +142,8 @@ endfunction( orocos_get_catkin_deps RESULT)
 #   ${PACKAGE}_CFLAGS_OTHER     The compile flags other than -I for this package.
 #   ${PACKAGE}_LDFLAGS_OTHER    The linker flags other than -L and -l for thfully resolved link libraries for this package.
 #   ${PACKAGE}_<LIB>_LIBRARY    Each fully resolved link library <LIB> in the above list.
-#   
-# It will also aggregate the following variables for all packages found in this
-# scope:
-#   USE_OROCOS_LIBRARIES
-#   USE_OROCOS_INCLUDE_DIRS
-#   USE_OROCOS_LIBRARY_DIRS
-#   USE_OROCOS_CFLAGS_OTHER
-#   USE_OROCOS_LDFLAGS_OTHER
-#  
-#   USE_OROCOS_COMPILE_FLAGS    All exported compile flags from packages within the current scope.
-#   USE_OROCOS_LINK_FLAGS       All exported link flags from packages within the current scope.
 # 
-# Usage: orocos_use_package( pkg-name [OROCOS_ONLY] [REQUIRED] [VERBOSE]")
+# Usage: orocos_find_package( pkg-name [OROCOS_ONLY] [REQUIRED] [VERBOSE]")
 #
 macro( orocos_find_package PACKAGE )
 
@@ -233,37 +222,6 @@ macro( orocos_find_package PACKAGE )
       set(${PACKAGE}_CFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
       set(${PACKAGE}_LDFLAGS_OTHER ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
 
-      # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
-      list(APPEND USE_OROCOS_COMPILE_FLAGS ${${PACKAGE}_COMP_${OROCOS_TARGET}_CFLAGS_OTHER})
-      list(APPEND USE_OROCOS_LINK_FLAGS ${${PACKAGE}_COMP_${OROCOS_TARGET}_LDFLAGS_OTHER})
-      # This probably does not work since lists are ';' separated and not ' ' separated:
-      list(REMOVE_DUPLICATES USE_OROCOS_COMPILE_FLAGS)
-      list(REMOVE_DUPLICATES USE_OROCOS_LINK_FLAGS)
-
-      # Store aggregated variables
-      list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
-      list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
-      list(APPEND USE_OROCOS_LIBRARY_DIRS "${${PACKAGE}_LIBRARY_DIRS}")
-      list(APPEND USE_OROCOS_CFLAGS_OTHER "${${PACKAGE}_CFLAGS_OTHER}")
-      list(APPEND USE_OROCOS_LDFLAGS_OTHER "${${PACKAGE}_LDFLAGS_OTHER}")
-
-      # Remove duplicates from aggregated variables
-      if(DEFINED USE_OROCOS_INCLUDE_DIRS)
-        list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
-      endif()
-      if(DEFINED USE_OROCOS_LIBRARIES)
-        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
-      endif()
-      if(DEFINED USE_OROCOS_LIBRARY_DIRS)
-        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
-      endif()
-      if(DEFINED USE_OROCOS_CFLAGS_OTHER)
-        list(REMOVE_DUPLICATES USE_OROCOS_CFLAGS_OTHER)
-      endif()
-      if(DEFINED USE_OROCOS_LDFLAGS_OTHER)
-        list(REMOVE_DUPLICATES USE_OROCOS_LDFLAGS_OTHER)
-      endif()
-
     else()
       if(ORO_FIND_REQUIRED)
         message(FATAL_ERROR "[UseOrocos] Could not find package '${PACKAGE}'.")
@@ -291,6 +249,17 @@ endmacro( orocos_find_package PACKAGE )
 # Internally it calls orocos_find_package(), which exports serveral variables
 # containing build flags exported by dependencies. See the
 # orocos_find_package() documentation for more details.
+#   
+# It will also aggregate the following variables for all packages found in this
+# scope:
+#   USE_OROCOS_LIBRARIES
+#   USE_OROCOS_INCLUDE_DIRS
+#   USE_OROCOS_LIBRARY_DIRS
+#   USE_OROCOS_CFLAGS_OTHER
+#   USE_OROCOS_LDFLAGS_OTHER
+#  
+#   USE_OROCOS_COMPILE_FLAGS    All exported compile flags from packages within the current scope.
+#   USE_OROCOS_LINK_FLAGS       All exported link flags from packages within the current scope.
 #
 # Usage: orocos_use_package( pkg-name [OROCOS_ONLY] [REQUIRED] [VERBOSE]")
 #
@@ -323,6 +292,35 @@ macro( orocos_use_package PACKAGE )
 
       # Set a flag so we don't over-link (Don't cache this, it should remain per project)
       set(${PACKAGE}_${OROCOS_TARGET}_USED true)
+
+      # Store aggregated variables
+      list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
+      list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
+      list(APPEND USE_OROCOS_LIBRARY_DIRS "${${PACKAGE}_LIBRARY_DIRS}")
+      list(APPEND USE_OROCOS_CFLAGS_OTHER "${${PACKAGE}_CFLAGS_OTHER}")
+      list(APPEND USE_OROCOS_LDFLAGS_OTHER "${${PACKAGE}_LDFLAGS_OTHER}")
+
+      # Remove duplicates from aggregated variables
+      if(DEFINED USE_OROCOS_INCLUDE_DIRS)
+        list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
+      endif()
+      if(DEFINED USE_OROCOS_LIBRARIES)
+        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
+      endif()
+      if(DEFINED USE_OROCOS_LIBRARY_DIRS)
+        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
+      endif()
+      if(DEFINED USE_OROCOS_CFLAGS_OTHER)
+        list(REMOVE_DUPLICATES USE_OROCOS_CFLAGS_OTHER)
+      endif()
+      if(DEFINED USE_OROCOS_LDFLAGS_OTHER)
+        list(REMOVE_DUPLICATES USE_OROCOS_LDFLAGS_OTHER)
+      endif()
+
+      # Backwards compatibility
+      # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
+      set(USE_OROCOS_COMPILE_FLAGS ${USE_OROCOS_CFLAGS_OTHER})
+      set(USE_OROCOS_LINK_FLAGS ${USE_OROCOS_LDFLAGS_OTHER})
     endif()
   else()
     if(ENV{VERBOSE})
