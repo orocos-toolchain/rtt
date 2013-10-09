@@ -436,6 +436,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
     }
 }
 
+#if !defined( OROCOS_TARGET_MACOSX )
 /**
  * Checks if the rtos_task_get_pid function works properly.
  */
@@ -449,6 +450,7 @@ BOOST_AUTO_TEST_CASE( testThreadPID )
 //	cout << "PID:" << mpid <<endl;
 //	cout << "TID:" << tid << endl;
 }
+#endif
 
 #if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testThreadConfig )
