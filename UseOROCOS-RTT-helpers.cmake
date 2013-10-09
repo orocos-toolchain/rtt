@@ -231,7 +231,7 @@ macro( orocos_find_package PACKAGE )
         endif()
       endif()
     endif()
-  endif()  
+  endif()
 endmacro( orocos_find_package PACKAGE )
 
 #
@@ -293,13 +293,6 @@ macro( orocos_use_package PACKAGE )
       # Set a flag so we don't over-link (Don't cache this, it should remain per project)
       set(${PACKAGE}_${OROCOS_TARGET}_USED true)
 
-      # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
-      list(APPEND USE_OROCOS_COMPILE_FLAGS ${${PACKAGE}_CFLAGS_OTHER})
-      list(APPEND USE_OROCOS_LINK_FLAGS ${${PACKAGE}_LDFLAGS_OTHER})
-      # This probably does not work since lists are ';' separated and not ' ' separated:
-      list(REMOVE_DUPLICATES USE_OROCOS_COMPILE_FLAGS)
-      list(REMOVE_DUPLICATES USE_OROCOS_LINK_FLAGS)
-
       # Store aggregated variables
       list(APPEND USE_OROCOS_INCLUDE_DIRS "${${PACKAGE}_INCLUDE_DIRS}")
       list(APPEND USE_OROCOS_LIBRARIES "${${PACKAGE}_LIBRARIES}")
@@ -307,10 +300,27 @@ macro( orocos_use_package PACKAGE )
       list(APPEND USE_OROCOS_CFLAGS_OTHER "${${PACKAGE}_CFLAGS_OTHER}")
       list(APPEND USE_OROCOS_LDFLAGS_OTHER "${${PACKAGE}_LDFLAGS_OTHER}")
 
-      # Remove duplicates
-      list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
-      list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
-      list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
+      # Remove duplicates from aggregated variables
+      if(DEFINED USE_OROCOS_INCLUDE_DIRS)
+        list(REMOVE_DUPLICATES USE_OROCOS_INCLUDE_DIRS)
+      endif()
+      if(DEFINED USE_OROCOS_LIBRARIES)
+        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARIES)
+      endif()
+      if(DEFINED USE_OROCOS_LIBRARY_DIRS)
+        list(REMOVE_DUPLICATES USE_OROCOS_LIBRARY_DIRS)
+      endif()
+      if(DEFINED USE_OROCOS_CFLAGS_OTHER)
+        list(REMOVE_DUPLICATES USE_OROCOS_CFLAGS_OTHER)
+      endif()
+      if(DEFINED USE_OROCOS_LDFLAGS_OTHER)
+        list(REMOVE_DUPLICATES USE_OROCOS_LDFLAGS_OTHER)
+      endif()
+
+      # Backwards compatibility
+      # Add compiler and linker flags to the USE_OROCOS_XXX_FLAGS variables used in the orocos_add_x macros
+      set(USE_OROCOS_COMPILE_FLAGS ${USE_OROCOS_CFLAGS_OTHER})
+      set(USE_OROCOS_LINK_FLAGS ${USE_OROCOS_LDFLAGS_OTHER})
     endif()
   else()
     if(ENV{VERBOSE})
