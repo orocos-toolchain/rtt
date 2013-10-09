@@ -11,6 +11,7 @@
     
     <buildtool_depend>cmake</buildtool_depend>
 
+    <build_depend>xpath-perl</build_depend>
     <build_depend>boost</build_depend>
     <build_depend>omniorb</build_depend>
     <build_depend>rospack</build_depend>
@@ -18,11 +19,10 @@
     <run_depend>boost</run_depend>
     <run_depend>omniorb</run_depend>
     <run_depend>rospack</run_depend>
+    <run_depend>xpath-perl</run_depend>
     
     <export>
-      <build_type>
-	cmake
-      </build_type>
+      <build_type>cmake</build_type>
     </export>
 
 </package>

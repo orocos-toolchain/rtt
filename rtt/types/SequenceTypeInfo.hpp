@@ -35,6 +35,7 @@ namespace RTT
                 return false;
             }
 
+            using TemplateValueFactory<T>::buildVariable;
             base::AttributeBase* buildVariable(std::string name,int size) const
             {
                 return SequenceTypeInfoBase<T>::buildVariable(name,size);

@@ -104,11 +104,6 @@ namespace RTT {
             bool isCompatibleComponent(std::string const& filepath);
 
             /**
-             * Returns true only if \a package is a ROS package and contained a lib/orocos directory.
-             */
-            bool importRosPackage(std::string const& package);
-
-            /**
              * Returns true if \a package is a subdir of the RTT_COMPONENT_PATH
              */
             bool importInstalledPackage(std::string const& package, std::string const& path_list);

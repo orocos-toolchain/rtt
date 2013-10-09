@@ -40,7 +40,7 @@ IF (BUILD_TESTING)
     FILE( GLOB OP_FIXTURES operations_fixture*.cpp datasource_fixture.cpp)
     ADD_LIBRARY( fixtures SHARED ${OP_FIXTURES} )
     TARGET_LINK_LIBRARIES( fixtures orocos-rtt-${OROCOS_TARGET}_dynamic ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} rtt-typekit-${OROCOS_TARGET}_plugin )
-    LIST(APPEND TEST_LIBRARIES fixtures rtt-typekit-${OROCOS_TARGET}_plugin )
+    LIST(APPEND TEST_LIBRARIES fixtures rtt-typekit-${OROCOS_TARGET}_plugin ${OROCOS-RTT_USER_LINK_LIBS} )
     SET_TARGET_PROPERTIES( fixtures PROPERTIES
       COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
       DEFINE_SYMBOL "RTT_UNIT_DLL_EXPORT"
@@ -82,7 +82,7 @@ IF (BUILD_TESTING)
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/property_loading.cpf ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
 
     ADD_EXECUTABLE( main-test test-main.cpp )
-    TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic)
+    TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET}_dynamic ${OROCOS-RTT_USER_LINK_LIBS})
     SET_TARGET_PROPERTIES( main-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
     LINK_FLAGS "${CMAKE_LD_FLAGS_ADD}"

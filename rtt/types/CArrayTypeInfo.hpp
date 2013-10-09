@@ -83,6 +83,7 @@ namespace RTT
             return false;
         }
 
+            using TemplateValueFactory<T>::buildVariable;
             virtual base::AttributeBase* buildVariable(std::string name,int sizehint) const
             {
                 // There were two choices: create an empty carray, ie pointer-like behavior; OR create one with storage in the DS.
