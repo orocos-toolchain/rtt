@@ -75,7 +75,8 @@ namespace RTT
         //startv.resize( startv.size() );
         //stopv.resize( stopv.size() );
         res = true;
-        std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
+	for ( std::vector<start_fun>::iterator it = startv.begin(); it != startv.end(); ++it)
+	  this->res_collector( *it );
         return res;
     }
 
