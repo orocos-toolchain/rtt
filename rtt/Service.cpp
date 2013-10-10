@@ -58,7 +58,7 @@ namespace RTT {
 
     Service::Service(const std::string& name, TaskContext* owner)
     : mname(name),
-#if BOOST_VERSION >= 104000
+#if BOOST_VERSION >= 104000 && BOOST_VERSION <= 105030
       mowner(owner),
 #else
       mowner(0),

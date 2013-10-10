@@ -1,6 +1,6 @@
 <package>
   <name>rtt</name>
-  <version>2.6.0</version>
+  <version>2.6.9</version>
     <description >
       Orocos/RTT component framework
     </description>
@@ -10,15 +10,14 @@
     <url>http://www.orocos.org/rtt</url>
     
     <buildtool_depend>cmake</buildtool_depend>
+    <run_depend>catkin</run_depend>
 
     <build_depend>xpath-perl</build_depend>
     <build_depend>boost</build_depend>
     <build_depend>omniorb</build_depend>
-    <build_depend>rospack</build_depend>
 
     <run_depend>boost</run_depend>
     <run_depend>omniorb</run_depend>
-    <run_depend>rospack</run_depend>
     <run_depend>xpath-perl</run_depend>
     
     <export>

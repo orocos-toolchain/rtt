@@ -15,10 +15,6 @@
 #ifndef __FOSI_H
 #define __FOSI_H
 
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600   // use all Posix features.
-#endif
-
 #define _DARWIN_C_SOURCE
 
 #define HAVE_FOSI_API

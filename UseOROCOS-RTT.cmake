@@ -118,7 +118,7 @@ if(OROCOS-RTT_FOUND)
 
   if (ORO_USE_ROSBUILD)
     # Infer package name from directory name.                                                                                                                                                                                                  
-    get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${CMAKE_SOURCE_DIR} NAME)
+    get_filename_component(ORO_ROSBUILD_PACKAGE_NAME ${PROJECT_SOURCE_DIR} NAME)
 
     # Modify default rosbuild output paths if using Eclipse
     if (CMAKE_EXTRA_GENERATOR STREQUAL "Eclipse CDT4")
@@ -195,7 +195,7 @@ if(OROCOS-RTT_FOUND)
     endif()
 
     # Set library name:
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME}-${OROCOS_TARGET})
     else()
       set( COMPONENT_LIB_NAME ${COMPONENT_NAME})
@@ -233,6 +233,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME};${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${COMPONENT_NAME} PROPERTIES
+	INSTALL_NAME_DIR "@rpath"
+	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX},-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+	)
+    endif()
     orocos_add_compile_flags( ${COMPONENT_NAME} ${USE_OROCOS_COMPILE_FLAGS})
     orocos_add_link_flags( ${COMPONENT_NAME} ${USE_OROCOS_LINK_FLAGS})
     TARGET_LINK_LIBRARIES( ${COMPONENT_NAME}
@@ -248,7 +254,6 @@ if(OROCOS-RTT_FOUND)
       INSTALL(TARGETS ${COMPONENT_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
     endif()
 
-
     # Add current dir as link lookup-dir
     LINK_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -256,31 +261,31 @@ if(OROCOS-RTT_FOUND)
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
   endmacro( orocos_component )
 
-  # Utility libraries should add themselves by calling 'orocos_library()' 
-  # instead of 'ADD_LIBRARY' in CMakeLists.txt.
-  # You can set a variable COMPONENT_VERSION x.y.z to set a version or 
-  # specify the optional VERSION parameter. For ros builds, the version
-  # number is ignored.
-  #
-  # Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
-  #
-  macro( orocos_library LIB_TARGET_NAME )
+# Utility libraries should add themselves by calling 'orocos_library()' 
+# instead of 'ADD_LIBRARY' in CMakeLists.txt.
+# You can set a variable COMPONENT_VERSION x.y.z to set a version or 
+# specify the optional VERSION parameter. For ros builds, the version
+# number is ignored.
+#
+# Usage: orocos_library( libraryname src1 src2 src3 [VERSION x.y.z] )
+#
+macro( orocos_library LIB_TARGET_NAME )
 
-    ORO_PARSE_ARGUMENTS(ORO_LIBRARY
-      "INSTALL;VERSION"
-      ""
-      ${ARGN}
-      )
-    SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
-    if ( ORO_LIBRARY_INSTALL )
-      set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
-      set(AC_INSTALL_RT_DIR bin)
-    else()
-      set(AC_INSTALL_DIR lib)
-      set(AC_INSTALL_RT_DIR bin)
-    endif()
-
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+  ORO_PARSE_ARGUMENTS(ORO_LIBRARY
+    "INSTALL;VERSION"
+    ""
+    ${ARGN}
+    )
+  SET( SOURCES ${ORO_LIBRARY_DEFAULT_ARGS} )
+  if ( ORO_LIBRARY_INSTALL )
+    set(AC_INSTALL_DIR ${ORO_LIBRARY_INSTALL})
+    set(AC_INSTALL_RT_DIR bin)
+  else()
+    set(AC_INSTALL_DIR lib)
+    set(AC_INSTALL_RT_DIR bin)
+  endif()
+  
+  if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -316,6 +321,12 @@ if(OROCOS-RTT_FOUND)
       ${OROCOS-RTT_LIBRARIES} 
       #${OROCOS-RTT_TYPEKIT_LIBRARIES} 
       )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+	INSTALL_NAME_DIR "@rpath"
+	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+	)
+    endif()
 
     INSTALL(TARGETS ${LIB_TARGET_NAME} LIBRARY DESTINATION ${AC_INSTALL_DIR} ARCHIVE DESTINATION lib RUNTIME DESTINATION ${AC_INSTALL_RT_DIR})
 
@@ -346,7 +357,7 @@ if(OROCOS-RTT_FOUND)
       set(AC_INSTALL_RT_DIR bin)
     endif()
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( EXE_NAME ${EXE_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( EXE_NAME ${EXE_TARGET_NAME})
@@ -365,6 +376,13 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${EXE_TARGET_NAME} PROPERTIES
+	INSTALL_NAME_DIR "@rpath"
+	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/bin,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+	)
+    endif()
+
     if(CMAKE_DEBUG_POSTFIX)
       set_target_properties( ${EXE_TARGET_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     endif(CMAKE_DEBUG_POSTFIX)
@@ -420,12 +438,12 @@ if(OROCOS-RTT_FOUND)
         set(ORO_TYPEGEN_HEADERS_IMPORTS  "${ORO_TYPEGEN_HEADERS_IMPORTS} -i ${IMP}" )
       endforeach()
       # Working directory is necessary to be able to find the source files.
-      execute_process( COMMAND ${TYPEGEN_EXE} --output ${CMAKE_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
+      execute_process( COMMAND ${TYPEGEN_EXE} --output ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_NAME} ${ORO_TYPEGEN_HEADERS_IMPORTS} ${ORO_TYPEGEN_HEADERS_DEFAULT_ARGS} 
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
         )
       # work around generated manifest.xml file:
       #execute_process( COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_SOURCE_DIR}/typekit/manifest.xml )
-      add_subdirectory( ${CMAKE_SOURCE_DIR}/typekit ${CMAKE_BINARY_DIR}/typekit)
+      add_subdirectory( ${PROJECT_SOURCE_DIR}/typekit ${PROJECT_BINARY_DIR}/typekit)
 
       list(APPEND OROCOS_DEFINED_TYPES " -l${PROJECT_NAME}-typekit-${OROCOS_TARGET}")
     endif (NOT TYPEGEN_EXE)
@@ -461,7 +479,7 @@ if(OROCOS-RTT_FOUND)
       set( LIB_COMPONENT_VERSION VERSION ${ORO_TYPEKIT_VERSION})
     endif(ORO_TYPEKIT_VERSION)
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -486,6 +504,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/types;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+	INSTALL_NAME_DIR "@rpath"
+	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/types,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+	)
+    endif()
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 
       ${OROCOS-RTT_LIBRARIES} 
       )
@@ -533,7 +557,7 @@ if(OROCOS-RTT_FOUND)
       set( LIB_COMPONENT_VERSION VERSION ${ORO_PLUGIN_VERSION})
     endif(ORO_PLUGIN_VERSION)
 
-    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32")
+    if ( ${OROCOS_TARGET} STREQUAL "gnulinux" OR ${OROCOS_TARGET} STREQUAL "lxrt" OR ${OROCOS_TARGET} STREQUAL "xenomai" OR ${OROCOS_TARGET} STREQUAL "win32" OR ${OROCOS_TARGET} STREQUAL "macosx")
       set( LIB_NAME ${LIB_TARGET_NAME}-${OROCOS_TARGET})
     else()
       set( LIB_NAME ${LIB_TARGET_NAME})
@@ -560,6 +584,12 @@ if(OROCOS-RTT_FOUND)
       INSTALL_RPATH_USE_LINK_PATH 1
       INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}/plugins;${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
       )
+    if(APPLE)
+      SET_TARGET_PROPERTIES( ${LIB_TARGET_NAME} PROPERTIES
+	INSTALL_NAME_DIR "@rpath"
+	LINK_FLAGS "-Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib,-rpath,${CMAKE_INSTALL_PREFIX}/lib/orocos${OROCOS_SUFFIX}/plugins,-rpath,${CMAKE_INSTALL_PREFIX}/${AC_INSTALL_DIR}"
+	)
+    endif()
     orocos_add_compile_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_COMPILE_FLAGS})
     orocos_add_link_flags( ${LIB_TARGET_NAME} ${USE_OROCOS_LINK_FLAGS})
     TARGET_LINK_LIBRARIES( ${LIB_TARGET_NAME} 

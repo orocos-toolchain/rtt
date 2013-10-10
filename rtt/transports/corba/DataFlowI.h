@@ -117,9 +117,15 @@ namespace RTT {
             /** Keeps track of servants, such that we can dispose them
              * at the end.
              */
-            typedef std::list<
-                std::pair<RTT::corba::CDataFlowInterface_var, DataFlowInterface*>
-                > ServantMap;
+            struct ServantInfo
+            {
+                RTT::corba::CDataFlowInterface_var objref;
+                RTT::corba::CDataFlowInterface_i* servant;
+                DataFlowInterface* getDataFlowInterface() const { return servant->getDataFlowInterface(); }
+                ServantInfo(CDataFlowInterface_var objref, CDataFlowInterface_i* servant)
+                    : objref(objref), servant(servant) {}
+            };
+            typedef std::list<ServantInfo> ServantMap;
             static ServantMap s_servant_map;
 
             typedef std::list<
@@ -133,7 +139,9 @@ namespace RTT {
             CDataFlowInterface_i(DataFlowInterface* interface, PortableServer::POA_ptr poa);
             virtual ~CDataFlowInterface_i();
 
-            static void registerServant(CDataFlowInterface_ptr objref, DataFlowInterface* obj);
+            DataFlowInterface* getDataFlowInterface() const;
+
+            static void registerServant(CDataFlowInterface_ptr objref, CDataFlowInterface_i* servant);
             static void deregisterServant(DataFlowInterface* obj);
             static void clearServants();
             static DataFlowInterface* getLocalInterface(CDataFlowInterface_ptr objref);

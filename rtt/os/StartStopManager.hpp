@@ -67,7 +67,7 @@ namespace RTT
 
         static void Release();
 
-        typedef boost::function<int (void)> start_fun;
+        typedef int (*start_fun)(void);
         typedef boost::function<void (void)> stop_fun;
 
         /**
@@ -100,13 +100,14 @@ namespace RTT
 
         void res_collector( start_fun f )
         {
-            if ( f() != 0 )
+            if ( f && f() != 0 )
                 res = false;
         }
 
         static void caller( stop_fun f)
         {
-            f();
+	  if (f)
+	    f();
         }
 
         bool res;

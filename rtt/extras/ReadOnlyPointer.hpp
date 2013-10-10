@@ -147,6 +147,8 @@ namespace RTT
                 return;
             }
 
+            if (safe->value == ptr)
+                return;
 
             { os::MutexLock do_lock(safe->lock);
                 if (safe->readers == 2) // we are sole owner

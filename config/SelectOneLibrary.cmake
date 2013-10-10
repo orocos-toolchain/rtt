@@ -25,7 +25,7 @@ macro( SELECT_ONE_LIBRARY NAME RETURN)
 	LIST(LENGTH ${NAME} COUNT)
 	if (1 EQUAL COUNT)
 
-	  set(${RETURN} ${${NAME}}})
+	  set(${RETURN} ${${NAME}})
 
 	else (1 EQUAL COUNT)
 

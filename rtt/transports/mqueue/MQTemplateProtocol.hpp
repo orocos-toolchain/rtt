@@ -42,6 +42,7 @@
 #include "MQLib.hpp"
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
+#include "MQTemplateProtocolBase.hpp"
 
 #include <boost/type_traits/has_virtual_destructor.hpp>
 #include <boost/static_assert.hpp>
@@ -58,7 +59,7 @@ namespace RTT
        */
       template<class T>
       class MQTemplateProtocol
-          : public RTT::types::TypeMarshaller
+          : public MQTemplateProtocolBase<T>
       {
       public:
           /**
@@ -95,22 +96,6 @@ namespace RTT
               // re-implement this in case of complex types, like std::vector<T>.
               return sizeof(T);
           }
-
-          virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
-              try {
-                  base::ChannelElementBase::shared_ptr mq = new MQChannelElement<T>(port, *this, policy, is_sender);
-                  if ( !is_sender ) {
-                      // the receiver needs a buffer to store his messages in.
-                      base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
-                      mq->setOutput(buf);
-                  }
-                  return mq;
-              } catch(std::exception& e) {
-                  log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
-              }
-              return base::ChannelElementBase::shared_ptr();
-          }
-
       };
 }
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  StartStopManager.cxx 
+  tag: Peter Soetens  Thu Oct 22 11:59:07 CEST 2009  MQTemplateProtocol.hpp
 
-                        StartStopManager.cxx -  description
+                        MQTemplateProtocol.hpp -  description
                            -------------------
-    begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
+    begin                : Thu October 22 2009
+    copyright            : (C) 2009 Peter Soetens
+    email                : peter@thesourcworks.com
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -35,63 +35,54 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "os/StartStopManager.hpp"
 
-//needed for std::bind1st and std::mem_fun to compile under MSVC
-#include <functional>
+#ifndef ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
+#define ORO_MQ_TEMPATE_PROTOCOL_BASE_HPP
 
+#include "MQLib.hpp"
+#include "../../types/TypeMarshaller.hpp"
+#include "MQChannelElement.hpp"
+
+#include <boost/type_traits/has_virtual_destructor.hpp>
+#include <boost/static_assert.hpp>
 
 namespace RTT
-{ namespace os {
+{ namespace mqueue
+  {
+      /**
+       * For each transportable type T, specify the conversion functions.
+       * @warning This can only be used if T is a trivial type without
+       * meaningful (copy) constructor. For all other cases, or in doubt,
+       * use the MQSerializationProtocol class.
+       *
+       */
+      template<class T>
+      class MQTemplateProtocolBase
+          : public RTT::types::TypeMarshaller
+      {
+      public:
+          /**
+           * The given \a T parameter is the type for reading DataSources.
+           */
+          typedef T UserType;
 
-    StartStopManager* StartStopManager::mt;
+          virtual base::ChannelElementBase::shared_ptr createStream(base::PortInterface* port, const ConnPolicy& policy, bool is_sender) const {
+              try {
+                  base::ChannelElementBase::shared_ptr mq = new MQChannelElement<T>(port, *this, policy, is_sender);
+                  if ( !is_sender ) {
+                      // the receiver needs a buffer to store his messages in.
+                      base::ChannelElementBase::shared_ptr buf = detail::DataSourceTypeInfo<T>::getTypeInfo()->buildDataStorage(policy);
+                      mq->setOutput(buf);
+                  }
+                  return mq;
+              } catch(std::exception& e) {
+                  log(Error) << "Failed to create MQueue Channel element: " << e.what() << endlog();
+              }
+              return base::ChannelElementBase::shared_ptr();
+          }
 
-    StartStopManager* StartStopManager::Instance()
-    {
-        if ( mt == 0 )
-            mt = new StartStopManager();
-        return mt;
-    }
+      };
+}
+}
 
-    void StartStopManager::Release()
-    {
-        delete mt;
-        mt = 0;
-    }
-
-    void StartStopManager::startFunction( start_fun t )
-    {
-        startv.push_back(t);
-    }
-
-    void StartStopManager::stopFunction( stop_fun t )
-    {
-        stopv.push_back(t);
-    }
-
-    bool StartStopManager::start()
-    {
-        // save some memory trick
-        //startv.resize( startv.size() );
-        //stopv.resize( stopv.size() );
-        res = true;
-	for ( std::vector<start_fun>::iterator it = startv.begin(); it != startv.end(); ++it)
-	  this->res_collector( *it );
-        return res;
-    }
-
-    void StartStopManager::stop()
-    {
-        std::for_each(stopv.rbegin(), stopv.rend(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
-    }
-
-    StartStopManager::StartStopManager() : res(true) {}
-
-    StartStopManager::~StartStopManager()
-    {
-        startv.clear();
-        stopv.clear();
-    }
-
-
-}}
+#endif

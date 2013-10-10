@@ -259,6 +259,7 @@ namespace RTT
             ServerMap::iterator it = servers.find(c);
             if ( it != servers.end() ){
                 log(Info) << "Cleaning up TaskContextServer for "<< c->getName()<<endlog();
+                CDataFlowInterface_i::deregisterServant(c->provides().get());
                 delete it->second; // destructor will do the rest.
                 // note: destructor will self-erase from map !
             }

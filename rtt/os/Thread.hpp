@@ -136,9 +136,39 @@ namespace RTT
              */
             static void setStackSize(unsigned int ssize);
 
+            /**
+             * Sets the lock timeout for a thread which does not have a period
+             * The default is 1 second 
+             * @param timeout_in_s the timeout is seconds
+             */
+            static void setLockTimeoutNoPeriod(double timeout_in_s);
+
+            /**
+             * Set the lock timeout for a thread which has a period
+             * by a factor of the period
+             * The default is factor 10
+             * @param factor Factor of the period 
+             */
+            static void setLockTimeoutPeriodFactor(double factor);
+
+
             virtual bool start();
 
             virtual bool stop();
+
+            /** Sets the timeout for stop(), in seconds
+             *
+             * @see getStopTimeout
+             */
+            void setStopTimeout(Seconds s);
+
+            /** Returns the desired timeout for stop(), in seconds
+             *
+             * If not set with setStopTimeout, the timeout is deduced from the
+             * global values lock_timeout_period_factor and
+             * lock_timeout_no_period_in_s
+             */
+            Seconds getStopTimeout() const;
 
             bool setPeriod(Seconds s);
 
@@ -257,6 +287,16 @@ namespace RTT
             static unsigned int default_stack_size;
 
             /**
+             *  configuration of the lock timeout in seconds
+             */
+            static double lock_timeout_no_period_in_s;
+
+            /**
+             * configuration of the lock timeout for periodic tasks in seconds
+             */
+            static double lock_timeout_period_factor;
+
+            /**
              * Desired scheduler type.
              */
             int msched_type;
@@ -307,6 +347,11 @@ namespace RTT
              * The period as it is passed to the operating system.
              */
             NANO_TIME period;
+
+            /**
+             * The timeout, in seconds, for stop()
+             */
+            double stopTimeout;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
             // Pointer to Threadscope device

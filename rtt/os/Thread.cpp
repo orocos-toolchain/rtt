@@ -70,7 +70,15 @@ namespace RTT {
 
         unsigned int Thread::default_stack_size = 0;
 
+        double Thread::lock_timeout_no_period_in_s = 1.0;
+
+        double Thread::lock_timeout_period_factor = 10.0;
+
         void Thread::setStackSize(unsigned int ssize) { default_stack_size = ssize; }
+
+        void Thread::setLockTimeoutNoPeriod(double timeout_in_s) { lock_timeout_no_period_in_s = timeout_in_s; }
+       
+        void Thread::setLockTimeoutPeriodFactor(double factor) { lock_timeout_period_factor = factor; }
 
         void *thread_function(void* t)
         {
@@ -244,6 +252,7 @@ namespace RTT {
 #ifdef OROPKG_OS_THREAD_SCOPE
         ,d(NULL)
 #endif
+                    , stopTimeout(0)
         {
             this->setup(_priority, cpu_affinity, name);
         }
@@ -401,6 +410,20 @@ namespace RTT {
             }
         }
 
+        void Thread::setStopTimeout(Seconds value)
+        {
+            stopTimeout = value;
+        }
+
+        Seconds Thread::getStopTimeout() const
+        {
+            if (stopTimeout != 0)
+                return stopTimeout;
+            else if (period == 0)
+                return Thread::lock_timeout_no_period_in_s;
+            else return Thread::lock_timeout_period_factor * getPeriod();
+        }
+
         bool Thread::stop()
         {
             if (!active)
@@ -419,7 +442,7 @@ namespace RTT {
                     // breakLoop was ok, wait for loop() to return.
                 }
                 // always take this lock, but after breakLoop was called !
-                MutexTimedLock lock(breaker, 1.0); // hard-coded: wait 1 second.
+                MutexTimedLock lock(breaker, getStopTimeout()); 
                 if ( !lock.isSuccessful() ) {
                     log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after 1 second."<<endlog();
                     running = true;
@@ -427,7 +450,7 @@ namespace RTT {
                 }
             } else {
                 //
-                MutexTimedLock lock(breaker, 10*getPeriod() ); // hard-coded: wait 5 times the period
+                MutexTimedLock lock(breaker, getStopTimeout() ); 
                 if ( lock.isSuccessful() ) {
                     // drop out of periodic mode.
                     rtos_task_make_periodic(&rtos_task, 0);
@@ -635,6 +658,7 @@ namespace RTT {
         {
             rtos_task_set_wait_period_policy(&rtos_task, p);  
         }
+
     }
 }
 
