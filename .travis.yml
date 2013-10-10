@@ -22,8 +22,7 @@ before_install:
 
 install:
   # Build in an isolated catkin workspace
-  - export EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
-  - catkin_make_isolated --install -j2 --cmake-args $EXTRA_CMAKE_ARGS
+  - catkin_make_isolated --install -j2 --cmake-args -DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
 
 script:
   # Run tests
