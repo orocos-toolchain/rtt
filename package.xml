@@ -10,6 +10,7 @@
     <url>http://www.orocos.org/rtt</url>
     
     <buildtool_depend>cmake</buildtool_depend>
+    <run_depend>catkin</run_depend>
 
     <build_depend>xpath-perl</build_depend>
     <build_depend>boost</build_depend>
