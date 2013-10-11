@@ -22,12 +22,9 @@ before_install:
 
 install:
   # Build in an isolated catkin workspace
-  - catkin_make_isolated --install -j2 --cmake-args -DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
+  - export EXTRA_CMAKE_ARGS="-DENABLE_TESTS=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
+  - catkin_make_isolated --install -j2 --cmake-args $EXTRA_CMAKE_ARGS
 
 script:
   # Run tests
-  - cd ~/ws_isolated/build_isolated/rtt
-  - ls
-  - cat CMakeCache.txt
-  - make check
-  - cd ~/ws_isolated
+  - pushd build_isolated/rtt/install && make check && popd
