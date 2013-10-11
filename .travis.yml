@@ -26,4 +26,8 @@ install:
 
 script:
   # Run tests
-  - pushd build_isolated/rtt && make check && popd
+  - pushd build_isolated/rtt
+  - ls
+  - cat CMakeCache.txt
+  - make check
+  - popd
