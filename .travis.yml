@@ -27,4 +27,4 @@ install:
 
 script:
   # Run tests
-  - pushd build_isolated/rtt && make check && popd
+  - catkin_make_isolated --install -j1 --pkg rtt --make-args check
