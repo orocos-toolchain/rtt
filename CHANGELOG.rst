@@ -2,7 +2,7 @@
 Changelog for package rtt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.6.9 (2013-10-10)
+2.7.0 (2013-10-10)
 -------------------
 * catkin: added run_depend from catkin to package.xml for released packages
   Signed-off-by: Johannes Meyer <johannes@intermodalics.eu>
