@@ -139,6 +139,13 @@ if(OROCOS-RTT_FOUND)
   elseif(ORO_USE_CATKIN)
     # Disable auto-linking
     set(OROCOS_NO_AUTO_LINKING True)
+    # Make sure a devel prefix's pkgconfig path is available if it hasn't already been source'd
+    if (NOT $ENV{PKG_CONFIG_PATH} MATCHES "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig")
+      set(ENV{PKG_CONFIG_PATH} "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+    endif()
+    if(VERBOSE)
+      message(STATUS "[UseOrocos] PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
+    endif()
     # Get catkin build_depend dependencies
     orocos_get_catkin_deps( DEPS )
     #message("orocos_get_manifest_deps are: ${DEPS}")
