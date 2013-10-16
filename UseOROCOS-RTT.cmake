@@ -788,6 +788,7 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       set(PC_COMMENT "# This pkg-config file is for use in a Catkin devel space")
       set(PC_PREFIX ${CATKIN_DEVEL_PREFIX})
       #set(PC_LIB_DIR "\${libdir}/orocos${OROCOS_SUFFIX}/${PROJECT_NAME}")
+      set(PC_EXTRA_INCLUDE_DIRS "-I${PROJECT_SOURCE_DIR}/include")
 
       string(CONFIGURE "${PC_CONTENTS}" CATKIN_PC_CONTENTS @ONLY)
       file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
