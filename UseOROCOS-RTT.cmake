@@ -259,6 +259,7 @@ if(OROCOS-RTT_FOUND)
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_COMPS " -l${COMPONENT_LIB_NAME}")
+    list(APPEND OROCOS_DEFINED_TARGETS "${COMPONENT_NAME}")
   endmacro( orocos_component )
 
 # Utility libraries should add themselves by calling 'orocos_library()' 
@@ -334,6 +335,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_LIBS " -l${LIB_NAME}")
+    list(APPEND OROCOS_DEFINED_TARGETS "${LIB_TARGET_NAME}")
   endmacro( orocos_library )
 
   # Executables should add themselves by calling 'orocos_executable()'
@@ -525,6 +527,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_TYPES " -l${LIB_NAME}")
+    list(APPEND OROCOS_DEFINED_TARGETS "${LIB_TARGET_NAME}")
   endmacro( orocos_typekit )
 
   # plugin libraries should add themselves by calling 'orocos_plugin()' 
@@ -609,6 +612,7 @@ macro( orocos_library LIB_TARGET_NAME )
 
     # Necessary for .pc file generation
     list(APPEND OROCOS_DEFINED_PLUGINS " -l${LIB_NAME}")
+    list(APPEND OROCOS_DEFINED_TARGETS "${LIB_TARGET_NAME}")
   endmacro( orocos_plugin )
 
   # service libraries should add themselves by calling 'orocos_service()' 
@@ -793,6 +797,18 @@ Cflags: -I\${includedir} \@PC_EXTRA_INCLUDE_DIRS\@
       file(WRITE ${CATKIN_DEVEL_PREFIX}/lib/pkgconfig/${PC_NAME}.pc ${CATKIN_PC_CONTENTS})
 
     endif()
+
+    # Store a list of exported targets and include directories on the cache so that other packages within the same workspace can link to them.
+    message(STATUS "[UseOrocos] Exporting targets ${OROCOS_DEFINED_TARGETS}.")
+    list(APPEND ${PC_NAME}_EXPORTED_OROCOS_TARGETS      "${OROCOS_DEFINED_TARGETS}")
+    list(APPEND ${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
+    if (ORO_USE_ROSBUILD)
+      list(APPEND ${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/orocos")
+    elseif (ORO_USE_CATKIN)
+      list(APPEND ${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS "${CATKIN_DEVEL_PREFIX}/include/orocos")
+    endif()
+    set(${PC_NAME}_EXPORTED_OROCOS_TARGETS      ${${PC_NAME}_EXPORTED_OROCOS_TARGETS} CACHE STRING "Targets exported by package ${PC_NAME}")
+    set(${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS ${${PC_NAME}_EXPORTED_OROCOS_INCLUDE_DIRS} CACHE STRING "Include directories exported by package ${PC_NAME}")
 
     # Also set the uninstall target:
     orocos_uninstall_target()
