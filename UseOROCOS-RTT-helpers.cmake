@@ -273,8 +273,21 @@ macro( orocos_use_package PACKAGE )
 
   # Check a flag so we don't over-link
   if(NOT ${PACKAGE}_${OROCOS_TARGET}_USED)
-    # Get the package and dependency build flags
-    orocos_find_package(${PACKAGE} ${ARGN})
+    # Check if ${PACKAGE}_EXPORTED_OROCOS_TARGETS is set
+    if(DEFINED ${PACKAGE}_EXPORTED_OROCOS_TARGETS OR DEFINED ${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS)
+      message(STATUS "[UseOrocos] Found package '${PACKAGE}' in the same workspace.")
+
+      # The package has been generated in the same workspace. Just use the exported targets and include directories.
+      set(${PACKAGE}_FOUND True)
+      set(${PACKAGE}_INCLUDE_DIRS ${${PACKAGE}_EXPORTED_OROCOS_INCLUDE_DIRS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_INCLUDE_DIRS})
+      set(${PACKAGE}_LIBRARY_DIRS "")
+      set(${PACKAGE}_LIBRARIES ${${PACKAGE}_EXPORTED_OROCOS_TARGETS} ${${PACKAGE}-${OROCOS_TARGET}_EXPORTED_OROCOS_TARGETS})
+
+      list(APPEND USE_OROCOS_EXPORTED_TARGETS ${${PACKAGE}_LIBRARIES})
+    else()
+      # Get the package and dependency build flags
+      orocos_find_package(${PACKAGE} ${ARGN})
+    endif()
 
     if(${PACKAGE}_FOUND)
       message(STATUS "[UseOrocos] Found package '${PACKAGE}'.")
@@ -315,6 +328,9 @@ macro( orocos_use_package PACKAGE )
       endif()
       if(DEFINED USE_OROCOS_LDFLAGS_OTHER)
         list(REMOVE_DUPLICATES USE_OROCOS_LDFLAGS_OTHER)
+      endif()
+      if(DEFINED USE_OROCOS_EXPORTED_TARGETS)
+        list(REMOVE_DUPLICATES USE_OROCOS_EXPORTED_TARGETS)
       endif()
 
       # Backwards compatibility
