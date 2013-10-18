@@ -162,7 +162,7 @@ if(OROCOS-RTT_FOUND)
 
   elseif(ORO_USE_CATKIN)
     # Disable auto-linking
-    set(OROCOS_NO_AUTO_LINKING True)
+    set(OROCOS_NO_AUTO_LINKING True CACHE Bool "" FORCE)
 
     # Parse package.xml file
     if(NOT _CATKIN_CURRENT_PACKAGE)
