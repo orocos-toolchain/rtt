@@ -41,7 +41,7 @@
 #include "rtt-config.h"
 #include "base/PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#include "internal/DataSources.hpp"
+#include "internal/ValueDataSource.hpp"
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/call_traits.hpp>
 #include "Logger.hpp"

@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  ConditionCache.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
-                        ConditionCache.hpp -  description
+                        DataSources.hpp -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Mon June 26 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,60 +36,72 @@
  ***************************************************************************/
 
 
-#ifndef CONDITION_CACHE_HPP
-#define CONDITION_CACHE_HPP
+#ifndef RTT_INTERNAL_UNARYDATASOURCE_HPP
+#define RTT_INTERNAL_UNARYDATASOURCE_HPP
 
-#include "ConditionInterface.hpp"
+#include "DataSource.hpp"
 
 namespace RTT
-{ namespace scripting {
+{
+    namespace internal {
+  /**
+   * A DataSource which returns the return value of a unary function.
+   * The return value of get() and the input argument are infered from the
+   * \a function signature type.
+   */
+  template <typename function>
+  class UnaryDataSource
+    : public DataSource<typename remove_cr<typename function::result_type>::type>
+  {
+    typedef typename remove_cr<typename function::result_type>::type value_t;
+    typedef typename remove_cr<typename function::argument_type>::type arg_t;
+    typename DataSource<arg_t>::shared_ptr mdsa;
+    function fun;
+    mutable value_t mdata;
+  public:
+    typedef boost::intrusive_ptr<UnaryDataSource<function> > shared_ptr;
 
+      /**
+       * Create a DataSource which returns the return value of a function
+       * \a f which is given argument \a a.
+       */
+    UnaryDataSource( typename DataSource<arg_t>::shared_ptr a, function f )
+      : mdsa( a ), fun( f )
+      {
+      }
 
-    /**
-     * A conditional that evaluates and caches another Condition.
-     * In order to read the cached value, use ConditionBoolDataSource.
-     * By default, and after a reset, the cached condition returned in getResult() returns false.
-     */
-    class RTT_SCRIPTING_API ConditionCache
-        : public ConditionInterface
+    virtual value_t get() const
+      {
+        return mdata = fun( mdsa->get() );
+      }
+
+    virtual value_t value() const
+      {
+        return mdata;
+      }
+
+    typename DataSource<value_t>::const_reference_t rvalue() const
     {
-        boost::shared_ptr<ConditionInterface> mc;
-        internal::AssignableDataSource<bool>::shared_ptr result;
-    public:
-        ConditionCache( ConditionInterface* c, internal::AssignableDataSource<bool>::shared_ptr ds = internal::AssignableDataSource<bool>::shared_ptr() )
-            : mc(c), result( ds ? ds : new internal::ValueDataSource<bool>(false) )
-        {
-        }
+        return mdata;
+    }
 
-        virtual ~ConditionCache()
-        {
-        }
 
-        virtual bool evaluate()
-        {
-            result->set( mc->evaluate() );
-            return result->value();
-        }
+    void reset()
+      {
+        mdsa->reset();
+      }
 
-        virtual void reset() {
-            result->set( false );
-        }
+    virtual UnaryDataSource<function>* clone() const
+      {
+          return new UnaryDataSource<function>(mdsa.get(), fun);
+      }
 
-        internal::DataSource<bool>::shared_ptr getResult() { return result; }
-
-        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
-        {
-            return new ConditionCache( mc->copy(alreadyCloned), result->copy(alreadyCloned) );
-        }
-
-        /**
-         * A clone will cache the same condition.
-         */
-        virtual ConditionInterface* clone() const
-        {
-            return new ConditionCache( mc->clone(), result );
-        }
-    };
-}}
-
+    virtual UnaryDataSource<function>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+          return new UnaryDataSource<function>( mdsa->copy( alreadyCloned ), fun );
+      }
+  };
+    }
+}
 #endif
+
+

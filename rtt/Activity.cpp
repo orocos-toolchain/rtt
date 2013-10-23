@@ -41,6 +41,7 @@
 #pragma implementation
 #endif
 #include "Time.hpp"
+#include "base/RunnableInterface.hpp"
 #include "Activity.hpp"
 #include "os/MutexLock.hpp"
 #include "Logger.hpp"

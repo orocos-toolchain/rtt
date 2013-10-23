@@ -37,8 +37,8 @@
 
 
 #include "DataSourceCommand.hpp"
-
 #include "../base/ActionInterface.hpp"
+#include "DataSourceTypeInfo.hpp"
 
 namespace RTT {
     using namespace detail;

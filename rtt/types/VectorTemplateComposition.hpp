@@ -39,7 +39,6 @@
 #include "SequenceTypeInfo.hpp"
 #include "Types.hpp"
 #include "../Logger.hpp"
-#include "../internal/DataSources.hpp"
 #include <ostream>
 #include <sstream>
 #include <vector>

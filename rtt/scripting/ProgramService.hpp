@@ -42,7 +42,6 @@
 
 #include "../Service.hpp"
 #include "FunctionGraph.hpp"
-#include "../internal/DataSources.hpp"
 
 namespace RTT
 { namespace scripting {

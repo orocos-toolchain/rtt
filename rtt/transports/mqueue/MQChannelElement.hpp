@@ -42,8 +42,8 @@
 #include "MQSendRecv.hpp"
 #include "../../Logger.hpp"
 #include "../../base/ChannelElement.hpp"
-#include "../../internal/DataSource.hpp"
-#include "../../internal/DataSources.hpp"
+#include "../../internal/ValueDataSource.hpp"
+#include "../../internal/LateConstReferenceDataSource.hpp"
 #include <stdexcept>
 
 namespace RTT

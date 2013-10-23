@@ -47,6 +47,7 @@
 #define TYPEMARSHALLER_HPP_
 
 #include "TypeTransporter.hpp"
+#include "../base/DataSourceBase.hpp"
 
 namespace RTT
 {

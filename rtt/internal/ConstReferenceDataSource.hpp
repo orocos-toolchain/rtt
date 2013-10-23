@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  AssignCommand.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
-                        AssignCommand.hpp -  description
+                        DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -35,72 +35,77 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "AssignableDataSource.hpp"
 
-#ifndef ORO_ASSIGNCOMMAND_HPP
-#define ORO_ASSIGNCOMMAND_HPP
+#ifndef RTT_INTERNAL_CONSTREFERENCEDATASOURCE_HPP
+#define RTT_INTERNAL_CONSTREFERENCEDATASOURCE_HPP
 
-#include "../base/ActionInterface.hpp"
+#include "DataSource.hpp"
 
 namespace RTT
 {
     namespace internal {
-
         /**
-         * This is a command that will assign the value of an expression to
-         * another  at runtime.  You pass it the AssignableDataSource that
-         * you want to assign to, and the DataSource that you want to assign
-         * on construction, and it will take care of the assignment.  Note
-         * that both DataSource's need to be of a convertible type, and this
-         * class needs that type as its template parameter..
-         * @param T Target type
-         * @param S Source type
+         * A DataSource which is used to read a const reference to an
+         * external value.
+         * @param T The result data type of get().
          */
-        template<typename T, typename S = T>
-        class AssignCommand
-            : public base::ActionInterface
+        template<typename T>
+        class ConstReferenceDataSource
+            : public DataSource<T>
         {
-        public:
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSource<S>::const_ptr RHSSource;
-        private:
-            LHSSource lhs;
-            RHSSource rhs;
-            bool news;
+            // a reference to a value_t
+            typename DataSource<T>::const_reference_t mref;
         public:
             /**
-             * Assign \a r (rvalue) to \a l (lvalue);
+             * Use shared_ptr.
              */
-            AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r ), news(false)
+            ~ConstReferenceDataSource();
+
+            typedef boost::intrusive_ptr<ConstReferenceDataSource<T> > shared_ptr;
+
+            ConstReferenceDataSource( typename DataSource<T>::const_reference_t ref );
+
+            typename DataSource<T>::result_t get() const
             {
+                return mref;
             }
 
-            void readArguments() {
-                news = rhs->evaluate();
-            }
-
-            bool execute()
+            typename DataSource<T>::result_t value() const
             {
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    news=false;
-                    return true;
-                }
-                return false;
+                return mref;
             }
 
-            virtual base::ActionInterface* clone() const
+            typename DataSource<T>::const_reference_t rvalue() const
             {
-                return new AssignCommand( lhs.get(), rhs.get() );
+                return mref;
             }
 
-            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                return new AssignCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
-            }
+            virtual ConstReferenceDataSource<T>* clone() const;
+
+            virtual ConstReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
         };
+
+    template<typename T>
+    ConstReferenceDataSource<T>::~ConstReferenceDataSource() {}
+
+    template<typename T>
+    ConstReferenceDataSource<T>::ConstReferenceDataSource( typename DataSource<T>::const_reference_t ref )
+        : mref( ref )
+    {
+    }
+
+    template<typename T>
+    ConstReferenceDataSource<T>* ConstReferenceDataSource<T>::clone() const
+    {
+        return new ConstReferenceDataSource<T>(mref);
+    }
+
+    template<typename T>
+    ConstReferenceDataSource<T>* ConstReferenceDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+        return const_cast<ConstReferenceDataSource<T>*>(this); // no copy needed, data is outside.
+    }
+
     }
 }
 
 #endif
-

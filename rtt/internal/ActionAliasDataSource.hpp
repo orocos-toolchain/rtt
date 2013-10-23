@@ -1,7 +1,8 @@
-/***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  AssignCommand.hpp
 
-                        AssignCommand.hpp -  description
+/***************************************************************************
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
+
+                        DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -35,72 +36,79 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "AssignableDataSource.hpp"
 
-#ifndef ORO_ASSIGNCOMMAND_HPP
-#define ORO_ASSIGNCOMMAND_HPP
+#ifndef RTT_INTERNAL_ACTIONALIASDATASOURCE_HPP
+#define RTT_INTERNAL_ACTIONALIASDATASOURCE_HPP
 
-#include "../base/ActionInterface.hpp"
+#include "DataSource.hpp"
 
 namespace RTT
 {
+    namespace base
+    {
+        class ActionInterface;
+    }
+
     namespace internal {
-
         /**
-         * This is a command that will assign the value of an expression to
-         * another  at runtime.  You pass it the AssignableDataSource that
-         * you want to assign to, and the DataSource that you want to assign
-         * on construction, and it will take care of the assignment.  Note
-         * that both DataSource's need to be of a convertible type, and this
-         * class needs that type as its template parameter..
-         * @param T Target type
-         * @param S Source type
+         * A DataSource which is used to execute an action
+         * and then return the value of another DataSource.
+         * @param T The result data type of get().
          */
-        template<typename T, typename S = T>
-        class AssignCommand
-            : public base::ActionInterface
+        template<typename T>
+        class ActionAliasDataSource
+            : public DataSource<T>
         {
+            base::ActionInterface* action;
+            typename DataSource<T>::shared_ptr alias;
         public:
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSource<S>::const_ptr RHSSource;
-        private:
-            LHSSource lhs;
-            RHSSource rhs;
-            bool news;
-        public:
-            /**
-             * Assign \a r (rvalue) to \a l (lvalue);
-             */
-            AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r ), news(false)
+            typedef boost::intrusive_ptr<ActionAliasDataSource<T> > shared_ptr;
+
+            ActionAliasDataSource(base::ActionInterface* act, DataSource<T>* ds)
+            : action(act), alias(ds)
+              {}
+
+            ~ActionAliasDataSource() { delete action; }
+
+            bool evaluate() const {
+                // since get() may return a copy, we override evaluate() to
+                // call alias->get() with alias->evaluate().
+                action->readArguments();
+                bool r = action->execute();
+                action->reset();
+                // alias may only be evaluated after action was executed.
+                alias->evaluate();
+                return r;
+            }
+
+            typename DataSource<T>::result_t get() const
             {
+                action->readArguments();
+                action->execute();
+                action->reset();
+                return alias->get();
             }
 
-            void readArguments() {
-                news = rhs->evaluate();
-            }
-
-            bool execute()
+            typename DataSource<T>::result_t value() const
             {
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    news=false;
-                    return true;
-                }
-                return false;
+                return alias->value();
             }
 
-            virtual base::ActionInterface* clone() const
+            typename DataSource<T>::const_reference_t rvalue() const
             {
-                return new AssignCommand( lhs.get(), rhs.get() );
+                return alias->rvalue();
             }
 
-            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                return new AssignCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
+            virtual void reset() { alias->reset(); }
+
+            virtual ActionAliasDataSource<T>* clone() const {
+                return new ActionAliasDataSource(action, alias.get());
+            }
+            virtual ActionAliasDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                return new ActionAliasDataSource( action->copy(alreadyCloned), alias->copy(alreadyCloned) );
             }
         };
     }
 }
-
 #endif
 

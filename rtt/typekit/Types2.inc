@@ -12,6 +12,7 @@
 #include "../OutputPort.hpp"
 #include "../Attribute.hpp"
 #include "../Property.hpp"
+#include "../internal/ConstantDataSource.hpp"
 
 
 

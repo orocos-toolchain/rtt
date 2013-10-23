@@ -41,7 +41,6 @@
 
 #include <string>
 #include <boost/make_shared.hpp>
-#include "DataSources.hpp"
 #include "../Attribute.hpp"
 #include "../rtt-fwd.hpp"
 #include "../SendStatus.hpp"

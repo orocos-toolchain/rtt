@@ -35,36 +35,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef CORELIB_DATASOURCE_HPP
-#define CORELIB_DATASOURCE_HPP
+#ifndef RTT_INTERNAL_DATASOURCE_HPP
+#define RTT_INTERNAL_DATASOURCE_HPP
 
 #include <map>
-#include <string>
-#include <exception>
-#include "../rtt-config.h"
-#include <boost/call_traits.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/type_traits/add_const.hpp>
 
 #include "../base/DataSourceBase.hpp"
+#include "DataSourceTypeInfo.hpp"
 
 namespace RTT
 { namespace internal {
-
-
-#ifndef ORO_EMBEDDED
-    /**
-     * This exception is thrown if the target and source type
-     * of an assignment of a DataSource with a base::DataSourceBase
-     * differ.
-     */
-    struct RTT_API bad_assignment : public std::exception
-    {
-        virtual ~bad_assignment() throw();
-        virtual const char* what() const throw();
-    };
-#endif
 
   namespace details
   {
@@ -176,65 +159,54 @@ namespace RTT
 
   };
 
-  /**
-   * A DataSource which has set() methods.
-   * @param T See DataSource for the semantics of \a T.
-   */
   template<typename T>
-  class AssignableDataSource
-    : public DataSource<T>
+  DataSource<T>::~DataSource()
   {
-  protected:
-      ~AssignableDataSource();
-  public:
-      typedef typename DataSource<T>::value_t value_t;
-      typedef typename DataSource<T>::const_reference_t const_reference_t;
-      typedef typename boost::call_traits<value_t>::param_type param_t;
-      typedef typename boost::call_traits<value_t>::reference reference_t;
+  }
 
-      /**
-       * Use this type to store a pointer to an AssignableDataSource.
-       */
-      typedef boost::intrusive_ptr<AssignableDataSource<T> > shared_ptr;
-      typedef typename boost::intrusive_ptr<const AssignableDataSource<T> > const_ptr;
+  template< typename T>
+  std::string DataSource<T>::getType() const
+  {
+      return DataSource<T>::GetType();
+  }
 
-      /**
-       * Set this DataSource with a value.
-       */
-      virtual void set( param_t t ) = 0;
+  template< typename T>
+  std::string DataSource<T>::getTypeName() const
+  {
+      return DataSource<T>::GetTypeName();
+  }
 
-      /**
-       * Get a reference to the value of this DataSource.
-       * Getting a reference to an internal data structure is not thread-safe.
-       */
-      virtual reference_t set() = 0;
+  template< typename T>
+  std::string DataSource<T>::GetType()
+  {
+      return DataSourceTypeInfo< T >::getTypeName() + DataSourceTypeInfo< T >::getQualifier();
 
-      /** Generic implementation of getRawPointer() based on set()
-       */
-      void* getRawPointer() { return &set(); }
+  }
 
-      virtual bool isAssignable() const { return true; }
+  template< typename T>
+  std::string DataSource<T>::GetTypeName()
+  {
+      return DataSourceTypeInfo< T >::getTypeName();
 
-      virtual bool update( base::DataSourceBase* other );
+  }
 
-      virtual base::ActionInterface* updateAction( base::DataSourceBase* other);
+  template< typename T>
+  const types::TypeInfo* DataSource<T>::getTypeInfo() const { return GetTypeInfo(); }
 
-      virtual AssignableDataSource<T>* clone() const = 0;
+  template< typename T>
+  const types::TypeInfo* DataSource<T>::GetTypeInfo() { return DataSourceTypeInfo<T>::getTypeInfo(); }
 
-      virtual AssignableDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const = 0;
+  template< typename T>
+  bool DataSource<T>::evaluate() const
+  {
+      this->get();
+      return true;
+  }
 
-      /**
-       * This method narrows a base::DataSourceBase to a typeded AssignableDataSource,
-       * possibly returning a new object.
-       */
-      static AssignableDataSource<T>* narrow(base::DataSourceBase* db);
+  template<>
+  inline void const* DataSource<void>::getRawConstPointer() { return 0; }
 
-  };
 }}
 
-// workaround inclusion dependencies.
-#ifndef ORO_CORELIB_DATASOURCES_HPP
-#include "DataSource.inl"
-#endif
 #endif
 

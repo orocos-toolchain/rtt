@@ -6,6 +6,8 @@
 #include "../Attribute.hpp"
 #include "../Logger.hpp"
 #include "../rtt-config.h"
+#include "../internal/ActionAliasDataSource.hpp"
+#include "../internal/ActionAliasAssignableDataSource.hpp"
 
 namespace RTT
 {

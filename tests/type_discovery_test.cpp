@@ -23,7 +23,6 @@
 #include <boost/array.hpp>
 
 #include <rtt-fwd.hpp>
-#include <internal/DataSources.hpp>
 #include <types/type_discovery.hpp>
 #include <os/fosi.h>
 #include <boost/lambda/lambda.hpp>

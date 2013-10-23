@@ -39,15 +39,16 @@
 #ifndef ORO_TYPE_TRANSPORTER_HPP
 #define ORO_TYPE_TRANSPORTER_HPP
 
-#include "../base/DataSourceBase.hpp"
-#include "../base/BufferBase.hpp"
 #include "../base/ChannelElementBase.hpp"
 
 namespace RTT
 {
+    namespace base {
+        class PortInterface;
+    }
+    class ConnPolicy;
 
     namespace types {
-
         /**
          * This interface defines the function a transport protocol
          * must support in order to allow Orocos components to

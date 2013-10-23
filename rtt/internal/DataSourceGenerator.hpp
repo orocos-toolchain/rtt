@@ -39,7 +39,6 @@
 #ifndef ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 #define ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 
-#include "DataSources.hpp"
 #include <boost/utility/enable_if.hpp>
 #include <boost/ref.hpp>
 #include <boost/type_traits/is_base_of.hpp>

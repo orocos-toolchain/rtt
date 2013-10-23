@@ -39,13 +39,11 @@
 #ifndef ORO_TASK_DATASOURCE_STORAGE_HPP
 #define ORO_TASK_DATASOURCE_STORAGE_HPP
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_arity.hpp>
-#include "DataSources.hpp"
 #include "BindStorage.hpp"
+#include "LateReferenceDataSource.hpp"
+#include "LateConstReferenceDataSource.hpp"
 
 namespace RTT
 {

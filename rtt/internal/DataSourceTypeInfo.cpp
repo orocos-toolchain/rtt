@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  ConditionCache.hpp
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSource.cxx
 
-                        ConditionCache.hpp -  description
+                        DataSource.cxx -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Mon May 10 2004
+    copyright            : (C) 2004 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,61 +35,42 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DataSourceTypeInfo.hpp"
 
-#ifndef CONDITION_CACHE_HPP
-#define CONDITION_CACHE_HPP
+namespace RTT {
+    namespace internal {
+    using RTT::types::TypeInfo;
 
-#include "ConditionInterface.hpp"
+    TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
 
-namespace RTT
-{ namespace scripting {
+    const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
+    const std::string& DataSourceTypeInfo<UnknownType>::getTypeName() { return getTypeInfo()->getTypeName(); }
+    const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
+    TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() {
+        if (!TypeInfoObject)
+            TypeInfoObject = new TypeInfo("unknown_t");
+        return TypeInfoObject;
+    }
 
+    const std::string DataSourceTypeInfo<UnknownType>::noqual("");
+    const std::string DataSourceTypeInfo<UnknownType>::cqual(" const");
+    const std::string DataSourceTypeInfo<UnknownType>::refqual(" &");
+    const std::string DataSourceTypeInfo<UnknownType>::crefqual(" const&");
+    const std::string DataSourceTypeInfo<UnknownType>::ptrqual(" *");
+    const std::string DataSourceTypeInfo<UnknownType>::cptrqual(" const*");
 
-    /**
-     * A conditional that evaluates and caches another Condition.
-     * In order to read the cached value, use ConditionBoolDataSource.
-     * By default, and after a reset, the cached condition returned in getResult() returns false.
-     */
-    class RTT_SCRIPTING_API ConditionCache
-        : public ConditionInterface
-    {
-        boost::shared_ptr<ConditionInterface> mc;
-        internal::AssignableDataSource<bool>::shared_ptr result;
-    public:
-        ConditionCache( ConditionInterface* c, internal::AssignableDataSource<bool>::shared_ptr ds = internal::AssignableDataSource<bool>::shared_ptr() )
-            : mc(c), result( ds ? ds : new internal::ValueDataSource<bool>(false) )
-        {
-        }
+    // (void) type info
+    TypeInfo* DataSourceTypeInfo<void>::TypeInfoObject = 0;
+    const std::string DataSourceTypeInfo<void>::tname("void");
 
-        virtual ~ConditionCache()
-        {
-        }
+    const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
+    const std::string& DataSourceTypeInfo<void>::getTypeName() { return tname; }
+    const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
+    const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() {
+        if (!TypeInfoObject)
+            return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+        return TypeInfoObject;
+    }
+    }
+}
 
-        virtual bool evaluate()
-        {
-            result->set( mc->evaluate() );
-            return result->value();
-        }
-
-        virtual void reset() {
-            result->set( false );
-        }
-
-        internal::DataSource<bool>::shared_ptr getResult() { return result; }
-
-        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
-        {
-            return new ConditionCache( mc->copy(alreadyCloned), result->copy(alreadyCloned) );
-        }
-
-        /**
-         * A clone will cache the same condition.
-         */
-        virtual ConditionInterface* clone() const
-        {
-            return new ConditionCache( mc->clone(), result );
-        }
-    };
-}}
-
-#endif

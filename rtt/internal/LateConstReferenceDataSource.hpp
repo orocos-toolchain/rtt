@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  AssignCommand.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
-                        AssignCommand.hpp -  description
+                        DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -35,72 +35,69 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "AssignableDataSource.hpp"
 
-#ifndef ORO_ASSIGNCOMMAND_HPP
-#define ORO_ASSIGNCOMMAND_HPP
+#ifndef RTT_INTERNAL_LATECONSTREFERENCEDATASOURCE_HPP
+#define RTT_INTERNAL_LATECONSTREFERENCEDATASOURCE_HPP
 
-#include "../base/ActionInterface.hpp"
+#include "DataSource.hpp"
 
 namespace RTT
 {
     namespace internal {
-
-        /**
-         * This is a command that will assign the value of an expression to
-         * another  at runtime.  You pass it the AssignableDataSource that
-         * you want to assign to, and the DataSource that you want to assign
-         * on construction, and it will take care of the assignment.  Note
-         * that both DataSource's need to be of a convertible type, and this
-         * class needs that type as its template parameter..
-         * @param T Target type
-         * @param S Source type
-         */
-        template<typename T, typename S = T>
-        class AssignCommand
-            : public base::ActionInterface
-        {
-        public:
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSource<S>::const_ptr RHSSource;
-        private:
-            LHSSource lhs;
-            RHSSource rhs;
-            bool news;
-        public:
             /**
-             * Assign \a r (rvalue) to \a l (lvalue);
+             * A DataSource which is used to manipulate a const reference to an
+             * external value, by means of a pointer, which can be set after
+             * the data source was created. It's the responsibility of the creator
+             * of this object that the data source is not used before the pointer
+             * is set using setPointer.
+             * @param T The result data type of get().
              */
-            AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r ), news(false)
+            template<typename T>
+            class LateConstReferenceDataSource
+                : public DataSource<T>
             {
-            }
+                // a reference to a value_t
+                const typename DataSource<T>::value_t* mptr;
+            public:
 
-            void readArguments() {
-                news = rhs->evaluate();
-            }
+                typedef boost::intrusive_ptr<LateConstReferenceDataSource<T> > shared_ptr;
 
-            bool execute()
-            {
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    news=false;
-                    return true;
+                LateConstReferenceDataSource(const typename DataSource<T>::value_t* ptr = 0)
+                :mptr(ptr) {}
+
+                void setPointer(const typename AssignableDataSource<T>::value_t* ptr ) {
+                    mptr = ptr;
                 }
-                return false;
-            }
 
-            virtual base::ActionInterface* clone() const
-            {
-                return new AssignCommand( lhs.get(), rhs.get() );
-            }
+                void const* getRawDataConst()
+                {
+                    return mptr;
+                }
 
-            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                return new AssignCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
-            }
-        };
+                typename DataSource<T>::result_t get() const
+                {
+                    return *mptr;
+                }
+
+                typename DataSource<T>::result_t value() const
+                {
+                    return *mptr;
+                }
+
+                typename DataSource<T>::const_reference_t rvalue() const
+                {
+                    return *mptr;
+                }
+
+                virtual LateConstReferenceDataSource<T>* clone() const {
+                    return new LateConstReferenceDataSource<T>( mptr );
+                }
+
+                virtual LateConstReferenceDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>&  ) const {
+                    return const_cast<LateConstReferenceDataSource<T>* >(this);
+                }
+            };
     }
 }
-
 #endif
 

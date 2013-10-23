@@ -38,10 +38,12 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
+#include "../internal/ConstReferenceDataSource.hpp"
 #include "PropertyBase.hpp"
-#include "internal/DataSources.hpp"
 #include "PropertyBag.hpp"
 #include "../types/PropertyDecomposition.hpp"
+#include "../types/TypeInfo.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
 
 namespace RTT {
     using namespace detail;

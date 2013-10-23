@@ -41,8 +41,11 @@
 #include "CorbaLib.hpp"
 
 #include "../../types/Types.hpp"
-#include "../../internal/DataSources.hpp"
+#include "../../base/DataSourceBase.hpp"
 #include "../../internal/DataSourceCommand.hpp"
+#include "../../internal/AssignableDataSource.hpp"
+#include "../../internal/ValueDataSource.hpp"
+#include "../../internal/ActionAliasDataSource.hpp"
 #include "../../SendStatus.hpp"
 #include "../../Handle.hpp"
 

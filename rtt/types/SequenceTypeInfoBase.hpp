@@ -46,6 +46,8 @@
 #include "../internal/FusedFunctorDataSource.hpp"
 #include "../internal/DataSourceGenerator.hpp"
 #include <boost/lexical_cast.hpp>
+#include "../internal/ConstantDataSource.hpp"
+#include "../internal/DataSourceTypeInfo.hpp"
 
 namespace RTT
 {

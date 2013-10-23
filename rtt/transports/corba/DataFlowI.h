@@ -46,7 +46,6 @@
 #endif
 #include "CorbaConversion.hpp"
 #include "../../base/ChannelElement.hpp"
-#include "../../internal/DataSources.hpp"
 #include "CorbaTypeTransporter.hpp"
 #include <list>
 #include <rtt/os/Mutex.hpp>

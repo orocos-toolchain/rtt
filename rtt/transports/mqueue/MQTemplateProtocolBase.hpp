@@ -43,9 +43,6 @@
 #include "../../types/TypeMarshaller.hpp"
 #include "MQChannelElement.hpp"
 
-#include <boost/type_traits/has_virtual_destructor.hpp>
-#include <boost/static_assert.hpp>
-
 namespace RTT
 { namespace mqueue
   {

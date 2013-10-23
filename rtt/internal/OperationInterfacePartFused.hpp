@@ -65,6 +65,7 @@
 #include <string>
 
 #include "DataSource.hpp"
+#include "UnboundDataSource.hpp"
 #include "CreateSequence.hpp"
 #include "FusedFunctorDataSource.hpp"
 #include "../OperationInterfacePart.hpp"

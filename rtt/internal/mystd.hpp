@@ -50,19 +50,12 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
+#include "bits/remove_cr.hpp"
 
 // here we define some generally useful template stuff that is missing
 // from the STL..
 namespace RTT { namespace internal {
     using namespace boost;
-
-    // combines remove_reference and remove_const
-    template<typename T>
-    struct remove_cr
-    {
-      typedef typename boost::remove_const<
-        typename boost::remove_reference<T>::type>::type type;
-    };
 
     template<typename T>
     struct is_pure_reference

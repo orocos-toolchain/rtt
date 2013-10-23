@@ -42,7 +42,6 @@
 #include "../types/Types.hpp"
 #include "../FlowStatus.hpp"
 #include "../ConnPolicy.hpp"
-#include "../internal/DataSources.hpp"
 #include "../typekit/Types.hpp"
 #include "../rtt-fwd.hpp"
 #include "../internal/mystd.hpp"
@@ -50,6 +49,7 @@
 #ifdef OS_RT_MALLOC
 #include "../rt_string.hpp"
 #endif
+#include "../internal/NArityDataSource.hpp"
 
 namespace RTT
 {

@@ -23,7 +23,6 @@
 
 #include <rtt-fwd.hpp>
 
-#include <internal/DataSources.hpp>
 #include <internal/PartDataSource.hpp>
 #include <internal/ArrayPartDataSource.hpp>
 //#include <internal/OffsetPartDataSource.hpp>

@@ -39,6 +39,8 @@
 #ifndef ORO_CREATESEQUENCE_HPP_
 #define ORO_CREATESEQUENCE_HPP_
 
+#include "AssignableDataSource.hpp"
+
 #include <boost/fusion/include/cons.hpp>
 #include <boost/fusion/include/front.hpp>
 #include <boost/fusion/include/vector.hpp>

@@ -40,12 +40,15 @@
 #define ORO_ACTIVITY_HPP
 
 #include "Time.hpp"
-#include "base/RunnableInterface.hpp"
 #include "base/ActivityInterface.hpp"
 #include "os/Thread.hpp"
 
 namespace RTT
 {
+    namespace base
+    {
+        class RunnableInterface;
+    }
 
     /**
      * @brief An Activity is an object that represents a thread.

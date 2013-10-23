@@ -2,8 +2,8 @@
 #define SEQUENCECONSTRUCTOR_HPP_
 
 #include "TypeConstructor.hpp"
-#include "../internal/DataSources.hpp"
 #include <vector>
+#include "../internal/NArityDataSource.hpp"
 
 namespace RTT
 {

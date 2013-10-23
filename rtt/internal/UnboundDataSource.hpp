@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  AssignCommand.hpp
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
-                        AssignCommand.hpp -  description
+                        DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -35,72 +35,71 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "AssignableDataSource.hpp"
 
-#ifndef ORO_ASSIGNCOMMAND_HPP
-#define ORO_ASSIGNCOMMAND_HPP
+#ifndef RTT_INTERNAL_UNBOUNDDATASOURCE_HPP
+#define RTT_INTERNAL_UNBOUNDDATASOURCE_HPP
 
-#include "../base/ActionInterface.hpp"
+#include "../base/DataSourceBase.hpp"
 
 namespace RTT
 {
     namespace internal {
-
         /**
-         * This is a command that will assign the value of an expression to
-         * another  at runtime.  You pass it the AssignableDataSource that
-         * you want to assign to, and the DataSource that you want to assign
-         * on construction, and it will take care of the assignment.  Note
-         * that both DataSource's need to be of a convertible type, and this
-         * class needs that type as its template parameter..
-         * @param T Target type
-         * @param S Source type
+         * A special DataSource only to be used for if you understand
+         * the copy()/clone() semantics very well.
+         *
+         * UnboundDataSource is required to represent variables ('var') in program scripts.
+         * Otherwise copy/clone done in ParsedStateMachine will not work as expected.
+         *
+         * It has different copy semantics in comparison to 'bound' DataSources
+         * (like ValueDataSource), being that, it returns new copies in copy(),
+         * and returns a clone() of the contained datasource in clone().
+         * A clone() reduces this 'UnboundDataSource' to a 'BoundType' data source.
+         * @param BoundType The type to inherit from and to return in clone().
+         * Typically a ValueDataSource or IndexedValueDataSource type.
          */
-        template<typename T, typename S = T>
-        class AssignCommand
-            : public base::ActionInterface
+        template<typename BoundType>
+        class UnboundDataSource
+            : public BoundType
         {
         public:
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSource<S>::const_ptr RHSSource;
-        private:
-            LHSSource lhs;
-            RHSSource rhs;
-            bool news;
-        public:
-            /**
-             * Assign \a r (rvalue) to \a l (lvalue);
-             */
-            AssignCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r ), news(false)
-            {
+            typedef typename BoundType::result_t T;
+            typedef boost::intrusive_ptr< UnboundDataSource<BoundType> > shared_ptr;
+
+            UnboundDataSource( T data );
+
+            UnboundDataSource( );
+
+            ~UnboundDataSource() {
             }
 
-            void readArguments() {
-                news = rhs->evaluate();
+            virtual BoundType* clone() const {
+                return BoundType::clone();
             }
 
-            bool execute()
-            {
-                if (news) {
-                    lhs->set( rhs->rvalue() );
-                    news=false;
-                    return true;
-                }
-                return false;
-            }
-
-            virtual base::ActionInterface* clone() const
-            {
-                return new AssignCommand( lhs.get(), rhs.get() );
-            }
-
-            virtual base::ActionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
-                return new AssignCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
-            }
+            virtual UnboundDataSource<BoundType>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const;
         };
+
+        template< typename BoundT>
+        UnboundDataSource<BoundT>::UnboundDataSource( typename BoundT::result_t data )
+            : BoundT( data )
+        {
+        }
+
+        template< typename BoundT>
+        UnboundDataSource<BoundT>::UnboundDataSource( )
+        {
+        }
+
+        template< typename BoundT>
+        UnboundDataSource<BoundT>* UnboundDataSource<BoundT>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& replace) const {
+            if ( replace[this] != 0 )
+                return static_cast<UnboundDataSource<BoundT>*>(replace[this]);
+            replace[this] = new UnboundDataSource<BoundT>( this->get() );
+            return static_cast<UnboundDataSource<BoundT>*>(replace[this]);
+        }
     }
 }
-
 #endif
+
 

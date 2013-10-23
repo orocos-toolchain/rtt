@@ -39,6 +39,7 @@
 #ifndef ORO_TASK_BIND_STORAGE_HPP
 #define ORO_TASK_BIND_STORAGE_HPP
 
+#include "../Logger.hpp"
 #include <boost/function.hpp>
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/bind.hpp>

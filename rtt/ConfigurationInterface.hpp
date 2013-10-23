@@ -42,7 +42,8 @@
 #include <memory>
 #include <map>
 #include "Attribute.hpp"
-#include "internal/DataSources.hpp"
+#include "internal/ReferenceDataSource.hpp"
+#include "internal/ConstReferenceDataSource.hpp"
 #include "base/DataObjectInterface.hpp"
 #include "Property.hpp"
 #include "PropertyBag.hpp"

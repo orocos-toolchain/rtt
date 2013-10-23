@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.cxx
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
-                        DataSources.cxx -  description
+                        DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
@@ -36,21 +36,82 @@
  ***************************************************************************/
 
 
-#include "DataSources.hpp"
+#ifndef RTT_INTERNAL_CONSTANTDATASOURCE_HPP
+#define RTT_INTERNAL_CONSTANTDATASOURCE_HPP
 
-namespace RTT {
-    namespace internal { 
+#include "DataSource.hpp"
 
-    template<>
-    void ValueDataSource<std::string>::set( AssignableDataSource<std::string>::param_t t )
+namespace RTT
+{
+    namespace internal {
+
+    /**
+     * A DataSource which holds a constant value and
+     * returns it in its get() method. It can not be changed after creation.
+     * @param T Any type of data, except being a non-const reference.
+     */
+    template<typename T>
+    class ConstantDataSource
+        : public DataSource<T>
     {
-        mdata = t.c_str();
+        /**
+         * Assure that mdata is const, such that T is forced
+         * to not be a non-const reference.
+         */
+        typename boost::add_const<typename DataSource<T>::value_t>::type mdata;
+
+    public:
+        /**
+         * Use shared_ptr.
+         */
+        ~ConstantDataSource();
+
+        typedef boost::intrusive_ptr< ConstantDataSource<T> > shared_ptr;
+
+        ConstantDataSource( T value );
+
+        typename DataSource<T>::result_t get() const
+		{
+			return mdata;
+		}
+
+        typename DataSource<T>::result_t value() const
+		{
+			return mdata;
+		}
+
+        typename DataSource<T>::const_reference_t rvalue() const
+        {
+            return mdata;
+        }
+
+        virtual ConstantDataSource<T>* clone() const;
+
+        virtual ConstantDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const;
+    };
+
+    template<typename T>
+    ConstantDataSource<T>::~ConstantDataSource() {}
+
+    template<typename T>
+    ConstantDataSource<T>::ConstantDataSource( T value )
+        : mdata( value )
+    {
     }
 
-    template<>
-    ValueDataSource<std::string>::ValueDataSource( std::string t )
-        : mdata( t.c_str() )
+    template<typename T>
+    ConstantDataSource<T>* ConstantDataSource<T>::clone() const
     {
+        return new ConstantDataSource<T>(mdata);
     }
+
+    template<typename T>
+    ConstantDataSource<T>* ConstantDataSource<T>::copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+        // no copy needed, share this with all instances.
+        return const_cast<ConstantDataSource<T>*>(this);
+    }
+
     }
 }
+#endif
+

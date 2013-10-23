@@ -40,8 +40,9 @@
 #define ORO_CORELIB_OPERATOP_TYPES_HPP
 
 #include "Operators.hpp"
-#include "../internal/DataSources.hpp"
-#include <boost/shared_ptr.hpp>
+#include "../internal/bits/remove_cr.hpp"
+#include "../internal/BinaryDataSource.hpp"
+#include "../internal/UnaryDataSource.hpp"
 
 namespace RTT
 {

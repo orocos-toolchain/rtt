@@ -1,11 +1,12 @@
-/***************************************************************************
-  tag: The SourceWorks  Tue Sep 7 00:55:18 CEST 2010  ConditionCache.hpp
 
-                        ConditionCache.hpp -  description
+/***************************************************************************
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
+
+                        DataSources.hpp -  description
                            -------------------
-    begin                : Tue September 07 2010
-    copyright            : (C) 2010 The SourceWorks
-    email                : peter@thesourceworks.com
+    begin                : Mon June 26 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@fmtc.be
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,60 +37,63 @@
  ***************************************************************************/
 
 
-#ifndef CONDITION_CACHE_HPP
-#define CONDITION_CACHE_HPP
+#ifndef RTT_INTERNAL_ALIASDATASOURCE_HPP
+#define RTT_INTERNAL_ALIASDATASOURCE_HPP
 
-#include "ConditionInterface.hpp"
+#include "DataSource.hpp"
 
 namespace RTT
-{ namespace scripting {
-
-
-    /**
-     * A conditional that evaluates and caches another Condition.
-     * In order to read the cached value, use ConditionBoolDataSource.
-     * By default, and after a reset, the cached condition returned in getResult() returns false.
-     */
-    class RTT_SCRIPTING_API ConditionCache
-        : public ConditionInterface
-    {
-        boost::shared_ptr<ConditionInterface> mc;
-        internal::AssignableDataSource<bool>::shared_ptr result;
-    public:
-        ConditionCache( ConditionInterface* c, internal::AssignableDataSource<bool>::shared_ptr ds = internal::AssignableDataSource<bool>::shared_ptr() )
-            : mc(c), result( ds ? ds : new internal::ValueDataSource<bool>(false) )
-        {
-        }
-
-        virtual ~ConditionCache()
-        {
-        }
-
-        virtual bool evaluate()
-        {
-            result->set( mc->evaluate() );
-            return result->value();
-        }
-
-        virtual void reset() {
-            result->set( false );
-        }
-
-        internal::DataSource<bool>::shared_ptr getResult() { return result; }
-
-        virtual ConditionInterface* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const
-        {
-            return new ConditionCache( mc->copy(alreadyCloned), result->copy(alreadyCloned) );
-        }
-
+{
+    namespace internal {
         /**
-         * A clone will cache the same condition.
+         * A DataSource which is used to mirror another
+         * datasource. Used to strip the 'assignable'
+         * property of a data source.
+         * @param T The result data type of get().
          */
-        virtual ConditionInterface* clone() const
+        template<typename T>
+        class AliasDataSource
+            : public DataSource<T>
         {
-            return new ConditionCache( mc->clone(), result );
-        }
-    };
-}}
+            typename DataSource<T>::shared_ptr alias;
+        public:
+            typedef boost::intrusive_ptr<AliasDataSource<T> > shared_ptr;
 
+            AliasDataSource(DataSource<T>* ds)
+            : alias(ds)
+              {}
+
+            ~AliasDataSource() { }
+
+            bool evaluate() const {
+                return alias->evaluate();
+            }
+
+            typename DataSource<T>::result_t get() const
+            {
+                return alias->get();
+            }
+
+            typename DataSource<T>::result_t value() const
+            {
+                return alias->value();
+            }
+
+            typename DataSource<T>::const_reference_t rvalue() const
+            {
+                return alias->rvalue();
+            }
+
+            virtual void reset() { alias->reset(); }
+
+            virtual AliasDataSource<T>* clone() const {
+                return new AliasDataSource(alias.get());
+            }
+            virtual AliasDataSource<T>* copy( std::map<const base::DataSourceBase*, base::DataSourceBase*>& alreadyCloned ) const {
+                return new AliasDataSource(alias->copy(alreadyCloned) );
+            }
+        };
+    }
+}
 #endif
+
