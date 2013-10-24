@@ -189,7 +189,7 @@ macro( orocos_find_package PACKAGE )
     pkg_search_module(${PACKAGE}_COMP_${OROCOS_TARGET} ${MODULE_NAMES})
     if (${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND)
       # Use find_libraries to find each library:
-      unset(${PACKAGE}_LIBRARIES CACHE)
+      unset(${PACKAGE}_LIBRARIES)
       foreach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
         # Two options: COMP_LIB is an absolute path-to-lib (must start with ':') or just a libname:
         if ( ${COMP_LIB} MATCHES "^:(.+)" OR EXISTS ${COMP_LIB})
@@ -212,7 +212,7 @@ macro( orocos_find_package PACKAGE )
         list(APPEND ${PACKAGE}_LIBRARIES "${${PACKAGE}_${COMP_LIB}_LIBRARY}")
       endforeach(COMP_LIB ${${PACKAGE}_COMP_${OROCOS_TARGET}_LIBRARIES})
 
-      # Add some output variables (note this are accessible outside of this scope since this is a macro)
+      # Add some output variables (note these are accessible outside of this scope since this is a macro)
       # We don't want to cache these
       set(${PACKAGE}_FOUND "${${PACKAGE}_COMP_${OROCOS_TARGET}_FOUND}")
       set(${PACKAGE}_INCLUDE_DIRS "${${PACKAGE}_COMP_${OROCOS_TARGET}_INCLUDE_DIRS}")
