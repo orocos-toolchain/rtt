@@ -137,7 +137,7 @@ if(OROCOS-RTT_FOUND)
     if (NOT $ENV{PKG_CONFIG_PATH} MATCHES "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig")
       set(ENV{PKG_CONFIG_PATH} "${CATKIN_DEVEL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
     endif()
-    if(VERBOSE)
+    if("$ENV{VERBOSE}")
       message(STATUS "[UseOrocos] PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
     endif()
     # Get catkin build_depend dependencies
